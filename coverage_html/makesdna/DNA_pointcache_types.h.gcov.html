@@ -1,0 +1,251 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - makesdna/DNA_pointcache_types.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">makesdna</a> - DNA_pointcache_types.h<span style="font-size: 80%;"> (source / <a href="DNA_pointcache_types.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryMed">83.3 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2023 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup DNA</a>
+<a name="7"><span class="lineNum">       7 </span>            :  */</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #pragma once</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &quot;BLI_enum_flags.hh&quot;</a>
+<a name="12"><span class="lineNum">      12 </span>            : </a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;DNA_listBase.h&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : </a>
+<a name="15"><span class="lineNum">      15 </span>            : namespace blender {</a>
+<a name="16"><span class="lineNum">      16 </span>            : </a>
+<a name="17"><span class="lineNum">      17 </span>            : /**</a>
+<a name="18"><span class="lineNum">      18 </span>            :  * Point cache file data types:</a>
+<a name="19"><span class="lineNum">      19 </span>            :  * - Used as `(1 &lt;&lt; flag)` so poke jahka if you reach the limit of 15.</a>
+<a name="20"><span class="lineNum">      20 </span>            :  * - To add new data types update:</a>
+<a name="21"><span class="lineNum">      21 </span>            :  *   - #BKE_ptcache_data_size()</a>
+<a name="22"><span class="lineNum">      22 </span>            :  *   - #ptcache_file_pointers_init()</a>
+<a name="23"><span class="lineNum">      23 </span>            :  */</a>
+<a name="24"><span class="lineNum">      24 </span>            : /** #PTCacheMem::data_types */</a>
+<a name="25"><span class="lineNum">      25 </span>            : enum ePointCache_DataType : short {</a>
+<a name="26"><span class="lineNum">      26 </span>            :   BPHYS_DATA_INDEX = 0,</a>
+<a name="27"><span class="lineNum">      27 </span>            :   BPHYS_DATA_LOCATION = 1,</a>
+<a name="28"><span class="lineNum">      28 </span>            :   BPHYS_DATA_SMOKE_LOW = 1,</a>
+<a name="29"><span class="lineNum">      29 </span>            :   BPHYS_DATA_VELOCITY = 2,</a>
+<a name="30"><span class="lineNum">      30 </span>            :   BPHYS_DATA_SMOKE_HIGH = 2,</a>
+<a name="31"><span class="lineNum">      31 </span>            :   BPHYS_DATA_ROTATION = 3,</a>
+<a name="32"><span class="lineNum">      32 </span>            :   BPHYS_DATA_DYNAMICPAINT = 3,</a>
+<a name="33"><span class="lineNum">      33 </span>            :   BPHYS_DATA_AVELOCITY = 4, /* Used for particles. */</a>
+<a name="34"><span class="lineNum">      34 </span>            :   BPHYS_DATA_XCONST = 4,    /* Used for cloth. */</a>
+<a name="35"><span class="lineNum">      35 </span>            :   BPHYS_DATA_SIZE = 5,</a>
+<a name="36"><span class="lineNum">      36 </span>            :   BPHYS_DATA_TIMES = 6,</a>
+<a name="37"><span class="lineNum">      37 </span>            :   BPHYS_DATA_BOIDS = 7,</a>
+<a name="38"><span class="lineNum">      38 </span>            : </a>
+<a name="39"><span class="lineNum">      39 </span>            :   BPHYS_TOT_DATA = 8,</a>
+<a name="40"><span class="lineNum">      40 </span>            : };</a>
+<a name="41"><span class="lineNum">      41 </span>            : </a>
+<a name="42"><span class="lineNum">      42 </span>            : /** #PTCacheExtra::type */</a>
+<a name="43"><span class="lineNum">      43 </span>            : enum ePointCache_ExtraDataType : short {</a>
+<a name="44"><span class="lineNum">      44 </span>            :   BPHYS_EXTRA_FLUID_SPRINGS = 1,</a>
+<a name="45"><span class="lineNum">      45 </span>            :   BPHYS_EXTRA_CLOTH_ACCELERATION = 2,</a>
+<a name="46"><span class="lineNum">      46 </span>            : };</a>
+<a name="47"><span class="lineNum">      47 </span>            : </a>
+<a name="48"><span class="lineNum">      48 </span>            : /** #PointCache.flag */</a>
+<a name="49"><span class="lineNum">      49 </span>            : enum ePointCache_Flag : int {</a>
+<a name="50"><span class="lineNum">      50 </span>            :   PTCACHE_BAKED = 1 &lt;&lt; 0,</a>
+<a name="51"><span class="lineNum">      51 </span>            :   PTCACHE_OUTDATED = 1 &lt;&lt; 1,</a>
+<a name="52"><span class="lineNum">      52 </span>            :   PTCACHE_SIMULATION_VALID = 1 &lt;&lt; 2,</a>
+<a name="53"><span class="lineNum">      53 </span>            :   PTCACHE_BAKING = 1 &lt;&lt; 3,</a>
+<a name="54"><span class="lineNum">      54 </span>            :   //  PTCACHE_BAKE_EDIT = 1 &lt;&lt; 4,</a>
+<a name="55"><span class="lineNum">      55 </span>            :   //  PTCACHE_BAKE_EDIT_ACTIVE = 1 &lt;&lt; 5,</a>
+<a name="56"><span class="lineNum">      56 </span>            :   PTCACHE_DISK_CACHE = 1 &lt;&lt; 6,</a>
+<a name="57"><span class="lineNum">      57 </span>            :   /* removed since 2.64 - #30974, could be added back in a more useful way */</a>
+<a name="58"><span class="lineNum">      58 </span>            :   //  PTCACHE_QUICK_CACHE = 1 &lt;&lt; 7,</a>
+<a name="59"><span class="lineNum">      59 </span>            :   PTCACHE_FRAMES_SKIPPED = 1 &lt;&lt; 8,</a>
+<a name="60"><span class="lineNum">      60 </span>            :   PTCACHE_EXTERNAL = 1 &lt;&lt; 9,</a>
+<a name="61"><span class="lineNum">      61 </span>            :   PTCACHE_READ_INFO = 1 &lt;&lt; 10,</a>
+<a name="62"><span class="lineNum">      62 </span>            :   /** Don't use the file-path of the blend-file the data is linked from (write a local cache). */</a>
+<a name="63"><span class="lineNum">      63 </span>            :   PTCACHE_IGNORE_LIBPATH = 1 &lt;&lt; 11,</a>
+<a name="64"><span class="lineNum">      64 </span>            :   /**</a>
+<a name="65"><span class="lineNum">      65 </span>            :    * High resolution cache is saved for smoke for backwards compatibility,</a>
+<a name="66"><span class="lineNum">      66 </span>            :    * so set this flag to know it's a &quot;fake&quot; cache.</a>
+<a name="67"><span class="lineNum">      67 </span>            :    */</a>
+<a name="68"><span class="lineNum">      68 </span>            :   PTCACHE_FAKE_SMOKE = 1 &lt;&lt; 12,</a>
+<a name="69"><span class="lineNum">      69 </span>            :   PTCACHE_IGNORE_CLEAR = 1 &lt;&lt; 13,</a>
+<a name="70"><span class="lineNum">      70 </span>            : </a>
+<a name="71"><span class="lineNum">      71 </span>            :   PTCACHE_FLAG_INFO_DIRTY = 1 &lt;&lt; 14,</a>
+<a name="72"><span class="lineNum">      72 </span>            : </a>
+<a name="73"><span class="lineNum">      73 </span>            :   PTCACHE_REDO_NEEDED = PTCACHE_OUTDATED | PTCACHE_FRAMES_SKIPPED,</a>
+<a name="74"><span class="lineNum">      74 </span>            :   PTCACHE_FLAGS_COPY = PTCACHE_DISK_CACHE | PTCACHE_EXTERNAL | PTCACHE_IGNORE_LIBPATH,</a>
+<a name="75"><span class="lineNum">      75 </span>            : };</a>
+<a name="76"><span class="lineNum">      76 </span><span class="lineCov">     976247 : ENUM_OPERATORS(ePointCache_Flag)</span></a>
+<a name="77"><span class="lineNum">      77 </span>            : </a>
+<a name="78"><span class="lineNum">      78 </span>            : /**</a>
+<a name="79"><span class="lineNum">      79 </span>            :  * Cache files baked before 5.0 could have used LZO or LZMA.</a>
+<a name="80"><span class="lineNum">      80 </span>            :  * During 5.0 alpha ZSTD compression had two settings.</a>
+<a name="81"><span class="lineNum">      81 </span>            :  * Now only the ZSTD+filtering option is used.</a>
+<a name="82"><span class="lineNum">      82 </span>            :  */</a>
+<a name="83"><span class="lineNum">      83 </span>            : enum PointCacheCompression : short {</a>
+<a name="84"><span class="lineNum">      84 </span>            :   PTCACHE_COMPRESS_NO = 0,</a>
+<a name="85"><span class="lineNum">      85 </span>            :   PTCACHE_COMPRESS_LZO_DEPRECATED = 1,  /* Removed in 5.0. */</a>
+<a name="86"><span class="lineNum">      86 </span>            :   PTCACHE_COMPRESS_LZMA_DEPRECATED = 2, /* Removed in 5.0. */</a>
+<a name="87"><span class="lineNum">      87 </span>            :   PTCACHE_COMPRESS_ZSTD_FILTERED = 3,</a>
+<a name="88"><span class="lineNum">      88 </span>            :   PTCACHE_COMPRESS_ZSTD_FAST_DEPRECATED = 4, /* Used only during 5.0 alpha. */</a>
+<a name="89"><span class="lineNum">      89 </span>            :   PTCACHE_COMPRESS_ZSTD_SLOW_DEPRECATED = 8, /* Used only during 5.0 alpha. */</a>
+<a name="90"><span class="lineNum">      90 </span>            : };</a>
+<a name="91"><span class="lineNum">      91 </span>            : </a>
+<a name="92"><span class="lineNum">      92 </span>            : struct PTCacheExtra {</a>
+<a name="93"><span class="lineNum">      93 </span>            :   struct PTCacheExtra *next = nullptr, *prev = nullptr;</a>
+<a name="94"><span class="lineNum">      94 </span>            :   ePointCache_ExtraDataType type = {};</a>
+<a name="95"><span class="lineNum">      95 </span>            :   char _pad[2] = {};</a>
+<a name="96"><span class="lineNum">      96 </span>            :   unsigned int totdata = 0;</a>
+<a name="97"><span class="lineNum">      97 </span>            :   void *data = nullptr;</a>
+<a name="98"><span class="lineNum">      98 </span>            : };</a>
+<a name="99"><span class="lineNum">      99 </span>            : </a>
+<a name="100"><span class="lineNum">     100 </span>            : struct PTCacheMem {</a>
+<a name="101"><span class="lineNum">     101 </span>            :   struct PTCacheMem *next = nullptr, *prev = nullptr;</a>
+<a name="102"><span class="lineNum">     102 </span>            :   unsigned int frame = 0, totpoint = 0;</a>
+<a name="103"><span class="lineNum">     103 </span>            :   unsigned int data_types = 0, flag = 0;</a>
+<a name="104"><span class="lineNum">     104 </span>            : </a>
+<a name="105"><span class="lineNum">     105 </span>            :   /** BPHYS_TOT_DATA. */</a>
+<a name="106"><span class="lineNum">     106 </span>            :   void *data[/*BPHYS_TOT_DATA*/ 8] = {};</a>
+<a name="107"><span class="lineNum">     107 </span>            : </a>
+<a name="108"><span class="lineNum">     108 </span>            :   ListBaseT&lt;PTCacheExtra&gt; extradata = {nullptr, nullptr};</a>
+<a name="109"><span class="lineNum">     109 </span>            : };</a>
+<a name="110"><span class="lineNum">     110 </span>            : </a>
+<a name="111"><span class="lineNum">     111 </span>            : struct PointCache {</a>
+<a name="112"><span class="lineNum">     112 </span>            :   struct PointCache *next = nullptr, *prev = nullptr;</a>
+<a name="113"><span class="lineNum">     113 </span>            :   /** Generic flag. */</a>
+<a name="114"><span class="lineNum">     114 </span>            :   ePointCache_Flag flag = {};</a>
+<a name="115"><span class="lineNum">     115 </span>            : </a>
+<a name="116"><span class="lineNum">     116 </span>            :   /**</a>
+<a name="117"><span class="lineNum">     117 </span>            :    * The number of frames between cached frames.</a>
+<a name="118"><span class="lineNum">     118 </span>            :    * This should probably be an upper bound for a per point adaptive step in the future,</a>
+<a name="119"><span class="lineNum">     119 </span>            :    * but for now it's the same for all points. Without adaptivity this can effect the perceived</a>
+<a name="120"><span class="lineNum">     120 </span>            :    * simulation quite a bit though. If for example particles are colliding with a horizontal</a>
+<a name="121"><span class="lineNum">     121 </span>            :    * plane (with high damping) they quickly come to a stop on the plane, however there are still</a>
+<a name="122"><span class="lineNum">     122 </span>            :    * forces acting on the particle (gravity and collisions), so the particle velocity isn't</a>
+<a name="123"><span class="lineNum">     123 </span>            :    * necessarily zero for the whole duration of the frame even if the particle seems stationary.</a>
+<a name="124"><span class="lineNum">     124 </span>            :    * If all simulation frames aren't cached (step &gt; 1) these velocities are interpolated into</a>
+<a name="125"><span class="lineNum">     125 </span>            :    * movement for the non-cached frames.</a>
+<a name="126"><span class="lineNum">     126 </span>            :    * The result will look like the point is oscillating around the collision location.</a>
+<a name="127"><span class="lineNum">     127 </span>            :    * So for now cache step should be set to 1 for accurate reproduction of collisions.</a>
+<a name="128"><span class="lineNum">     128 </span>            :    */</a>
+<a name="129"><span class="lineNum">     129 </span>            :   int step = 0;</a>
+<a name="130"><span class="lineNum">     130 </span>            : </a>
+<a name="131"><span class="lineNum">     131 </span>            :   /** Current frame of simulation (only if SIMULATION_VALID). */</a>
+<a name="132"><span class="lineNum">     132 </span>            :   int simframe = 0;</a>
+<a name="133"><span class="lineNum">     133 </span>            :   /** Simulation start frame. */</a>
+<a name="134"><span class="lineNum">     134 </span>            :   int startframe = 0;</a>
+<a name="135"><span class="lineNum">     135 </span>            :   /** Simulation end frame. */</a>
+<a name="136"><span class="lineNum">     136 </span>            :   int endframe = 0;</a>
+<a name="137"><span class="lineNum">     137 </span>            :   /** Frame being edited (runtime only). */</a>
+<a name="138"><span class="lineNum">     138 </span>            :   int editframe = 0;</a>
+<a name="139"><span class="lineNum">     139 </span>            :   /** Last exact frame that's cached. */</a>
+<a name="140"><span class="lineNum">     140 </span>            :   int last_exact = 0;</a>
+<a name="141"><span class="lineNum">     141 </span>            :   /** Used for editing cache - what is the last baked frame. */</a>
+<a name="142"><span class="lineNum">     142 </span>            :   int last_valid = 0;</a>
+<a name="143"><span class="lineNum">     143 </span>            :   char _pad[4] = {};</a>
+<a name="144"><span class="lineNum">     144 </span>            : </a>
+<a name="145"><span class="lineNum">     145 </span>            :   /* for external cache files */</a>
+<a name="146"><span class="lineNum">     146 </span>            :   /** Number of cached points. */</a>
+<a name="147"><span class="lineNum">     147 </span>            :   int totpoint = 0;</a>
+<a name="148"><span class="lineNum">     148 </span>            :   /** Modifier stack index. */</a>
+<a name="149"><span class="lineNum">     149 </span>            :   int index = 0;</a>
+<a name="150"><span class="lineNum">     150 </span>            :   /** Used for versioning only; now cache is always compressed. */</a>
+<a name="151"><span class="lineNum">     151 </span>            :   PointCacheCompression compression = PTCACHE_COMPRESS_NO;</a>
+<a name="152"><span class="lineNum">     152 </span>            :   char _pad0[2] = {};</a>
+<a name="153"><span class="lineNum">     153 </span>            : </a>
+<a name="154"><span class="lineNum">     154 </span>            :   char name[64] = &quot;&quot;;</a>
+<a name="155"><span class="lineNum">     155 </span>            :   char prev_name[64] = &quot;&quot;;</a>
+<a name="156"><span class="lineNum">     156 </span>            :   char info[128] = &quot;&quot;;</a>
+<a name="157"><span class="lineNum">     157 </span>            :   /** File path. */</a>
+<a name="158"><span class="lineNum">     158 </span>            :   char path[/*FILE_MAX*/ 1024] = &quot;&quot;;</a>
+<a name="159"><span class="lineNum">     159 </span>            : </a>
+<a name="160"><span class="lineNum">     160 </span>            :   /**</a>
+<a name="161"><span class="lineNum">     161 </span>            :    * Array of length `endframe - startframe + 1` with flags to indicate cached frames.</a>
+<a name="162"><span class="lineNum">     162 </span>            :    * Can be later used for other per frame flags too if needed.</a>
+<a name="163"><span class="lineNum">     163 </span>            :    */</a>
+<a name="164"><span class="lineNum">     164 </span>            :   char *cached_frames = nullptr;</a>
+<a name="165"><span class="lineNum">     165 </span>            :   int cached_frames_len = 0;</a>
+<a name="166"><span class="lineNum">     166 </span>            :   char _pad1[4] = {};</a>
+<a name="167"><span class="lineNum">     167 </span>            : </a>
+<a name="168"><span class="lineNum">     168 </span>            :   ListBaseT&lt;PTCacheMem&gt; mem_cache = {nullptr, nullptr};</a>
+<a name="169"><span class="lineNum">     169 </span>            : </a>
+<a name="170"><span class="lineNum">     170 </span>            :   struct PTCacheEdit *edit = nullptr;</a>
+<a name="171"><span class="lineNum">     171 </span>            :   /** Free callback. */</a>
+<a name="172"><span class="lineNum">     172 </span>            :   void (*free_edit)(struct PTCacheEdit *edit) = nullptr;</a>
+<a name="173"><span class="lineNum">     173 </span>            : };</a>
+<a name="174"><span class="lineNum">     174 </span>            : </a>
+<a name="175"><span class="lineNum">     175 </span>            : }  // namespace blender</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

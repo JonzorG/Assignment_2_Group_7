@@ -1,0 +1,449 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - io/alembic/exporter/abc_writer_curves.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">io/alembic/exporter</a> - abc_writer_curves.cc<span style="font-size: 80%;"> (source / <a href="abc_writer_curves.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">144</td>
+            <td class="headerCovTableEntry">179</td>
+            <td class="headerCovTableEntryMed">80.4 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntryLo">71.4 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2016 Kévin Dietrich. All rights reserved.</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup balembic</a>
+<a name="7"><span class="lineNum">       7 </span>            :  */</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &lt;functional&gt;</a>
+<a name="10"><span class="lineNum">      10 </span>            : #include &lt;memory&gt;</a>
+<a name="11"><span class="lineNum">      11 </span>            : </a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &quot;abc_writer_curves.h&quot;</a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;intern/abc_axis_conversion.h&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;intern/abc_util.h&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : </a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &quot;BLI_array_utils.hh&quot;</a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;BLI_offset_indices.hh&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : </a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &quot;DNA_curve_types.h&quot;</a>
+<a name="20"><span class="lineNum">      20 </span>            : #include &quot;DNA_object_types.h&quot;</a>
+<a name="21"><span class="lineNum">      21 </span>            : </a>
+<a name="22"><span class="lineNum">      22 </span>            : #include &quot;BKE_anonymous_attribute_id.hh&quot;</a>
+<a name="23"><span class="lineNum">      23 </span>            : #include &quot;BKE_curve_legacy_convert.hh&quot;</a>
+<a name="24"><span class="lineNum">      24 </span>            : #include &quot;BKE_curve_to_mesh.hh&quot;</a>
+<a name="25"><span class="lineNum">      25 </span>            : #include &quot;BKE_curves.hh&quot;</a>
+<a name="26"><span class="lineNum">      26 </span>            : #include &quot;BKE_lib_id.hh&quot;</a>
+<a name="27"><span class="lineNum">      27 </span>            : #include &quot;BKE_mesh.hh&quot;</a>
+<a name="28"><span class="lineNum">      28 </span>            : #include &quot;BKE_object.hh&quot;</a>
+<a name="29"><span class="lineNum">      29 </span>            : </a>
+<a name="30"><span class="lineNum">      30 </span>            : #include &quot;CLG_log.h&quot;</a>
+<a name="31"><span class="lineNum">      31 </span>            : </a>
+<a name="32"><span class="lineNum">      32 </span>            : namespace blender {</a>
+<a name="33"><span class="lineNum">      33 </span>            : </a>
+<a name="34"><span class="lineNum">      34 </span>            : static CLG_LogRef LOG = {&quot;io.alembic&quot;};</a>
+<a name="35"><span class="lineNum">      35 </span>            : </a>
+<a name="36"><span class="lineNum">      36 </span>            : using Alembic::AbcGeom::kConstantScope;</a>
+<a name="37"><span class="lineNum">      37 </span>            : using Alembic::AbcGeom::kVertexScope;</a>
+<a name="38"><span class="lineNum">      38 </span>            : using Alembic::AbcGeom::OCompoundProperty;</a>
+<a name="39"><span class="lineNum">      39 </span>            : using Alembic::AbcGeom::OCurves;</a>
+<a name="40"><span class="lineNum">      40 </span>            : using Alembic::AbcGeom::OCurvesSchema;</a>
+<a name="41"><span class="lineNum">      41 </span>            : using Alembic::AbcGeom::OInt16Property;</a>
+<a name="42"><span class="lineNum">      42 </span>            : using Alembic::AbcGeom::ON3fGeomParam;</a>
+<a name="43"><span class="lineNum">      43 </span>            : using Alembic::AbcGeom::OV2fGeomParam;</a>
+<a name="44"><span class="lineNum">      44 </span>            : </a>
+<a name="45"><span class="lineNum">      45 </span>            : namespace io::alembic {</a>
+<a name="46"><span class="lineNum">      46 </span>            : </a>
+<a name="47"><span class="lineNum">      47 </span><span class="lineCov">         64 : static inline Imath::V3f to_yup_V3f(float3 v)</span></a>
+<a name="48"><span class="lineNum">      48 </span>            : {</a>
+<a name="49"><span class="lineNum">      49 </span><span class="lineCov">         64 :   Imath::V3f p;</span></a>
+<a name="50"><span class="lineNum">      50 </span><span class="lineCov">         64 :   copy_yup_from_zup(p.getValue(), v);</span></a>
+<a name="51"><span class="lineNum">      51 </span><span class="lineCov">         64 :   return p;</span></a>
+<a name="52"><span class="lineNum">      52 </span>            : }</a>
+<a name="53"><span class="lineNum">      53 </span>            : </a>
+<a name="54"><span class="lineNum">      54 </span>            : /* Excluded attributes are those which are handled through native Alembic concepts</a>
+<a name="55"><span class="lineNum">      55 </span>            :  * and should not be exported as generic attributes. */</a>
+<a name="56"><span class="lineNum">      56 </span><span class="lineCov">         84 : static bool is_excluded_attr(StringRefNull name)</span></a>
+<a name="57"><span class="lineNum">      57 </span>            : {</a>
+<a name="58"><span class="lineNum">      58 </span>            :   static const Set&lt;StringRefNull&gt; excluded_attrs = {</a>
+<a name="59"><span class="lineNum">      59 </span>            :       &quot;position&quot;,</a>
+<a name="60"><span class="lineNum">      60 </span>            :       &quot;radius&quot;,</a>
+<a name="61"><span class="lineNum">      61 </span>            :       &quot;resolution&quot;,</a>
+<a name="62"><span class="lineNum">      62 </span>            :       &quot;id&quot;,</a>
+<a name="63"><span class="lineNum">      63 </span>            :       &quot;cyclic&quot;,</a>
+<a name="64"><span class="lineNum">      64 </span>            :       &quot;curve_type&quot;,</a>
+<a name="65"><span class="lineNum">      65 </span>            :       &quot;normal_mode&quot;,</a>
+<a name="66"><span class="lineNum">      66 </span>            :       &quot;handle_left&quot;,</a>
+<a name="67"><span class="lineNum">      67 </span>            :       &quot;handle_right&quot;,</a>
+<a name="68"><span class="lineNum">      68 </span>            :       &quot;handle_type_left&quot;,</a>
+<a name="69"><span class="lineNum">      69 </span>            :       &quot;handle_type_right&quot;,</a>
+<a name="70"><span class="lineNum">      70 </span>            :       &quot;knots_mode&quot;,</a>
+<a name="71"><span class="lineNum">      71 </span>            :       &quot;nurbs_order&quot;,</a>
+<a name="72"><span class="lineNum">      72 </span>            :       &quot;nurbs_weight&quot;,</a>
+<a name="73"><span class="lineNum">      73 </span>            :       &quot;velocity&quot;,</a>
+<a name="74"><span class="lineNum">      74 </span><span class="lineCov">         84 :   };</span></a>
+<a name="75"><span class="lineNum">      75 </span>            : </a>
+<a name="76"><span class="lineNum">      76 </span><span class="lineCov">         84 :   return excluded_attrs.contains(name);</span></a>
+<a name="77"><span class="lineNum">      77 </span>            : }</a>
+<a name="78"><span class="lineNum">      78 </span>            : </a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineCov">          6 : ABCCurveWriter::ABCCurveWriter(const ABCWriterConstructorArgs &amp;args) : ABCAbstractWriter(args) {}</span></a>
+<a name="80"><span class="lineNum">      80 </span>            : </a>
+<a name="81"><span class="lineNum">      81 </span><span class="lineCov">          6 : void ABCCurveWriter::create_alembic_objects(const HierarchyContext * /*context*/)</span></a>
+<a name="82"><span class="lineNum">      82 </span>            : {</a>
+<a name="83"><span class="lineNum">      83 </span><span class="lineCov">          6 :   CLOG_DEBUG(&amp;LOG, &quot;exporting %s&quot;, args_.abc_path.c_str());</span></a>
+<a name="84"><span class="lineNum">      84 </span><span class="lineCov">          6 :   abc_curve_ = OCurves(args_.abc_parent, args_.abc_name, timesample_index_);</span></a>
+<a name="85"><span class="lineNum">      85 </span><span class="lineCov">          6 :   abc_curve_schema_ = abc_curve_.getSchema();</span></a>
+<a name="86"><span class="lineNum">      86 </span><span class="lineCov">          6 : }</span></a>
+<a name="87"><span class="lineNum">      87 </span>            : </a>
+<a name="88"><span class="lineNum">      88 </span><span class="lineNoCov">          0 : Alembic::Abc::OObject ABCCurveWriter::get_alembic_object() const</span></a>
+<a name="89"><span class="lineNum">      89 </span>            : {</a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineNoCov">          0 :   return abc_curve_;</span></a>
+<a name="91"><span class="lineNum">      91 </span>            : }</a>
+<a name="92"><span class="lineNum">      92 </span>            : </a>
+<a name="93"><span class="lineNum">      93 </span><span class="lineNoCov">          0 : Alembic::Abc::OCompoundProperty ABCCurveWriter::abc_prop_for_custom_props()</span></a>
+<a name="94"><span class="lineNum">      94 </span>            : {</a>
+<a name="95"><span class="lineNum">      95 </span><span class="lineNoCov">          0 :   return abc_schema_prop_for_custom_props(abc_curve_schema_);</span></a>
+<a name="96"><span class="lineNum">      96 </span>            : }</a>
+<a name="97"><span class="lineNum">      97 </span>            : </a>
+<a name="98"><span class="lineNum">      98 </span><span class="lineCov">         16 : void ABCCurveWriter::do_write(HierarchyContext &amp;context)</span></a>
+<a name="99"><span class="lineNum">      99 </span>            : {</a>
+<a name="100"><span class="lineNum">     100 </span>            :   const Curves *curves_id;</a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineCov">         16 :   std::unique_ptr&lt;Curves, std::function&lt;void(Curves *)&gt;&gt; converted_curves;</span></a>
+<a name="102"><span class="lineNum">     102 </span>            : </a>
+<a name="103"><span class="lineNum">     103 </span><span class="lineCov">         16 :   switch (context.object-&gt;type) {</span></a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineCov">          1 :     case OB_CURVES_LEGACY: {</span></a>
+<a name="105"><span class="lineNum">     105 </span><span class="lineCov">          1 :       const Curve *legacy_curve = id_cast&lt;Curve *&gt;(context.object-&gt;data);</span></a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineCov">          1 :       converted_curves = std::unique_ptr&lt;Curves, std::function&lt;void(Curves *)&gt;&gt;(</span></a>
+<a name="107"><span class="lineNum">     107 </span><span class="lineCov">          3 :           bke::curve_legacy_to_curves(*legacy_curve), [](Curves *c) { BKE_id_free(nullptr, c); });</span></a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineCov">          1 :       curves_id = converted_curves.get();</span></a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineCov">          1 :       break;</span></a>
+<a name="110"><span class="lineNum">     110 </span>            :     }</a>
+<a name="111"><span class="lineNum">     111 </span><span class="lineCov">         15 :     case OB_CURVES:</span></a>
+<a name="112"><span class="lineNum">     112 </span><span class="lineCov">         15 :       curves_id = id_cast&lt;Curves *&gt;(context.object-&gt;data);</span></a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineCov">         15 :       break;</span></a>
+<a name="114"><span class="lineNum">     114 </span><span class="lineNoCov">          0 :     default:</span></a>
+<a name="115"><span class="lineNum">     115 </span><span class="lineNoCov">          0 :       BLI_assert_unreachable();</span></a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineNoCov">          0 :       return;</span></a>
+<a name="117"><span class="lineNum">     117 </span>            :   }</a>
+<a name="118"><span class="lineNum">     118 </span>            : </a>
+<a name="119"><span class="lineNum">     119 </span><span class="lineCov">         16 :   const bke::CurvesGeometry &amp;curves = curves_id-&gt;geometry.wrap();</span></a>
+<a name="120"><span class="lineNum">     120 </span>            : </a>
+<a name="121"><span class="lineNum">     121 </span>            :   /* Alembic only supports 1 curve type / periodicity combination per object. Enforce this here.</a>
+<a name="122"><span class="lineNum">     122 </span>            :    * See: Alembic source code for OCurves.h as no documentation explicitly exists for this. */</a>
+<a name="123"><span class="lineNum">     123 </span><span class="lineCov">         16 :   const std::array&lt;int, CURVE_TYPES_NUM&gt; &amp;curve_type_counts = curves.curve_type_counts();</span></a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineCov">         16 :   const int number_of_curve_types = std::count_if(curve_type_counts.begin(),</span></a>
+<a name="125"><span class="lineNum">     125 </span>            :                                                   curve_type_counts.end(),</a>
+<a name="126"><span class="lineNum">     126 </span><span class="lineCov">         64 :                                                   [](const int count) { return count &gt; 0; });</span></a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineCov">         16 :   if (number_of_curve_types &gt; 1) {</span></a>
+<a name="128"><span class="lineNum">     128 </span><span class="lineNoCov">          0 :     CLOG_WARN(&amp;LOG, &quot;Cannot export mixed curve types in the same Curves object&quot;);</span></a>
+<a name="129"><span class="lineNum">     129 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="130"><span class="lineNum">     130 </span>            :   }</a>
+<a name="131"><span class="lineNum">     131 </span>            : </a>
+<a name="132"><span class="lineNum">     132 </span><span class="lineCov">         16 :   if (array_utils::booleans_mix_calc(curves.cyclic()) == array_utils::BooleanMix::Mixed) {</span></a>
+<a name="133"><span class="lineNum">     133 </span><span class="lineNoCov">          0 :     CLOG_WARN(&amp;LOG, &quot;Cannot export mixed cyclic and non-cyclic curves in the same Curves object&quot;);</span></a>
+<a name="134"><span class="lineNum">     134 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="135"><span class="lineNum">     135 </span>            :   }</a>
+<a name="136"><span class="lineNum">     136 </span>            : </a>
+<a name="137"><span class="lineNum">     137 </span><span class="lineCov">         16 :   if (!curves.is_empty()) {</span></a>
+<a name="138"><span class="lineNum">     138 </span>            :     /* TODO: Blender supports per-curve resolutions but we're only using the first curve's data</a>
+<a name="139"><span class="lineNum">     139 </span>            :      * here. Investigate using OInt16ArrayProperty to write out all the data but do so efficiently.</a>
+<a name="140"><span class="lineNum">     140 </span>            :      * e.g. Write just a single value if all curves share the same resolution etc. */</a>
+<a name="141"><span class="lineNum">     141 </span><span class="lineCov">         10 :     OCompoundProperty user_props = abc_curve_schema_.getUserProperties();</span></a>
+<a name="142"><span class="lineNum">     142 </span><span class="lineCov">         10 :     const Alembic::Abc::PropertyHeader *prop_header = user_props.getPropertyHeader(</span></a>
+<a name="143"><span class="lineNum">     143 </span>            :         ABC_CURVE_RESOLUTION_U_PROPNAME);</a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineCov">         10 :     if (!prop_header) {</span></a>
+<a name="145"><span class="lineNum">     145 </span><span class="lineCov">          6 :       const int resolution_u = curves.resolution().first();</span></a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineCov">          6 :       OInt16Property user_prop_resolu(user_props, ABC_CURVE_RESOLUTION_U_PROPNAME);</span></a>
+<a name="147"><span class="lineNum">     147 </span><span class="lineCov">          6 :       user_prop_resolu.set(resolution_u);</span></a>
+<a name="148"><span class="lineNum">     148 </span><span class="lineCov">          6 :     }</span></a>
+<a name="149"><span class="lineNum">     149 </span><span class="lineCov">         10 :   }</span></a>
+<a name="150"><span class="lineNum">     150 </span>            : </a>
+<a name="151"><span class="lineNum">     151 </span><span class="lineCov">         16 :   const bool is_cyclic = !curves.is_empty() &amp;&amp; curves.cyclic().first();</span></a>
+<a name="152"><span class="lineNum">     152 </span><span class="lineCov">         16 :   Alembic::AbcGeom::BasisType curve_basis = Alembic::AbcGeom::kNoBasis;</span></a>
+<a name="153"><span class="lineNum">     153 </span><span class="lineCov">         16 :   Alembic::AbcGeom::CurveType curve_type = Alembic::AbcGeom::kLinear;</span></a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineCov">         16 :   Alembic::AbcGeom::CurvePeriodicity periodicity = is_cyclic ? Alembic::AbcGeom::kPeriodic :</span></a>
+<a name="155"><span class="lineNum">     155 </span>            :                                                                Alembic::AbcGeom::kNonPeriodic;</a>
+<a name="156"><span class="lineNum">     156 </span><span class="lineCov">         16 :   const CurveType blender_curve_type = curves.is_empty() ? CURVE_TYPE_POLY :</span></a>
+<a name="157"><span class="lineNum">     157 </span><span class="lineCov">         16 :                                                            CurveType(curves.curve_types().first());</span></a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineCov">         16 :   switch (blender_curve_type) {</span></a>
+<a name="159"><span class="lineNum">     159 </span><span class="lineCov">          6 :     case CURVE_TYPE_POLY:</span></a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineCov">          6 :       curve_basis = Alembic::AbcGeom::kNoBasis;</span></a>
+<a name="161"><span class="lineNum">     161 </span><span class="lineCov">          6 :       curve_type = Alembic::AbcGeom::kLinear;</span></a>
+<a name="162"><span class="lineNum">     162 </span><span class="lineCov">          6 :       break;</span></a>
+<a name="163"><span class="lineNum">     163 </span><span class="lineCov">          7 :     case CURVE_TYPE_CATMULL_ROM:</span></a>
+<a name="164"><span class="lineNum">     164 </span><span class="lineCov">          7 :       curve_basis = Alembic::AbcGeom::kCatmullromBasis;</span></a>
+<a name="165"><span class="lineNum">     165 </span><span class="lineCov">          7 :       curve_type = Alembic::AbcGeom::kLinear;</span></a>
+<a name="166"><span class="lineNum">     166 </span><span class="lineCov">          7 :       break;</span></a>
+<a name="167"><span class="lineNum">     167 </span><span class="lineCov">          2 :     case CURVE_TYPE_BEZIER:</span></a>
+<a name="168"><span class="lineNum">     168 </span><span class="lineCov">          2 :       curve_basis = Alembic::AbcGeom::kBezierBasis;</span></a>
+<a name="169"><span class="lineNum">     169 </span><span class="lineCov">          2 :       curve_type = Alembic::AbcGeom::kCubic;</span></a>
+<a name="170"><span class="lineNum">     170 </span><span class="lineCov">          2 :       break;</span></a>
+<a name="171"><span class="lineNum">     171 </span><span class="lineCov">          1 :     case CURVE_TYPE_NURBS:</span></a>
+<a name="172"><span class="lineNum">     172 </span><span class="lineCov">          1 :       curve_basis = Alembic::AbcGeom::kBsplineBasis;</span></a>
+<a name="173"><span class="lineNum">     173 </span><span class="lineCov">          1 :       curve_type = Alembic::AbcGeom::kVariableOrder;</span></a>
+<a name="174"><span class="lineNum">     174 </span><span class="lineCov">          1 :       break;</span></a>
+<a name="175"><span class="lineNum">     175 </span>            :   }</a>
+<a name="176"><span class="lineNum">     176 </span>            : </a>
+<a name="177"><span class="lineNum">     177 </span><span class="lineCov">         16 :   std::vector&lt;Imath::V3f&gt; verts;</span></a>
+<a name="178"><span class="lineNum">     178 </span><span class="lineCov">         16 :   std::vector&lt;int32_t&gt; vert_counts;</span></a>
+<a name="179"><span class="lineNum">     179 </span><span class="lineCov">         16 :   std::vector&lt;float&gt; widths;</span></a>
+<a name="180"><span class="lineNum">     180 </span><span class="lineCov">         16 :   std::vector&lt;float&gt; weights;</span></a>
+<a name="181"><span class="lineNum">     181 </span><span class="lineCov">         16 :   std::vector&lt;float&gt; knots;</span></a>
+<a name="182"><span class="lineNum">     182 </span><span class="lineCov">         16 :   std::vector&lt;uint8_t&gt; orders;</span></a>
+<a name="183"><span class="lineNum">     183 </span>            : </a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineCov">         16 :   const Span&lt;float3&gt; positions = curves.positions();</span></a>
+<a name="185"><span class="lineNum">     185 </span><span class="lineCov">         16 :   const std::optional&lt;Span&lt;float&gt;&gt; nurbs_weights = curves.nurbs_weights();</span></a>
+<a name="186"><span class="lineNum">     186 </span><span class="lineCov">         32 :   const VArray&lt;int8_t&gt; nurbs_orders = curves.nurbs_orders();</span></a>
+<a name="187"><span class="lineNum">     187 </span>            : </a>
+<a name="188"><span class="lineNum">     188 </span><span class="lineCov">         32 :   const VArray&lt;float&gt; radii = curves.radius();</span></a>
+<a name="189"><span class="lineNum">     189 </span><span class="lineCov">         16 :   Alembic::AbcGeom::GeometryScope width_scope = kVertexScope;</span></a>
+<a name="190"><span class="lineNum">     190 </span><span class="lineCov">         16 :   if (radii.is_single() &amp;&amp; !radii.is_empty()) {</span></a>
+<a name="191"><span class="lineNum">     191 </span><span class="lineCov">          3 :     width_scope = kConstantScope;</span></a>
+<a name="192"><span class="lineNum">     192 </span><span class="lineCov">          3 :     widths.push_back(radii[0] * 2.0f);</span></a>
+<a name="193"><span class="lineNum">     193 </span>            :   }</a>
+<a name="194"><span class="lineNum">     194 </span>            : </a>
+<a name="195"><span class="lineNum">     195 </span><span class="lineCov">         16 :   vert_counts.resize(curves.curves_num());</span></a>
+<a name="196"><span class="lineNum">     196 </span><span class="lineCov">         16 :   const OffsetIndices points_by_curve = curves.points_by_curve();</span></a>
+<a name="197"><span class="lineNum">     197 </span><span class="lineCov">         16 :   const std::optional&lt;Span&lt;float3&gt;&gt; handles_l = curves.handle_positions_left();</span></a>
+<a name="198"><span class="lineNum">     198 </span><span class="lineCov">         16 :   const std::optional&lt;Span&lt;float3&gt;&gt; handles_r = curves.handle_positions_right();</span></a>
+<a name="199"><span class="lineNum">     199 </span><span class="lineCov">         16 :   if (blender_curve_type == CURVE_TYPE_BEZIER &amp;&amp; handles_l &amp;&amp; handles_r) {</span></a>
+<a name="200"><span class="lineNum">     200 </span>            : </a>
+<a name="201"><span class="lineNum">     201 </span><span class="lineCov">          5 :     for (const int i_curve : curves.curves_range()) {</span></a>
+<a name="202"><span class="lineNum">     202 </span><span class="lineCov">          3 :       const IndexRange points = points_by_curve[i_curve];</span></a>
+<a name="203"><span class="lineNum">     203 </span><span class="lineCov">          3 :       const size_t current_vert_count = verts.size();</span></a>
+<a name="204"><span class="lineNum">     204 </span>            : </a>
+<a name="205"><span class="lineNum">     205 </span><span class="lineCov">          3 :       const int start_point_index = points.first();</span></a>
+<a name="206"><span class="lineNum">     206 </span><span class="lineCov">          3 :       const int last_point_index = points.last();</span></a>
+<a name="207"><span class="lineNum">     207 </span>            : </a>
+<a name="208"><span class="lineNum">     208 </span>            :       /* Vert order in the bezier curve representation is:</a>
+<a name="209"><span class="lineNum">     209 </span>            :        * [</a>
+<a name="210"><span class="lineNum">     210 </span>            :        *   control point 0(+ width), right handle 0, left handle 1,</a>
+<a name="211"><span class="lineNum">     211 </span>            :        *   control point 1(+ width), right handle 1, left handle 2,</a>
+<a name="212"><span class="lineNum">     212 </span>            :        *   control point 2(+ width), ...</a>
+<a name="213"><span class="lineNum">     213 </span>            :        * ] */</a>
+<a name="214"><span class="lineNum">     214 </span><span class="lineCov">          6 :       for (const int i_point : points.drop_back(1)) {</span></a>
+<a name="215"><span class="lineNum">     215 </span><span class="lineCov">          3 :         verts.push_back(to_yup_V3f(positions[i_point]));</span></a>
+<a name="216"><span class="lineNum">     216 </span><span class="lineCov">          3 :         if (width_scope != kConstantScope) {</span></a>
+<a name="217"><span class="lineNum">     217 </span><span class="lineNoCov">          0 :           widths.push_back(radii[i_point] * 2.0f);</span></a>
+<a name="218"><span class="lineNum">     218 </span>            :         }</a>
+<a name="219"><span class="lineNum">     219 </span>            : </a>
+<a name="220"><span class="lineNum">     220 </span><span class="lineCov">          3 :         verts.push_back(to_yup_V3f((*handles_r)[i_point]));</span></a>
+<a name="221"><span class="lineNum">     221 </span><span class="lineCov">          3 :         verts.push_back(to_yup_V3f((*handles_l)[i_point + 1]));</span></a>
+<a name="222"><span class="lineNum">     222 </span>            :       }</a>
+<a name="223"><span class="lineNum">     223 </span>            : </a>
+<a name="224"><span class="lineNum">     224 </span>            :       /* The last vert in the array doesn't need a right handle because the curve stops</a>
+<a name="225"><span class="lineNum">     225 </span>            :        * at that point. */</a>
+<a name="226"><span class="lineNum">     226 </span><span class="lineCov">          3 :       verts.push_back(to_yup_V3f(positions[last_point_index]));</span></a>
+<a name="227"><span class="lineNum">     227 </span><span class="lineCov">          3 :       if (width_scope != kConstantScope) {</span></a>
+<a name="228"><span class="lineNum">     228 </span><span class="lineNoCov">          0 :         widths.push_back(radii[last_point_index] * 2.0f);</span></a>
+<a name="229"><span class="lineNum">     229 </span>            :       }</a>
+<a name="230"><span class="lineNum">     230 </span>            : </a>
+<a name="231"><span class="lineNum">     231 </span>            :       /* If the curve is cyclic, include the right handle of the last point and the</a>
+<a name="232"><span class="lineNum">     232 </span>            :        * left handle of the first point. */</a>
+<a name="233"><span class="lineNum">     233 </span><span class="lineCov">          3 :       if (is_cyclic) {</span></a>
+<a name="234"><span class="lineNum">     234 </span><span class="lineNoCov">          0 :         verts.push_back(to_yup_V3f((*handles_r)[last_point_index]));</span></a>
+<a name="235"><span class="lineNum">     235 </span><span class="lineNoCov">          0 :         verts.push_back(to_yup_V3f((*handles_l)[start_point_index]));</span></a>
+<a name="236"><span class="lineNum">     236 </span>            :       }</a>
+<a name="237"><span class="lineNum">     237 </span>            : </a>
+<a name="238"><span class="lineNum">     238 </span><span class="lineCov">          3 :       vert_counts[i_curve] = verts.size() - current_vert_count;</span></a>
+<a name="239"><span class="lineNum">     239 </span>            :     }</a>
+<a name="240"><span class="lineNum">     240 </span>            :   }</a>
+<a name="241"><span class="lineNum">     241 </span>            :   else {</a>
+<a name="242"><span class="lineNum">     242 </span><span class="lineCov">         14 :     verts.resize(curves.points_num());</span></a>
+<a name="243"><span class="lineNum">     243 </span><span class="lineCov">         14 :     if (width_scope != kConstantScope) {</span></a>
+<a name="244"><span class="lineNum">     244 </span><span class="lineCov">         13 :       widths.resize(curves.points_num());</span></a>
+<a name="245"><span class="lineNum">     245 </span>            :     }</a>
+<a name="246"><span class="lineNum">     246 </span><span class="lineCov">         66 :     for (const int i_point : curves.points_range()) {</span></a>
+<a name="247"><span class="lineNum">     247 </span><span class="lineCov">         52 :       verts[i_point] = to_yup_V3f(positions[i_point]);</span></a>
+<a name="248"><span class="lineNum">     248 </span><span class="lineCov">         52 :       if (width_scope != kConstantScope) {</span></a>
+<a name="249"><span class="lineNum">     249 </span><span class="lineCov">         48 :         widths[i_point] = radii[i_point] * 2.0f;</span></a>
+<a name="250"><span class="lineNum">     250 </span>            :       }</a>
+<a name="251"><span class="lineNum">     251 </span>            :     }</a>
+<a name="252"><span class="lineNum">     252 </span>            : </a>
+<a name="253"><span class="lineNum">     253 </span><span class="lineCov">         14 :     if (blender_curve_type == CURVE_TYPE_NURBS) {</span></a>
+<a name="254"><span class="lineNum">     254 </span><span class="lineCov">          1 :       if (nurbs_weights) {</span></a>
+<a name="255"><span class="lineNum">     255 </span><span class="lineCov">          1 :         weights.resize(curves.points_num());</span></a>
+<a name="256"><span class="lineNum">     256 </span><span class="lineCov">          1 :         std::copy_n(nurbs_weights-&gt;data(), weights.size(), weights.data());</span></a>
+<a name="257"><span class="lineNum">     257 </span>            :       }</a>
+<a name="258"><span class="lineNum">     258 </span>            : </a>
+<a name="259"><span class="lineNum">     259 </span><span class="lineCov">          1 :       orders.resize(curves.curves_num());</span></a>
+<a name="260"><span class="lineNum">     260 </span><span class="lineCov">          2 :       for (const int i_curve : curves.curves_range()) {</span></a>
+<a name="261"><span class="lineNum">     261 </span><span class="lineCov">          1 :         orders[i_curve] = nurbs_orders[i_curve];</span></a>
+<a name="262"><span class="lineNum">     262 </span>            :       }</a>
+<a name="263"><span class="lineNum">     263 </span>            :     }</a>
+<a name="264"><span class="lineNum">     264 </span>            : </a>
+<a name="265"><span class="lineNum">     265 </span><span class="lineCov">         14 :     offset_indices::copy_group_sizes(points_by_curve, points_by_curve.index_range(), vert_counts);</span></a>
+<a name="266"><span class="lineNum">     266 </span>            :   }</a>
+<a name="267"><span class="lineNum">     267 </span>            : </a>
+<a name="268"><span class="lineNum">     268 </span><span class="lineCov">         32 :   Alembic::AbcGeom::OFloatGeomParam::Sample width_sample;</span></a>
+<a name="269"><span class="lineNum">     269 </span><span class="lineCov">         16 :   width_sample.setVals(widths);</span></a>
+<a name="270"><span class="lineNum">     270 </span><span class="lineCov">         16 :   width_sample.setScope(width_scope);</span></a>
+<a name="271"><span class="lineNum">     271 </span>            : </a>
+<a name="272"><span class="lineNum">     272 </span>            :   OCurvesSchema::Sample sample(verts,</a>
+<a name="273"><span class="lineNum">     273 </span>            :                                vert_counts,</a>
+<a name="274"><span class="lineNum">     274 </span>            :                                curve_type,</a>
+<a name="275"><span class="lineNum">     275 </span>            :                                periodicity,</a>
+<a name="276"><span class="lineNum">     276 </span>            :                                width_sample,</a>
+<a name="277"><span class="lineNum">     277 </span><span class="lineCov">         16 :                                OV2fGeomParam::Sample(), /* UVs */</span></a>
+<a name="278"><span class="lineNum">     278 </span><span class="lineCov">         32 :                                ON3fGeomParam::Sample(), /* normals */</span></a>
+<a name="279"><span class="lineNum">     279 </span>            :                                curve_basis,</a>
+<a name="280"><span class="lineNum">     280 </span>            :                                weights,</a>
+<a name="281"><span class="lineNum">     281 </span>            :                                orders,</a>
+<a name="282"><span class="lineNum">     282 </span><span class="lineCov">         64 :                                knots);</span></a>
+<a name="283"><span class="lineNum">     283 </span>            : </a>
+<a name="284"><span class="lineNum">     284 </span><span class="lineCov">         16 :   std::vector&lt;Imath::V3f&gt; velocities;</span></a>
+<a name="285"><span class="lineNum">     285 </span><span class="lineCov">         16 :   if (get_velocities(curves.attributes(), velocities)) {</span></a>
+<a name="286"><span class="lineNum">     286 </span><span class="lineNoCov">          0 :     sample.setVelocities(velocities);</span></a>
+<a name="287"><span class="lineNum">     287 </span>            :   }</a>
+<a name="288"><span class="lineNum">     288 </span>            : </a>
+<a name="289"><span class="lineNum">     289 </span><span class="lineCov">         16 :   update_bounding_box(context.object);</span></a>
+<a name="290"><span class="lineNum">     290 </span><span class="lineCov">         16 :   sample.setSelfBounds(bounding_box_);</span></a>
+<a name="291"><span class="lineNum">     291 </span><span class="lineCov">         16 :   abc_curve_schema_.set(sample);</span></a>
+<a name="292"><span class="lineNum">     292 </span>            : </a>
+<a name="293"><span class="lineNum">     293 </span><span class="lineCov">         16 :   write_arb_geo_params(curves, *context.object, abc_curve_schema_.getNumSamples());</span></a>
+<a name="294"><span class="lineNum">     294 </span><span class="lineCov">         16 : }</span></a>
+<a name="295"><span class="lineNum">     295 </span>            : </a>
+<a name="296"><span class="lineNum">     296 </span><span class="lineCov">         16 : void ABCCurveWriter::write_arb_geo_params(const bke::CurvesGeometry &amp;curves,</span></a>
+<a name="297"><span class="lineNum">     297 </span>            :                                           const Object &amp;object,</a>
+<a name="298"><span class="lineNum">     298 </span>            :                                           const size_t num_geom_samples)</a>
+<a name="299"><span class="lineNum">     299 </span>            : {</a>
+<a name="300"><span class="lineNum">     300 </span><span class="lineCov">         16 :   Alembic::Abc::OCompoundProperty arb_geom_params = abc_curve_schema_.getArbGeomParams();</span></a>
+<a name="301"><span class="lineNum">     301 </span>            : </a>
+<a name="302"><span class="lineNum">     302 </span><span class="lineCov">         16 :   const bke::AttributeAccessor attributes = curves.attributes();</span></a>
+<a name="303"><span class="lineNum">     303 </span>            : </a>
+<a name="304"><span class="lineNum">     304 </span><span class="lineCov">         16 :   attributes.foreach_attribute([&amp;](const bke::AttributeIter &amp;iter) {</span></a>
+<a name="305"><span class="lineNum">     305 </span>            :     /* Skip &quot;internal&quot; Blender properties and attributes dealt with elsewhere. */</a>
+<a name="306"><span class="lineNum">     306 </span><span class="lineCov">        174 :     if (iter.name[0] == '.' || bke::attribute_name_is_anonymous(iter.name) ||</span></a>
+<a name="307"><span class="lineNum">     307 </span><span class="lineCov">         84 :         is_excluded_attr(iter.name))</span></a>
+<a name="308"><span class="lineNum">     308 </span>            :     {</a>
+<a name="309"><span class="lineNum">     309 </span><span class="lineCov">         49 :       return;</span></a>
+<a name="310"><span class="lineNum">     310 </span>            :     }</a>
+<a name="311"><span class="lineNum">     311 </span>            : </a>
+<a name="312"><span class="lineNum">     312 </span><span class="lineCov">         41 :     AttributeParamMaps &amp;param_maps = get_attribute_param_maps();</span></a>
+<a name="313"><span class="lineNum">     313 </span>            :     /* Pass num_geom_samples - 1 so we write empty samples up until this frame. */</a>
+<a name="314"><span class="lineNum">     314 </span><span class="lineCov">         41 :     BLI_assert(num_geom_samples &gt;= 1);</span></a>
+<a name="315"><span class="lineNum">     315 </span><span class="lineCov">         82 :     create_geom_param_for_attribute(arb_geom_params,</span></a>
+<a name="316"><span class="lineNum">     316 </span>            :                                     param_maps,</a>
+<a name="317"><span class="lineNum">     317 </span>            :                                     iter,</a>
+<a name="318"><span class="lineNum">     318 </span><span class="lineCov">         41 :                                     timesample_index(),</span></a>
+<a name="319"><span class="lineNum">     319 </span>            :                                     {},</a>
+<a name="320"><span class="lineNum">     320 </span><span class="lineCov">         41 :                                     BKE_id_name(object.id),</span></a>
+<a name="321"><span class="lineNum">     321 </span><span class="lineCov">         41 :                                     num_geom_samples - 1);</span></a>
+<a name="322"><span class="lineNum">     322 </span>            :   });</a>
+<a name="323"><span class="lineNum">     323 </span>            : </a>
+<a name="324"><span class="lineNum">     324 </span><span class="lineCov">         16 :   if (attribute_maps_) {</span></a>
+<a name="325"><span class="lineNum">     325 </span>            :     /* If an attribute was missing this frame, write empty samples for it.</a>
+<a name="326"><span class="lineNum">     326 </span>            :      * This is mostly to ensure that attributes have the same number of samples as the geometry</a>
+<a name="327"><span class="lineNum">     327 </span>            :      * data if some disappear midway in the animation and never come back. */</a>
+<a name="328"><span class="lineNum">     328 </span><span class="lineCov">          3 :     attribute_maps_-&gt;write_empty_samples(num_geom_samples);</span></a>
+<a name="329"><span class="lineNum">     329 </span>            :   }</a>
+<a name="330"><span class="lineNum">     330 </span><span class="lineCov">         16 : }</span></a>
+<a name="331"><span class="lineNum">     331 </span>            : </a>
+<a name="332"><span class="lineNum">     332 </span><span class="lineCov">         41 : AttributeParamMaps &amp;ABCCurveWriter::get_attribute_param_maps()</span></a>
+<a name="333"><span class="lineNum">     333 </span>            : {</a>
+<a name="334"><span class="lineNum">     334 </span><span class="lineCov">         41 :   if (!attribute_maps_) {</span></a>
+<a name="335"><span class="lineNum">     335 </span><span class="lineCov">          3 :     attribute_maps_ = std::make_unique&lt;AttributeParamMaps&gt;();</span></a>
+<a name="336"><span class="lineNum">     336 </span>            :   }</a>
+<a name="337"><span class="lineNum">     337 </span><span class="lineCov">         41 :   return *attribute_maps_.get();</span></a>
+<a name="338"><span class="lineNum">     338 </span>            : }</a>
+<a name="339"><span class="lineNum">     339 </span>            : </a>
+<a name="340"><span class="lineNum">     340 </span><span class="lineNoCov">          0 : ABCCurveMeshWriter::ABCCurveMeshWriter(const ABCWriterConstructorArgs &amp;args)</span></a>
+<a name="341"><span class="lineNum">     341 </span><span class="lineNoCov">          0 :     : ABCGenericMeshWriter(args)</span></a>
+<a name="342"><span class="lineNum">     342 </span>            : {</a>
+<a name="343"><span class="lineNum">     343 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="344"><span class="lineNum">     344 </span>            : </a>
+<a name="345"><span class="lineNum">     345 </span><span class="lineNoCov">          0 : Mesh *ABCCurveMeshWriter::get_export_mesh(Object *object_eval, bool &amp;r_needsfree)</span></a>
+<a name="346"><span class="lineNum">     346 </span>            : {</a>
+<a name="347"><span class="lineNum">     347 </span><span class="lineNoCov">          0 :   switch (object_eval-&gt;type) {</span></a>
+<a name="348"><span class="lineNum">     348 </span><span class="lineNoCov">          0 :     case OB_CURVES_LEGACY: {</span></a>
+<a name="349"><span class="lineNum">     349 </span><span class="lineNoCov">          0 :       Mesh *mesh_eval = BKE_object_get_evaluated_mesh(object_eval);</span></a>
+<a name="350"><span class="lineNum">     350 </span><span class="lineNoCov">          0 :       if (mesh_eval != nullptr) {</span></a>
+<a name="351"><span class="lineNum">     351 </span>            :         /* Mesh_eval only exists when generative modifiers are in use. */</a>
+<a name="352"><span class="lineNum">     352 </span><span class="lineNoCov">          0 :         r_needsfree = false;</span></a>
+<a name="353"><span class="lineNum">     353 </span><span class="lineNoCov">          0 :         return mesh_eval;</span></a>
+<a name="354"><span class="lineNum">     354 </span>            :       }</a>
+<a name="355"><span class="lineNum">     355 </span>            : </a>
+<a name="356"><span class="lineNum">     356 </span><span class="lineNoCov">          0 :       r_needsfree = true;</span></a>
+<a name="357"><span class="lineNum">     357 </span><span class="lineNoCov">          0 :       return BKE_mesh_new_nomain_from_curve(object_eval);</span></a>
+<a name="358"><span class="lineNum">     358 </span>            :     }</a>
+<a name="359"><span class="lineNum">     359 </span>            : </a>
+<a name="360"><span class="lineNum">     360 </span><span class="lineNoCov">          0 :     case OB_CURVES: {</span></a>
+<a name="361"><span class="lineNum">     361 </span><span class="lineNoCov">          0 :       Curves *curves = id_cast&lt;Curves *&gt;(object_eval-&gt;data);</span></a>
+<a name="362"><span class="lineNum">     362 </span><span class="lineNoCov">          0 :       r_needsfree = true;</span></a>
+<a name="363"><span class="lineNum">     363 </span><span class="lineNoCov">          0 :       return bke::curve_to_wire_mesh(curves-&gt;geometry.wrap());</span></a>
+<a name="364"><span class="lineNum">     364 </span>            :     }</a>
+<a name="365"><span class="lineNum">     365 </span><span class="lineNoCov">          0 :     default:</span></a>
+<a name="366"><span class="lineNum">     366 </span><span class="lineNoCov">          0 :       break;</span></a>
+<a name="367"><span class="lineNum">     367 </span>            :   }</a>
+<a name="368"><span class="lineNum">     368 </span>            : </a>
+<a name="369"><span class="lineNum">     369 </span><span class="lineNoCov">          0 :   return nullptr;</span></a>
+<a name="370"><span class="lineNum">     370 </span>            : }</a>
+<a name="371"><span class="lineNum">     371 </span>            : </a>
+<a name="372"><span class="lineNum">     372 </span>            : }  // namespace io::alembic</a>
+<a name="373"><span class="lineNum">     373 </span>            : }  // namespace blender</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

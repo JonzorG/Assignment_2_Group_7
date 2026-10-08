@@ -1,0 +1,1403 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - makesdna/DNA_space_types.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">makesdna</a> - DNA_space_types.h<span style="font-size: 80%;"> (source / <a href="DNA_space_types.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntryLo">12.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntryLo">11.1 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2001-2002 NaN Holding BV. All rights reserved.</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : /** \file</a>
+<a name="5"><span class="lineNum">       5 </span>            :  * \ingroup DNA</a>
+<a name="6"><span class="lineNum">       6 </span>            :  *</a>
+<a name="7"><span class="lineNum">       7 </span>            :  * Structs for each of space type in the user interface.</a>
+<a name="8"><span class="lineNum">       8 </span>            :  */</a>
+<a name="9"><span class="lineNum">       9 </span>            : </a>
+<a name="10"><span class="lineNum">      10 </span>            : #pragma once</a>
+<a name="11"><span class="lineNum">      11 </span>            : </a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &quot;DNA_asset_types.h&quot;</a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;DNA_color_types.h&quot; /* for Histogram */</a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;DNA_defs.h&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;DNA_image_types.h&quot; /* ImageUser */</a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &quot;DNA_listBase.h&quot;</a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;DNA_mask_types.h&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : #include &quot;DNA_movieclip_types.h&quot; /* MovieClipUser */</a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &quot;DNA_node_types.h&quot;      /* for bNodeInstanceKey */</a>
+<a name="20"><span class="lineNum">      20 </span>            : #include &quot;DNA_outliner_types.h&quot;  /* for TreeStoreElem */</a>
+<a name="21"><span class="lineNum">      21 </span>            : #include &quot;DNA_space_enums.h&quot;</a>
+<a name="22"><span class="lineNum">      22 </span>            : /* Hum ... Not really nice... but needed for spacebuts. */</a>
+<a name="23"><span class="lineNum">      23 </span>            : #include &quot;DNA_vec_defaults.h&quot;</a>
+<a name="24"><span class="lineNum">      24 </span>            : #include &quot;DNA_view2d_types.h&quot;</a>
+<a name="25"><span class="lineNum">      25 </span>            : #include &quot;DNA_viewer_path_types.h&quot;</a>
+<a name="26"><span class="lineNum">      26 </span>            : </a>
+<a name="27"><span class="lineNum">      27 </span>            : namespace blender {</a>
+<a name="28"><span class="lineNum">      28 </span>            : </a>
+<a name="29"><span class="lineNum">      29 </span>            : struct BLI_mempool;</a>
+<a name="30"><span class="lineNum">      30 </span>            : struct FileLayout;</a>
+<a name="31"><span class="lineNum">      31 </span>            : struct FileList;</a>
+<a name="32"><span class="lineNum">      32 </span>            : struct FileSelectParams;</a>
+<a name="33"><span class="lineNum">      33 </span>            : struct Histogram;</a>
+<a name="34"><span class="lineNum">      34 </span>            : struct ID;</a>
+<a name="35"><span class="lineNum">      35 </span>            : struct Image;</a>
+<a name="36"><span class="lineNum">      36 </span>            : struct Mask;</a>
+<a name="37"><span class="lineNum">      37 </span>            : struct MovieClip;</a>
+<a name="38"><span class="lineNum">      38 </span>            : struct MovieClipScopes;</a>
+<a name="39"><span class="lineNum">      39 </span>            : struct Scopes;</a>
+<a name="40"><span class="lineNum">      40 </span>            : struct Script;</a>
+<a name="41"><span class="lineNum">      41 </span>            : struct SpaceGraph;</a>
+<a name="42"><span class="lineNum">      42 </span>            : struct Text;</a>
+<a name="43"><span class="lineNum">      43 </span>            : struct bDopeSheet;</a>
+<a name="44"><span class="lineNum">      44 </span>            : struct bGPdata;</a>
+<a name="45"><span class="lineNum">      45 </span>            : struct bNodeTree;</a>
+<a name="46"><span class="lineNum">      46 </span>            : struct wmOperator;</a>
+<a name="47"><span class="lineNum">      47 </span>            : struct wmTimer;</a>
+<a name="48"><span class="lineNum">      48 </span>            : struct SpaceUserPref_Runtime;</a>
+<a name="49"><span class="lineNum">      49 </span>            : </a>
+<a name="50"><span class="lineNum">      50 </span>            : namespace asset_system {</a>
+<a name="51"><span class="lineNum">      51 </span>            : class AssetRepresentation;</a>
+<a name="52"><span class="lineNum">      52 </span>            : }</a>
+<a name="53"><span class="lineNum">      53 </span>            : </a>
+<a name="54"><span class="lineNum">      54 </span>            : /** Defined in `buttons_intern.hh`. */</a>
+<a name="55"><span class="lineNum">      55 </span>            : struct SpaceProperties_Runtime;</a>
+<a name="56"><span class="lineNum">      56 </span>            : struct SpaceConsole_Runtime;</a>
+<a name="57"><span class="lineNum">      57 </span>            : </a>
+<a name="58"><span class="lineNum">      58 </span>            : namespace ed::space_node {</a>
+<a name="59"><span class="lineNum">      59 </span>            : struct SpaceNode_Runtime;</a>
+<a name="60"><span class="lineNum">      60 </span>            : }  // namespace ed::space_node</a>
+<a name="61"><span class="lineNum">      61 </span>            : </a>
+<a name="62"><span class="lineNum">      62 </span>            : namespace ed::outliner {</a>
+<a name="63"><span class="lineNum">      63 </span>            : struct SpaceOutliner_Runtime;</a>
+<a name="64"><span class="lineNum">      64 </span>            : }  // namespace ed::outliner</a>
+<a name="65"><span class="lineNum">      65 </span>            : </a>
+<a name="66"><span class="lineNum">      66 </span>            : namespace ed::vse {</a>
+<a name="67"><span class="lineNum">      67 </span>            : struct SpaceSeq_Runtime;</a>
+<a name="68"><span class="lineNum">      68 </span>            : }  // namespace ed::vse</a>
+<a name="69"><span class="lineNum">      69 </span>            : </a>
+<a name="70"><span class="lineNum">      70 </span>            : namespace ed::text {</a>
+<a name="71"><span class="lineNum">      71 </span>            : </a>
+<a name="72"><span class="lineNum">      72 </span>            : struct SpaceText_Runtime;</a>
+<a name="73"><span class="lineNum">      73 </span>            : }  // namespace ed::text</a>
+<a name="74"><span class="lineNum">      74 </span>            : </a>
+<a name="75"><span class="lineNum">      75 </span>            : namespace ed::spreadsheet {</a>
+<a name="76"><span class="lineNum">      76 </span>            : struct SpaceSpreadsheet_Runtime;</a>
+<a name="77"><span class="lineNum">      77 </span>            : struct SpreadsheetColumnRuntime;</a>
+<a name="78"><span class="lineNum">      78 </span>            : }  // namespace ed::spreadsheet</a>
+<a name="79"><span class="lineNum">      79 </span>            : </a>
+<a name="80"><span class="lineNum">      80 </span>            : namespace ed::outliner {</a>
+<a name="81"><span class="lineNum">      81 </span>            : struct TreeElement;</a>
+<a name="82"><span class="lineNum">      82 </span>            : }</a>
+<a name="83"><span class="lineNum">      83 </span>            : </a>
+<a name="84"><span class="lineNum">      84 </span>            : /** Defined in `file_intern.hh`. */</a>
+<a name="85"><span class="lineNum">      85 </span>            : struct SpaceFile_Runtime;</a>
+<a name="86"><span class="lineNum">      86 </span>            : </a>
+<a name="87"><span class="lineNum">      87 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="88"><span class="lineNum">      88 </span>            : /** \name SpaceLink (Base)</a>
+<a name="89"><span class="lineNum">      89 </span>            :  * \{ */</a>
+<a name="90"><span class="lineNum">      90 </span>            : </a>
+<a name="91"><span class="lineNum">      91 </span>            : /**</a>
+<a name="92"><span class="lineNum">      92 </span>            :  * The base structure all the other spaces</a>
+<a name="93"><span class="lineNum">      93 </span>            :  * are derived (implicitly) from. Would be</a>
+<a name="94"><span class="lineNum">      94 </span>            :  * good to make this explicit.</a>
+<a name="95"><span class="lineNum">      95 </span>            :  */</a>
+<a name="96"><span class="lineNum">      96 </span>            : struct SpaceLink {</a>
+<a name="97"><span class="lineNum">      97 </span>            :   struct SpaceLink *next = nullptr, *prev = nullptr;</a>
+<a name="98"><span class="lineNum">      98 </span>            :   /** Storage of regions for inactive spaces. */</a>
+<a name="99"><span class="lineNum">      99 </span>            :   ListBaseT&lt;ARegion&gt; regionbase = {nullptr, nullptr};</a>
+<a name="100"><span class="lineNum">     100 </span>            :   char spacetype = 0;</a>
+<a name="101"><span class="lineNum">     101 </span>            :   eSpace_Link_Flag link_flag = {};</a>
+<a name="102"><span class="lineNum">     102 </span>            :   char _pad0[6] = {};</a>
+<a name="103"><span class="lineNum">     103 </span>            : };</a>
+<a name="104"><span class="lineNum">     104 </span>            : </a>
+<a name="105"><span class="lineNum">     105 </span>            : /** \} */</a>
+<a name="106"><span class="lineNum">     106 </span>            : </a>
+<a name="107"><span class="lineNum">     107 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="108"><span class="lineNum">     108 </span>            : /** \name Space Info</a>
+<a name="109"><span class="lineNum">     109 </span>            :  * \{ */</a>
+<a name="110"><span class="lineNum">     110 </span>            : </a>
+<a name="111"><span class="lineNum">     111 </span>            : /** Info Header. */</a>
+<a name="112"><span class="lineNum">     112 </span>            : struct SpaceInfo {</a>
+<a name="113"><span class="lineNum">     113 </span>            :   SpaceLink *next = nullptr, *prev = nullptr;</a>
+<a name="114"><span class="lineNum">     114 </span>            :   /** Storage of regions for inactive spaces. */</a>
+<a name="115"><span class="lineNum">     115 </span>            :   ListBaseT&lt;ARegion&gt; regionbase = {nullptr, nullptr};</a>
+<a name="116"><span class="lineNum">     116 </span>            :   char spacetype = 0;</a>
+<a name="117"><span class="lineNum">     117 </span>            :   eSpace_Link_Flag link_flag = {};</a>
+<a name="118"><span class="lineNum">     118 </span>            :   char _pad0[6] = {};</a>
+<a name="119"><span class="lineNum">     119 </span>            :   /* End 'SpaceLink' header. */</a>
+<a name="120"><span class="lineNum">     120 </span>            : </a>
+<a name="121"><span class="lineNum">     121 </span>            :   char rpt_mask = 0;</a>
+<a name="122"><span class="lineNum">     122 </span>            :   char _pad[7] = {};</a>
+<a name="123"><span class="lineNum">     123 </span>            : };</a>
+<a name="124"><span class="lineNum">     124 </span>            : </a>
+<a name="125"><span class="lineNum">     125 </span>            : /** \} */</a>
+<a name="126"><span class="lineNum">     126 </span>            : </a>
+<a name="127"><span class="lineNum">     127 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="128"><span class="lineNum">     128 </span>            : /** \name Properties Editor</a>
+<a name="129"><span class="lineNum">     129 </span>            :  * \{ */</a>
+<a name="130"><span class="lineNum">     130 </span>            : </a>
+<a name="131"><span class="lineNum">     131 </span>            : /** Properties Editor. */</a>
+<a name="132"><span class="lineNum">     132 </span>            : struct SpaceProperties {</a>
+<a name="133"><span class="lineNum">     133 </span><span class="lineNoCov">          0 :   DNA_DEFINE_CXX_METHODS(SpaceProperties)</span></a>
+<a name="134"><span class="lineNum">     134 </span>            : </a>
+<a name="135"><span class="lineNum">     135 </span>            :   SpaceLink *next = nullptr, *prev = nullptr;</a>
+<a name="136"><span class="lineNum">     136 </span>            :   /** Storage of regions for inactive spaces. */</a>
+<a name="137"><span class="lineNum">     137 </span>            :   ListBaseT&lt;ARegion&gt; regionbase = {nullptr, nullptr};</a>
+<a name="138"><span class="lineNum">     138 </span>            :   char spacetype = 0;</a>
+<a name="139"><span class="lineNum">     139 </span>            :   eSpace_Link_Flag link_flag = {};</a>
+<a name="140"><span class="lineNum">     140 </span>            :   char _pad0[6] = {};</a>
+<a name="141"><span class="lineNum">     141 </span>            :   /* End 'SpaceLink' header. */</a>
+<a name="142"><span class="lineNum">     142 </span>            : </a>
+<a name="143"><span class="lineNum">     143 </span>            :   /** Deprecated, copied to region. */</a>
+<a name="144"><span class="lineNum">     144 </span>            :   DNA_DEPRECATED View2D v2d;</a>
+<a name="145"><span class="lineNum">     145 </span>            : </a>
+<a name="146"><span class="lineNum">     146 </span>            :   /* For different kinds of property editors (exposed in the space type selector). */</a>
+<a name="147"><span class="lineNum">     147 </span>            :   short space_subtype = 0;</a>
+<a name="148"><span class="lineNum">     148 </span>            : </a>
+<a name="149"><span class="lineNum">     149 </span>            :   /** Context tabs. */</a>
+<a name="150"><span class="lineNum">     150 </span>            :   eSpaceButtons_Context mainb = BCONTEXT_RENDER, mainbo = BCONTEXT_RENDER,</a>
+<a name="151"><span class="lineNum">     151 </span>            :                         mainbuser = BCONTEXT_RENDER;</a>
+<a name="152"><span class="lineNum">     152 </span>            :   uint32_t visible_tabs = 0;</a>
+<a name="153"><span class="lineNum">     153 </span>            :   /** Preview is signal to refresh. */</a>
+<a name="154"><span class="lineNum">     154 </span>            :   short preview = 0;</a>
+<a name="155"><span class="lineNum">     155 </span>            :   eSpaceButtons_Flag flag = {};</a>
+<a name="156"><span class="lineNum">     156 </span>            : </a>
+<a name="157"><span class="lineNum">     157 </span>            :   eSpaceButtons_OutlinerSync outliner_sync = PROPERTIES_SYNC_AUTO;</a>
+<a name="158"><span class="lineNum">     158 </span>            : </a>
+<a name="159"><span class="lineNum">     159 </span>            :   /** Runtime. */</a>
+<a name="160"><span class="lineNum">     160 </span>            :   void *path = nullptr;</a>
+<a name="161"><span class="lineNum">     161 </span>            :   /** Runtime. */</a>
+<a name="162"><span class="lineNum">     162 </span>            :   int pathflag = 0, dataicon = 0;</a>
+<a name="163"><span class="lineNum">     163 </span>            :   ID *pinid = nullptr;</a>
+<a name="164"><span class="lineNum">     164 </span>            : </a>
+<a name="165"><span class="lineNum">     165 </span>            :   void *texuser = nullptr;</a>
+<a name="166"><span class="lineNum">     166 </span>            : </a>
+<a name="167"><span class="lineNum">     167 </span>            :   /* Doesn't necessarily need to be a pointer, but runtime structs are still written to files. */</a>
+<a name="168"><span class="lineNum">     168 </span>            :   struct SpaceProperties_Runtime *runtime = nullptr;</a>
+<a name="169"><span class="lineNum">     169 </span>            : };</a>
+<a name="170"><span class="lineNum">     170 </span>            : </a>
+<a name="171"><span class="lineNum">     171 </span>            : /** \} */</a>
+<a name="172"><span class="lineNum">     172 </span>            : </a>
+<a name="173"><span class="lineNum">     173 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="174"><span class="lineNum">     174 </span>            : /** \name Outliner</a>
+<a name="175"><span class="lineNum">     175 </span>            :  * \{ */</a>
+<a name="176"><span class="lineNum">     176 </span>            : </a>
+<a name="177"><span class="lineNum">     177 </span>            : /** Outliner */</a>
+<a name="178"><span class="lineNum">     178 </span>            : struct SpaceOutliner {</a>
+<a name="179"><span class="lineNum">     179 </span>            :   SpaceLink *next = nullptr, *prev = nullptr;</a>
+<a name="180"><span class="lineNum">     180 </span>            :   /** Storage of regions for inactive spaces. */</a>
+<a name="181"><span class="lineNum">     181 </span>            :   ListBaseT&lt;ARegion&gt; regionbase = {nullptr, nullptr};</a>
+<a name="182"><span class="lineNum">     182 </span>            :   char spacetype = 0;</a>
+<a name="183"><span class="lineNum">     183 </span>            :   eSpace_Link_Flag link_flag = {};</a>
+<a name="184"><span class="lineNum">     184 </span>            :   char _pad0[6] = {};</a>
+<a name="185"><span class="lineNum">     185 </span>            :   /* End 'SpaceLink' header. */</a>
+<a name="186"><span class="lineNum">     186 </span>            : </a>
+<a name="187"><span class="lineNum">     187 </span>            :   /** Deprecated, copied to region. */</a>
+<a name="188"><span class="lineNum">     188 </span>            :   DNA_DEPRECATED View2D v2d;</a>
+<a name="189"><span class="lineNum">     189 </span>            : </a>
+<a name="190"><span class="lineNum">     190 </span>            :   /**</a>
+<a name="191"><span class="lineNum">     191 </span>            :    * Treestore is an ordered list of TreeStoreElem's from outliner tree;</a>
+<a name="192"><span class="lineNum">     192 </span>            :    * Note that treestore may contain duplicate elements if element</a>
+<a name="193"><span class="lineNum">     193 </span>            :    * is used multiple times in outliner tree (e. g. linked objects)</a>
+<a name="194"><span class="lineNum">     194 </span>            :    * Also note that BLI_mempool can not be read/written in DNA directly,</a>
+<a name="195"><span class="lineNum">     195 </span>            :    * therefore `readfile.cc` / `writefile.cc` linearize treestore into #TreeStore structure.</a>
+<a name="196"><span class="lineNum">     196 </span>            :    */</a>
+<a name="197"><span class="lineNum">     197 </span>            :   struct BLI_mempool *treestore = nullptr;</a>
+<a name="198"><span class="lineNum">     198 </span>            : </a>
+<a name="199"><span class="lineNum">     199 </span>            :   char search_string[64] = &quot;&quot;;</a>
+<a name="200"><span class="lineNum">     200 </span>            : </a>
+<a name="201"><span class="lineNum">     201 </span>            :   eSpaceOutliner_Flag flag = {};</a>
+<a name="202"><span class="lineNum">     202 </span>            :   eSpaceOutliner_Mode outlinevis = SO_SCENES;</a>
+<a name="203"><span class="lineNum">     203 </span>            :   eSpaceOutliner_LibOverrideViewMode lib_override_view_mode = SO_LIB_OVERRIDE_VIEW_PROPERTIES;</a>
+<a name="204"><span class="lineNum">     204 </span>            :   eSpaceOutliner_StoreFlag storeflag = {};</a>
+<a name="205"><span class="lineNum">     205 </span>            :   eSpaceOutliner_Search_Flags search_flags = {};</a>
+<a name="206"><span class="lineNum">     206 </span>            :   char _pad[6] = {};</a>
+<a name="207"><span class="lineNum">     207 </span>            : </a>
+<a name="208"><span class="lineNum">     208 </span>            :   /** Selection syncing flag (#WM_OUTLINER_SYNC_SELECT_FROM_OBJECT and similar flags). */</a>
+<a name="209"><span class="lineNum">     209 </span>            :   char sync_select_dirty = 0;</a>
+<a name="210"><span class="lineNum">     210 </span>            : </a>
+<a name="211"><span class="lineNum">     211 </span>            :   eSpaceOutliner_Filter filter = {};</a>
+<a name="212"><span class="lineNum">     212 </span>            :   eSpaceOutliner_StateFilter filter_state = SO_FILTER_OB_ALL;</a>
+<a name="213"><span class="lineNum">     213 </span>            :   eSpaceOutliner_ShowRestrictFlag show_restrict_flags = {};</a>
+<a name="214"><span class="lineNum">     214 </span>            :   short filter_id_type = 0;</a>
+<a name="215"><span class="lineNum">     215 </span>            :   eSpaceOutliner_SortMethod sort_method = SO_SORT_CUSTOM;</a>
+<a name="216"><span class="lineNum">     216 </span>            :   char _pad1[6] = {};</a>
+<a name="217"><span class="lineNum">     217 </span>            : </a>
+<a name="218"><span class="lineNum">     218 </span>            :   ed::outliner::SpaceOutliner_Runtime *runtime = nullptr;</a>
+<a name="219"><span class="lineNum">     219 </span>            : };</a>
+<a name="220"><span class="lineNum">     220 </span>            : </a>
+<a name="221"><span class="lineNum">     221 </span>            : /** \} */</a>
+<a name="222"><span class="lineNum">     222 </span>            : </a>
+<a name="223"><span class="lineNum">     223 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="224"><span class="lineNum">     224 </span>            : /** \name Graph Editor</a>
+<a name="225"><span class="lineNum">     225 </span>            :  * \{ */</a>
+<a name="226"><span class="lineNum">     226 </span>            : </a>
+<a name="227"><span class="lineNum">     227 </span>            : struct SpaceGraph_Runtime {</a>
+<a name="228"><span class="lineNum">     228 </span>            :   /** #eGraphEdit_Runtime_Flag */</a>
+<a name="229"><span class="lineNum">     229 </span>            :   char flag = 0;</a>
+<a name="230"><span class="lineNum">     230 </span>            :   char _pad[7] = {};</a>
+<a name="231"><span class="lineNum">     231 </span>            :   /** Sampled snapshots of F-Curves used as in-session guides */</a>
+<a name="232"><span class="lineNum">     232 </span>            :   ListBaseT&lt;FCurve&gt; ghost_curves = {nullptr, nullptr};</a>
+<a name="233"><span class="lineNum">     233 </span>            : };</a>
+<a name="234"><span class="lineNum">     234 </span>            : </a>
+<a name="235"><span class="lineNum">     235 </span>            : /** 'Graph' Editor (formerly known as the IPO Editor). */</a>
+<a name="236"><span class="lineNum">     236 </span>            : struct SpaceGraph {</a>
+<a name="237"><span class="lineNum">     237 </span><span class="lineNoCov">          0 :   DNA_DEFINE_CXX_METHODS(SpaceGraph)</span></a>
+<a name="238"><span class="lineNum">     238 </span>            : </a>
+<a name="239"><span class="lineNum">     239 </span>            :   SpaceLink *next = nullptr, *prev = nullptr;</a>
+<a name="240"><span class="lineNum">     240 </span>            :   /** Storage of regions for inactive spaces. */</a>
+<a name="241"><span class="lineNum">     241 </span>            :   ListBaseT&lt;ARegion&gt; regionbase = {nullptr, nullptr};</a>
+<a name="242"><span class="lineNum">     242 </span>            :   char spacetype = 0;</a>
+<a name="243"><span class="lineNum">     243 </span>            :   eSpace_Link_Flag link_flag = {};</a>
+<a name="244"><span class="lineNum">     244 </span>            :   char _pad0[6] = {};</a>
+<a name="245"><span class="lineNum">     245 </span>            :   /* End 'SpaceLink' header. */</a>
+<a name="246"><span class="lineNum">     246 </span>            : </a>
+<a name="247"><span class="lineNum">     247 </span>            :   /** Deprecated, copied to region. */</a>
+<a name="248"><span class="lineNum">     248 </span>            :   DNA_DEPRECATED View2D v2d;</a>
+<a name="249"><span class="lineNum">     249 </span>            : </a>
+<a name="250"><span class="lineNum">     250 </span>            :   /** Settings for filtering animation data</a>
+<a name="251"><span class="lineNum">     251 </span>            :    * \note we use a pointer due to code-linking issues. */</a>
+<a name="252"><span class="lineNum">     252 </span>            :   struct bDopeSheet *ads = nullptr;</a>
+<a name="253"><span class="lineNum">     253 </span>            : </a>
+<a name="254"><span class="lineNum">     254 </span>            :   /** Mode for the Graph editor. */</a>
+<a name="255"><span class="lineNum">     255 </span>            :   eGraphEdit_Mode mode = SIPO_MODE_ANIMATION;</a>
+<a name="256"><span class="lineNum">     256 </span>            :   /* Snapping now lives on the Scene. */</a>
+<a name="257"><span class="lineNum">     257 </span>            :   DNA_DEPRECATED short autosnap = 0;</a>
+<a name="258"><span class="lineNum">     258 </span>            :   /** Settings for Graph editor. */</a>
+<a name="259"><span class="lineNum">     259 </span>            :   eGraphEdit_Flag flag = {};</a>
+<a name="260"><span class="lineNum">     260 </span>            : </a>
+<a name="261"><span class="lineNum">     261 </span>            :   /** Time value for cursor (when in drivers mode; animation uses current frame). */</a>
+<a name="262"><span class="lineNum">     262 </span>            :   float cursorTime = 0;</a>
+<a name="263"><span class="lineNum">     263 </span>            :   /** Cursor value (y-value, x-value is current frame). */</a>
+<a name="264"><span class="lineNum">     264 </span>            :   float cursorVal = 0;</a>
+<a name="265"><span class="lineNum">     265 </span>            :   /** Pivot point for transforms. */</a>
+<a name="266"><span class="lineNum">     266 </span>            :   int around = 0;</a>
+<a name="267"><span class="lineNum">     267 </span>            :   /* Only one bit is set per graph editor instance. */</a>
+<a name="268"><span class="lineNum">     268 </span>            :   uint16_t local_view_bit = 0;</a>
+<a name="269"><span class="lineNum">     269 </span>            :   char _pad1[2] = {};</a>
+<a name="270"><span class="lineNum">     270 </span>            :   /* Store visible region size before entering the local view. */</a>
+<a name="271"><span class="lineNum">     271 </span>            :   rctf local_view_visible_region_before = {};</a>
+<a name="272"><span class="lineNum">     272 </span>            :   SpaceGraph_Runtime runtime;</a>
+<a name="273"><span class="lineNum">     273 </span>            : };</a>
+<a name="274"><span class="lineNum">     274 </span>            : </a>
+<a name="275"><span class="lineNum">     275 </span>            : /** \} */</a>
+<a name="276"><span class="lineNum">     276 </span>            : </a>
+<a name="277"><span class="lineNum">     277 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="278"><span class="lineNum">     278 </span>            : /** \name NLA Editor</a>
+<a name="279"><span class="lineNum">     279 </span>            :  * \{ */</a>
+<a name="280"><span class="lineNum">     280 </span>            : </a>
+<a name="281"><span class="lineNum">     281 </span>            : /** NLA Editor */</a>
+<a name="282"><span class="lineNum">     282 </span>            : struct SpaceNla {</a>
+<a name="283"><span class="lineNum">     283 </span><span class="lineCov">          2 :   DNA_DEFINE_CXX_METHODS(SpaceNla)</span></a>
+<a name="284"><span class="lineNum">     284 </span>            : </a>
+<a name="285"><span class="lineNum">     285 </span>            :   struct SpaceLink *next = nullptr, *prev = nullptr;</a>
+<a name="286"><span class="lineNum">     286 </span>            :   /** Storage of regions for inactive spaces. */</a>
+<a name="287"><span class="lineNum">     287 </span>            :   ListBaseT&lt;ARegion&gt; regionbase = {nullptr, nullptr};</a>
+<a name="288"><span class="lineNum">     288 </span>            :   char spacetype = 0;</a>
+<a name="289"><span class="lineNum">     289 </span>            :   eSpace_Link_Flag link_flag = {};</a>
+<a name="290"><span class="lineNum">     290 </span>            :   char _pad0[6] = {};</a>
+<a name="291"><span class="lineNum">     291 </span>            :   /* End 'SpaceLink' header. */</a>
+<a name="292"><span class="lineNum">     292 </span>            : </a>
+<a name="293"><span class="lineNum">     293 </span>            :   /* Snapping now lives on the Scene. */</a>
+<a name="294"><span class="lineNum">     294 </span>            :   DNA_DEPRECATED short autosnap = 0;</a>
+<a name="295"><span class="lineNum">     295 </span>            :   eSpaceNla_Flag flag = {};</a>
+<a name="296"><span class="lineNum">     296 </span>            :   char _pad[4] = {};</a>
+<a name="297"><span class="lineNum">     297 </span>            : </a>
+<a name="298"><span class="lineNum">     298 </span>            :   struct bDopeSheet *ads = nullptr;</a>
+<a name="299"><span class="lineNum">     299 </span>            :   /** Deprecated, copied to region. */</a>
+<a name="300"><span class="lineNum">     300 </span>            :   DNA_DEPRECATED View2D v2d;</a>
+<a name="301"><span class="lineNum">     301 </span>            : };</a>
+<a name="302"><span class="lineNum">     302 </span>            : </a>
+<a name="303"><span class="lineNum">     303 </span>            : /** \} */</a>
+<a name="304"><span class="lineNum">     304 </span>            : </a>
+<a name="305"><span class="lineNum">     305 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="306"><span class="lineNum">     306 </span>            : /** \name Sequence Editor</a>
+<a name="307"><span class="lineNum">     307 </span>            :  * \{ */</a>
+<a name="308"><span class="lineNum">     308 </span>            : </a>
+<a name="309"><span class="lineNum">     309 </span>            : enum eCompositionGuideFlags : short;</a>
+<a name="310"><span class="lineNum">     310 </span>            : struct SequencerPreviewOverlay {</a>
+<a name="311"><span class="lineNum">     311 </span>            :   eSpaceSeq_SequencerPreviewOverlay_Flag flag = {};</a>
+<a name="312"><span class="lineNum">     312 </span>            :   eCompositionGuideFlags composition_guide_flags = {};</a>
+<a name="313"><span class="lineNum">     313 </span>            :   char _pad[2] = {};</a>
+<a name="314"><span class="lineNum">     314 </span>            : </a>
+<a name="315"><span class="lineNum">     315 </span>            :   /* Compositional guide overlay color */</a>
+<a name="316"><span class="lineNum">     316 </span>            :   float composition_guide_color[4] = {0.5f, 0.5f, 0.5f, 1.0f};</a>
+<a name="317"><span class="lineNum">     317 </span>            : };</a>
+<a name="318"><span class="lineNum">     318 </span>            : </a>
+<a name="319"><span class="lineNum">     319 </span>            : struct SequencerTimelineOverlay {</a>
+<a name="320"><span class="lineNum">     320 </span>            :   eSpaceSeq_SequencerTimelineOverlay_Flag flag = {};</a>
+<a name="321"><span class="lineNum">     321 </span>            :   char _pad0[4] = {};</a>
+<a name="322"><span class="lineNum">     322 </span>            : };</a>
+<a name="323"><span class="lineNum">     323 </span>            : </a>
+<a name="324"><span class="lineNum">     324 </span>            : struct SequencerCacheOverlay {</a>
+<a name="325"><span class="lineNum">     325 </span>            :   eSpaceSeq_SequencerCacheOverlay_Flag flag = {};</a>
+<a name="326"><span class="lineNum">     326 </span>            :   char _pad0[4] = {};</a>
+<a name="327"><span class="lineNum">     327 </span>            : };</a>
+<a name="328"><span class="lineNum">     328 </span>            : </a>
+<a name="329"><span class="lineNum">     329 </span>            : /** Sequencer. */</a>
+<a name="330"><span class="lineNum">     330 </span>            : struct SpaceSeq {</a>
+<a name="331"><span class="lineNum">     331 </span><span class="lineNoCov">          0 :   DNA_DEFINE_CXX_METHODS(SpaceSeq)</span></a>
+<a name="332"><span class="lineNum">     332 </span>            : </a>
+<a name="333"><span class="lineNum">     333 </span>            :   SpaceLink *next = nullptr, *prev = nullptr;</a>
+<a name="334"><span class="lineNum">     334 </span>            :   /** Storage of regions for inactive spaces. */</a>
+<a name="335"><span class="lineNum">     335 </span>            :   ListBaseT&lt;ARegion&gt; regionbase = {nullptr, nullptr};</a>
+<a name="336"><span class="lineNum">     336 </span>            :   char spacetype = 0;</a>
+<a name="337"><span class="lineNum">     337 </span>            :   eSpace_Link_Flag link_flag = {};</a>
+<a name="338"><span class="lineNum">     338 </span>            :   char _pad0[6] = {};</a>
+<a name="339"><span class="lineNum">     339 </span>            :   /* End 'SpaceLink' header. */</a>
+<a name="340"><span class="lineNum">     340 </span>            : </a>
+<a name="341"><span class="lineNum">     341 </span>            :   /** Deprecated, copied to region. */</a>
+<a name="342"><span class="lineNum">     342 </span>            :   DNA_DEPRECATED View2D v2d;</a>
+<a name="343"><span class="lineNum">     343 </span>            : </a>
+<a name="344"><span class="lineNum">     344 </span>            :   /** Deprecated: offset for drawing the image preview. */</a>
+<a name="345"><span class="lineNum">     345 </span>            :   DNA_DEPRECATED float xof = 0;</a>
+<a name="346"><span class="lineNum">     346 </span>            :   DNA_DEPRECATED float yof = 0;</a>
+<a name="347"><span class="lineNum">     347 </span>            :   eSpaceSeq_RegionType mainb = {}; /* Strange name for view type (image, histogram, ...). */</a>
+<a name="348"><span class="lineNum">     348 </span>            :   eSpaceSeq_Proxy_RenderSize render_size = SEQ_RENDER_SIZE_SCENE;</a>
+<a name="349"><span class="lineNum">     349 </span>            :   short chanshown = 0;</a>
+<a name="350"><span class="lineNum">     350 </span>            :   short zebra = 0; /* Show overexposed. 0=disabled; otherwise as percentage of &quot;pure white&quot;. */</a>
+<a name="351"><span class="lineNum">     351 </span>            :   eSpaceSeq_Flag flag = {};</a>
+<a name="352"><span class="lineNum">     352 </span>            :   /** Deprecated, handled by View2D now. */</a>
+<a name="353"><span class="lineNum">     353 </span>            :   DNA_DEPRECATED float zoom = 0;</a>
+<a name="354"><span class="lineNum">     354 </span>            :   /** See SEQ_VIEW_* below. */</a>
+<a name="355"><span class="lineNum">     355 </span>            :   eSpaceSeq_Displays view = SEQ_VIEW_SEQUENCE;</a>
+<a name="356"><span class="lineNum">     356 </span>            :   eSpaceSeq_OverlayFrameType overlay_frame_type = SEQ_OVERLAY_FRAME_TYPE_RECT;</a>
+<a name="357"><span class="lineNum">     357 </span>            :   /** Overlay an image of the editing on below the strips. */</a>
+<a name="358"><span class="lineNum">     358 </span>            :   eSpaceSeq_DrawFlag draw_flag = {};</a>
+<a name="359"><span class="lineNum">     359 </span>            :   eSpaceSeq_Gizmo_Flag gizmo_flag = {};</a>
+<a name="360"><span class="lineNum">     360 </span>            :   char _pad[4] = {};</a>
+<a name="361"><span class="lineNum">     361 </span>            : </a>
+<a name="362"><span class="lineNum">     362 </span>            :   /** 2D cursor for transform. */</a>
+<a name="363"><span class="lineNum">     363 </span>            :   float cursor[2] = {};</a>
+<a name="364"><span class="lineNum">     364 </span>            : </a>
+<a name="365"><span class="lineNum">     365 </span>            :   /** Grease-pencil data. */</a>
+<a name="366"><span class="lineNum">     366 </span>            :   struct bGPdata *gpd = nullptr;</a>
+<a name="367"><span class="lineNum">     367 </span>            : </a>
+<a name="368"><span class="lineNum">     368 </span>            :   struct SequencerPreviewOverlay preview_overlay;</a>
+<a name="369"><span class="lineNum">     369 </span>            :   struct SequencerTimelineOverlay timeline_overlay;</a>
+<a name="370"><span class="lineNum">     370 </span>            :   struct SequencerCacheOverlay cache_overlay;</a>
+<a name="371"><span class="lineNum">     371 </span>            : </a>
+<a name="372"><span class="lineNum">     372 </span>            :   /** Multi-view current eye - for internal use. */</a>
+<a name="373"><span class="lineNum">     373 </span>            :   char multiview_eye = 0;</a>
+<a name="374"><span class="lineNum">     374 </span>            :   char _pad2[7] = {};</a>
+<a name="375"><span class="lineNum">     375 </span>            : </a>
+<a name="376"><span class="lineNum">     376 </span>            :   ed::vse::SpaceSeq_Runtime *runtime = nullptr;</a>
+<a name="377"><span class="lineNum">     377 </span>            : };</a>
+<a name="378"><span class="lineNum">     378 </span>            : </a>
+<a name="379"><span class="lineNum">     379 </span>            : struct MaskSpaceInfo {</a>
+<a name="380"><span class="lineNum">     380 </span>            :   /* **** mask editing **** */</a>
+<a name="381"><span class="lineNum">     381 </span>            :   struct Mask *mask = nullptr;</a>
+<a name="382"><span class="lineNum">     382 </span>            :   /* draw options */</a>
+<a name="383"><span class="lineNum">     383 </span>            :   MaskDrawFlag draw_flag = MASK_DRAWFLAG_SPLINE;</a>
+<a name="384"><span class="lineNum">     384 </span>            :   MaskDrawType draw_type = MASK_DT_OUTLINE;</a>
+<a name="385"><span class="lineNum">     385 </span>            :   MaskOverlayMode overlay_mode = MASK_OVERLAY_ALPHACHANNEL;</a>
+<a name="386"><span class="lineNum">     386 </span>            :   char _pad3[1] = {};</a>
+<a name="387"><span class="lineNum">     387 </span>            :   float blend_factor = 0.7f;</a>
+<a name="388"><span class="lineNum">     388 </span>            : };</a>
+<a name="389"><span class="lineNum">     389 </span>            : </a>
+<a name="390"><span class="lineNum">     390 </span>            : /** \} */</a>
+<a name="391"><span class="lineNum">     391 </span>            : </a>
+<a name="392"><span class="lineNum">     392 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="393"><span class="lineNum">     393 </span>            : /** \name File Selector</a>
+<a name="394"><span class="lineNum">     394 </span>            :  * \{ */</a>
+<a name="395"><span class="lineNum">     395 </span>            : </a>
+<a name="396"><span class="lineNum">     396 </span>            : /** Config and Input for File Selector. */</a>
+<a name="397"><span class="lineNum">     397 </span>            : struct FileSelectParams {</a>
+<a name="398"><span class="lineNum">     398 </span>            :   /** Title, also used for the text of the execute button. */</a>
+<a name="399"><span class="lineNum">     399 </span>            :   char title[96] = &quot;&quot;;</a>
+<a name="400"><span class="lineNum">     400 </span>            :   /**</a>
+<a name="401"><span class="lineNum">     401 </span>            :    * Directory.</a>
+<a name="402"><span class="lineNum">     402 </span>            :    *</a>
+<a name="403"><span class="lineNum">     403 </span>            :    * \note #FILE_MAX_LIBEXTRA == `1024 + 258`, this is for extreme case when 1023 length path</a>
+<a name="404"><span class="lineNum">     404 </span>            :    * needs to be linked in, where `foo.blend/Armature` need adding.</a>
+<a name="405"><span class="lineNum">     405 </span>            :    */</a>
+<a name="406"><span class="lineNum">     406 </span>            :   char dir[/*FILE_MAX_LIBEXTRA*/ 1282] = &quot;&quot;;</a>
+<a name="407"><span class="lineNum">     407 </span>            :   char file[/*FILE_MAXFILE*/ 256] = &quot;&quot;;</a>
+<a name="408"><span class="lineNum">     408 </span>            : </a>
+<a name="409"><span class="lineNum">     409 </span>            :   char renamefile[/*FILE_MAXFILE*/ 256] = &quot;&quot;;</a>
+<a name="410"><span class="lineNum">     410 </span>            :   eFileSel_Params_RenameFlag rename_flag = {};</a>
+<a name="411"><span class="lineNum">     411 </span>            :   char _pad[4] = {};</a>
+<a name="412"><span class="lineNum">     412 </span>            :   /** An ID that was just renamed. Used to identify a renamed asset file over re-reads, similar to</a>
+<a name="413"><span class="lineNum">     413 </span>            :    * `renamefile` but for local IDs (takes precedence). Don't keep this stored across handlers!</a>
+<a name="414"><span class="lineNum">     414 </span>            :    * Would break on undo. */</a>
+<a name="415"><span class="lineNum">     415 </span>            :   const ID *rename_id = nullptr;</a>
+<a name="416"><span class="lineNum">     416 </span>            :   void *_pad3 = nullptr;</a>
+<a name="417"><span class="lineNum">     417 </span>            : </a>
+<a name="418"><span class="lineNum">     418 </span>            :   /** List of file-types to filter. */</a>
+<a name="419"><span class="lineNum">     419 </span>            :   char filter_glob[/*FILE_MAXFILE*/ 256] = &quot;&quot;;</a>
+<a name="420"><span class="lineNum">     420 </span>            : </a>
+<a name="421"><span class="lineNum">     421 </span>            :   /** Text items name must match to be shown. */</a>
+<a name="422"><span class="lineNum">     422 </span>            :   char filter_search[64] = &quot;&quot;;</a>
+<a name="423"><span class="lineNum">     423 </span>            :   /** Same as filter, but for ID types (aka library groups). */</a>
+<a name="424"><span class="lineNum">     424 </span>            :   uint64_t filter_id = 0;</a>
+<a name="425"><span class="lineNum">     425 </span>            : </a>
+<a name="426"><span class="lineNum">     426 </span>            :   /** Active file used for keyboard navigation. -1 means no active file (cleared e.g. after</a>
+<a name="427"><span class="lineNum">     427 </span>            :    * directory change or search update). */</a>
+<a name="428"><span class="lineNum">     428 </span>            :   int active_file = 0;</a>
+<a name="429"><span class="lineNum">     429 </span>            :   /** File under cursor. */</a>
+<a name="430"><span class="lineNum">     430 </span>            :   int highlight_file = 0;</a>
+<a name="431"><span class="lineNum">     431 </span>            :   int sel_first = 0;</a>
+<a name="432"><span class="lineNum">     432 </span>            :   int sel_last = 0;</a>
+<a name="433"><span class="lineNum">     433 </span>            :   unsigned short thumbnail_size = 0;</a>
+<a name="434"><span class="lineNum">     434 </span>            :   unsigned short list_thumbnail_size = 0;</a>
+<a name="435"><span class="lineNum">     435 </span>            :   unsigned short list_column_size = 0;</a>
+<a name="436"><span class="lineNum">     436 </span>            : </a>
+<a name="437"><span class="lineNum">     437 </span>            :   /* short */</a>
+<a name="438"><span class="lineNum">     438 </span>            :   /** XXX: for now store type here, should be moved to the operator. */</a>
+<a name="439"><span class="lineNum">     439 </span>            :   eFileSelectType type = {};</a>
+<a name="440"><span class="lineNum">     440 </span>            :   /** Settings for filter, hiding dots files. */</a>
+<a name="441"><span class="lineNum">     441 </span>            :   eFileSel_Params_Flag flag = {};</a>
+<a name="442"><span class="lineNum">     442 </span>            :   /** Sort order. */</a>
+<a name="443"><span class="lineNum">     443 </span>            :   eFileSortType sort = FILE_SORT_DEFAULT;</a>
+<a name="444"><span class="lineNum">     444 </span>            :   /** Display mode flag. */</a>
+<a name="445"><span class="lineNum">     445 </span>            :   eFileDisplayType display = FILE_DEFAULTDISPLAY;</a>
+<a name="446"><span class="lineNum">     446 </span>            :   /** Details toggles (file size, creation date, etc.) */</a>
+<a name="447"><span class="lineNum">     447 </span>            :   eFileDetails details_flags = {};</a>
+<a name="448"><span class="lineNum">     448 </span>            :   char _pad1 = {};</a>
+<a name="449"><span class="lineNum">     449 </span>            : </a>
+<a name="450"><span class="lineNum">     450 </span>            :   /** Filter when (flags &amp; FILE_FILTER) is true. */</a>
+<a name="451"><span class="lineNum">     451 </span>            :   int filter = 0;</a>
+<a name="452"><span class="lineNum">     452 </span>            : </a>
+<a name="453"><span class="lineNum">     453 </span>            :   /** Max number of levels in directory tree to show at once, 0 to disable recursion. */</a>
+<a name="454"><span class="lineNum">     454 </span>            :   short recursion_level = 0;</a>
+<a name="455"><span class="lineNum">     455 </span>            : </a>
+<a name="456"><span class="lineNum">     456 </span>            :   char _pad2[2] = {};</a>
+<a name="457"><span class="lineNum">     457 </span>            : };</a>
+<a name="458"><span class="lineNum">     458 </span>            : </a>
+<a name="459"><span class="lineNum">     459 </span>            : /**</a>
+<a name="460"><span class="lineNum">     460 </span>            :  * File selection parameters for asset browsing mode, with #FileSelectParams as base.</a>
+<a name="461"><span class="lineNum">     461 </span>            :  */</a>
+<a name="462"><span class="lineNum">     462 </span>            : struct FileAssetSelectParams {</a>
+<a name="463"><span class="lineNum">     463 </span>            :   FileSelectParams base_params;</a>
+<a name="464"><span class="lineNum">     464 </span>            : </a>
+<a name="465"><span class="lineNum">     465 </span>            :   AssetLibraryReference asset_library_ref;</a>
+<a name="466"><span class="lineNum">     466 </span>            :   char _pad[5] = {};</a>
+<a name="467"><span class="lineNum">     467 </span>            :   AssetAccess asset_access = AssetAccess::OnlineAndOffline;</a>
+<a name="468"><span class="lineNum">     468 </span>            :   eFileSel_Params_AssetCatalogVisibility asset_catalog_visibility = FILE_SHOW_ASSETS_ALL_CATALOGS;</a>
+<a name="469"><span class="lineNum">     469 </span>            :   /** If #asset_catalog_visibility is #FILE_SHOW_ASSETS_FROM_CATALOG, this sets the ID of the</a>
+<a name="470"><span class="lineNum">     470 </span>            :    * catalog to show. */</a>
+<a name="471"><span class="lineNum">     471 </span>            :   bUUID catalog_id;</a>
+<a name="472"><span class="lineNum">     472 </span>            : </a>
+<a name="473"><span class="lineNum">     473 </span>            :   eFileAssetImportMethod import_method = FILE_ASSET_IMPORT_LINK;</a>
+<a name="474"><span class="lineNum">     474 </span>            :   eFileAssetImportFlags import_flags = {};</a>
+<a name="475"><span class="lineNum">     475 </span>            : </a>
+<a name="476"><span class="lineNum">     476 </span>            :   eFileSel_AssetParams_Flag asset_flags = {};</a>
+<a name="477"><span class="lineNum">     477 </span>            : };</a>
+<a name="478"><span class="lineNum">     478 </span>            : </a>
+<a name="479"><span class="lineNum">     479 </span>            : /**</a>
+<a name="480"><span class="lineNum">     480 </span>            :  * A wrapper to store previous and next folder lists (#FolderList) for a specific browse mode</a>
+<a name="481"><span class="lineNum">     481 </span>            :  * (#eFileBrowse_Mode).</a>
+<a name="482"><span class="lineNum">     482 </span>            :  */</a>
+<a name="483"><span class="lineNum">     483 </span>            : struct FileFolderHistory {</a>
+<a name="484"><span class="lineNum">     484 </span>            :   struct FileFolderLists *next = nullptr, *prev = nullptr;</a>
+<a name="485"><span class="lineNum">     485 </span>            : </a>
+<a name="486"><span class="lineNum">     486 </span>            :   /** The browse mode this prev/next folder-lists are created for. */</a>
+<a name="487"><span class="lineNum">     487 </span>            :   eFileBrowse_Mode browse_mode = FILE_BROWSE_MODE_FILES;</a>
+<a name="488"><span class="lineNum">     488 </span>            :   char _pad[7] = {};</a>
+<a name="489"><span class="lineNum">     489 </span>            : </a>
+<a name="490"><span class="lineNum">     490 </span>            :   /** Holds the list of previous directories to show. */</a>
+<a name="491"><span class="lineNum">     491 </span>            :   ListBaseT&lt;struct FolderList&gt; folders_prev = {nullptr, nullptr};</a>
+<a name="492"><span class="lineNum">     492 </span>            :   /** Holds the list of next directories (pushed from previous) to show. */</a>
+<a name="493"><span class="lineNum">     493 </span>            :   ListBaseT&lt;struct FolderList&gt; folders_next = {nullptr, nullptr};</a>
+<a name="494"><span class="lineNum">     494 </span>            : };</a>
+<a name="495"><span class="lineNum">     495 </span>            : </a>
+<a name="496"><span class="lineNum">     496 </span>            : /** File Browser. */</a>
+<a name="497"><span class="lineNum">     497 </span>            : struct SpaceFile {</a>
+<a name="498"><span class="lineNum">     498 </span>            :   SpaceLink *next = nullptr, *prev = nullptr;</a>
+<a name="499"><span class="lineNum">     499 </span>            :   /** Storage of regions for inactive spaces. */</a>
+<a name="500"><span class="lineNum">     500 </span>            :   ListBaseT&lt;ARegion&gt; regionbase = {nullptr, nullptr};</a>
+<a name="501"><span class="lineNum">     501 </span>            :   char spacetype = 0;</a>
+<a name="502"><span class="lineNum">     502 </span>            :   eSpace_Link_Flag link_flag = {};</a>
+<a name="503"><span class="lineNum">     503 </span>            :   char _pad0[6] = {};</a>
+<a name="504"><span class="lineNum">     504 </span>            :   /* End 'SpaceLink' header. */</a>
+<a name="505"><span class="lineNum">     505 </span>            : </a>
+<a name="506"><span class="lineNum">     506 </span>            :   /** Is this a File Browser or an Asset Browser? */</a>
+<a name="507"><span class="lineNum">     507 </span>            :   eFileBrowse_Mode browse_mode = FILE_BROWSE_MODE_FILES;</a>
+<a name="508"><span class="lineNum">     508 </span>            :   char _pad1[1] = {};</a>
+<a name="509"><span class="lineNum">     509 </span>            : </a>
+<a name="510"><span class="lineNum">     510 </span>            :   eFileTags tags = {};</a>
+<a name="511"><span class="lineNum">     511 </span>            : </a>
+<a name="512"><span class="lineNum">     512 </span>            :   int scroll_offset = 0;</a>
+<a name="513"><span class="lineNum">     513 </span>            : </a>
+<a name="514"><span class="lineNum">     514 </span>            :   /** Config and input for file select. One for each browse-mode, to keep them independent. */</a>
+<a name="515"><span class="lineNum">     515 </span>            :   FileSelectParams *params = nullptr;</a>
+<a name="516"><span class="lineNum">     516 </span>            :   FileAssetSelectParams *asset_params = nullptr;</a>
+<a name="517"><span class="lineNum">     517 </span>            : </a>
+<a name="518"><span class="lineNum">     518 </span>            :   void *_pad2 = nullptr;</a>
+<a name="519"><span class="lineNum">     519 </span>            : </a>
+<a name="520"><span class="lineNum">     520 </span>            :   /**</a>
+<a name="521"><span class="lineNum">     521 </span>            :    * Holds the list of files to show.</a>
+<a name="522"><span class="lineNum">     522 </span>            :    * Currently recreated when browse-mode changes. Could be per browse-mode to avoid refreshes.</a>
+<a name="523"><span class="lineNum">     523 </span>            :    */</a>
+<a name="524"><span class="lineNum">     524 </span>            :   struct FileList *files = nullptr;</a>
+<a name="525"><span class="lineNum">     525 </span>            : </a>
+<a name="526"><span class="lineNum">     526 </span>            :   /**</a>
+<a name="527"><span class="lineNum">     527 </span>            :    * Holds the list of previous directories to show. Owned by `folder_histories` below.</a>
+<a name="528"><span class="lineNum">     528 </span>            :    */</a>
+<a name="529"><span class="lineNum">     529 </span>            :   ListBaseT&lt;struct FolderList&gt; *folders_prev = nullptr;</a>
+<a name="530"><span class="lineNum">     530 </span>            :   /**</a>
+<a name="531"><span class="lineNum">     531 </span>            :    * Holds the list of next directories (pushed from previous) to show. Owned by</a>
+<a name="532"><span class="lineNum">     532 </span>            :    * `folder_histories` below.</a>
+<a name="533"><span class="lineNum">     533 </span>            :    */</a>
+<a name="534"><span class="lineNum">     534 </span>            :   ListBaseT&lt;struct FolderList&gt; *folders_next = nullptr;</a>
+<a name="535"><span class="lineNum">     535 </span>            : </a>
+<a name="536"><span class="lineNum">     536 </span>            :   /**</a>
+<a name="537"><span class="lineNum">     537 </span>            :    * This actually owns the prev/next folder-lists above. On browse-mode change, the lists of the</a>
+<a name="538"><span class="lineNum">     538 </span>            :    * new mode get assigned to the above.</a>
+<a name="539"><span class="lineNum">     539 </span>            :    */</a>
+<a name="540"><span class="lineNum">     540 </span>            :   ListBaseT&lt;FileFolderHistory&gt; folder_histories = {nullptr, nullptr};</a>
+<a name="541"><span class="lineNum">     541 </span>            : </a>
+<a name="542"><span class="lineNum">     542 </span>            :   /**</a>
+<a name="543"><span class="lineNum">     543 </span>            :    * The operator that is invoking file-select `op-&gt;exec()` will be called on the 'Load' button.</a>
+<a name="544"><span class="lineNum">     544 </span>            :    * if operator provides op-&gt;cancel(), then this will be invoked on the cancel button.</a>
+<a name="545"><span class="lineNum">     545 </span>            :    */</a>
+<a name="546"><span class="lineNum">     546 </span>            :   struct wmOperator *op = nullptr;</a>
+<a name="547"><span class="lineNum">     547 </span>            : </a>
+<a name="548"><span class="lineNum">     548 </span>            :   struct wmTimer *smoothscroll_timer = nullptr;</a>
+<a name="549"><span class="lineNum">     549 </span>            :   struct wmTimer *previews_timer = nullptr;</a>
+<a name="550"><span class="lineNum">     550 </span>            : </a>
+<a name="551"><span class="lineNum">     551 </span>            :   struct FileLayout *layout = nullptr;</a>
+<a name="552"><span class="lineNum">     552 </span>            : </a>
+<a name="553"><span class="lineNum">     553 </span>            :   short recentnr = 0, bookmarknr = 0;</a>
+<a name="554"><span class="lineNum">     554 </span>            :   short systemnr = 0, system_bookmarknr = 0;</a>
+<a name="555"><span class="lineNum">     555 </span>            : </a>
+<a name="556"><span class="lineNum">     556 </span>            :   SpaceFile_Runtime *runtime = nullptr;</a>
+<a name="557"><span class="lineNum">     557 </span>            : };</a>
+<a name="558"><span class="lineNum">     558 </span>            : </a>
+<a name="559"><span class="lineNum">     559 </span>            : /* ***** Related to file browser, but never saved in DNA, only here to help with RNA. ***** */</a>
+<a name="560"><span class="lineNum">     560 </span>            : </a>
+<a name="561"><span class="lineNum">     561 </span>            : #</a>
+<a name="562"><span class="lineNum">     562 </span>            : #</a>
+<a name="563"><span class="lineNum">     563 </span>            : struct FileDirEntry {</a>
+<a name="564"><span class="lineNum">     564 </span>            :   struct FileDirEntry *next = nullptr, *prev = nullptr;</a>
+<a name="565"><span class="lineNum">     565 </span>            : </a>
+<a name="566"><span class="lineNum">     566 </span>            :   uint32_t uid = 0; /* FileUID */</a>
+<a name="567"><span class="lineNum">     567 </span>            :   /* Name needs freeing if FILE_ENTRY_NAME_FREE is set. Otherwise this is a direct pointer to a</a>
+<a name="568"><span class="lineNum">     568 </span>            :    * name buffer. */</a>
+<a name="569"><span class="lineNum">     569 </span>            :   const char *name = nullptr;</a>
+<a name="570"><span class="lineNum">     570 </span>            : </a>
+<a name="571"><span class="lineNum">     571 </span>            :   uint64_t size = 0;</a>
+<a name="572"><span class="lineNum">     572 </span>            :   int64_t time = 0;</a>
+<a name="573"><span class="lineNum">     573 </span>            : </a>
+<a name="574"><span class="lineNum">     574 </span>            :   struct {</a>
+<a name="575"><span class="lineNum">     575 </span>            :     /* Temp caching of UI-generated strings. */</a>
+<a name="576"><span class="lineNum">     576 </span>            :     char size_str[16] = &quot;&quot;;</a>
+<a name="577"><span class="lineNum">     577 </span>            :     /* Maximum length includes possibility for 4-character x 4-byte</a>
+<a name="578"><span class="lineNum">     578 </span>            :      * short month name and 2-character x 4-byte &quot;am/pm&quot; translation. */</a>
+<a name="579"><span class="lineNum">     579 </span>            :     char datetime_str[40] = &quot;&quot;;</a>
+<a name="580"><span class="lineNum">     580 </span>            :   } draw_data;</a>
+<a name="581"><span class="lineNum">     581 </span>            : </a>
+<a name="582"><span class="lineNum">     582 </span>            :   /** #eFileSel_File_Types. */</a>
+<a name="583"><span class="lineNum">     583 </span>            :   int typeflag = 0;</a>
+<a name="584"><span class="lineNum">     584 </span>            :   /** ID type, in case typeflag has FILE_TYPE_BLENDERLIB set. */</a>
+<a name="585"><span class="lineNum">     585 </span>            :   int blentype = 0;</a>
+<a name="586"><span class="lineNum">     586 </span>            : </a>
+<a name="587"><span class="lineNum">     587 </span>            :   /* Path to item that is relative to current folder root. To get the full path, use</a>
+<a name="588"><span class="lineNum">     588 </span>            :    * #filelist_file_get_full_path() */</a>
+<a name="589"><span class="lineNum">     589 </span>            :   char *relpath = nullptr;</a>
+<a name="590"><span class="lineNum">     590 </span>            :   /** Optional argument for shortcuts, aliases etc. */</a>
+<a name="591"><span class="lineNum">     591 </span>            :   char *redirection_path = nullptr;</a>
+<a name="592"><span class="lineNum">     592 </span>            : </a>
+<a name="593"><span class="lineNum">     593 </span>            :   /** When showing local IDs (#FILE_MAIN_ASSET), ID this file represents. Note comment</a>
+<a name="594"><span class="lineNum">     594 </span>            :    * for FileListInternEntry.local_data, the same applies here! */</a>
+<a name="595"><span class="lineNum">     595 </span>            :   ID *id = nullptr;</a>
+<a name="596"><span class="lineNum">     596 </span>            :   /** If this file represents an asset, its asset data is here. Note that we may show assets of</a>
+<a name="597"><span class="lineNum">     597 </span>            :    * external files in which case this is set but not the id above.</a>
+<a name="598"><span class="lineNum">     598 </span>            :    * Note comment for FileListInternEntry.local_data, the same applies here! */</a>
+<a name="599"><span class="lineNum">     599 </span>            :   asset_system::AssetRepresentation *asset = nullptr;</a>
+<a name="600"><span class="lineNum">     600 </span>            : </a>
+<a name="601"><span class="lineNum">     601 </span>            :   /* The icon_id for the preview image. */</a>
+<a name="602"><span class="lineNum">     602 </span>            :   int preview_icon_id = 0;</a>
+<a name="603"><span class="lineNum">     603 </span>            : </a>
+<a name="604"><span class="lineNum">     604 </span>            :   eFileEntry_Flag flags = {};</a>
+<a name="605"><span class="lineNum">     605 </span>            :   /* eFileAttributes defined in BLI_fileops.hh */</a>
+<a name="606"><span class="lineNum">     606 </span>            :   int attributes = 0;</a>
+<a name="607"><span class="lineNum">     607 </span>            : };</a>
+<a name="608"><span class="lineNum">     608 </span>            : </a>
+<a name="609"><span class="lineNum">     609 </span>            : /**</a>
+<a name="610"><span class="lineNum">     610 </span>            :  * Array of directory entries.</a>
+<a name="611"><span class="lineNum">     611 </span>            :  *</a>
+<a name="612"><span class="lineNum">     612 </span>            :  * Stores the total number of available entries, the number of visible (filtered) entries, and a</a>
+<a name="613"><span class="lineNum">     613 </span>            :  * subset of those in 'entries' ListBase, from idx_start (included) to idx_end (excluded).</a>
+<a name="614"><span class="lineNum">     614 </span>            :  */</a>
+<a name="615"><span class="lineNum">     615 </span>            : #</a>
+<a name="616"><span class="lineNum">     616 </span>            : #</a>
+<a name="617"><span class="lineNum">     617 </span>            : struct FileDirEntryArr {</a>
+<a name="618"><span class="lineNum">     618 </span>            :   ListBaseT&lt;struct FileListInternEntry&gt; entries = {nullptr, nullptr};</a>
+<a name="619"><span class="lineNum">     619 </span>            :   int entries_num = 0;</a>
+<a name="620"><span class="lineNum">     620 </span>            :   int entries_filtered_num = 0;</a>
+<a name="621"><span class="lineNum">     621 </span>            : </a>
+<a name="622"><span class="lineNum">     622 </span>            :   char root[/*FILE_MAX*/ 1024] = &quot;&quot;;</a>
+<a name="623"><span class="lineNum">     623 </span>            : };</a>
+<a name="624"><span class="lineNum">     624 </span>            : </a>
+<a name="625"><span class="lineNum">     625 </span>            : /** \} */</a>
+<a name="626"><span class="lineNum">     626 </span>            : </a>
+<a name="627"><span class="lineNum">     627 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="628"><span class="lineNum">     628 </span>            : /** \name Image/UV Editor</a>
+<a name="629"><span class="lineNum">     629 </span>            :  * \{ */</a>
+<a name="630"><span class="lineNum">     630 </span>            : </a>
+<a name="631"><span class="lineNum">     631 </span>            : /* Image/UV Editor */</a>
+<a name="632"><span class="lineNum">     632 </span>            : </a>
+<a name="633"><span class="lineNum">     633 </span>            : struct SpaceImageOverlay {</a>
+<a name="634"><span class="lineNum">     634 </span>            :   eSpaceImageOverlay_Flag flag = {};</a>
+<a name="635"><span class="lineNum">     635 </span>            :   float passepartout_alpha = 0;</a>
+<a name="636"><span class="lineNum">     636 </span>            : };</a>
+<a name="637"><span class="lineNum">     637 </span>            : </a>
+<a name="638"><span class="lineNum">     638 </span>            : struct SpaceImage {</a>
+<a name="639"><span class="lineNum">     639 </span>            :   SpaceLink *next = nullptr, *prev = nullptr;</a>
+<a name="640"><span class="lineNum">     640 </span>            :   /** Storage of regions for inactive spaces. */</a>
+<a name="641"><span class="lineNum">     641 </span>            :   ListBaseT&lt;ARegion&gt; regionbase = {nullptr, nullptr};</a>
+<a name="642"><span class="lineNum">     642 </span>            :   char spacetype = 0;</a>
+<a name="643"><span class="lineNum">     643 </span>            :   eSpace_Link_Flag link_flag = {};</a>
+<a name="644"><span class="lineNum">     644 </span>            :   char _pad0[6] = {};</a>
+<a name="645"><span class="lineNum">     645 </span>            :   /* End 'SpaceLink' header. */</a>
+<a name="646"><span class="lineNum">     646 </span>            : </a>
+<a name="647"><span class="lineNum">     647 </span>            :   struct Image *image = nullptr;</a>
+<a name="648"><span class="lineNum">     648 </span>            :   struct ImageUser iuser;</a>
+<a name="649"><span class="lineNum">     649 </span>            : </a>
+<a name="650"><span class="lineNum">     650 </span>            :   /** Histogram waveform and vector-scope. */</a>
+<a name="651"><span class="lineNum">     651 </span>            :   struct Scopes scopes;</a>
+<a name="652"><span class="lineNum">     652 </span>            :   /** Sample line histogram. */</a>
+<a name="653"><span class="lineNum">     653 </span>            :   struct Histogram sample_line_hist;</a>
+<a name="654"><span class="lineNum">     654 </span>            : </a>
+<a name="655"><span class="lineNum">     655 </span>            :   /** Grease pencil data. */</a>
+<a name="656"><span class="lineNum">     656 </span>            :   struct bGPdata *gpd = nullptr;</a>
+<a name="657"><span class="lineNum">     657 </span>            : </a>
+<a name="658"><span class="lineNum">     658 </span>            :   /** UV editor 2d cursor. */</a>
+<a name="659"><span class="lineNum">     659 </span>            :   float cursor[2] = {};</a>
+<a name="660"><span class="lineNum">     660 </span>            :   /** User defined offset, image is centered. */</a>
+<a name="661"><span class="lineNum">     661 </span>            :   float xof = 0, yof = 0;</a>
+<a name="662"><span class="lineNum">     662 </span>            :   /** User defined zoom level. */</a>
+<a name="663"><span class="lineNum">     663 </span>            :   float zoom = 0;</a>
+<a name="664"><span class="lineNum">     664 </span>            :   /** Storage for offset while render drawing. */</a>
+<a name="665"><span class="lineNum">     665 </span>            :   float centx = 0, centy = 0;</a>
+<a name="666"><span class="lineNum">     666 </span>            : </a>
+<a name="667"><span class="lineNum">     667 </span>            :   /** View/paint/mask. */</a>
+<a name="668"><span class="lineNum">     668 </span>            :   eSpaceImage_Mode mode = SI_MODE_VIEW;</a>
+<a name="669"><span class="lineNum">     669 </span>            :   /* Storage for sub-space types. */</a>
+<a name="670"><span class="lineNum">     670 </span>            :   eSpaceImage_Mode mode_prev = SI_MODE_VIEW;</a>
+<a name="671"><span class="lineNum">     671 </span>            : </a>
+<a name="672"><span class="lineNum">     672 </span>            :   char pin = 0;</a>
+<a name="673"><span class="lineNum">     673 </span>            : </a>
+<a name="674"><span class="lineNum">     674 </span>            :   eSpaceImage_PixelRoundMode pixel_round_mode = SI_PIXEL_ROUND_DISABLED;</a>
+<a name="675"><span class="lineNum">     675 </span>            : </a>
+<a name="676"><span class="lineNum">     676 </span>            :   char lock = 0;</a>
+<a name="677"><span class="lineNum">     677 </span>            :   /** UV draw type. */</a>
+<a name="678"><span class="lineNum">     678 </span>            :   eSpaceImage_UVDT dt_uv = SI_UVDT_OUTLINE;</a>
+<a name="679"><span class="lineNum">     679 </span>            :   /** Sticky selection type. */</a>
+<a name="680"><span class="lineNum">     680 </span>            :   eSpaceImage_UVDT_Stretch dt_uvstretch = SI_UVDT_STRETCH_ANGLE;</a>
+<a name="681"><span class="lineNum">     681 </span>            :   char around = 0;</a>
+<a name="682"><span class="lineNum">     682 </span>            : </a>
+<a name="683"><span class="lineNum">     683 </span>            :   eSpaceImage_Gizmo_Flag gizmo_flag = {};</a>
+<a name="684"><span class="lineNum">     684 </span>            : </a>
+<a name="685"><span class="lineNum">     685 </span>            :   eSpaceImage_GridShapeSource grid_shape_source = SI_GRID_SHAPE_DYNAMIC;</a>
+<a name="686"><span class="lineNum">     686 </span>            :   char _pad1[6] = {};</a>
+<a name="687"><span class="lineNum">     687 </span>            : </a>
+<a name="688"><span class="lineNum">     688 </span>            :   eSpaceImage_Flag flag = {};</a>
+<a name="689"><span class="lineNum">     689 </span>            : </a>
+<a name="690"><span class="lineNum">     690 </span>            :   float uv_opacity = 0;</a>
+<a name="691"><span class="lineNum">     691 </span>            :   float uv_face_opacity = 0;</a>
+<a name="692"><span class="lineNum">     692 </span>            :   float uv_edge_opacity = 0;</a>
+<a name="693"><span class="lineNum">     693 </span>            : </a>
+<a name="694"><span class="lineNum">     694 </span>            :   float stretch_opacity = 0;</a>
+<a name="695"><span class="lineNum">     695 </span>            : </a>
+<a name="696"><span class="lineNum">     696 </span>            :   int tile_grid_shape[2] = {};</a>
+<a name="697"><span class="lineNum">     697 </span>            :   /**</a>
+<a name="698"><span class="lineNum">     698 </span>            :    * UV editor custom-grid. Value of `{M,N}` will produce `MxN` grid.</a>
+<a name="699"><span class="lineNum">     699 </span>            :    * Use when `custom_grid_shape == SI_GRID_SHAPE_FIXED`.</a>
+<a name="700"><span class="lineNum">     700 </span>            :    */</a>
+<a name="701"><span class="lineNum">     701 </span>            :   int custom_grid_subdiv[2] = {};</a>
+<a name="702"><span class="lineNum">     702 </span>            : </a>
+<a name="703"><span class="lineNum">     703 </span>            :   MaskSpaceInfo mask_info;</a>
+<a name="704"><span class="lineNum">     704 </span>            :   SpaceImageOverlay overlay;</a>
+<a name="705"><span class="lineNum">     705 </span>            : };</a>
+<a name="706"><span class="lineNum">     706 </span>            : </a>
+<a name="707"><span class="lineNum">     707 </span>            : /** \} */</a>
+<a name="708"><span class="lineNum">     708 </span>            : </a>
+<a name="709"><span class="lineNum">     709 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="710"><span class="lineNum">     710 </span>            : /** \name Text Editor</a>
+<a name="711"><span class="lineNum">     711 </span>            :  * \{ */</a>
+<a name="712"><span class="lineNum">     712 </span>            : </a>
+<a name="713"><span class="lineNum">     713 </span>            : /** Text Editor. */</a>
+<a name="714"><span class="lineNum">     714 </span>            : struct SpaceText {</a>
+<a name="715"><span class="lineNum">     715 </span>            :   SpaceLink *next = nullptr, *prev = nullptr;</a>
+<a name="716"><span class="lineNum">     716 </span>            :   /** Storage of regions for inactive spaces. */</a>
+<a name="717"><span class="lineNum">     717 </span>            :   ListBaseT&lt;ARegion&gt; regionbase = {nullptr, nullptr};</a>
+<a name="718"><span class="lineNum">     718 </span>            :   char spacetype = 0;</a>
+<a name="719"><span class="lineNum">     719 </span>            :   eSpace_Link_Flag link_flag = {};</a>
+<a name="720"><span class="lineNum">     720 </span>            :   char _pad0[6] = {};</a>
+<a name="721"><span class="lineNum">     721 </span>            :   /* End 'SpaceLink' header. */</a>
+<a name="722"><span class="lineNum">     722 </span>            : </a>
+<a name="723"><span class="lineNum">     723 </span>            :   struct Text *text = nullptr;</a>
+<a name="724"><span class="lineNum">     724 </span>            : </a>
+<a name="725"><span class="lineNum">     725 </span>            :   /** Determines at what line the top of the text is displayed. */</a>
+<a name="726"><span class="lineNum">     726 </span>            :   int top = 0;</a>
+<a name="727"><span class="lineNum">     727 </span>            : </a>
+<a name="728"><span class="lineNum">     728 </span>            :   /** Determines the horizontal scroll (in columns). */</a>
+<a name="729"><span class="lineNum">     729 </span>            :   int left = 0;</a>
+<a name="730"><span class="lineNum">     730 </span>            :   char _pad1[4] = {};</a>
+<a name="731"><span class="lineNum">     731 </span>            : </a>
+<a name="732"><span class="lineNum">     732 </span>            :   eSpaceText_Flags flags = {};</a>
+<a name="733"><span class="lineNum">     733 </span>            : </a>
+<a name="734"><span class="lineNum">     734 </span>            :   /** User preference, is font_size! */</a>
+<a name="735"><span class="lineNum">     735 </span>            :   short line_height = 0;</a>
+<a name="736"><span class="lineNum">     736 </span>            : </a>
+<a name="737"><span class="lineNum">     737 </span>            :   int tabnumber = 0;</a>
+<a name="738"><span class="lineNum">     738 </span>            : </a>
+<a name="739"><span class="lineNum">     739 </span>            :   /* Booleans */</a>
+<a name="740"><span class="lineNum">     740 </span>            :   char wordwrap = 0;</a>
+<a name="741"><span class="lineNum">     741 </span>            :   char doplugins = 0;</a>
+<a name="742"><span class="lineNum">     742 </span>            :   char showlinenrs = 0;</a>
+<a name="743"><span class="lineNum">     743 </span>            :   char showsyntax = 0;</a>
+<a name="744"><span class="lineNum">     744 </span>            :   char line_hlight = 0;</a>
+<a name="745"><span class="lineNum">     745 </span>            :   char overwrite = 0;</a>
+<a name="746"><span class="lineNum">     746 </span>            :   /** Run python while editing, evil. */</a>
+<a name="747"><span class="lineNum">     747 </span>            :   char live_edit = 0;</a>
+<a name="748"><span class="lineNum">     748 </span>            :   char _pad2[1] = {};</a>
+<a name="749"><span class="lineNum">     749 </span>            : </a>
+<a name="750"><span class="lineNum">     750 </span>            :   char findstr[/*ST_MAX_FIND_STR*/ 256] = &quot;&quot;;</a>
+<a name="751"><span class="lineNum">     751 </span>            :   char replacestr[/*ST_MAX_FIND_STR*/ 256] = &quot;&quot;;</a>
+<a name="752"><span class="lineNum">     752 </span>            : </a>
+<a name="753"><span class="lineNum">     753 </span>            :   /** Column number to show right margin at. */</a>
+<a name="754"><span class="lineNum">     754 </span>            :   short margin_column = 0;</a>
+<a name="755"><span class="lineNum">     755 </span>            :   char _pad3[2] = {};</a>
+<a name="756"><span class="lineNum">     756 </span>            : </a>
+<a name="757"><span class="lineNum">     757 </span>            :   /** Keep last. */</a>
+<a name="758"><span class="lineNum">     758 </span>            :   ed::text::SpaceText_Runtime *runtime = nullptr;</a>
+<a name="759"><span class="lineNum">     759 </span>            : };</a>
+<a name="760"><span class="lineNum">     760 </span>            : </a>
+<a name="761"><span class="lineNum">     761 </span>            : /** \} */</a>
+<a name="762"><span class="lineNum">     762 </span>            : </a>
+<a name="763"><span class="lineNum">     763 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="764"><span class="lineNum">     764 </span>            : /** \name Script View (Obsolete)</a>
+<a name="765"><span class="lineNum">     765 </span>            :  * \{ */</a>
+<a name="766"><span class="lineNum">     766 </span>            : </a>
+<a name="767"><span class="lineNum">     767 </span>            : /** Script Runtime Data - Obsolete (pre 2.5). */</a>
+<a name="768"><span class="lineNum">     768 </span>            : struct Script {</a>
+<a name="769"><span class="lineNum">     769 </span>            :   ID id;</a>
+<a name="770"><span class="lineNum">     770 </span>            : </a>
+<a name="771"><span class="lineNum">     771 </span>            :   void *py_draw = nullptr;</a>
+<a name="772"><span class="lineNum">     772 </span>            :   void *py_event = nullptr;</a>
+<a name="773"><span class="lineNum">     773 </span>            :   void *py_button = nullptr;</a>
+<a name="774"><span class="lineNum">     774 </span>            :   void *py_browsercallback = nullptr;</a>
+<a name="775"><span class="lineNum">     775 </span>            :   void *py_globaldict = nullptr;</a>
+<a name="776"><span class="lineNum">     776 </span>            : </a>
+<a name="777"><span class="lineNum">     777 </span>            :   int flags = 0, lastspace = 0;</a>
+<a name="778"><span class="lineNum">     778 </span>            :   /**</a>
+<a name="779"><span class="lineNum">     779 </span>            :    * Store the script file here so we can re-run it on loading blender,</a>
+<a name="780"><span class="lineNum">     780 </span>            :    * if &quot;Enable Scripts&quot; is on</a>
+<a name="781"><span class="lineNum">     781 </span>            :    */</a>
+<a name="782"><span class="lineNum">     782 </span>            :   char scriptname[/*FILE_MAX*/ 1024] = &quot;&quot;;</a>
+<a name="783"><span class="lineNum">     783 </span>            :   char scriptarg[/*FILE_MAXFILE*/ 256] = &quot;&quot;;</a>
+<a name="784"><span class="lineNum">     784 </span>            : };</a>
+<a name="785"><span class="lineNum">     785 </span>            : #define SCRIPT_SET_NULL(_script) \</a>
+<a name="786"><span class="lineNum">     786 </span>            :   _script-&gt;py_draw = _script-&gt;py_event = _script-&gt;py_button = _script-&gt;py_browsercallback = \</a>
+<a name="787"><span class="lineNum">     787 </span>            :       _script-&gt;py_globaldict = nullptr; \</a>
+<a name="788"><span class="lineNum">     788 </span>            :   _script-&gt;flags = 0</a>
+<a name="789"><span class="lineNum">     789 </span>            : </a>
+<a name="790"><span class="lineNum">     790 </span>            : /** Script View - Obsolete (pre 2.5). */</a>
+<a name="791"><span class="lineNum">     791 </span>            : struct SpaceScript {</a>
+<a name="792"><span class="lineNum">     792 </span>            :   SpaceLink *next = nullptr, *prev = nullptr;</a>
+<a name="793"><span class="lineNum">     793 </span>            :   /** Storage of regions for inactive spaces. */</a>
+<a name="794"><span class="lineNum">     794 </span>            :   ListBaseT&lt;ARegion&gt; regionbase = {nullptr, nullptr};</a>
+<a name="795"><span class="lineNum">     795 </span>            :   char spacetype = 0;</a>
+<a name="796"><span class="lineNum">     796 </span>            :   char link_flag = 0;</a>
+<a name="797"><span class="lineNum">     797 </span>            :   char _pad0[6] = {};</a>
+<a name="798"><span class="lineNum">     798 </span>            :   /* End 'SpaceLink' header. */</a>
+<a name="799"><span class="lineNum">     799 </span>            : </a>
+<a name="800"><span class="lineNum">     800 </span>            :   struct Script *script = nullptr;</a>
+<a name="801"><span class="lineNum">     801 </span>            : </a>
+<a name="802"><span class="lineNum">     802 </span>            :   short flags = 0, menunr = 0;</a>
+<a name="803"><span class="lineNum">     803 </span>            :   char _pad1[4] = {};</a>
+<a name="804"><span class="lineNum">     804 </span>            : </a>
+<a name="805"><span class="lineNum">     805 </span>            :   void *but_refs = nullptr;</a>
+<a name="806"><span class="lineNum">     806 </span>            : };</a>
+<a name="807"><span class="lineNum">     807 </span>            : </a>
+<a name="808"><span class="lineNum">     808 </span>            : /** \} */</a>
+<a name="809"><span class="lineNum">     809 </span>            : </a>
+<a name="810"><span class="lineNum">     810 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="811"><span class="lineNum">     811 </span>            : /** \name Nodes Editor</a>
+<a name="812"><span class="lineNum">     812 </span>            :  * \{ */</a>
+<a name="813"><span class="lineNum">     813 </span>            : </a>
+<a name="814"><span class="lineNum">     814 </span>            : struct bNodeTreePath {</a>
+<a name="815"><span class="lineNum">     815 </span>            :   struct bNodeTreePath *next = nullptr, *prev = nullptr;</a>
+<a name="816"><span class="lineNum">     816 </span>            : </a>
+<a name="817"><span class="lineNum">     817 </span>            :   struct bNodeTree *nodetree = nullptr;</a>
+<a name="818"><span class="lineNum">     818 </span>            :   /** Base key for nodes in this tree instance. */</a>
+<a name="819"><span class="lineNum">     819 </span>            :   bNodeInstanceKey parent_key;</a>
+<a name="820"><span class="lineNum">     820 </span>            :   /** V2d center point, so node trees can have different offsets in editors. */</a>
+<a name="821"><span class="lineNum">     821 </span>            :   float view_center[2] = {};</a>
+<a name="822"><span class="lineNum">     822 </span>            :   /** V2d width. Used to calculate zoom levels for node editors. */</a>
+<a name="823"><span class="lineNum">     823 </span>            :   float view_width = 0.0f;</a>
+<a name="824"><span class="lineNum">     824 </span>            : </a>
+<a name="825"><span class="lineNum">     825 </span>            :   char node_name[/*MAX_NAME*/ 64] = &quot;&quot;;</a>
+<a name="826"><span class="lineNum">     826 </span>            :   char display_name[/*MAX_NAME*/ 64] = &quot;&quot;;</a>
+<a name="827"><span class="lineNum">     827 </span>            : };</a>
+<a name="828"><span class="lineNum">     828 </span>            : </a>
+<a name="829"><span class="lineNum">     829 </span>            : struct SpaceNodeOverlay {</a>
+<a name="830"><span class="lineNum">     830 </span>            :   eSpaceNodeOverlay_Flag flag = {};</a>
+<a name="831"><span class="lineNum">     831 </span>            :   eSpaceNodeOverlay_preview_shape preview_shape = SN_OVERLAY_PREVIEW_FLAT;</a>
+<a name="832"><span class="lineNum">     832 </span>            :   float passepartout_alpha = 0;</a>
+<a name="833"><span class="lineNum">     833 </span>            :   char _pad[4] = {};</a>
+<a name="834"><span class="lineNum">     834 </span>            : };</a>
+<a name="835"><span class="lineNum">     835 </span>            : </a>
+<a name="836"><span class="lineNum">     836 </span>            : struct SpaceNode {</a>
+<a name="837"><span class="lineNum">     837 </span><span class="lineNoCov">          0 :   DNA_DEFINE_CXX_METHODS(SpaceNode)</span></a>
+<a name="838"><span class="lineNum">     838 </span>            : </a>
+<a name="839"><span class="lineNum">     839 </span>            :   SpaceLink *next = nullptr, *prev = nullptr;</a>
+<a name="840"><span class="lineNum">     840 </span>            :   /** Storage of regions for inactive spaces. */</a>
+<a name="841"><span class="lineNum">     841 </span>            :   ListBaseT&lt;ARegion&gt; regionbase = {nullptr, nullptr};</a>
+<a name="842"><span class="lineNum">     842 </span>            :   char spacetype = 0;</a>
+<a name="843"><span class="lineNum">     843 </span>            :   eSpace_Link_Flag link_flag = {};</a>
+<a name="844"><span class="lineNum">     844 </span>            :   char _pad0[6] = {};</a>
+<a name="845"><span class="lineNum">     845 </span>            :   /* End 'SpaceLink' header. */</a>
+<a name="846"><span class="lineNum">     846 </span>            : </a>
+<a name="847"><span class="lineNum">     847 </span>            :   /** Deprecated, copied to region. */</a>
+<a name="848"><span class="lineNum">     848 </span>            :   DNA_DEPRECATED View2D v2d;</a>
+<a name="849"><span class="lineNum">     849 </span>            : </a>
+<a name="850"><span class="lineNum">     850 </span>            :   /** Context, no need to save in file? well... pinning... */</a>
+<a name="851"><span class="lineNum">     851 </span>            :   struct ID *id = nullptr, *from = nullptr;</a>
+<a name="852"><span class="lineNum">     852 </span>            : </a>
+<a name="853"><span class="lineNum">     853 </span>            :   eSpaceNode_Flag flag = {};</a>
+<a name="854"><span class="lineNum">     854 </span>            : </a>
+<a name="855"><span class="lineNum">     855 </span>            :   /** Direction for offsetting nodes on insertion. */</a>
+<a name="856"><span class="lineNum">     856 </span>            :   eSpaceNode_InsertOffsetDir insert_ofs_dir = SNODE_INSERTOFS_DIR_RIGHT;</a>
+<a name="857"><span class="lineNum">     857 </span>            :   char _pad1 = {};</a>
+<a name="858"><span class="lineNum">     858 </span>            : </a>
+<a name="859"><span class="lineNum">     859 </span>            :   /** Offset for drawing the backdrop. */</a>
+<a name="860"><span class="lineNum">     860 </span>            :   float xof = 0, yof = 0;</a>
+<a name="861"><span class="lineNum">     861 </span>            :   /** Zoom for backdrop. */</a>
+<a name="862"><span class="lineNum">     862 </span>            :   float zoom = 0;</a>
+<a name="863"><span class="lineNum">     863 </span>            : </a>
+<a name="864"><span class="lineNum">     864 </span>            :   /**</a>
+<a name="865"><span class="lineNum">     865 </span>            :    * XXX nodetree pointer info is all in the path stack now,</a>
+<a name="866"><span class="lineNum">     866 </span>            :    * remove later on and use bNodeTreePath instead.</a>
+<a name="867"><span class="lineNum">     867 </span>            :    * For now these variables are set when pushing/popping</a>
+<a name="868"><span class="lineNum">     868 </span>            :    * from path stack, to avoid having to update all the functions and operators.</a>
+<a name="869"><span class="lineNum">     869 </span>            :    * Can be done when design is accepted and everything is properly tested.</a>
+<a name="870"><span class="lineNum">     870 </span>            :    */</a>
+<a name="871"><span class="lineNum">     871 </span>            :   ListBaseT&lt;bNodeTreePath&gt; treepath = {nullptr, nullptr};</a>
+<a name="872"><span class="lineNum">     872 </span>            : </a>
+<a name="873"><span class="lineNum">     873 </span>            :   /* The tree farthest down in the group hierarchy. */</a>
+<a name="874"><span class="lineNum">     874 </span>            :   struct bNodeTree *edittree = nullptr;</a>
+<a name="875"><span class="lineNum">     875 </span>            : </a>
+<a name="876"><span class="lineNum">     876 </span>            :   struct bNodeTree *nodetree = nullptr;</a>
+<a name="877"><span class="lineNum">     877 </span>            : </a>
+<a name="878"><span class="lineNum">     878 </span>            :   /* tree type for the current node tree */</a>
+<a name="879"><span class="lineNum">     879 </span>            :   char tree_idname[64] = &quot;&quot;;</a>
+<a name="880"><span class="lineNum">     880 </span>            :   /** Same as #bNodeTree::type (deprecated). */</a>
+<a name="881"><span class="lineNum">     881 </span>            :   DNA_DEPRECATED int treetype = 0;</a>
+<a name="882"><span class="lineNum">     882 </span>            : </a>
+<a name="883"><span class="lineNum">     883 </span>            :   /** Texture-from object, world or brush. */</a>
+<a name="884"><span class="lineNum">     884 </span>            :   eSpaceNode_TexFrom texfrom = SNODE_TEX_WORLD;</a>
+<a name="885"><span class="lineNum">     885 </span>            :   /** Shader from object or world. */</a>
+<a name="886"><span class="lineNum">     886 </span>            :   eSpaceNode_ShaderFrom shaderfrom = SNODE_SHADER_OBJECT;</a>
+<a name="887"><span class="lineNum">     887 </span>            :   /**</a>
+<a name="888"><span class="lineNum">     888 </span>            :    * The sub type of the node tree being edited.</a>
+<a name="889"><span class="lineNum">     889 </span>            :    * #SpaceNodeGeometryNodesType or #SpaceNodeCompositorNodesType.</a>
+<a name="890"><span class="lineNum">     890 </span>            :    */</a>
+<a name="891"><span class="lineNum">     891 </span>            :   char node_tree_sub_type = 0;</a>
+<a name="892"><span class="lineNum">     892 </span>            : </a>
+<a name="893"><span class="lineNum">     893 </span>            :   /**</a>
+<a name="894"><span class="lineNum">     894 </span>            :    * Used as the editor's top-level node group for node trees that are not part of the context and</a>
+<a name="895"><span class="lineNum">     895 </span>            :    * thus needs to be stored in the node editor. For instance #SNODE_GEOMETRY_MODIFIER is part of</a>
+<a name="896"><span class="lineNum">     896 </span>            :    * the context since it is stored on the active modifier, while #SNODE_GEOMETRY_TOOL is not part</a>
+<a name="897"><span class="lineNum">     897 </span>            :    * of the context.</a>
+<a name="898"><span class="lineNum">     898 </span>            :    */</a>
+<a name="899"><span class="lineNum">     899 </span>            :   struct bNodeTree *selected_node_group = nullptr;</a>
+<a name="900"><span class="lineNum">     900 </span>            : </a>
+<a name="901"><span class="lineNum">     901 </span>            :   /** Grease-pencil data. */</a>
+<a name="902"><span class="lineNum">     902 </span>            :   struct bGPdata *gpd = nullptr;</a>
+<a name="903"><span class="lineNum">     903 </span>            : </a>
+<a name="904"><span class="lineNum">     904 </span>            :   eSpaceNode_Gizmo_Flag gizmo_flag = {};</a>
+<a name="905"><span class="lineNum">     905 </span>            :   char _pad2[7] = {};</a>
+<a name="906"><span class="lineNum">     906 </span>            : </a>
+<a name="907"><span class="lineNum">     907 </span>            :   SpaceNodeOverlay overlay;</a>
+<a name="908"><span class="lineNum">     908 </span>            : </a>
+<a name="909"><span class="lineNum">     909 </span>            :   ed::space_node::SpaceNode_Runtime *runtime = nullptr;</a>
+<a name="910"><span class="lineNum">     910 </span>            : };</a>
+<a name="911"><span class="lineNum">     911 </span>            : </a>
+<a name="912"><span class="lineNum">     912 </span>            : /** \} */</a>
+<a name="913"><span class="lineNum">     913 </span>            : </a>
+<a name="914"><span class="lineNum">     914 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="915"><span class="lineNum">     915 </span>            : /** \name Console</a>
+<a name="916"><span class="lineNum">     916 </span>            :  * \{ */</a>
+<a name="917"><span class="lineNum">     917 </span>            : </a>
+<a name="918"><span class="lineNum">     918 </span>            : /** Console content. */</a>
+<a name="919"><span class="lineNum">     919 </span>            : struct ConsoleLine {</a>
+<a name="920"><span class="lineNum">     920 </span>            :   struct ConsoleLine *next = nullptr, *prev = nullptr;</a>
+<a name="921"><span class="lineNum">     921 </span>            : </a>
+<a name="922"><span class="lineNum">     922 </span>            :   /* Keep these 3 vars so as to share free, realloc functions. */</a>
+<a name="923"><span class="lineNum">     923 </span>            :   /** Allocated length. */</a>
+<a name="924"><span class="lineNum">     924 </span>            :   int len_alloc = 0;</a>
+<a name="925"><span class="lineNum">     925 </span>            :   /** Real length: `strlen()`. */</a>
+<a name="926"><span class="lineNum">     926 </span>            :   int len = 0;</a>
+<a name="927"><span class="lineNum">     927 </span>            :   char *line = nullptr;</a>
+<a name="928"><span class="lineNum">     928 </span>            : </a>
+<a name="929"><span class="lineNum">     929 </span>            :   int cursor = 0;</a>
+<a name="930"><span class="lineNum">     930 </span>            :   /** Only for use when in the 'scrollback' listbase. */</a>
+<a name="931"><span class="lineNum">     931 </span>            :   int type = 0;</a>
+<a name="932"><span class="lineNum">     932 </span>            : };</a>
+<a name="933"><span class="lineNum">     933 </span>            : </a>
+<a name="934"><span class="lineNum">     934 </span>            : /** Console View. */</a>
+<a name="935"><span class="lineNum">     935 </span>            : struct SpaceConsole {</a>
+<a name="936"><span class="lineNum">     936 </span>            :   SpaceLink *next = nullptr, *prev = nullptr;</a>
+<a name="937"><span class="lineNum">     937 </span>            :   /** Storage of regions for inactive spaces. */</a>
+<a name="938"><span class="lineNum">     938 </span>            :   ListBaseT&lt;ARegion&gt; regionbase = {nullptr, nullptr};</a>
+<a name="939"><span class="lineNum">     939 </span>            :   char spacetype = 0;</a>
+<a name="940"><span class="lineNum">     940 </span>            :   char link_flag = 0;</a>
+<a name="941"><span class="lineNum">     941 </span>            :   char _pad0[6] = {};</a>
+<a name="942"><span class="lineNum">     942 </span>            :   /* End 'SpaceLink' header. */</a>
+<a name="943"><span class="lineNum">     943 </span>            : </a>
+<a name="944"><span class="lineNum">     944 </span>            :   /* Space variables. */</a>
+<a name="945"><span class="lineNum">     945 </span>            : </a>
+<a name="946"><span class="lineNum">     946 </span>            :   /** ConsoleLine; output. */</a>
+<a name="947"><span class="lineNum">     947 </span>            :   ListBaseT&lt;ConsoleLine&gt; scrollback = {nullptr, nullptr};</a>
+<a name="948"><span class="lineNum">     948 </span>            :   /** ConsoleLine; command history, current edited line is the first. */</a>
+<a name="949"><span class="lineNum">     949 </span>            :   ListBaseT&lt;ConsoleLine&gt; history = {nullptr, nullptr};</a>
+<a name="950"><span class="lineNum">     950 </span>            :   char prompt[256] = &quot;&quot;;</a>
+<a name="951"><span class="lineNum">     951 </span>            :   /** Multiple consoles are possible, not just python. */</a>
+<a name="952"><span class="lineNum">     952 </span>            :   char language[32] = &quot;&quot;;</a>
+<a name="953"><span class="lineNum">     953 </span>            : </a>
+<a name="954"><span class="lineNum">     954 </span>            :   int line_height = 0;</a>
+<a name="955"><span class="lineNum">     955 </span>            : </a>
+<a name="956"><span class="lineNum">     956 </span>            :   /** Index into history of most recent up/down arrow keys. */</a>
+<a name="957"><span class="lineNum">     957 </span>            :   int history_index = 0;</a>
+<a name="958"><span class="lineNum">     958 </span>            : </a>
+<a name="959"><span class="lineNum">     959 </span>            :   /** Selection offset in bytes. */</a>
+<a name="960"><span class="lineNum">     960 </span>            :   int sel_start = 0;</a>
+<a name="961"><span class="lineNum">     961 </span>            :   int sel_end = 0;</a>
+<a name="962"><span class="lineNum">     962 </span>            : </a>
+<a name="963"><span class="lineNum">     963 </span>            :   /** Keep last. */</a>
+<a name="964"><span class="lineNum">     964 </span>            :   SpaceConsole_Runtime *runtime = nullptr;</a>
+<a name="965"><span class="lineNum">     965 </span>            : };</a>
+<a name="966"><span class="lineNum">     966 </span>            : </a>
+<a name="967"><span class="lineNum">     967 </span>            : /** \} */</a>
+<a name="968"><span class="lineNum">     968 </span>            : </a>
+<a name="969"><span class="lineNum">     969 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="970"><span class="lineNum">     970 </span>            : /** \name User Preferences</a>
+<a name="971"><span class="lineNum">     971 </span>            :  * \{ */</a>
+<a name="972"><span class="lineNum">     972 </span>            : </a>
+<a name="973"><span class="lineNum">     973 </span>            : struct SpaceUserPref {</a>
+<a name="974"><span class="lineNum">     974 </span><span class="lineNoCov">          0 :   DNA_DEFINE_CXX_METHODS(SpaceUserPref)</span></a>
+<a name="975"><span class="lineNum">     975 </span>            :   SpaceLink *next = nullptr, *prev = nullptr;</a>
+<a name="976"><span class="lineNum">     976 </span>            :   /** Storage of regions for inactive spaces. */</a>
+<a name="977"><span class="lineNum">     977 </span>            :   ListBaseT&lt;ARegion&gt; regionbase = {nullptr, nullptr};</a>
+<a name="978"><span class="lineNum">     978 </span>            :   char spacetype = 0;</a>
+<a name="979"><span class="lineNum">     979 </span>            :   char link_flag = 0;</a>
+<a name="980"><span class="lineNum">     980 </span>            :   char _pad0[6] = {};</a>
+<a name="981"><span class="lineNum">     981 </span>            :   /* End 'SpaceLink' header. */</a>
+<a name="982"><span class="lineNum">     982 </span>            : </a>
+<a name="983"><span class="lineNum">     983 </span>            :   char _pad1[7] = {};</a>
+<a name="984"><span class="lineNum">     984 </span>            :   char filter_type = 0;</a>
+<a name="985"><span class="lineNum">     985 </span>            :   /** Search term for filtering in the UI. */</a>
+<a name="986"><span class="lineNum">     986 </span>            :   char filter[64] = &quot;&quot;;</a>
+<a name="987"><span class="lineNum">     987 </span>            :   SpaceUserPref_Runtime *runtime = nullptr;</a>
+<a name="988"><span class="lineNum">     988 </span>            : };</a>
+<a name="989"><span class="lineNum">     989 </span>            : </a>
+<a name="990"><span class="lineNum">     990 </span>            : /** \} */</a>
+<a name="991"><span class="lineNum">     991 </span>            : </a>
+<a name="992"><span class="lineNum">     992 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="993"><span class="lineNum">     993 </span>            : /** \name Motion Tracking</a>
+<a name="994"><span class="lineNum">     994 </span>            :  * \{ */</a>
+<a name="995"><span class="lineNum">     995 </span>            : </a>
+<a name="996"><span class="lineNum">     996 </span>            : struct SpaceClipOverlay {</a>
+<a name="997"><span class="lineNum">     997 </span>            :   /* eSpaceClipOverlay_Flag */</a>
+<a name="998"><span class="lineNum">     998 </span>            :   int flag = SC_SHOW_OVERLAYS | SC_SHOW_CURSOR;</a>
+<a name="999"><span class="lineNum">     999 </span>            :   char _pad0[4] = {};</a>
+<a name="1000"><span class="lineNum">    1000 </span>            : };</a>
+<a name="1001"><span class="lineNum">    1001 </span>            : </a>
+<a name="1002"><span class="lineNum">    1002 </span>            : /** Clip Editor. */</a>
+<a name="1003"><span class="lineNum">    1003 </span>            : struct SpaceClip {</a>
+<a name="1004"><span class="lineNum">    1004 </span>            :   SpaceLink *next = nullptr, *prev = nullptr;</a>
+<a name="1005"><span class="lineNum">    1005 </span>            :   /** Storage of regions for inactive spaces. */</a>
+<a name="1006"><span class="lineNum">    1006 </span>            :   ListBaseT&lt;ARegion&gt; regionbase = {nullptr, nullptr};</a>
+<a name="1007"><span class="lineNum">    1007 </span>            :   char spacetype = SPACE_CLIP;</a>
+<a name="1008"><span class="lineNum">    1008 </span>            :   eSpace_Link_Flag link_flag = {};</a>
+<a name="1009"><span class="lineNum">    1009 </span>            :   char _pad0[6] = {};</a>
+<a name="1010"><span class="lineNum">    1010 </span>            :   /* End 'SpaceLink' header. */</a>
+<a name="1011"><span class="lineNum">    1011 </span>            : </a>
+<a name="1012"><span class="lineNum">    1012 </span>            :   eSpaceClip_Gizmo_Flag gizmo_flag = {};</a>
+<a name="1013"><span class="lineNum">    1013 </span>            :   char _pad1[3] = {};</a>
+<a name="1014"><span class="lineNum">    1014 </span>            : </a>
+<a name="1015"><span class="lineNum">    1015 </span>            :   /** User defined offset, image is centered. */</a>
+<a name="1016"><span class="lineNum">    1016 </span>            :   float xof = 0, yof = 0;</a>
+<a name="1017"><span class="lineNum">    1017 </span>            :   /** User defined offset from locked position. */</a>
+<a name="1018"><span class="lineNum">    1018 </span>            :   float xlockof = 0, ylockof = 0;</a>
+<a name="1019"><span class="lineNum">    1019 </span>            :   /** User defined zoom level. */</a>
+<a name="1020"><span class="lineNum">    1020 </span>            :   float zoom = 1.0f;</a>
+<a name="1021"><span class="lineNum">    1021 </span>            : </a>
+<a name="1022"><span class="lineNum">    1022 </span>            :   /** User of clip. */</a>
+<a name="1023"><span class="lineNum">    1023 </span>            :   struct MovieClipUser user;</a>
+<a name="1024"><span class="lineNum">    1024 </span>            :   /** Clip data. */</a>
+<a name="1025"><span class="lineNum">    1025 </span>            :   struct MovieClip *clip = nullptr;</a>
+<a name="1026"><span class="lineNum">    1026 </span>            :   /** Different scoped displayed in space panels. */</a>
+<a name="1027"><span class="lineNum">    1027 </span>            :   struct MovieClipScopes scopes;</a>
+<a name="1028"><span class="lineNum">    1028 </span>            : </a>
+<a name="1029"><span class="lineNum">    1029 </span>            :   /** Flags. */</a>
+<a name="1030"><span class="lineNum">    1030 </span>            :   eSpaceClip_Flag flag = SC_SHOW_MARKER_PATTERN | SC_SHOW_TRACK_PATH |</a>
+<a name="1031"><span class="lineNum">    1031 </span>            :                          SC_SHOW_GRAPH_TRACKS_MOTION | SC_SHOW_GRAPH_FRAMES | SC_SHOW_ANNOTATION;</a>
+<a name="1032"><span class="lineNum">    1032 </span>            :   /** Editor mode (editing context being displayed). */</a>
+<a name="1033"><span class="lineNum">    1033 </span>            :   eSpaceClip_Mode mode = SC_MODE_TRACKING;</a>
+<a name="1034"><span class="lineNum">    1034 </span>            :   /** Type of the clip editor view. */</a>
+<a name="1035"><span class="lineNum">    1035 </span>            :   eSpaceClip_View view = SC_VIEW_CLIP;</a>
+<a name="1036"><span class="lineNum">    1036 </span>            : </a>
+<a name="1037"><span class="lineNum">    1037 </span>            :   /** Length of displaying path, in frames. */</a>
+<a name="1038"><span class="lineNum">    1038 </span>            :   int path_length = 20;</a>
+<a name="1039"><span class="lineNum">    1039 </span>            : </a>
+<a name="1040"><span class="lineNum">    1040 </span>            :   /* current stabilization data */</a>
+<a name="1041"><span class="lineNum">    1041 </span>            :   /** Pre-composed stabilization data. */</a>
+<a name="1042"><span class="lineNum">    1042 </span>            :   float loc[2] = {0, 0}, scale = 0, angle = 0;</a>
+<a name="1043"><span class="lineNum">    1043 </span>            :   char _pad[4] = {};</a>
+<a name="1044"><span class="lineNum">    1044 </span>            :   /**</a>
+<a name="1045"><span class="lineNum">    1045 </span>            :    * Current stabilization matrix and the same matrix in unified space,</a>
+<a name="1046"><span class="lineNum">    1046 </span>            :    * defined when drawing and used for mouse position calculation.</a>
+<a name="1047"><span class="lineNum">    1047 </span>            :    */</a>
+<a name="1048"><span class="lineNum">    1048 </span>            :   float stabmat[4][4] = _DNA_DEFAULT_UNIT_M4;</a>
+<a name="1049"><span class="lineNum">    1049 </span>            :   float unistabmat[4][4] = _DNA_DEFAULT_UNIT_M4;</a>
+<a name="1050"><span class="lineNum">    1050 </span>            : </a>
+<a name="1051"><span class="lineNum">    1051 </span>            :   /** Movie postprocessing (#MovieClipPostprocFlag). */</a>
+<a name="1052"><span class="lineNum">    1052 </span>            :   int postproc_flag = 0;</a>
+<a name="1053"><span class="lineNum">    1053 </span>            : </a>
+<a name="1054"><span class="lineNum">    1054 </span>            :   /* grease pencil */</a>
+<a name="1055"><span class="lineNum">    1055 </span>            :   eSpaceClip_GPencil_Source gpencil_src = SC_GPENCIL_SRC_CLIP;</a>
+<a name="1056"><span class="lineNum">    1056 </span>            :   char _pad2[2] = {};</a>
+<a name="1057"><span class="lineNum">    1057 </span>            : </a>
+<a name="1058"><span class="lineNum">    1058 </span>            :   /** Pivot point for transforms. */</a>
+<a name="1059"><span class="lineNum">    1059 </span>            :   eView3D_Around around = V3D_AROUND_CENTER_MEDIAN;</a>
+<a name="1060"><span class="lineNum">    1060 </span>            :   char _pad4[4] = {};</a>
+<a name="1061"><span class="lineNum">    1061 </span>            : </a>
+<a name="1062"><span class="lineNum">    1062 </span>            :   /** Mask editor 2d cursor. */</a>
+<a name="1063"><span class="lineNum">    1063 </span>            :   float cursor[2] = {0, 0};</a>
+<a name="1064"><span class="lineNum">    1064 </span>            : </a>
+<a name="1065"><span class="lineNum">    1065 </span>            :   MaskSpaceInfo mask_info;</a>
+<a name="1066"><span class="lineNum">    1066 </span>            :   struct SpaceClipOverlay overlay;</a>
+<a name="1067"><span class="lineNum">    1067 </span>            : };</a>
+<a name="1068"><span class="lineNum">    1068 </span>            : </a>
+<a name="1069"><span class="lineNum">    1069 </span>            : /** \} */</a>
+<a name="1070"><span class="lineNum">    1070 </span>            : </a>
+<a name="1071"><span class="lineNum">    1071 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="1072"><span class="lineNum">    1072 </span>            : /** \name Top Bar</a>
+<a name="1073"><span class="lineNum">    1073 </span>            :  * \{ */</a>
+<a name="1074"><span class="lineNum">    1074 </span>            : </a>
+<a name="1075"><span class="lineNum">    1075 </span>            : struct SpaceTopBar {</a>
+<a name="1076"><span class="lineNum">    1076 </span>            :   SpaceLink *next = nullptr, *prev = nullptr;</a>
+<a name="1077"><span class="lineNum">    1077 </span>            :   /** Storage of regions for inactive spaces. */</a>
+<a name="1078"><span class="lineNum">    1078 </span>            :   ListBaseT&lt;ARegion&gt; regionbase = {nullptr, nullptr};</a>
+<a name="1079"><span class="lineNum">    1079 </span>            :   char spacetype = 0;</a>
+<a name="1080"><span class="lineNum">    1080 </span>            :   char link_flag = 0;</a>
+<a name="1081"><span class="lineNum">    1081 </span>            :   char _pad0[6] = {};</a>
+<a name="1082"><span class="lineNum">    1082 </span>            :   /* End 'SpaceLink' header. */</a>
+<a name="1083"><span class="lineNum">    1083 </span>            : };</a>
+<a name="1084"><span class="lineNum">    1084 </span>            : </a>
+<a name="1085"><span class="lineNum">    1085 </span>            : /** \} */</a>
+<a name="1086"><span class="lineNum">    1086 </span>            : </a>
+<a name="1087"><span class="lineNum">    1087 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="1088"><span class="lineNum">    1088 </span>            : /** \name Status Bar</a>
+<a name="1089"><span class="lineNum">    1089 </span>            :  * \{ */</a>
+<a name="1090"><span class="lineNum">    1090 </span>            : </a>
+<a name="1091"><span class="lineNum">    1091 </span>            : struct SpaceStatusBar {</a>
+<a name="1092"><span class="lineNum">    1092 </span>            :   SpaceLink *next = nullptr, *prev = nullptr;</a>
+<a name="1093"><span class="lineNum">    1093 </span>            :   /** Storage of regions for inactive spaces. */</a>
+<a name="1094"><span class="lineNum">    1094 </span>            :   ListBaseT&lt;ARegion&gt; regionbase = {nullptr, nullptr};</a>
+<a name="1095"><span class="lineNum">    1095 </span>            :   char spacetype = 0;</a>
+<a name="1096"><span class="lineNum">    1096 </span>            :   char link_flag = 0;</a>
+<a name="1097"><span class="lineNum">    1097 </span>            :   char _pad0[6] = {};</a>
+<a name="1098"><span class="lineNum">    1098 </span>            :   /* End 'SpaceLink' header. */</a>
+<a name="1099"><span class="lineNum">    1099 </span>            : };</a>
+<a name="1100"><span class="lineNum">    1100 </span>            : </a>
+<a name="1101"><span class="lineNum">    1101 </span>            : /** \} */</a>
+<a name="1102"><span class="lineNum">    1102 </span>            : </a>
+<a name="1103"><span class="lineNum">    1103 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="1104"><span class="lineNum">    1104 </span>            : /** \name Spreadsheet</a>
+<a name="1105"><span class="lineNum">    1105 </span>            :  * \{ */</a>
+<a name="1106"><span class="lineNum">    1106 </span>            : </a>
+<a name="1107"><span class="lineNum">    1107 </span>            : enum SpreadsheetClosureInputOutput : int8_t {</a>
+<a name="1108"><span class="lineNum">    1108 </span>            :   SPREADSHEET_CLOSURE_NONE = 0,</a>
+<a name="1109"><span class="lineNum">    1109 </span>            :   SPREADSHEET_CLOSURE_INPUT = 1,</a>
+<a name="1110"><span class="lineNum">    1110 </span>            :   SPREADSHEET_CLOSURE_OUTPUT = 2,</a>
+<a name="1111"><span class="lineNum">    1111 </span>            : };</a>
+<a name="1112"><span class="lineNum">    1112 </span>            : </a>
+<a name="1113"><span class="lineNum">    1113 </span>            : struct SpreadsheetColumnID {</a>
+<a name="1114"><span class="lineNum">    1114 </span>            :   char *name = nullptr;</a>
+<a name="1115"><span class="lineNum">    1115 </span>            : };</a>
+<a name="1116"><span class="lineNum">    1116 </span>            : </a>
+<a name="1117"><span class="lineNum">    1117 </span>            : struct SpreadsheetColumn {</a>
+<a name="1118"><span class="lineNum">    1118 </span>            :   /**</a>
+<a name="1119"><span class="lineNum">    1119 </span>            :    * Identifies the data in the column.</a>
+<a name="1120"><span class="lineNum">    1120 </span>            :    * This is a pointer instead of a struct to make it easier if we want to &quot;subclass&quot;</a>
+<a name="1121"><span class="lineNum">    1121 </span>            :    * #SpreadsheetColumnID in the future for different kinds of ids.</a>
+<a name="1122"><span class="lineNum">    1122 </span>            :    */</a>
+<a name="1123"><span class="lineNum">    1123 </span>            :   SpreadsheetColumnID *id = nullptr;</a>
+<a name="1124"><span class="lineNum">    1124 </span>            : </a>
+<a name="1125"><span class="lineNum">    1125 </span>            :   /**</a>
+<a name="1126"><span class="lineNum">    1126 </span>            :    * An indicator of the type of values in the column, set at runtime.</a>
+<a name="1127"><span class="lineNum">    1127 </span>            :    * #eSpreadsheetColumnValueType.</a>
+<a name="1128"><span class="lineNum">    1128 </span>            :    */</a>
+<a name="1129"><span class="lineNum">    1129 </span>            :   uint8_t data_type = 0;</a>
+<a name="1130"><span class="lineNum">    1130 </span>            :   char _pad0[3] = {};</a>
+<a name="1131"><span class="lineNum">    1131 </span>            :   /** #eSpreadsheetColumnFlag. */</a>
+<a name="1132"><span class="lineNum">    1132 </span>            :   uint32_t flag = 0;</a>
+<a name="1133"><span class="lineNum">    1133 </span>            :   /** Width in SPREADSHEET_WIDTH_UNIT. */</a>
+<a name="1134"><span class="lineNum">    1134 </span>            :   float width = 0;</a>
+<a name="1135"><span class="lineNum">    1135 </span>            : </a>
+<a name="1136"><span class="lineNum">    1136 </span>            :   /**</a>
+<a name="1137"><span class="lineNum">    1137 </span>            :    * A logical time set when the column is used. This is used to be able to remove long-unused</a>
+<a name="1138"><span class="lineNum">    1138 </span>            :    * columns when there are too many. This is set from #SpreadsheetTable.column_use_clock.</a>
+<a name="1139"><span class="lineNum">    1139 </span>            :    */</a>
+<a name="1140"><span class="lineNum">    1140 </span>            :   uint32_t last_used = 0;</a>
+<a name="1141"><span class="lineNum">    1141 </span>            : </a>
+<a name="1142"><span class="lineNum">    1142 </span>            :   /**</a>
+<a name="1143"><span class="lineNum">    1143 </span>            :    * The final column name generated by the data source, also just</a>
+<a name="1144"><span class="lineNum">    1144 </span>            :    * cached at runtime when the data source columns are generated.</a>
+<a name="1145"><span class="lineNum">    1145 </span>            :    */</a>
+<a name="1146"><span class="lineNum">    1146 </span>            :   char *display_name = nullptr;</a>
+<a name="1147"><span class="lineNum">    1147 </span>            : </a>
+<a name="1148"><span class="lineNum">    1148 </span>            :   ed::spreadsheet::SpreadsheetColumnRuntime *runtime = nullptr;</a>
+<a name="1149"><span class="lineNum">    1149 </span>            : </a>
+<a name="1150"><span class="lineNum">    1150 </span>            : #ifdef __cplusplus</a>
+<a name="1151"><span class="lineNum">    1151 </span><span class="lineNoCov">          0 :   bool is_available() const</span></a>
+<a name="1152"><span class="lineNum">    1152 </span>            :   {</a>
+<a name="1153"><span class="lineNum">    1153 </span><span class="lineNoCov">          0 :     return !(flag &amp; SPREADSHEET_COLUMN_FLAG_UNAVAILABLE);</span></a>
+<a name="1154"><span class="lineNum">    1154 </span>            :   }</a>
+<a name="1155"><span class="lineNum">    1155 </span>            : #endif</a>
+<a name="1156"><span class="lineNum">    1156 </span>            : };</a>
+<a name="1157"><span class="lineNum">    1157 </span>            : </a>
+<a name="1158"><span class="lineNum">    1158 </span>            : struct SpreadsheetInstanceID {</a>
+<a name="1159"><span class="lineNum">    1159 </span>            :   int reference_index = 0;</a>
+<a name="1160"><span class="lineNum">    1160 </span>            : </a>
+<a name="1161"><span class="lineNum">    1161 </span>            : #ifdef __cplusplus</a>
+<a name="1162"><span class="lineNum">    1162 </span>            :   uint64_t hash() const;</a>
+<a name="1163"><span class="lineNum">    1163 </span>            :   friend bool operator==(const SpreadsheetInstanceID &amp;a, const SpreadsheetInstanceID &amp;b);</a>
+<a name="1164"><span class="lineNum">    1164 </span>            :   friend bool operator!=(const SpreadsheetInstanceID &amp;a, const SpreadsheetInstanceID &amp;b);</a>
+<a name="1165"><span class="lineNum">    1165 </span>            : #endif</a>
+<a name="1166"><span class="lineNum">    1166 </span>            : };</a>
+<a name="1167"><span class="lineNum">    1167 </span>            : </a>
+<a name="1168"><span class="lineNum">    1168 </span>            : struct SpreadsheetTableID {</a>
+<a name="1169"><span class="lineNum">    1169 </span>            :   /** #eSpreadsheetTableIDType. */</a>
+<a name="1170"><span class="lineNum">    1170 </span>            :   int type = 0;</a>
+<a name="1171"><span class="lineNum">    1171 </span>            : };</a>
+<a name="1172"><span class="lineNum">    1172 </span>            : </a>
+<a name="1173"><span class="lineNum">    1173 </span>            : struct SpreadsheetBundlePathElem {</a>
+<a name="1174"><span class="lineNum">    1174 </span>            :   char *identifier = nullptr;</a>
+<a name="1175"><span class="lineNum">    1175 </span>            : #ifdef __cplusplus</a>
+<a name="1176"><span class="lineNum">    1176 </span>            :   friend bool operator==(const SpreadsheetBundlePathElem &amp;a, const SpreadsheetBundlePathElem &amp;b);</a>
+<a name="1177"><span class="lineNum">    1177 </span>            :   friend bool operator!=(const SpreadsheetBundlePathElem &amp;a, const SpreadsheetBundlePathElem &amp;b);</a>
+<a name="1178"><span class="lineNum">    1178 </span>            : #endif</a>
+<a name="1179"><span class="lineNum">    1179 </span>            : };</a>
+<a name="1180"><span class="lineNum">    1180 </span>            : </a>
+<a name="1181"><span class="lineNum">    1181 </span>            : typedef struct SpreadsheetBundleTreeViewPath {</a>
+<a name="1182"><span class="lineNum">    1182 </span>            :   SpreadsheetBundlePathElem *bundle_path = nullptr;</a>
+<a name="1183"><span class="lineNum">    1183 </span>            :   int bundle_path_num = 0;</a>
+<a name="1184"><span class="lineNum">    1184 </span>            : </a>
+<a name="1185"><span class="lineNum">    1185 </span>            :   SpreadsheetClosureInputOutput closure_input_output = SPREADSHEET_CLOSURE_NONE;</a>
+<a name="1186"><span class="lineNum">    1186 </span>            :   char _pad[3] = {};</a>
+<a name="1187"><span class="lineNum">    1187 </span>            : } SpreadsheetBundleTreeViewPath;</a>
+<a name="1188"><span class="lineNum">    1188 </span>            : </a>
+<a name="1189"><span class="lineNum">    1189 </span>            : enum SpreadsheetGeometryItemType : uint8_t {</a>
+<a name="1190"><span class="lineNum">    1190 </span>            :   SPREADSHEET_GEOMETRY_ITEM_TYPE_DOMAIN = 0,</a>
+<a name="1191"><span class="lineNum">    1191 </span>            :   SPREADSHEET_GEOMETRY_ITEM_TYPE_BUNDLE = 1,</a>
+<a name="1192"><span class="lineNum">    1192 </span>            : };</a>
+<a name="1193"><span class="lineNum">    1193 </span>            : </a>
+<a name="1194"><span class="lineNum">    1194 </span>            : struct SpreadsheetTableIDGeometry {</a>
+<a name="1195"><span class="lineNum">    1195 </span>            :   SpreadsheetTableID base;</a>
+<a name="1196"><span class="lineNum">    1196 </span>            :   char _pad0[4] = {};</a>
+<a name="1197"><span class="lineNum">    1197 </span>            :   /**</a>
+<a name="1198"><span class="lineNum">    1198 </span>            :    * Context that is displayed in the editor. This is usually a either a single object (in</a>
+<a name="1199"><span class="lineNum">    1199 </span>            :    * original/evaluated mode) or path to a viewer node. This is retrieved from the workspace but</a>
+<a name="1200"><span class="lineNum">    1200 </span>            :    * can be pinned so that it stays constant even when the active node changes.</a>
+<a name="1201"><span class="lineNum">    1201 </span>            :    */</a>
+<a name="1202"><span class="lineNum">    1202 </span>            :   ViewerPath viewer_path;</a>
+<a name="1203"><span class="lineNum">    1203 </span>            : </a>
+<a name="1204"><span class="lineNum">    1204 </span>            :   int viewer_item_identifier = 0;</a>
+<a name="1205"><span class="lineNum">    1205 </span>            :   char _pad3[4] = {};</a>
+<a name="1206"><span class="lineNum">    1206 </span>            :   SpreadsheetBundleTreeViewPath viewer_item_bundle_path;</a>
+<a name="1207"><span class="lineNum">    1207 </span>            : </a>
+<a name="1208"><span class="lineNum">    1208 </span>            :   /**</a>
+<a name="1209"><span class="lineNum">    1209 </span>            :    * The &quot;path&quot; to the currently active instance reference. This is needed when viewing nested</a>
+<a name="1210"><span class="lineNum">    1210 </span>            :    * instances.</a>
+<a name="1211"><span class="lineNum">    1211 </span>            :    */</a>
+<a name="1212"><span class="lineNum">    1212 </span>            :   SpreadsheetInstanceID *instance_ids = nullptr;</a>
+<a name="1213"><span class="lineNum">    1213 </span>            :   int instance_ids_num = 0;</a>
+<a name="1214"><span class="lineNum">    1214 </span>            :   /** #GeometryComponent::Type. */</a>
+<a name="1215"><span class="lineNum">    1215 </span>            :   uint8_t geometry_component_type = 0;</a>
+<a name="1216"><span class="lineNum">    1216 </span>            :   /** #AttrDomain. */</a>
+<a name="1217"><span class="lineNum">    1217 </span>            :   uint8_t attribute_domain = 0;</a>
+<a name="1218"><span class="lineNum">    1218 </span>            :   /** #eSpaceSpreadsheet_ObjectEvalState. */</a>
+<a name="1219"><span class="lineNum">    1219 </span>            :   uint8_t object_eval_state = 0;</a>
+<a name="1220"><span class="lineNum">    1220 </span>            :   SpreadsheetGeometryItemType geometry_item_type = SPREADSHEET_GEOMETRY_ITEM_TYPE_DOMAIN;</a>
+<a name="1221"><span class="lineNum">    1221 </span>            :   SpreadsheetBundleTreeViewPath geometry_bundle_path = {};</a>
+<a name="1222"><span class="lineNum">    1222 </span>            :   char _pad1[4] = {};</a>
+<a name="1223"><span class="lineNum">    1223 </span>            :   /** Grease Pencil layer index for grease pencil component. */</a>
+<a name="1224"><span class="lineNum">    1224 </span>            :   int layer_index = 0;</a>
+<a name="1225"><span class="lineNum">    1225 </span>            : };</a>
+<a name="1226"><span class="lineNum">    1226 </span>            : </a>
+<a name="1227"><span class="lineNum">    1227 </span>            : struct SpreadsheetTable {</a>
+<a name="1228"><span class="lineNum">    1228 </span>            :   SpreadsheetTableID *id = nullptr;</a>
+<a name="1229"><span class="lineNum">    1229 </span>            :   /** All the columns in the table. */</a>
+<a name="1230"><span class="lineNum">    1230 </span>            :   SpreadsheetColumn **columns = nullptr;</a>
+<a name="1231"><span class="lineNum">    1231 </span>            :   int num_columns = 0;</a>
+<a name="1232"><span class="lineNum">    1232 </span>            :   /** #eSpreadsheetTableFlag. */</a>
+<a name="1233"><span class="lineNum">    1233 </span>            :   uint32_t flag = 0;</a>
+<a name="1234"><span class="lineNum">    1234 </span>            :   /**</a>
+<a name="1235"><span class="lineNum">    1235 </span>            :    * A logical time set when the table is used. This is used to be able to remove long-unused</a>
+<a name="1236"><span class="lineNum">    1236 </span>            :    * tables when there are too many. This is set from #SpaceSpreadsheet.table_use_clock.</a>
+<a name="1237"><span class="lineNum">    1237 </span>            :    */</a>
+<a name="1238"><span class="lineNum">    1238 </span>            :   uint32_t last_used = 0;</a>
+<a name="1239"><span class="lineNum">    1239 </span>            : </a>
+<a name="1240"><span class="lineNum">    1240 </span>            :   /**</a>
+<a name="1241"><span class="lineNum">    1241 </span>            :    * This is increased whenever a new column is used. It allows for some garbage collection of</a>
+<a name="1242"><span class="lineNum">    1242 </span>            :    * long-unused columns when there are too many.</a>
+<a name="1243"><span class="lineNum">    1243 </span>            :    */</a>
+<a name="1244"><span class="lineNum">    1244 </span>            :   uint32_t column_use_clock = 0;</a>
+<a name="1245"><span class="lineNum">    1245 </span>            : };</a>
+<a name="1246"><span class="lineNum">    1246 </span>            : </a>
+<a name="1247"><span class="lineNum">    1247 </span>            : struct SpaceSpreadsheet {</a>
+<a name="1248"><span class="lineNum">    1248 </span>            :   SpaceLink *next = nullptr, *prev = nullptr;</a>
+<a name="1249"><span class="lineNum">    1249 </span>            :   /** Storage of regions for inactive spaces. */</a>
+<a name="1250"><span class="lineNum">    1250 </span>            :   ListBaseT&lt;ARegion&gt; regionbase = {nullptr, nullptr};</a>
+<a name="1251"><span class="lineNum">    1251 </span>            :   char spacetype = 0;</a>
+<a name="1252"><span class="lineNum">    1252 </span>            :   eSpace_Link_Flag link_flag = {};</a>
+<a name="1253"><span class="lineNum">    1253 </span>            :   char _pad0[6] = {};</a>
+<a name="1254"><span class="lineNum">    1254 </span>            :   /* End 'SpaceLink' header. */</a>
+<a name="1255"><span class="lineNum">    1255 </span>            : </a>
+<a name="1256"><span class="lineNum">    1256 </span>            :   /** The current table and persisted state of previously displayed tables. */</a>
+<a name="1257"><span class="lineNum">    1257 </span>            :   SpreadsheetTable **tables = nullptr;</a>
+<a name="1258"><span class="lineNum">    1258 </span>            :   int num_tables = 0;</a>
+<a name="1259"><span class="lineNum">    1259 </span>            :   char _pad1[3] = {};</a>
+<a name="1260"><span class="lineNum">    1260 </span>            : </a>
+<a name="1261"><span class="lineNum">    1261 </span>            :   /** #eSpaceSpreadsheet_FilterFlag. */</a>
+<a name="1262"><span class="lineNum">    1262 </span>            :   uint8_t filter_flag = 0;</a>
+<a name="1263"><span class="lineNum">    1263 </span>            : </a>
+<a name="1264"><span class="lineNum">    1264 </span>            :   ListBaseT&lt;struct SpreadsheetRowFilter&gt; row_filters = {nullptr, nullptr};</a>
+<a name="1265"><span class="lineNum">    1265 </span>            : </a>
+<a name="1266"><span class="lineNum">    1266 </span>            :   /** The currently active geometry data. This is used to look up the active table from #tables. */</a>
+<a name="1267"><span class="lineNum">    1267 </span>            :   SpreadsheetTableIDGeometry geometry_id;</a>
+<a name="1268"><span class="lineNum">    1268 </span>            : </a>
+<a name="1269"><span class="lineNum">    1269 </span>            :   /* eSpaceSpreadsheet_Flag. */</a>
+<a name="1270"><span class="lineNum">    1270 </span>            :   uint32_t flag = 0;</a>
+<a name="1271"><span class="lineNum">    1271 </span>            :   /**</a>
+<a name="1272"><span class="lineNum">    1272 </span>            :    * This is increased whenever a new table is used. It allows for some garbage collection of</a>
+<a name="1273"><span class="lineNum">    1273 </span>            :    * long-unused tables when there are too many.</a>
+<a name="1274"><span class="lineNum">    1274 </span>            :    */</a>
+<a name="1275"><span class="lineNum">    1275 </span>            :   uint32_t table_use_clock = 0;</a>
+<a name="1276"><span class="lineNum">    1276 </span>            : </a>
+<a name="1277"><span class="lineNum">    1277 </span>            :   /** Index of the active viewer path element in the Data Source panel. */</a>
+<a name="1278"><span class="lineNum">    1278 </span>            :   int active_viewer_path_index = 0;</a>
+<a name="1279"><span class="lineNum">    1279 </span>            :   char _pad2[4] = {};</a>
+<a name="1280"><span class="lineNum">    1280 </span>            : </a>
+<a name="1281"><span class="lineNum">    1281 </span>            :   ed::spreadsheet::SpaceSpreadsheet_Runtime *runtime = nullptr;</a>
+<a name="1282"><span class="lineNum">    1282 </span>            : };</a>
+<a name="1283"><span class="lineNum">    1283 </span>            : </a>
+<a name="1284"><span class="lineNum">    1284 </span>            : struct SpreadsheetRowFilter {</a>
+<a name="1285"><span class="lineNum">    1285 </span>            :   struct SpreadsheetRowFilter *next = nullptr, *prev = nullptr;</a>
+<a name="1286"><span class="lineNum">    1286 </span>            : </a>
+<a name="1287"><span class="lineNum">    1287 </span>            :   char column_name[/*MAX_NAME*/ 64] = &quot;&quot;;</a>
+<a name="1288"><span class="lineNum">    1288 </span>            : </a>
+<a name="1289"><span class="lineNum">    1289 </span>            :   /* eSpreadsheetFilterOperation. */</a>
+<a name="1290"><span class="lineNum">    1290 </span>            :   uint8_t operation = 0;</a>
+<a name="1291"><span class="lineNum">    1291 </span>            :   /* eSpaceSpreadsheet_RowFilterFlag. */</a>
+<a name="1292"><span class="lineNum">    1292 </span>            :   uint8_t flag = 0;</a>
+<a name="1293"><span class="lineNum">    1293 </span>            : </a>
+<a name="1294"><span class="lineNum">    1294 </span>            :   char _pad0[6] = {};</a>
+<a name="1295"><span class="lineNum">    1295 </span>            : </a>
+<a name="1296"><span class="lineNum">    1296 </span>            :   int value_int = 0;</a>
+<a name="1297"><span class="lineNum">    1297 </span>            :   int value_int2[2] = {};</a>
+<a name="1298"><span class="lineNum">    1298 </span>            :   int value_int3[3] = {};</a>
+<a name="1299"><span class="lineNum">    1299 </span>            :   char *value_string = nullptr;</a>
+<a name="1300"><span class="lineNum">    1300 </span>            :   float value_float = 0;</a>
+<a name="1301"><span class="lineNum">    1301 </span>            :   float threshold = 0;</a>
+<a name="1302"><span class="lineNum">    1302 </span>            :   float value_float2[2] = {};</a>
+<a name="1303"><span class="lineNum">    1303 </span>            :   float value_float3[3] = {};</a>
+<a name="1304"><span class="lineNum">    1304 </span>            :   float value_float4[4] = {};</a>
+<a name="1305"><span class="lineNum">    1305 </span>            :   float value_color[4] = {};</a>
+<a name="1306"><span class="lineNum">    1306 </span>            :   char _pad1[4] = {};</a>
+<a name="1307"><span class="lineNum">    1307 </span>            : };</a>
+<a name="1308"><span class="lineNum">    1308 </span>            : </a>
+<a name="1309"><span class="lineNum">    1309 </span>            : /** \} */</a>
+<a name="1310"><span class="lineNum">    1310 </span>            : </a>
+<a name="1311"><span class="lineNum">    1311 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="1312"><span class="lineNum">    1312 </span>            : /** \name Blender Project</a>
+<a name="1313"><span class="lineNum">    1313 </span>            :  * \{ */</a>
+<a name="1314"><span class="lineNum">    1314 </span>            : </a>
+<a name="1315"><span class="lineNum">    1315 </span>            : struct SpaceProject {</a>
+<a name="1316"><span class="lineNum">    1316 </span>            :   SpaceLink *next = nullptr, *prev = nullptr;</a>
+<a name="1317"><span class="lineNum">    1317 </span>            :   /** Storage of regions for inactive spaces. */</a>
+<a name="1318"><span class="lineNum">    1318 </span>            :   ListBaseT&lt;ARegion&gt; regionbase = {nullptr, nullptr};</a>
+<a name="1319"><span class="lineNum">    1319 </span>            :   char spacetype = 0;</a>
+<a name="1320"><span class="lineNum">    1320 </span>            :   char link_flag = 0;</a>
+<a name="1321"><span class="lineNum">    1321 </span>            :   char _pad0[6] = {};</a>
+<a name="1322"><span class="lineNum">    1322 </span>            :   /* End 'SpaceLink' header. */</a>
+<a name="1323"><span class="lineNum">    1323 </span>            : };</a>
+<a name="1324"><span class="lineNum">    1324 </span>            : </a>
+<a name="1325"><span class="lineNum">    1325 </span>            : /** \} */</a>
+<a name="1326"><span class="lineNum">    1326 </span>            : </a>
+<a name="1327"><span class="lineNum">    1327 </span>            : }  // namespace blender</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

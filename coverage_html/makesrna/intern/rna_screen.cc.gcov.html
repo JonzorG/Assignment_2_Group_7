@@ -1,0 +1,944 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - makesrna/intern/rna_screen.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">makesrna/intern</a> - rna_screen.cc<span style="font-size: 80%;"> (source / <a href="rna_screen.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">346</td>
+            <td class="headerCovTableEntry">430</td>
+            <td class="headerCovTableEntryMed">80.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">27</td>
+            <td class="headerCovTableEntry">40</td>
+            <td class="headerCovTableEntryLo">67.5 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2023 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup RNA</a>
+<a name="7"><span class="lineNum">       7 </span>            :  */</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &lt;cstddef&gt;</a>
+<a name="10"><span class="lineNum">      10 </span>            : #include &lt;cstdlib&gt;</a>
+<a name="11"><span class="lineNum">      11 </span>            : </a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &quot;DNA_space_types.h&quot;</a>
+<a name="13"><span class="lineNum">      13 </span>            : </a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;RNA_define.hh&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;RNA_enum_types.hh&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : </a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;rna_internal.hh&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : </a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &quot;DNA_screen_types.h&quot;</a>
+<a name="20"><span class="lineNum">      20 </span>            : </a>
+<a name="21"><span class="lineNum">      21 </span>            : #include &quot;UI_interface_c.hh&quot;</a>
+<a name="22"><span class="lineNum">      22 </span>            : </a>
+<a name="23"><span class="lineNum">      23 </span>            : #include &quot;WM_api.hh&quot;</a>
+<a name="24"><span class="lineNum">      24 </span>            : #include &quot;WM_types.hh&quot;</a>
+<a name="25"><span class="lineNum">      25 </span>            : </a>
+<a name="26"><span class="lineNum">      26 </span>            : namespace blender {</a>
+<a name="27"><span class="lineNum">      27 </span>            : </a>
+<a name="28"><span class="lineNum">      28 </span>            : const EnumPropertyItem rna_enum_region_type_items[] = {</a>
+<a name="29"><span class="lineNum">      29 </span>            :     {RGN_TYPE_WINDOW, &quot;WINDOW&quot;, 0, &quot;Window&quot;, &quot;&quot;},</a>
+<a name="30"><span class="lineNum">      30 </span>            :     {RGN_TYPE_HEADER, &quot;HEADER&quot;, 0, &quot;Header&quot;, &quot;&quot;},</a>
+<a name="31"><span class="lineNum">      31 </span>            :     {RGN_TYPE_CHANNELS, &quot;CHANNELS&quot;, 0, &quot;Channels&quot;, &quot;&quot;},</a>
+<a name="32"><span class="lineNum">      32 </span>            :     {RGN_TYPE_TEMPORARY, &quot;TEMPORARY&quot;, 0, &quot;Temporary&quot;, &quot;&quot;},</a>
+<a name="33"><span class="lineNum">      33 </span>            :     {RGN_TYPE_UI, &quot;UI&quot;, 0, &quot;Sidebar&quot;, &quot;&quot;},</a>
+<a name="34"><span class="lineNum">      34 </span>            :     {RGN_TYPE_TOOLS, &quot;TOOLS&quot;, 0, &quot;Tools&quot;, &quot;&quot;},</a>
+<a name="35"><span class="lineNum">      35 </span>            :     {RGN_TYPE_TOOL_PROPS, &quot;TOOL_PROPS&quot;, 0, &quot;Tool Properties&quot;, &quot;&quot;},</a>
+<a name="36"><span class="lineNum">      36 </span>            :     {RGN_TYPE_ASSET_SHELF, &quot;ASSET_SHELF&quot;, 0, &quot;Asset Shelf&quot;, &quot;&quot;},</a>
+<a name="37"><span class="lineNum">      37 </span>            :     {RGN_TYPE_ASSET_SHELF_HEADER, &quot;ASSET_SHELF_HEADER&quot;, 0, &quot;Asset Shelf Header&quot;, &quot;&quot;},</a>
+<a name="38"><span class="lineNum">      38 </span>            :     {RGN_TYPE_PREVIEW, &quot;PREVIEW&quot;, 0, &quot;Preview&quot;, &quot;&quot;},</a>
+<a name="39"><span class="lineNum">      39 </span>            :     {RGN_TYPE_HUD, &quot;HUD&quot;, 0, &quot;Floating Region&quot;, &quot;&quot;},</a>
+<a name="40"><span class="lineNum">      40 </span>            :     {RGN_TYPE_NAV_BAR, &quot;NAVIGATION_BAR&quot;, 0, &quot;Navigation Bar&quot;, &quot;&quot;},</a>
+<a name="41"><span class="lineNum">      41 </span>            :     {RGN_TYPE_EXECUTE, &quot;EXECUTE&quot;, 0, &quot;Execute Buttons&quot;, &quot;&quot;},</a>
+<a name="42"><span class="lineNum">      42 </span>            :     {RGN_TYPE_FOOTER, &quot;FOOTER&quot;, 0, &quot;Footer&quot;, &quot;&quot;},</a>
+<a name="43"><span class="lineNum">      43 </span>            :     {RGN_TYPE_TOOL_HEADER, &quot;TOOL_HEADER&quot;, 0, &quot;Tool Header&quot;, &quot;&quot;},</a>
+<a name="44"><span class="lineNum">      44 </span>            :     {RGN_TYPE_XR, &quot;XR&quot;, 0, &quot;XR&quot;, &quot;&quot;},</a>
+<a name="45"><span class="lineNum">      45 </span>            :     {RGN_TYPE_SCRUBBING, &quot;SCRUBBING&quot;, 0, &quot;Scrubbing&quot;, &quot;&quot;},</a>
+<a name="46"><span class="lineNum">      46 </span>            :     {0, nullptr, 0, nullptr, nullptr},</a>
+<a name="47"><span class="lineNum">      47 </span>            : };</a>
+<a name="48"><span class="lineNum">      48 </span>            : </a>
+<a name="49"><span class="lineNum">      49 </span>            : const EnumPropertyItem rna_enum_region_panel_category_items[] = {</a>
+<a name="50"><span class="lineNum">      50 </span>            :     {-1, &quot;UNSUPPORTED&quot;, 0, &quot;Not Supported&quot;, &quot;This region does not support panel categories&quot;},</a>
+<a name="51"><span class="lineNum">      51 </span>            :     {0, nullptr, 0, nullptr, nullptr},</a>
+<a name="52"><span class="lineNum">      52 </span>            : };</a>
+<a name="53"><span class="lineNum">      53 </span>            : </a>
+<a name="54"><span class="lineNum">      54 </span>            : }  // namespace blender</a>
+<a name="55"><span class="lineNum">      55 </span>            : </a>
+<a name="56"><span class="lineNum">      56 </span>            : #ifdef RNA_RUNTIME</a>
+<a name="57"><span class="lineNum">      57 </span>            : </a>
+<a name="58"><span class="lineNum">      58 </span>            : #  include &quot;BLI_listbase.hh&quot;</a>
+<a name="59"><span class="lineNum">      59 </span>            : </a>
+<a name="60"><span class="lineNum">      60 </span>            : #  include &quot;RNA_access.hh&quot;</a>
+<a name="61"><span class="lineNum">      61 </span>            : </a>
+<a name="62"><span class="lineNum">      62 </span>            : #  include &quot;BKE_global.hh&quot;</a>
+<a name="63"><span class="lineNum">      63 </span>            : #  include &quot;BKE_main.hh&quot;</a>
+<a name="64"><span class="lineNum">      64 </span>            : #  include &quot;BKE_screen.hh&quot;</a>
+<a name="65"><span class="lineNum">      65 </span>            : #  include &quot;BKE_workspace.hh&quot;</a>
+<a name="66"><span class="lineNum">      66 </span>            : </a>
+<a name="67"><span class="lineNum">      67 </span>            : #  include &quot;DEG_depsgraph.hh&quot;</a>
+<a name="68"><span class="lineNum">      68 </span>            : </a>
+<a name="69"><span class="lineNum">      69 </span>            : #  include &quot;ED_info.hh&quot;</a>
+<a name="70"><span class="lineNum">      70 </span>            : #  include &quot;ED_node.hh&quot;</a>
+<a name="71"><span class="lineNum">      71 </span>            : #  include &quot;ED_screen.hh&quot;</a>
+<a name="72"><span class="lineNum">      72 </span>            : </a>
+<a name="73"><span class="lineNum">      73 </span>            : #  include &quot;UI_view2d.hh&quot;</a>
+<a name="74"><span class="lineNum">      74 </span>            : </a>
+<a name="75"><span class="lineNum">      75 </span>            : #  include &quot;BLT_translation.hh&quot;</a>
+<a name="76"><span class="lineNum">      76 </span>            : </a>
+<a name="77"><span class="lineNum">      77 </span>            : #  include &quot;rna_screen_utils.hh&quot;</a>
+<a name="78"><span class="lineNum">      78 </span>            : </a>
+<a name="79"><span class="lineNum">      79 </span>            : #  ifdef WITH_PYTHON</a>
+<a name="80"><span class="lineNum">      80 </span>            : #    include &quot;BPY_extern.hh&quot;</a>
+<a name="81"><span class="lineNum">      81 </span>            : #  endif</a>
+<a name="82"><span class="lineNum">      82 </span>            : </a>
+<a name="83"><span class="lineNum">      83 </span>            : namespace blender {</a>
+<a name="84"><span class="lineNum">      84 </span>            : </a>
+<a name="85"><span class="lineNum">      85 </span><span class="lineNoCov">          0 : static void rna_Screen_bar_update(Main * /*bmain*/, Scene * /*scene*/, PointerRNA *ptr)</span></a>
+<a name="86"><span class="lineNum">      86 </span>            : {</a>
+<a name="87"><span class="lineNum">      87 </span><span class="lineNoCov">          0 :   bScreen *screen = static_cast&lt;bScreen *&gt;(ptr-&gt;data);</span></a>
+<a name="88"><span class="lineNum">      88 </span><span class="lineNoCov">          0 :   screen-&gt;do_draw = true;</span></a>
+<a name="89"><span class="lineNum">      89 </span><span class="lineNoCov">          0 :   screen-&gt;do_refresh = true;</span></a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="91"><span class="lineNum">      91 </span>            : </a>
+<a name="92"><span class="lineNum">      92 </span><span class="lineNoCov">          0 : static void rna_Screen_redraw_update(Main * /*bmain*/, Scene * /*scene*/, PointerRNA *ptr)</span></a>
+<a name="93"><span class="lineNum">      93 </span>            : {</a>
+<a name="94"><span class="lineNum">      94 </span><span class="lineNoCov">          0 :   bScreen *screen = static_cast&lt;bScreen *&gt;(ptr-&gt;data);</span></a>
+<a name="95"><span class="lineNum">      95 </span>            : </a>
+<a name="96"><span class="lineNum">      96 </span>            :   /* the settings for this are currently only available from a menu in the TimeLine,</a>
+<a name="97"><span class="lineNum">      97 </span>            :    * hence refresh=SPACE_ACTION, as timeline is now in there</a>
+<a name="98"><span class="lineNum">      98 </span>            :    */</a>
+<a name="99"><span class="lineNum">      99 </span><span class="lineNoCov">          0 :   ED_screen_animation_timer_update(screen, screen-&gt;redraws_flag);</span></a>
+<a name="100"><span class="lineNum">     100 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="101"><span class="lineNum">     101 </span>            : </a>
+<a name="102"><span class="lineNum">     102 </span><span class="lineCov">         11 : static bool rna_Screen_is_animation_playing_get(PointerRNA * /*ptr*/)</span></a>
+<a name="103"><span class="lineNum">     103 </span>            : {</a>
+<a name="104"><span class="lineNum">     104 </span>            :   /* can be nullptr on file load, #42619 */</a>
+<a name="105"><span class="lineNum">     105 </span><span class="lineCov">         11 :   wmWindowManager *wm = G_MAIN-&gt;wm.first();</span></a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineCov">         11 :   return wm ? (ED_screen_animation_playing(wm) != nullptr) : 0;</span></a>
+<a name="107"><span class="lineNum">     107 </span>            : }</a>
+<a name="108"><span class="lineNum">     108 </span>            : </a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineCov">         11 : static bool rna_Screen_is_scrubbing_get(PointerRNA *ptr)</span></a>
+<a name="110"><span class="lineNum">     110 </span>            : {</a>
+<a name="111"><span class="lineNum">     111 </span><span class="lineCov">         11 :   bScreen *screen = static_cast&lt;bScreen *&gt;(ptr-&gt;data);</span></a>
+<a name="112"><span class="lineNum">     112 </span><span class="lineCov">         11 :   return screen-&gt;scrubbing;</span></a>
+<a name="113"><span class="lineNum">     113 </span>            : }</a>
+<a name="114"><span class="lineNum">     114 </span>            : </a>
+<a name="115"><span class="lineNum">     115 </span><span class="lineCov">         12 : static int rna_Region_alignment_get(PointerRNA *ptr)</span></a>
+<a name="116"><span class="lineNum">     116 </span>            : {</a>
+<a name="117"><span class="lineNum">     117 </span><span class="lineCov">         12 :   ARegion *region = static_cast&lt;ARegion *&gt;(ptr-&gt;data);</span></a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineCov">         12 :   return RGN_ALIGN_ENUM_FROM_MASK(region-&gt;alignment);</span></a>
+<a name="119"><span class="lineNum">     119 </span>            : }</a>
+<a name="120"><span class="lineNum">     120 </span>            : </a>
+<a name="121"><span class="lineNum">     121 </span><span class="lineCov">         11 : static bool rna_Screen_fullscreen_get(PointerRNA *ptr)</span></a>
+<a name="122"><span class="lineNum">     122 </span>            : {</a>
+<a name="123"><span class="lineNum">     123 </span><span class="lineCov">         11 :   bScreen *screen = static_cast&lt;bScreen *&gt;(ptr-&gt;data);</span></a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineCov">         11 :   return (screen-&gt;state == SCREENMAXIMIZED || screen-&gt;state == SCREENFULL);</span></a>
+<a name="125"><span class="lineNum">     125 </span>            : }</a>
+<a name="126"><span class="lineNum">     126 </span>            : </a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineCov">      47099 : static int rna_Area_type_get(PointerRNA *ptr)</span></a>
+<a name="128"><span class="lineNum">     128 </span>            : {</a>
+<a name="129"><span class="lineNum">     129 </span><span class="lineCov">      47099 :   ScrArea *area = static_cast&lt;ScrArea *&gt;(ptr-&gt;data);</span></a>
+<a name="130"><span class="lineNum">     130 </span>            :   /* Usually 'spacetype' is used. It lags behind a bit while switching area</a>
+<a name="131"><span class="lineNum">     131 </span>            :    * type though, then we use 'butspacetype' instead (#41435). */</a>
+<a name="132"><span class="lineNum">     132 </span><span class="lineCov">      47099 :   return (area-&gt;butspacetype == SPACE_EMPTY) ? area-&gt;spacetype : area-&gt;butspacetype;</span></a>
+<a name="133"><span class="lineNum">     133 </span>            : }</a>
+<a name="134"><span class="lineNum">     134 </span>            : </a>
+<a name="135"><span class="lineNum">     135 </span><span class="lineCov">          4 : static void rna_Area_type_set(PointerRNA *ptr, int value)</span></a>
+<a name="136"><span class="lineNum">     136 </span>            : {</a>
+<a name="137"><span class="lineNum">     137 </span><span class="lineCov">          4 :   if (ELEM(value, SPACE_TOPBAR, SPACE_STATUSBAR)) {</span></a>
+<a name="138"><span class="lineNum">     138 </span>            :     /* Special case: An area can not be set to show the top-bar editor (or</a>
+<a name="139"><span class="lineNum">     139 </span>            :      * other global areas). However it should still be possible to identify</a>
+<a name="140"><span class="lineNum">     140 </span>            :      * its type from Python. */</a>
+<a name="141"><span class="lineNum">     141 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="142"><span class="lineNum">     142 </span>            :   }</a>
+<a name="143"><span class="lineNum">     143 </span>            : </a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineCov">          4 :   ScrArea *area = static_cast&lt;ScrArea *&gt;(ptr-&gt;data);</span></a>
+<a name="145"><span class="lineNum">     145 </span>            :   /* Empty areas are locked. */</a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineCov">          4 :   if ((value == SPACE_EMPTY) || (area-&gt;spacetype == SPACE_EMPTY)) {</span></a>
+<a name="147"><span class="lineNum">     147 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="148"><span class="lineNum">     148 </span>            :   }</a>
+<a name="149"><span class="lineNum">     149 </span>            : </a>
+<a name="150"><span class="lineNum">     150 </span><span class="lineCov">          4 :   area-&gt;butspacetype = value;</span></a>
+<a name="151"><span class="lineNum">     151 </span>            : }</a>
+<a name="152"><span class="lineNum">     152 </span>            : </a>
+<a name="153"><span class="lineNum">     153 </span><span class="lineCov">          4 : static void rna_Area_type_update(bContext *C, PointerRNA *ptr)</span></a>
+<a name="154"><span class="lineNum">     154 </span>            : {</a>
+<a name="155"><span class="lineNum">     155 </span><span class="lineCov">          4 :   bScreen *screen = id_cast&lt;bScreen *&gt;(ptr-&gt;owner_id);</span></a>
+<a name="156"><span class="lineNum">     156 </span><span class="lineCov">          4 :   ScrArea *area = static_cast&lt;ScrArea *&gt;(ptr-&gt;data);</span></a>
+<a name="157"><span class="lineNum">     157 </span>            : </a>
+<a name="158"><span class="lineNum">     158 </span>            :   /* Running update without having called 'set', see: #64049 */</a>
+<a name="159"><span class="lineNum">     159 </span><span class="lineCov">          4 :   if (area-&gt;butspacetype == SPACE_EMPTY) {</span></a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="161"><span class="lineNum">     161 </span>            :   }</a>
+<a name="162"><span class="lineNum">     162 </span>            : </a>
+<a name="163"><span class="lineNum">     163 </span><span class="lineCov">          4 :   wmWindowManager *wm = CTX_wm_manager(C);</span></a>
+<a name="164"><span class="lineNum">     164 </span>            :   wmWindow *win;</a>
+<a name="165"><span class="lineNum">     165 </span>            :   /* XXX this call still use context, so we trick it to work in the right context */</a>
+<a name="166"><span class="lineNum">     166 </span><span class="lineCov">          4 :   for (win = wm-&gt;windows.first(); win; win = win-&gt;next) {</span></a>
+<a name="167"><span class="lineNum">     167 </span><span class="lineCov">          4 :     if (screen == WM_window_get_active_screen(win)) {</span></a>
+<a name="168"><span class="lineNum">     168 </span><span class="lineCov">          4 :       wmWindow *prevwin = CTX_wm_window(C);</span></a>
+<a name="169"><span class="lineNum">     169 </span><span class="lineCov">          4 :       ScrArea *prevsa = CTX_wm_area(C);</span></a>
+<a name="170"><span class="lineNum">     170 </span><span class="lineCov">          4 :       ARegion *prevar = CTX_wm_region(C);</span></a>
+<a name="171"><span class="lineNum">     171 </span>            : </a>
+<a name="172"><span class="lineNum">     172 </span><span class="lineCov">          4 :       CTX_wm_window_set(C, win);</span></a>
+<a name="173"><span class="lineNum">     173 </span><span class="lineCov">          4 :       CTX_wm_area_set(C, area);</span></a>
+<a name="174"><span class="lineNum">     174 </span><span class="lineCov">          4 :       CTX_wm_region_set(C, nullptr);</span></a>
+<a name="175"><span class="lineNum">     175 </span>            : </a>
+<a name="176"><span class="lineNum">     176 </span><span class="lineCov">          4 :       ED_area_newspace(C, area, area-&gt;butspacetype, false);</span></a>
+<a name="177"><span class="lineNum">     177 </span><span class="lineCov">          4 :       ED_area_tag_redraw(area);</span></a>
+<a name="178"><span class="lineNum">     178 </span>            : </a>
+<a name="179"><span class="lineNum">     179 </span>            :       /* Unset so that rna_Area_type_get uses spacetype instead. */</a>
+<a name="180"><span class="lineNum">     180 </span><span class="lineCov">          4 :       area-&gt;butspacetype = SPACE_EMPTY;</span></a>
+<a name="181"><span class="lineNum">     181 </span>            : </a>
+<a name="182"><span class="lineNum">     182 </span>            :       /* It is possible that new layers becomes visible. */</a>
+<a name="183"><span class="lineNum">     183 </span><span class="lineCov">          4 :       if (area-&gt;spacetype == SPACE_VIEW3D) {</span></a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineNoCov">          0 :         DEG_tag_on_visible_update(CTX_data_main(C), false);</span></a>
+<a name="185"><span class="lineNum">     185 </span>            :       }</a>
+<a name="186"><span class="lineNum">     186 </span><span class="lineCov">          4 :       else if (area-&gt;spacetype == SPACE_NODE) {</span></a>
+<a name="187"><span class="lineNum">     187 </span><span class="lineNoCov">          0 :         ed::space_node::snode_set_context(*C);</span></a>
+<a name="188"><span class="lineNum">     188 </span>            :       }</a>
+<a name="189"><span class="lineNum">     189 </span>            : </a>
+<a name="190"><span class="lineNum">     190 </span><span class="lineCov">          4 :       CTX_wm_window_set(C, prevwin);</span></a>
+<a name="191"><span class="lineNum">     191 </span><span class="lineCov">          4 :       CTX_wm_area_set(C, prevsa);</span></a>
+<a name="192"><span class="lineNum">     192 </span><span class="lineCov">          4 :       CTX_wm_region_set(C, prevar);</span></a>
+<a name="193"><span class="lineNum">     193 </span><span class="lineCov">          4 :       break;</span></a>
+<a name="194"><span class="lineNum">     194 </span>            :     }</a>
+<a name="195"><span class="lineNum">     195 </span>            :   }</a>
+<a name="196"><span class="lineNum">     196 </span>            : </a>
+<a name="197"><span class="lineNum">     197 </span>            :   /* The set of visible geometry nodes gizmos depends on the visible node editors. So if a node</a>
+<a name="198"><span class="lineNum">     198 </span>            :    * editor becomes visible/invisible, the gizmos have to be updated. */</a>
+<a name="199"><span class="lineNum">     199 </span><span class="lineCov">          4 :   WM_main_add_notifier(NC_NODE | ND_NODE_GIZMO, nullptr);</span></a>
+<a name="200"><span class="lineNum">     200 </span>            : }</a>
+<a name="201"><span class="lineNum">     201 </span>            : </a>
+<a name="202"><span class="lineNum">     202 </span><span class="lineCov">         51 : static const EnumPropertyItem *rna_Area_ui_type_itemf(bContext *C,</span></a>
+<a name="203"><span class="lineNum">     203 </span>            :                                                       PointerRNA *ptr,</a>
+<a name="204"><span class="lineNum">     204 </span>            :                                                       PropertyRNA * /*prop*/,</a>
+<a name="205"><span class="lineNum">     205 </span>            :                                                       bool *r_free)</a>
+<a name="206"><span class="lineNum">     206 </span>            : {</a>
+<a name="207"><span class="lineNum">     207 </span><span class="lineCov">         51 :   EnumPropertyItem *item = nullptr;</span></a>
+<a name="208"><span class="lineNum">     208 </span><span class="lineCov">         51 :   int totitem = 0;</span></a>
+<a name="209"><span class="lineNum">     209 </span>            : </a>
+<a name="210"><span class="lineNum">     210 </span><span class="lineCov">         51 :   ScrArea *area = static_cast&lt;ScrArea *&gt;(ptr-&gt;data);</span></a>
+<a name="211"><span class="lineNum">     211 </span><span class="lineCov">         51 :   const EnumPropertyItem *item_from = rna_enum_space_type_items;</span></a>
+<a name="212"><span class="lineNum">     212 </span><span class="lineCov">         51 :   if (area-&gt;spacetype != SPACE_EMPTY) {</span></a>
+<a name="213"><span class="lineNum">     213 </span><span class="lineCov">         51 :     item_from += 1; /* +1 to skip SPACE_EMPTY */</span></a>
+<a name="214"><span class="lineNum">     214 </span>            :   }</a>
+<a name="215"><span class="lineNum">     215 </span>            : </a>
+<a name="216"><span class="lineNum">     216 </span><span class="lineCov">       1224 :   for (; item_from-&gt;identifier; item_from++) {</span></a>
+<a name="217"><span class="lineNum">     217 </span><span class="lineCov">       1173 :     if (ELEM(item_from-&gt;value, SPACE_TOPBAR, SPACE_STATUSBAR)) {</span></a>
+<a name="218"><span class="lineNum">     218 </span><span class="lineCov">        102 :       continue;</span></a>
+<a name="219"><span class="lineNum">     219 </span>            :     }</a>
+<a name="220"><span class="lineNum">     220 </span>            : </a>
+<a name="221"><span class="lineNum">     221 </span><span class="lineCov">       1071 :     SpaceType *st = item_from-&gt;identifier[0] ? BKE_spacetype_from_id(item_from-&gt;value) : nullptr;</span></a>
+<a name="222"><span class="lineNum">     222 </span><span class="lineCov">       1071 :     int totitem_prev = totitem;</span></a>
+<a name="223"><span class="lineNum">     223 </span><span class="lineCov">       1071 :     if (C &amp;&amp; st &amp;&amp; st-&gt;space_subtype_item_extend != nullptr) {</span></a>
+<a name="224"><span class="lineNum">     224 </span><span class="lineCov">        255 :       st-&gt;space_subtype_item_extend(C, &amp;item, &amp;totitem);</span></a>
+<a name="225"><span class="lineNum">     225 </span><span class="lineCov">        867 :       while (totitem_prev &lt; totitem) {</span></a>
+<a name="226"><span class="lineNum">     226 </span><span class="lineCov">        612 :         item[totitem_prev++].value |= item_from-&gt;value &lt;&lt; 16;</span></a>
+<a name="227"><span class="lineNum">     227 </span>            :       }</a>
+<a name="228"><span class="lineNum">     228 </span>            :     }</a>
+<a name="229"><span class="lineNum">     229 </span>            :     else {</a>
+<a name="230"><span class="lineNum">     230 </span><span class="lineCov">        816 :       RNA_enum_item_add(&amp;item, &amp;totitem, item_from);</span></a>
+<a name="231"><span class="lineNum">     231 </span><span class="lineCov">        816 :       item[totitem_prev++].value = item_from-&gt;value &lt;&lt; 16;</span></a>
+<a name="232"><span class="lineNum">     232 </span>            :     }</a>
+<a name="233"><span class="lineNum">     233 </span>            :   }</a>
+<a name="234"><span class="lineNum">     234 </span><span class="lineCov">         51 :   RNA_enum_item_end(&amp;item, &amp;totitem);</span></a>
+<a name="235"><span class="lineNum">     235 </span><span class="lineCov">         51 :   *r_free = true;</span></a>
+<a name="236"><span class="lineNum">     236 </span>            : </a>
+<a name="237"><span class="lineNum">     237 </span><span class="lineCov">         51 :   return item;</span></a>
+<a name="238"><span class="lineNum">     238 </span>            : }</a>
+<a name="239"><span class="lineNum">     239 </span>            : </a>
+<a name="240"><span class="lineNum">     240 </span><span class="lineCov">         51 : static int rna_Area_ui_type_get(PointerRNA *ptr)</span></a>
+<a name="241"><span class="lineNum">     241 </span>            : {</a>
+<a name="242"><span class="lineNum">     242 </span><span class="lineCov">         51 :   ScrArea *area = static_cast&lt;ScrArea *&gt;(ptr-&gt;data);</span></a>
+<a name="243"><span class="lineNum">     243 </span>            :   /* This is for the Python API which may inspect empty areas. */</a>
+<a name="244"><span class="lineNum">     244 </span><span class="lineCov">         51 :   if (area-&gt;spacetype == SPACE_EMPTY) [[unlikely]] {</span></a>
+<a name="245"><span class="lineNum">     245 </span><span class="lineNoCov">          0 :     return SPACE_EMPTY;</span></a>
+<a name="246"><span class="lineNum">     246 </span>            :   }</a>
+<a name="247"><span class="lineNum">     247 </span><span class="lineCov">         51 :   const int area_type = rna_Area_type_get(ptr);</span></a>
+<a name="248"><span class="lineNum">     248 </span><span class="lineCov">         51 :   const bool area_changing = area-&gt;butspacetype != SPACE_EMPTY;</span></a>
+<a name="249"><span class="lineNum">     249 </span><span class="lineCov">         51 :   int value = area_type &lt;&lt; 16;</span></a>
+<a name="250"><span class="lineNum">     250 </span>            : </a>
+<a name="251"><span class="lineNum">     251 </span>            :   /* Area-&gt;type can be nullptr when not yet initialized (for example when accessed</a>
+<a name="252"><span class="lineNum">     252 </span>            :    * through the outliner or API when not visible), or it can be wrong while</a>
+<a name="253"><span class="lineNum">     253 </span>            :    * the area type is changing.</a>
+<a name="254"><span class="lineNum">     254 </span>            :    * So manually do the lookup in those cases, but do not actually change area-&gt;type</a>
+<a name="255"><span class="lineNum">     255 </span>            :    * since that prevents a proper exit when the area type is changing.</a>
+<a name="256"><span class="lineNum">     256 </span>            :    * Logic copied from `ED_area_init()`. */</a>
+<a name="257"><span class="lineNum">     257 </span><span class="lineCov">         51 :   SpaceType *type = area-&gt;type;</span></a>
+<a name="258"><span class="lineNum">     258 </span><span class="lineCov">         51 :   if (type == nullptr || area_changing) {</span></a>
+<a name="259"><span class="lineNum">     259 </span><span class="lineCov">         51 :     type = BKE_spacetype_from_id(area_type);</span></a>
+<a name="260"><span class="lineNum">     260 </span><span class="lineCov">         51 :     if (type == nullptr) {</span></a>
+<a name="261"><span class="lineNum">     261 </span><span class="lineNoCov">          0 :       type = BKE_spacetype_from_id(SPACE_VIEW3D);</span></a>
+<a name="262"><span class="lineNum">     262 </span>            :     }</a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineCov">         51 :     BLI_assert(type != nullptr);</span></a>
+<a name="264"><span class="lineNum">     264 </span>            :   }</a>
+<a name="265"><span class="lineNum">     265 </span><span class="lineCov">         51 :   if (type-&gt;space_subtype_item_extend != nullptr) {</span></a>
+<a name="266"><span class="lineNum">     266 </span><span class="lineCov">         14 :     value |= area_changing ? area-&gt;butspacetype_subtype : type-&gt;space_subtype_get(area);</span></a>
+<a name="267"><span class="lineNum">     267 </span>            :   }</a>
+<a name="268"><span class="lineNum">     268 </span><span class="lineCov">         51 :   return value;</span></a>
+<a name="269"><span class="lineNum">     269 </span>            : }</a>
+<a name="270"><span class="lineNum">     270 </span>            : </a>
+<a name="271"><span class="lineNum">     271 </span><span class="lineNoCov">          0 : static void rna_Area_ui_type_set(PointerRNA *ptr, int value)</span></a>
+<a name="272"><span class="lineNum">     272 </span>            : {</a>
+<a name="273"><span class="lineNum">     273 </span><span class="lineNoCov">          0 :   ScrArea *area = static_cast&lt;ScrArea *&gt;(ptr-&gt;data);</span></a>
+<a name="274"><span class="lineNum">     274 </span><span class="lineNoCov">          0 :   const int space_type = value &gt;&gt; 16;</span></a>
+<a name="275"><span class="lineNum">     275 </span>            :   /* Empty areas are locked. */</a>
+<a name="276"><span class="lineNum">     276 </span><span class="lineNoCov">          0 :   if ((space_type == SPACE_EMPTY) || (area-&gt;spacetype == SPACE_EMPTY)) {</span></a>
+<a name="277"><span class="lineNum">     277 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="278"><span class="lineNum">     278 </span>            :   }</a>
+<a name="279"><span class="lineNum">     279 </span><span class="lineNoCov">          0 :   SpaceType *st = BKE_spacetype_from_id(space_type);</span></a>
+<a name="280"><span class="lineNum">     280 </span>            : </a>
+<a name="281"><span class="lineNum">     281 </span><span class="lineNoCov">          0 :   rna_Area_type_set(ptr, space_type);</span></a>
+<a name="282"><span class="lineNum">     282 </span>            : </a>
+<a name="283"><span class="lineNum">     283 </span><span class="lineNoCov">          0 :   if (st &amp;&amp; st-&gt;space_subtype_item_extend != nullptr) {</span></a>
+<a name="284"><span class="lineNum">     284 </span><span class="lineNoCov">          0 :     area-&gt;butspacetype_subtype = value &amp; 0xffff;</span></a>
+<a name="285"><span class="lineNum">     285 </span>            :   }</a>
+<a name="286"><span class="lineNum">     286 </span>            : }</a>
+<a name="287"><span class="lineNum">     287 </span>            : </a>
+<a name="288"><span class="lineNum">     288 </span><span class="lineNoCov">          0 : static void rna_Area_ui_type_update(bContext *C, PointerRNA *ptr)</span></a>
+<a name="289"><span class="lineNum">     289 </span>            : {</a>
+<a name="290"><span class="lineNum">     290 </span><span class="lineNoCov">          0 :   ScrArea *area = static_cast&lt;ScrArea *&gt;(ptr-&gt;data);</span></a>
+<a name="291"><span class="lineNum">     291 </span>            : </a>
+<a name="292"><span class="lineNum">     292 </span><span class="lineNoCov">          0 :   rna_Area_type_update(C, ptr);</span></a>
+<a name="293"><span class="lineNum">     293 </span>            : </a>
+<a name="294"><span class="lineNum">     294 </span><span class="lineNoCov">          0 :   ED_area_tag_refresh(area);</span></a>
+<a name="295"><span class="lineNum">     295 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="296"><span class="lineNum">     296 </span>            : </a>
+<a name="297"><span class="lineNum">     297 </span><span class="lineCov">        240 : static PointerRNA rna_Region_data_get(PointerRNA *ptr)</span></a>
+<a name="298"><span class="lineNum">     298 </span>            : {</a>
+<a name="299"><span class="lineNum">     299 </span><span class="lineCov">        240 :   ARegion *region = static_cast&lt;ARegion *&gt;(ptr-&gt;data);</span></a>
+<a name="300"><span class="lineNum">     300 </span>            : </a>
+<a name="301"><span class="lineNum">     301 </span><span class="lineCov">        240 :   if (region-&gt;regiondata != nullptr) {</span></a>
+<a name="302"><span class="lineNum">     302 </span><span class="lineCov">         22 :     if (region-&gt;regiontype == RGN_TYPE_WINDOW) {</span></a>
+<a name="303"><span class="lineNum">     303 </span>            :       /* We could make this static, it won't change at run-time. */</a>
+<a name="304"><span class="lineNum">     304 </span><span class="lineCov">         10 :       SpaceType *st = BKE_spacetype_from_id(SPACE_VIEW3D);</span></a>
+<a name="305"><span class="lineNum">     305 </span><span class="lineCov">         10 :       if (region-&gt;runtime-&gt;type == BKE_regiontype_from_id(st, region-&gt;regiontype)) {</span></a>
+<a name="306"><span class="lineNum">     306 </span>            :         PointerRNA newptr = RNA_pointer_create_discrete(</a>
+<a name="307"><span class="lineNum">     307 </span><span class="lineNoCov">          0 :             ptr-&gt;owner_id, RNA_RegionView3D, region-&gt;regiondata);</span></a>
+<a name="308"><span class="lineNum">     308 </span><span class="lineNoCov">          0 :         return newptr;</span></a>
+<a name="309"><span class="lineNum">     309 </span><span class="lineNoCov">          0 :       }</span></a>
+<a name="310"><span class="lineNum">     310 </span>            :     }</a>
+<a name="311"><span class="lineNum">     311 </span>            :   }</a>
+<a name="312"><span class="lineNum">     312 </span><span class="lineCov">        240 :   return {};</span></a>
+<a name="313"><span class="lineNum">     313 </span>            : }</a>
+<a name="314"><span class="lineNum">     314 </span>            : </a>
+<a name="315"><span class="lineNum">     315 </span><span class="lineCov">         12 : static int rna_region_has_panel_categories(const ARegion *region)</span></a>
+<a name="316"><span class="lineNum">     316 </span>            : {</a>
+<a name="317"><span class="lineNum">     317 </span><span class="lineCov">         12 :   return !region-&gt;runtime-&gt;panels_category.is_empty();</span></a>
+<a name="318"><span class="lineNum">     318 </span>            : }</a>
+<a name="319"><span class="lineNum">     319 </span>            : </a>
+<a name="320"><span class="lineNum">     320 </span><span class="lineNoCov">          0 : static int rna_Region_active_panel_category_editable_get(const PointerRNA *ptr,</span></a>
+<a name="321"><span class="lineNum">     321 </span>            :                                                          const char **r_info)</a>
+<a name="322"><span class="lineNum">     322 </span>            : {</a>
+<a name="323"><span class="lineNum">     323 </span>            : </a>
+<a name="324"><span class="lineNum">     324 </span><span class="lineNoCov">          0 :   ARegion *region = static_cast&lt;ARegion *&gt;(ptr-&gt;data);</span></a>
+<a name="325"><span class="lineNum">     325 </span><span class="lineNoCov">          0 :   if (!rna_region_has_panel_categories(region)) {</span></a>
+<a name="326"><span class="lineNum">     326 </span><span class="lineNoCov">          0 :     if (r_info) {</span></a>
+<a name="327"><span class="lineNum">     327 </span><span class="lineNoCov">          0 :       *r_info = N_(&quot;This region does not support panel categories&quot;);</span></a>
+<a name="328"><span class="lineNum">     328 </span>            :     }</a>
+<a name="329"><span class="lineNum">     329 </span><span class="lineNoCov">          0 :     return 0;</span></a>
+<a name="330"><span class="lineNum">     330 </span>            :   }</a>
+<a name="331"><span class="lineNum">     331 </span><span class="lineNoCov">          0 :   return PROP_EDITABLE;</span></a>
+<a name="332"><span class="lineNum">     332 </span>            : }</a>
+<a name="333"><span class="lineNum">     333 </span>            : </a>
+<a name="334"><span class="lineNum">     334 </span><span class="lineCov">         12 : int rna_region_active_panel_category_get(ARegion *region)</span></a>
+<a name="335"><span class="lineNum">     335 </span>            : {</a>
+<a name="336"><span class="lineNum">     336 </span><span class="lineCov">         12 :   const char *idname = ui::panel_category_active_get(region, true);</span></a>
+<a name="337"><span class="lineNum">     337 </span><span class="lineCov">         12 :   return ui::panel_category_index_find(region, idname);</span></a>
+<a name="338"><span class="lineNum">     338 </span>            : }</a>
+<a name="339"><span class="lineNum">     339 </span><span class="lineCov">         12 : static int rna_Region_active_panel_category_get(PointerRNA *ptr)</span></a>
+<a name="340"><span class="lineNum">     340 </span>            : {</a>
+<a name="341"><span class="lineNum">     341 </span><span class="lineCov">         12 :   ARegion *region = static_cast&lt;ARegion *&gt;(ptr-&gt;data);</span></a>
+<a name="342"><span class="lineNum">     342 </span><span class="lineCov">         12 :   return rna_region_active_panel_category_get(region);</span></a>
+<a name="343"><span class="lineNum">     343 </span>            : }</a>
+<a name="344"><span class="lineNum">     344 </span>            : </a>
+<a name="345"><span class="lineNum">     345 </span><span class="lineNoCov">          0 : void rna_region_active_panel_category_set(ARegion *region, const int value)</span></a>
+<a name="346"><span class="lineNum">     346 </span>            : {</a>
+<a name="347"><span class="lineNum">     347 </span><span class="lineNoCov">          0 :   ui::panel_category_index_active_set(region, value);</span></a>
+<a name="348"><span class="lineNum">     348 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="349"><span class="lineNum">     349 </span><span class="lineNoCov">          0 : static void rna_Region_active_panel_category_set(PointerRNA *ptr, const int value)</span></a>
+<a name="350"><span class="lineNum">     350 </span>            : {</a>
+<a name="351"><span class="lineNum">     351 </span><span class="lineNoCov">          0 :   ARegion *region = static_cast&lt;ARegion *&gt;(ptr-&gt;data);</span></a>
+<a name="352"><span class="lineNum">     352 </span><span class="lineNoCov">          0 :   BLI_assert(rna_region_has_panel_categories(region));</span></a>
+<a name="353"><span class="lineNum">     353 </span>            : </a>
+<a name="354"><span class="lineNum">     354 </span><span class="lineNoCov">          0 :   rna_region_active_panel_category_set(region, value);</span></a>
+<a name="355"><span class="lineNum">     355 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="356"><span class="lineNum">     356 </span>            : </a>
+<a name="357"><span class="lineNum">     357 </span><span class="lineCov">         12 : const EnumPropertyItem *rna_region_active_panel_category_itemf(const ARegion *region, bool *r_free)</span></a>
+<a name="358"><span class="lineNum">     358 </span>            : {</a>
+<a name="359"><span class="lineNum">     359 </span><span class="lineCov">         12 :   if (!rna_region_has_panel_categories(region)) {</span></a>
+<a name="360"><span class="lineNum">     360 </span><span class="lineCov">         12 :     *r_free = false;</span></a>
+<a name="361"><span class="lineNum">     361 </span><span class="lineCov">         12 :     return rna_enum_region_panel_category_items;</span></a>
+<a name="362"><span class="lineNum">     362 </span>            :   }</a>
+<a name="363"><span class="lineNum">     363 </span>            : </a>
+<a name="364"><span class="lineNum">     364 </span><span class="lineNoCov">          0 :   EnumPropertyItem *items = nullptr;</span></a>
+<a name="365"><span class="lineNum">     365 </span><span class="lineNoCov">          0 :   EnumPropertyItem item = {0, &quot;&quot;, 0, &quot;&quot;, &quot;&quot;};</span></a>
+<a name="366"><span class="lineNum">     366 </span><span class="lineNoCov">          0 :   int totitems = 0;</span></a>
+<a name="367"><span class="lineNum">     367 </span>            : </a>
+<a name="368"><span class="lineNum">     368 </span><span class="lineNoCov">          0 :   for (const auto [category_index, pc_dyn] : region-&gt;runtime-&gt;panels_category.enumerate()) {</span></a>
+<a name="369"><span class="lineNum">     369 </span><span class="lineNoCov">          0 :     item.value = category_index;</span></a>
+<a name="370"><span class="lineNum">     370 </span><span class="lineNoCov">          0 :     item.identifier = pc_dyn.idname;</span></a>
+<a name="371"><span class="lineNum">     371 </span><span class="lineNoCov">          0 :     item.name = pc_dyn.idname;</span></a>
+<a name="372"><span class="lineNum">     372 </span><span class="lineNoCov">          0 :     RNA_enum_item_add(&amp;items, &amp;totitems, &amp;item);</span></a>
+<a name="373"><span class="lineNum">     373 </span>            :   }</a>
+<a name="374"><span class="lineNum">     374 </span>            : </a>
+<a name="375"><span class="lineNum">     375 </span><span class="lineNoCov">          0 :   RNA_enum_item_end(&amp;items, &amp;totitems);</span></a>
+<a name="376"><span class="lineNum">     376 </span><span class="lineNoCov">          0 :   *r_free = true;</span></a>
+<a name="377"><span class="lineNum">     377 </span><span class="lineNoCov">          0 :   return items;</span></a>
+<a name="378"><span class="lineNum">     378 </span>            : }</a>
+<a name="379"><span class="lineNum">     379 </span><span class="lineCov">         12 : static const EnumPropertyItem *rna_Region_active_panel_category_itemf(bContext * /*C*/,</span></a>
+<a name="380"><span class="lineNum">     380 </span>            :                                                                       PointerRNA *ptr,</a>
+<a name="381"><span class="lineNum">     381 </span>            :                                                                       PropertyRNA * /*prop*/,</a>
+<a name="382"><span class="lineNum">     382 </span>            :                                                                       bool *r_free)</a>
+<a name="383"><span class="lineNum">     383 </span>            : {</a>
+<a name="384"><span class="lineNum">     384 </span><span class="lineCov">         12 :   ARegion *region = static_cast&lt;ARegion *&gt;(ptr-&gt;data);</span></a>
+<a name="385"><span class="lineNum">     385 </span><span class="lineCov">         12 :   return rna_region_active_panel_category_itemf(region, r_free);</span></a>
+<a name="386"><span class="lineNum">     386 </span>            : }</a>
+<a name="387"><span class="lineNum">     387 </span>            : </a>
+<a name="388"><span class="lineNum">     388 </span><span class="lineNoCov">          0 : static void rna_View2D_region_to_view(View2D *v2d, float x, float y, float result[2])</span></a>
+<a name="389"><span class="lineNum">     389 </span>            : {</a>
+<a name="390"><span class="lineNum">     390 </span><span class="lineNoCov">          0 :   ui::view2d_region_to_view(v2d, x, y, &amp;result[0], &amp;result[1]);</span></a>
+<a name="391"><span class="lineNum">     391 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="392"><span class="lineNum">     392 </span>            : </a>
+<a name="393"><span class="lineNum">     393 </span><span class="lineCov">        450 : static void rna_View2D_view_to_region(View2D *v2d, float x, float y, bool clip, int result[2])</span></a>
+<a name="394"><span class="lineNum">     394 </span>            : {</a>
+<a name="395"><span class="lineNum">     395 </span><span class="lineCov">        450 :   if (clip) {</span></a>
+<a name="396"><span class="lineNum">     396 </span><span class="lineNoCov">          0 :     ui::view2d_view_to_region_clip(v2d, x, y, &amp;result[0], &amp;result[1]);</span></a>
+<a name="397"><span class="lineNum">     397 </span>            :   }</a>
+<a name="398"><span class="lineNum">     398 </span>            :   else {</a>
+<a name="399"><span class="lineNum">     399 </span><span class="lineCov">        450 :     ui::view2d_view_to_region(v2d, x, y, &amp;result[0], &amp;result[1]);</span></a>
+<a name="400"><span class="lineNum">     400 </span>            :   }</a>
+<a name="401"><span class="lineNum">     401 </span><span class="lineCov">        450 : }</span></a>
+<a name="402"><span class="lineNum">     402 </span>            : </a>
+<a name="403"><span class="lineNum">     403 </span><span class="lineNoCov">          0 : static const char *rna_Screen_statusbar_info_get(bScreen * /*screen*/, Main *bmain, bContext *C)</span></a>
+<a name="404"><span class="lineNum">     404 </span>            : {</a>
+<a name="405"><span class="lineNum">     405 </span><span class="lineNoCov">          0 :   return ED_info_statusbar_string(bmain, CTX_data_scene(C), CTX_data_view_layer(C));</span></a>
+<a name="406"><span class="lineNum">     406 </span>            : }</a>
+<a name="407"><span class="lineNum">     407 </span>            : </a>
+<a name="408"><span class="lineNum">     408 </span><span class="lineNoCov">          0 : static void rna_Region_tag_refresh_ui(ARegion *region, ReportList *reports)</span></a>
+<a name="409"><span class="lineNum">     409 </span>            : {</a>
+<a name="410"><span class="lineNum">     410 </span><span class="lineNoCov">          0 :   if (region-&gt;regiontype != RGN_TYPE_TEMPORARY) {</span></a>
+<a name="411"><span class="lineNum">     411 </span><span class="lineNoCov">          0 :     BKE_report(reports, RPT_ERROR, &quot;Only supported for \&quot;TEMPORARY\&quot; type regions (pop-ups)&quot;);</span></a>
+<a name="412"><span class="lineNum">     412 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="413"><span class="lineNum">     413 </span>            :   }</a>
+<a name="414"><span class="lineNum">     414 </span><span class="lineNoCov">          0 :   ED_region_tag_refresh_ui(region);</span></a>
+<a name="415"><span class="lineNum">     415 </span>            : }</a>
+<a name="416"><span class="lineNum">     416 </span>            : </a>
+<a name="417"><span class="lineNum">     417 </span><span class="lineCov">         12 : static void rna_Region_search_filter_get(PointerRNA *ptr, char *value)</span></a>
+<a name="418"><span class="lineNum">     418 </span>            : {</a>
+<a name="419"><span class="lineNum">     419 </span><span class="lineCov">         12 :   ARegion *region = static_cast&lt;ARegion *&gt;(ptr-&gt;data);</span></a>
+<a name="420"><span class="lineNum">     420 </span><span class="lineCov">         12 :   strcpy(value, region-&gt;runtime-&gt;search_filter.c_str());</span></a>
+<a name="421"><span class="lineNum">     421 </span><span class="lineCov">         12 : }</span></a>
+<a name="422"><span class="lineNum">     422 </span>            : </a>
+<a name="423"><span class="lineNum">     423 </span><span class="lineCov">         12 : static int rna_Region_search_filter_length(PointerRNA *ptr)</span></a>
+<a name="424"><span class="lineNum">     424 </span>            : {</a>
+<a name="425"><span class="lineNum">     425 </span><span class="lineCov">         12 :   ARegion *region = static_cast&lt;ARegion *&gt;(ptr-&gt;data);</span></a>
+<a name="426"><span class="lineNum">     426 </span><span class="lineCov">         12 :   return region-&gt;runtime-&gt;search_filter.size();</span></a>
+<a name="427"><span class="lineNum">     427 </span>            : }</a>
+<a name="428"><span class="lineNum">     428 </span>            : </a>
+<a name="429"><span class="lineNum">     429 </span><span class="lineNoCov">          0 : static void rna_Region_search_filter_set(PointerRNA *ptr, const char *value)</span></a>
+<a name="430"><span class="lineNum">     430 </span>            : {</a>
+<a name="431"><span class="lineNum">     431 </span><span class="lineNoCov">          0 :   ARegion *region = static_cast&lt;ARegion *&gt;(ptr-&gt;data);</span></a>
+<a name="432"><span class="lineNum">     432 </span><span class="lineNoCov">          0 :   region-&gt;runtime-&gt;search_filter = value ? value : &quot;&quot;;</span></a>
+<a name="433"><span class="lineNum">     433 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="434"><span class="lineNum">     434 </span>            : </a>
+<a name="435"><span class="lineNum">     435 </span><span class="lineNoCov">          0 : static int rna_Region_search_filter_editable(const PointerRNA *ptr, const char **r_info)</span></a>
+<a name="436"><span class="lineNum">     436 </span>            : {</a>
+<a name="437"><span class="lineNum">     437 </span><span class="lineNoCov">          0 :   ARegion *region = static_cast&lt;ARegion *&gt;(ptr-&gt;data);</span></a>
+<a name="438"><span class="lineNum">     438 </span>            : </a>
+<a name="439"><span class="lineNum">     439 </span><span class="lineNoCov">          0 :   if (!BKE_region_panel_categories_search_filter_visible(region)) {</span></a>
+<a name="440"><span class="lineNum">     440 </span><span class="lineNoCov">          0 :     *r_info = N_(&quot;Only for side-panels&quot;);</span></a>
+<a name="441"><span class="lineNum">     441 </span><span class="lineNoCov">          0 :     return 0;</span></a>
+<a name="442"><span class="lineNum">     442 </span>            :   }</a>
+<a name="443"><span class="lineNum">     443 </span><span class="lineNoCov">          0 :   return PROP_EDITABLE;</span></a>
+<a name="444"><span class="lineNum">     444 </span>            : }</a>
+<a name="445"><span class="lineNum">     445 </span>            : </a>
+<a name="446"><span class="lineNum">     446 </span><span class="lineNoCov">          0 : static void rna_Region_search_filter_update(Main * /*bmain*/, Scene * /*scene*/, PointerRNA *ptr)</span></a>
+<a name="447"><span class="lineNum">     447 </span>            : {</a>
+<a name="448"><span class="lineNum">     448 </span><span class="lineNoCov">          0 :   ARegion *region = static_cast&lt;ARegion *&gt;(ptr-&gt;data);</span></a>
+<a name="449"><span class="lineNum">     449 </span><span class="lineNoCov">          0 :   ED_region_search_filter_update(nullptr, region);</span></a>
+<a name="450"><span class="lineNum">     450 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="451"><span class="lineNum">     451 </span>            : </a>
+<a name="452"><span class="lineNum">     452 </span>            : }  // namespace blender</a>
+<a name="453"><span class="lineNum">     453 </span>            : </a>
+<a name="454"><span class="lineNum">     454 </span>            : #else</a>
+<a name="455"><span class="lineNum">     455 </span>            : </a>
+<a name="456"><span class="lineNum">     456 </span>            : namespace blender {</a>
+<a name="457"><span class="lineNum">     457 </span>            : </a>
+<a name="458"><span class="lineNum">     458 </span>            : /* Area.spaces */</a>
+<a name="459"><span class="lineNum">     459 </span><span class="lineCov">          1 : static void rna_def_area_spaces(BlenderRNA *brna, PropertyRNA *cprop)</span></a>
+<a name="460"><span class="lineNum">     460 </span>            : {</a>
+<a name="461"><span class="lineNum">     461 </span>            :   StructRNA *srna;</a>
+<a name="462"><span class="lineNum">     462 </span>            :   PropertyRNA *prop;</a>
+<a name="463"><span class="lineNum">     463 </span>            : </a>
+<a name="464"><span class="lineNum">     464 </span><span class="lineCov">          1 :   RNA_def_property_srna(cprop, &quot;AreaSpaces&quot;);</span></a>
+<a name="465"><span class="lineNum">     465 </span><span class="lineCov">          1 :   srna = RNA_def_struct(brna, &quot;AreaSpaces&quot;, nullptr);</span></a>
+<a name="466"><span class="lineNum">     466 </span><span class="lineCov">          1 :   RNA_def_struct_sdna(srna, &quot;ScrArea&quot;);</span></a>
+<a name="467"><span class="lineNum">     467 </span><span class="lineCov">          1 :   RNA_def_struct_ui_text(srna, &quot;Area Spaces&quot;, &quot;Collection of spaces&quot;);</span></a>
+<a name="468"><span class="lineNum">     468 </span>            : </a>
+<a name="469"><span class="lineNum">     469 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;active&quot;, PROP_POINTER, PROP_NONE);</span></a>
+<a name="470"><span class="lineNum">     470 </span><span class="lineCov">          1 :   RNA_def_property_pointer_sdna(prop, nullptr, &quot;spacedata.first_&quot;);</span></a>
+<a name="471"><span class="lineNum">     471 </span><span class="lineCov">          1 :   RNA_def_property_struct_type(prop, &quot;Space&quot;);</span></a>
+<a name="472"><span class="lineNum">     472 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop, &quot;Active Space&quot;, &quot;Space currently being displayed in this area&quot;);</span></a>
+<a name="473"><span class="lineNum">     473 </span><span class="lineCov">          1 : }</span></a>
+<a name="474"><span class="lineNum">     474 </span>            : </a>
+<a name="475"><span class="lineNum">     475 </span><span class="lineCov">          1 : static void rna_def_area_api(StructRNA *srna)</span></a>
+<a name="476"><span class="lineNum">     476 </span>            : {</a>
+<a name="477"><span class="lineNum">     477 </span>            :   FunctionRNA *func;</a>
+<a name="478"><span class="lineNum">     478 </span>            :   PropertyRNA *parm;</a>
+<a name="479"><span class="lineNum">     479 </span>            : </a>
+<a name="480"><span class="lineNum">     480 </span><span class="lineCov">          1 :   RNA_def_function(srna, &quot;tag_redraw&quot;, &quot;ED_area_tag_redraw&quot;);</span></a>
+<a name="481"><span class="lineNum">     481 </span>            : </a>
+<a name="482"><span class="lineNum">     482 </span><span class="lineCov">          1 :   func = RNA_def_function(srna, &quot;header_text_set&quot;, &quot;ED_area_status_text&quot;);</span></a>
+<a name="483"><span class="lineNum">     483 </span><span class="lineCov">          1 :   RNA_def_function_ui_description(func, &quot;Set the header status text&quot;);</span></a>
+<a name="484"><span class="lineNum">     484 </span><span class="lineCov">          1 :   parm = RNA_def_string(</span></a>
+<a name="485"><span class="lineNum">     485 </span>            :       func, &quot;text&quot;, nullptr, 0, &quot;Text&quot;, &quot;New string for the header, None clears the text&quot;);</a>
+<a name="486"><span class="lineNum">     486 </span><span class="lineCov">          1 :   RNA_def_parameter_flags(parm, PropertyFlag(0), PARM_REQUIRED);</span></a>
+<a name="487"><span class="lineNum">     487 </span><span class="lineCov">          1 :   RNA_def_property_clear_flag(parm, PROP_NEVER_NULL);</span></a>
+<a name="488"><span class="lineNum">     488 </span><span class="lineCov">          1 : }</span></a>
+<a name="489"><span class="lineNum">     489 </span>            : </a>
+<a name="490"><span class="lineNum">     490 </span><span class="lineCov">          1 : static void rna_def_area(BlenderRNA *brna)</span></a>
+<a name="491"><span class="lineNum">     491 </span>            : {</a>
+<a name="492"><span class="lineNum">     492 </span>            :   StructRNA *srna;</a>
+<a name="493"><span class="lineNum">     493 </span>            :   PropertyRNA *prop;</a>
+<a name="494"><span class="lineNum">     494 </span>            : </a>
+<a name="495"><span class="lineNum">     495 </span><span class="lineCov">          1 :   srna = RNA_def_struct(brna, &quot;Area&quot;, nullptr);</span></a>
+<a name="496"><span class="lineNum">     496 </span><span class="lineCov">          1 :   RNA_def_struct_ui_text(srna, &quot;Area&quot;, &quot;Area in a subdivided screen, containing an editor&quot;);</span></a>
+<a name="497"><span class="lineNum">     497 </span><span class="lineCov">          1 :   RNA_def_struct_path_func(srna, &quot;BKE_screen_path_to_area&quot;);</span></a>
+<a name="498"><span class="lineNum">     498 </span><span class="lineCov">          1 :   RNA_def_struct_sdna(srna, &quot;ScrArea&quot;);</span></a>
+<a name="499"><span class="lineNum">     499 </span>            : </a>
+<a name="500"><span class="lineNum">     500 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;spaces&quot;, PROP_COLLECTION, PROP_NONE);</span></a>
+<a name="501"><span class="lineNum">     501 </span><span class="lineCov">          1 :   RNA_def_property_collection_sdna(prop, nullptr, &quot;spacedata&quot;, nullptr);</span></a>
+<a name="502"><span class="lineNum">     502 </span><span class="lineCov">          1 :   RNA_def_property_struct_type(prop, &quot;Space&quot;);</span></a>
+<a name="503"><span class="lineNum">     503 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop,</span></a>
+<a name="504"><span class="lineNum">     504 </span>            :                            &quot;Spaces&quot;,</a>
+<a name="505"><span class="lineNum">     505 </span>            :                            &quot;Spaces contained in this area, the first being the active space &quot;</a>
+<a name="506"><span class="lineNum">     506 </span>            :                            &quot;(NOTE: Useful for example to restore a previously used 3D view space &quot;</a>
+<a name="507"><span class="lineNum">     507 </span>            :                            &quot;in a certain area to get the old view orientation)&quot;);</a>
+<a name="508"><span class="lineNum">     508 </span><span class="lineCov">          1 :   rna_def_area_spaces(brna, prop);</span></a>
+<a name="509"><span class="lineNum">     509 </span>            : </a>
+<a name="510"><span class="lineNum">     510 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;regions&quot;, PROP_COLLECTION, PROP_NONE);</span></a>
+<a name="511"><span class="lineNum">     511 </span><span class="lineCov">          1 :   RNA_def_property_collection_sdna(prop, nullptr, &quot;regionbase&quot;, nullptr);</span></a>
+<a name="512"><span class="lineNum">     512 </span><span class="lineCov">          1 :   RNA_def_property_struct_type(prop, &quot;Region&quot;);</span></a>
+<a name="513"><span class="lineNum">     513 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop, &quot;Regions&quot;, &quot;Regions this area is subdivided in&quot;);</span></a>
+<a name="514"><span class="lineNum">     514 </span>            : </a>
+<a name="515"><span class="lineNum">     515 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;show_menus&quot;, PROP_BOOLEAN, PROP_NONE);</span></a>
+<a name="516"><span class="lineNum">     516 </span><span class="lineCov">          1 :   RNA_def_property_boolean_negative_sdna(prop, nullptr, &quot;flag&quot;, HEADER_NO_PULLDOWN);</span></a>
+<a name="517"><span class="lineNum">     517 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop, &quot;Show Menus&quot;, &quot;Show menus in the header&quot;);</span></a>
+<a name="518"><span class="lineNum">     518 </span>            : </a>
+<a name="519"><span class="lineNum">     519 </span>            :   /* Note on space type use of #SPACE_EMPTY, this is not visible to the user,</a>
+<a name="520"><span class="lineNum">     520 </span>            :    * and script authors should be able to assign this value, however the value may be set</a>
+<a name="521"><span class="lineNum">     521 </span>            :    * and needs to be read back by script authors.</a>
+<a name="522"><span class="lineNum">     522 </span>            :    *</a>
+<a name="523"><span class="lineNum">     523 </span>            :    * This happens when an area is full-screen (when #ScrArea.full is set).</a>
+<a name="524"><span class="lineNum">     524 </span>            :    * in this case reading the empty value is needed, but it should never be set, see: #87187. */</a>
+<a name="525"><span class="lineNum">     525 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;type&quot;, PROP_ENUM, PROP_NONE);</span></a>
+<a name="526"><span class="lineNum">     526 </span><span class="lineCov">          1 :   RNA_def_property_enum_sdna(prop, nullptr, &quot;spacetype&quot;);</span></a>
+<a name="527"><span class="lineNum">     527 </span><span class="lineCov">          1 :   RNA_def_property_enum_items(prop, rna_enum_space_type_items);</span></a>
+<a name="528"><span class="lineNum">     528 </span><span class="lineCov">          1 :   RNA_def_property_enum_default(prop, SPACE_VIEW3D);</span></a>
+<a name="529"><span class="lineNum">     529 </span><span class="lineCov">          1 :   RNA_def_property_enum_funcs(prop, &quot;rna_Area_type_get&quot;, &quot;rna_Area_type_set&quot;, nullptr);</span></a>
+<a name="530"><span class="lineNum">     530 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop, &quot;Editor Type&quot;, &quot;Current editor type for this area&quot;);</span></a>
+<a name="531"><span class="lineNum">     531 </span><span class="lineCov">          1 :   RNA_def_property_flag(prop, PROP_CONTEXT_UPDATE);</span></a>
+<a name="532"><span class="lineNum">     532 </span><span class="lineCov">          1 :   RNA_def_property_clear_flag(prop, PROP_ANIMATABLE);</span></a>
+<a name="533"><span class="lineNum">     533 </span><span class="lineCov">          1 :   RNA_def_property_update(prop, 0, &quot;rna_Area_type_update&quot;);</span></a>
+<a name="534"><span class="lineNum">     534 </span>            : </a>
+<a name="535"><span class="lineNum">     535 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;ui_type&quot;, PROP_ENUM, PROP_NONE);</span></a>
+<a name="536"><span class="lineNum">     536 </span><span class="lineCov">          1 :   RNA_def_property_enum_items(prop, rna_enum_dummy_NULL_items); /* in fact dummy */</span></a>
+<a name="537"><span class="lineNum">     537 </span><span class="lineCov">          1 :   RNA_def_property_enum_default(prop, SPACE_VIEW3D &lt;&lt; 16);</span></a>
+<a name="538"><span class="lineNum">     538 </span><span class="lineCov">          1 :   RNA_def_property_enum_funcs(</span></a>
+<a name="539"><span class="lineNum">     539 </span>            :       prop, &quot;rna_Area_ui_type_get&quot;, &quot;rna_Area_ui_type_set&quot;, &quot;rna_Area_ui_type_itemf&quot;);</a>
+<a name="540"><span class="lineNum">     540 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop, &quot;Editor Type&quot;, &quot;Current editor type for this area&quot;);</span></a>
+<a name="541"><span class="lineNum">     541 </span><span class="lineCov">          1 :   RNA_def_property_flag(prop, PROP_CONTEXT_UPDATE);</span></a>
+<a name="542"><span class="lineNum">     542 </span><span class="lineCov">          1 :   RNA_def_property_clear_flag(prop, PROP_ANIMATABLE);</span></a>
+<a name="543"><span class="lineNum">     543 </span><span class="lineCov">          1 :   RNA_def_property_update(prop, 0, &quot;rna_Area_ui_type_update&quot;);</span></a>
+<a name="544"><span class="lineNum">     544 </span>            : </a>
+<a name="545"><span class="lineNum">     545 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;x&quot;, PROP_INT, PROP_NONE);</span></a>
+<a name="546"><span class="lineNum">     546 </span><span class="lineCov">          1 :   RNA_def_property_int_sdna(prop, nullptr, &quot;totrct.xmin&quot;);</span></a>
+<a name="547"><span class="lineNum">     547 </span><span class="lineCov">          1 :   RNA_def_property_clear_flag(prop, PROP_EDITABLE);</span></a>
+<a name="548"><span class="lineNum">     548 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(</span></a>
+<a name="549"><span class="lineNum">     549 </span>            :       prop, &quot;X Position&quot;, &quot;The window relative vertical location of the area&quot;);</a>
+<a name="550"><span class="lineNum">     550 </span>            : </a>
+<a name="551"><span class="lineNum">     551 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;y&quot;, PROP_INT, PROP_NONE);</span></a>
+<a name="552"><span class="lineNum">     552 </span><span class="lineCov">          1 :   RNA_def_property_int_sdna(prop, nullptr, &quot;totrct.ymin&quot;);</span></a>
+<a name="553"><span class="lineNum">     553 </span><span class="lineCov">          1 :   RNA_def_property_clear_flag(prop, PROP_EDITABLE);</span></a>
+<a name="554"><span class="lineNum">     554 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(</span></a>
+<a name="555"><span class="lineNum">     555 </span>            :       prop, &quot;Y Position&quot;, &quot;The window relative horizontal location of the area&quot;);</a>
+<a name="556"><span class="lineNum">     556 </span>            : </a>
+<a name="557"><span class="lineNum">     557 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;width&quot;, PROP_INT, PROP_UNSIGNED);</span></a>
+<a name="558"><span class="lineNum">     558 </span><span class="lineCov">          1 :   RNA_def_property_int_sdna(prop, nullptr, &quot;winx&quot;);</span></a>
+<a name="559"><span class="lineNum">     559 </span><span class="lineCov">          1 :   RNA_def_property_clear_flag(prop, PROP_EDITABLE);</span></a>
+<a name="560"><span class="lineNum">     560 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop, &quot;Width&quot;, &quot;Area width&quot;);</span></a>
+<a name="561"><span class="lineNum">     561 </span>            : </a>
+<a name="562"><span class="lineNum">     562 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;height&quot;, PROP_INT, PROP_UNSIGNED);</span></a>
+<a name="563"><span class="lineNum">     563 </span><span class="lineCov">          1 :   RNA_def_property_int_sdna(prop, nullptr, &quot;winy&quot;);</span></a>
+<a name="564"><span class="lineNum">     564 </span><span class="lineCov">          1 :   RNA_def_property_clear_flag(prop, PROP_EDITABLE);</span></a>
+<a name="565"><span class="lineNum">     565 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop, &quot;Height&quot;, &quot;Area height&quot;);</span></a>
+<a name="566"><span class="lineNum">     566 </span>            : </a>
+<a name="567"><span class="lineNum">     567 </span><span class="lineCov">          1 :   rna_def_area_api(srna);</span></a>
+<a name="568"><span class="lineNum">     568 </span><span class="lineCov">          1 : }</span></a>
+<a name="569"><span class="lineNum">     569 </span>            : </a>
+<a name="570"><span class="lineNum">     570 </span><span class="lineCov">          1 : static void rna_def_view2d_api(StructRNA *srna)</span></a>
+<a name="571"><span class="lineNum">     571 </span>            : {</a>
+<a name="572"><span class="lineNum">     572 </span>            :   FunctionRNA *func;</a>
+<a name="573"><span class="lineNum">     573 </span>            :   PropertyRNA *parm;</a>
+<a name="574"><span class="lineNum">     574 </span>            : </a>
+<a name="575"><span class="lineNum">     575 </span>            :   static const float view_default[2] = {0.0f, 0.0f};</a>
+<a name="576"><span class="lineNum">     576 </span>            :   static const int region_default[2] = {0, 0};</a>
+<a name="577"><span class="lineNum">     577 </span>            : </a>
+<a name="578"><span class="lineNum">     578 </span><span class="lineCov">          1 :   func = RNA_def_function(srna, &quot;region_to_view&quot;, &quot;rna_View2D_region_to_view&quot;);</span></a>
+<a name="579"><span class="lineNum">     579 </span><span class="lineCov">          1 :   RNA_def_function_ui_description(func, &quot;Transform region coordinates to 2D view&quot;);</span></a>
+<a name="580"><span class="lineNum">     580 </span><span class="lineCov">          1 :   parm = RNA_def_float(func, &quot;x&quot;, 0, -FLT_MAX, FLT_MAX, &quot;x&quot;, &quot;Region x coordinate&quot;, -10000, 10000);</span></a>
+<a name="581"><span class="lineNum">     581 </span><span class="lineCov">          1 :   RNA_def_parameter_flags(parm, PropertyFlag(0), PARM_REQUIRED);</span></a>
+<a name="582"><span class="lineNum">     582 </span><span class="lineCov">          1 :   parm = RNA_def_float(func, &quot;y&quot;, 0, -FLT_MAX, FLT_MAX, &quot;y&quot;, &quot;Region y coordinate&quot;, -10000, 10000);</span></a>
+<a name="583"><span class="lineNum">     583 </span><span class="lineCov">          1 :   RNA_def_parameter_flags(parm, PropertyFlag(0), PARM_REQUIRED);</span></a>
+<a name="584"><span class="lineNum">     584 </span><span class="lineCov">          1 :   parm = RNA_def_float_array(func,</span></a>
+<a name="585"><span class="lineNum">     585 </span>            :                              &quot;result&quot;,</a>
+<a name="586"><span class="lineNum">     586 </span>            :                              2,</a>
+<a name="587"><span class="lineNum">     587 </span>            :                              view_default,</a>
+<a name="588"><span class="lineNum">     588 </span>            :                              -FLT_MAX,</a>
+<a name="589"><span class="lineNum">     589 </span>            :                              FLT_MAX,</a>
+<a name="590"><span class="lineNum">     590 </span>            :                              &quot;Result&quot;,</a>
+<a name="591"><span class="lineNum">     591 </span>            :                              &quot;View coordinates&quot;,</a>
+<a name="592"><span class="lineNum">     592 </span>            :                              -10000.0f,</a>
+<a name="593"><span class="lineNum">     593 </span>            :                              10000.0f);</a>
+<a name="594"><span class="lineNum">     594 </span><span class="lineCov">          1 :   RNA_def_parameter_flags(parm, PROP_THICK_WRAP, ParameterFlag(0));</span></a>
+<a name="595"><span class="lineNum">     595 </span><span class="lineCov">          1 :   RNA_def_function_output(func, parm);</span></a>
+<a name="596"><span class="lineNum">     596 </span>            : </a>
+<a name="597"><span class="lineNum">     597 </span><span class="lineCov">          1 :   func = RNA_def_function(srna, &quot;view_to_region&quot;, &quot;rna_View2D_view_to_region&quot;);</span></a>
+<a name="598"><span class="lineNum">     598 </span><span class="lineCov">          1 :   RNA_def_function_ui_description(func, &quot;Transform 2D view coordinates to region&quot;);</span></a>
+<a name="599"><span class="lineNum">     599 </span><span class="lineCov">          1 :   parm = RNA_def_float(</span></a>
+<a name="600"><span class="lineNum">     600 </span>            :       func, &quot;x&quot;, 0.0f, -FLT_MAX, FLT_MAX, &quot;x&quot;, &quot;2D View x coordinate&quot;, -10000.0f, 10000.0f);</a>
+<a name="601"><span class="lineNum">     601 </span><span class="lineCov">          1 :   RNA_def_parameter_flags(parm, PropertyFlag(0), PARM_REQUIRED);</span></a>
+<a name="602"><span class="lineNum">     602 </span><span class="lineCov">          1 :   parm = RNA_def_float(</span></a>
+<a name="603"><span class="lineNum">     603 </span>            :       func, &quot;y&quot;, 0.0f, -FLT_MAX, FLT_MAX, &quot;y&quot;, &quot;2D View y coordinate&quot;, -10000.0f, 10000.0f);</a>
+<a name="604"><span class="lineNum">     604 </span><span class="lineCov">          1 :   RNA_def_parameter_flags(parm, PropertyFlag(0), PARM_REQUIRED);</span></a>
+<a name="605"><span class="lineNum">     605 </span><span class="lineCov">          1 :   RNA_def_boolean(func, &quot;clip&quot;, true, &quot;Clip&quot;, &quot;Clip coordinates to the visible region&quot;);</span></a>
+<a name="606"><span class="lineNum">     606 </span><span class="lineCov">          1 :   parm = RNA_def_int_array(func,</span></a>
+<a name="607"><span class="lineNum">     607 </span>            :                            &quot;result&quot;,</a>
+<a name="608"><span class="lineNum">     608 </span>            :                            2,</a>
+<a name="609"><span class="lineNum">     609 </span>            :                            region_default,</a>
+<a name="610"><span class="lineNum">     610 </span>            :                            INT_MIN,</a>
+<a name="611"><span class="lineNum">     611 </span>            :                            INT_MAX,</a>
+<a name="612"><span class="lineNum">     612 </span>            :                            &quot;Result&quot;,</a>
+<a name="613"><span class="lineNum">     613 </span>            :                            &quot;Region coordinates&quot;,</a>
+<a name="614"><span class="lineNum">     614 </span>            :                            -10000,</a>
+<a name="615"><span class="lineNum">     615 </span>            :                            10000);</a>
+<a name="616"><span class="lineNum">     616 </span><span class="lineCov">          1 :   RNA_def_parameter_flags(parm, PROP_THICK_WRAP, ParameterFlag(0));</span></a>
+<a name="617"><span class="lineNum">     617 </span><span class="lineCov">          1 :   RNA_def_function_output(func, parm);</span></a>
+<a name="618"><span class="lineNum">     618 </span><span class="lineCov">          1 : }</span></a>
+<a name="619"><span class="lineNum">     619 </span>            : </a>
+<a name="620"><span class="lineNum">     620 </span><span class="lineCov">          1 : static void rna_def_view2d(BlenderRNA *brna)</span></a>
+<a name="621"><span class="lineNum">     621 </span>            : {</a>
+<a name="622"><span class="lineNum">     622 </span>            :   StructRNA *srna;</a>
+<a name="623"><span class="lineNum">     623 </span>            :   // PropertyRNA *prop;</a>
+<a name="624"><span class="lineNum">     624 </span>            : </a>
+<a name="625"><span class="lineNum">     625 </span><span class="lineCov">          1 :   srna = RNA_def_struct(brna, &quot;View2D&quot;, nullptr);</span></a>
+<a name="626"><span class="lineNum">     626 </span><span class="lineCov">          1 :   RNA_def_struct_ui_text(srna, &quot;View2D&quot;, &quot;Scroll and zoom for a 2D region&quot;);</span></a>
+<a name="627"><span class="lineNum">     627 </span><span class="lineCov">          1 :   RNA_def_struct_sdna(srna, &quot;View2D&quot;);</span></a>
+<a name="628"><span class="lineNum">     628 </span>            : </a>
+<a name="629"><span class="lineNum">     629 </span>            :   /* TODO: more View2D properties could be exposed here (read-only). */</a>
+<a name="630"><span class="lineNum">     630 </span>            : </a>
+<a name="631"><span class="lineNum">     631 </span><span class="lineCov">          1 :   rna_def_view2d_api(srna);</span></a>
+<a name="632"><span class="lineNum">     632 </span><span class="lineCov">          1 : }</span></a>
+<a name="633"><span class="lineNum">     633 </span>            : </a>
+<a name="634"><span class="lineNum">     634 </span><span class="lineCov">          1 : static void rna_def_region_api(StructRNA *srna)</span></a>
+<a name="635"><span class="lineNum">     635 </span>            : {</a>
+<a name="636"><span class="lineNum">     636 </span>            :   FunctionRNA *func;</a>
+<a name="637"><span class="lineNum">     637 </span>            :   // PropertyRNA *parm;</a>
+<a name="638"><span class="lineNum">     638 </span>            : </a>
+<a name="639"><span class="lineNum">     639 </span><span class="lineCov">          1 :   RNA_def_function(srna, &quot;tag_redraw&quot;, &quot;ED_region_tag_redraw&quot;);</span></a>
+<a name="640"><span class="lineNum">     640 </span>            : </a>
+<a name="641"><span class="lineNum">     641 </span>            :   /* Wrap #ED_region_tag_refresh_ui (with some additional checks). */</a>
+<a name="642"><span class="lineNum">     642 </span><span class="lineCov">          1 :   func = RNA_def_function(srna, &quot;tag_refresh_ui&quot;, &quot;rna_Region_tag_refresh_ui&quot;);</span></a>
+<a name="643"><span class="lineNum">     643 </span><span class="lineCov">          1 :   RNA_def_function_flag(func, FUNC_USE_REPORTS);</span></a>
+<a name="644"><span class="lineNum">     644 </span><span class="lineCov">          1 : }</span></a>
+<a name="645"><span class="lineNum">     645 </span>            : </a>
+<a name="646"><span class="lineNum">     646 </span><span class="lineCov">          1 : static void rna_def_region(BlenderRNA *brna)</span></a>
+<a name="647"><span class="lineNum">     647 </span>            : {</a>
+<a name="648"><span class="lineNum">     648 </span>            :   StructRNA *srna;</a>
+<a name="649"><span class="lineNum">     649 </span>            :   PropertyRNA *prop;</a>
+<a name="650"><span class="lineNum">     650 </span>            : </a>
+<a name="651"><span class="lineNum">     651 </span>            :   static const EnumPropertyItem alignment_types[] = {</a>
+<a name="652"><span class="lineNum">     652 </span>            :       {RGN_ALIGN_NONE, &quot;NONE&quot;, 0, &quot;None&quot;, &quot;Don't use any fixed alignment, fill available space&quot;},</a>
+<a name="653"><span class="lineNum">     653 </span>            :       {RGN_ALIGN_TOP, &quot;TOP&quot;, 0, &quot;Top&quot;, &quot;&quot;},</a>
+<a name="654"><span class="lineNum">     654 </span>            :       {RGN_ALIGN_BOTTOM, &quot;BOTTOM&quot;, 0, &quot;Bottom&quot;, &quot;&quot;},</a>
+<a name="655"><span class="lineNum">     655 </span>            :       {RGN_ALIGN_LEFT, &quot;LEFT&quot;, 0, &quot;Left&quot;, &quot;&quot;},</a>
+<a name="656"><span class="lineNum">     656 </span>            :       {RGN_ALIGN_RIGHT, &quot;RIGHT&quot;, 0, &quot;Right&quot;, &quot;&quot;},</a>
+<a name="657"><span class="lineNum">     657 </span>            :       {RGN_ALIGN_HSPLIT, &quot;HORIZONTAL_SPLIT&quot;, 0, &quot;Horizontal Split&quot;, &quot;&quot;},</a>
+<a name="658"><span class="lineNum">     658 </span>            :       {RGN_ALIGN_VSPLIT, &quot;VERTICAL_SPLIT&quot;, 0, &quot;Vertical Split&quot;, &quot;&quot;},</a>
+<a name="659"><span class="lineNum">     659 </span>            :       {RGN_ALIGN_FLOAT,</a>
+<a name="660"><span class="lineNum">     660 </span>            :        &quot;FLOAT&quot;,</a>
+<a name="661"><span class="lineNum">     661 </span>            :        0,</a>
+<a name="662"><span class="lineNum">     662 </span>            :        &quot;Float&quot;,</a>
+<a name="663"><span class="lineNum">     663 </span>            :        &quot;Region floats on screen, does not use any fixed alignment&quot;},</a>
+<a name="664"><span class="lineNum">     664 </span>            :       {RGN_ALIGN_QSPLIT,</a>
+<a name="665"><span class="lineNum">     665 </span>            :        &quot;QUAD_SPLIT&quot;,</a>
+<a name="666"><span class="lineNum">     666 </span>            :        0,</a>
+<a name="667"><span class="lineNum">     667 </span>            :        &quot;Quad Split&quot;,</a>
+<a name="668"><span class="lineNum">     668 </span>            :        &quot;Region is split horizontally and vertically&quot;},</a>
+<a name="669"><span class="lineNum">     669 </span>            :       {0, nullptr, 0, nullptr, nullptr},</a>
+<a name="670"><span class="lineNum">     670 </span>            :   };</a>
+<a name="671"><span class="lineNum">     671 </span>            : </a>
+<a name="672"><span class="lineNum">     672 </span><span class="lineCov">          1 :   srna = RNA_def_struct(brna, &quot;Region&quot;, nullptr);</span></a>
+<a name="673"><span class="lineNum">     673 </span><span class="lineCov">          1 :   RNA_def_struct_ui_text(srna, &quot;Region&quot;, &quot;Region in a subdivided screen area&quot;);</span></a>
+<a name="674"><span class="lineNum">     674 </span><span class="lineCov">          1 :   RNA_def_struct_sdna(srna, &quot;ARegion&quot;);</span></a>
+<a name="675"><span class="lineNum">     675 </span>            : </a>
+<a name="676"><span class="lineNum">     676 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;type&quot;, PROP_ENUM, PROP_NONE);</span></a>
+<a name="677"><span class="lineNum">     677 </span><span class="lineCov">          1 :   RNA_def_property_enum_sdna(prop, nullptr, &quot;regiontype&quot;);</span></a>
+<a name="678"><span class="lineNum">     678 </span><span class="lineCov">          1 :   RNA_def_property_enum_items(prop, rna_enum_region_type_items);</span></a>
+<a name="679"><span class="lineNum">     679 </span><span class="lineCov">          1 :   RNA_def_property_clear_flag(prop, PROP_EDITABLE);</span></a>
+<a name="680"><span class="lineNum">     680 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop, &quot;Region Type&quot;, &quot;Type of this region&quot;);</span></a>
+<a name="681"><span class="lineNum">     681 </span>            : </a>
+<a name="682"><span class="lineNum">     682 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;x&quot;, PROP_INT, PROP_NONE);</span></a>
+<a name="683"><span class="lineNum">     683 </span><span class="lineCov">          1 :   RNA_def_property_int_sdna(prop, nullptr, &quot;winrct.xmin&quot;);</span></a>
+<a name="684"><span class="lineNum">     684 </span><span class="lineCov">          1 :   RNA_def_property_clear_flag(prop, PROP_EDITABLE);</span></a>
+<a name="685"><span class="lineNum">     685 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(</span></a>
+<a name="686"><span class="lineNum">     686 </span>            :       prop, &quot;X Position&quot;, &quot;The window relative vertical location of the region&quot;);</a>
+<a name="687"><span class="lineNum">     687 </span>            : </a>
+<a name="688"><span class="lineNum">     688 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;y&quot;, PROP_INT, PROP_NONE);</span></a>
+<a name="689"><span class="lineNum">     689 </span><span class="lineCov">          1 :   RNA_def_property_int_sdna(prop, nullptr, &quot;winrct.ymin&quot;);</span></a>
+<a name="690"><span class="lineNum">     690 </span><span class="lineCov">          1 :   RNA_def_property_clear_flag(prop, PROP_EDITABLE);</span></a>
+<a name="691"><span class="lineNum">     691 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(</span></a>
+<a name="692"><span class="lineNum">     692 </span>            :       prop, &quot;Y Position&quot;, &quot;The window relative horizontal location of the region&quot;);</a>
+<a name="693"><span class="lineNum">     693 </span>            : </a>
+<a name="694"><span class="lineNum">     694 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;width&quot;, PROP_INT, PROP_UNSIGNED);</span></a>
+<a name="695"><span class="lineNum">     695 </span><span class="lineCov">          1 :   RNA_def_property_int_sdna(prop, nullptr, &quot;winx&quot;);</span></a>
+<a name="696"><span class="lineNum">     696 </span><span class="lineCov">          1 :   RNA_def_property_clear_flag(prop, PROP_EDITABLE);</span></a>
+<a name="697"><span class="lineNum">     697 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop, &quot;Width&quot;, &quot;Region width&quot;);</span></a>
+<a name="698"><span class="lineNum">     698 </span>            : </a>
+<a name="699"><span class="lineNum">     699 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;height&quot;, PROP_INT, PROP_UNSIGNED);</span></a>
+<a name="700"><span class="lineNum">     700 </span><span class="lineCov">          1 :   RNA_def_property_int_sdna(prop, nullptr, &quot;winy&quot;);</span></a>
+<a name="701"><span class="lineNum">     701 </span><span class="lineCov">          1 :   RNA_def_property_clear_flag(prop, PROP_EDITABLE);</span></a>
+<a name="702"><span class="lineNum">     702 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop, &quot;Height&quot;, &quot;Region height&quot;);</span></a>
+<a name="703"><span class="lineNum">     703 </span>            : </a>
+<a name="704"><span class="lineNum">     704 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;view2d&quot;, PROP_POINTER, PROP_NONE);</span></a>
+<a name="705"><span class="lineNum">     705 </span><span class="lineCov">          1 :   RNA_def_property_pointer_sdna(prop, nullptr, &quot;v2d&quot;);</span></a>
+<a name="706"><span class="lineNum">     706 </span><span class="lineCov">          1 :   RNA_def_property_clear_flag(prop, PROP_EDITABLE);</span></a>
+<a name="707"><span class="lineNum">     707 </span><span class="lineCov">          1 :   RNA_def_property_flag(prop, PROP_NEVER_NULL);</span></a>
+<a name="708"><span class="lineNum">     708 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop, &quot;View2D&quot;, &quot;2D view of the region&quot;);</span></a>
+<a name="709"><span class="lineNum">     709 </span>            : </a>
+<a name="710"><span class="lineNum">     710 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;alignment&quot;, PROP_ENUM, PROP_NONE);</span></a>
+<a name="711"><span class="lineNum">     711 </span><span class="lineCov">          1 :   RNA_def_property_clear_flag(prop, PROP_EDITABLE);</span></a>
+<a name="712"><span class="lineNum">     712 </span><span class="lineCov">          1 :   RNA_def_property_enum_items(prop, alignment_types);</span></a>
+<a name="713"><span class="lineNum">     713 </span><span class="lineCov">          1 :   RNA_def_property_enum_funcs(prop, &quot;rna_Region_alignment_get&quot;, nullptr, nullptr);</span></a>
+<a name="714"><span class="lineNum">     714 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop, &quot;Alignment&quot;, &quot;Alignment of the region within the area&quot;);</span></a>
+<a name="715"><span class="lineNum">     715 </span>            : </a>
+<a name="716"><span class="lineNum">     716 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;data&quot;, PROP_POINTER, PROP_NONE);</span></a>
+<a name="717"><span class="lineNum">     717 </span><span class="lineCov">          1 :   RNA_def_property_clear_flag(prop, PROP_EDITABLE);</span></a>
+<a name="718"><span class="lineNum">     718 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(</span></a>
+<a name="719"><span class="lineNum">     719 </span>            :       prop, &quot;Region Data&quot;, &quot;Region specific data (the type depends on the region type)&quot;);</a>
+<a name="720"><span class="lineNum">     720 </span><span class="lineCov">          1 :   RNA_def_property_struct_type(prop, &quot;AnyType&quot;);</span></a>
+<a name="721"><span class="lineNum">     721 </span><span class="lineCov">          1 :   RNA_def_property_pointer_funcs(prop, &quot;rna_Region_data_get&quot;, nullptr, nullptr, nullptr);</span></a>
+<a name="722"><span class="lineNum">     722 </span>            : </a>
+<a name="723"><span class="lineNum">     723 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;active_panel_category&quot;, PROP_ENUM, PROP_NONE);</span></a>
+<a name="724"><span class="lineNum">     724 </span><span class="lineCov">          1 :   RNA_def_property_editable_func(prop, &quot;rna_Region_active_panel_category_editable_get&quot;);</span></a>
+<a name="725"><span class="lineNum">     725 </span><span class="lineCov">          1 :   RNA_def_property_enum_items(prop, rna_enum_region_panel_category_items);</span></a>
+<a name="726"><span class="lineNum">     726 </span><span class="lineCov">          1 :   RNA_def_property_enum_funcs(prop,</span></a>
+<a name="727"><span class="lineNum">     727 </span>            :                               &quot;rna_Region_active_panel_category_get&quot;,</a>
+<a name="728"><span class="lineNum">     728 </span>            :                               &quot;rna_Region_active_panel_category_set&quot;,</a>
+<a name="729"><span class="lineNum">     729 </span>            :                               &quot;rna_Region_active_panel_category_itemf&quot;);</a>
+<a name="730"><span class="lineNum">     730 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(</span></a>
+<a name="731"><span class="lineNum">     731 </span>            :       prop,</a>
+<a name="732"><span class="lineNum">     732 </span>            :       &quot;Active Panel Category&quot;,</a>
+<a name="733"><span class="lineNum">     733 </span>            :       &quot;The current active panel category, may be Null if the region does not &quot;</a>
+<a name="734"><span class="lineNum">     734 </span>            :       &quot;support this feature (NOTE: these categories are generated at runtime, so list may be &quot;</a>
+<a name="735"><span class="lineNum">     735 </span>            :       &quot;empty at initialization, before any drawing took place)&quot;);</a>
+<a name="736"><span class="lineNum">     736 </span>            : </a>
+<a name="737"><span class="lineNum">     737 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;search_filter&quot;, PROP_STRING, PROP_NONE);</span></a>
+<a name="738"><span class="lineNum">     738 </span>            :   /* The search filter is stored in the region's runtime as #std::string, so use the getter /</a>
+<a name="739"><span class="lineNum">     739 </span>            :    * setter here. */</a>
+<a name="740"><span class="lineNum">     740 </span><span class="lineCov">          1 :   RNA_def_property_string_funcs(prop,</span></a>
+<a name="741"><span class="lineNum">     741 </span>            :                                 &quot;rna_Region_search_filter_get&quot;,</a>
+<a name="742"><span class="lineNum">     742 </span>            :                                 &quot;rna_Region_search_filter_length&quot;,</a>
+<a name="743"><span class="lineNum">     743 </span>            :                                 &quot;rna_Region_search_filter_set&quot;);</a>
+<a name="744"><span class="lineNum">     744 </span><span class="lineCov">          1 :   RNA_def_property_editable_func(prop, &quot;rna_Region_search_filter_editable&quot;);</span></a>
+<a name="745"><span class="lineNum">     745 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop, &quot;Display Filter&quot;, &quot;Live search filtering string&quot;);</span></a>
+<a name="746"><span class="lineNum">     746 </span><span class="lineCov">          1 :   RNA_def_property_flag(prop, PROP_TEXTEDIT_UPDATE);</span></a>
+<a name="747"><span class="lineNum">     747 </span><span class="lineCov">          1 :   RNA_def_property_update(prop, 0, &quot;rna_Region_search_filter_update&quot;);</span></a>
+<a name="748"><span class="lineNum">     748 </span>            : </a>
+<a name="749"><span class="lineNum">     749 </span><span class="lineCov">          1 :   rna_def_region_api(srna);</span></a>
+<a name="750"><span class="lineNum">     750 </span><span class="lineCov">          1 : }</span></a>
+<a name="751"><span class="lineNum">     751 </span>            : </a>
+<a name="752"><span class="lineNum">     752 </span><span class="lineCov">          1 : static void rna_def_screen(BlenderRNA *brna)</span></a>
+<a name="753"><span class="lineNum">     753 </span>            : {</a>
+<a name="754"><span class="lineNum">     754 </span>            :   StructRNA *srna;</a>
+<a name="755"><span class="lineNum">     755 </span>            :   PropertyRNA *prop;</a>
+<a name="756"><span class="lineNum">     756 </span>            : </a>
+<a name="757"><span class="lineNum">     757 </span>            :   FunctionRNA *func;</a>
+<a name="758"><span class="lineNum">     758 </span>            :   PropertyRNA *parm;</a>
+<a name="759"><span class="lineNum">     759 </span>            : </a>
+<a name="760"><span class="lineNum">     760 </span><span class="lineCov">          1 :   srna = RNA_def_struct(brna, &quot;Screen&quot;, &quot;ID&quot;);</span></a>
+<a name="761"><span class="lineNum">     761 </span><span class="lineCov">          1 :   RNA_def_struct_sdna(srna, &quot;bScreen&quot;);</span></a>
+<a name="762"><span class="lineNum">     762 </span><span class="lineCov">          1 :   RNA_def_struct_ui_text(</span></a>
+<a name="763"><span class="lineNum">     763 </span>            :       srna, &quot;Screen&quot;, &quot;Screen data-block, defining the layout of areas in a window&quot;);</a>
+<a name="764"><span class="lineNum">     764 </span><span class="lineCov">          1 :   RNA_def_struct_ui_icon(srna, ICON_WORKSPACE);</span></a>
+<a name="765"><span class="lineNum">     765 </span>            : </a>
+<a name="766"><span class="lineNum">     766 </span>            :   /* collections */</a>
+<a name="767"><span class="lineNum">     767 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;areas&quot;, PROP_COLLECTION, PROP_NONE);</span></a>
+<a name="768"><span class="lineNum">     768 </span><span class="lineCov">          1 :   RNA_def_property_collection_sdna(prop, nullptr, &quot;areabase&quot;, nullptr);</span></a>
+<a name="769"><span class="lineNum">     769 </span><span class="lineCov">          1 :   RNA_def_property_struct_type(prop, &quot;Area&quot;);</span></a>
+<a name="770"><span class="lineNum">     770 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop, &quot;Areas&quot;, &quot;Areas the screen is subdivided into&quot;);</span></a>
+<a name="771"><span class="lineNum">     771 </span>            : </a>
+<a name="772"><span class="lineNum">     772 </span>            :   /* readonly status indicators */</a>
+<a name="773"><span class="lineNum">     773 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;is_animation_playing&quot;, PROP_BOOLEAN, PROP_NONE);</span></a>
+<a name="774"><span class="lineNum">     774 </span><span class="lineCov">          1 :   RNA_def_property_clear_flag(prop, PROP_EDITABLE);</span></a>
+<a name="775"><span class="lineNum">     775 </span><span class="lineCov">          1 :   RNA_def_property_boolean_funcs(prop, &quot;rna_Screen_is_animation_playing_get&quot;, nullptr);</span></a>
+<a name="776"><span class="lineNum">     776 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop, &quot;Animation Playing&quot;, &quot;Animation playback is active&quot;);</span></a>
+<a name="777"><span class="lineNum">     777 </span>            : </a>
+<a name="778"><span class="lineNum">     778 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;is_scrubbing&quot;, PROP_BOOLEAN, PROP_NONE);</span></a>
+<a name="779"><span class="lineNum">     779 </span><span class="lineCov">          1 :   RNA_def_property_clear_flag(prop, PROP_EDITABLE);</span></a>
+<a name="780"><span class="lineNum">     780 </span><span class="lineCov">          1 :   RNA_def_property_boolean_funcs(prop, &quot;rna_Screen_is_scrubbing_get&quot;, nullptr);</span></a>
+<a name="781"><span class="lineNum">     781 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(</span></a>
+<a name="782"><span class="lineNum">     782 </span>            :       prop, &quot;User is Scrubbing&quot;, &quot;True when the user is scrubbing through time&quot;);</a>
+<a name="783"><span class="lineNum">     783 </span>            : </a>
+<a name="784"><span class="lineNum">     784 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;is_temporary&quot;, PROP_BOOLEAN, PROP_NONE);</span></a>
+<a name="785"><span class="lineNum">     785 </span><span class="lineCov">          1 :   RNA_def_property_clear_flag(prop, PROP_EDITABLE);</span></a>
+<a name="786"><span class="lineNum">     786 </span><span class="lineCov">          1 :   RNA_def_property_boolean_sdna(prop, nullptr, &quot;temp&quot;, 1);</span></a>
+<a name="787"><span class="lineNum">     787 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop, &quot;Temporary&quot;, &quot;&quot;);</span></a>
+<a name="788"><span class="lineNum">     788 </span>            : </a>
+<a name="789"><span class="lineNum">     789 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;show_fullscreen&quot;, PROP_BOOLEAN, PROP_NONE);</span></a>
+<a name="790"><span class="lineNum">     790 </span><span class="lineCov">          1 :   RNA_def_property_clear_flag(prop, PROP_EDITABLE);</span></a>
+<a name="791"><span class="lineNum">     791 </span><span class="lineCov">          1 :   RNA_def_property_boolean_funcs(prop, &quot;rna_Screen_fullscreen_get&quot;, nullptr);</span></a>
+<a name="792"><span class="lineNum">     792 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop, &quot;Maximize&quot;, &quot;An area is maximized, filling this screen&quot;);</span></a>
+<a name="793"><span class="lineNum">     793 </span>            : </a>
+<a name="794"><span class="lineNum">     794 </span>            :   /* Status Bar. */</a>
+<a name="795"><span class="lineNum">     795 </span>            : </a>
+<a name="796"><span class="lineNum">     796 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;show_statusbar&quot;, PROP_BOOLEAN, PROP_NONE);</span></a>
+<a name="797"><span class="lineNum">     797 </span><span class="lineCov">          1 :   RNA_def_property_boolean_negative_sdna(prop, nullptr, &quot;flag&quot;, SCREEN_COLLAPSE_STATUSBAR);</span></a>
+<a name="798"><span class="lineNum">     798 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop, &quot;Show Status Bar&quot;, &quot;Show status bar&quot;);</span></a>
+<a name="799"><span class="lineNum">     799 </span><span class="lineCov">          1 :   RNA_def_property_update(prop, 0, &quot;rna_Screen_bar_update&quot;);</span></a>
+<a name="800"><span class="lineNum">     800 </span>            : </a>
+<a name="801"><span class="lineNum">     801 </span><span class="lineCov">          1 :   func = RNA_def_function(srna, &quot;statusbar_info&quot;, &quot;rna_Screen_statusbar_info_get&quot;);</span></a>
+<a name="802"><span class="lineNum">     802 </span><span class="lineCov">          1 :   RNA_def_function_flag(func, FUNC_USE_MAIN | FUNC_USE_CONTEXT);</span></a>
+<a name="803"><span class="lineNum">     803 </span><span class="lineCov">          1 :   parm = RNA_def_string(func, &quot;statusbar_info&quot;, nullptr, 0, &quot;Status Bar Info&quot;, &quot;&quot;);</span></a>
+<a name="804"><span class="lineNum">     804 </span><span class="lineCov">          1 :   RNA_def_function_return(func, parm);</span></a>
+<a name="805"><span class="lineNum">     805 </span>            : </a>
+<a name="806"><span class="lineNum">     806 </span>            :   /* Define Anim Playback Areas */</a>
+<a name="807"><span class="lineNum">     807 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;use_play_top_left_3d_editor&quot;, PROP_BOOLEAN, PROP_NONE);</span></a>
+<a name="808"><span class="lineNum">     808 </span><span class="lineCov">          1 :   RNA_def_property_boolean_sdna(prop, nullptr, &quot;redraws_flag&quot;, TIME_REGION);</span></a>
+<a name="809"><span class="lineNum">     809 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop, &quot;Top-Left 3D Editor&quot;, &quot;&quot;);</span></a>
+<a name="810"><span class="lineNum">     810 </span><span class="lineCov">          1 :   RNA_def_property_update(prop, NC_SPACE | ND_SPACE_TIME, &quot;rna_Screen_redraw_update&quot;);</span></a>
+<a name="811"><span class="lineNum">     811 </span>            : </a>
+<a name="812"><span class="lineNum">     812 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;use_play_3d_editors&quot;, PROP_BOOLEAN, PROP_NONE);</span></a>
+<a name="813"><span class="lineNum">     813 </span><span class="lineCov">          1 :   RNA_def_property_boolean_sdna(prop, nullptr, &quot;redraws_flag&quot;, TIME_ALL_3D_WIN);</span></a>
+<a name="814"><span class="lineNum">     814 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop, &quot;All 3D Viewports&quot;, &quot;&quot;);</span></a>
+<a name="815"><span class="lineNum">     815 </span><span class="lineCov">          1 :   RNA_def_property_update(prop, NC_SPACE | ND_SPACE_TIME, &quot;rna_Screen_redraw_update&quot;);</span></a>
+<a name="816"><span class="lineNum">     816 </span>            : </a>
+<a name="817"><span class="lineNum">     817 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;use_follow&quot;, PROP_BOOLEAN, PROP_NONE);</span></a>
+<a name="818"><span class="lineNum">     818 </span><span class="lineCov">          1 :   RNA_def_property_boolean_sdna(prop, nullptr, &quot;redraws_flag&quot;, TIME_FOLLOW);</span></a>
+<a name="819"><span class="lineNum">     819 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop, &quot;Follow&quot;, &quot;Follow current frame in editors&quot;);</span></a>
+<a name="820"><span class="lineNum">     820 </span><span class="lineCov">          1 :   RNA_def_property_update(prop, NC_SPACE | ND_SPACE_TIME, &quot;rna_Screen_redraw_update&quot;);</span></a>
+<a name="821"><span class="lineNum">     821 </span>            : </a>
+<a name="822"><span class="lineNum">     822 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;use_play_animation_editors&quot;, PROP_BOOLEAN, PROP_NONE);</span></a>
+<a name="823"><span class="lineNum">     823 </span><span class="lineCov">          1 :   RNA_def_property_boolean_sdna(prop, nullptr, &quot;redraws_flag&quot;, TIME_ALL_ANIM_WIN);</span></a>
+<a name="824"><span class="lineNum">     824 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop, &quot;Animation Editors&quot;, &quot;&quot;);</span></a>
+<a name="825"><span class="lineNum">     825 </span><span class="lineCov">          1 :   RNA_def_property_update(prop, NC_SPACE | ND_SPACE_TIME, &quot;rna_Screen_redraw_update&quot;);</span></a>
+<a name="826"><span class="lineNum">     826 </span>            : </a>
+<a name="827"><span class="lineNum">     827 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;use_play_properties_editors&quot;, PROP_BOOLEAN, PROP_NONE);</span></a>
+<a name="828"><span class="lineNum">     828 </span><span class="lineCov">          1 :   RNA_def_property_boolean_sdna(prop, nullptr, &quot;redraws_flag&quot;, TIME_ALL_BUTS_WIN);</span></a>
+<a name="829"><span class="lineNum">     829 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop, &quot;Property Editors&quot;, &quot;&quot;);</span></a>
+<a name="830"><span class="lineNum">     830 </span><span class="lineCov">          1 :   RNA_def_property_update(prop, NC_SPACE | ND_SPACE_TIME, &quot;rna_Screen_redraw_update&quot;);</span></a>
+<a name="831"><span class="lineNum">     831 </span>            : </a>
+<a name="832"><span class="lineNum">     832 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;use_play_image_editors&quot;, PROP_BOOLEAN, PROP_NONE);</span></a>
+<a name="833"><span class="lineNum">     833 </span><span class="lineCov">          1 :   RNA_def_property_boolean_sdna(prop, nullptr, &quot;redraws_flag&quot;, TIME_ALL_IMAGE_WIN);</span></a>
+<a name="834"><span class="lineNum">     834 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop, &quot;Image Editors&quot;, &quot;&quot;);</span></a>
+<a name="835"><span class="lineNum">     835 </span><span class="lineCov">          1 :   RNA_def_property_update(prop, NC_SPACE | ND_SPACE_TIME, &quot;rna_Screen_redraw_update&quot;);</span></a>
+<a name="836"><span class="lineNum">     836 </span>            : </a>
+<a name="837"><span class="lineNum">     837 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;use_play_sequence_editors&quot;, PROP_BOOLEAN, PROP_NONE);</span></a>
+<a name="838"><span class="lineNum">     838 </span><span class="lineCov">          1 :   RNA_def_property_boolean_sdna(prop, nullptr, &quot;redraws_flag&quot;, TIME_SEQ);</span></a>
+<a name="839"><span class="lineNum">     839 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop, &quot;Sequencer Editors&quot;, &quot;&quot;);</span></a>
+<a name="840"><span class="lineNum">     840 </span><span class="lineCov">          1 :   RNA_def_property_update(prop, NC_SPACE | ND_SPACE_TIME, &quot;rna_Screen_redraw_update&quot;);</span></a>
+<a name="841"><span class="lineNum">     841 </span>            : </a>
+<a name="842"><span class="lineNum">     842 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;use_play_node_editors&quot;, PROP_BOOLEAN, PROP_NONE);</span></a>
+<a name="843"><span class="lineNum">     843 </span><span class="lineCov">          1 :   RNA_def_property_boolean_sdna(prop, nullptr, &quot;redraws_flag&quot;, TIME_NODES);</span></a>
+<a name="844"><span class="lineNum">     844 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop, &quot;Node Editors&quot;, &quot;&quot;);</span></a>
+<a name="845"><span class="lineNum">     845 </span><span class="lineCov">          1 :   RNA_def_property_update(prop, NC_SPACE | ND_SPACE_TIME, &quot;rna_Screen_redraw_update&quot;);</span></a>
+<a name="846"><span class="lineNum">     846 </span>            : </a>
+<a name="847"><span class="lineNum">     847 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;use_play_clip_editors&quot;, PROP_BOOLEAN, PROP_NONE);</span></a>
+<a name="848"><span class="lineNum">     848 </span><span class="lineCov">          1 :   RNA_def_property_boolean_sdna(prop, nullptr, &quot;redraws_flag&quot;, TIME_CLIPS);</span></a>
+<a name="849"><span class="lineNum">     849 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop, &quot;Clip Editors&quot;, &quot;&quot;);</span></a>
+<a name="850"><span class="lineNum">     850 </span><span class="lineCov">          1 :   RNA_def_property_update(prop, NC_SPACE | ND_SPACE_TIME, &quot;rna_Screen_redraw_update&quot;);</span></a>
+<a name="851"><span class="lineNum">     851 </span>            : </a>
+<a name="852"><span class="lineNum">     852 </span><span class="lineCov">          1 :   prop = RNA_def_property(srna, &quot;use_play_spreadsheet_editors&quot;, PROP_BOOLEAN, PROP_NONE);</span></a>
+<a name="853"><span class="lineNum">     853 </span><span class="lineCov">          1 :   RNA_def_property_boolean_sdna(prop, nullptr, &quot;redraws_flag&quot;, TIME_SPREADSHEETS);</span></a>
+<a name="854"><span class="lineNum">     854 </span><span class="lineCov">          1 :   RNA_def_property_ui_text(prop, &quot;Spreadsheet Editors&quot;, &quot;&quot;);</span></a>
+<a name="855"><span class="lineNum">     855 </span><span class="lineCov">          1 :   RNA_def_property_update(prop, NC_SPACE | ND_SPACE_TIME, &quot;rna_Screen_redraw_update&quot;);</span></a>
+<a name="856"><span class="lineNum">     856 </span><span class="lineCov">          1 : }</span></a>
+<a name="857"><span class="lineNum">     857 </span>            : </a>
+<a name="858"><span class="lineNum">     858 </span><span class="lineCov">          1 : void RNA_def_screen(BlenderRNA *brna)</span></a>
+<a name="859"><span class="lineNum">     859 </span>            : {</a>
+<a name="860"><span class="lineNum">     860 </span><span class="lineCov">          1 :   rna_def_screen(brna);</span></a>
+<a name="861"><span class="lineNum">     861 </span><span class="lineCov">          1 :   rna_def_area(brna);</span></a>
+<a name="862"><span class="lineNum">     862 </span><span class="lineCov">          1 :   rna_def_region(brna);</span></a>
+<a name="863"><span class="lineNum">     863 </span><span class="lineCov">          1 :   rna_def_view2d(brna);</span></a>
+<a name="864"><span class="lineNum">     864 </span><span class="lineCov">          1 : }</span></a>
+<a name="865"><span class="lineNum">     865 </span>            : </a>
+<a name="866"><span class="lineNum">     866 </span>            : }  // namespace blender</a>
+<a name="867"><span class="lineNum">     867 </span>            : </a>
+<a name="868"><span class="lineNum">     868 </span>            : #endif</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

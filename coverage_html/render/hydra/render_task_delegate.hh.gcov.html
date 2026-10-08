@@ -1,0 +1,173 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - render/hydra/render_task_delegate.hh</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">render/hydra</a> - render_task_delegate.hh<span style="font-size: 80%;"> (source / <a href="render_task_delegate.hh.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2011-2022 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : #pragma once</a>
+<a name="6"><span class="lineNum">       6 </span>            : </a>
+<a name="7"><span class="lineNum">       7 </span>            : #include &lt;pxr/imaging/hd/dataSource.h&gt;</a>
+<a name="8"><span class="lineNum">       8 </span>            : #include &lt;pxr/imaging/hd/renderIndex.h&gt;</a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &lt;pxr/imaging/hd/retainedSceneIndex.h&gt;</a>
+<a name="10"><span class="lineNum">      10 </span>            : #include &lt;pxr/imaging/hd/task.h&gt;</a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &lt;pxr/imaging/hdx/renderSetupTask.h&gt;</a>
+<a name="12"><span class="lineNum">      12 </span>            : </a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;GPU_framebuffer.hh&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;GPU_texture.hh&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : </a>
+<a name="16"><span class="lineNum">      16 </span>            : namespace blender::render::hydra {</a>
+<a name="17"><span class="lineNum">      17 </span>            : </a>
+<a name="18"><span class="lineNum">      18 </span>            : /* Registers a HdxRenderTask with the render index as a task prim. */</a>
+<a name="19"><span class="lineNum">      19 </span>            : </a>
+<a name="20"><span class="lineNum">      20 </span>            : class RenderTaskParamsDataSource final</a>
+<a name="21"><span class="lineNum">      21 </span>            :     : public pxr::HdTypedSampledDataSource&lt;pxr::HdxRenderTaskParams&gt; {</a>
+<a name="22"><span class="lineNum">      22 </span>            :  public:</a>
+<a name="23"><span class="lineNum">      23 </span><span class="lineNoCov">          0 :   HD_DECLARE_DATASOURCE(RenderTaskParamsDataSource);</span></a>
+<a name="24"><span class="lineNum">      24 </span>            : </a>
+<a name="25"><span class="lineNum">      25 </span>            :   pxr::HdxRenderTaskParams params;</a>
+<a name="26"><span class="lineNum">      26 </span>            : </a>
+<a name="27"><span class="lineNum">      27 </span><span class="lineNoCov">          0 :   pxr::VtValue GetValue(Time /*shutterOffset*/) override</span></a>
+<a name="28"><span class="lineNum">      28 </span>            :   {</a>
+<a name="29"><span class="lineNum">      29 </span><span class="lineNoCov">          0 :     return pxr::VtValue(params);</span></a>
+<a name="30"><span class="lineNum">      30 </span>            :   }</a>
+<a name="31"><span class="lineNum">      31 </span><span class="lineNoCov">          0 :   pxr::HdxRenderTaskParams GetTypedValue(Time /*shutterOffset*/) override</span></a>
+<a name="32"><span class="lineNum">      32 </span>            :   {</a>
+<a name="33"><span class="lineNum">      33 </span><span class="lineNoCov">          0 :     return params;</span></a>
+<a name="34"><span class="lineNum">      34 </span>            :   }</a>
+<a name="35"><span class="lineNum">      35 </span><span class="lineNoCov">          0 :   bool GetContributingSampleTimesForInterval(Time /*start*/,</span></a>
+<a name="36"><span class="lineNum">      36 </span>            :                                              Time /*end*/,</a>
+<a name="37"><span class="lineNum">      37 </span>            :                                              std::vector&lt;Time&gt; * /*sampleTimes*/) override</a>
+<a name="38"><span class="lineNum">      38 </span>            :   {</a>
+<a name="39"><span class="lineNum">      39 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="40"><span class="lineNum">      40 </span>            :   }</a>
+<a name="41"><span class="lineNum">      41 </span>            : };</a>
+<a name="42"><span class="lineNum">      42 </span>            : </a>
+<a name="43"><span class="lineNum">      43 </span>            : class RenderTaskDelegate {</a>
+<a name="44"><span class="lineNum">      44 </span>            :  protected:</a>
+<a name="45"><span class="lineNum">      45 </span>            :   pxr::HdRenderIndex *render_index_ = nullptr;</a>
+<a name="46"><span class="lineNum">      46 </span>            :   pxr::HdRetainedSceneIndexRefPtr task_scene_index_;</a>
+<a name="47"><span class="lineNum">      47 </span>            :   pxr::SdfPath base_id_;</a>
+<a name="48"><span class="lineNum">      48 </span>            :   pxr::SdfPath task_id_;</a>
+<a name="49"><span class="lineNum">      49 </span>            :   RenderTaskParamsDataSource::Handle task_params_ds_ = RenderTaskParamsDataSource::New();</a>
+<a name="50"><span class="lineNum">      50 </span>            :   pxr::HdxRenderTaskParams &amp;task_params_ = task_params_ds_-&gt;params;</a>
+<a name="51"><span class="lineNum">      51 </span>            :   pxr::TfHashMap&lt;pxr::SdfPath, pxr::HdRenderBufferDescriptor, pxr::SdfPath::Hash&gt;</a>
+<a name="52"><span class="lineNum">      52 </span>            :       buffer_descriptors_;</a>
+<a name="53"><span class="lineNum">      53 </span>            : </a>
+<a name="54"><span class="lineNum">      54 </span>            :  public:</a>
+<a name="55"><span class="lineNum">      55 </span>            :   RenderTaskDelegate(pxr::HdRenderIndex *render_index,</a>
+<a name="56"><span class="lineNum">      56 </span>            :                      pxr::HdRetainedSceneIndexRefPtr task_scene_index,</a>
+<a name="57"><span class="lineNum">      57 </span>            :                      pxr::SdfPath const &amp;base_id);</a>
+<a name="58"><span class="lineNum">      58 </span><span class="lineNoCov">          0 :   virtual ~RenderTaskDelegate() = default;</span></a>
+<a name="59"><span class="lineNum">      59 </span>            : </a>
+<a name="60"><span class="lineNum">      60 </span>            :   pxr::HdTaskSharedPtr task();</a>
+<a name="61"><span class="lineNum">      61 </span>            :   void set_camera(pxr::SdfPath const &amp;camera_id);</a>
+<a name="62"><span class="lineNum">      62 </span>            :   bool is_converged();</a>
+<a name="63"><span class="lineNum">      63 </span>            :   virtual void set_viewport(pxr::GfVec4d const &amp;viewport);</a>
+<a name="64"><span class="lineNum">      64 </span>            :   virtual void add_aov(pxr::TfToken const &amp;aov_key);</a>
+<a name="65"><span class="lineNum">      65 </span>            :   virtual void read_aov(pxr::TfToken const &amp;aov_key, void *data);</a>
+<a name="66"><span class="lineNum">      66 </span>            :   pxr::HdRenderBuffer *get_aov_buffer(pxr::TfToken const &amp;aov_key);</a>
+<a name="67"><span class="lineNum">      67 </span>            :   virtual void bind();</a>
+<a name="68"><span class="lineNum">      68 </span>            :   virtual void unbind();</a>
+<a name="69"><span class="lineNum">      69 </span>            : </a>
+<a name="70"><span class="lineNum">      70 </span>            :  protected:</a>
+<a name="71"><span class="lineNum">      71 </span>            :   pxr::SdfPath buffer_id(pxr::TfToken const &amp;aov_key) const;</a>
+<a name="72"><span class="lineNum">      72 </span>            : </a>
+<a name="73"><span class="lineNum">      73 </span>            :   void publish_task();</a>
+<a name="74"><span class="lineNum">      74 </span>            :   void dirty_task_params();</a>
+<a name="75"><span class="lineNum">      75 </span>            :   void publish_buffer(pxr::SdfPath const &amp;buf_id, pxr::HdRenderBufferDescriptor const &amp;desc);</a>
+<a name="76"><span class="lineNum">      76 </span>            : };</a>
+<a name="77"><span class="lineNum">      77 </span>            : </a>
+<a name="78"><span class="lineNum">      78 </span>            : class GPURenderTaskDelegate : public RenderTaskDelegate {</a>
+<a name="79"><span class="lineNum">      79 </span>            :  private:</a>
+<a name="80"><span class="lineNum">      80 </span>            :   gpu::FrameBuffer *framebuffer_ = nullptr;</a>
+<a name="81"><span class="lineNum">      81 </span>            :   gpu::Texture *tex_color_ = nullptr;</a>
+<a name="82"><span class="lineNum">      82 </span>            :   gpu::Texture *tex_depth_ = nullptr;</a>
+<a name="83"><span class="lineNum">      83 </span>            :   unsigned int VAO_ = 0;</a>
+<a name="84"><span class="lineNum">      84 </span>            : </a>
+<a name="85"><span class="lineNum">      85 </span>            :  public:</a>
+<a name="86"><span class="lineNum">      86 </span>            :   using RenderTaskDelegate::RenderTaskDelegate;</a>
+<a name="87"><span class="lineNum">      87 </span>            :   ~GPURenderTaskDelegate() override;</a>
+<a name="88"><span class="lineNum">      88 </span>            : </a>
+<a name="89"><span class="lineNum">      89 </span>            :   void set_viewport(pxr::GfVec4d const &amp;viewport) override;</a>
+<a name="90"><span class="lineNum">      90 </span>            :   void add_aov(pxr::TfToken const &amp;aov_key) override;</a>
+<a name="91"><span class="lineNum">      91 </span>            :   void read_aov(pxr::TfToken const &amp;aov_key, void *data) override;</a>
+<a name="92"><span class="lineNum">      92 </span>            :   void bind() override;</a>
+<a name="93"><span class="lineNum">      93 </span>            :   void unbind() override;</a>
+<a name="94"><span class="lineNum">      94 </span>            :   gpu::Texture *get_aov_texture(pxr::TfToken const &amp;aov_key);</a>
+<a name="95"><span class="lineNum">      95 </span>            : };</a>
+<a name="96"><span class="lineNum">      96 </span>            : </a>
+<a name="97"><span class="lineNum">      97 </span>            : }  // namespace blender::render::hydra</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

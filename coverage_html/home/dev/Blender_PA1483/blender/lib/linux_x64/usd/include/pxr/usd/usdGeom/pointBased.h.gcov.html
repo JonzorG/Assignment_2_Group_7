@@ -1,0 +1,452 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - /home/dev/Blender_PA1483/blender/lib/linux_x64/usd/include/pxr/usd/usdGeom/pointBased.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../../../../../../index.html">top level</a> - <a href="index.html">home/dev/Blender_PA1483/blender/lib/linux_x64/usd/include/pxr/usd/usdGeom</a> - pointBased.h<span style="font-size: 80%;"> (source / <a href="pointBased.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : //</a>
+<a name="2"><span class="lineNum">       2 </span>            : // Copyright 2016 Pixar</a>
+<a name="3"><span class="lineNum">       3 </span>            : //</a>
+<a name="4"><span class="lineNum">       4 </span>            : // Licensed under the terms set forth in the LICENSE.txt file available at</a>
+<a name="5"><span class="lineNum">       5 </span>            : // https://openusd.org/license.</a>
+<a name="6"><span class="lineNum">       6 </span>            : //</a>
+<a name="7"><span class="lineNum">       7 </span>            : #ifndef USDGEOM_GENERATED_POINTBASED_H</a>
+<a name="8"><span class="lineNum">       8 </span>            : #define USDGEOM_GENERATED_POINTBASED_H</a>
+<a name="9"><span class="lineNum">       9 </span>            : </a>
+<a name="10"><span class="lineNum">      10 </span>            : /// \file usdGeom/pointBased.h</a>
+<a name="11"><span class="lineNum">      11 </span>            : </a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &quot;pxr/pxr.h&quot;</a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;pxr/usd/usdGeom/api.h&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;pxr/usd/usdGeom/gprim.h&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;pxr/usd/usd/prim.h&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &quot;pxr/usd/usd/stage.h&quot;</a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;pxr/usd/usdGeom/tokens.h&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : </a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &quot;pxr/base/vt/value.h&quot;</a>
+<a name="20"><span class="lineNum">      20 </span>            : </a>
+<a name="21"><span class="lineNum">      21 </span>            : #include &quot;pxr/base/gf/vec3d.h&quot;</a>
+<a name="22"><span class="lineNum">      22 </span>            : #include &quot;pxr/base/gf/vec3f.h&quot;</a>
+<a name="23"><span class="lineNum">      23 </span>            : #include &quot;pxr/base/gf/matrix4d.h&quot;</a>
+<a name="24"><span class="lineNum">      24 </span>            : </a>
+<a name="25"><span class="lineNum">      25 </span>            : #include &quot;pxr/base/tf/token.h&quot;</a>
+<a name="26"><span class="lineNum">      26 </span>            : #include &quot;pxr/base/tf/type.h&quot;</a>
+<a name="27"><span class="lineNum">      27 </span>            : </a>
+<a name="28"><span class="lineNum">      28 </span>            : PXR_NAMESPACE_OPEN_SCOPE</a>
+<a name="29"><span class="lineNum">      29 </span>            : </a>
+<a name="30"><span class="lineNum">      30 </span>            : class SdfAssetPath;</a>
+<a name="31"><span class="lineNum">      31 </span>            : </a>
+<a name="32"><span class="lineNum">      32 </span>            : // -------------------------------------------------------------------------- //</a>
+<a name="33"><span class="lineNum">      33 </span>            : // POINTBASED                                                                 //</a>
+<a name="34"><span class="lineNum">      34 </span>            : // -------------------------------------------------------------------------- //</a>
+<a name="35"><span class="lineNum">      35 </span>            : </a>
+<a name="36"><span class="lineNum">      36 </span>            : /// \class UsdGeomPointBased</a>
+<a name="37"><span class="lineNum">      37 </span>            : ///</a>
+<a name="38"><span class="lineNum">      38 </span>            : /// Base class for all UsdGeomGprims that possess points,</a>
+<a name="39"><span class="lineNum">      39 </span>            : /// providing common attributes such as normals and velocities.</a>
+<a name="40"><span class="lineNum">      40 </span>            : ///</a>
+<a name="41"><span class="lineNum">      41 </span>            : class UsdGeomPointBased : public UsdGeomGprim</a>
+<a name="42"><span class="lineNum">      42 </span>            : {</a>
+<a name="43"><span class="lineNum">      43 </span>            : public:</a>
+<a name="44"><span class="lineNum">      44 </span>            :     /// Compile time constant representing what kind of schema this class is.</a>
+<a name="45"><span class="lineNum">      45 </span>            :     ///</a>
+<a name="46"><span class="lineNum">      46 </span>            :     /// \sa UsdSchemaKind</a>
+<a name="47"><span class="lineNum">      47 </span>            :     static const UsdSchemaKind schemaKind = UsdSchemaKind::AbstractTyped;</a>
+<a name="48"><span class="lineNum">      48 </span>            : </a>
+<a name="49"><span class="lineNum">      49 </span>            :     /// Construct a UsdGeomPointBased on UsdPrim \p prim .</a>
+<a name="50"><span class="lineNum">      50 </span>            :     /// Equivalent to UsdGeomPointBased::Get(prim.GetStage(), prim.GetPath())</a>
+<a name="51"><span class="lineNum">      51 </span>            :     /// for a \em valid \p prim, but will not immediately throw an error for</a>
+<a name="52"><span class="lineNum">      52 </span>            :     /// an invalid \p prim</a>
+<a name="53"><span class="lineNum">      53 </span><span class="lineCov">        634 :     explicit UsdGeomPointBased(const UsdPrim&amp; prim=UsdPrim())</span></a>
+<a name="54"><span class="lineNum">      54 </span><span class="lineCov">        634 :         : UsdGeomGprim(prim)</span></a>
+<a name="55"><span class="lineNum">      55 </span>            :     {</a>
+<a name="56"><span class="lineNum">      56 </span><span class="lineCov">        636 :     }</span></a>
+<a name="57"><span class="lineNum">      57 </span>            : </a>
+<a name="58"><span class="lineNum">      58 </span>            :     /// Construct a UsdGeomPointBased on the prim held by \p schemaObj .</a>
+<a name="59"><span class="lineNum">      59 </span>            :     /// Should be preferred over UsdGeomPointBased(schemaObj.GetPrim()),</a>
+<a name="60"><span class="lineNum">      60 </span>            :     /// as it preserves SchemaBase state.</a>
+<a name="61"><span class="lineNum">      61 </span>            :     explicit UsdGeomPointBased(const UsdSchemaBase&amp; schemaObj)</a>
+<a name="62"><span class="lineNum">      62 </span>            :         : UsdGeomGprim(schemaObj)</a>
+<a name="63"><span class="lineNum">      63 </span>            :     {</a>
+<a name="64"><span class="lineNum">      64 </span>            :     }</a>
+<a name="65"><span class="lineNum">      65 </span>            : </a>
+<a name="66"><span class="lineNum">      66 </span>            :     /// Destructor.</a>
+<a name="67"><span class="lineNum">      67 </span>            :     USDGEOM_API</a>
+<a name="68"><span class="lineNum">      68 </span>            :     virtual ~UsdGeomPointBased();</a>
+<a name="69"><span class="lineNum">      69 </span>            : </a>
+<a name="70"><span class="lineNum">      70 </span>            :     /// Return a vector of names of all pre-declared attributes for this schema</a>
+<a name="71"><span class="lineNum">      71 </span>            :     /// class and all its ancestor classes.  Does not include attributes that</a>
+<a name="72"><span class="lineNum">      72 </span>            :     /// may be authored by custom/extended methods of the schemas involved.</a>
+<a name="73"><span class="lineNum">      73 </span>            :     USDGEOM_API</a>
+<a name="74"><span class="lineNum">      74 </span>            :     static const TfTokenVector &amp;</a>
+<a name="75"><span class="lineNum">      75 </span>            :     GetSchemaAttributeNames(bool includeInherited=true);</a>
+<a name="76"><span class="lineNum">      76 </span>            : </a>
+<a name="77"><span class="lineNum">      77 </span>            :     /// Return a UsdGeomPointBased holding the prim adhering to this</a>
+<a name="78"><span class="lineNum">      78 </span>            :     /// schema at \p path on \p stage.  If no prim exists at \p path on</a>
+<a name="79"><span class="lineNum">      79 </span>            :     /// \p stage, or if the prim at that path does not adhere to this schema,</a>
+<a name="80"><span class="lineNum">      80 </span>            :     /// return an invalid schema object.  This is shorthand for the following:</a>
+<a name="81"><span class="lineNum">      81 </span>            :     ///</a>
+<a name="82"><span class="lineNum">      82 </span>            :     /// \code</a>
+<a name="83"><span class="lineNum">      83 </span>            :     /// UsdGeomPointBased(stage-&gt;GetPrimAtPath(path));</a>
+<a name="84"><span class="lineNum">      84 </span>            :     /// \endcode</a>
+<a name="85"><span class="lineNum">      85 </span>            :     ///</a>
+<a name="86"><span class="lineNum">      86 </span>            :     USDGEOM_API</a>
+<a name="87"><span class="lineNum">      87 </span>            :     static UsdGeomPointBased</a>
+<a name="88"><span class="lineNum">      88 </span>            :     Get(const UsdStagePtr &amp;stage, const SdfPath &amp;path);</a>
+<a name="89"><span class="lineNum">      89 </span>            : </a>
+<a name="90"><span class="lineNum">      90 </span>            : </a>
+<a name="91"><span class="lineNum">      91 </span>            : protected:</a>
+<a name="92"><span class="lineNum">      92 </span>            :     /// Returns the kind of schema this class belongs to.</a>
+<a name="93"><span class="lineNum">      93 </span>            :     ///</a>
+<a name="94"><span class="lineNum">      94 </span>            :     /// \sa UsdSchemaKind</a>
+<a name="95"><span class="lineNum">      95 </span>            :     USDGEOM_API</a>
+<a name="96"><span class="lineNum">      96 </span>            :     UsdSchemaKind _GetSchemaKind() const override;</a>
+<a name="97"><span class="lineNum">      97 </span>            : </a>
+<a name="98"><span class="lineNum">      98 </span>            : private:</a>
+<a name="99"><span class="lineNum">      99 </span>            :     // needs to invoke _GetStaticTfType.</a>
+<a name="100"><span class="lineNum">     100 </span>            :     friend class UsdSchemaRegistry;</a>
+<a name="101"><span class="lineNum">     101 </span>            :     USDGEOM_API</a>
+<a name="102"><span class="lineNum">     102 </span>            :     static const TfType &amp;_GetStaticTfType();</a>
+<a name="103"><span class="lineNum">     103 </span>            : </a>
+<a name="104"><span class="lineNum">     104 </span>            :     static bool _IsTypedSchema();</a>
+<a name="105"><span class="lineNum">     105 </span>            : </a>
+<a name="106"><span class="lineNum">     106 </span>            :     // override SchemaBase virtuals.</a>
+<a name="107"><span class="lineNum">     107 </span>            :     USDGEOM_API</a>
+<a name="108"><span class="lineNum">     108 </span>            :     const TfType &amp;_GetTfType() const override;</a>
+<a name="109"><span class="lineNum">     109 </span>            : </a>
+<a name="110"><span class="lineNum">     110 </span>            : public:</a>
+<a name="111"><span class="lineNum">     111 </span>            :     // --------------------------------------------------------------------- //</a>
+<a name="112"><span class="lineNum">     112 </span>            :     // POINTS </a>
+<a name="113"><span class="lineNum">     113 </span>            :     // --------------------------------------------------------------------- //</a>
+<a name="114"><span class="lineNum">     114 </span>            :     /// The primary geometry attribute for all PointBased</a>
+<a name="115"><span class="lineNum">     115 </span>            :     /// primitives, describes points in (local) space.</a>
+<a name="116"><span class="lineNum">     116 </span>            :     ///</a>
+<a name="117"><span class="lineNum">     117 </span>            :     /// | ||</a>
+<a name="118"><span class="lineNum">     118 </span>            :     /// | -- | -- |</a>
+<a name="119"><span class="lineNum">     119 </span>            :     /// | Declaration | `point3f[] points` |</a>
+<a name="120"><span class="lineNum">     120 </span>            :     /// | C++ Type | VtArray&lt;GfVec3f&gt; |</a>
+<a name="121"><span class="lineNum">     121 </span>            :     /// | \ref Usd_Datatypes &quot;Usd Type&quot; | SdfValueTypeNames-&gt;Point3fArray |</a>
+<a name="122"><span class="lineNum">     122 </span>            :     USDGEOM_API</a>
+<a name="123"><span class="lineNum">     123 </span>            :     UsdAttribute GetPointsAttr() const;</a>
+<a name="124"><span class="lineNum">     124 </span>            : </a>
+<a name="125"><span class="lineNum">     125 </span>            :     /// See GetPointsAttr(), and also </a>
+<a name="126"><span class="lineNum">     126 </span>            :     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.</a>
+<a name="127"><span class="lineNum">     127 </span>            :     /// If specified, author \p defaultValue as the attribute's default,</a>
+<a name="128"><span class="lineNum">     128 </span>            :     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -</a>
+<a name="129"><span class="lineNum">     129 </span>            :     /// the default for \p writeSparsely is \c false.</a>
+<a name="130"><span class="lineNum">     130 </span>            :     USDGEOM_API</a>
+<a name="131"><span class="lineNum">     131 </span>            :     UsdAttribute CreatePointsAttr(VtValue const &amp;defaultValue = VtValue(), bool writeSparsely=false) const;</a>
+<a name="132"><span class="lineNum">     132 </span>            : </a>
+<a name="133"><span class="lineNum">     133 </span>            : public:</a>
+<a name="134"><span class="lineNum">     134 </span>            :     // --------------------------------------------------------------------- //</a>
+<a name="135"><span class="lineNum">     135 </span>            :     // VELOCITIES </a>
+<a name="136"><span class="lineNum">     136 </span>            :     // --------------------------------------------------------------------- //</a>
+<a name="137"><span class="lineNum">     137 </span>            :     /// If provided, 'velocities' should be used by renderers to </a>
+<a name="138"><span class="lineNum">     138 </span>            :     /// </a>
+<a name="139"><span class="lineNum">     139 </span>            :     /// compute positions between samples for the 'points' attribute, rather</a>
+<a name="140"><span class="lineNum">     140 </span>            :     /// than interpolating between neighboring 'points' samples.  This is the</a>
+<a name="141"><span class="lineNum">     141 </span>            :     /// only reasonable means of computing motion blur for topologically</a>
+<a name="142"><span class="lineNum">     142 </span>            :     /// varying PointBased primitives.  It follows that the length of each</a>
+<a name="143"><span class="lineNum">     143 </span>            :     /// 'velocities' sample must match the length of the corresponding</a>
+<a name="144"><span class="lineNum">     144 </span>            :     /// 'points' sample.  Velocity is measured in position units per second,</a>
+<a name="145"><span class="lineNum">     145 </span>            :     /// as per most simulation software. To convert to position units per</a>
+<a name="146"><span class="lineNum">     146 </span>            :     /// UsdTimeCode, divide by UsdStage::GetTimeCodesPerSecond().</a>
+<a name="147"><span class="lineNum">     147 </span>            :     /// </a>
+<a name="148"><span class="lineNum">     148 </span>            :     /// See also \ref UsdGeom_VelocityInterpolation .</a>
+<a name="149"><span class="lineNum">     149 </span>            :     ///</a>
+<a name="150"><span class="lineNum">     150 </span>            :     /// | ||</a>
+<a name="151"><span class="lineNum">     151 </span>            :     /// | -- | -- |</a>
+<a name="152"><span class="lineNum">     152 </span>            :     /// | Declaration | `vector3f[] velocities` |</a>
+<a name="153"><span class="lineNum">     153 </span>            :     /// | C++ Type | VtArray&lt;GfVec3f&gt; |</a>
+<a name="154"><span class="lineNum">     154 </span>            :     /// | \ref Usd_Datatypes &quot;Usd Type&quot; | SdfValueTypeNames-&gt;Vector3fArray |</a>
+<a name="155"><span class="lineNum">     155 </span>            :     USDGEOM_API</a>
+<a name="156"><span class="lineNum">     156 </span>            :     UsdAttribute GetVelocitiesAttr() const;</a>
+<a name="157"><span class="lineNum">     157 </span>            : </a>
+<a name="158"><span class="lineNum">     158 </span>            :     /// See GetVelocitiesAttr(), and also </a>
+<a name="159"><span class="lineNum">     159 </span>            :     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.</a>
+<a name="160"><span class="lineNum">     160 </span>            :     /// If specified, author \p defaultValue as the attribute's default,</a>
+<a name="161"><span class="lineNum">     161 </span>            :     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -</a>
+<a name="162"><span class="lineNum">     162 </span>            :     /// the default for \p writeSparsely is \c false.</a>
+<a name="163"><span class="lineNum">     163 </span>            :     USDGEOM_API</a>
+<a name="164"><span class="lineNum">     164 </span>            :     UsdAttribute CreateVelocitiesAttr(VtValue const &amp;defaultValue = VtValue(), bool writeSparsely=false) const;</a>
+<a name="165"><span class="lineNum">     165 </span>            : </a>
+<a name="166"><span class="lineNum">     166 </span>            : public:</a>
+<a name="167"><span class="lineNum">     167 </span>            :     // --------------------------------------------------------------------- //</a>
+<a name="168"><span class="lineNum">     168 </span>            :     // ACCELERATIONS </a>
+<a name="169"><span class="lineNum">     169 </span>            :     // --------------------------------------------------------------------- //</a>
+<a name="170"><span class="lineNum">     170 </span>            :     /// If provided, 'accelerations' should be used with</a>
+<a name="171"><span class="lineNum">     171 </span>            :     /// velocities to compute positions between samples for the 'points'</a>
+<a name="172"><span class="lineNum">     172 </span>            :     /// attribute rather than interpolating between neighboring 'points'</a>
+<a name="173"><span class="lineNum">     173 </span>            :     /// samples. Acceleration is measured in position units per second-squared.</a>
+<a name="174"><span class="lineNum">     174 </span>            :     /// To convert to position units per squared UsdTimeCode, divide by the</a>
+<a name="175"><span class="lineNum">     175 </span>            :     /// square of UsdStage::GetTimeCodesPerSecond().</a>
+<a name="176"><span class="lineNum">     176 </span>            :     ///</a>
+<a name="177"><span class="lineNum">     177 </span>            :     /// | ||</a>
+<a name="178"><span class="lineNum">     178 </span>            :     /// | -- | -- |</a>
+<a name="179"><span class="lineNum">     179 </span>            :     /// | Declaration | `vector3f[] accelerations` |</a>
+<a name="180"><span class="lineNum">     180 </span>            :     /// | C++ Type | VtArray&lt;GfVec3f&gt; |</a>
+<a name="181"><span class="lineNum">     181 </span>            :     /// | \ref Usd_Datatypes &quot;Usd Type&quot; | SdfValueTypeNames-&gt;Vector3fArray |</a>
+<a name="182"><span class="lineNum">     182 </span>            :     USDGEOM_API</a>
+<a name="183"><span class="lineNum">     183 </span>            :     UsdAttribute GetAccelerationsAttr() const;</a>
+<a name="184"><span class="lineNum">     184 </span>            : </a>
+<a name="185"><span class="lineNum">     185 </span>            :     /// See GetAccelerationsAttr(), and also </a>
+<a name="186"><span class="lineNum">     186 </span>            :     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.</a>
+<a name="187"><span class="lineNum">     187 </span>            :     /// If specified, author \p defaultValue as the attribute's default,</a>
+<a name="188"><span class="lineNum">     188 </span>            :     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -</a>
+<a name="189"><span class="lineNum">     189 </span>            :     /// the default for \p writeSparsely is \c false.</a>
+<a name="190"><span class="lineNum">     190 </span>            :     USDGEOM_API</a>
+<a name="191"><span class="lineNum">     191 </span>            :     UsdAttribute CreateAccelerationsAttr(VtValue const &amp;defaultValue = VtValue(), bool writeSparsely=false) const;</a>
+<a name="192"><span class="lineNum">     192 </span>            : </a>
+<a name="193"><span class="lineNum">     193 </span>            : public:</a>
+<a name="194"><span class="lineNum">     194 </span>            :     // --------------------------------------------------------------------- //</a>
+<a name="195"><span class="lineNum">     195 </span>            :     // NORMALS </a>
+<a name="196"><span class="lineNum">     196 </span>            :     // --------------------------------------------------------------------- //</a>
+<a name="197"><span class="lineNum">     197 </span>            :     /// Provide an object-space orientation for individual points, </a>
+<a name="198"><span class="lineNum">     198 </span>            :     /// which, depending on subclass, may define a surface, curve, or free </a>
+<a name="199"><span class="lineNum">     199 </span>            :     /// points.  Note that 'normals' should not be authored on any Mesh that</a>
+<a name="200"><span class="lineNum">     200 </span>            :     /// is subdivided, since the subdivision algorithm will define its own</a>
+<a name="201"><span class="lineNum">     201 </span>            :     /// normals. 'normals' is not a generic primvar, but the number of elements</a>
+<a name="202"><span class="lineNum">     202 </span>            :     /// in this attribute will be determined by its 'interpolation'.  See</a>
+<a name="203"><span class="lineNum">     203 </span>            :     /// \ref SetNormalsInterpolation() . If 'normals' and 'primvars:normals'</a>
+<a name="204"><span class="lineNum">     204 </span>            :     /// are both specified, the latter has precedence.</a>
+<a name="205"><span class="lineNum">     205 </span>            :     ///</a>
+<a name="206"><span class="lineNum">     206 </span>            :     /// | ||</a>
+<a name="207"><span class="lineNum">     207 </span>            :     /// | -- | -- |</a>
+<a name="208"><span class="lineNum">     208 </span>            :     /// | Declaration | `normal3f[] normals` |</a>
+<a name="209"><span class="lineNum">     209 </span>            :     /// | C++ Type | VtArray&lt;GfVec3f&gt; |</a>
+<a name="210"><span class="lineNum">     210 </span>            :     /// | \ref Usd_Datatypes &quot;Usd Type&quot; | SdfValueTypeNames-&gt;Normal3fArray |</a>
+<a name="211"><span class="lineNum">     211 </span>            :     USDGEOM_API</a>
+<a name="212"><span class="lineNum">     212 </span>            :     UsdAttribute GetNormalsAttr() const;</a>
+<a name="213"><span class="lineNum">     213 </span>            : </a>
+<a name="214"><span class="lineNum">     214 </span>            :     /// See GetNormalsAttr(), and also </a>
+<a name="215"><span class="lineNum">     215 </span>            :     /// \ref Usd_Create_Or_Get_Property for when to use Get vs Create.</a>
+<a name="216"><span class="lineNum">     216 </span>            :     /// If specified, author \p defaultValue as the attribute's default,</a>
+<a name="217"><span class="lineNum">     217 </span>            :     /// sparsely (when it makes sense to do so) if \p writeSparsely is \c true -</a>
+<a name="218"><span class="lineNum">     218 </span>            :     /// the default for \p writeSparsely is \c false.</a>
+<a name="219"><span class="lineNum">     219 </span>            :     USDGEOM_API</a>
+<a name="220"><span class="lineNum">     220 </span>            :     UsdAttribute CreateNormalsAttr(VtValue const &amp;defaultValue = VtValue(), bool writeSparsely=false) const;</a>
+<a name="221"><span class="lineNum">     221 </span>            : </a>
+<a name="222"><span class="lineNum">     222 </span>            : public:</a>
+<a name="223"><span class="lineNum">     223 </span>            :     // ===================================================================== //</a>
+<a name="224"><span class="lineNum">     224 </span>            :     // Feel free to add custom code below this line, it will be preserved by </a>
+<a name="225"><span class="lineNum">     225 </span>            :     // the code generator. </a>
+<a name="226"><span class="lineNum">     226 </span>            :     //</a>
+<a name="227"><span class="lineNum">     227 </span>            :     // Just remember to: </a>
+<a name="228"><span class="lineNum">     228 </span>            :     //  - Close the class declaration with }; </a>
+<a name="229"><span class="lineNum">     229 </span>            :     //  - Close the namespace with PXR_NAMESPACE_CLOSE_SCOPE</a>
+<a name="230"><span class="lineNum">     230 </span>            :     //  - Close the include guard with #endif</a>
+<a name="231"><span class="lineNum">     231 </span>            :     // ===================================================================== //</a>
+<a name="232"><span class="lineNum">     232 </span>            :     // --(BEGIN CUSTOM CODE)--</a>
+<a name="233"><span class="lineNum">     233 </span>            :     </a>
+<a name="234"><span class="lineNum">     234 </span>            :     /// Get the \ref Usd_InterpolationVals &quot;interpolation&quot; for the \em normals</a>
+<a name="235"><span class="lineNum">     235 </span>            :     /// attribute.</a>
+<a name="236"><span class="lineNum">     236 </span>            :     ///</a>
+<a name="237"><span class="lineNum">     237 </span>            :     /// Although 'normals' is not classified as a generic UsdGeomPrimvar (and</a>
+<a name="238"><span class="lineNum">     238 </span>            :     /// will not be included in the results of UsdGeomPrimvarsAPI::GetPrimvars() )</a>
+<a name="239"><span class="lineNum">     239 </span>            :     /// it does require an interpolation specification.  The fallback</a>
+<a name="240"><span class="lineNum">     240 </span>            :     /// interpolation, if left unspecified, is UsdGeomTokens-&gt;vertex , </a>
+<a name="241"><span class="lineNum">     241 </span>            :     /// which will generally produce smooth shading on a polygonal mesh.</a>
+<a name="242"><span class="lineNum">     242 </span>            :     /// To achieve partial or fully faceted shading of a polygonal mesh</a>
+<a name="243"><span class="lineNum">     243 </span>            :     /// with normals, one should use UsdGeomTokens-&gt;faceVarying or</a>
+<a name="244"><span class="lineNum">     244 </span>            :     /// UsdGeomTokens-&gt;uniform interpolation.</a>
+<a name="245"><span class="lineNum">     245 </span>            :     USDGEOM_API</a>
+<a name="246"><span class="lineNum">     246 </span>            :     TfToken GetNormalsInterpolation() const;</a>
+<a name="247"><span class="lineNum">     247 </span>            : </a>
+<a name="248"><span class="lineNum">     248 </span>            :     /// Set the \ref Usd_InterpolationVals &quot;interpolation&quot; for the \em normals</a>
+<a name="249"><span class="lineNum">     249 </span>            :     /// attribute.</a>
+<a name="250"><span class="lineNum">     250 </span>            :     ///</a>
+<a name="251"><span class="lineNum">     251 </span>            :     /// \return true upon success, false if \p interpolation is not a legal</a>
+<a name="252"><span class="lineNum">     252 </span>            :     /// value as defined by UsdGeomPrimvar::IsValidInterpolation(), or if there </a>
+<a name="253"><span class="lineNum">     253 </span>            :     /// was a problem setting the value.  No attempt is made to validate</a>
+<a name="254"><span class="lineNum">     254 </span>            :     /// that the normals attr's value contains the right number of elements</a>
+<a name="255"><span class="lineNum">     255 </span>            :     /// to match its interpolation to its prim's topology.</a>
+<a name="256"><span class="lineNum">     256 </span>            :     ///</a>
+<a name="257"><span class="lineNum">     257 </span>            :     /// \sa GetNormalsInterpolation()</a>
+<a name="258"><span class="lineNum">     258 </span>            :     USDGEOM_API</a>
+<a name="259"><span class="lineNum">     259 </span>            :     bool SetNormalsInterpolation(TfToken const &amp;interpolation);</a>
+<a name="260"><span class="lineNum">     260 </span>            : </a>
+<a name="261"><span class="lineNum">     261 </span>            :     /// Compute the extent for the point cloud defined by points. </a>
+<a name="262"><span class="lineNum">     262 </span>            :     ///</a>
+<a name="263"><span class="lineNum">     263 </span>            :     /// \return true on success, false if extents was unable to be calculated.</a>
+<a name="264"><span class="lineNum">     264 </span>            :     /// </a>
+<a name="265"><span class="lineNum">     265 </span>            :     /// On success, extent will contain the axis-aligned bounding box of the</a>
+<a name="266"><span class="lineNum">     266 </span>            :     /// point cloud defined by points.</a>
+<a name="267"><span class="lineNum">     267 </span>            :     ///</a>
+<a name="268"><span class="lineNum">     268 </span>            :     /// This function is to provide easy authoring of extent for usd authoring</a>
+<a name="269"><span class="lineNum">     269 </span>            :     /// tools, hence it is static and acts outside a specific prim (as in </a>
+<a name="270"><span class="lineNum">     270 </span>            :     /// attribute based methods).</a>
+<a name="271"><span class="lineNum">     271 </span>            :     USDGEOM_API</a>
+<a name="272"><span class="lineNum">     272 </span>            :     static bool ComputeExtent(const VtVec3fArray&amp; points, VtVec3fArray* extent);</a>
+<a name="273"><span class="lineNum">     273 </span>            : </a>
+<a name="274"><span class="lineNum">     274 </span>            :     /// \overload</a>
+<a name="275"><span class="lineNum">     275 </span>            :     /// Computes the extent as if the matrix \p transform was first applied.</a>
+<a name="276"><span class="lineNum">     276 </span>            :     USDGEOM_API</a>
+<a name="277"><span class="lineNum">     277 </span>            :     static bool ComputeExtent(const VtVec3fArray&amp; points,</a>
+<a name="278"><span class="lineNum">     278 </span>            :         const GfMatrix4d&amp; transform, VtVec3fArray* extent);</a>
+<a name="279"><span class="lineNum">     279 </span>            : </a>
+<a name="280"><span class="lineNum">     280 </span>            : public:</a>
+<a name="281"><span class="lineNum">     281 </span>            :     /// Compute points given the positions, velocities and accelerations</a>
+<a name="282"><span class="lineNum">     282 </span>            :     /// at \p time. </a>
+<a name="283"><span class="lineNum">     283 </span>            :     ///</a>
+<a name="284"><span class="lineNum">     284 </span>            :     /// This will return \c false and leave \p points untouched if:</a>
+<a name="285"><span class="lineNum">     285 </span>            :     /// - \p points is NULL</a>
+<a name="286"><span class="lineNum">     286 </span>            :     /// - one of \p time and \p baseTime is numeric and the other is</a>
+<a name="287"><span class="lineNum">     287 </span>            :     ///   UsdTimeCode::Default() (they must either both be numeric or both be</a>
+<a name="288"><span class="lineNum">     288 </span>            :     ///   default)</a>
+<a name="289"><span class="lineNum">     289 </span>            :     /// - there is no authored points attribute</a>
+<a name="290"><span class="lineNum">     290 </span>            :     ///</a>
+<a name="291"><span class="lineNum">     291 </span>            :     /// If there is no error, we will return \c true and \p points will contain</a>
+<a name="292"><span class="lineNum">     292 </span>            :     /// the computed points.</a>
+<a name="293"><span class="lineNum">     293 </span>            :     /// </a>
+<a name="294"><span class="lineNum">     294 </span>            :     /// \param points - the out parameter for the new points.  Its size</a>
+<a name="295"><span class="lineNum">     295 </span>            :     ///                 will depend on the authored data.</a>
+<a name="296"><span class="lineNum">     296 </span>            :     /// \param time - UsdTimeCode at which we want to evaluate the transforms</a>
+<a name="297"><span class="lineNum">     297 </span>            :     /// \param baseTime - required for correct interpolation between samples</a>
+<a name="298"><span class="lineNum">     298 </span>            :     ///                   when \em velocities or \em accelerations are</a>
+<a name="299"><span class="lineNum">     299 </span>            :     ///                   present. If there are samples for \em positions and</a>
+<a name="300"><span class="lineNum">     300 </span>            :     ///                   \em velocities at t1 and t2, normal value resolution</a>
+<a name="301"><span class="lineNum">     301 </span>            :     ///                   would attempt to interpolate between the two samples,</a>
+<a name="302"><span class="lineNum">     302 </span>            :     ///                   and if they could not be interpolated because they</a>
+<a name="303"><span class="lineNum">     303 </span>            :     ///                   differ in size (common in cases where velocity is</a>
+<a name="304"><span class="lineNum">     304 </span>            :     ///                   authored), will choose the sample at t1.  When</a>
+<a name="305"><span class="lineNum">     305 </span>            :     ///                   sampling for the purposes of motion-blur, for example,</a>
+<a name="306"><span class="lineNum">     306 </span>            :     ///                   it is common, when rendering the frame at t2, to </a>
+<a name="307"><span class="lineNum">     307 </span>            :     ///                   sample at [ t2-shutter/2, t2+shutter/2 ] for a</a>
+<a name="308"><span class="lineNum">     308 </span>            :     ///                   shutter interval of \em shutter.  The first sample</a>
+<a name="309"><span class="lineNum">     309 </span>            :     ///                   falls between t1 and t2, but we must sample at t2</a>
+<a name="310"><span class="lineNum">     310 </span>            :     ///                   and apply velocity-based interpolation based on those</a>
+<a name="311"><span class="lineNum">     311 </span>            :     ///                   samples to get a correct result.  In such scenarios,</a>
+<a name="312"><span class="lineNum">     312 </span>            :     ///                   one should provide a \p baseTime of t2 when querying</a>
+<a name="313"><span class="lineNum">     313 </span>            :     ///                   \em both samples. If your application does not care</a>
+<a name="314"><span class="lineNum">     314 </span>            :     ///                   about off-sample interpolation, it can supply the</a>
+<a name="315"><span class="lineNum">     315 </span>            :     ///                   same value for \p baseTime that it does for \p time.</a>
+<a name="316"><span class="lineNum">     316 </span>            :     ///                   When \p baseTime is less than or equal to \p time,</a>
+<a name="317"><span class="lineNum">     317 </span>            :     ///                   we will choose the lower bracketing timeSample.</a>
+<a name="318"><span class="lineNum">     318 </span>            :     USDGEOM_API</a>
+<a name="319"><span class="lineNum">     319 </span>            :     bool</a>
+<a name="320"><span class="lineNum">     320 </span>            :     ComputePointsAtTime(</a>
+<a name="321"><span class="lineNum">     321 </span>            :         VtArray&lt;GfVec3f&gt;* points,</a>
+<a name="322"><span class="lineNum">     322 </span>            :         const UsdTimeCode time,</a>
+<a name="323"><span class="lineNum">     323 </span>            :         const UsdTimeCode baseTime) const;</a>
+<a name="324"><span class="lineNum">     324 </span>            : </a>
+<a name="325"><span class="lineNum">     325 </span>            :     /// Compute points as in ComputePointsAtTime, but using multiple sample times. An</a>
+<a name="326"><span class="lineNum">     326 </span>            :     /// array of vector arrays is returned where each vector array contains the</a>
+<a name="327"><span class="lineNum">     327 </span>            :     /// points for the corresponding time in \p times .</a>
+<a name="328"><span class="lineNum">     328 </span>            :     ///</a>
+<a name="329"><span class="lineNum">     329 </span>            :     /// \param times - A vector containing the UsdTimeCodes at which we want to</a>
+<a name="330"><span class="lineNum">     330 </span>            :     ///                sample.</a>
+<a name="331"><span class="lineNum">     331 </span>            :     USDGEOM_API</a>
+<a name="332"><span class="lineNum">     332 </span>            :     bool</a>
+<a name="333"><span class="lineNum">     333 </span>            :     ComputePointsAtTimes(</a>
+<a name="334"><span class="lineNum">     334 </span>            :         std::vector&lt;VtArray&lt;GfVec3f&gt;&gt;* pointsArray,</a>
+<a name="335"><span class="lineNum">     335 </span>            :         const std::vector&lt;UsdTimeCode&gt;&amp; times,</a>
+<a name="336"><span class="lineNum">     336 </span>            :         const UsdTimeCode baseTime) const;</a>
+<a name="337"><span class="lineNum">     337 </span>            : </a>
+<a name="338"><span class="lineNum">     338 </span>            :     /// \overload</a>
+<a name="339"><span class="lineNum">     339 </span>            :     /// Perform the point computation. This does the same computation as</a>
+<a name="340"><span class="lineNum">     340 </span>            :     /// the non-static ComputePointsAtTime method, but takes all</a>
+<a name="341"><span class="lineNum">     341 </span>            :     /// data as parameters rather than accessing authored data.</a>
+<a name="342"><span class="lineNum">     342 </span>            :     ///</a>
+<a name="343"><span class="lineNum">     343 </span>            :     /// \param points - the out parameter for the computed points. Its size</a>
+<a name="344"><span class="lineNum">     344 </span>            :     ///                 will depend on the given data.</a>
+<a name="345"><span class="lineNum">     345 </span>            :     /// \param stage - the UsdStage</a>
+<a name="346"><span class="lineNum">     346 </span>            :     /// \param time - time at which we want to evaluate the transforms</a>
+<a name="347"><span class="lineNum">     347 </span>            :     /// \param positions - array containing all current points.</a>
+<a name="348"><span class="lineNum">     348 </span>            :     /// \param velocities - array containing all velocities. This array</a>
+<a name="349"><span class="lineNum">     349 </span>            :     ///                     must be either the same size as \p positions or</a>
+<a name="350"><span class="lineNum">     350 </span>            :     ///                     empty. If it is empty, points are computed as if</a>
+<a name="351"><span class="lineNum">     351 </span>            :     ///                     all velocities were zero in all dimensions.</a>
+<a name="352"><span class="lineNum">     352 </span>            :     /// \param velocitiesSampleTime - time at which the samples from</a>
+<a name="353"><span class="lineNum">     353 </span>            :     ///                               \p velocities were taken.</a>
+<a name="354"><span class="lineNum">     354 </span>            :     /// \param accelerations - array containing all accelerations. </a>
+<a name="355"><span class="lineNum">     355 </span>            :     ///                     This array must be either the same size as </a>
+<a name="356"><span class="lineNum">     356 </span>            :     ///                     \p positions or empty. If it is empty, points</a>
+<a name="357"><span class="lineNum">     357 </span>            :     ///                     are computed as if all accelerations were zero in </a>
+<a name="358"><span class="lineNum">     358 </span>            :     ///                     all dimensions.</a>
+<a name="359"><span class="lineNum">     359 </span>            :     /// \param velocityScale - \deprecated</a>
+<a name="360"><span class="lineNum">     360 </span>            :     USDGEOM_API</a>
+<a name="361"><span class="lineNum">     361 </span>            :     static bool</a>
+<a name="362"><span class="lineNum">     362 </span>            :     ComputePointsAtTime(</a>
+<a name="363"><span class="lineNum">     363 </span>            :         VtArray&lt;GfVec3f&gt;* points,</a>
+<a name="364"><span class="lineNum">     364 </span>            :         UsdStageWeakPtr&amp; stage,</a>
+<a name="365"><span class="lineNum">     365 </span>            :         UsdTimeCode time,</a>
+<a name="366"><span class="lineNum">     366 </span>            :         const VtVec3fArray&amp; positions,</a>
+<a name="367"><span class="lineNum">     367 </span>            :         const VtVec3fArray&amp; velocities,</a>
+<a name="368"><span class="lineNum">     368 </span>            :         UsdTimeCode velocitiesSampleTime,</a>
+<a name="369"><span class="lineNum">     369 </span>            :         const VtVec3fArray&amp; accelerations,</a>
+<a name="370"><span class="lineNum">     370 </span>            :         float velocityScale=1.0);</a>
+<a name="371"><span class="lineNum">     371 </span>            : </a>
+<a name="372"><span class="lineNum">     372 </span>            : };</a>
+<a name="373"><span class="lineNum">     373 </span>            : </a>
+<a name="374"><span class="lineNum">     374 </span>            : PXR_NAMESPACE_CLOSE_SCOPE</a>
+<a name="375"><span class="lineNum">     375 </span>            : </a>
+<a name="376"><span class="lineNum">     376 </span>            : #endif</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

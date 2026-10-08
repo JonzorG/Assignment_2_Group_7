@@ -1,0 +1,403 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - compositor/cached_resources/intern/deriche_gaussian_coefficients.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">compositor/cached_resources/intern</a> - deriche_gaussian_coefficients.cc<span style="font-size: 80%;"> (source / <a href="deriche_gaussian_coefficients.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">107</td>
+            <td class="headerCovTableEntry">107</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2024 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /* -------------------------------------------------------------------------------------------------</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * Deriche Gaussian Coefficients.</a>
+<a name="7"><span class="lineNum">       7 </span>            :  *</a>
+<a name="8"><span class="lineNum">       8 </span>            :  * Computes the coefficients of the fourth order IIR filter approximating a Gaussian filter</a>
+<a name="9"><span class="lineNum">       9 </span>            :  * computed using Deriche's design method. This is based on the following paper:</a>
+<a name="10"><span class="lineNum">      10 </span>            :  *</a>
+<a name="11"><span class="lineNum">      11 </span>            :  *   Deriche, Rachid. Recursively implementating the Gaussian and its derivatives. Diss. INRIA,</a>
+<a name="12"><span class="lineNum">      12 </span>            :  *   1993.</a>
+<a name="13"><span class="lineNum">      13 </span>            :  *</a>
+<a name="14"><span class="lineNum">      14 </span>            :  * But with corrections in the normalization scale from the following paper, as will be seen in the</a>
+<a name="15"><span class="lineNum">      15 </span>            :  * implementation:</a>
+<a name="16"><span class="lineNum">      16 </span>            :  *</a>
+<a name="17"><span class="lineNum">      17 </span>            :  *   Farneback, Gunnar, and Carl-Fredrik Westin. Improving Deriche-style recursive Gaussian</a>
+<a name="18"><span class="lineNum">      18 </span>            :  *   filters. Journal of Mathematical Imaging and Vision 26.3 (2006): 293-299.</a>
+<a name="19"><span class="lineNum">      19 </span>            :  *</a>
+<a name="20"><span class="lineNum">      20 </span>            :  * The Deriche filter is computed as the sum of a causal and a non causal sequence of second order</a>
+<a name="21"><span class="lineNum">      21 </span>            :  * difference equations as can be seen in Equation (30) in Deriche's paper, and the target of this</a>
+<a name="22"><span class="lineNum">      22 </span>            :  * class is to compute the feedback, causal feedforward, and non causal feedforward coefficients of</a>
+<a name="23"><span class="lineNum">      23 </span>            :  * the filter. */</a>
+<a name="24"><span class="lineNum">      24 </span>            : </a>
+<a name="25"><span class="lineNum">      25 </span>            : #include &lt;cstdint&gt;</a>
+<a name="26"><span class="lineNum">      26 </span>            : #include &lt;memory&gt;</a>
+<a name="27"><span class="lineNum">      27 </span>            : </a>
+<a name="28"><span class="lineNum">      28 </span>            : #include &quot;BLI_hash.hh&quot;</a>
+<a name="29"><span class="lineNum">      29 </span>            : #include &quot;BLI_math_base.hh&quot;</a>
+<a name="30"><span class="lineNum">      30 </span>            : #include &quot;BLI_math_vector.hh&quot;</a>
+<a name="31"><span class="lineNum">      31 </span>            : </a>
+<a name="32"><span class="lineNum">      32 </span>            : #include &quot;COM_context.hh&quot;</a>
+<a name="33"><span class="lineNum">      33 </span>            : #include &quot;COM_deriche_gaussian_coefficients.hh&quot;</a>
+<a name="34"><span class="lineNum">      34 </span>            : </a>
+<a name="35"><span class="lineNum">      35 </span>            : namespace blender::compositor {</a>
+<a name="36"><span class="lineNum">      36 </span>            : </a>
+<a name="37"><span class="lineNum">      37 </span>            : /* --------------------------------------------------------------------</a>
+<a name="38"><span class="lineNum">      38 </span>            :  * Deriche Gaussian Coefficients Key.</a>
+<a name="39"><span class="lineNum">      39 </span>            :  */</a>
+<a name="40"><span class="lineNum">      40 </span>            : </a>
+<a name="41"><span class="lineNum">      41 </span><span class="lineCov">          2 : DericheGaussianCoefficientsKey::DericheGaussianCoefficientsKey(float sigma) : sigma(sigma) {}</span></a>
+<a name="42"><span class="lineNum">      42 </span>            : </a>
+<a name="43"><span class="lineNum">      43 </span><span class="lineCov">          4 : uint64_t DericheGaussianCoefficientsKey::hash() const</span></a>
+<a name="44"><span class="lineNum">      44 </span>            : {</a>
+<a name="45"><span class="lineNum">      45 </span><span class="lineCov">          4 :   return get_default_hash(sigma);</span></a>
+<a name="46"><span class="lineNum">      46 </span>            : }</a>
+<a name="47"><span class="lineNum">      47 </span>            : </a>
+<a name="48"><span class="lineNum">      48 </span><span class="lineCov">          2 : bool operator==(const DericheGaussianCoefficientsKey &amp;a, const DericheGaussianCoefficientsKey &amp;b)</span></a>
+<a name="49"><span class="lineNum">      49 </span>            : {</a>
+<a name="50"><span class="lineNum">      50 </span><span class="lineCov">          2 :   return a.sigma == b.sigma;</span></a>
+<a name="51"><span class="lineNum">      51 </span>            : }</a>
+<a name="52"><span class="lineNum">      52 </span>            : </a>
+<a name="53"><span class="lineNum">      53 </span>            : /* -------------------------------------------------------------------------------------------------</a>
+<a name="54"><span class="lineNum">      54 </span>            :  * Deriche Gaussian Coefficients.</a>
+<a name="55"><span class="lineNum">      55 </span>            :  */</a>
+<a name="56"><span class="lineNum">      56 </span>            : </a>
+<a name="57"><span class="lineNum">      57 </span>            : /* The base constant coefficients computed using Deriche's method with 10 digits of precision.</a>
+<a name="58"><span class="lineNum">      58 </span>            :  * Those are available in Deriche's paper by comparing Equations (19) and (38). */</a>
+<a name="59"><span class="lineNum">      59 </span>            : inline constexpr static double a0 = 1.6797292232361107;</a>
+<a name="60"><span class="lineNum">      60 </span>            : inline constexpr static double a1 = 3.7348298269103580;</a>
+<a name="61"><span class="lineNum">      61 </span>            : inline constexpr static double b0 = 1.7831906544515104;</a>
+<a name="62"><span class="lineNum">      62 </span>            : inline constexpr static double b1 = 1.7228297663338028;</a>
+<a name="63"><span class="lineNum">      63 </span>            : inline constexpr static double c0 = -0.6802783501806897;</a>
+<a name="64"><span class="lineNum">      64 </span>            : inline constexpr static double c1 = -0.2598300478959625;</a>
+<a name="65"><span class="lineNum">      65 </span>            : inline constexpr static double w0 = 0.6318113174569493;</a>
+<a name="66"><span class="lineNum">      66 </span>            : inline constexpr static double w1 = 1.9969276832487770;</a>
+<a name="67"><span class="lineNum">      67 </span>            : </a>
+<a name="68"><span class="lineNum">      68 </span>            : /* Computes n00 in Equation (21) in Deriche's paper. */</a>
+<a name="69"><span class="lineNum">      69 </span><span class="lineCov">          2 : static double compute_numerator_0()</span></a>
+<a name="70"><span class="lineNum">      70 </span>            : {</a>
+<a name="71"><span class="lineNum">      71 </span><span class="lineCov">          2 :   return a0 + c0;</span></a>
+<a name="72"><span class="lineNum">      72 </span>            : }</a>
+<a name="73"><span class="lineNum">      73 </span>            : </a>
+<a name="74"><span class="lineNum">      74 </span>            : /* Computes n11 in Equation (21) in Deriche's paper. */</a>
+<a name="75"><span class="lineNum">      75 </span><span class="lineCov">          2 : static double compute_numerator_1(float sigma)</span></a>
+<a name="76"><span class="lineNum">      76 </span>            : {</a>
+<a name="77"><span class="lineNum">      77 </span><span class="lineCov">          2 :   const double multiplier1 = math::exp(-b1 / sigma);</span></a>
+<a name="78"><span class="lineNum">      78 </span><span class="lineCov">          2 :   const double term1 = c1 * math::sin(w1 / sigma) - (c0 + 2.0 * a0) * math::cos(w1 / sigma);</span></a>
+<a name="79"><span class="lineNum">      79 </span>            : </a>
+<a name="80"><span class="lineNum">      80 </span><span class="lineCov">          2 :   const double multiplier2 = math::exp(-b0 / sigma);</span></a>
+<a name="81"><span class="lineNum">      81 </span><span class="lineCov">          2 :   const double term2 = a1 * math::sin(w0 / sigma) - (2.0 * c0 + a0) * math::cos(w0 / sigma);</span></a>
+<a name="82"><span class="lineNum">      82 </span>            : </a>
+<a name="83"><span class="lineNum">      83 </span><span class="lineCov">          2 :   return multiplier1 * term1 + multiplier2 * term2;</span></a>
+<a name="84"><span class="lineNum">      84 </span>            : }</a>
+<a name="85"><span class="lineNum">      85 </span>            : </a>
+<a name="86"><span class="lineNum">      86 </span>            : /* Computes n22 in Equation (21) in Deriche's paper. */</a>
+<a name="87"><span class="lineNum">      87 </span><span class="lineCov">          2 : static double compute_numerator_2(float sigma)</span></a>
+<a name="88"><span class="lineNum">      88 </span>            : {</a>
+<a name="89"><span class="lineNum">      89 </span><span class="lineCov">          2 :   const double multiplier1 = 2.0 * math::exp(-(b0 / sigma) - (b1 / sigma));</span></a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineCov">          2 :   const double term11 = (a0 + c0) * math::cos(w1 / sigma) * math::cos(w0 / sigma);</span></a>
+<a name="91"><span class="lineNum">      91 </span><span class="lineCov">          2 :   const double term12 = math::cos(w1 / sigma) * a1 * math::sin(w0 / sigma);</span></a>
+<a name="92"><span class="lineNum">      92 </span><span class="lineCov">          2 :   const double term13 = math::cos(w0 / sigma) * c1 * math::sin(w1 / sigma);</span></a>
+<a name="93"><span class="lineNum">      93 </span><span class="lineCov">          2 :   const double term1 = term11 - term12 - term13;</span></a>
+<a name="94"><span class="lineNum">      94 </span>            : </a>
+<a name="95"><span class="lineNum">      95 </span><span class="lineCov">          2 :   const double term2 = c0 * math::exp(-2.0 * (b0 / sigma));</span></a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineCov">          2 :   const double term3 = a0 * math::exp(-2.0 * (b1 / sigma));</span></a>
+<a name="97"><span class="lineNum">      97 </span>            : </a>
+<a name="98"><span class="lineNum">      98 </span><span class="lineCov">          2 :   return multiplier1 * term1 + term2 + term3;</span></a>
+<a name="99"><span class="lineNum">      99 </span>            : }</a>
+<a name="100"><span class="lineNum">     100 </span>            : </a>
+<a name="101"><span class="lineNum">     101 </span>            : /* Computes n33 in Equation (21) in Deriche's paper. */</a>
+<a name="102"><span class="lineNum">     102 </span><span class="lineCov">          2 : static double compute_numerator_3(float sigma)</span></a>
+<a name="103"><span class="lineNum">     103 </span>            : {</a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineCov">          2 :   const double multiplier1 = math::exp(-(b1 / sigma) - 2.0 * (b0 / sigma));</span></a>
+<a name="105"><span class="lineNum">     105 </span><span class="lineCov">          2 :   const double term1 = c1 * math::sin(w1 / sigma) - math::cos(w1 / sigma) * c0;</span></a>
+<a name="106"><span class="lineNum">     106 </span>            : </a>
+<a name="107"><span class="lineNum">     107 </span><span class="lineCov">          2 :   const double multiplier2 = math::exp(-(b0 / sigma) - 2.0 * (b1 / sigma));</span></a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineCov">          2 :   const double term2 = a1 * math::sin(w0 / sigma) - math::cos(w0 / sigma) * a0;</span></a>
+<a name="109"><span class="lineNum">     109 </span>            : </a>
+<a name="110"><span class="lineNum">     110 </span><span class="lineCov">          2 :   return multiplier1 * term1 + multiplier2 * term2;</span></a>
+<a name="111"><span class="lineNum">     111 </span>            : }</a>
+<a name="112"><span class="lineNum">     112 </span>            : </a>
+<a name="113"><span class="lineNum">     113 </span>            : /* Computes and packs the numerators in Equation (21) in Deriche's paper. */</a>
+<a name="114"><span class="lineNum">     114 </span><span class="lineCov">          2 : static double4 compute_numerator(float sigma)</span></a>
+<a name="115"><span class="lineNum">     115 </span>            : {</a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineCov">          2 :   const double n0 = compute_numerator_0();</span></a>
+<a name="117"><span class="lineNum">     117 </span><span class="lineCov">          2 :   const double n1 = compute_numerator_1(sigma);</span></a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineCov">          2 :   const double n2 = compute_numerator_2(sigma);</span></a>
+<a name="119"><span class="lineNum">     119 </span><span class="lineCov">          2 :   const double n3 = compute_numerator_3(sigma);</span></a>
+<a name="120"><span class="lineNum">     120 </span>            : </a>
+<a name="121"><span class="lineNum">     121 </span><span class="lineCov">          2 :   return double4(n0, n1, n2, n3);</span></a>
+<a name="122"><span class="lineNum">     122 </span>            : }</a>
+<a name="123"><span class="lineNum">     123 </span>            : </a>
+<a name="124"><span class="lineNum">     124 </span>            : /* Computes d11 in Equation (22) in Deriche's paper. */</a>
+<a name="125"><span class="lineNum">     125 </span><span class="lineCov">          2 : static double compute_denominator_1(float sigma)</span></a>
+<a name="126"><span class="lineNum">     126 </span>            : {</a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineCov">          2 :   const double term1 = -2.0 * math::exp(-(b0 / sigma)) * math::cos(w0 / sigma);</span></a>
+<a name="128"><span class="lineNum">     128 </span><span class="lineCov">          2 :   const double term2 = 2.0 * math::exp(-(b1 / sigma)) * math::cos(w1 / sigma);</span></a>
+<a name="129"><span class="lineNum">     129 </span>            : </a>
+<a name="130"><span class="lineNum">     130 </span><span class="lineCov">          2 :   return term1 - term2;</span></a>
+<a name="131"><span class="lineNum">     131 </span>            : }</a>
+<a name="132"><span class="lineNum">     132 </span>            : </a>
+<a name="133"><span class="lineNum">     133 </span>            : /* Computes d22 in Equation (22) in Deriche's paper. */</a>
+<a name="134"><span class="lineNum">     134 </span><span class="lineCov">          2 : static double compute_denominator_2(float sigma)</span></a>
+<a name="135"><span class="lineNum">     135 </span>            : {</a>
+<a name="136"><span class="lineNum">     136 </span><span class="lineCov">          2 :   const double term1 = 4.0 * math::cos(w1 / sigma) * math::cos(w0 / sigma);</span></a>
+<a name="137"><span class="lineNum">     137 </span><span class="lineCov">          2 :   const double multiplier1 = math::exp(-(b0 / sigma) - (b1 / sigma));</span></a>
+<a name="138"><span class="lineNum">     138 </span>            : </a>
+<a name="139"><span class="lineNum">     139 </span><span class="lineCov">          2 :   const double term2 = math::exp(-2.0 * (b1 / sigma));</span></a>
+<a name="140"><span class="lineNum">     140 </span><span class="lineCov">          2 :   const double term3 = math::exp(-2.0 * (b0 / sigma));</span></a>
+<a name="141"><span class="lineNum">     141 </span>            : </a>
+<a name="142"><span class="lineNum">     142 </span><span class="lineCov">          2 :   return term1 * multiplier1 + term2 + term3;</span></a>
+<a name="143"><span class="lineNum">     143 </span>            : }</a>
+<a name="144"><span class="lineNum">     144 </span>            : </a>
+<a name="145"><span class="lineNum">     145 </span>            : /* Computes d33 in Equation (22) in Deriche's paper. */</a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineCov">          2 : static double compute_denominator_3(float sigma)</span></a>
+<a name="147"><span class="lineNum">     147 </span>            : {</a>
+<a name="148"><span class="lineNum">     148 </span><span class="lineCov">          2 :   const double term1 = -2.0 * math::cos(w0 / sigma);</span></a>
+<a name="149"><span class="lineNum">     149 </span><span class="lineCov">          2 :   const double multiplier1 = math::exp(-(b0 / sigma) - 2.0 * (b1 / sigma));</span></a>
+<a name="150"><span class="lineNum">     150 </span>            : </a>
+<a name="151"><span class="lineNum">     151 </span><span class="lineCov">          2 :   const double term2 = 2.0 * math::cos(w1 / sigma);</span></a>
+<a name="152"><span class="lineNum">     152 </span><span class="lineCov">          2 :   const double multiplier2 = math::exp(-(b1 / sigma) - 2.0 * (b0 / sigma));</span></a>
+<a name="153"><span class="lineNum">     153 </span>            : </a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineCov">          2 :   return term1 * multiplier1 - term2 * multiplier2;</span></a>
+<a name="155"><span class="lineNum">     155 </span>            : }</a>
+<a name="156"><span class="lineNum">     156 </span>            : </a>
+<a name="157"><span class="lineNum">     157 </span>            : /* Computes d44 in Equation (22) in Deriche's paper. */</a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineCov">          2 : static double compute_denominator_4(float sigma)</span></a>
+<a name="159"><span class="lineNum">     159 </span>            : {</a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineCov">          2 :   return math::exp(-2.0 * (b0 / sigma) - 2.0 * (b1 / sigma));</span></a>
+<a name="161"><span class="lineNum">     161 </span>            : }</a>
+<a name="162"><span class="lineNum">     162 </span>            : </a>
+<a name="163"><span class="lineNum">     163 </span>            : /* Computes and packs the denominators in Equation (22) in Deriche's paper. */</a>
+<a name="164"><span class="lineNum">     164 </span><span class="lineCov">          2 : static double4 compute_denominator(float sigma)</span></a>
+<a name="165"><span class="lineNum">     165 </span>            : {</a>
+<a name="166"><span class="lineNum">     166 </span><span class="lineCov">          2 :   const double d1 = compute_denominator_1(sigma);</span></a>
+<a name="167"><span class="lineNum">     167 </span><span class="lineCov">          2 :   const double d2 = compute_denominator_2(sigma);</span></a>
+<a name="168"><span class="lineNum">     168 </span><span class="lineCov">          2 :   const double d3 = compute_denominator_3(sigma);</span></a>
+<a name="169"><span class="lineNum">     169 </span><span class="lineCov">          2 :   const double d4 = compute_denominator_4(sigma);</span></a>
+<a name="170"><span class="lineNum">     170 </span>            : </a>
+<a name="171"><span class="lineNum">     171 </span><span class="lineCov">          2 :   return double4(d1, d2, d3, d4);</span></a>
+<a name="172"><span class="lineNum">     172 </span>            : }</a>
+<a name="173"><span class="lineNum">     173 </span>            : </a>
+<a name="174"><span class="lineNum">     174 </span>            : /* Computes the normalization scale that the feedforward coefficients should be divided by to</a>
+<a name="175"><span class="lineNum">     175 </span>            :  * match the unit integral of the Gaussian. The scaling factor proposed by Deriche's paper in</a>
+<a name="176"><span class="lineNum">     176 </span>            :  * Equation (50) is wrong due to missing terms. A correct scaling factor is presented in</a>
+<a name="177"><span class="lineNum">     177 </span>            :  * Farneback's paper in Equation (25), which is implemented in this method. */</a>
+<a name="178"><span class="lineNum">     178 </span><span class="lineCov">          2 : static float compute_normalization_scale(const double4 &amp;causal_feedforward_coefficients,</span></a>
+<a name="179"><span class="lineNum">     179 </span>            :                                          const double4 &amp;feedback_coefficients)</a>
+<a name="180"><span class="lineNum">     180 </span>            : {</a>
+<a name="181"><span class="lineNum">     181 </span><span class="lineCov">          2 :   const double causal_feedforwad_sum = math::reduce_add(causal_feedforward_coefficients);</span></a>
+<a name="182"><span class="lineNum">     182 </span><span class="lineCov">          2 :   const double feedback_sum = 1.0 + math::reduce_add(feedback_coefficients);</span></a>
+<a name="183"><span class="lineNum">     183 </span><span class="lineCov">          2 :   return 2.0 * (causal_feedforwad_sum / feedback_sum) - causal_feedforward_coefficients[0];</span></a>
+<a name="184"><span class="lineNum">     184 </span>            : }</a>
+<a name="185"><span class="lineNum">     185 </span>            : </a>
+<a name="186"><span class="lineNum">     186 </span>            : /* Computes the non causal feedforward coefficients from the feedback and causal feedforward</a>
+<a name="187"><span class="lineNum">     187 </span>            :  * coefficients based on Equation (31) in Deriche's paper. Notice that the equation is linear, so</a>
+<a name="188"><span class="lineNum">     188 </span>            :  * the coefficients can be computed after the normalization of the causal feedforward</a>
+<a name="189"><span class="lineNum">     189 </span>            :  * coefficients. */</a>
+<a name="190"><span class="lineNum">     190 </span><span class="lineCov">          2 : static double4 compute_non_causal_feedforward_coefficients(</span></a>
+<a name="191"><span class="lineNum">     191 </span>            :     const double4 &amp;causal_feedforward_coefficients, const double4 &amp;feedback_coefficients)</a>
+<a name="192"><span class="lineNum">     192 </span>            : {</a>
+<a name="193"><span class="lineNum">     193 </span><span class="lineCov">          2 :   const double n1 = causal_feedforward_coefficients[1] -</span></a>
+<a name="194"><span class="lineNum">     194 </span><span class="lineCov">          2 :                     feedback_coefficients[0] * causal_feedforward_coefficients[0];</span></a>
+<a name="195"><span class="lineNum">     195 </span><span class="lineCov">          2 :   const double n2 = causal_feedforward_coefficients[2] -</span></a>
+<a name="196"><span class="lineNum">     196 </span><span class="lineCov">          2 :                     feedback_coefficients[1] * causal_feedforward_coefficients[0];</span></a>
+<a name="197"><span class="lineNum">     197 </span><span class="lineCov">          2 :   const double n3 = causal_feedforward_coefficients[3] -</span></a>
+<a name="198"><span class="lineNum">     198 </span><span class="lineCov">          2 :                     feedback_coefficients[2] * causal_feedforward_coefficients[0];</span></a>
+<a name="199"><span class="lineNum">     199 </span><span class="lineCov">          2 :   const double n4 = -feedback_coefficients[3] * causal_feedforward_coefficients[0];</span></a>
+<a name="200"><span class="lineNum">     200 </span>            : </a>
+<a name="201"><span class="lineNum">     201 </span><span class="lineCov">          2 :   return double4(n1, n2, n3, n4);</span></a>
+<a name="202"><span class="lineNum">     202 </span>            : }</a>
+<a name="203"><span class="lineNum">     203 </span>            : </a>
+<a name="204"><span class="lineNum">     204 </span>            : /**</a>
+<a name="205"><span class="lineNum">     205 </span>            :  * The IIR filter difference equation relies on previous outputs to compute new outputs, those</a>
+<a name="206"><span class="lineNum">     206 </span>            :  * previous outputs are not really defined at the start of the filter. To do Neumann boundary</a>
+<a name="207"><span class="lineNum">     207 </span>            :  * condition, we initialize the previous output with a special value that is a function of the</a>
+<a name="208"><span class="lineNum">     208 </span>            :  * boundary value. This special value is computed by multiply the boundary value with a coefficient</a>
+<a name="209"><span class="lineNum">     209 </span>            :  * to simulate an infinite stream of the boundary value.</a>
+<a name="210"><span class="lineNum">     210 </span>            :  *</a>
+<a name="211"><span class="lineNum">     211 </span>            :  * The function for the coefficient can be derived by substituting the boundary value for previous</a>
+<a name="212"><span class="lineNum">     212 </span>            :  * inputs, equating all current and previous outputs to the same value, and finally rearranging to</a>
+<a name="213"><span class="lineNum">     213 </span>            :  * compute that same output value.</a>
+<a name="214"><span class="lineNum">     214 </span>            :  *</a>
+<a name="215"><span class="lineNum">     215 </span>            :  * Start by the difference equation where b_i are the feedforward coefficients and a_i are the</a>
+<a name="216"><span class="lineNum">     216 </span>            :  * feedback coefficients:</a>
+<a name="217"><span class="lineNum">     217 </span>            :  *</a>
+<a name="218"><span class="lineNum">     218 </span>            :  * \code{.tex}</a>
+<a name="219"><span class="lineNum">     219 </span>            :  * y[n] = \sum_{i = 0}^3 b_i x[n - i] - \sum_{i = 0}^3 a_i y[n - i]</a>
+<a name="220"><span class="lineNum">     220 </span>            :  * \endcode</a>
+<a name="221"><span class="lineNum">     221 </span>            :  *</a>
+<a name="222"><span class="lineNum">     222 </span>            :  * Assume all outputs are y and all inputs are x, which is the boundary value:</a>
+<a name="223"><span class="lineNum">     223 </span>            :  *</a>
+<a name="224"><span class="lineNum">     224 </span>            :  * \code{.tex}</a>
+<a name="225"><span class="lineNum">     225 </span>            :  * y = \sum_{i = 0}^3 b_i x - \sum_{i = 0}^3 a_i y</a>
+<a name="226"><span class="lineNum">     226 </span>            :  * \endcode</a>
+<a name="227"><span class="lineNum">     227 </span>            :  *</a>
+<a name="228"><span class="lineNum">     228 </span>            :  * Now rearrange to compute y:</a>
+<a name="229"><span class="lineNum">     229 </span>            :  *</a>
+<a name="230"><span class="lineNum">     230 </span>            :  * \code{.tex}</a>
+<a name="231"><span class="lineNum">     231 </span>            :  * y = x \sum_{i = 0}^3 b_i - y \sum_{i = 0}^3 a_i</a>
+<a name="232"><span class="lineNum">     232 </span>            :  * y + y \sum_{i = 0}^3 a_i = x \sum_{i = 0}^3 b_i</a>
+<a name="233"><span class="lineNum">     233 </span>            :  * y (1 + \sum_{i = 0}^3 a_i) = x \sum_{i = 0}^3 b_i</a>
+<a name="234"><span class="lineNum">     234 </span>            :  * y = x \cdot \frac{\sum_{i = 0}^3 b_i}{1 + \sum_{i = 0}^3 a_i}</a>
+<a name="235"><span class="lineNum">     235 </span>            :  * \endcode</a>
+<a name="236"><span class="lineNum">     236 </span>            :  *</a>
+<a name="237"><span class="lineNum">     237 </span>            :  * So our coefficient is the value that is multiplied by the boundary value x. Had x been zero,</a>
+<a name="238"><span class="lineNum">     238 </span>            :  * that is, we are doing Dirichlet boundary condition, the equations still hold.</a>
+<a name="239"><span class="lineNum">     239 </span>            :  */</a>
+<a name="240"><span class="lineNum">     240 </span><span class="lineCov">          4 : static double compute_boundary_coefficient(const double4 &amp;feedforward_coefficients,</span></a>
+<a name="241"><span class="lineNum">     241 </span>            :                                            const double4 &amp;feedback_coefficients)</a>
+<a name="242"><span class="lineNum">     242 </span>            : {</a>
+<a name="243"><span class="lineNum">     243 </span><span class="lineCov">          4 :   return math::reduce_add(feedforward_coefficients) /</span></a>
+<a name="244"><span class="lineNum">     244 </span><span class="lineCov">          4 :          (1.0 + math::reduce_add(feedback_coefficients));</span></a>
+<a name="245"><span class="lineNum">     245 </span>            : }</a>
+<a name="246"><span class="lineNum">     246 </span>            : </a>
+<a name="247"><span class="lineNum">     247 </span>            : /* Computes the feedback, causal feedforward, and non causal feedforward coefficients given a</a>
+<a name="248"><span class="lineNum">     248 </span>            :  * target Gaussian sigma value as used in Equations (28) and (29) in Deriche's paper. */</a>
+<a name="249"><span class="lineNum">     249 </span><span class="lineCov">          2 : DericheGaussianCoefficients::DericheGaussianCoefficients(Context &amp; /*context*/, float sigma)</span></a>
+<a name="250"><span class="lineNum">     250 </span>            : {</a>
+<a name="251"><span class="lineNum">     251 </span>            :   /* The numerator coefficients are the causal feedforward coefficients and the denominator</a>
+<a name="252"><span class="lineNum">     252 </span>            :    * coefficients are the feedback coefficients as can be seen in Equation (28). */</a>
+<a name="253"><span class="lineNum">     253 </span><span class="lineCov">          2 :   causal_feedforward_coefficients_ = compute_numerator(sigma);</span></a>
+<a name="254"><span class="lineNum">     254 </span><span class="lineCov">          2 :   feedback_coefficients_ = compute_denominator(sigma);</span></a>
+<a name="255"><span class="lineNum">     255 </span>            : </a>
+<a name="256"><span class="lineNum">     256 </span>            :   /* Normalize the feedforward coefficients as discussed in Section &quot;5.4 Normalization&quot; in</a>
+<a name="257"><span class="lineNum">     257 </span>            :    * Deriche's paper. Feedback coefficients do not need normalization. */</a>
+<a name="258"><span class="lineNum">     258 </span><span class="lineCov">          4 :   causal_feedforward_coefficients_ /= compute_normalization_scale(causal_feedforward_coefficients_,</span></a>
+<a name="259"><span class="lineNum">     259 </span><span class="lineCov">          2 :                                                                   feedback_coefficients_);</span></a>
+<a name="260"><span class="lineNum">     260 </span>            : </a>
+<a name="261"><span class="lineNum">     261 </span>            :   /* Compute the non causal feedforward coefficients from the feedback and normalized causal</a>
+<a name="262"><span class="lineNum">     262 </span>            :    * feedforward coefficients based on Equation (31) from Deriche's paper. Since the causal</a>
+<a name="263"><span class="lineNum">     263 </span>            :    * coefficients are already normalized, this doesn't need normalization. */</a>
+<a name="264"><span class="lineNum">     264 </span><span class="lineCov">          2 :   non_causal_feedforward_coefficients_ = compute_non_causal_feedforward_coefficients(</span></a>
+<a name="265"><span class="lineNum">     265 </span><span class="lineCov">          2 :       causal_feedforward_coefficients_, feedback_coefficients_);</span></a>
+<a name="266"><span class="lineNum">     266 </span>            : </a>
+<a name="267"><span class="lineNum">     267 </span>            :   /* Compute the boundary coefficient for both the causal and non causal filters. */</a>
+<a name="268"><span class="lineNum">     268 </span><span class="lineCov">          4 :   causal_boundary_coefficient_ = compute_boundary_coefficient(causal_feedforward_coefficients_,</span></a>
+<a name="269"><span class="lineNum">     269 </span><span class="lineCov">          2 :                                                               feedback_coefficients_);</span></a>
+<a name="270"><span class="lineNum">     270 </span><span class="lineCov">          4 :   non_causal_boundary_coefficient_ = compute_boundary_coefficient(</span></a>
+<a name="271"><span class="lineNum">     271 </span><span class="lineCov">          2 :       non_causal_feedforward_coefficients_, feedback_coefficients_);</span></a>
+<a name="272"><span class="lineNum">     272 </span><span class="lineCov">          2 : }</span></a>
+<a name="273"><span class="lineNum">     273 </span>            : </a>
+<a name="274"><span class="lineNum">     274 </span><span class="lineCov">          2 : const double4 &amp;DericheGaussianCoefficients::feedback_coefficients() const</span></a>
+<a name="275"><span class="lineNum">     275 </span>            : {</a>
+<a name="276"><span class="lineNum">     276 </span><span class="lineCov">          2 :   return feedback_coefficients_;</span></a>
+<a name="277"><span class="lineNum">     277 </span>            : }</a>
+<a name="278"><span class="lineNum">     278 </span>            : </a>
+<a name="279"><span class="lineNum">     279 </span><span class="lineCov">          2 : const double4 &amp;DericheGaussianCoefficients::causal_feedforward_coefficients() const</span></a>
+<a name="280"><span class="lineNum">     280 </span>            : {</a>
+<a name="281"><span class="lineNum">     281 </span><span class="lineCov">          2 :   return causal_feedforward_coefficients_;</span></a>
+<a name="282"><span class="lineNum">     282 </span>            : }</a>
+<a name="283"><span class="lineNum">     283 </span>            : </a>
+<a name="284"><span class="lineNum">     284 </span><span class="lineCov">          2 : const double4 &amp;DericheGaussianCoefficients::non_causal_feedforward_coefficients() const</span></a>
+<a name="285"><span class="lineNum">     285 </span>            : {</a>
+<a name="286"><span class="lineNum">     286 </span><span class="lineCov">          2 :   return non_causal_feedforward_coefficients_;</span></a>
+<a name="287"><span class="lineNum">     287 </span>            : }</a>
+<a name="288"><span class="lineNum">     288 </span>            : </a>
+<a name="289"><span class="lineNum">     289 </span><span class="lineCov">          2 : double DericheGaussianCoefficients::causal_boundary_coefficient() const</span></a>
+<a name="290"><span class="lineNum">     290 </span>            : {</a>
+<a name="291"><span class="lineNum">     291 </span><span class="lineCov">          2 :   return causal_boundary_coefficient_;</span></a>
+<a name="292"><span class="lineNum">     292 </span>            : }</a>
+<a name="293"><span class="lineNum">     293 </span>            : </a>
+<a name="294"><span class="lineNum">     294 </span><span class="lineCov">          2 : double DericheGaussianCoefficients::non_causal_boundary_coefficient() const</span></a>
+<a name="295"><span class="lineNum">     295 </span>            : {</a>
+<a name="296"><span class="lineNum">     296 </span><span class="lineCov">          2 :   return non_causal_boundary_coefficient_;</span></a>
+<a name="297"><span class="lineNum">     297 </span>            : }</a>
+<a name="298"><span class="lineNum">     298 </span>            : </a>
+<a name="299"><span class="lineNum">     299 </span>            : /* --------------------------------------------------------------------</a>
+<a name="300"><span class="lineNum">     300 </span>            :  * Deriche Gaussian Coefficients Container.</a>
+<a name="301"><span class="lineNum">     301 </span>            :  */</a>
+<a name="302"><span class="lineNum">     302 </span>            : </a>
+<a name="303"><span class="lineNum">     303 </span><span class="lineCov">       1130 : void DericheGaussianCoefficientsContainer::reset()</span></a>
+<a name="304"><span class="lineNum">     304 </span>            : {</a>
+<a name="305"><span class="lineNum">     305 </span>            :   /* First, delete all resources that are no longer needed. */</a>
+<a name="306"><span class="lineNum">     306 </span><span class="lineCov">       1134 :   map_.remove_if([](auto item) { return !item.value-&gt;needed; });</span></a>
+<a name="307"><span class="lineNum">     307 </span>            : </a>
+<a name="308"><span class="lineNum">     308 </span>            :   /* Second, reset the needed status of the remaining resources to false to ready them to track</a>
+<a name="309"><span class="lineNum">     309 </span>            :    * their needed status for the next evaluation. */</a>
+<a name="310"><span class="lineNum">     310 </span><span class="lineCov">       1132 :   for (auto &amp;value : map_.values()) {</span></a>
+<a name="311"><span class="lineNum">     311 </span><span class="lineCov">          2 :     value-&gt;needed = false;</span></a>
+<a name="312"><span class="lineNum">     312 </span>            :   }</a>
+<a name="313"><span class="lineNum">     313 </span><span class="lineCov">       1130 : }</span></a>
+<a name="314"><span class="lineNum">     314 </span>            : </a>
+<a name="315"><span class="lineNum">     315 </span><span class="lineCov">          2 : DericheGaussianCoefficients &amp;DericheGaussianCoefficientsContainer::get(Context &amp;context,</span></a>
+<a name="316"><span class="lineNum">     316 </span>            :                                                                        float sigma)</a>
+<a name="317"><span class="lineNum">     317 </span>            : {</a>
+<a name="318"><span class="lineNum">     318 </span><span class="lineCov">          2 :   const DericheGaussianCoefficientsKey key(sigma);</span></a>
+<a name="319"><span class="lineNum">     319 </span>            : </a>
+<a name="320"><span class="lineNum">     320 </span><span class="lineCov">          4 :   auto &amp;deriche_gaussian_coefficients = *map_.lookup_or_add_cb(</span></a>
+<a name="321"><span class="lineNum">     321 </span><span class="lineCov">          4 :       key, [&amp;]() { return std::make_unique&lt;DericheGaussianCoefficients&gt;(context, sigma); });</span></a>
+<a name="322"><span class="lineNum">     322 </span>            : </a>
+<a name="323"><span class="lineNum">     323 </span><span class="lineCov">          2 :   deriche_gaussian_coefficients.needed = true;</span></a>
+<a name="324"><span class="lineNum">     324 </span><span class="lineCov">          2 :   return deriche_gaussian_coefficients;</span></a>
+<a name="325"><span class="lineNum">     325 </span>            : }</a>
+<a name="326"><span class="lineNum">     326 </span>            : </a>
+<a name="327"><span class="lineNum">     327 </span>            : }  // namespace blender::compositor</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

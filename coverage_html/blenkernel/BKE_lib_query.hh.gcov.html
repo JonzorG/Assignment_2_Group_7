@@ -1,0 +1,594 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - blenkernel/BKE_lib_query.hh</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">blenkernel</a> - BKE_lib_query.hh<span style="font-size: 80%;"> (source / <a href="BKE_lib_query.hh.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2014 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : #pragma once</a>
+<a name="5"><span class="lineNum">       5 </span>            : </a>
+<a name="6"><span class="lineNum">       6 </span>            : /** \file</a>
+<a name="7"><span class="lineNum">       7 </span>            :  * \ingroup bke</a>
+<a name="8"><span class="lineNum">       8 </span>            :  *</a>
+<a name="9"><span class="lineNum">       9 </span>            :  * API to perform operations over all ID pointers used by a given data-block.</a>
+<a name="10"><span class="lineNum">      10 </span>            :  *</a>
+<a name="11"><span class="lineNum">      11 </span>            :  * \note `BKE_lib_` files are for operations over data-blocks themselves, although they might</a>
+<a name="12"><span class="lineNum">      12 </span>            :  * alter Main as well (when creating/renaming/deleting an ID e.g.).</a>
+<a name="13"><span class="lineNum">      13 </span>            :  *</a>
+<a name="14"><span class="lineNum">      14 </span>            :  * \section Function Names</a>
+<a name="15"><span class="lineNum">      15 </span>            :  *</a>
+<a name="16"><span class="lineNum">      16 </span>            :  * \warning Descriptions below is ideal goal, current status of naming does not yet fully follow it</a>
+<a name="17"><span class="lineNum">      17 </span>            :  * (this is WIP).</a>
+<a name="18"><span class="lineNum">      18 </span>            :  *</a>
+<a name="19"><span class="lineNum">      19 </span>            :  * - `BKE_lib_query_` should be used for functions in that file.</a>
+<a name="20"><span class="lineNum">      20 </span>            :  */</a>
+<a name="21"><span class="lineNum">      21 </span>            : </a>
+<a name="22"><span class="lineNum">      22 </span>            : #include &quot;DNA_ID.h&quot;</a>
+<a name="23"><span class="lineNum">      23 </span>            : </a>
+<a name="24"><span class="lineNum">      24 </span>            : #include &quot;BLI_enum_flags.hh&quot;</a>
+<a name="25"><span class="lineNum">      25 </span>            : #include &quot;BLI_function_ref.hh&quot;</a>
+<a name="26"><span class="lineNum">      26 </span>            : </a>
+<a name="27"><span class="lineNum">      27 </span>            : #include &lt;array&gt;</a>
+<a name="28"><span class="lineNum">      28 </span>            : </a>
+<a name="29"><span class="lineNum">      29 </span>            : namespace blender {</a>
+<a name="30"><span class="lineNum">      30 </span>            : </a>
+<a name="31"><span class="lineNum">      31 </span>            : struct IDTypeInfo;</a>
+<a name="32"><span class="lineNum">      32 </span>            : struct LibraryForeachIDData;</a>
+<a name="33"><span class="lineNum">      33 </span>            : struct Main;</a>
+<a name="34"><span class="lineNum">      34 </span>            : </a>
+<a name="35"><span class="lineNum">      35 </span>            : /* Tips for the callback for cases it's gonna to modify the pointer. */</a>
+<a name="36"><span class="lineNum">      36 </span>            : enum LibraryForeachIDCallbackFlag {</a>
+<a name="37"><span class="lineNum">      37 </span>            :   IDWALK_CB_NOP = 0,</a>
+<a name="38"><span class="lineNum">      38 </span>            :   IDWALK_CB_NEVER_NULL = (1 &lt;&lt; 0),</a>
+<a name="39"><span class="lineNum">      39 </span>            :   IDWALK_CB_NEVER_SELF = (1 &lt;&lt; 1),</a>
+<a name="40"><span class="lineNum">      40 </span>            : </a>
+<a name="41"><span class="lineNum">      41 </span>            :   /**</a>
+<a name="42"><span class="lineNum">      42 </span>            :    * Indicates whether this is direct (i.e. by local data) or indirect (i.e. by linked data) usage.</a>
+<a name="43"><span class="lineNum">      43 </span>            :    */</a>
+<a name="44"><span class="lineNum">      44 </span>            :   IDWALK_CB_INDIRECT_USAGE = (1 &lt;&lt; 2),</a>
+<a name="45"><span class="lineNum">      45 </span>            :   /**</a>
+<a name="46"><span class="lineNum">      46 </span>            :    * Indicates that this is a direct weak link usage, i.e. if the user is a local ID, and is using</a>
+<a name="47"><span class="lineNum">      47 </span>            :    * (pointing to) a linked ID, that usage does not make the linked ID directly linked.</a>
+<a name="48"><span class="lineNum">      48 </span>            :    *</a>
+<a name="49"><span class="lineNum">      49 </span>            :    * E.g. usages of linked collections or objects by ViewLayerCollections or Bases in scenes.</a>
+<a name="50"><span class="lineNum">      50 </span>            :    *</a>
+<a name="51"><span class="lineNum">      51 </span>            :    * Also used for most Editors ID usages (active node tree in the Node editor, shown image in the</a>
+<a name="52"><span class="lineNum">      52 </span>            :    * Image editor, and so on).</a>
+<a name="53"><span class="lineNum">      53 </span>            :    *</a>
+<a name="54"><span class="lineNum">      54 </span>            :    * See also #ID_FLAG_INDIRECT_WEAK_LINK in DNA_ID.h</a>
+<a name="55"><span class="lineNum">      55 </span>            :    */</a>
+<a name="56"><span class="lineNum">      56 </span>            :   IDWALK_CB_DIRECT_WEAK_LINK = (1 &lt;&lt; 3),</a>
+<a name="57"><span class="lineNum">      57 </span>            : </a>
+<a name="58"><span class="lineNum">      58 </span>            :   /**</a>
+<a name="59"><span class="lineNum">      59 </span>            :    * That ID is used as mere sub-data by its owner (only case currently: those root node-trees in</a>
+<a name="60"><span class="lineNum">      60 </span>            :    * materials etc., and the Scene's master collections).</a>
+<a name="61"><span class="lineNum">      61 </span>            :    * This means callback shall not *do* anything, only use this as informative data if it needs it.</a>
+<a name="62"><span class="lineNum">      62 </span>            :    */</a>
+<a name="63"><span class="lineNum">      63 </span>            :   IDWALK_CB_EMBEDDED = (1 &lt;&lt; 4),</a>
+<a name="64"><span class="lineNum">      64 </span>            :   /**</a>
+<a name="65"><span class="lineNum">      65 </span>            :    * That ID pointer points to an embedded ID, but does not own it.</a>
+<a name="66"><span class="lineNum">      66 </span>            :    *</a>
+<a name="67"><span class="lineNum">      67 </span>            :    * E.g the `collection` pointer of the first ViewLayerCollection of a ViewLayer should always</a>
+<a name="68"><span class="lineNum">      68 </span>            :    * point to the scene's master collection, which is an embedded ID 'owned' by</a>
+<a name="69"><span class="lineNum">      69 </span>            :    * `Scene.master_collection`.</a>
+<a name="70"><span class="lineNum">      70 </span>            :    */</a>
+<a name="71"><span class="lineNum">      71 </span>            :   IDWALK_CB_EMBEDDED_NOT_OWNING = (1 &lt;&lt; 5),</a>
+<a name="72"><span class="lineNum">      72 </span>            : </a>
+<a name="73"><span class="lineNum">      73 </span>            :   /**</a>
+<a name="74"><span class="lineNum">      74 </span>            :    * That ID is not really used by its owner, it's just an internal hint/helper.</a>
+<a name="75"><span class="lineNum">      75 </span>            :    * This marks the 'from' pointers issue, like Key-&gt;from.</a>
+<a name="76"><span class="lineNum">      76 </span>            :    * How to handle that kind of cases totally depends on what caller code is doing...</a>
+<a name="77"><span class="lineNum">      77 </span>            :    */</a>
+<a name="78"><span class="lineNum">      78 </span>            :   IDWALK_CB_LOOPBACK = (1 &lt;&lt; 6),</a>
+<a name="79"><span class="lineNum">      79 </span>            : </a>
+<a name="80"><span class="lineNum">      80 </span>            :   /**</a>
+<a name="81"><span class="lineNum">      81 </span>            :    * Indicates that this is an internal runtime ID pointer, like e.g. `ID.newid` or `ID.original`.</a>
+<a name="82"><span class="lineNum">      82 </span>            :    * \note Those should be ignored in most cases, and won't be processed/generated anyway unless</a>
+<a name="83"><span class="lineNum">      83 </span>            :    * `IDWALK_DO_INTERNAL_RUNTIME_POINTERS` option is enabled.</a>
+<a name="84"><span class="lineNum">      84 </span>            :    */</a>
+<a name="85"><span class="lineNum">      85 </span>            :   IDWALK_CB_INTERNAL = (1 &lt;&lt; 9),</a>
+<a name="86"><span class="lineNum">      86 </span>            : </a>
+<a name="87"><span class="lineNum">      87 </span>            :   /**</a>
+<a name="88"><span class="lineNum">      88 </span>            :    * This ID usage should not be processed during readfile (neither during lib-linking nor</a>
+<a name="89"><span class="lineNum">      89 </span>            :    * expanding).</a>
+<a name="90"><span class="lineNum">      90 </span>            :    *</a>
+<a name="91"><span class="lineNum">      91 </span>            :    * Note that all embedded IDs pointers (#IDWALK_CB_EMBEDDED and #IDWALK_CB_EMBEDDED_NOT_OWNING)</a>
+<a name="92"><span class="lineNum">      92 </span>            :    * cases are also ignored during readfile.</a>
+<a name="93"><span class="lineNum">      93 </span>            :    *</a>
+<a name="94"><span class="lineNum">      94 </span>            :    * Mainly used for some 'loop-back' pointers like the 'owner_id' of the embedded IDs.</a>
+<a name="95"><span class="lineNum">      95 </span>            :    */</a>
+<a name="96"><span class="lineNum">      96 </span>            :   IDWALK_CB_READFILE_IGNORE = (1 &lt;&lt; 10),</a>
+<a name="97"><span class="lineNum">      97 </span>            :   /**</a>
+<a name="98"><span class="lineNum">      98 </span>            :    * This ID usage should not be processed during writefile.</a>
+<a name="99"><span class="lineNum">      99 </span>            :    *</a>
+<a name="100"><span class="lineNum">     100 </span>            :    * Mainly used to avoid explicit reference to some linked data from UI, like e.g. the Outliner</a>
+<a name="101"><span class="lineNum">     101 </span>            :    * making all IDs 'directly linked'..</a>
+<a name="102"><span class="lineNum">     102 </span>            :    */</a>
+<a name="103"><span class="lineNum">     103 </span>            :   IDWALK_CB_WRITEFILE_IGNORE = (1 &lt;&lt; 11),</a>
+<a name="104"><span class="lineNum">     104 </span>            : </a>
+<a name="105"><span class="lineNum">     105 </span>            :   /**</a>
+<a name="106"><span class="lineNum">     106 </span>            :    * This ID usage is fully refcounted.</a>
+<a name="107"><span class="lineNum">     107 </span>            :    * Callback is responsible to deal accordingly with #ID.us if needed.</a>
+<a name="108"><span class="lineNum">     108 </span>            :    */</a>
+<a name="109"><span class="lineNum">     109 </span>            :   IDWALK_CB_USER = (1 &lt;&lt; 12),</a>
+<a name="110"><span class="lineNum">     110 </span>            :   /**</a>
+<a name="111"><span class="lineNum">     111 </span>            :    * This ID usage is not refcounted, but at least one user should be generated by it (to avoid</a>
+<a name="112"><span class="lineNum">     112 </span>            :    * e.g. losing the used ID on save/reload).</a>
+<a name="113"><span class="lineNum">     113 </span>            :    * Callback is responsible to deal accordingly with #ID.us if needed.</a>
+<a name="114"><span class="lineNum">     114 </span>            :    */</a>
+<a name="115"><span class="lineNum">     115 </span>            :   IDWALK_CB_USER_ONE = (1 &lt;&lt; 13),</a>
+<a name="116"><span class="lineNum">     116 </span>            : </a>
+<a name="117"><span class="lineNum">     117 </span>            :   /** This ID is used as library override's reference by its owner. */</a>
+<a name="118"><span class="lineNum">     118 </span>            :   IDWALK_CB_OVERRIDE_LIBRARY_REFERENCE = (1 &lt;&lt; 16),</a>
+<a name="119"><span class="lineNum">     119 </span>            : </a>
+<a name="120"><span class="lineNum">     120 </span>            :   /** This ID is used as library override's hierarchy root by its owner. */</a>
+<a name="121"><span class="lineNum">     121 </span>            :   IDWALK_CB_OVERRIDE_LIBRARY_HIERARCHY_ROOT = (1 &lt;&lt; 17),</a>
+<a name="122"><span class="lineNum">     122 </span>            : </a>
+<a name="123"><span class="lineNum">     123 </span>            :   /** This ID pointer is not overridable. */</a>
+<a name="124"><span class="lineNum">     124 </span>            :   IDWALK_CB_OVERRIDE_LIBRARY_NOT_OVERRIDABLE = (1 &lt;&lt; 18),</a>
+<a name="125"><span class="lineNum">     125 </span>            : </a>
+<a name="126"><span class="lineNum">     126 </span>            :   /** This ID pointer is expected to be overridden by default, in liboverride hierarchy context. */</a>
+<a name="127"><span class="lineNum">     127 </span>            :   IDWALK_CB_OVERRIDE_LIBRARY_HIERARCHY_DEFAULT = (1 &lt;&lt; 19),</a>
+<a name="128"><span class="lineNum">     128 </span>            : </a>
+<a name="129"><span class="lineNum">     129 </span>            :   /** This ID pointer is runtime data and it should not affect the ID.deep_hash computation. */</a>
+<a name="130"><span class="lineNum">     130 </span>            :   IDWALK_CB_HASH_IGNORE = (1 &lt;&lt; 20),</a>
+<a name="131"><span class="lineNum">     131 </span>            : };</a>
+<a name="132"><span class="lineNum">     132 </span><span class="lineCov"> 2966498050 : ENUM_OPERATORS(LibraryForeachIDCallbackFlag);</span></a>
+<a name="133"><span class="lineNum">     133 </span>            : </a>
+<a name="134"><span class="lineNum">     134 </span>            : enum {</a>
+<a name="135"><span class="lineNum">     135 </span>            :   IDWALK_RET_NOP = 0,</a>
+<a name="136"><span class="lineNum">     136 </span>            :   /**</a>
+<a name="137"><span class="lineNum">     137 </span>            :    * Completely stop iteration.</a>
+<a name="138"><span class="lineNum">     138 </span>            :    *</a>
+<a name="139"><span class="lineNum">     139 </span>            :    * \note Should never be returned by a callback in case #IDWALK_READONLY is not set.</a>
+<a name="140"><span class="lineNum">     140 </span>            :    */</a>
+<a name="141"><span class="lineNum">     141 </span>            :   IDWALK_RET_STOP_ITER = 1 &lt;&lt; 0,</a>
+<a name="142"><span class="lineNum">     142 </span>            :   /**</a>
+<a name="143"><span class="lineNum">     143 </span>            :    * Stop recursion, that is, do not loop over ID used by current one.</a>
+<a name="144"><span class="lineNum">     144 </span>            :    *</a>
+<a name="145"><span class="lineNum">     145 </span>            :    * \note Should never be returned by a callback in case #IDWALK_READONLY is not set.</a>
+<a name="146"><span class="lineNum">     146 </span>            :    */</a>
+<a name="147"><span class="lineNum">     147 </span>            :   IDWALK_RET_STOP_RECURSION = 1 &lt;&lt; 1,</a>
+<a name="148"><span class="lineNum">     148 </span>            : };</a>
+<a name="149"><span class="lineNum">     149 </span>            : </a>
+<a name="150"><span class="lineNum">     150 </span>            : struct LibraryIDLinkCallbackData {</a>
+<a name="151"><span class="lineNum">     151 </span>            :   void *user_data;</a>
+<a name="152"><span class="lineNum">     152 </span>            :   /** Main database used to call `BKE_library_foreach_ID_link()`. */</a>
+<a name="153"><span class="lineNum">     153 </span>            :   Main *bmain;</a>
+<a name="154"><span class="lineNum">     154 </span>            :   /**</a>
+<a name="155"><span class="lineNum">     155 </span>            :    * 'Real' ID, the one that might be in bmain, only differs from self_id when the later is an</a>
+<a name="156"><span class="lineNum">     156 </span>            :    * embedded one.</a>
+<a name="157"><span class="lineNum">     157 </span>            :    */</a>
+<a name="158"><span class="lineNum">     158 </span>            :   ID *owner_id;</a>
+<a name="159"><span class="lineNum">     159 </span>            :   /**</a>
+<a name="160"><span class="lineNum">     160 </span>            :    * ID from which the current ID pointer is being processed. It may be an embedded ID like master</a>
+<a name="161"><span class="lineNum">     161 </span>            :    * collection or root node tree.</a>
+<a name="162"><span class="lineNum">     162 </span>            :    */</a>
+<a name="163"><span class="lineNum">     163 </span>            :   ID *self_id;</a>
+<a name="164"><span class="lineNum">     164 </span>            :   ID **id_pointer;</a>
+<a name="165"><span class="lineNum">     165 </span>            :   LibraryForeachIDCallbackFlag cb_flag;</a>
+<a name="166"><span class="lineNum">     166 </span>            : };</a>
+<a name="167"><span class="lineNum">     167 </span>            : </a>
+<a name="168"><span class="lineNum">     168 </span>            : /**</a>
+<a name="169"><span class="lineNum">     169 </span>            :  * Call a callback for each ID link which the given ID uses.</a>
+<a name="170"><span class="lineNum">     170 </span>            :  *</a>
+<a name="171"><span class="lineNum">     171 </span>            :  * \return a set of flags to control further iteration (0 to keep going).</a>
+<a name="172"><span class="lineNum">     172 </span>            :  */</a>
+<a name="173"><span class="lineNum">     173 </span>            : using LibraryIDLinkCallback = int(LibraryIDLinkCallbackData *cb_data);</a>
+<a name="174"><span class="lineNum">     174 </span>            : </a>
+<a name="175"><span class="lineNum">     175 </span>            : /* Flags for the foreach function itself. */</a>
+<a name="176"><span class="lineNum">     176 </span>            : enum LibraryForeachIDFlag {</a>
+<a name="177"><span class="lineNum">     177 </span>            :   IDWALK_NOP = 0,</a>
+<a name="178"><span class="lineNum">     178 </span>            :   /**</a>
+<a name="179"><span class="lineNum">     179 </span>            :    * The callback will never modify the ID pointers it processes.</a>
+<a name="180"><span class="lineNum">     180 </span>            :    * WARNING: It is very important to pass this flag when valid, as it can lead to important</a>
+<a name="181"><span class="lineNum">     181 </span>            :    * optimizations and debug/assert code.</a>
+<a name="182"><span class="lineNum">     182 </span>            :    */</a>
+<a name="183"><span class="lineNum">     183 </span>            :   IDWALK_READONLY = (1 &lt;&lt; 0),</a>
+<a name="184"><span class="lineNum">     184 </span>            :   /**</a>
+<a name="185"><span class="lineNum">     185 </span>            :    * Recurse into 'descendant' IDs.</a>
+<a name="186"><span class="lineNum">     186 </span>            :    * Each ID is only processed once. Order of ID processing is not guaranteed.</a>
+<a name="187"><span class="lineNum">     187 </span>            :    *</a>
+<a name="188"><span class="lineNum">     188 </span>            :    * Also implies #IDWALK_READONLY, and excludes #IDWALK_DO_INTERNAL_RUNTIME_POINTERS.</a>
+<a name="189"><span class="lineNum">     189 </span>            :    *</a>
+<a name="190"><span class="lineNum">     190 </span>            :    * NOTE: When enabled, embedded IDs are processed separately from their owner, as if they were</a>
+<a name="191"><span class="lineNum">     191 </span>            :    * regular IDs. The owner ID remains available in the #LibraryForeachIDData callback data, unless</a>
+<a name="192"><span class="lineNum">     192 </span>            :    * #IDWALK_IGNORE_MISSING_OWNER_ID is passed.</a>
+<a name="193"><span class="lineNum">     193 </span>            :    */</a>
+<a name="194"><span class="lineNum">     194 </span>            :   IDWALK_RECURSE = (1 &lt;&lt; 1),</a>
+<a name="195"><span class="lineNum">     195 </span>            :   /** Include UI pointers (from WM and screens editors). */</a>
+<a name="196"><span class="lineNum">     196 </span>            :   IDWALK_INCLUDE_UI = (1 &lt;&lt; 2),</a>
+<a name="197"><span class="lineNum">     197 </span>            :   /** Do not process ID pointers inside embedded IDs. Needed by depsgraph processing e.g. */</a>
+<a name="198"><span class="lineNum">     198 </span>            :   IDWALK_IGNORE_EMBEDDED_ID = (1 &lt;&lt; 3),</a>
+<a name="199"><span class="lineNum">     199 </span>            : </a>
+<a name="200"><span class="lineNum">     200 </span>            :   /**</a>
+<a name="201"><span class="lineNum">     201 </span>            :    * Do not access original processed pointer's data, only process its address value.</a>
+<a name="202"><span class="lineNum">     202 </span>            :    *</a>
+<a name="203"><span class="lineNum">     203 </span>            :    * This is required in cases where to current address may not be valid anymore (e.g. during</a>
+<a name="204"><span class="lineNum">     204 </span>            :    * readfile process). A few ID pointers (like e.g. the `LayerCollection.collection` one) are by</a>
+<a name="205"><span class="lineNum">     205 </span>            :    * default accessed to check things (e.g. whether they are pointing to an embedded ID or a</a>
+<a name="206"><span class="lineNum">     206 </span>            :    * regular one).</a>
+<a name="207"><span class="lineNum">     207 </span>            :    *</a>
+<a name="208"><span class="lineNum">     208 </span>            :    * \note Access to owning embedded ID pointers (e.g. `Scene.master_collection`) is not affected</a>
+<a name="209"><span class="lineNum">     209 </span>            :    * here, these are presumed always valid.</a>
+<a name="210"><span class="lineNum">     210 </span>            :    *</a>
+<a name="211"><span class="lineNum">     211 </span>            :    * \note This flag is mutually exclusive with `IDWALK_RECURSE`, since by definition accessing the</a>
+<a name="212"><span class="lineNum">     212 </span>            :    * current ID pointer is required for recursion.</a>
+<a name="213"><span class="lineNum">     213 </span>            :    *</a>
+<a name="214"><span class="lineNum">     214 </span>            :    * \note Also implies #IDWALK_IGNORE_MISSING_OWNER_ID.</a>
+<a name="215"><span class="lineNum">     215 </span>            :    *</a>
+<a name="216"><span class="lineNum">     216 </span>            :    * \note After remapping, code may access the newly set ID pointer, which is always presumed</a>
+<a name="217"><span class="lineNum">     217 </span>            :    * valid.</a>
+<a name="218"><span class="lineNum">     218 </span>            :    *</a>
+<a name="219"><span class="lineNum">     219 </span>            :    * \warning Use only with great caution, this flag will modify the handling of some ID pointers</a>
+<a name="220"><span class="lineNum">     220 </span>            :    * (especially when it comes to detecting `IDWALK_CB_EMBEDDED_NOT_OWNING` usages).</a>
+<a name="221"><span class="lineNum">     221 </span>            :    */</a>
+<a name="222"><span class="lineNum">     222 </span>            :   IDWALK_NO_ORIG_POINTERS_ACCESS = (1 &lt;&lt; 5),</a>
+<a name="223"><span class="lineNum">     223 </span>            :   /**</a>
+<a name="224"><span class="lineNum">     224 </span>            :    * Do not attempt to find the owner ID of an embedded one if not explicitly given.</a>
+<a name="225"><span class="lineNum">     225 </span>            :    *</a>
+<a name="226"><span class="lineNum">     226 </span>            :    * \note This is needed in some cases, when the loop-back 'owner' ID pointer of the processed</a>
+<a name="227"><span class="lineNum">     227 </span>            :    * embedded data is known to be invalid (as part of depsgraph ID copying code, where embedded IDs</a>
+<a name="228"><span class="lineNum">     228 </span>            :    * are mostly processed on their own, separately from their owner ID).</a>
+<a name="229"><span class="lineNum">     229 </span>            :    *</a>
+<a name="230"><span class="lineNum">     230 </span>            :    * \note Also implied by #IDWALK_NO_ORIG_POINTERS_ACCESS.</a>
+<a name="231"><span class="lineNum">     231 </span>            :    */</a>
+<a name="232"><span class="lineNum">     232 </span>            :   IDWALK_IGNORE_MISSING_OWNER_ID = (1 &lt;&lt; 6),</a>
+<a name="233"><span class="lineNum">     233 </span>            : </a>
+<a name="234"><span class="lineNum">     234 </span>            :   /**</a>
+<a name="235"><span class="lineNum">     235 </span>            :    * Also process internal ID pointers like `ID.newid` or `ID.orig_id`.</a>
+<a name="236"><span class="lineNum">     236 </span>            :    * WARNING: Dangerous, use with caution.</a>
+<a name="237"><span class="lineNum">     237 </span>            :    */</a>
+<a name="238"><span class="lineNum">     238 </span>            :   IDWALK_DO_INTERNAL_RUNTIME_POINTERS = (1 &lt;&lt; 9),</a>
+<a name="239"><span class="lineNum">     239 </span>            :   /**</a>
+<a name="240"><span class="lineNum">     240 </span>            :    * Also process the ID.lib pointer. It is an option because this pointer can usually be fully</a>
+<a name="241"><span class="lineNum">     241 </span>            :    * ignored.</a>
+<a name="242"><span class="lineNum">     242 </span>            :    */</a>
+<a name="243"><span class="lineNum">     243 </span>            :   IDWALK_DO_LIBRARY_POINTER = (1 &lt;&lt; 10),</a>
+<a name="244"><span class="lineNum">     244 </span>            :   /**</a>
+<a name="245"><span class="lineNum">     245 </span>            :    * Also process the DNA-deprecated pointers. Should only be used in readfile related code</a>
+<a name="246"><span class="lineNum">     246 </span>            :    * (for proper lib_linking and expanding of older files).</a>
+<a name="247"><span class="lineNum">     247 </span>            :    */</a>
+<a name="248"><span class="lineNum">     248 </span>            :   IDWALK_DO_DEPRECATED_POINTERS = (1 &lt;&lt; 11),</a>
+<a name="249"><span class="lineNum">     249 </span>            : };</a>
+<a name="250"><span class="lineNum">     250 </span><span class="lineCov"> 1008528136 : ENUM_OPERATORS(LibraryForeachIDFlag);</span></a>
+<a name="251"><span class="lineNum">     251 </span>            : </a>
+<a name="252"><span class="lineNum">     252 </span>            : /**</a>
+<a name="253"><span class="lineNum">     253 </span>            :  * Check whether current iteration over ID usages should be stopped or not.</a>
+<a name="254"><span class="lineNum">     254 </span>            :  * \return true if the iteration should be stopped, false otherwise.</a>
+<a name="255"><span class="lineNum">     255 </span>            :  */</a>
+<a name="256"><span class="lineNum">     256 </span>            : bool BKE_lib_query_foreachid_iter_stop(const LibraryForeachIDData *data);</a>
+<a name="257"><span class="lineNum">     257 </span>            : void BKE_lib_query_foreachid_process(LibraryForeachIDData *data,</a>
+<a name="258"><span class="lineNum">     258 </span>            :                                      ID **id_pp,</a>
+<a name="259"><span class="lineNum">     259 </span>            :                                      LibraryForeachIDCallbackFlag cb_flag);</a>
+<a name="260"><span class="lineNum">     260 </span>            : LibraryForeachIDFlag BKE_lib_query_foreachid_process_flags_get(const LibraryForeachIDData *data);</a>
+<a name="261"><span class="lineNum">     261 </span>            : Main *BKE_lib_query_foreachid_process_main_get(const LibraryForeachIDData *data);</a>
+<a name="262"><span class="lineNum">     262 </span>            : int BKE_lib_query_foreachid_process_callback_flag_override(LibraryForeachIDData *data,</a>
+<a name="263"><span class="lineNum">     263 </span>            :                                                            LibraryForeachIDCallbackFlag cb_flag,</a>
+<a name="264"><span class="lineNum">     264 </span>            :                                                            bool do_replace);</a>
+<a name="265"><span class="lineNum">     265 </span>            : </a>
+<a name="266"><span class="lineNum">     266 </span>            : /** Should typically only be used when processing deprecated ID types (like IPO ones). */</a>
+<a name="267"><span class="lineNum">     267 </span>            : #define BKE_LIB_FOREACHID_PROCESS_ID_NOCHECK(data_, id_, cb_flag_) \</a>
+<a name="268"><span class="lineNum">     268 </span>            :   { \</a>
+<a name="269"><span class="lineNum">     269 </span>            :     BKE_lib_query_foreachid_process((data_), (ID **)&amp;(id_), (cb_flag_)); \</a>
+<a name="270"><span class="lineNum">     270 </span>            :     if (BKE_lib_query_foreachid_iter_stop((data_))) { \</a>
+<a name="271"><span class="lineNum">     271 </span>            :       return; \</a>
+<a name="272"><span class="lineNum">     272 </span>            :     } \</a>
+<a name="273"><span class="lineNum">     273 </span>            :   } \</a>
+<a name="274"><span class="lineNum">     274 </span>            :   ((void)0)</a>
+<a name="275"><span class="lineNum">     275 </span>            : </a>
+<a name="276"><span class="lineNum">     276 </span>            : #define BKE_LIB_FOREACHID_PROCESS_ID(data_, id_, cb_flag_) \</a>
+<a name="277"><span class="lineNum">     277 </span>            :   { \</a>
+<a name="278"><span class="lineNum">     278 </span>            :     CHECK_TYPE_ANY((id_), ID *, void *); \</a>
+<a name="279"><span class="lineNum">     279 </span>            :     BKE_LIB_FOREACHID_PROCESS_ID_NOCHECK(data_, id_, cb_flag_); \</a>
+<a name="280"><span class="lineNum">     280 </span>            :   } \</a>
+<a name="281"><span class="lineNum">     281 </span>            :   ((void)0)</a>
+<a name="282"><span class="lineNum">     282 </span>            : </a>
+<a name="283"><span class="lineNum">     283 </span>            : #define BKE_LIB_FOREACHID_PROCESS_IDSUPER_P(data_, id_super_p_, cb_flag_) \</a>
+<a name="284"><span class="lineNum">     284 </span>            :   { \</a>
+<a name="285"><span class="lineNum">     285 </span>            :     CHECK_TYPE(&amp;((*(id_super_p_))-&gt;id), ID *); \</a>
+<a name="286"><span class="lineNum">     286 </span>            :     BKE_lib_query_foreachid_process((data_), (ID **)(id_super_p_), (cb_flag_)); \</a>
+<a name="287"><span class="lineNum">     287 </span>            :     if (BKE_lib_query_foreachid_iter_stop((data_))) { \</a>
+<a name="288"><span class="lineNum">     288 </span>            :       return; \</a>
+<a name="289"><span class="lineNum">     289 </span>            :     } \</a>
+<a name="290"><span class="lineNum">     290 </span>            :   } \</a>
+<a name="291"><span class="lineNum">     291 </span>            :   ((void)0)</a>
+<a name="292"><span class="lineNum">     292 </span>            : </a>
+<a name="293"><span class="lineNum">     293 </span>            : #define BKE_LIB_FOREACHID_PROCESS_IDSUPER(data_, id_super_, cb_flag_) \</a>
+<a name="294"><span class="lineNum">     294 </span>            :   { \</a>
+<a name="295"><span class="lineNum">     295 </span>            :     BKE_LIB_FOREACHID_PROCESS_IDSUPER_P(data_, &amp;(id_super_), cb_flag_); \</a>
+<a name="296"><span class="lineNum">     296 </span>            :   } \</a>
+<a name="297"><span class="lineNum">     297 </span>            :   ((void)0)</a>
+<a name="298"><span class="lineNum">     298 </span>            : </a>
+<a name="299"><span class="lineNum">     299 </span>            : #define BKE_LIB_FOREACHID_PROCESS_FUNCTION_CALL(data_, func_call_) \</a>
+<a name="300"><span class="lineNum">     300 </span>            :   { \</a>
+<a name="301"><span class="lineNum">     301 </span>            :     func_call_; \</a>
+<a name="302"><span class="lineNum">     302 </span>            :     if (BKE_lib_query_foreachid_iter_stop((data_))) { \</a>
+<a name="303"><span class="lineNum">     303 </span>            :       return; \</a>
+<a name="304"><span class="lineNum">     304 </span>            :     } \</a>
+<a name="305"><span class="lineNum">     305 </span>            :   } \</a>
+<a name="306"><span class="lineNum">     306 </span>            :   ((void)0)</a>
+<a name="307"><span class="lineNum">     307 </span>            : </a>
+<a name="308"><span class="lineNum">     308 </span>            : /**</a>
+<a name="309"><span class="lineNum">     309 </span>            :  * Process embedded ID pointers (root node-trees, master collections, ...).</a>
+<a name="310"><span class="lineNum">     310 </span>            :  *</a>
+<a name="311"><span class="lineNum">     311 </span>            :  * Those require specific care, since they are technically sub-data of their owner, yet in some</a>
+<a name="312"><span class="lineNum">     312 </span>            :  * cases they still behave as regular IDs.</a>
+<a name="313"><span class="lineNum">     313 </span>            :  */</a>
+<a name="314"><span class="lineNum">     314 </span>            : void BKE_library_foreach_ID_embedded(LibraryForeachIDData *data, ID **id_pp);</a>
+<a name="315"><span class="lineNum">     315 </span>            : void BKE_lib_query_idpropertiesForeachIDLink_callback(IDProperty *id_prop, void *user_data);</a>
+<a name="316"><span class="lineNum">     316 </span>            : </a>
+<a name="317"><span class="lineNum">     317 </span>            : /**</a>
+<a name="318"><span class="lineNum">     318 </span>            :  * Loop over all of the ID's this data-block links to.</a>
+<a name="319"><span class="lineNum">     319 </span>            :  *</a>
+<a name="320"><span class="lineNum">     320 </span>            :  * \param bmain: The Main data-base containing `owner_id`, may be null.</a>
+<a name="321"><span class="lineNum">     321 </span>            :  * \param id: The ID to process. Note that currently, embedded IDs may also be passed here.</a>
+<a name="322"><span class="lineNum">     322 </span>            :  * \param callback: The callback processing a given ID usage (i.e. a given ID pointer within the</a>
+<a name="323"><span class="lineNum">     323 </span>            :  * given \a id data).</a>
+<a name="324"><span class="lineNum">     324 </span>            :  * \param user_data: Opaque user data for the callback processing a given ID usage.</a>
+<a name="325"><span class="lineNum">     325 </span>            :  * \param flag: Flags controlling how/which ID pointers are processed.</a>
+<a name="326"><span class="lineNum">     326 </span>            :  */</a>
+<a name="327"><span class="lineNum">     327 </span>            : void BKE_library_foreach_ID_link(Main *bmain,</a>
+<a name="328"><span class="lineNum">     328 </span>            :                                  ID *id,</a>
+<a name="329"><span class="lineNum">     329 </span>            :                                  FunctionRef&lt;LibraryIDLinkCallback&gt; callback,</a>
+<a name="330"><span class="lineNum">     330 </span>            :                                  void *user_data,</a>
+<a name="331"><span class="lineNum">     331 </span>            :                                  LibraryForeachIDFlag flag);</a>
+<a name="332"><span class="lineNum">     332 </span>            : </a>
+<a name="333"><span class="lineNum">     333 </span>            : /**</a>
+<a name="334"><span class="lineNum">     334 </span>            :  * Apply `callback` to all ID usages of the data as defined by `subdata_foreach_id`. Useful to e.g.</a>
+<a name="335"><span class="lineNum">     335 </span>            :  * process all ID usages of a node, or a modifier, and so on.</a>
+<a name="336"><span class="lineNum">     336 </span>            :  *</a>
+<a name="337"><span class="lineNum">     337 </span>            :  * \note This function is fully unaware of which data is actually processed. The given</a>
+<a name="338"><span class="lineNum">     338 </span>            :  * `subdata_foreach_id` callback is responsible to decide which data to process, and to call the</a>
+<a name="339"><span class="lineNum">     339 </span>            :  * relevant 'foreach_id' helpers (typically shared with the relevant #IDTypeInfo::foreach_id code</a>
+<a name="340"><span class="lineNum">     340 </span>            :  * path). This is typically done by using a lambda as `subdata_foreach_id`, which captures the</a>
+<a name="341"><span class="lineNum">     341 </span>            :  * required extra parameters do process the target subdata.</a>
+<a name="342"><span class="lineNum">     342 </span>            :  *</a>
+<a name="343"><span class="lineNum">     343 </span>            :  * \note `main`, `owner_id` and `self_id` may be null. There is also no requirement for `owner_id`</a>
+<a name="344"><span class="lineNum">     344 </span>            :  * or `self_id` to be actual owner IDs of the processed subdata. This function merely</a>
+<a name="345"><span class="lineNum">     345 </span>            :  * initializes a #LibraryForeachIDData object with given parameters, and wraps a call to given</a>
+<a name="346"><span class="lineNum">     346 </span>            :  * `subdata_foreach_id`.</a>
+<a name="347"><span class="lineNum">     347 </span>            :  *</a>
+<a name="348"><span class="lineNum">     348 </span>            :  * \param bmain: The Main data-base containing `owner_id`, may be null.</a>
+<a name="349"><span class="lineNum">     349 </span>            :  * \param owner_id: The owner ID, i.e. the data-block owning the given sub-data (may differ from</a>
+<a name="350"><span class="lineNum">     350 </span>            :  * `self_id` in case the later is an embedded ID).</a>
+<a name="351"><span class="lineNum">     351 </span>            :  * \param self_id: Typically the same as `owner_id`, unless it is an embedded ID.</a>
+<a name="352"><span class="lineNum">     352 </span>            :  * \param subdata_foreach_id: The callback handling which data to process, and iterating over all</a>
+<a name="353"><span class="lineNum">     353 </span>            :  * ID usages of this subdata. Typically a lambda capturing that subdata, see comments above for</a>
+<a name="354"><span class="lineNum">     354 </span>            :  * details.</a>
+<a name="355"><span class="lineNum">     355 </span>            :  * \param callback: The callback processing a given ID usage, see #BKE_library_foreach_ID_link.</a>
+<a name="356"><span class="lineNum">     356 </span>            :  * \param user_data: Opaque user data for the callback processing a given ID usage, see</a>
+<a name="357"><span class="lineNum">     357 </span>            :  * #BKE_library_foreach_ID_link.</a>
+<a name="358"><span class="lineNum">     358 </span>            :  * \param flag: Flags controlling the process, see #BKE_library_foreach_ID_link. Note that some</a>
+<a name="359"><span class="lineNum">     359 </span>            :  * flags are not accepted here (#IDWALK_RECURSE, #IDWALK_DO_INTERNAL_RUNTIME_POINTERS,</a>
+<a name="360"><span class="lineNum">     360 </span>            :  * #IDWALK_DO_LIBRARY_POINTER, #IDWALK_INCLUDE_UI).</a>
+<a name="361"><span class="lineNum">     361 </span>            :  */</a>
+<a name="362"><span class="lineNum">     362 </span>            : void BKE_library_foreach_subdata_id(</a>
+<a name="363"><span class="lineNum">     363 </span>            :     Main *bmain,</a>
+<a name="364"><span class="lineNum">     364 </span>            :     ID *owner_id,</a>
+<a name="365"><span class="lineNum">     365 </span>            :     ID *self_id,</a>
+<a name="366"><span class="lineNum">     366 </span>            :     FunctionRef&lt;void(LibraryForeachIDData *data)&gt; subdata_foreach_id,</a>
+<a name="367"><span class="lineNum">     367 </span>            :     FunctionRef&lt;LibraryIDLinkCallback&gt; callback,</a>
+<a name="368"><span class="lineNum">     368 </span>            :     void *user_data,</a>
+<a name="369"><span class="lineNum">     369 </span>            :     const LibraryForeachIDFlag flag);</a>
+<a name="370"><span class="lineNum">     370 </span>            : </a>
+<a name="371"><span class="lineNum">     371 </span>            : /**</a>
+<a name="372"><span class="lineNum">     372 </span>            :  * Re-usable function, use when replacing ID's.</a>
+<a name="373"><span class="lineNum">     373 </span>            :  */</a>
+<a name="374"><span class="lineNum">     374 </span>            : void BKE_library_update_ID_link_user(ID *id_dst, ID *id_src, int cb_flag);</a>
+<a name="375"><span class="lineNum">     375 </span>            : </a>
+<a name="376"><span class="lineNum">     376 </span>            : /**</a>
+<a name="377"><span class="lineNum">     377 </span>            :  * Return the number of times given \a id_user uses/references \a id_used.</a>
+<a name="378"><span class="lineNum">     378 </span>            :  *</a>
+<a name="379"><span class="lineNum">     379 </span>            :  * \note This only checks for pointer references of an ID, shallow usages</a>
+<a name="380"><span class="lineNum">     380 </span>            :  * (like e.g. by RNA paths, as done for FCurves) are not detected at all.</a>
+<a name="381"><span class="lineNum">     381 </span>            :  *</a>
+<a name="382"><span class="lineNum">     382 </span>            :  * \param id_user: the ID which is supposed to use (reference) \a id_used.</a>
+<a name="383"><span class="lineNum">     383 </span>            :  * \param id_used: the ID which is supposed to be used (referenced) by \a id_user.</a>
+<a name="384"><span class="lineNum">     384 </span>            :  * \return the number of direct usages/references of \a id_used by \a id_user.</a>
+<a name="385"><span class="lineNum">     385 </span>            :  */</a>
+<a name="386"><span class="lineNum">     386 </span>            : int BKE_library_ID_use_ID(ID *id_user, ID *id_used);</a>
+<a name="387"><span class="lineNum">     387 </span>            : </a>
+<a name="388"><span class="lineNum">     388 </span>            : /**</a>
+<a name="389"><span class="lineNum">     389 </span>            :  * Say whether given \a owner_id may use (in any way) a data-block of \a id_type_used.</a>
+<a name="390"><span class="lineNum">     390 </span>            :  *</a>
+<a name="391"><span class="lineNum">     391 </span>            :  * This is a 'simplified' abstract version of #BKE_library_foreach_ID_link() above,</a>
+<a name="392"><span class="lineNum">     392 </span>            :  * quite useful to reduce useless iterations in some cases.</a>
+<a name="393"><span class="lineNum">     393 </span>            :  */</a>
+<a name="394"><span class="lineNum">     394 </span>            : bool BKE_library_id_can_use_idtype(ID *owner_id, short id_type_used);</a>
+<a name="395"><span class="lineNum">     395 </span>            : </a>
+<a name="396"><span class="lineNum">     396 </span>            : /**</a>
+<a name="397"><span class="lineNum">     397 </span>            :  * Given the owner_id return the type of id_types it can use as a filter_id.</a>
+<a name="398"><span class="lineNum">     398 </span>            :  */</a>
+<a name="399"><span class="lineNum">     399 </span>            : uint64_t BKE_library_id_can_use_filter_id(const ID *owner_id,</a>
+<a name="400"><span class="lineNum">     400 </span>            :                                           const bool include_ui,</a>
+<a name="401"><span class="lineNum">     401 </span>            :                                           const IDTypeInfo *owner_id_type = nullptr);</a>
+<a name="402"><span class="lineNum">     402 </span>            : </a>
+<a name="403"><span class="lineNum">     403 </span>            : /**</a>
+<a name="404"><span class="lineNum">     404 </span>            :  * Check whether given ID is used locally (i.e. by another non-linked ID).</a>
+<a name="405"><span class="lineNum">     405 </span>            :  */</a>
+<a name="406"><span class="lineNum">     406 </span>            : bool BKE_library_ID_is_locally_used(Main *bmain, void *idv);</a>
+<a name="407"><span class="lineNum">     407 </span>            : /**</a>
+<a name="408"><span class="lineNum">     408 </span>            :  * Check whether given ID is used indirectly (i.e. by another linked ID).</a>
+<a name="409"><span class="lineNum">     409 </span>            :  */</a>
+<a name="410"><span class="lineNum">     410 </span>            : bool BKE_library_ID_is_indirectly_used(Main *bmain, void *idv);</a>
+<a name="411"><span class="lineNum">     411 </span>            : /**</a>
+<a name="412"><span class="lineNum">     412 </span>            :  * Combine #BKE_library_ID_is_locally_used() and #BKE_library_ID_is_indirectly_used()</a>
+<a name="413"><span class="lineNum">     413 </span>            :  * in a single call.</a>
+<a name="414"><span class="lineNum">     414 </span>            :  */</a>
+<a name="415"><span class="lineNum">     415 </span>            : void BKE_library_ID_test_usages(Main *bmain,</a>
+<a name="416"><span class="lineNum">     416 </span>            :                                 void *idv,</a>
+<a name="417"><span class="lineNum">     417 </span>            :                                 bool *r_is_used_local,</a>
+<a name="418"><span class="lineNum">     418 </span>            :                                 bool *r_is_used_linked);</a>
+<a name="419"><span class="lineNum">     419 </span>            : </a>
+<a name="420"><span class="lineNum">     420 </span>            : /** Parameters and result data structure for the 'unused IDs' functions below. */</a>
+<a name="421"><span class="lineNum">     421 </span>            : struct LibQueryUnusedIDsData {</a>
+<a name="422"><span class="lineNum">     422 </span>            :   /** Process local data-blocks. */</a>
+<a name="423"><span class="lineNum">     423 </span>            :   bool do_local_ids = false;</a>
+<a name="424"><span class="lineNum">     424 </span>            :   /** Process linked data-blocks. */</a>
+<a name="425"><span class="lineNum">     425 </span>            :   bool do_linked_ids = false;</a>
+<a name="426"><span class="lineNum">     426 </span>            :   /**</a>
+<a name="427"><span class="lineNum">     427 </span>            :    * Process all actually unused data-blocks, including these that are currently only used by</a>
+<a name="428"><span class="lineNum">     428 </span>            :    * other unused data-blocks, and 'dependency islands' of several data-blocks using each-other,</a>
+<a name="429"><span class="lineNum">     429 </span>            :    * without any external valid user.</a>
+<a name="430"><span class="lineNum">     430 </span>            :    */</a>
+<a name="431"><span class="lineNum">     431 </span>            :   bool do_recursive = false;</a>
+<a name="432"><span class="lineNum">     432 </span>            : </a>
+<a name="433"><span class="lineNum">     433 </span>            :   /**</a>
+<a name="434"><span class="lineNum">     434 </span>            :    * Callback filter, if defined and it returns `true`, the given `id` may be considered as unused,</a>
+<a name="435"><span class="lineNum">     435 </span>            :    * otherwise it will always be considered as used.</a>
+<a name="436"><span class="lineNum">     436 </span>            :    *</a>
+<a name="437"><span class="lineNum">     437 </span>            :    * Allows for more complex handling of which IDs should be deleted, on top of the basic</a>
+<a name="438"><span class="lineNum">     438 </span>            :    * local/linked choices.</a>
+<a name="439"><span class="lineNum">     439 </span>            :    *</a>
+<a name="440"><span class="lineNum">     440 </span>            :    * TODO: Refactor this to return some optional `UnusedIDsData::Status` value instead, and always</a>
+<a name="441"><span class="lineNum">     441 </span>            :    * call it. This will allow this callback to have full control over the final status of the given</a>
+<a name="442"><span class="lineNum">     442 </span>            :    * ID, if it decides to.</a>
+<a name="443"><span class="lineNum">     443 </span>            :    */</a>
+<a name="444"><span class="lineNum">     444 </span>            :   FunctionRef&lt;bool(ID *id)&gt; filter_fn = nullptr;</a>
+<a name="445"><span class="lineNum">     445 </span>            : </a>
+<a name="446"><span class="lineNum">     446 </span>            :   /**</a>
+<a name="447"><span class="lineNum">     447 </span>            :    * Amount of detected as unused data-blocks, per type and total as the last value of the array</a>
+<a name="448"><span class="lineNum">     448 </span>            :    * (#INDEX_ID_NULL).</a>
+<a name="449"><span class="lineNum">     449 </span>            :    *</a>
+<a name="450"><span class="lineNum">     450 </span>            :    * \note Return value, set by the executed function.</a>
+<a name="451"><span class="lineNum">     451 </span>            :    */</a>
+<a name="452"><span class="lineNum">     452 </span>            :   std::array&lt;int, INDEX_ID_MAX&gt; num_total;</a>
+<a name="453"><span class="lineNum">     453 </span>            :   /**</a>
+<a name="454"><span class="lineNum">     454 </span>            :    * Amount of detected as unused local data-blocks, per type and total as the last value of the</a>
+<a name="455"><span class="lineNum">     455 </span>            :    * array (#INDEX_ID_NULL).</a>
+<a name="456"><span class="lineNum">     456 </span>            :    *</a>
+<a name="457"><span class="lineNum">     457 </span>            :    * \note Return value, set by the executed function.</a>
+<a name="458"><span class="lineNum">     458 </span>            :    */</a>
+<a name="459"><span class="lineNum">     459 </span>            :   std::array&lt;int, INDEX_ID_MAX&gt; num_local;</a>
+<a name="460"><span class="lineNum">     460 </span>            :   /**</a>
+<a name="461"><span class="lineNum">     461 </span>            :    * Amount of detected as unused linked data-blocks, per type and total as the last value of the</a>
+<a name="462"><span class="lineNum">     462 </span>            :    * array (#INDEX_ID_NULL).</a>
+<a name="463"><span class="lineNum">     463 </span>            :    *</a>
+<a name="464"><span class="lineNum">     464 </span>            :    * \note Return value, set by the executed function.</a>
+<a name="465"><span class="lineNum">     465 </span>            :    */</a>
+<a name="466"><span class="lineNum">     466 </span>            :   std::array&lt;int, INDEX_ID_MAX&gt; num_linked;</a>
+<a name="467"><span class="lineNum">     467 </span>            : };</a>
+<a name="468"><span class="lineNum">     468 </span>            : </a>
+<a name="469"><span class="lineNum">     469 </span>            : /**</a>
+<a name="470"><span class="lineNum">     470 </span>            :  * Compute amount of unused IDs (a.k.a 'orphaned').</a>
+<a name="471"><span class="lineNum">     471 </span>            :  *</a>
+<a name="472"><span class="lineNum">     472 </span>            :  * By default only consider IDs with `0` user count.</a>
+<a name="473"><span class="lineNum">     473 </span>            :  * If `do_recursive` is set, it will check dependencies to detect all IDs that are not actually</a>
+<a name="474"><span class="lineNum">     474 </span>            :  * used in current file, including `archipelagos` (i.e. set of IDs referencing each other in</a>
+<a name="475"><span class="lineNum">     475 </span>            :  * loops, but without any 'external' valid usages).</a>
+<a name="476"><span class="lineNum">     476 </span>            :  *</a>
+<a name="477"><span class="lineNum">     477 </span>            :  * Valid usages here are defined as ref-counting usages, which are not towards embedded or</a>
+<a name="478"><span class="lineNum">     478 </span>            :  * loop-back data.</a>
+<a name="479"><span class="lineNum">     479 </span>            :  *</a>
+<a name="480"><span class="lineNum">     480 </span>            :  * \param parameters: Input options and return values.</a>
+<a name="481"><span class="lineNum">     481 </span>            :  */</a>
+<a name="482"><span class="lineNum">     482 </span>            : void BKE_lib_query_unused_ids_amounts(Main *bmain, LibQueryUnusedIDsData &amp;parameters);</a>
+<a name="483"><span class="lineNum">     483 </span>            : /**</a>
+<a name="484"><span class="lineNum">     484 </span>            :  * Tag all unused IDs (a.k.a 'orphaned').</a>
+<a name="485"><span class="lineNum">     485 </span>            :  *</a>
+<a name="486"><span class="lineNum">     486 </span>            :  * By default only tag IDs with `0` user count.</a>
+<a name="487"><span class="lineNum">     487 </span>            :  * If `do_recursive` is set, it will check dependencies to detect all IDs that are not actually</a>
+<a name="488"><span class="lineNum">     488 </span>            :  * used in current file, including `archipelagos` (i.e. set of IDs referencing each other in</a>
+<a name="489"><span class="lineNum">     489 </span>            :  * loops, but without any 'external' valid usages).</a>
+<a name="490"><span class="lineNum">     490 </span>            :  *</a>
+<a name="491"><span class="lineNum">     491 </span>            :  * Valid usages here are defined as ref-counting usages, which are not towards embedded or</a>
+<a name="492"><span class="lineNum">     492 </span>            :  * loop-back data.</a>
+<a name="493"><span class="lineNum">     493 </span>            :  *</a>
+<a name="494"><span class="lineNum">     494 </span>            :  * \param tag: the ID tag to use to mark the ID as unused. Should never be `0`.</a>
+<a name="495"><span class="lineNum">     495 </span>            :  */</a>
+<a name="496"><span class="lineNum">     496 </span>            : void BKE_lib_query_unused_ids_tag(Main *bmain, int tag, LibQueryUnusedIDsData &amp;parameters);</a>
+<a name="497"><span class="lineNum">     497 </span>            : </a>
+<a name="498"><span class="lineNum">     498 </span>            : /**</a>
+<a name="499"><span class="lineNum">     499 </span>            :  * Detect orphaned linked data blocks (i.e. linked data not used (directly or indirectly)</a>
+<a name="500"><span class="lineNum">     500 </span>            :  * in any way by any local data), including complex cases like &quot;linked archipelagos&quot;, i.e.</a>
+<a name="501"><span class="lineNum">     501 </span>            :  * linked data-blocks that use each other in loops,</a>
+<a name="502"><span class="lineNum">     502 </span>            :  * which prevents their deletion by 'basic' usage checks.</a>
+<a name="503"><span class="lineNum">     503 </span>            :  *</a>
+<a name="504"><span class="lineNum">     504 </span>            :  * \param do_init_tag: if \a true, all linked data are checked, if \a false,</a>
+<a name="505"><span class="lineNum">     505 </span>            :  * only linked data-blocks already tagged with #ID_TAG_DOIT are checked.</a>
+<a name="506"><span class="lineNum">     506 </span>            :  */</a>
+<a name="507"><span class="lineNum">     507 </span>            : void BKE_library_unused_linked_data_set_tag(Main *bmain, bool do_init_tag);</a>
+<a name="508"><span class="lineNum">     508 </span>            : /**</a>
+<a name="509"><span class="lineNum">     509 </span>            :  * Untag linked data blocks used by other untagged linked data-blocks.</a>
+<a name="510"><span class="lineNum">     510 </span>            :  * Used to detect data-blocks that we can forcefully make local</a>
+<a name="511"><span class="lineNum">     511 </span>            :  * (instead of copying them to later get rid of original):</a>
+<a name="512"><span class="lineNum">     512 </span>            :  * All data-blocks we want to make local are tagged by caller,</a>
+<a name="513"><span class="lineNum">     513 </span>            :  * after this function has ran caller knows data-blocks still tagged can directly be made local,</a>
+<a name="514"><span class="lineNum">     514 </span>            :  * since they are only used by other data-blocks that will also be made fully local.</a>
+<a name="515"><span class="lineNum">     515 </span>            :  */</a>
+<a name="516"><span class="lineNum">     516 </span>            : void BKE_library_indirectly_used_data_tag_clear(Main *bmain);</a>
+<a name="517"><span class="lineNum">     517 </span>            : </a>
+<a name="518"><span class="lineNum">     518 </span>            : }  // namespace blender</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

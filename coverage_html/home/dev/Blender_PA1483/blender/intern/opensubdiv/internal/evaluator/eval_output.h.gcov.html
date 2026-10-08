@@ -1,0 +1,740 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - /home/dev/Blender_PA1483/blender/intern/opensubdiv/internal/evaluator/eval_output.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../../../index.html">top level</a> - <a href="index.html">home/dev/Blender_PA1483/blender/intern/opensubdiv/internal/evaluator</a> - eval_output.h<span style="font-size: 80%;"> (source / <a href="eval_output.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">141</td>
+            <td class="headerCovTableEntry">229</td>
+            <td class="headerCovTableEntryLo">61.6 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">25</td>
+            <td class="headerCovTableEntry">79</td>
+            <td class="headerCovTableEntryLo">31.6 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2021 Blender Foundation</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later</a>
+<a name="4"><span class="lineNum">       4 </span>            :  *</a>
+<a name="5"><span class="lineNum">       5 </span>            :  * Author: Sergey Sharybin. */</a>
+<a name="6"><span class="lineNum">       6 </span>            : </a>
+<a name="7"><span class="lineNum">       7 </span>            : #ifndef OPENSUBDIV_EVAL_OUTPUT_H_</a>
+<a name="8"><span class="lineNum">       8 </span>            : #define OPENSUBDIV_EVAL_OUTPUT_H_</a>
+<a name="9"><span class="lineNum">       9 </span>            : </a>
+<a name="10"><span class="lineNum">      10 </span>            : #include &lt;opensubdiv/osd/cpuPatchTable.h&gt;</a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &lt;opensubdiv/osd/mesh.h&gt;</a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &lt;opensubdiv/osd/types.h&gt;</a>
+<a name="13"><span class="lineNum">      13 </span>            : </a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;opensubdiv_evaluator.hh&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;opensubdiv_evaluator_capi.hh&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : </a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;gpu_patch_table.hh&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : </a>
+<a name="19"><span class="lineNum">      19 </span>            : using OpenSubdiv::Far::PatchTable;</a>
+<a name="20"><span class="lineNum">      20 </span>            : using OpenSubdiv::Far::StencilTable;</a>
+<a name="21"><span class="lineNum">      21 </span>            : using OpenSubdiv::Osd::BufferDescriptor;</a>
+<a name="22"><span class="lineNum">      22 </span>            : using OpenSubdiv::Osd::CpuPatchTable;</a>
+<a name="23"><span class="lineNum">      23 </span>            : using OpenSubdiv::Osd::PatchCoord;</a>
+<a name="24"><span class="lineNum">      24 </span>            : </a>
+<a name="25"><span class="lineNum">      25 </span>            : namespace blender::opensubdiv {</a>
+<a name="26"><span class="lineNum">      26 </span>            : </a>
+<a name="27"><span class="lineNum">      27 </span>            : // Base class for the implementation of the evaluators.</a>
+<a name="28"><span class="lineNum">      28 </span>            : class EvalOutputAPI::EvalOutput {</a>
+<a name="29"><span class="lineNum">      29 </span>            :  public:</a>
+<a name="30"><span class="lineNum">      30 </span><span class="lineCov">       1748 :   virtual ~EvalOutput() = default;</span></a>
+<a name="31"><span class="lineNum">      31 </span>            : </a>
+<a name="32"><span class="lineNum">      32 </span>            :   virtual void updateSettings(const OpenSubdiv_EvaluatorSettings *settings) = 0;</a>
+<a name="33"><span class="lineNum">      33 </span>            : </a>
+<a name="34"><span class="lineNum">      34 </span>            :   virtual void updateData(const float *src, int start_vertex, int num_vertices) = 0;</a>
+<a name="35"><span class="lineNum">      35 </span>            : </a>
+<a name="36"><span class="lineNum">      36 </span>            :   virtual void updateVaryingData(const float *src, int start_vertex, int num_vertices) = 0;</a>
+<a name="37"><span class="lineNum">      37 </span>            : </a>
+<a name="38"><span class="lineNum">      38 </span>            :   virtual void updateVertexData(const float *src, int start_vertex, int num_vertices) = 0;</a>
+<a name="39"><span class="lineNum">      39 </span>            : </a>
+<a name="40"><span class="lineNum">      40 </span>            :   virtual void updateFaceVaryingData(const int face_varying_channel,</a>
+<a name="41"><span class="lineNum">      41 </span>            :                                      const float *src,</a>
+<a name="42"><span class="lineNum">      42 </span>            :                                      int start_vertex,</a>
+<a name="43"><span class="lineNum">      43 </span>            :                                      int num_vertices) = 0;</a>
+<a name="44"><span class="lineNum">      44 </span>            : </a>
+<a name="45"><span class="lineNum">      45 </span>            :   virtual void refine() = 0;</a>
+<a name="46"><span class="lineNum">      46 </span>            : </a>
+<a name="47"><span class="lineNum">      47 </span>            :   // NOTE: P must point to a memory of at least float[3]*num_patch_coords.</a>
+<a name="48"><span class="lineNum">      48 </span>            :   virtual void evalPatches(const PatchCoord *patch_coord,</a>
+<a name="49"><span class="lineNum">      49 </span>            :                            const int num_patch_coords,</a>
+<a name="50"><span class="lineNum">      50 </span>            :                            float *P) = 0;</a>
+<a name="51"><span class="lineNum">      51 </span>            : </a>
+<a name="52"><span class="lineNum">      52 </span>            :   // NOTE: P, dPdu, dPdv must point to a memory of at least float[3]*num_patch_coords.</a>
+<a name="53"><span class="lineNum">      53 </span>            :   virtual void evalPatchesWithDerivatives(const PatchCoord *patch_coord,</a>
+<a name="54"><span class="lineNum">      54 </span>            :                                           const int num_patch_coords,</a>
+<a name="55"><span class="lineNum">      55 </span>            :                                           float *P,</a>
+<a name="56"><span class="lineNum">      56 </span>            :                                           float *dPdu,</a>
+<a name="57"><span class="lineNum">      57 </span>            :                                           float *dPdv) = 0;</a>
+<a name="58"><span class="lineNum">      58 </span>            : </a>
+<a name="59"><span class="lineNum">      59 </span>            :   // NOTE: varying must point to a memory of at least float[3]*num_patch_coords.</a>
+<a name="60"><span class="lineNum">      60 </span>            :   virtual void evalPatchesVarying(const PatchCoord *patch_coord,</a>
+<a name="61"><span class="lineNum">      61 </span>            :                                   const int num_patch_coords,</a>
+<a name="62"><span class="lineNum">      62 </span>            :                                   float *varying) = 0;</a>
+<a name="63"><span class="lineNum">      63 </span>            : </a>
+<a name="64"><span class="lineNum">      64 </span>            :   // NOTE: vertex_data must point to a memory of at least float*num_vertex_data.</a>
+<a name="65"><span class="lineNum">      65 </span>            :   virtual void evalPatchesVertexData(const PatchCoord *patch_coord,</a>
+<a name="66"><span class="lineNum">      66 </span>            :                                      const int num_patch_coords,</a>
+<a name="67"><span class="lineNum">      67 </span>            :                                      float *vertex_data) = 0;</a>
+<a name="68"><span class="lineNum">      68 </span>            : </a>
+<a name="69"><span class="lineNum">      69 </span>            :   virtual void evalPatchesFaceVarying(const int face_varying_channel,</a>
+<a name="70"><span class="lineNum">      70 </span>            :                                       const PatchCoord *patch_coord,</a>
+<a name="71"><span class="lineNum">      71 </span>            :                                       const int num_patch_coords,</a>
+<a name="72"><span class="lineNum">      72 </span>            :                                       float face_varying[2]) = 0;</a>
+<a name="73"><span class="lineNum">      73 </span>            : </a>
+<a name="74"><span class="lineNum">      74 </span>            :   // The following interfaces are dependant on the actual evaluator type (CPU, OpenGL, etc.) which</a>
+<a name="75"><span class="lineNum">      75 </span>            :   // have slightly different APIs to access patch arrays, as well as different types for their</a>
+<a name="76"><span class="lineNum">      76 </span>            :   // data structure. They need to be overridden in the specific instances of the EvalOutput derived</a>
+<a name="77"><span class="lineNum">      77 </span>            :   // classes if needed, while the interfaces above are overridden through VolatileEvalOutput.</a>
+<a name="78"><span class="lineNum">      78 </span>            : </a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineNoCov">          0 :   virtual gpu::StorageBuf *create_patch_arrays_buf()</span></a>
+<a name="80"><span class="lineNum">      80 </span>            :   {</a>
+<a name="81"><span class="lineNum">      81 </span><span class="lineNoCov">          0 :     return nullptr;</span></a>
+<a name="82"><span class="lineNum">      82 </span>            :   }</a>
+<a name="83"><span class="lineNum">      83 </span>            : </a>
+<a name="84"><span class="lineNum">      84 </span><span class="lineNoCov">          0 :   virtual gpu::StorageBuf *get_patch_index_buf()</span></a>
+<a name="85"><span class="lineNum">      85 </span>            :   {</a>
+<a name="86"><span class="lineNum">      86 </span><span class="lineNoCov">          0 :     return nullptr;</span></a>
+<a name="87"><span class="lineNum">      87 </span>            :   }</a>
+<a name="88"><span class="lineNum">      88 </span>            : </a>
+<a name="89"><span class="lineNum">      89 </span><span class="lineNoCov">          0 :   virtual gpu::StorageBuf *get_patch_param_buf()</span></a>
+<a name="90"><span class="lineNum">      90 </span>            :   {</a>
+<a name="91"><span class="lineNum">      91 </span><span class="lineNoCov">          0 :     return nullptr;</span></a>
+<a name="92"><span class="lineNum">      92 </span>            :   }</a>
+<a name="93"><span class="lineNum">      93 </span>            : </a>
+<a name="94"><span class="lineNum">      94 </span><span class="lineNoCov">          0 :   virtual gpu::VertBuf *get_source_buf()</span></a>
+<a name="95"><span class="lineNum">      95 </span>            :   {</a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineNoCov">          0 :     return nullptr;</span></a>
+<a name="97"><span class="lineNum">      97 </span>            :   }</a>
+<a name="98"><span class="lineNum">      98 </span>            : </a>
+<a name="99"><span class="lineNum">      99 </span><span class="lineNoCov">          0 :   virtual gpu::VertBuf *get_source_data_buf()</span></a>
+<a name="100"><span class="lineNum">     100 </span>            :   {</a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineNoCov">          0 :     return nullptr;</span></a>
+<a name="102"><span class="lineNum">     102 </span>            :   }</a>
+<a name="103"><span class="lineNum">     103 </span>            : </a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineNoCov">          0 :   virtual gpu::StorageBuf *create_face_varying_patch_array_buf(const int /*face_varying_channel*/)</span></a>
+<a name="105"><span class="lineNum">     105 </span>            :   {</a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineNoCov">          0 :     return nullptr;</span></a>
+<a name="107"><span class="lineNum">     107 </span>            :   }</a>
+<a name="108"><span class="lineNum">     108 </span>            : </a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineNoCov">          0 :   virtual gpu::StorageBuf *get_face_varying_patch_index_buf(const int /*face_varying_channel*/)</span></a>
+<a name="110"><span class="lineNum">     110 </span>            :   {</a>
+<a name="111"><span class="lineNum">     111 </span><span class="lineNoCov">          0 :     return nullptr;</span></a>
+<a name="112"><span class="lineNum">     112 </span>            :   }</a>
+<a name="113"><span class="lineNum">     113 </span>            : </a>
+<a name="114"><span class="lineNum">     114 </span><span class="lineNoCov">          0 :   virtual gpu::StorageBuf *get_face_varying_patch_param_buf(const int /*face_varying_channel*/)</span></a>
+<a name="115"><span class="lineNum">     115 </span>            :   {</a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineNoCov">          0 :     return nullptr;</span></a>
+<a name="117"><span class="lineNum">     117 </span>            :   }</a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineNoCov">          0 :   virtual gpu::VertBuf *get_face_varying_source_buf(const int /*face_varying_channel*/)</span></a>
+<a name="119"><span class="lineNum">     119 </span>            :   {</a>
+<a name="120"><span class="lineNum">     120 </span><span class="lineNoCov">          0 :     return nullptr;</span></a>
+<a name="121"><span class="lineNum">     121 </span>            :   }</a>
+<a name="122"><span class="lineNum">     122 </span>            : </a>
+<a name="123"><span class="lineNum">     123 </span><span class="lineNoCov">          0 :   virtual int get_face_varying_source_offset(const int /*face_varying_channel*/) const</span></a>
+<a name="124"><span class="lineNum">     124 </span>            :   {</a>
+<a name="125"><span class="lineNum">     125 </span><span class="lineNoCov">          0 :     return 0;</span></a>
+<a name="126"><span class="lineNum">     126 </span>            :   }</a>
+<a name="127"><span class="lineNum">     127 </span>            : </a>
+<a name="128"><span class="lineNum">     128 </span><span class="lineNoCov">          0 :   virtual bool hasVertexData() const</span></a>
+<a name="129"><span class="lineNum">     129 </span>            :   {</a>
+<a name="130"><span class="lineNum">     130 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="131"><span class="lineNum">     131 </span>            :   }</a>
+<a name="132"><span class="lineNum">     132 </span>            : };</a>
+<a name="133"><span class="lineNum">     133 </span>            : </a>
+<a name="134"><span class="lineNum">     134 </span>            : // Buffer which implements API required by OpenSubdiv and uses an existing memory as an underlying</a>
+<a name="135"><span class="lineNum">     135 </span>            : // storage.</a>
+<a name="136"><span class="lineNum">     136 </span>            : template&lt;typename T&gt; class RawDataWrapperBuffer {</a>
+<a name="137"><span class="lineNum">     137 </span>            :  public:</a>
+<a name="138"><span class="lineNum">     138 </span><span class="lineCov">  121543786 :   RawDataWrapperBuffer(T *data) : data_(data) {}</span></a>
+<a name="139"><span class="lineNum">     139 </span>            : </a>
+<a name="140"><span class="lineNum">     140 </span><span class="lineCov">  114692336 :   T *BindCpuBuffer()</span></a>
+<a name="141"><span class="lineNum">     141 </span>            :   {</a>
+<a name="142"><span class="lineNum">     142 </span><span class="lineCov">  114692336 :     return data_;</span></a>
+<a name="143"><span class="lineNum">     143 </span>            :   }</a>
+<a name="144"><span class="lineNum">     144 </span>            : </a>
+<a name="145"><span class="lineNum">     145 </span><span class="lineNoCov">          0 :   gpu::VertBuf *get_vertex_buffer()</span></a>
+<a name="146"><span class="lineNum">     146 </span>            :   {</a>
+<a name="147"><span class="lineNum">     147 </span><span class="lineNoCov">          0 :     return nullptr;</span></a>
+<a name="148"><span class="lineNum">     148 </span>            :   }</a>
+<a name="149"><span class="lineNum">     149 </span>            : </a>
+<a name="150"><span class="lineNum">     150 </span>            :   // TODO(sergey): Support UpdateData().</a>
+<a name="151"><span class="lineNum">     151 </span>            : </a>
+<a name="152"><span class="lineNum">     152 </span>            :  protected:</a>
+<a name="153"><span class="lineNum">     153 </span>            :   T *data_;</a>
+<a name="154"><span class="lineNum">     154 </span>            : };</a>
+<a name="155"><span class="lineNum">     155 </span>            : </a>
+<a name="156"><span class="lineNum">     156 </span>            : template&lt;typename T&gt; class RawDataWrapperVertexBuffer : public RawDataWrapperBuffer&lt;T&gt; {</a>
+<a name="157"><span class="lineNum">     157 </span>            :  public:</a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineCov">   42445639 :   RawDataWrapperVertexBuffer(T *data, int num_vertices)</span></a>
+<a name="159"><span class="lineNum">     159 </span><span class="lineCov">   42445639 :       : RawDataWrapperBuffer&lt;T&gt;(data), num_vertices_(num_vertices)</span></a>
+<a name="160"><span class="lineNum">     160 </span>            :   {</a>
+<a name="161"><span class="lineNum">     161 </span><span class="lineCov">   42680400 :   }</span></a>
+<a name="162"><span class="lineNum">     162 </span>            : </a>
+<a name="163"><span class="lineNum">     163 </span><span class="lineCov">   41186963 :   int GetNumVertices()</span></a>
+<a name="164"><span class="lineNum">     164 </span>            :   {</a>
+<a name="165"><span class="lineNum">     165 </span><span class="lineCov">   41186963 :     return num_vertices_;</span></a>
+<a name="166"><span class="lineNum">     166 </span>            :   }</a>
+<a name="167"><span class="lineNum">     167 </span>            : </a>
+<a name="168"><span class="lineNum">     168 </span>            :  protected:</a>
+<a name="169"><span class="lineNum">     169 </span>            :   int num_vertices_;</a>
+<a name="170"><span class="lineNum">     170 </span>            : };</a>
+<a name="171"><span class="lineNum">     171 </span>            : </a>
+<a name="172"><span class="lineNum">     172 </span>            : class ConstPatchCoordWrapperBuffer : public RawDataWrapperVertexBuffer&lt;const PatchCoord&gt; {</a>
+<a name="173"><span class="lineNum">     173 </span>            :  public:</a>
+<a name="174"><span class="lineNum">     174 </span><span class="lineCov">   42499501 :   ConstPatchCoordWrapperBuffer(const PatchCoord *data, int num_vertices)</span></a>
+<a name="175"><span class="lineNum">     175 </span><span class="lineCov">   42499501 :       : RawDataWrapperVertexBuffer(data, num_vertices)</span></a>
+<a name="176"><span class="lineNum">     176 </span>            :   {</a>
+<a name="177"><span class="lineNum">     177 </span><span class="lineCov">   42371688 :   }</span></a>
+<a name="178"><span class="lineNum">     178 </span>            : };</a>
+<a name="179"><span class="lineNum">     179 </span>            : </a>
+<a name="180"><span class="lineNum">     180 </span>            : // Discriminators used in FaceVaryingVolatileEval in order to detect whether we are using adaptive</a>
+<a name="181"><span class="lineNum">     181 </span>            : // patches as the CPU and OpenGL PatchTable have different APIs.</a>
+<a name="182"><span class="lineNum">     182 </span>            : bool is_adaptive(const CpuPatchTable *patch_table);</a>
+<a name="183"><span class="lineNum">     183 </span>            : bool is_adaptive(const GPUPatchTable *patch_table);</a>
+<a name="184"><span class="lineNum">     184 </span>            : </a>
+<a name="185"><span class="lineNum">     185 </span>            : template&lt;typename EVAL_VERTEX_BUFFER,</a>
+<a name="186"><span class="lineNum">     186 </span>            :          typename STENCIL_TABLE,</a>
+<a name="187"><span class="lineNum">     187 </span>            :          typename PATCH_TABLE,</a>
+<a name="188"><span class="lineNum">     188 </span>            :          typename EVALUATOR,</a>
+<a name="189"><span class="lineNum">     189 </span>            :          typename DEVICE_CONTEXT = void&gt;</a>
+<a name="190"><span class="lineNum">     190 </span>            : class FaceVaryingVolatileEval {</a>
+<a name="191"><span class="lineNum">     191 </span>            :  public:</a>
+<a name="192"><span class="lineNum">     192 </span>            :   using EvaluatorCache = OpenSubdiv::Osd::EvaluatorCacheT&lt;EVALUATOR&gt;;</a>
+<a name="193"><span class="lineNum">     193 </span>            : </a>
+<a name="194"><span class="lineNum">     194 </span><span class="lineCov">       1060 :   FaceVaryingVolatileEval(int face_varying_channel,</span></a>
+<a name="195"><span class="lineNum">     195 </span>            :                           const StencilTable *face_varying_stencils,</a>
+<a name="196"><span class="lineNum">     196 </span>            :                           int face_varying_width,</a>
+<a name="197"><span class="lineNum">     197 </span>            :                           PATCH_TABLE *patch_table,</a>
+<a name="198"><span class="lineNum">     198 </span>            :                           EvaluatorCache *evaluator_cache = NULL,</a>
+<a name="199"><span class="lineNum">     199 </span>            :                           DEVICE_CONTEXT *device_context = NULL)</a>
+<a name="200"><span class="lineNum">     200 </span><span class="lineCov">       1060 :       : face_varying_channel_(face_varying_channel),</span></a>
+<a name="201"><span class="lineNum">     201 </span><span class="lineCov">       1060 :         src_face_varying_desc_(0, face_varying_width, face_varying_width),</span></a>
+<a name="202"><span class="lineNum">     202 </span><span class="lineCov">       1060 :         patch_table_(patch_table),</span></a>
+<a name="203"><span class="lineNum">     203 </span><span class="lineCov">       1060 :         evaluator_cache_(evaluator_cache),</span></a>
+<a name="204"><span class="lineNum">     204 </span><span class="lineCov">       1060 :         device_context_(device_context)</span></a>
+<a name="205"><span class="lineNum">     205 </span>            :   {</a>
+<a name="206"><span class="lineNum">     206 </span>            :     using OpenSubdiv::Osd::convertToCompatibleStencilTable;</a>
+<a name="207"><span class="lineNum">     207 </span><span class="lineCov">       1060 :     num_coarse_face_varying_vertices_ = face_varying_stencils-&gt;GetNumControlVertices();</span></a>
+<a name="208"><span class="lineNum">     208 </span><span class="lineCov">       1060 :     const int num_total_face_varying_vertices = face_varying_stencils-&gt;GetNumControlVertices() +</span></a>
+<a name="209"><span class="lineNum">     209 </span><span class="lineCov">       1060 :                                                 face_varying_stencils-&gt;GetNumStencils();</span></a>
+<a name="210"><span class="lineNum">     210 </span><span class="lineCov">       1060 :     src_face_varying_data_ = EVAL_VERTEX_BUFFER::Create(</span></a>
+<a name="211"><span class="lineNum">     211 </span>            :         2, num_total_face_varying_vertices, device_context);</a>
+<a name="212"><span class="lineNum">     212 </span><span class="lineCov">       1060 :     face_varying_stencils_ = convertToCompatibleStencilTable&lt;STENCIL_TABLE&gt;(face_varying_stencils,</span></a>
+<a name="213"><span class="lineNum">     213 </span>            :                                                                             device_context_);</a>
+<a name="214"><span class="lineNum">     214 </span><span class="lineCov">       1060 :   }</span></a>
+<a name="215"><span class="lineNum">     215 </span>            : </a>
+<a name="216"><span class="lineNum">     216 </span><span class="lineCov">       1060 :   ~FaceVaryingVolatileEval()</span></a>
+<a name="217"><span class="lineNum">     217 </span>            :   {</a>
+<a name="218"><span class="lineNum">     218 </span><span class="lineCov">       1060 :     delete src_face_varying_data_;</span></a>
+<a name="219"><span class="lineNum">     219 </span><span class="lineCov">       1060 :     delete face_varying_stencils_;</span></a>
+<a name="220"><span class="lineNum">     220 </span><span class="lineCov">       1060 :   }</span></a>
+<a name="221"><span class="lineNum">     221 </span>            : </a>
+<a name="222"><span class="lineNum">     222 </span><span class="lineCov">       1634 :   void updateData(const float *src, int start_vertex, int num_vertices)</span></a>
+<a name="223"><span class="lineNum">     223 </span>            :   {</a>
+<a name="224"><span class="lineNum">     224 </span><span class="lineCov">       1634 :     src_face_varying_data_-&gt;UpdateData(src, start_vertex, num_vertices, device_context_);</span></a>
+<a name="225"><span class="lineNum">     225 </span><span class="lineCov">       1634 :   }</span></a>
+<a name="226"><span class="lineNum">     226 </span>            : </a>
+<a name="227"><span class="lineNum">     227 </span><span class="lineCov">       1634 :   void refine()</span></a>
+<a name="228"><span class="lineNum">     228 </span>            :   {</a>
+<a name="229"><span class="lineNum">     229 </span><span class="lineCov">       1634 :     BufferDescriptor dst_face_varying_desc = src_face_varying_desc_;</span></a>
+<a name="230"><span class="lineNum">     230 </span><span class="lineCov">       1634 :     dst_face_varying_desc.offset += num_coarse_face_varying_vertices_ *</span></a>
+<a name="231"><span class="lineNum">     231 </span><span class="lineCov">       1634 :                                     src_face_varying_desc_.stride;</span></a>
+<a name="232"><span class="lineNum">     232 </span><span class="lineCov">       1634 :     EVALUATOR *eval_instance = OpenSubdiv::Osd::GetEvaluator&lt;EVALUATOR&gt;(</span></a>
+<a name="233"><span class="lineNum">     233 </span><span class="lineCov">       1634 :         evaluator_cache_, src_face_varying_desc_, dst_face_varying_desc, device_context_);</span></a>
+<a name="234"><span class="lineNum">     234 </span>            :     // in and out points to same buffer so output is put directly after coarse vertices, needed in</a>
+<a name="235"><span class="lineNum">     235 </span>            :     // adaptive mode</a>
+<a name="236"><span class="lineNum">     236 </span><span class="lineCov">       1634 :     EVALUATOR::EvalStencils(src_face_varying_data_,</span></a>
+<a name="237"><span class="lineNum">     237 </span><span class="lineCov">       1634 :                             src_face_varying_desc_,</span></a>
+<a name="238"><span class="lineNum">     238 </span>            :                             src_face_varying_data_,</a>
+<a name="239"><span class="lineNum">     239 </span>            :                             dst_face_varying_desc,</a>
+<a name="240"><span class="lineNum">     240 </span>            :                             face_varying_stencils_,</a>
+<a name="241"><span class="lineNum">     241 </span>            :                             eval_instance,</a>
+<a name="242"><span class="lineNum">     242 </span>            :                             device_context_);</a>
+<a name="243"><span class="lineNum">     243 </span><span class="lineCov">       1634 :   }</span></a>
+<a name="244"><span class="lineNum">     244 </span>            : </a>
+<a name="245"><span class="lineNum">     245 </span>            :   // NOTE: face_varying must point to a memory of at least float[2]*num_patch_coords.</a>
+<a name="246"><span class="lineNum">     246 </span><span class="lineCov">   16150116 :   void evalPatches(const PatchCoord *patch_coord, const int num_patch_coords, float *face_varying)</span></a>
+<a name="247"><span class="lineNum">     247 </span>            :   {</a>
+<a name="248"><span class="lineNum">     248 </span><span class="lineCov">   16150116 :     RawDataWrapperBuffer&lt;float&gt; face_varying_data(face_varying);</span></a>
+<a name="249"><span class="lineNum">     249 </span><span class="lineCov">   15681256 :     BufferDescriptor face_varying_desc(0, 2, 2);</span></a>
+<a name="250"><span class="lineNum">     250 </span><span class="lineCov">   15568514 :     ConstPatchCoordWrapperBuffer patch_coord_buffer(patch_coord, num_patch_coords);</span></a>
+<a name="251"><span class="lineNum">     251 </span><span class="lineCov">   15423294 :     EVALUATOR *eval_instance = OpenSubdiv::Osd::GetEvaluator&lt;EVALUATOR&gt;(</span></a>
+<a name="252"><span class="lineNum">     252 </span><span class="lineCov">   15423294 :         evaluator_cache_, src_face_varying_desc_, face_varying_desc, device_context_);</span></a>
+<a name="253"><span class="lineNum">     253 </span>            : </a>
+<a name="254"><span class="lineNum">     254 </span><span class="lineCov">   15309082 :     BufferDescriptor src_desc = get_src_varying_desc();</span></a>
+<a name="255"><span class="lineNum">     255 </span>            : </a>
+<a name="256"><span class="lineNum">     256 </span><span class="lineCov">   14293252 :     EVALUATOR::EvalPatchesFaceVarying(src_face_varying_data_,</span></a>
+<a name="257"><span class="lineNum">     257 </span>            :                                       src_desc,</a>
+<a name="258"><span class="lineNum">     258 </span>            :                                       &amp;face_varying_data,</a>
+<a name="259"><span class="lineNum">     259 </span>            :                                       face_varying_desc,</a>
+<a name="260"><span class="lineNum">     260 </span>            :                                       patch_coord_buffer.GetNumVertices(),</a>
+<a name="261"><span class="lineNum">     261 </span>            :                                       &amp;patch_coord_buffer,</a>
+<a name="262"><span class="lineNum">     262 </span>            :                                       patch_table_,</a>
+<a name="263"><span class="lineNum">     263 </span>            :                                       face_varying_channel_,</a>
+<a name="264"><span class="lineNum">     264 </span>            :                                       eval_instance,</a>
+<a name="265"><span class="lineNum">     265 </span>            :                                       device_context_);</a>
+<a name="266"><span class="lineNum">     266 </span><span class="lineCov">   18302613 :   }</span></a>
+<a name="267"><span class="lineNum">     267 </span>            : </a>
+<a name="268"><span class="lineNum">     268 </span><span class="lineNoCov">          0 :   EVAL_VERTEX_BUFFER *getSrcBuffer() const</span></a>
+<a name="269"><span class="lineNum">     269 </span>            :   {</a>
+<a name="270"><span class="lineNum">     270 </span><span class="lineNoCov">          0 :     return src_face_varying_data_;</span></a>
+<a name="271"><span class="lineNum">     271 </span>            :   }</a>
+<a name="272"><span class="lineNum">     272 </span>            : </a>
+<a name="273"><span class="lineNum">     273 </span><span class="lineNoCov">          0 :   int get_face_varying_source_offset() const</span></a>
+<a name="274"><span class="lineNum">     274 </span>            :   {</a>
+<a name="275"><span class="lineNum">     275 </span><span class="lineNoCov">          0 :     BufferDescriptor src_desc = get_src_varying_desc();</span></a>
+<a name="276"><span class="lineNum">     276 </span><span class="lineNoCov">          0 :     return src_desc.offset;</span></a>
+<a name="277"><span class="lineNum">     277 </span>            :   }</a>
+<a name="278"><span class="lineNum">     278 </span>            : </a>
+<a name="279"><span class="lineNum">     279 </span><span class="lineNoCov">          0 :   PATCH_TABLE *getPatchTable() const</span></a>
+<a name="280"><span class="lineNum">     280 </span>            :   {</a>
+<a name="281"><span class="lineNum">     281 </span><span class="lineNoCov">          0 :     return patch_table_;</span></a>
+<a name="282"><span class="lineNum">     282 </span>            :   }</a>
+<a name="283"><span class="lineNum">     283 </span>            : </a>
+<a name="284"><span class="lineNum">     284 </span>            :  private:</a>
+<a name="285"><span class="lineNum">     285 </span><span class="lineCov">   15128526 :   BufferDescriptor get_src_varying_desc() const</span></a>
+<a name="286"><span class="lineNum">     286 </span>            :   {</a>
+<a name="287"><span class="lineNum">     287 </span>            :     // src_face_varying_data_ always contains coarse vertices at the beginning.</a>
+<a name="288"><span class="lineNum">     288 </span>            :     // In adaptive mode they are followed by number of blocks for intermediate</a>
+<a name="289"><span class="lineNum">     289 </span>            :     // subdivision levels, and this is what OSD expects in this mode.</a>
+<a name="290"><span class="lineNum">     290 </span>            :     // In non-adaptive mode (generateIntermediateLevels == false),</a>
+<a name="291"><span class="lineNum">     291 </span>            :     // they are followed by max subdivision level, but they break interpolation as OSD</a>
+<a name="292"><span class="lineNum">     292 </span>            :     // expects only one subd level in this buffer.</a>
+<a name="293"><span class="lineNum">     293 </span>            :     // So in non-adaptive mode we put offset into buffer descriptor to skip over coarse vertices.</a>
+<a name="294"><span class="lineNum">     294 </span><span class="lineCov">   15128526 :     BufferDescriptor src_desc = src_face_varying_desc_;</span></a>
+<a name="295"><span class="lineNum">     295 </span><span class="lineCov">   15128526 :     if (!is_adaptive(patch_table_)) {</span></a>
+<a name="296"><span class="lineNum">     296 </span><span class="lineCov">     373724 :       src_desc.offset += num_coarse_face_varying_vertices_ * src_face_varying_desc_.stride;</span></a>
+<a name="297"><span class="lineNum">     297 </span>            :     }</a>
+<a name="298"><span class="lineNum">     298 </span><span class="lineCov">   14328566 :     return src_desc;</span></a>
+<a name="299"><span class="lineNum">     299 </span>            :   }</a>
+<a name="300"><span class="lineNum">     300 </span>            : </a>
+<a name="301"><span class="lineNum">     301 </span>            :  protected:</a>
+<a name="302"><span class="lineNum">     302 </span>            :   int face_varying_channel_;</a>
+<a name="303"><span class="lineNum">     303 </span>            : </a>
+<a name="304"><span class="lineNum">     304 </span>            :   BufferDescriptor src_face_varying_desc_;</a>
+<a name="305"><span class="lineNum">     305 </span>            : </a>
+<a name="306"><span class="lineNum">     306 </span>            :   int num_coarse_face_varying_vertices_;</a>
+<a name="307"><span class="lineNum">     307 </span>            :   EVAL_VERTEX_BUFFER *src_face_varying_data_;</a>
+<a name="308"><span class="lineNum">     308 </span>            :   const STENCIL_TABLE *face_varying_stencils_;</a>
+<a name="309"><span class="lineNum">     309 </span>            : </a>
+<a name="310"><span class="lineNum">     310 </span>            :   // NOTE: We reference this, do not own it.</a>
+<a name="311"><span class="lineNum">     311 </span>            :   PATCH_TABLE *patch_table_;</a>
+<a name="312"><span class="lineNum">     312 </span>            : </a>
+<a name="313"><span class="lineNum">     313 </span>            :   EvaluatorCache *evaluator_cache_;</a>
+<a name="314"><span class="lineNum">     314 </span>            :   DEVICE_CONTEXT *device_context_;</a>
+<a name="315"><span class="lineNum">     315 </span>            : };</a>
+<a name="316"><span class="lineNum">     316 </span>            : </a>
+<a name="317"><span class="lineNum">     317 </span>            : // Volatile evaluator which can be used from threads.</a>
+<a name="318"><span class="lineNum">     318 </span>            : //</a>
+<a name="319"><span class="lineNum">     319 </span>            : // TODO(sergey): Make it possible to evaluate coordinates in chunks.</a>
+<a name="320"><span class="lineNum">     320 </span>            : // TODO(sergey): Make it possible to evaluate multiple face varying layers.</a>
+<a name="321"><span class="lineNum">     321 </span>            : //               (or maybe, it's cheap to create new evaluator for existing</a>
+<a name="322"><span class="lineNum">     322 </span>            : //               topology to evaluate all needed face varying layers?)</a>
+<a name="323"><span class="lineNum">     323 </span>            : template&lt;typename SRC_VERTEX_BUFFER,</a>
+<a name="324"><span class="lineNum">     324 </span>            :          typename EVAL_VERTEX_BUFFER,</a>
+<a name="325"><span class="lineNum">     325 </span>            :          typename STENCIL_TABLE,</a>
+<a name="326"><span class="lineNum">     326 </span>            :          typename PATCH_TABLE,</a>
+<a name="327"><span class="lineNum">     327 </span>            :          typename EVALUATOR,</a>
+<a name="328"><span class="lineNum">     328 </span>            :          typename DEVICE_CONTEXT = void&gt;</a>
+<a name="329"><span class="lineNum">     329 </span>            : class VolatileEvalOutput : public EvalOutputAPI::EvalOutput {</a>
+<a name="330"><span class="lineNum">     330 </span>            :  public:</a>
+<a name="331"><span class="lineNum">     331 </span>            :   using EvaluatorCache = OpenSubdiv::Osd::EvaluatorCacheT&lt;EVALUATOR&gt;;</a>
+<a name="332"><span class="lineNum">     332 </span>            :   using FaceVaryingEval = FaceVaryingVolatileEval&lt;EVAL_VERTEX_BUFFER,</a>
+<a name="333"><span class="lineNum">     333 </span>            :                                                   STENCIL_TABLE,</a>
+<a name="334"><span class="lineNum">     334 </span>            :                                                   PATCH_TABLE,</a>
+<a name="335"><span class="lineNum">     335 </span>            :                                                   EVALUATOR,</a>
+<a name="336"><span class="lineNum">     336 </span>            :                                                   DEVICE_CONTEXT&gt;;</a>
+<a name="337"><span class="lineNum">     337 </span>            : </a>
+<a name="338"><span class="lineNum">     338 </span><span class="lineCov">       1745 :   VolatileEvalOutput(const StencilTable *vertex_stencils,</span></a>
+<a name="339"><span class="lineNum">     339 </span>            :                      const StencilTable *varying_stencils,</a>
+<a name="340"><span class="lineNum">     340 </span>            :                      const std::vector&lt;const StencilTable *&gt; &amp;all_face_varying_stencils,</a>
+<a name="341"><span class="lineNum">     341 </span>            :                      const int face_varying_width,</a>
+<a name="342"><span class="lineNum">     342 </span>            :                      const PatchTable *patch_table,</a>
+<a name="343"><span class="lineNum">     343 </span>            :                      EvaluatorCache *evaluator_cache = NULL,</a>
+<a name="344"><span class="lineNum">     344 </span>            :                      DEVICE_CONTEXT *device_context = NULL)</a>
+<a name="345"><span class="lineNum">     345 </span><span class="lineCov">       1745 :       : src_vertex_data_(NULL),</span></a>
+<a name="346"><span class="lineNum">     346 </span><span class="lineCov">       1745 :         src_desc_(0, 3, 3),</span></a>
+<a name="347"><span class="lineNum">     347 </span><span class="lineCov">       1745 :         src_varying_desc_(0, 3, 3),</span></a>
+<a name="348"><span class="lineNum">     348 </span><span class="lineCov">       1746 :         src_vertex_data_desc_(0, 0, 0),</span></a>
+<a name="349"><span class="lineNum">     349 </span><span class="lineCov">       1745 :         face_varying_width_(face_varying_width),</span></a>
+<a name="350"><span class="lineNum">     350 </span><span class="lineCov">       1745 :         evaluator_cache_(evaluator_cache),</span></a>
+<a name="351"><span class="lineNum">     351 </span><span class="lineCov">       3490 :         device_context_(device_context)</span></a>
+<a name="352"><span class="lineNum">     352 </span>            :   {</a>
+<a name="353"><span class="lineNum">     353 </span>            :     // Total number of vertices = coarse points + refined points + local points.</a>
+<a name="354"><span class="lineNum">     354 </span><span class="lineCov">       1745 :     int num_total_vertices = vertex_stencils-&gt;GetNumControlVertices() +</span></a>
+<a name="355"><span class="lineNum">     355 </span><span class="lineCov">       1746 :                              vertex_stencils-&gt;GetNumStencils();</span></a>
+<a name="356"><span class="lineNum">     356 </span><span class="lineCov">       1745 :     num_coarse_vertices_ = vertex_stencils-&gt;GetNumControlVertices();</span></a>
+<a name="357"><span class="lineNum">     357 </span>            :     using OpenSubdiv::Osd::convertToCompatibleStencilTable;</a>
+<a name="358"><span class="lineNum">     358 </span><span class="lineCov">       1746 :     src_data_ = SRC_VERTEX_BUFFER::Create(3, num_total_vertices, device_context_);</span></a>
+<a name="359"><span class="lineNum">     359 </span><span class="lineCov">       1747 :     src_varying_data_ = SRC_VERTEX_BUFFER::Create(3, num_total_vertices, device_context_);</span></a>
+<a name="360"><span class="lineNum">     360 </span><span class="lineCov">       1748 :     patch_table_ = PATCH_TABLE::Create(patch_table, device_context_);</span></a>
+<a name="361"><span class="lineNum">     361 </span><span class="lineCov">       1747 :     vertex_stencils_ = convertToCompatibleStencilTable&lt;STENCIL_TABLE&gt;(vertex_stencils,</span></a>
+<a name="362"><span class="lineNum">     362 </span>            :                                                                       device_context_);</a>
+<a name="363"><span class="lineNum">     363 </span><span class="lineCov">       1748 :     varying_stencils_ = convertToCompatibleStencilTable&lt;STENCIL_TABLE&gt;(varying_stencils,</span></a>
+<a name="364"><span class="lineNum">     364 </span>            :                                                                        device_context_);</a>
+<a name="365"><span class="lineNum">     365 </span>            : </a>
+<a name="366"><span class="lineNum">     366 </span>            :     // Create evaluators for every face varying channel.</a>
+<a name="367"><span class="lineNum">     367 </span><span class="lineCov">       1748 :     face_varying_evaluators_.reserve(all_face_varying_stencils.size());</span></a>
+<a name="368"><span class="lineNum">     368 </span><span class="lineCov">       1747 :     int face_varying_channel = 0;</span></a>
+<a name="369"><span class="lineNum">     369 </span><span class="lineCov">       2807 :     for (const StencilTable *face_varying_stencils : all_face_varying_stencils) {</span></a>
+<a name="370"><span class="lineNum">     370 </span><span class="lineCov">       1060 :       face_varying_evaluators_.push_back(new FaceVaryingEval(face_varying_channel,</span></a>
+<a name="371"><span class="lineNum">     371 </span>            :                                                              face_varying_stencils,</a>
+<a name="372"><span class="lineNum">     372 </span>            :                                                              face_varying_width,</a>
+<a name="373"><span class="lineNum">     373 </span>            :                                                              patch_table_,</a>
+<a name="374"><span class="lineNum">     374 </span>            :                                                              evaluator_cache_,</a>
+<a name="375"><span class="lineNum">     375 </span>            :                                                              device_context_));</a>
+<a name="376"><span class="lineNum">     376 </span><span class="lineCov">       1060 :       ++face_varying_channel;</span></a>
+<a name="377"><span class="lineNum">     377 </span>            :     }</a>
+<a name="378"><span class="lineNum">     378 </span><span class="lineCov">       1746 :   }</span></a>
+<a name="379"><span class="lineNum">     379 </span>            : </a>
+<a name="380"><span class="lineNum">     380 </span><span class="lineCov">       1748 :   ~VolatileEvalOutput() override</span></a>
+<a name="381"><span class="lineNum">     381 </span>            :   {</a>
+<a name="382"><span class="lineNum">     382 </span><span class="lineCov">       1748 :     delete src_data_;</span></a>
+<a name="383"><span class="lineNum">     383 </span><span class="lineCov">       1748 :     delete src_varying_data_;</span></a>
+<a name="384"><span class="lineNum">     384 </span><span class="lineCov">       1748 :     delete src_vertex_data_;</span></a>
+<a name="385"><span class="lineNum">     385 </span><span class="lineCov">       1748 :     delete patch_table_;</span></a>
+<a name="386"><span class="lineNum">     386 </span><span class="lineCov">       1748 :     delete vertex_stencils_;</span></a>
+<a name="387"><span class="lineNum">     387 </span><span class="lineCov">       1748 :     delete varying_stencils_;</span></a>
+<a name="388"><span class="lineNum">     388 </span><span class="lineCov">       2808 :     for (FaceVaryingEval *face_varying_evaluator : face_varying_evaluators_) {</span></a>
+<a name="389"><span class="lineNum">     389 </span><span class="lineCov">       1060 :       delete face_varying_evaluator;</span></a>
+<a name="390"><span class="lineNum">     390 </span>            :     }</a>
+<a name="391"><span class="lineNum">     391 </span><span class="lineCov">       3496 :   }</span></a>
+<a name="392"><span class="lineNum">     392 </span>            : </a>
+<a name="393"><span class="lineNum">     393 </span><span class="lineCov">       2565 :   void updateSettings(const OpenSubdiv_EvaluatorSettings *settings) override</span></a>
+<a name="394"><span class="lineNum">     394 </span>            :   {</a>
+<a name="395"><span class="lineNum">     395 </span>            :     // Optionally allocate additional data to be subdivided like vertex coordinates.</a>
+<a name="396"><span class="lineNum">     396 </span><span class="lineCov">       2565 :     if (settings-&gt;num_vertex_data != src_vertex_data_desc_.length) {</span></a>
+<a name="397"><span class="lineNum">     397 </span><span class="lineNoCov">          0 :       delete src_vertex_data_;</span></a>
+<a name="398"><span class="lineNum">     398 </span><span class="lineNoCov">          0 :       if (settings-&gt;num_vertex_data &gt; 0) {</span></a>
+<a name="399"><span class="lineNum">     399 </span><span class="lineNoCov">          0 :         src_vertex_data_ = SRC_VERTEX_BUFFER::Create(</span></a>
+<a name="400"><span class="lineNum">     400 </span><span class="lineNoCov">          0 :             settings-&gt;num_vertex_data, src_data_-&gt;GetNumVertices(), device_context_);</span></a>
+<a name="401"><span class="lineNum">     401 </span>            :       }</a>
+<a name="402"><span class="lineNum">     402 </span>            :       else {</a>
+<a name="403"><span class="lineNum">     403 </span><span class="lineNoCov">          0 :         src_vertex_data_ = NULL;</span></a>
+<a name="404"><span class="lineNum">     404 </span>            :       }</a>
+<a name="405"><span class="lineNum">     405 </span><span class="lineNoCov">          0 :       src_vertex_data_desc_ = BufferDescriptor(</span></a>
+<a name="406"><span class="lineNum">     406 </span><span class="lineNoCov">          0 :           0, settings-&gt;num_vertex_data, settings-&gt;num_vertex_data);</span></a>
+<a name="407"><span class="lineNum">     407 </span>            :     }</a>
+<a name="408"><span class="lineNum">     408 </span><span class="lineCov">       2565 :   }</span></a>
+<a name="409"><span class="lineNum">     409 </span>            : </a>
+<a name="410"><span class="lineNum">     410 </span>            :   // TODO(sergey): Implement binding API.</a>
+<a name="411"><span class="lineNum">     411 </span>            : </a>
+<a name="412"><span class="lineNum">     412 </span><span class="lineCov">     175606 :   void updateData(const float *src, int start_vertex, int num_vertices) override</span></a>
+<a name="413"><span class="lineNum">     413 </span>            :   {</a>
+<a name="414"><span class="lineNum">     414 </span><span class="lineCov">     175606 :     src_data_-&gt;UpdateData(src, start_vertex, num_vertices, device_context_);</span></a>
+<a name="415"><span class="lineNum">     415 </span><span class="lineCov">     175606 :   }</span></a>
+<a name="416"><span class="lineNum">     416 </span>            : </a>
+<a name="417"><span class="lineNum">     417 </span><span class="lineNoCov">          0 :   void updateVaryingData(const float *src, int start_vertex, int num_vertices) override</span></a>
+<a name="418"><span class="lineNum">     418 </span>            :   {</a>
+<a name="419"><span class="lineNum">     419 </span><span class="lineNoCov">          0 :     src_varying_data_-&gt;UpdateData(src, start_vertex, num_vertices, device_context_);</span></a>
+<a name="420"><span class="lineNum">     420 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="421"><span class="lineNum">     421 </span>            : </a>
+<a name="422"><span class="lineNum">     422 </span><span class="lineNoCov">          0 :   void updateVertexData(const float *src, int start_vertex, int num_vertices) override</span></a>
+<a name="423"><span class="lineNum">     423 </span>            :   {</a>
+<a name="424"><span class="lineNum">     424 </span><span class="lineNoCov">          0 :     src_vertex_data_-&gt;UpdateData(src, start_vertex, num_vertices, device_context_);</span></a>
+<a name="425"><span class="lineNum">     425 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="426"><span class="lineNum">     426 </span>            : </a>
+<a name="427"><span class="lineNum">     427 </span><span class="lineCov">       1634 :   void updateFaceVaryingData(const int face_varying_channel,</span></a>
+<a name="428"><span class="lineNum">     428 </span>            :                              const float *src,</a>
+<a name="429"><span class="lineNum">     429 </span>            :                              int start_vertex,</a>
+<a name="430"><span class="lineNum">     430 </span>            :                              int num_vertices) override</a>
+<a name="431"><span class="lineNum">     431 </span>            :   {</a>
+<a name="432"><span class="lineNum">     432 </span><span class="lineCov">       1634 :     assert(face_varying_channel &gt;= 0);</span></a>
+<a name="433"><span class="lineNum">     433 </span><span class="lineCov">       1634 :     assert(face_varying_channel &lt; face_varying_evaluators_.size());</span></a>
+<a name="434"><span class="lineNum">     434 </span><span class="lineCov">       1634 :     face_varying_evaluators_[face_varying_channel]-&gt;updateData(src, start_vertex, num_vertices);</span></a>
+<a name="435"><span class="lineNum">     435 </span><span class="lineCov">       1634 :   }</span></a>
+<a name="436"><span class="lineNum">     436 </span>            : </a>
+<a name="437"><span class="lineNum">     437 </span><span class="lineCov">       2611 :   bool hasVaryingData() const</span></a>
+<a name="438"><span class="lineNum">     438 </span>            :   {</a>
+<a name="439"><span class="lineNum">     439 </span>            :     // return varying_stencils_ != NULL;</a>
+<a name="440"><span class="lineNum">     440 </span>            :     // TODO(sergey): Check this based on actual topology.</a>
+<a name="441"><span class="lineNum">     441 </span><span class="lineCov">       2611 :     return false;</span></a>
+<a name="442"><span class="lineNum">     442 </span>            :   }</a>
+<a name="443"><span class="lineNum">     443 </span>            : </a>
+<a name="444"><span class="lineNum">     444 </span><span class="lineCov">       2611 :   bool hasFaceVaryingData() const</span></a>
+<a name="445"><span class="lineNum">     445 </span>            :   {</a>
+<a name="446"><span class="lineNum">     446 </span><span class="lineCov">       2611 :     return face_varying_evaluators_.size() != 0;</span></a>
+<a name="447"><span class="lineNum">     447 </span>            :   }</a>
+<a name="448"><span class="lineNum">     448 </span>            : </a>
+<a name="449"><span class="lineNum">     449 </span><span class="lineNoCov">          0 :   bool hasVertexData() const override</span></a>
+<a name="450"><span class="lineNum">     450 </span>            :   {</a>
+<a name="451"><span class="lineNum">     451 </span><span class="lineNoCov">          0 :     return src_vertex_data_ != nullptr;</span></a>
+<a name="452"><span class="lineNum">     452 </span>            :   }</a>
+<a name="453"><span class="lineNum">     453 </span>            : </a>
+<a name="454"><span class="lineNum">     454 </span><span class="lineCov">       2611 :   void refine() override</span></a>
+<a name="455"><span class="lineNum">     455 </span>            :   {</a>
+<a name="456"><span class="lineNum">     456 </span>            :     // Evaluate vertex positions.</a>
+<a name="457"><span class="lineNum">     457 </span><span class="lineCov">       2611 :     BufferDescriptor dst_desc = src_desc_;</span></a>
+<a name="458"><span class="lineNum">     458 </span><span class="lineCov">       2611 :     dst_desc.offset += num_coarse_vertices_ * src_desc_.stride;</span></a>
+<a name="459"><span class="lineNum">     459 </span><span class="lineCov">       2611 :     EVALUATOR *eval_instance = OpenSubdiv::Osd::GetEvaluator&lt;EVALUATOR&gt;(</span></a>
+<a name="460"><span class="lineNum">     460 </span><span class="lineCov">       2611 :         evaluator_cache_, src_desc_, dst_desc, device_context_);</span></a>
+<a name="461"><span class="lineNum">     461 </span><span class="lineCov">       2611 :     EVALUATOR::EvalStencils(src_data_,</span></a>
+<a name="462"><span class="lineNum">     462 </span><span class="lineCov">       2611 :                             src_desc_,</span></a>
+<a name="463"><span class="lineNum">     463 </span>            :                             src_data_,</a>
+<a name="464"><span class="lineNum">     464 </span>            :                             dst_desc,</a>
+<a name="465"><span class="lineNum">     465 </span>            :                             vertex_stencils_,</a>
+<a name="466"><span class="lineNum">     466 </span>            :                             eval_instance,</a>
+<a name="467"><span class="lineNum">     467 </span>            :                             device_context_);</a>
+<a name="468"><span class="lineNum">     468 </span>            : </a>
+<a name="469"><span class="lineNum">     469 </span>            :     // Evaluate smoothly interpolated vertex data.</a>
+<a name="470"><span class="lineNum">     470 </span><span class="lineCov">       2611 :     if (src_vertex_data_) {</span></a>
+<a name="471"><span class="lineNum">     471 </span><span class="lineNoCov">          0 :       BufferDescriptor dst_vertex_data_desc = src_vertex_data_desc_;</span></a>
+<a name="472"><span class="lineNum">     472 </span><span class="lineNoCov">          0 :       dst_vertex_data_desc.offset += num_coarse_vertices_ * src_vertex_data_desc_.stride;</span></a>
+<a name="473"><span class="lineNum">     473 </span><span class="lineNoCov">          0 :       EVALUATOR *eval_instance = OpenSubdiv::Osd::GetEvaluator&lt;EVALUATOR&gt;(</span></a>
+<a name="474"><span class="lineNum">     474 </span><span class="lineNoCov">          0 :           evaluator_cache_, src_vertex_data_desc_, dst_vertex_data_desc, device_context_);</span></a>
+<a name="475"><span class="lineNum">     475 </span><span class="lineNoCov">          0 :       EVALUATOR::EvalStencils(src_vertex_data_,</span></a>
+<a name="476"><span class="lineNum">     476 </span><span class="lineNoCov">          0 :                               src_vertex_data_desc_,</span></a>
+<a name="477"><span class="lineNum">     477 </span>            :                               src_vertex_data_,</a>
+<a name="478"><span class="lineNum">     478 </span>            :                               dst_vertex_data_desc,</a>
+<a name="479"><span class="lineNum">     479 </span>            :                               vertex_stencils_,</a>
+<a name="480"><span class="lineNum">     480 </span>            :                               eval_instance,</a>
+<a name="481"><span class="lineNum">     481 </span>            :                               device_context_);</a>
+<a name="482"><span class="lineNum">     482 </span>            :     }</a>
+<a name="483"><span class="lineNum">     483 </span>            : </a>
+<a name="484"><span class="lineNum">     484 </span>            :     // Evaluate varying data.</a>
+<a name="485"><span class="lineNum">     485 </span><span class="lineCov">       2611 :     if (hasVaryingData()) {</span></a>
+<a name="486"><span class="lineNum">     486 </span><span class="lineNoCov">          0 :       BufferDescriptor dst_varying_desc = src_varying_desc_;</span></a>
+<a name="487"><span class="lineNum">     487 </span><span class="lineNoCov">          0 :       dst_varying_desc.offset += num_coarse_vertices_ * src_varying_desc_.stride;</span></a>
+<a name="488"><span class="lineNum">     488 </span><span class="lineNoCov">          0 :       eval_instance = OpenSubdiv::Osd::GetEvaluator&lt;EVALUATOR&gt;(</span></a>
+<a name="489"><span class="lineNum">     489 </span><span class="lineNoCov">          0 :           evaluator_cache_, src_varying_desc_, dst_varying_desc, device_context_);</span></a>
+<a name="490"><span class="lineNum">     490 </span><span class="lineNoCov">          0 :       EVALUATOR::EvalStencils(src_varying_data_,</span></a>
+<a name="491"><span class="lineNum">     491 </span><span class="lineNoCov">          0 :                               src_varying_desc_,</span></a>
+<a name="492"><span class="lineNum">     492 </span>            :                               src_varying_data_,</a>
+<a name="493"><span class="lineNum">     493 </span>            :                               dst_varying_desc,</a>
+<a name="494"><span class="lineNum">     494 </span>            :                               varying_stencils_,</a>
+<a name="495"><span class="lineNum">     495 </span>            :                               eval_instance,</a>
+<a name="496"><span class="lineNum">     496 </span>            :                               device_context_);</a>
+<a name="497"><span class="lineNum">     497 </span>            :     }</a>
+<a name="498"><span class="lineNum">     498 </span>            :     // Evaluate face-varying data.</a>
+<a name="499"><span class="lineNum">     499 </span><span class="lineCov">       2611 :     if (hasFaceVaryingData()) {</span></a>
+<a name="500"><span class="lineNum">     500 </span><span class="lineCov">       3239 :       for (FaceVaryingEval *face_varying_evaluator : face_varying_evaluators_) {</span></a>
+<a name="501"><span class="lineNum">     501 </span><span class="lineCov">       1634 :         face_varying_evaluator-&gt;refine();</span></a>
+<a name="502"><span class="lineNum">     502 </span>            :       }</a>
+<a name="503"><span class="lineNum">     503 </span>            :     }</a>
+<a name="504"><span class="lineNum">     504 </span><span class="lineCov">       2611 :   }</span></a>
+<a name="505"><span class="lineNum">     505 </span>            : </a>
+<a name="506"><span class="lineNum">     506 </span>            :   // NOTE: P must point to a memory of at least float[3]*num_patch_coords.</a>
+<a name="507"><span class="lineNum">     507 </span><span class="lineCov">    9489636 :   void evalPatches(const PatchCoord *patch_coord, const int num_patch_coords, float *P) override</span></a>
+<a name="508"><span class="lineNum">     508 </span>            :   {</a>
+<a name="509"><span class="lineNum">     509 </span><span class="lineCov">    9489636 :     RawDataWrapperBuffer&lt;float&gt; P_data(P);</span></a>
+<a name="510"><span class="lineNum">     510 </span>            :     // TODO(sergey): Support interleaved vertex-varying data.</a>
+<a name="511"><span class="lineNum">     511 </span><span class="lineCov">    9483585 :     BufferDescriptor P_desc(0, 3, 3);</span></a>
+<a name="512"><span class="lineNum">     512 </span><span class="lineCov">    9447967 :     ConstPatchCoordWrapperBuffer patch_coord_buffer(patch_coord, num_patch_coords);</span></a>
+<a name="513"><span class="lineNum">     513 </span><span class="lineCov">    9418544 :     EVALUATOR *eval_instance = OpenSubdiv::Osd::GetEvaluator&lt;EVALUATOR&gt;(</span></a>
+<a name="514"><span class="lineNum">     514 </span><span class="lineCov">    9418544 :         evaluator_cache_, src_desc_, P_desc, device_context_);</span></a>
+<a name="515"><span class="lineNum">     515 </span><span class="lineCov">    9409364 :     EVALUATOR::EvalPatches(src_data_,</span></a>
+<a name="516"><span class="lineNum">     516 </span><span class="lineCov">    9395177 :                            src_desc_,</span></a>
+<a name="517"><span class="lineNum">     517 </span>            :                            &amp;P_data,</a>
+<a name="518"><span class="lineNum">     518 </span>            :                            P_desc,</a>
+<a name="519"><span class="lineNum">     519 </span>            :                            patch_coord_buffer.GetNumVertices(),</a>
+<a name="520"><span class="lineNum">     520 </span>            :                            &amp;patch_coord_buffer,</a>
+<a name="521"><span class="lineNum">     521 </span>            :                            patch_table_,</a>
+<a name="522"><span class="lineNum">     522 </span>            :                            eval_instance,</a>
+<a name="523"><span class="lineNum">     523 </span>            :                            device_context_);</a>
+<a name="524"><span class="lineNum">     524 </span><span class="lineCov">    9722596 :   }</span></a>
+<a name="525"><span class="lineNum">     525 </span>            : </a>
+<a name="526"><span class="lineNum">     526 </span>            :   // NOTE: P, dPdu, dPdv must point to a memory of at least float[3]*num_patch_coords.</a>
+<a name="527"><span class="lineNum">     527 </span><span class="lineCov">   18637584 :   void evalPatchesWithDerivatives(const PatchCoord *patch_coord,</span></a>
+<a name="528"><span class="lineNum">     528 </span>            :                                   const int num_patch_coords,</a>
+<a name="529"><span class="lineNum">     529 </span>            :                                   float *P,</a>
+<a name="530"><span class="lineNum">     530 </span>            :                                   float *dPdu,</a>
+<a name="531"><span class="lineNum">     531 </span>            :                                   float *dPdv) override</a>
+<a name="532"><span class="lineNum">     532 </span>            :   {</a>
+<a name="533"><span class="lineNum">     533 </span><span class="lineCov">   18637584 :     assert(dPdu);</span></a>
+<a name="534"><span class="lineNum">     534 </span><span class="lineCov">   18637584 :     assert(dPdv);</span></a>
+<a name="535"><span class="lineNum">     535 </span><span class="lineCov">   18637584 :     RawDataWrapperBuffer&lt;float&gt; P_data(P);</span></a>
+<a name="536"><span class="lineNum">     536 </span><span class="lineCov">   18663373 :     RawDataWrapperBuffer&lt;float&gt; dPdu_data(dPdu), dPdv_data(dPdv);</span></a>
+<a name="537"><span class="lineNum">     537 </span>            :     // TODO(sergey): Support interleaved vertex-varying data.</a>
+<a name="538"><span class="lineNum">     538 </span><span class="lineCov">   18661415 :     BufferDescriptor P_desc(0, 3, 3);</span></a>
+<a name="539"><span class="lineNum">     539 </span><span class="lineCov">   18609088 :     BufferDescriptor dpDu_desc(0, 3, 3), pPdv_desc(0, 3, 3);</span></a>
+<a name="540"><span class="lineNum">     540 </span><span class="lineCov">   18640961 :     ConstPatchCoordWrapperBuffer patch_coord_buffer(patch_coord, num_patch_coords);</span></a>
+<a name="541"><span class="lineNum">     541 </span><span class="lineCov">   18384521 :     EVALUATOR *eval_instance = OpenSubdiv::Osd::GetEvaluator&lt;EVALUATOR&gt;(</span></a>
+<a name="542"><span class="lineNum">     542 </span><span class="lineCov">   18384521 :         evaluator_cache_, src_desc_, P_desc, dpDu_desc, pPdv_desc, device_context_);</span></a>
+<a name="543"><span class="lineNum">     543 </span><span class="lineCov">   18331230 :     EVALUATOR::EvalPatches(src_data_,</span></a>
+<a name="544"><span class="lineNum">     544 </span><span class="lineCov">   18272473 :                            src_desc_,</span></a>
+<a name="545"><span class="lineNum">     545 </span>            :                            &amp;P_data,</a>
+<a name="546"><span class="lineNum">     546 </span>            :                            P_desc,</a>
+<a name="547"><span class="lineNum">     547 </span>            :                            &amp;dPdu_data,</a>
+<a name="548"><span class="lineNum">     548 </span>            :                            dpDu_desc,</a>
+<a name="549"><span class="lineNum">     549 </span>            :                            &amp;dPdv_data,</a>
+<a name="550"><span class="lineNum">     550 </span>            :                            pPdv_desc,</a>
+<a name="551"><span class="lineNum">     551 </span>            :                            patch_coord_buffer.GetNumVertices(),</a>
+<a name="552"><span class="lineNum">     552 </span>            :                            &amp;patch_coord_buffer,</a>
+<a name="553"><span class="lineNum">     553 </span>            :                            patch_table_,</a>
+<a name="554"><span class="lineNum">     554 </span>            :                            eval_instance,</a>
+<a name="555"><span class="lineNum">     555 </span>            :                            device_context_);</a>
+<a name="556"><span class="lineNum">     556 </span><span class="lineCov">   19062858 :   }</span></a>
+<a name="557"><span class="lineNum">     557 </span>            : </a>
+<a name="558"><span class="lineNum">     558 </span>            :   // NOTE: varying must point to a memory of at least float[3]*num_patch_coords.</a>
+<a name="559"><span class="lineNum">     559 </span><span class="lineNoCov">          0 :   void evalPatchesVarying(const PatchCoord *patch_coord,</span></a>
+<a name="560"><span class="lineNum">     560 </span>            :                           const int num_patch_coords,</a>
+<a name="561"><span class="lineNum">     561 </span>            :                           float *varying) override</a>
+<a name="562"><span class="lineNum">     562 </span>            :   {</a>
+<a name="563"><span class="lineNum">     563 </span><span class="lineNoCov">          0 :     RawDataWrapperBuffer&lt;float&gt; varying_data(varying);</span></a>
+<a name="564"><span class="lineNum">     564 </span><span class="lineNoCov">          0 :     BufferDescriptor varying_desc(3, 3, 6);</span></a>
+<a name="565"><span class="lineNum">     565 </span><span class="lineNoCov">          0 :     ConstPatchCoordWrapperBuffer patch_coord_buffer(patch_coord, num_patch_coords);</span></a>
+<a name="566"><span class="lineNum">     566 </span><span class="lineNoCov">          0 :     EVALUATOR *eval_instance = OpenSubdiv::Osd::GetEvaluator&lt;EVALUATOR&gt;(</span></a>
+<a name="567"><span class="lineNum">     567 </span><span class="lineNoCov">          0 :         evaluator_cache_, src_varying_desc_, varying_desc, device_context_);</span></a>
+<a name="568"><span class="lineNum">     568 </span><span class="lineNoCov">          0 :     EVALUATOR::EvalPatchesVarying(src_varying_data_,</span></a>
+<a name="569"><span class="lineNum">     569 </span><span class="lineNoCov">          0 :                                   src_varying_desc_,</span></a>
+<a name="570"><span class="lineNum">     570 </span>            :                                   &amp;varying_data,</a>
+<a name="571"><span class="lineNum">     571 </span>            :                                   varying_desc,</a>
+<a name="572"><span class="lineNum">     572 </span>            :                                   patch_coord_buffer.GetNumVertices(),</a>
+<a name="573"><span class="lineNum">     573 </span>            :                                   &amp;patch_coord_buffer,</a>
+<a name="574"><span class="lineNum">     574 </span>            :                                   patch_table_,</a>
+<a name="575"><span class="lineNum">     575 </span>            :                                   eval_instance,</a>
+<a name="576"><span class="lineNum">     576 </span>            :                                   device_context_);</a>
+<a name="577"><span class="lineNum">     577 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="578"><span class="lineNum">     578 </span>            : </a>
+<a name="579"><span class="lineNum">     579 </span>            :   // NOTE: data must point to a memory of at least float*num_vertex_data.</a>
+<a name="580"><span class="lineNum">     580 </span><span class="lineNoCov">          0 :   void evalPatchesVertexData(const PatchCoord *patch_coord,</span></a>
+<a name="581"><span class="lineNum">     581 </span>            :                              const int num_patch_coords,</a>
+<a name="582"><span class="lineNum">     582 </span>            :                              float *data) override</a>
+<a name="583"><span class="lineNum">     583 </span>            :   {</a>
+<a name="584"><span class="lineNum">     584 </span><span class="lineNoCov">          0 :     RawDataWrapperBuffer&lt;float&gt; vertex_data(data);</span></a>
+<a name="585"><span class="lineNum">     585 </span><span class="lineNoCov">          0 :     BufferDescriptor vertex_desc(0, src_vertex_data_desc_.length, src_vertex_data_desc_.length);</span></a>
+<a name="586"><span class="lineNum">     586 </span><span class="lineNoCov">          0 :     ConstPatchCoordWrapperBuffer patch_coord_buffer(patch_coord, num_patch_coords);</span></a>
+<a name="587"><span class="lineNum">     587 </span><span class="lineNoCov">          0 :     EVALUATOR *eval_instance = OpenSubdiv::Osd::GetEvaluator&lt;EVALUATOR&gt;(</span></a>
+<a name="588"><span class="lineNum">     588 </span><span class="lineNoCov">          0 :         evaluator_cache_, src_vertex_data_desc_, vertex_desc, device_context_);</span></a>
+<a name="589"><span class="lineNum">     589 </span><span class="lineNoCov">          0 :     EVALUATOR::EvalPatches(src_vertex_data_,</span></a>
+<a name="590"><span class="lineNum">     590 </span><span class="lineNoCov">          0 :                            src_vertex_data_desc_,</span></a>
+<a name="591"><span class="lineNum">     591 </span>            :                            &amp;vertex_data,</a>
+<a name="592"><span class="lineNum">     592 </span>            :                            vertex_desc,</a>
+<a name="593"><span class="lineNum">     593 </span>            :                            patch_coord_buffer.GetNumVertices(),</a>
+<a name="594"><span class="lineNum">     594 </span>            :                            &amp;patch_coord_buffer,</a>
+<a name="595"><span class="lineNum">     595 </span>            :                            patch_table_,</a>
+<a name="596"><span class="lineNum">     596 </span>            :                            eval_instance,</a>
+<a name="597"><span class="lineNum">     597 </span>            :                            device_context_);</a>
+<a name="598"><span class="lineNum">     598 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="599"><span class="lineNum">     599 </span>            : </a>
+<a name="600"><span class="lineNum">     600 </span><span class="lineCov">   16953586 :   void evalPatchesFaceVarying(const int face_varying_channel,</span></a>
+<a name="601"><span class="lineNum">     601 </span>            :                               const PatchCoord *patch_coord,</a>
+<a name="602"><span class="lineNum">     602 </span>            :                               const int num_patch_coords,</a>
+<a name="603"><span class="lineNum">     603 </span>            :                               float face_varying[2]) override</a>
+<a name="604"><span class="lineNum">     604 </span>            :   {</a>
+<a name="605"><span class="lineNum">     605 </span><span class="lineCov">   16953586 :     assert(face_varying_channel &gt;= 0);</span></a>
+<a name="606"><span class="lineNum">     606 </span><span class="lineCov">   16953586 :     assert(face_varying_channel &lt; face_varying_evaluators_.size());</span></a>
+<a name="607"><span class="lineNum">     607 </span><span class="lineCov">   16629015 :     face_varying_evaluators_[face_varying_channel]-&gt;evalPatches(</span></a>
+<a name="608"><span class="lineNum">     608 </span>            :         patch_coord, num_patch_coords, face_varying);</a>
+<a name="609"><span class="lineNum">     609 </span><span class="lineCov">   18082365 :   }</span></a>
+<a name="610"><span class="lineNum">     610 </span>            : </a>
+<a name="611"><span class="lineNum">     611 </span><span class="lineNoCov">          0 :   SRC_VERTEX_BUFFER *getSrcBuffer() const</span></a>
+<a name="612"><span class="lineNum">     612 </span>            :   {</a>
+<a name="613"><span class="lineNum">     613 </span><span class="lineNoCov">          0 :     return src_data_;</span></a>
+<a name="614"><span class="lineNum">     614 </span>            :   }</a>
+<a name="615"><span class="lineNum">     615 </span>            : </a>
+<a name="616"><span class="lineNum">     616 </span><span class="lineNoCov">          0 :   SRC_VERTEX_BUFFER *getSrcVertexDataBuffer() const</span></a>
+<a name="617"><span class="lineNum">     617 </span>            :   {</a>
+<a name="618"><span class="lineNum">     618 </span><span class="lineNoCov">          0 :     return src_vertex_data_;</span></a>
+<a name="619"><span class="lineNum">     619 </span>            :   }</a>
+<a name="620"><span class="lineNum">     620 </span>            : </a>
+<a name="621"><span class="lineNum">     621 </span><span class="lineNoCov">          0 :   PATCH_TABLE *getPatchTable() const</span></a>
+<a name="622"><span class="lineNum">     622 </span>            :   {</a>
+<a name="623"><span class="lineNum">     623 </span><span class="lineNoCov">          0 :     return patch_table_;</span></a>
+<a name="624"><span class="lineNum">     624 </span>            :   }</a>
+<a name="625"><span class="lineNum">     625 </span>            : </a>
+<a name="626"><span class="lineNum">     626 </span><span class="lineNoCov">          0 :   SRC_VERTEX_BUFFER *getFVarSrcBuffer(const int face_varying_channel) const</span></a>
+<a name="627"><span class="lineNum">     627 </span>            :   {</a>
+<a name="628"><span class="lineNum">     628 </span><span class="lineNoCov">          0 :     return face_varying_evaluators_[face_varying_channel]-&gt;getSrcBuffer();</span></a>
+<a name="629"><span class="lineNum">     629 </span>            :   }</a>
+<a name="630"><span class="lineNum">     630 </span>            : </a>
+<a name="631"><span class="lineNum">     631 </span><span class="lineNoCov">          0 :   int get_face_varying_source_offset(const int face_varying_channel) const override</span></a>
+<a name="632"><span class="lineNum">     632 </span>            :   {</a>
+<a name="633"><span class="lineNum">     633 </span><span class="lineNoCov">          0 :     return face_varying_evaluators_[face_varying_channel]-&gt;get_face_varying_source_offset();</span></a>
+<a name="634"><span class="lineNum">     634 </span>            :   }</a>
+<a name="635"><span class="lineNum">     635 </span>            : </a>
+<a name="636"><span class="lineNum">     636 </span><span class="lineNoCov">          0 :   PATCH_TABLE *getFVarPatchTable(const int face_varying_channel) const</span></a>
+<a name="637"><span class="lineNum">     637 </span>            :   {</a>
+<a name="638"><span class="lineNum">     638 </span><span class="lineNoCov">          0 :     return face_varying_evaluators_[face_varying_channel]-&gt;getPatchTable();</span></a>
+<a name="639"><span class="lineNum">     639 </span>            :   }</a>
+<a name="640"><span class="lineNum">     640 </span>            : </a>
+<a name="641"><span class="lineNum">     641 </span>            :  private:</a>
+<a name="642"><span class="lineNum">     642 </span>            :   SRC_VERTEX_BUFFER *src_data_;</a>
+<a name="643"><span class="lineNum">     643 </span>            :   SRC_VERTEX_BUFFER *src_varying_data_;</a>
+<a name="644"><span class="lineNum">     644 </span>            :   SRC_VERTEX_BUFFER *src_vertex_data_;</a>
+<a name="645"><span class="lineNum">     645 </span>            :   PATCH_TABLE *patch_table_;</a>
+<a name="646"><span class="lineNum">     646 </span>            :   BufferDescriptor src_desc_;</a>
+<a name="647"><span class="lineNum">     647 </span>            :   BufferDescriptor src_varying_desc_;</a>
+<a name="648"><span class="lineNum">     648 </span>            :   BufferDescriptor src_vertex_data_desc_;</a>
+<a name="649"><span class="lineNum">     649 </span>            : </a>
+<a name="650"><span class="lineNum">     650 </span>            :   int num_coarse_vertices_;</a>
+<a name="651"><span class="lineNum">     651 </span>            : </a>
+<a name="652"><span class="lineNum">     652 </span>            :   const STENCIL_TABLE *vertex_stencils_;</a>
+<a name="653"><span class="lineNum">     653 </span>            :   const STENCIL_TABLE *varying_stencils_;</a>
+<a name="654"><span class="lineNum">     654 </span>            : </a>
+<a name="655"><span class="lineNum">     655 </span>            :   int face_varying_width_;</a>
+<a name="656"><span class="lineNum">     656 </span>            :   std::vector&lt;FaceVaryingEval *&gt; face_varying_evaluators_;</a>
+<a name="657"><span class="lineNum">     657 </span>            : </a>
+<a name="658"><span class="lineNum">     658 </span>            :   EvaluatorCache *evaluator_cache_;</a>
+<a name="659"><span class="lineNum">     659 </span>            :   DEVICE_CONTEXT *device_context_;</a>
+<a name="660"><span class="lineNum">     660 </span>            : };</a>
+<a name="661"><span class="lineNum">     661 </span>            : </a>
+<a name="662"><span class="lineNum">     662 </span>            : }  // namespace blender::opensubdiv</a>
+<a name="663"><span class="lineNum">     663 </span>            : </a>
+<a name="664"><span class="lineNum">     664 </span>            : #endif  // OPENSUBDIV_EVAL_OUTPUT_H_</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

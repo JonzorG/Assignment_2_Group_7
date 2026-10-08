@@ -1,0 +1,376 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - gpu/vulkan/vk_debug.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">gpu/vulkan</a> - vk_debug.cc<span style="font-size: 80%;"> (source / <a href="vk_debug.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">129</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2023 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup gpu</a>
+<a name="7"><span class="lineNum">       7 </span>            :  */</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &lt;sstream&gt;</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &quot;BKE_global.hh&quot;</a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &quot;BLI_utildefines.hh&quot;</a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;CLG_log.h&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : </a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;vk_backend.hh&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &quot;vk_context.hh&quot;</a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;vk_debug.hh&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : #include &quot;vk_to_string.hh&quot;</a>
+<a name="19"><span class="lineNum">      19 </span>            : </a>
+<a name="20"><span class="lineNum">      20 </span>            : #include &quot;gpu_profile_report.hh&quot;</a>
+<a name="21"><span class="lineNum">      21 </span>            : </a>
+<a name="22"><span class="lineNum">      22 </span>            : namespace blender {</a>
+<a name="23"><span class="lineNum">      23 </span>            : </a>
+<a name="24"><span class="lineNum">      24 </span>            : static CLG_LogRef LOG = {&quot;gpu.vulkan&quot;};</a>
+<a name="25"><span class="lineNum">      25 </span>            : </a>
+<a name="26"><span class="lineNum">      26 </span>            : namespace gpu {</a>
+<a name="27"><span class="lineNum">      27 </span><span class="lineNoCov">          0 : void VKContext::debug_group_begin(const char *name, int index)</span></a>
+<a name="28"><span class="lineNum">      28 </span>            : {</a>
+<a name="29"><span class="lineNum">      29 </span>            :   UNUSED_VARS(index);</a>
+<a name="30"><span class="lineNum">      30 </span><span class="lineNoCov">          0 :   render_graph().debug_group_begin(name, debug::get_debug_group_color(name));</span></a>
+<a name="31"><span class="lineNum">      31 </span>            : </a>
+<a name="32"><span class="lineNum">      32 </span><span class="lineNoCov">          0 :   if (!G.profile_gpu) {</span></a>
+<a name="33"><span class="lineNum">      33 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="34"><span class="lineNum">      34 </span>            :   }</a>
+<a name="35"><span class="lineNum">      35 </span>            : </a>
+<a name="36"><span class="lineNum">      36 </span><span class="lineNoCov">          0 :   ScopeTimings timings = {};</span></a>
+<a name="37"><span class="lineNum">      37 </span><span class="lineNoCov">          0 :   timings.name = name;</span></a>
+<a name="38"><span class="lineNum">      38 </span><span class="lineNoCov">          0 :   timings.finished = false;</span></a>
+<a name="39"><span class="lineNum">      39 </span><span class="lineNoCov">          0 :   timings.cpu_start = ScopeTimings::Clock::now();</span></a>
+<a name="40"><span class="lineNum">      40 </span>            : </a>
+<a name="41"><span class="lineNum">      41 </span><span class="lineNoCov">          0 :   scope_timings.append(timings);</span></a>
+<a name="42"><span class="lineNum">      42 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="43"><span class="lineNum">      43 </span>            : </a>
+<a name="44"><span class="lineNum">      44 </span><span class="lineNoCov">          0 : void VKContext::debug_group_end()</span></a>
+<a name="45"><span class="lineNum">      45 </span>            : {</a>
+<a name="46"><span class="lineNum">      46 </span><span class="lineNoCov">          0 :   render_graph().debug_group_end();</span></a>
+<a name="47"><span class="lineNum">      47 </span>            : </a>
+<a name="48"><span class="lineNum">      48 </span><span class="lineNoCov">          0 :   if (!G.profile_gpu) {</span></a>
+<a name="49"><span class="lineNum">      49 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="50"><span class="lineNum">      50 </span>            :   }</a>
+<a name="51"><span class="lineNum">      51 </span>            : </a>
+<a name="52"><span class="lineNum">      52 </span><span class="lineNoCov">          0 :   for (int i = scope_timings.size() - 1; i &gt;= 0; i--) {</span></a>
+<a name="53"><span class="lineNum">      53 </span><span class="lineNoCov">          0 :     ScopeTimings &amp;query = scope_timings[i];</span></a>
+<a name="54"><span class="lineNum">      54 </span><span class="lineNoCov">          0 :     if (!query.finished) {</span></a>
+<a name="55"><span class="lineNum">      55 </span><span class="lineNoCov">          0 :       query.finished = true;</span></a>
+<a name="56"><span class="lineNum">      56 </span><span class="lineNoCov">          0 :       query.cpu_end = ScopeTimings::Clock::now();</span></a>
+<a name="57"><span class="lineNum">      57 </span><span class="lineNoCov">          0 :       break;</span></a>
+<a name="58"><span class="lineNum">      58 </span>            :     }</a>
+<a name="59"><span class="lineNum">      59 </span><span class="lineNoCov">          0 :     if (i == 0) {</span></a>
+<a name="60"><span class="lineNum">      60 </span><span class="lineNoCov">          0 :       CLOG_ERROR(&amp;LOG, &quot;Profile GPU error: Extra GPU_debug_group_end() call.&quot;);</span></a>
+<a name="61"><span class="lineNum">      61 </span>            :     }</a>
+<a name="62"><span class="lineNum">      62 </span>            :   }</a>
+<a name="63"><span class="lineNum">      63 </span>            : }</a>
+<a name="64"><span class="lineNum">      64 </span>            : </a>
+<a name="65"><span class="lineNum">      65 </span><span class="lineNoCov">          0 : void VKContext::process_frame_timings()</span></a>
+<a name="66"><span class="lineNum">      66 </span>            : {</a>
+<a name="67"><span class="lineNum">      67 </span><span class="lineNoCov">          0 :   if (!G.profile_gpu) {</span></a>
+<a name="68"><span class="lineNum">      68 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="69"><span class="lineNum">      69 </span>            :   }</a>
+<a name="70"><span class="lineNum">      70 </span>            : </a>
+<a name="71"><span class="lineNum">      71 </span><span class="lineNoCov">          0 :   Vector&lt;ScopeTimings&gt; &amp;queries = scope_timings;</span></a>
+<a name="72"><span class="lineNum">      72 </span>            : </a>
+<a name="73"><span class="lineNum">      73 </span><span class="lineNoCov">          0 :   bool frame_is_valid = !queries.is_empty();</span></a>
+<a name="74"><span class="lineNum">      74 </span>            : </a>
+<a name="75"><span class="lineNum">      75 </span><span class="lineNoCov">          0 :   for (int i = queries.size() - 1; i &gt;= 0; i--) {</span></a>
+<a name="76"><span class="lineNum">      76 </span><span class="lineNoCov">          0 :     if (!queries[i].finished) {</span></a>
+<a name="77"><span class="lineNum">      77 </span><span class="lineNoCov">          0 :       frame_is_valid = false;</span></a>
+<a name="78"><span class="lineNum">      78 </span><span class="lineNoCov">          0 :       CLOG_ERROR(&amp;LOG, &quot;Profile GPU error: Missing GPU_debug_group_end() call&quot;);</span></a>
+<a name="79"><span class="lineNum">      79 </span>            :     }</a>
+<a name="80"><span class="lineNum">      80 </span><span class="lineNoCov">          0 :     break;</span></a>
+<a name="81"><span class="lineNum">      81 </span>            :   }</a>
+<a name="82"><span class="lineNum">      82 </span>            : </a>
+<a name="83"><span class="lineNum">      83 </span><span class="lineNoCov">          0 :   if (!frame_is_valid) {</span></a>
+<a name="84"><span class="lineNum">      84 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="85"><span class="lineNum">      85 </span>            :   }</a>
+<a name="86"><span class="lineNum">      86 </span>            : </a>
+<a name="87"><span class="lineNum">      87 </span><span class="lineNoCov">          0 :   for (ScopeTimings &amp;query : queries) {</span></a>
+<a name="88"><span class="lineNum">      88 </span><span class="lineNoCov">          0 :     ProfileReport::get().add_group_cpu(query.name,</span></a>
+<a name="89"><span class="lineNum">      89 </span><span class="lineNoCov">          0 :                                        query.cpu_start.time_since_epoch().count(),</span></a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineNoCov">          0 :                                        query.cpu_end.time_since_epoch().count());</span></a>
+<a name="91"><span class="lineNum">      91 </span>            :   }</a>
+<a name="92"><span class="lineNum">      92 </span>            : </a>
+<a name="93"><span class="lineNum">      93 </span><span class="lineNoCov">          0 :   queries.clear();</span></a>
+<a name="94"><span class="lineNum">      94 </span>            : }</a>
+<a name="95"><span class="lineNum">      95 </span>            : </a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineNoCov">          0 : bool VKContext::debug_capture_begin(const char *title)</span></a>
+<a name="97"><span class="lineNum">      97 </span>            : {</a>
+<a name="98"><span class="lineNum">      98 </span><span class="lineNoCov">          0 :   return VKBackend::get().debug_capture_begin(title);</span></a>
+<a name="99"><span class="lineNum">      99 </span>            : }</a>
+<a name="100"><span class="lineNum">     100 </span>            : </a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineNoCov">          0 : bool VKBackend::debug_capture_begin(const char *title)</span></a>
+<a name="102"><span class="lineNum">     102 </span>            : {</a>
+<a name="103"><span class="lineNum">     103 </span>            : #ifdef WITH_RENDERDOC</a>
+<a name="104"><span class="lineNum">     104 </span>            :   bool result = renderdoc_api_.start_frame_capture(device.instance_get(), nullptr);</a>
+<a name="105"><span class="lineNum">     105 </span>            :   if (result &amp;&amp; title) {</a>
+<a name="106"><span class="lineNum">     106 </span>            :     renderdoc_api_.set_frame_capture_title(title);</a>
+<a name="107"><span class="lineNum">     107 </span>            :   }</a>
+<a name="108"><span class="lineNum">     108 </span>            :   return result;</a>
+<a name="109"><span class="lineNum">     109 </span>            : #else</a>
+<a name="110"><span class="lineNum">     110 </span>            :   UNUSED_VARS(title);</a>
+<a name="111"><span class="lineNum">     111 </span><span class="lineNoCov">          0 :   return false;</span></a>
+<a name="112"><span class="lineNum">     112 </span>            : #endif</a>
+<a name="113"><span class="lineNum">     113 </span>            : }</a>
+<a name="114"><span class="lineNum">     114 </span>            : </a>
+<a name="115"><span class="lineNum">     115 </span><span class="lineNoCov">          0 : void VKContext::debug_capture_end()</span></a>
+<a name="116"><span class="lineNum">     116 </span>            : {</a>
+<a name="117"><span class="lineNum">     117 </span><span class="lineNoCov">          0 :   VKBackend::get().debug_capture_end();</span></a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="119"><span class="lineNum">     119 </span>            : </a>
+<a name="120"><span class="lineNum">     120 </span><span class="lineNoCov">          0 : void VKBackend::debug_capture_end()</span></a>
+<a name="121"><span class="lineNum">     121 </span>            : {</a>
+<a name="122"><span class="lineNum">     122 </span>            : #ifdef WITH_RENDERDOC</a>
+<a name="123"><span class="lineNum">     123 </span>            :   renderdoc_api_.end_frame_capture(device.instance_get(), nullptr);</a>
+<a name="124"><span class="lineNum">     124 </span>            : #endif</a>
+<a name="125"><span class="lineNum">     125 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="126"><span class="lineNum">     126 </span>            : </a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineNoCov">          0 : void *VKContext::debug_capture_scope_create(const char *name)</span></a>
+<a name="128"><span class="lineNum">     128 </span>            : {</a>
+<a name="129"><span class="lineNum">     129 </span><span class="lineNoCov">          0 :   return (void *)name;</span></a>
+<a name="130"><span class="lineNum">     130 </span>            : }</a>
+<a name="131"><span class="lineNum">     131 </span>            : </a>
+<a name="132"><span class="lineNum">     132 </span><span class="lineNoCov">          0 : bool VKContext::debug_capture_scope_begin(void *scope)</span></a>
+<a name="133"><span class="lineNum">     133 </span>            : {</a>
+<a name="134"><span class="lineNum">     134 </span>            : #ifdef WITH_RENDERDOC</a>
+<a name="135"><span class="lineNum">     135 </span>            :   const char *title = (const char *)scope;</a>
+<a name="136"><span class="lineNum">     136 </span>            :   if (StringRefNull(title) != StringRefNull(G.gpu_debug_scope_name)) {</a>
+<a name="137"><span class="lineNum">     137 </span>            :     return false;</a>
+<a name="138"><span class="lineNum">     138 </span>            :   }</a>
+<a name="139"><span class="lineNum">     139 </span>            :   VKBackend::get().debug_capture_begin(title);</a>
+<a name="140"><span class="lineNum">     140 </span>            : #else</a>
+<a name="141"><span class="lineNum">     141 </span>            :   UNUSED_VARS(scope);</a>
+<a name="142"><span class="lineNum">     142 </span>            : #endif</a>
+<a name="143"><span class="lineNum">     143 </span><span class="lineNoCov">          0 :   return false;</span></a>
+<a name="144"><span class="lineNum">     144 </span>            : }</a>
+<a name="145"><span class="lineNum">     145 </span>            : </a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineNoCov">          0 : void VKContext::debug_capture_scope_end(void *scope)</span></a>
+<a name="147"><span class="lineNum">     147 </span>            : {</a>
+<a name="148"><span class="lineNum">     148 </span>            : #ifdef WITH_RENDERDOC</a>
+<a name="149"><span class="lineNum">     149 </span>            :   const char *title = (const char *)scope;</a>
+<a name="150"><span class="lineNum">     150 </span>            :   if (StringRefNull(title) == StringRefNull(G.gpu_debug_scope_name)) {</a>
+<a name="151"><span class="lineNum">     151 </span>            :     VKBackend::get().debug_capture_end();</a>
+<a name="152"><span class="lineNum">     152 </span>            :   }</a>
+<a name="153"><span class="lineNum">     153 </span>            : #else</a>
+<a name="154"><span class="lineNum">     154 </span>            :   UNUSED_VARS(scope);</a>
+<a name="155"><span class="lineNum">     155 </span>            : #endif</a>
+<a name="156"><span class="lineNum">     156 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="157"><span class="lineNum">     157 </span>            : </a>
+<a name="158"><span class="lineNum">     158 </span>            : }  // namespace gpu</a>
+<a name="159"><span class="lineNum">     159 </span>            : </a>
+<a name="160"><span class="lineNum">     160 </span>            : namespace gpu::debug {</a>
+<a name="161"><span class="lineNum">     161 </span>            : </a>
+<a name="162"><span class="lineNum">     162 </span><span class="lineNoCov">          0 : void VKDebuggingTools::init(VkInstance vk_instance)</span></a>
+<a name="163"><span class="lineNum">     163 </span>            : {</a>
+<a name="164"><span class="lineNum">     164 </span><span class="lineNoCov">          0 :   CLG_logref_init(&amp;LOG);</span></a>
+<a name="165"><span class="lineNum">     165 </span><span class="lineNoCov">          0 :   init_messenger(vk_instance);</span></a>
+<a name="166"><span class="lineNum">     166 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="167"><span class="lineNum">     167 </span>            : </a>
+<a name="168"><span class="lineNum">     168 </span><span class="lineNoCov">          0 : void VKDebuggingTools::deinit(VkInstance vk_instance)</span></a>
+<a name="169"><span class="lineNum">     169 </span>            : {</a>
+<a name="170"><span class="lineNum">     170 </span><span class="lineNoCov">          0 :   destroy_messenger(vk_instance);</span></a>
+<a name="171"><span class="lineNum">     171 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="172"><span class="lineNum">     172 </span>            : </a>
+<a name="173"><span class="lineNum">     173 </span><span class="lineNoCov">          0 : void object_label(VkObjectType vk_object_type, uint64_t object_handle, const char *name)</span></a>
+<a name="174"><span class="lineNum">     174 </span>            : {</a>
+<a name="175"><span class="lineNum">     175 </span><span class="lineNoCov">          0 :   const VKDevice &amp;device = VKBackend::get().device;</span></a>
+<a name="176"><span class="lineNum">     176 </span><span class="lineNoCov">          0 :   if (G.debug &amp; G_DEBUG_GPU &amp;&amp; volk::vkSetDebugUtilsObjectNameEXT &amp;&amp; object_handle != 0) {</span></a>
+<a name="177"><span class="lineNum">     177 </span><span class="lineNoCov">          0 :     VkDebugUtilsObjectNameInfoEXT info = {};</span></a>
+<a name="178"><span class="lineNum">     178 </span><span class="lineNoCov">          0 :     info.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;</span></a>
+<a name="179"><span class="lineNum">     179 </span><span class="lineNoCov">          0 :     info.objectType = vk_object_type;</span></a>
+<a name="180"><span class="lineNum">     180 </span><span class="lineNoCov">          0 :     info.objectHandle = object_handle;</span></a>
+<a name="181"><span class="lineNum">     181 </span><span class="lineNoCov">          0 :     info.pObjectName = name;</span></a>
+<a name="182"><span class="lineNum">     182 </span><span class="lineNoCov">          0 :     volk::vkSetDebugUtilsObjectNameEXT(device.vk_handle(), &amp;info);</span></a>
+<a name="183"><span class="lineNum">     183 </span>            :   }</a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="185"><span class="lineNum">     185 </span>            : </a>
+<a name="186"><span class="lineNum">     186 </span>            : }  // namespace gpu::debug</a>
+<a name="187"><span class="lineNum">     187 </span>            : </a>
+<a name="188"><span class="lineNum">     188 </span>            : namespace gpu::debug {</a>
+<a name="189"><span class="lineNum">     189 </span>            : </a>
+<a name="190"><span class="lineNum">     190 </span><span class="lineNoCov">          0 : void VKDebuggingTools::print_labels(const VkDebugUtilsMessengerCallbackDataEXT *callback_data)</span></a>
+<a name="191"><span class="lineNum">     191 </span>            : {</a>
+<a name="192"><span class="lineNum">     192 </span><span class="lineNoCov">          0 :   std::stringstream ss;</span></a>
+<a name="193"><span class="lineNum">     193 </span><span class="lineNoCov">          0 :   for (uint32_t object = 0; object &lt; callback_data-&gt;objectCount; ++object) {</span></a>
+<a name="194"><span class="lineNum">     194 </span><span class="lineNoCov">          0 :     ss &lt;&lt; &quot; - ObjectType[&quot; &lt;&lt; to_string(callback_data-&gt;pObjects[object].objectType) &lt;&lt; &quot;],&quot;;</span></a>
+<a name="195"><span class="lineNum">     195 </span><span class="lineNoCov">          0 :     ss &lt;&lt; &quot;Handle[0x&quot; &lt;&lt; std::hex &lt;&lt; uintptr_t(callback_data-&gt;pObjects[object].objectHandle)</span></a>
+<a name="196"><span class="lineNum">     196 </span><span class="lineNoCov">          0 :        &lt;&lt; &quot;]&quot;;</span></a>
+<a name="197"><span class="lineNum">     197 </span><span class="lineNoCov">          0 :     if (callback_data-&gt;pObjects[object].pObjectName) {</span></a>
+<a name="198"><span class="lineNum">     198 </span><span class="lineNoCov">          0 :       ss &lt;&lt; &quot;,Name[&quot; &lt;&lt; callback_data-&gt;pObjects[object].pObjectName &lt;&lt; &quot;]&quot;;</span></a>
+<a name="199"><span class="lineNum">     199 </span>            :     }</a>
+<a name="200"><span class="lineNum">     200 </span><span class="lineNoCov">          0 :     ss &lt;&lt; std::endl;</span></a>
+<a name="201"><span class="lineNum">     201 </span>            :   }</a>
+<a name="202"><span class="lineNum">     202 </span><span class="lineNoCov">          0 :   for (uint32_t label = 0; label &lt; callback_data-&gt;cmdBufLabelCount; ++label) {</span></a>
+<a name="203"><span class="lineNum">     203 </span><span class="lineNoCov">          0 :     if (callback_data-&gt;pCmdBufLabels[label].pLabelName) {</span></a>
+<a name="204"><span class="lineNum">     204 </span><span class="lineNoCov">          0 :       ss &lt;&lt; &quot; - CommandBuffer : &quot; &lt;&lt; callback_data-&gt;pCmdBufLabels[label].pLabelName &lt;&lt; std::endl;</span></a>
+<a name="205"><span class="lineNum">     205 </span>            :     }</a>
+<a name="206"><span class="lineNum">     206 </span>            :   }</a>
+<a name="207"><span class="lineNum">     207 </span><span class="lineNoCov">          0 :   for (uint32_t label = 0; label &lt; callback_data-&gt;queueLabelCount; ++label) {</span></a>
+<a name="208"><span class="lineNum">     208 </span><span class="lineNoCov">          0 :     if (callback_data-&gt;pQueueLabels[label].pLabelName) {</span></a>
+<a name="209"><span class="lineNum">     209 </span><span class="lineNoCov">          0 :       ss &lt;&lt; &quot; - Queue : &quot; &lt;&lt; callback_data-&gt;pQueueLabels[label].pLabelName &lt;&lt; std::endl;</span></a>
+<a name="210"><span class="lineNum">     210 </span>            :     }</a>
+<a name="211"><span class="lineNum">     211 </span>            :   }</a>
+<a name="212"><span class="lineNum">     212 </span><span class="lineNoCov">          0 :   ss &lt;&lt; std::endl;</span></a>
+<a name="213"><span class="lineNum">     213 </span><span class="lineNoCov">          0 :   printf(&quot;%s&quot;, ss.str().c_str());</span></a>
+<a name="214"><span class="lineNum">     214 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="215"><span class="lineNum">     215 </span>            : </a>
+<a name="216"><span class="lineNum">     216 </span>            : static VKAPI_ATTR VkBool32 VKAPI_CALL</a>
+<a name="217"><span class="lineNum">     217 </span><span class="lineNoCov">          0 : messenger_callback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,</span></a>
+<a name="218"><span class="lineNum">     218 </span>            :                    VkDebugUtilsMessageTypeFlagsEXT message_type,</a>
+<a name="219"><span class="lineNum">     219 </span>            :                    const VkDebugUtilsMessengerCallbackDataEXT *callback_data,</a>
+<a name="220"><span class="lineNum">     220 </span>            :                    void *user_data)</a>
+<a name="221"><span class="lineNum">     221 </span>            : {</a>
+<a name="222"><span class="lineNum">     222 </span><span class="lineNoCov">          0 :   CLG_Level level = CLG_LEVEL_INFO;</span></a>
+<a name="223"><span class="lineNum">     223 </span><span class="lineNoCov">          0 :   if (message_severity &amp; (VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |</span></a>
+<a name="224"><span class="lineNum">     224 </span>            :                           VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT))</a>
+<a name="225"><span class="lineNum">     225 </span>            :   {</a>
+<a name="226"><span class="lineNum">     226 </span><span class="lineNoCov">          0 :     level = CLG_LEVEL_INFO;</span></a>
+<a name="227"><span class="lineNum">     227 </span>            :   }</a>
+<a name="228"><span class="lineNum">     228 </span><span class="lineNoCov">          0 :   if (message_severity &amp; VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {</span></a>
+<a name="229"><span class="lineNum">     229 </span><span class="lineNoCov">          0 :     level = CLG_LEVEL_WARN;</span></a>
+<a name="230"><span class="lineNum">     230 </span>            :   }</a>
+<a name="231"><span class="lineNum">     231 </span><span class="lineNoCov">          0 :   if (message_severity &amp; VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {</span></a>
+<a name="232"><span class="lineNum">     232 </span><span class="lineNoCov">          0 :     level = CLG_LEVEL_ERROR;</span></a>
+<a name="233"><span class="lineNum">     233 </span>            :   }</a>
+<a name="234"><span class="lineNum">     234 </span>            : </a>
+<a name="235"><span class="lineNum">     235 </span><span class="lineNoCov">          0 :   if (bool(message_type &amp; VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT)) {</span></a>
+<a name="236"><span class="lineNum">     236 </span><span class="lineNoCov">          0 :     const char *format = &quot;{0x%x}%s\n %s&quot;;</span></a>
+<a name="237"><span class="lineNum">     237 </span><span class="lineNoCov">          0 :     CLOG_AT_LEVEL(&amp;LOG,</span></a>
+<a name="238"><span class="lineNum">     238 </span>            :                   level,</a>
+<a name="239"><span class="lineNum">     239 </span>            :                   format,</a>
+<a name="240"><span class="lineNum">     240 </span>            :                   callback_data-&gt;messageIdNumber,</a>
+<a name="241"><span class="lineNum">     241 </span>            :                   callback_data-&gt;pMessageIdName,</a>
+<a name="242"><span class="lineNum">     242 </span>            :                   callback_data-&gt;pMessage);</a>
+<a name="243"><span class="lineNum">     243 </span><span class="lineNoCov">          0 :     const bool do_labels = (callback_data-&gt;objectCount + callback_data-&gt;cmdBufLabelCount +</span></a>
+<a name="244"><span class="lineNum">     244 </span><span class="lineNoCov">          0 :                             callback_data-&gt;queueLabelCount) &gt; 0;</span></a>
+<a name="245"><span class="lineNum">     245 </span><span class="lineNoCov">          0 :     const bool log_active = CLOG_CHECK(&amp;LOG, level);</span></a>
+<a name="246"><span class="lineNum">     246 </span><span class="lineNoCov">          0 :     if (do_labels &amp;&amp; log_active) {</span></a>
+<a name="247"><span class="lineNum">     247 </span><span class="lineNoCov">          0 :       VKDebuggingTools &amp;debugging_tools = *reinterpret_cast&lt;VKDebuggingTools *&gt;(user_data);</span></a>
+<a name="248"><span class="lineNum">     248 </span><span class="lineNoCov">          0 :       debugging_tools.print_labels(callback_data);</span></a>
+<a name="249"><span class="lineNum">     249 </span>            :     }</a>
+<a name="250"><span class="lineNum">     250 </span>            :   }</a>
+<a name="251"><span class="lineNum">     251 </span>            :   else {</a>
+<a name="252"><span class="lineNum">     252 </span><span class="lineNoCov">          0 :     const char *format = &quot;%s: %s&quot;;</span></a>
+<a name="253"><span class="lineNum">     253 </span><span class="lineNoCov">          0 :     CLOG_AT_LEVEL(&amp;LOG, level, format, callback_data-&gt;pMessageIdName, callback_data-&gt;pMessage);</span></a>
+<a name="254"><span class="lineNum">     254 </span>            :   }</a>
+<a name="255"><span class="lineNum">     255 </span>            : </a>
+<a name="256"><span class="lineNum">     256 </span><span class="lineNoCov">          0 :   return VK_FALSE;</span></a>
+<a name="257"><span class="lineNum">     257 </span>            : };</a>
+<a name="258"><span class="lineNum">     258 </span>            : </a>
+<a name="259"><span class="lineNum">     259 </span><span class="lineNoCov">          0 : void VKDebuggingTools::init_messenger(VkInstance vk_instance)</span></a>
+<a name="260"><span class="lineNum">     260 </span>            : {</a>
+<a name="261"><span class="lineNum">     261 </span><span class="lineNoCov">          0 :   if (!(G.debug &amp; G_DEBUG_GPU)) {</span></a>
+<a name="262"><span class="lineNum">     262 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="263"><span class="lineNum">     263 </span>            :   }</a>
+<a name="264"><span class="lineNum">     264 </span><span class="lineNoCov">          0 :   if (vk_debug_utils_messenger != VK_NULL_HANDLE) {</span></a>
+<a name="265"><span class="lineNum">     265 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="266"><span class="lineNum">     266 </span>            :   }</a>
+<a name="267"><span class="lineNum">     267 </span><span class="lineNoCov">          0 :   if (!volk::vkCreateDebugUtilsMessengerEXT) {</span></a>
+<a name="268"><span class="lineNum">     268 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="269"><span class="lineNum">     269 </span>            :   }</a>
+<a name="270"><span class="lineNum">     270 </span>            : </a>
+<a name="271"><span class="lineNum">     271 </span>            :   VkDebugUtilsMessengerCreateInfoEXT create_info;</a>
+<a name="272"><span class="lineNum">     272 </span><span class="lineNoCov">          0 :   create_info.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;</span></a>
+<a name="273"><span class="lineNum">     273 </span><span class="lineNoCov">          0 :   create_info.pNext = nullptr;</span></a>
+<a name="274"><span class="lineNum">     274 </span><span class="lineNoCov">          0 :   create_info.flags = 0;</span></a>
+<a name="275"><span class="lineNum">     275 </span><span class="lineNoCov">          0 :   create_info.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |</span></a>
+<a name="276"><span class="lineNum">     276 </span>            :                                 VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |</a>
+<a name="277"><span class="lineNum">     277 </span>            :                                 VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |</a>
+<a name="278"><span class="lineNum">     278 </span>            :                                 VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;</a>
+<a name="279"><span class="lineNum">     279 </span><span class="lineNoCov">          0 :   create_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |</span></a>
+<a name="280"><span class="lineNum">     280 </span>            :                             VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |</a>
+<a name="281"><span class="lineNum">     281 </span>            :                             VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;</a>
+<a name="282"><span class="lineNum">     282 </span><span class="lineNoCov">          0 :   create_info.pfnUserCallback = messenger_callback;</span></a>
+<a name="283"><span class="lineNum">     283 </span><span class="lineNoCov">          0 :   create_info.pUserData = this;</span></a>
+<a name="284"><span class="lineNum">     284 </span><span class="lineNoCov">          0 :   volk::vkCreateDebugUtilsMessengerEXT(</span></a>
+<a name="285"><span class="lineNum">     285 </span>            :       vk_instance, &amp;create_info, nullptr, &amp;vk_debug_utils_messenger);</a>
+<a name="286"><span class="lineNum">     286 </span>            : }</a>
+<a name="287"><span class="lineNum">     287 </span>            : </a>
+<a name="288"><span class="lineNum">     288 </span><span class="lineNoCov">          0 : void VKDebuggingTools::destroy_messenger(VkInstance vk_instance)</span></a>
+<a name="289"><span class="lineNum">     289 </span>            : {</a>
+<a name="290"><span class="lineNum">     290 </span><span class="lineNoCov">          0 :   if (vk_debug_utils_messenger == VK_NULL_HANDLE) {</span></a>
+<a name="291"><span class="lineNum">     291 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="292"><span class="lineNum">     292 </span>            :   }</a>
+<a name="293"><span class="lineNum">     293 </span>            : </a>
+<a name="294"><span class="lineNum">     294 </span><span class="lineNoCov">          0 :   volk::vkDestroyDebugUtilsMessengerEXT(vk_instance, vk_debug_utils_messenger, nullptr);</span></a>
+<a name="295"><span class="lineNum">     295 </span><span class="lineNoCov">          0 :   vk_debug_utils_messenger = VK_NULL_HANDLE;</span></a>
+<a name="296"><span class="lineNum">     296 </span>            : }</a>
+<a name="297"><span class="lineNum">     297 </span>            : </a>
+<a name="298"><span class="lineNum">     298 </span>            : };  // namespace gpu::debug</a>
+<a name="299"><span class="lineNum">     299 </span>            : </a>
+<a name="300"><span class="lineNum">     300 </span>            : }  // namespace blender</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

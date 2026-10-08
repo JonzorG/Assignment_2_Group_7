@@ -1,0 +1,455 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - /home/dev/Blender_PA1483/blender/intern/cycles/kernel/film/denoising_passes.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../../../index.html">top level</a> - <a href="index.html">home/dev/Blender_PA1483/blender/intern/cycles/kernel/film</a> - denoising_passes.h<span style="font-size: 80%;"> (source / <a href="denoising_passes.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">143</td>
+            <td class="headerCovTableEntry">157</td>
+            <td class="headerCovTableEntryHi">91.1 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2011-2022 Blender Foundation</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: Apache-2.0 */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : #pragma once</a>
+<a name="6"><span class="lineNum">       6 </span>            : </a>
+<a name="7"><span class="lineNum">       7 </span>            : #include &quot;kernel/closure/bsdf.h&quot;</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &quot;kernel/film/write.h&quot;</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : CCL_NAMESPACE_BEGIN</a>
+<a name="12"><span class="lineNum">      12 </span>            : </a>
+<a name="13"><span class="lineNum">      13 </span>            : #ifdef __DENOISING_FEATURES__</a>
+<a name="14"><span class="lineNum">      14 </span>            : ccl_device_forceinline float denoising_depth_compute(KernelGlobals kg,</a>
+<a name="15"><span class="lineNum">      15 </span>            :                                                      IntegratorState state,</a>
+<a name="16"><span class="lineNum">      16 </span>            :                                                      const ccl_private ShaderData *sd,</a>
+<a name="17"><span class="lineNum">      17 </span>            :                                                      const Spectrum denoising_feature_throughput,</a>
+<a name="18"><span class="lineNum">      18 </span>            :                                                      const bool follow_reflections)</a>
+<a name="19"><span class="lineNum">      19 </span>            : {</a>
+<a name="20"><span class="lineNum">      20 </span>            :   float depth;</a>
+<a name="21"><span class="lineNum">      21 </span><span class="lineCov">    2165273 :   const float d = sd-&gt;ray_length - INTEGRATOR_STATE(state, ray, tmin);</span></a>
+<a name="22"><span class="lineNum">      22 </span><span class="lineCov">    2165273 :   if (follow_reflections) {</span></a>
+<a name="23"><span class="lineNum">      23 </span>            :     /* Write the ray length minus tmin. */</a>
+<a name="24"><span class="lineNum">      24 </span><span class="lineCov">    2145295 :     depth = d;</span></a>
+<a name="25"><span class="lineNum">      25 </span>            :   }</a>
+<a name="26"><span class="lineNum">      26 </span>            :   else {</a>
+<a name="27"><span class="lineNum">      27 </span>            :     /* Write the camera z depth. */</a>
+<a name="28"><span class="lineNum">      28 </span><span class="lineCov">      39956 :     const float3 prev_P = sd-&gt;P + sd-&gt;wi * d;</span></a>
+<a name="29"><span class="lineNum">      29 </span><span class="lineCov">      19978 :     const float prev_depth = camera_z_depth(kg, prev_P);</span></a>
+<a name="30"><span class="lineNum">      30 </span><span class="lineCov">      19978 :     const float new_depth = camera_z_depth(kg, sd-&gt;P);</span></a>
+<a name="31"><span class="lineNum">      31 </span><span class="lineCov">      19978 :     depth = new_depth - prev_depth;</span></a>
+<a name="32"><span class="lineNum">      32 </span>            :   }</a>
+<a name="33"><span class="lineNum">      33 </span>            : </a>
+<a name="34"><span class="lineNum">      34 </span>            :   /* Include nearclip distance for the first bounce only to make sure that the depth value will</a>
+<a name="35"><span class="lineNum">      35 </span>            :    * never be lower than the near clip plane. OIDN expects the denoising depth to be in the range</a>
+<a name="36"><span class="lineNum">      36 </span>            :    * [near, far]. For orthographic cameras this is skipped, as `nearclip = -farclip / 2` is used</a>
+<a name="37"><span class="lineNum">      37 </span>            :    * and OIDN does not accept negative near clip planes.*/</a>
+<a name="38"><span class="lineNum">      38 </span><span class="lineCov">    2165273 :   if (INTEGRATOR_STATE(state, path, bounce) == 0 &amp;&amp;</span></a>
+<a name="39"><span class="lineNum">      39 </span><span class="lineCov">    2111132 :       INTEGRATOR_STATE(state, path, transparent_bounce) == 0 &amp;&amp;</span></a>
+<a name="40"><span class="lineNum">      40 </span><span class="lineCov">    2044308 :       INTEGRATOR_STATE(state, path, volume_bounds_bounce) == 0 &amp;&amp; kernel_data.cam.nearclip &gt; 0.0f)</span></a>
+<a name="41"><span class="lineNum">      41 </span>            :   {</a>
+<a name="42"><span class="lineNum">      42 </span><span class="lineCov">    2059551 :     if (follow_reflections &amp;&amp; kernel_data.cam.type == CAMERA_PERSPECTIVE) {</span></a>
+<a name="43"><span class="lineNum">      43 </span>            :       /* Depth is a ray length here, so add the ray length from the camera to the near clip plane</a>
+<a name="44"><span class="lineNum">      44 </span>            :        * rather than the near clip z-depth. */</a>
+<a name="45"><span class="lineNum">      45 </span><span class="lineCov">    2065815 :       const Transform cameratoworld = kernel_data.cam.cameratoworld;</span></a>
+<a name="46"><span class="lineNum">      46 </span><span class="lineCov">    2065815 :       const float3 camD = make_float3(cameratoworld.x.z, cameratoworld.y.z, cameratoworld.z.z);</span></a>
+<a name="47"><span class="lineNum">      47 </span><span class="lineCov">    2065815 :       depth += kernel_data.cam.nearclip / dot(-sd-&gt;wi, camD);</span></a>
+<a name="48"><span class="lineNum">      48 </span><span class="lineCov">    2065815 :     }</span></a>
+<a name="49"><span class="lineNum">      49 </span>            :     else {</a>
+<a name="50"><span class="lineNum">      50 </span><span class="lineNoCov">          0 :       depth += kernel_data.cam.nearclip;</span></a>
+<a name="51"><span class="lineNum">      51 </span>            :     }</a>
+<a name="52"><span class="lineNum">      52 </span>            :   }</a>
+<a name="53"><span class="lineNum">      53 </span>            : </a>
+<a name="54"><span class="lineNum">      54 </span><span class="lineCov">    4330546 :   return ensure_finite(depth * average(denoising_feature_throughput));</span></a>
+<a name="55"><span class="lineNum">      55 </span>            : }</a>
+<a name="56"><span class="lineNum">      56 </span>            : </a>
+<a name="57"><span class="lineNum">      57 </span>            : ccl_device_forceinline void film_write_denoising_features_surface(KernelGlobals kg,</a>
+<a name="58"><span class="lineNum">      58 </span>            :                                                                   IntegratorState state,</a>
+<a name="59"><span class="lineNum">      59 </span>            :                                                                   const ccl_private ShaderData *sd,</a>
+<a name="60"><span class="lineNum">      60 </span>            :                                                                   ccl_global float *ccl_restrict</a>
+<a name="61"><span class="lineNum">      61 </span>            :                                                                       render_buffer)</a>
+<a name="62"><span class="lineNum">      62 </span>            : {</a>
+<a name="63"><span class="lineNum">      63 </span><span class="lineCov">  408002704 :   const uint32_t path_flag = INTEGRATOR_STATE(state, path, flag);</span></a>
+<a name="64"><span class="lineNum">      64 </span><span class="lineCov">  408002704 :   if (!(path_flag &amp; PATH_RAY_DENOISING_FEATURES)) {</span></a>
+<a name="65"><span class="lineNum">      65 </span><span class="lineCov">  388897690 :     return;</span></a>
+<a name="66"><span class="lineNum">      66 </span>            :   }</a>
+<a name="67"><span class="lineNum">      67 </span>            : </a>
+<a name="68"><span class="lineNum">      68 </span>            :   /* Don't write denoising passes for paths that were split off for shadow catchers</a>
+<a name="69"><span class="lineNum">      69 </span>            :    * to avoid double-counting. */</a>
+<a name="70"><span class="lineNum">      70 </span><span class="lineCov">   20937066 :   if (path_flag &amp; PATH_RAY_SHADOW_CATCHER_PASS) {</span></a>
+<a name="71"><span class="lineNum">      71 </span><span class="lineCov">    1832052 :     return;</span></a>
+<a name="72"><span class="lineNum">      72 </span>            :   }</a>
+<a name="73"><span class="lineNum">      73 </span>            : </a>
+<a name="74"><span class="lineNum">      74 </span><span class="lineCov">   19105014 :   const bool use_albedo_roughness_weighting = (kernel_data.film.denoising_pass_options_flag &amp;</span></a>
+<a name="75"><span class="lineNum">      75 </span>            :                                                DENOISING_PASS_USE_ALBEDO_ROUGHNESS_WEIGHTING) != 0;</a>
+<a name="76"><span class="lineNum">      76 </span>            : </a>
+<a name="77"><span class="lineNum">      77 </span><span class="lineCov">   19105014 :   ccl_global float *buffer = film_pass_pixel_render_buffer(kg, state, render_buffer);</span></a>
+<a name="78"><span class="lineNum">      78 </span>            : </a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineCov">   19105014 :   float3 normal = zero_float3();</span></a>
+<a name="80"><span class="lineNum">      80 </span><span class="lineCov">   19105014 :   Spectrum diffuse_albedo = zero_spectrum();</span></a>
+<a name="81"><span class="lineNum">      81 </span><span class="lineCov">   19105014 :   Spectrum specular_albedo = zero_spectrum();</span></a>
+<a name="82"><span class="lineNum">      82 </span><span class="lineCov">   19105014 :   Spectrum transparent_albedo = zero_spectrum();</span></a>
+<a name="83"><span class="lineNum">      83 </span><span class="lineCov">   19105014 :   float specular_roughness = 0.0f;</span></a>
+<a name="84"><span class="lineNum">      84 </span><span class="lineCov">   19105014 :   float sum_weight = 0.0f;</span></a>
+<a name="85"><span class="lineNum">      85 </span><span class="lineCov">   19105014 :   float sum_nonspecular_weight = 0.0f;</span></a>
+<a name="86"><span class="lineNum">      86 </span>            : </a>
+<a name="87"><span class="lineNum">      87 </span><span class="lineCov">   37703802 :   for (int i = 0; i &lt; sd-&gt;num_closure; i++) {</span></a>
+<a name="88"><span class="lineNum">      88 </span><span class="lineCov">   18685035 :     const ccl_private ShaderClosure *sc = &amp;sd-&gt;closure[i];</span></a>
+<a name="89"><span class="lineNum">      89 </span>            : </a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineCov">   18685035 :     if (!CLOSURE_IS_BSDF_OR_BSSRDF(sc-&gt;type)) {</span></a>
+<a name="91"><span class="lineNum">      91 </span><span class="lineCov">     105587 :       continue;</span></a>
+<a name="92"><span class="lineNum">      92 </span>            :     }</a>
+<a name="93"><span class="lineNum">      93 </span>            : </a>
+<a name="94"><span class="lineNum">      94 </span>            :     /* Transparency always passes through. */</a>
+<a name="95"><span class="lineNum">      95 </span><span class="lineCov">   18685035 :     if (CLOSURE_IS_BSDF_TRANSPARENT(sc-&gt;type)) {</span></a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineCov">     105587 :       transparent_albedo += sc-&gt;weight;</span></a>
+<a name="97"><span class="lineNum">      97 </span><span class="lineCov">     105587 :       continue;</span></a>
+<a name="98"><span class="lineNum">      98 </span>            :     }</a>
+<a name="99"><span class="lineNum">      99 </span>            : </a>
+<a name="100"><span class="lineNum">     100 </span><span class="lineCov">   18493201 :     const Spectrum albedo = closure_albedo(kg, sd, sc, true, true);</span></a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineCov">   18493201 :     const float closure_weight = average(albedo);</span></a>
+<a name="102"><span class="lineNum">     102 </span>            : </a>
+<a name="103"><span class="lineNum">     103 </span>            :     /* All closures contribute to the normal feature, but only diffuse-like ones to the albedo. */</a>
+<a name="104"><span class="lineNum">     104 </span>            :     /* If far-field hair, use fiber tangent as feature instead of normal. */</a>
+<a name="105"><span class="lineNum">     105 </span><span class="lineNoCov">          0 :     normal += (sc-&gt;type == CLOSURE_BSDF_HAIR_HUANG_ID ? safe_normalize(sd-&gt;dPdu) : sc-&gt;N) *</span></a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineCov">   36986402 :               closure_weight;</span></a>
+<a name="107"><span class="lineNum">     107 </span>            : </a>
+<a name="108"><span class="lineNum">     108 </span>            :     /* bsdf_get_specular_roughness_squared returns GGX alpha squared (alpha_x*alpha_y). Use sqrtf</a>
+<a name="109"><span class="lineNum">     109 </span>            :      * to get GGX alpha. */</a>
+<a name="110"><span class="lineNum">     110 </span><span class="lineCov">   18493201 :     const float roughness = sqrtf(bsdf_get_specular_roughness_squared(sc));</span></a>
+<a name="111"><span class="lineNum">     111 </span>            : </a>
+<a name="112"><span class="lineNum">     112 </span>            :     /* Transition smoothly from specular to diffuse between 0.0 and 0.15 roughness. */</a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineCov">   18493201 :     const float diffuse_weight = (sc-&gt;type == CLOSURE_BSDF_HAIR_HUANG_ID) ?</span></a>
+<a name="114"><span class="lineNum">     114 </span>            :                                      1.0f :</a>
+<a name="115"><span class="lineNum">     115 </span><span class="lineCov">   18815597 :                                      smoothstep(0.0f, 0.15f, roughness);</span></a>
+<a name="116"><span class="lineNum">     116 </span>            : </a>
+<a name="117"><span class="lineNum">     117 </span><span class="lineCov">   18493201 :     if (use_albedo_roughness_weighting) {</span></a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineCov">   18680232 :       diffuse_albedo += albedo * diffuse_weight;</span></a>
+<a name="119"><span class="lineNum">     119 </span><span class="lineCov">   37360464 :       specular_albedo += albedo * (1.0f - diffuse_weight);</span></a>
+<a name="120"><span class="lineNum">     120 </span>            :     }</a>
+<a name="121"><span class="lineNum">     121 </span><span class="lineNoCov">          0 :     else if (CLOSURE_IS_BSDF_DIFFUSE(sc-&gt;type) || CLOSURE_IS_BSSRDF(sc-&gt;type)) {</span></a>
+<a name="122"><span class="lineNum">     122 </span><span class="lineNoCov">          0 :       diffuse_albedo += albedo;</span></a>
+<a name="123"><span class="lineNum">     123 </span>            :     }</a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineNoCov">          0 :     else if (CLOSURE_IS_BSDF_GLOSSY(sc-&gt;type) || CLOSURE_IS_GLASS(sc-&gt;type)) {</span></a>
+<a name="125"><span class="lineNum">     125 </span><span class="lineNoCov">          0 :       specular_albedo += albedo;</span></a>
+<a name="126"><span class="lineNum">     126 </span>            :     }</a>
+<a name="127"><span class="lineNum">     127 </span>            :     /* Apply sqrtf again to convert GGX alpha to perceptual roughness. */</a>
+<a name="128"><span class="lineNum">     128 </span><span class="lineCov">   18493201 :     specular_roughness += sqrtf(roughness) * closure_weight;</span></a>
+<a name="129"><span class="lineNum">     129 </span>            : </a>
+<a name="130"><span class="lineNum">     130 </span><span class="lineCov">   18493201 :     sum_weight += closure_weight;</span></a>
+<a name="131"><span class="lineNum">     131 </span><span class="lineCov">   18493201 :     sum_nonspecular_weight += closure_weight * diffuse_weight;</span></a>
+<a name="132"><span class="lineNum">     132 </span>            :   }</a>
+<a name="133"><span class="lineNum">     133 </span>            : </a>
+<a name="134"><span class="lineNum">     134 </span>            :   /* Fraction of non-transparent closures, for smooth blending at transparent surfaces. */</a>
+<a name="135"><span class="lineNum">     135 </span><span class="lineCov">   19018767 :   const float transparent_weight = average(transparent_albedo);</span></a>
+<a name="136"><span class="lineNum">     136 </span><span class="lineCov">   19018767 :   const float total_weight = sum_weight + transparent_weight;</span></a>
+<a name="137"><span class="lineNum">     137 </span>            : </a>
+<a name="138"><span class="lineNum">     138 </span>            :   /* Blend between writing features at this bounce vs. deferring to the next bounce based</a>
+<a name="139"><span class="lineNum">     139 </span>            :    * on the proportion of diffuse closures. Smoothly transition between 0.0 and 0.5 diffuse</a>
+<a name="140"><span class="lineNum">     140 </span>            :    * fraction. */</a>
+<a name="141"><span class="lineNum">     141 </span><span class="lineCov">   19018767 :   float feature_weight = 0.0f;</span></a>
+<a name="142"><span class="lineNum">     142 </span><span class="lineCov">   19018767 :   if (sum_weight &gt; 0.0f) {</span></a>
+<a name="143"><span class="lineNum">     143 </span>            :     normal /= sum_weight;</a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineCov">   16002751 :     specular_roughness /= sum_weight;</span></a>
+<a name="145"><span class="lineNum">     145 </span>            : </a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineCov">   32005502 :     feature_weight = smoothstep(0.0f, 0.5f, sum_nonspecular_weight / sum_weight);</span></a>
+<a name="147"><span class="lineNum">     147 </span>            :   }</a>
+<a name="148"><span class="lineNum">     148 </span>            : </a>
+<a name="149"><span class="lineNum">     149 </span><span class="lineCov">   19018767 :   float deferred_feature_weight = 1.0f - feature_weight;</span></a>
+<a name="150"><span class="lineNum">     150 </span>            : </a>
+<a name="151"><span class="lineNum">     151 </span>            :   /* Whether to defer features to the next bounce for individual passes. */</a>
+<a name="152"><span class="lineNum">     152 </span><span class="lineCov">   19018767 :   const bool follow_reflections = (kernel_data.film.denoising_pass_options_flag &amp;</span></a>
+<a name="153"><span class="lineNum">     153 </span>            :                                    DENOISING_PASS_FOLLOW_REFLECTIONS) != 0;</a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineCov">   19018767 :   if (!follow_reflections) {</span></a>
+<a name="155"><span class="lineNum">     155 </span><span class="lineNoCov">          0 :     feature_weight = 1.0f;</span></a>
+<a name="156"><span class="lineNum">     156 </span>            :   }</a>
+<a name="157"><span class="lineNum">     157 </span>            : </a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineCov">   19018767 :   const bool is_first_bounce = INTEGRATOR_STATE(state, path, bounce) == 0;</span></a>
+<a name="159"><span class="lineNum">     159 </span>            : </a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineCov">   19018767 :   const Spectrum denoising_feature_throughput = INTEGRATOR_STATE(</span></a>
+<a name="161"><span class="lineNum">     161 </span>            :       state, path, denoising_feature_throughput);</a>
+<a name="162"><span class="lineNum">     162 </span>            : </a>
+<a name="163"><span class="lineNum">     163 </span><span class="lineCov">   19018767 :   if (is_first_bounce || follow_reflections) {</span></a>
+<a name="164"><span class="lineNum">     164 </span><span class="lineCov">   19018771 :     if (kernel_data.film.pass_denoising_depth != PASS_UNUSED) {</span></a>
+<a name="165"><span class="lineNum">     165 </span><span class="lineCov">    2165273 :       const float denoising_depth = denoising_depth_compute(</span></a>
+<a name="166"><span class="lineNum">     166 </span>            :           kg, state, sd, denoising_feature_throughput, follow_reflections);</a>
+<a name="167"><span class="lineNum">     167 </span><span class="lineCov">    2165273 :       film_write_pass_float(buffer + kernel_data.film.pass_denoising_depth, denoising_depth);</span></a>
+<a name="168"><span class="lineNum">     168 </span>            :     }</a>
+<a name="169"><span class="lineNum">     169 </span>            : </a>
+<a name="170"><span class="lineNum">     170 </span><span class="lineCov">   19018771 :     if (kernel_data.film.pass_denoising_normal != PASS_UNUSED &amp;&amp; feature_weight &gt; 0.0f) {</span></a>
+<a name="171"><span class="lineNum">     171 </span>            :       /* Transform normal into camera space. */</a>
+<a name="172"><span class="lineNum">     172 </span><span class="lineCov">   15962730 :       const Transform worldtocamera = kernel_data.cam.worldtocamera;</span></a>
+<a name="173"><span class="lineNum">     173 </span><span class="lineCov">   15962730 :       float3 denoising_normal = transform_direction(&amp;worldtocamera, normal);</span></a>
+<a name="174"><span class="lineNum">     174 </span><span class="lineCov">   15962730 :       const float opaque_fraction = (total_weight &gt; 0.0f) ? (sum_weight / total_weight) : 1.0f;</span></a>
+<a name="175"><span class="lineNum">     175 </span>            : </a>
+<a name="176"><span class="lineNum">     176 </span><span class="lineCov">   47888190 :       denoising_normal = ensure_finite(denoising_normal * opaque_fraction * feature_weight *</span></a>
+<a name="177"><span class="lineNum">     177 </span>            :                                        average(denoising_feature_throughput));</a>
+<a name="178"><span class="lineNum">     178 </span><span class="lineCov">   15962730 :       film_write_pass_float3(buffer + kernel_data.film.pass_denoising_normal, denoising_normal);</span></a>
+<a name="179"><span class="lineNum">     179 </span>            :     }</a>
+<a name="180"><span class="lineNum">     180 </span>            : </a>
+<a name="181"><span class="lineNum">     181 </span><span class="lineCov">   19018771 :     if (kernel_data.film.pass_denoising_albedo != PASS_UNUSED &amp;&amp; feature_weight &gt; 0.0f) {</span></a>
+<a name="182"><span class="lineNum">     182 </span><span class="lineCov">   16261443 :       const Spectrum denoising_albedo = ensure_finite(diffuse_albedo * feature_weight *</span></a>
+<a name="183"><span class="lineNum">     183 </span>            :                                                       denoising_feature_throughput);</a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineCov">   32522886 :       film_write_pass_spectrum(buffer + kernel_data.film.pass_denoising_albedo, denoising_albedo);</span></a>
+<a name="185"><span class="lineNum">     185 </span>            :     }</a>
+<a name="186"><span class="lineNum">     186 </span>            :   }</a>
+<a name="187"><span class="lineNum">     187 </span>            : </a>
+<a name="188"><span class="lineNum">     188 </span><span class="lineCov">   19018767 :   if (is_first_bounce) {</span></a>
+<a name="189"><span class="lineNum">     189 </span><span class="lineCov">   20659314 :     if (kernel_data.film.pass_denoising_roughness != PASS_UNUSED) {</span></a>
+<a name="190"><span class="lineNum">     190 </span><span class="lineCov">    4352266 :       const float denoising_roughness = ensure_finite(specular_roughness *</span></a>
+<a name="191"><span class="lineNum">     191 </span><span class="lineCov">    2176133 :                                                       average(denoising_feature_throughput));</span></a>
+<a name="192"><span class="lineNum">     192 </span><span class="lineCov">    2176133 :       film_write_pass_float(buffer + kernel_data.film.pass_denoising_roughness,</span></a>
+<a name="193"><span class="lineNum">     193 </span>            :                             denoising_roughness);</a>
+<a name="194"><span class="lineNum">     194 </span>            :     }</a>
+<a name="195"><span class="lineNum">     195 </span>            : </a>
+<a name="196"><span class="lineNum">     196 </span><span class="lineCov">   20659314 :     if (kernel_data.film.pass_denoising_specular_albedo != PASS_UNUSED) {</span></a>
+<a name="197"><span class="lineNum">     197 </span><span class="lineCov">    2173948 :       const Spectrum denoising_specular_albedo = ensure_finite(specular_albedo *</span></a>
+<a name="198"><span class="lineNum">     198 </span>            :                                                                denoising_feature_throughput);</a>
+<a name="199"><span class="lineNum">     199 </span><span class="lineCov">    4347896 :       film_write_pass_spectrum(buffer + kernel_data.film.pass_denoising_specular_albedo,</span></a>
+<a name="200"><span class="lineNum">     200 </span>            :                                denoising_specular_albedo);</a>
+<a name="201"><span class="lineNum">     201 </span>            :     }</a>
+<a name="202"><span class="lineNum">     202 </span>            : </a>
+<a name="203"><span class="lineNum">     203 </span><span class="lineCov">   20659314 :     if (kernel_data.film.pass_denoising_backward_motion != PASS_UNUSED) {</span></a>
+<a name="204"><span class="lineNum">     204 </span><span class="lineCov">    2138918 :       const float3 backward_motion = primitive_motion_vector_backward_depth_delta(kg, sd);</span></a>
+<a name="205"><span class="lineNum">     205 </span><span class="lineCov">    2138918 :       film_write_pass_float3(buffer + kernel_data.film.pass_denoising_backward_motion,</span></a>
+<a name="206"><span class="lineNum">     206 </span>            :                              backward_motion);</a>
+<a name="207"><span class="lineNum">     207 </span>            :     }</a>
+<a name="208"><span class="lineNum">     208 </span>            :   }</a>
+<a name="209"><span class="lineNum">     209 </span><span class="lineNoCov">          0 :   else if (INTEGRATOR_STATE(state, path, bounce) == 1 &amp;&amp; (path_flag &amp; PATH_RAY_REFLECT)) {</span></a>
+<a name="210"><span class="lineNum">     210 </span><span class="lineCov">      30932 :     if (kernel_data.film.pass_denoising_specular_motion != PASS_UNUSED) {</span></a>
+<a name="211"><span class="lineNum">     211 </span><span class="lineCov">       7199 :       const float3 reflector_P = INTEGRATOR_STATE(state, ray, P);</span></a>
+<a name="212"><span class="lineNum">     212 </span><span class="lineCov">      14398 :       const float3 reflector_N = INTEGRATOR_STATE(state, path, mis_origin_n);</span></a>
+<a name="213"><span class="lineNum">     213 </span>            : </a>
+<a name="214"><span class="lineNum">     214 </span><span class="lineCov">       7197 :       const float4 denoising_specular_motion = primitive_motion_vector_reflection(</span></a>
+<a name="215"><span class="lineNum">     215 </span>            :           kg, reflector_P, reflector_N, sd);</a>
+<a name="216"><span class="lineNum">     216 </span><span class="lineCov">       7197 :       film_write_pass_float(buffer + kernel_data.film.pass_denoising_specular_motion + 0,</span></a>
+<a name="217"><span class="lineNum">     217 </span><span class="lineCov">       7197 :                             denoising_specular_motion.x);</span></a>
+<a name="218"><span class="lineNum">     218 </span><span class="lineCov">       7197 :       film_write_pass_float(buffer + kernel_data.film.pass_denoising_specular_motion + 1,</span></a>
+<a name="219"><span class="lineNum">     219 </span><span class="lineCov">       7197 :                             denoising_specular_motion.y);</span></a>
+<a name="220"><span class="lineNum">     220 </span>            :     }</a>
+<a name="221"><span class="lineNum">     221 </span>            :   }</a>
+<a name="222"><span class="lineNum">     222 </span>            : </a>
+<a name="223"><span class="lineNum">     223 </span>            :   /* Portion deferred to the next bounce. Specularity uses the feature weight, transparent</a>
+<a name="224"><span class="lineNum">     224 </span>            :    * always passes through. */</a>
+<a name="225"><span class="lineNum">     225 </span><span class="lineCov">   18993606 :   Spectrum deferred_albedo = specular_albedo * deferred_feature_weight + transparent_albedo;</span></a>
+<a name="226"><span class="lineNum">     226 </span>            : </a>
+<a name="227"><span class="lineNum">     227 </span>            :   /* When not following reflections, but the specular motion pass is enabled, still need to</a>
+<a name="228"><span class="lineNum">     228 </span>            :    * continue to the first bounce, but with no weight for the albedo pass. */</a>
+<a name="229"><span class="lineNum">     229 </span><span class="lineCov">   18993606 :   if (!follow_reflections &amp;&amp; kernel_data.film.pass_denoising_specular_motion == PASS_UNUSED) {</span></a>
+<a name="230"><span class="lineNum">     230 </span>            :     deferred_albedo = transparent_albedo;</a>
+<a name="231"><span class="lineNum">     231 </span>            :   }</a>
+<a name="232"><span class="lineNum">     232 </span><span class="lineCov">   37987212 :   if (reduce_max(fabs(deferred_albedo)) &gt; 1e-4f) {</span></a>
+<a name="233"><span class="lineNum">     233 </span><span class="lineCov">     295844 :     if (!follow_reflections) {</span></a>
+<a name="234"><span class="lineNum">     234 </span>            :       deferred_albedo = transparent_albedo;</a>
+<a name="235"><span class="lineNum">     235 </span>            :     }</a>
+<a name="236"><span class="lineNum">     236 </span><span class="lineCov">     591688 :     const Spectrum throughput = INTEGRATOR_STATE(state, path, denoising_feature_throughput);</span></a>
+<a name="237"><span class="lineNum">     237 </span>            :     INTEGRATOR_STATE_WRITE(state, path, denoising_feature_throughput) = throughput *</a>
+<a name="238"><span class="lineNum">     238 </span><span class="lineCov">     591688 :                                                                         deferred_albedo;</span></a>
+<a name="239"><span class="lineNum">     239 </span>            :   }</a>
+<a name="240"><span class="lineNum">     240 </span>            :   else {</a>
+<a name="241"><span class="lineNum">     241 </span><span class="lineCov">   18697762 :     INTEGRATOR_STATE_WRITE(state, path, flag) &amp;= ~PATH_RAY_DENOISING_FEATURES;</span></a>
+<a name="242"><span class="lineNum">     242 </span>            :   }</a>
+<a name="243"><span class="lineNum">     243 </span>            : }</a>
+<a name="244"><span class="lineNum">     244 </span>            : </a>
+<a name="245"><span class="lineNum">     245 </span>            : ccl_device_forceinline void film_write_denoising_features_surface_volume(</a>
+<a name="246"><span class="lineNum">     246 </span>            :     KernelGlobals kg,</a>
+<a name="247"><span class="lineNum">     247 </span>            :     IntegratorState state,</a>
+<a name="248"><span class="lineNum">     248 </span>            :     const ccl_private ShaderData *sd,</a>
+<a name="249"><span class="lineNum">     249 </span>            :     ccl_global float *ccl_restrict render_buffer)</a>
+<a name="250"><span class="lineNum">     250 </span>            : {</a>
+<a name="251"><span class="lineNum">     251 </span><span class="lineCov">  102112505 :   ccl_global float *buffer = film_pass_pixel_render_buffer(kg, state, render_buffer);</span></a>
+<a name="252"><span class="lineNum">     252 </span>            : </a>
+<a name="253"><span class="lineNum">     253 </span><span class="lineCov">  102112505 :   const bool follow_reflections = (kernel_data.film.denoising_pass_options_flag &amp;</span></a>
+<a name="254"><span class="lineNum">     254 </span>            :                                    DENOISING_PASS_FOLLOW_REFLECTIONS) != 0;</a>
+<a name="255"><span class="lineNum">     255 </span><span class="lineCov">  102112505 :   const bool is_first_bounce = INTEGRATOR_STATE(state, path, bounce) == 0;</span></a>
+<a name="256"><span class="lineNum">     256 </span>            : </a>
+<a name="257"><span class="lineNum">     257 </span><span class="lineCov">  102112505 :   const Spectrum denoising_feature_throughput = INTEGRATOR_STATE(</span></a>
+<a name="258"><span class="lineNum">     258 </span>            :       state, path, denoising_feature_throughput);</a>
+<a name="259"><span class="lineNum">     259 </span>            : </a>
+<a name="260"><span class="lineNum">     260 </span><span class="lineCov">  102112505 :   if (is_first_bounce || follow_reflections) {</span></a>
+<a name="261"><span class="lineNum">     261 </span><span class="lineCov">  102117104 :     if (kernel_data.film.pass_denoising_depth != PASS_UNUSED) {</span></a>
+<a name="262"><span class="lineNum">     262 </span><span class="lineNoCov">          0 :       const float denoising_depth = denoising_depth_compute(</span></a>
+<a name="263"><span class="lineNum">     263 </span>            :           kg, state, sd, denoising_feature_throughput, follow_reflections);</a>
+<a name="264"><span class="lineNum">     264 </span><span class="lineNoCov">          0 :       film_write_pass_float(buffer + kernel_data.film.pass_denoising_depth, denoising_depth);</span></a>
+<a name="265"><span class="lineNum">     265 </span>            :     }</a>
+<a name="266"><span class="lineNum">     266 </span>            :   }</a>
+<a name="267"><span class="lineNum">     267 </span><span class="lineCov">  102112505 : }</span></a>
+<a name="268"><span class="lineNum">     268 </span>            : </a>
+<a name="269"><span class="lineNum">     269 </span>            : ccl_device_forceinline void film_write_denoising_features_volume(KernelGlobals kg,</a>
+<a name="270"><span class="lineNum">     270 </span>            :                                                                  IntegratorState state,</a>
+<a name="271"><span class="lineNum">     271 </span>            :                                                                  const Spectrum albedo,</a>
+<a name="272"><span class="lineNum">     272 </span>            :                                                                  const bool scatter,</a>
+<a name="273"><span class="lineNum">     273 </span>            :                                                                  ccl_global float *ccl_restrict</a>
+<a name="274"><span class="lineNum">     274 </span>            :                                                                      render_buffer)</a>
+<a name="275"><span class="lineNum">     275 </span>            : {</a>
+<a name="276"><span class="lineNum">     276 </span><span class="lineCov">     765048 :   ccl_global float *buffer = film_pass_pixel_render_buffer(kg, state, render_buffer);</span></a>
+<a name="277"><span class="lineNum">     277 </span>            : </a>
+<a name="278"><span class="lineNum">     278 </span><span class="lineCov">     765048 :   const Spectrum denoising_feature_throughput = INTEGRATOR_STATE(</span></a>
+<a name="279"><span class="lineNum">     279 </span>            :       state, path, denoising_feature_throughput);</a>
+<a name="280"><span class="lineNum">     280 </span>            : </a>
+<a name="281"><span class="lineNum">     281 </span><span class="lineCov">     765048 :   if (scatter &amp;&amp; kernel_data.film.pass_denoising_normal != PASS_UNUSED) {</span></a>
+<a name="282"><span class="lineNum">     282 </span>            :     /* Assume scatter is sufficiently diffuse to stop writing denoising features. */</a>
+<a name="283"><span class="lineNum">     283 </span><span class="lineCov">     376981 :     INTEGRATOR_STATE_WRITE(state, path, flag) &amp;= ~PATH_RAY_DENOISING_FEATURES;</span></a>
+<a name="284"><span class="lineNum">     284 </span>            : </a>
+<a name="285"><span class="lineNum">     285 </span>            :     /* Write view direction as normal. */</a>
+<a name="286"><span class="lineNum">     286 </span><span class="lineCov">     376981 :     const float3 denoising_normal = make_float3(0.0f, 0.0f, -1.0f);</span></a>
+<a name="287"><span class="lineNum">     287 </span><span class="lineCov">     376981 :     film_write_pass_float3(buffer + kernel_data.film.pass_denoising_normal, denoising_normal);</span></a>
+<a name="288"><span class="lineNum">     288 </span>            :   }</a>
+<a name="289"><span class="lineNum">     289 </span>            : </a>
+<a name="290"><span class="lineNum">     290 </span><span class="lineCov">     765048 :   if (kernel_data.film.pass_denoising_albedo != PASS_UNUSED) {</span></a>
+<a name="291"><span class="lineNum">     291 </span>            :     /* Write albedo. */</a>
+<a name="292"><span class="lineNum">     292 </span><span class="lineCov">     769222 :     const Spectrum denoising_albedo = ensure_finite(denoising_feature_throughput * albedo);</span></a>
+<a name="293"><span class="lineNum">     293 </span><span class="lineCov">    1538444 :     film_write_pass_spectrum(buffer + kernel_data.film.pass_denoising_albedo, denoising_albedo);</span></a>
+<a name="294"><span class="lineNum">     294 </span>            :   }</a>
+<a name="295"><span class="lineNum">     295 </span><span class="lineCov">     765048 : }</span></a>
+<a name="296"><span class="lineNum">     296 </span>            : </a>
+<a name="297"><span class="lineNum">     297 </span>            : ccl_device_forceinline void film_write_denoising_features_background(</a>
+<a name="298"><span class="lineNum">     298 </span>            :     KernelGlobals kg, IntegratorState state, ccl_global float *ccl_restrict render_buffer)</a>
+<a name="299"><span class="lineNum">     299 </span>            : {</a>
+<a name="300"><span class="lineNum">     300 </span>            :   /* Don't write denoising passes for paths that were split off for shadow catchers</a>
+<a name="301"><span class="lineNum">     301 </span>            :    * to avoid double-counting. */</a>
+<a name="302"><span class="lineNum">     302 </span><span class="lineCov">  344894835 :   const uint32_t path_flag = INTEGRATOR_STATE(state, path, flag);</span></a>
+<a name="303"><span class="lineNum">     303 </span><span class="lineCov">  344894835 :   if (!(path_flag &amp; PATH_RAY_DENOISING_FEATURES) || (path_flag &amp; PATH_RAY_SHADOW_CATCHER_PASS)) {</span></a>
+<a name="304"><span class="lineNum">     304 </span><span class="lineCov">  322379133 :     return;</span></a>
+<a name="305"><span class="lineNum">     305 </span>            :   }</a>
+<a name="306"><span class="lineNum">     306 </span>            : </a>
+<a name="307"><span class="lineNum">     307 </span>            :   /* Do not write default background denoising data for secondary paths. */</a>
+<a name="308"><span class="lineNum">     308 </span><span class="lineCov">   22515702 :   if (INTEGRATOR_STATE(state, path, bounce) != 0) {</span></a>
+<a name="309"><span class="lineNum">     309 </span><span class="lineCov">     163266 :     return;</span></a>
+<a name="310"><span class="lineNum">     310 </span>            :   }</a>
+<a name="311"><span class="lineNum">     311 </span>            : </a>
+<a name="312"><span class="lineNum">     312 </span><span class="lineCov">   22352436 :   ccl_global float *buffer = film_pass_pixel_render_buffer(kg, state, render_buffer);</span></a>
+<a name="313"><span class="lineNum">     313 </span>            : </a>
+<a name="314"><span class="lineNum">     314 </span><span class="lineCov">   22352436 :   if (kernel_data.film.pass_denoising_depth != PASS_UNUSED) {</span></a>
+<a name="315"><span class="lineNum">     315 </span><span class="lineCov">       7011 :     const Spectrum denoising_feature_throughput = INTEGRATOR_STATE(</span></a>
+<a name="316"><span class="lineNum">     316 </span>            :         state, path, denoising_feature_throughput);</a>
+<a name="317"><span class="lineNum">     317 </span>            : </a>
+<a name="318"><span class="lineNum">     318 </span>            :     /* Transparent surfaces and volumes keep `bounce == 0` and the first of them already wrote the</a>
+<a name="319"><span class="lineNum">     319 </span>            :      * near clip distance as part of their depth segment. */</a>
+<a name="320"><span class="lineNum">     320 </span><span class="lineCov">      14107 :     const bool wrote_first_segment = INTEGRATOR_STATE(state, path, transparent_bounce) != 0 ||</span></a>
+<a name="321"><span class="lineNum">     321 </span><span class="lineCov">       7096 :                                      INTEGRATOR_STATE(state, path, volume_bounds_bounce) != 0;</span></a>
+<a name="322"><span class="lineNum">     322 </span>            : </a>
+<a name="323"><span class="lineNum">     323 </span>            :     float farclip_depth;</a>
+<a name="324"><span class="lineNum">     324 </span>            :     /* Add nearclip only when the depth is measured from the camera and nothing was written yet.</a>
+<a name="325"><span class="lineNum">     325 </span>            :      * Skip it for orthographic cameras (nearclip &lt; 0.0f), when cliplength is FLT_MAX (to avoid</a>
+<a name="326"><span class="lineNum">     326 </span>            :      * numerical issues), or once the first segment already covered the near clip distance. */</a>
+<a name="327"><span class="lineNum">     327 </span><span class="lineCov">       7011 :     if (kernel_data.cam.nearclip &lt; 0.0f || kernel_data.cam.cliplength == FLT_MAX ||</span></a>
+<a name="328"><span class="lineNum">     328 </span>            :         wrote_first_segment)</a>
+<a name="329"><span class="lineNum">     329 </span>            :     {</a>
+<a name="330"><span class="lineNum">     330 </span><span class="lineNoCov">          0 :       farclip_depth = kernel_data.cam.cliplength;</span></a>
+<a name="331"><span class="lineNum">     331 </span>            :     }</a>
+<a name="332"><span class="lineNum">     332 </span>            :     else {</a>
+<a name="333"><span class="lineNum">     333 </span><span class="lineCov">       7139 :       farclip_depth = kernel_data.cam.nearclip + kernel_data.cam.cliplength;</span></a>
+<a name="334"><span class="lineNum">     334 </span>            :     }</a>
+<a name="335"><span class="lineNum">     335 </span>            : </a>
+<a name="336"><span class="lineNum">     336 </span><span class="lineCov">       7011 :     if (kernel_data.cam.cliplength == FLT_MAX) {</span></a>
+<a name="337"><span class="lineNum">     337 </span><span class="lineNoCov">          0 :       film_overwrite_pass_float(buffer + kernel_data.film.pass_denoising_depth, farclip_depth);</span></a>
+<a name="338"><span class="lineNum">     338 </span>            :     }</a>
+<a name="339"><span class="lineNum">     339 </span>            :     else {</a>
+<a name="340"><span class="lineNum">     340 </span>            :       /* No shading point at the background, so use the ray directly. Transparent surfaces and</a>
+<a name="341"><span class="lineNum">     341 </span>            :        * volume boundaries keep `bounce == 0` and only advance `tmin`, leaving the ray origin and</a>
+<a name="342"><span class="lineNum">     342 </span>            :        * direction unchanged, so `ray_P` is still the camera near clip point. */</a>
+<a name="343"><span class="lineNum">     343 </span><span class="lineCov">       7011 :       const float3 ray_P = INTEGRATOR_STATE(state, ray, P);</span></a>
+<a name="344"><span class="lineNum">     344 </span><span class="lineCov">       7011 :       const float3 ray_D = INTEGRATOR_STATE(state, ray, D);</span></a>
+<a name="345"><span class="lineNum">     345 </span>            : </a>
+<a name="346"><span class="lineNum">     346 </span>            :       /* Only cover the distance not already written for this path, so the accumulated value stays</a>
+<a name="347"><span class="lineNum">     347 </span>            :        * within [near, far]. A ray reaching the background directly has not written any depth. */</a>
+<a name="348"><span class="lineNum">     348 </span><span class="lineCov">       7011 :       if (wrote_first_segment) {</span></a>
+<a name="349"><span class="lineNum">     349 </span><span class="lineNoCov">          0 :         const float3 prev_P = ray_P + ray_D * INTEGRATOR_STATE(state, ray, tmin);</span></a>
+<a name="350"><span class="lineNum">     350 </span><span class="lineNoCov">          0 :         farclip_depth -= camera_z_depth(kg, prev_P) - camera_z_depth(kg, ray_P);</span></a>
+<a name="351"><span class="lineNum">     351 </span>            :       }</a>
+<a name="352"><span class="lineNum">     352 </span>            : </a>
+<a name="353"><span class="lineNum">     353 </span>            :       /* Convert the camera z distance to a ray length if necessary. */</a>
+<a name="354"><span class="lineNum">     354 </span><span class="lineCov">       7011 :       const bool follow_reflections = (kernel_data.film.denoising_pass_options_flag &amp;</span></a>
+<a name="355"><span class="lineNum">     355 </span>            :                                        DENOISING_PASS_FOLLOW_REFLECTIONS) != 0;</a>
+<a name="356"><span class="lineNum">     356 </span><span class="lineCov">       7011 :       if (follow_reflections &amp;&amp; kernel_data.cam.type == CAMERA_PERSPECTIVE) {</span></a>
+<a name="357"><span class="lineNum">     357 </span><span class="lineCov">       7202 :         const Transform cameratoworld = kernel_data.cam.cameratoworld;</span></a>
+<a name="358"><span class="lineNum">     358 </span><span class="lineCov">      14404 :         const float3 camD = make_float3(cameratoworld.x.z, cameratoworld.y.z, cameratoworld.z.z);</span></a>
+<a name="359"><span class="lineNum">     359 </span><span class="lineCov">       7202 :         farclip_depth = farclip_depth / dot(ray_D, camD);</span></a>
+<a name="360"><span class="lineNum">     360 </span>            :       }</a>
+<a name="361"><span class="lineNum">     361 </span>            : </a>
+<a name="362"><span class="lineNum">     362 </span><span class="lineCov">       7011 :       farclip_depth = ensure_finite(farclip_depth * average(denoising_feature_throughput));</span></a>
+<a name="363"><span class="lineNum">     363 </span><span class="lineCov">       7011 :       film_write_pass_float(buffer + kernel_data.film.pass_denoising_depth, farclip_depth);</span></a>
+<a name="364"><span class="lineNum">     364 </span>            :     }</a>
+<a name="365"><span class="lineNum">     365 </span>            :   }</a>
+<a name="366"><span class="lineNum">     366 </span>            : </a>
+<a name="367"><span class="lineNum">     367 </span><span class="lineCov">   22352436 :   if (kernel_data.film.pass_denoising_backward_motion != PASS_UNUSED) {</span></a>
+<a name="368"><span class="lineNum">     368 </span><span class="lineCov">      14492 :     const float4 speed = camera_motion_vector_direction(</span></a>
+<a name="369"><span class="lineNum">     369 </span>            :         kg, INTEGRATOR_STATE(state, ray, P), INTEGRATOR_STATE(state, ray, D));</a>
+<a name="370"><span class="lineNum">     370 </span><span class="lineCov">       7085 :     const float3 backward_motion = make_float3(speed.x, speed.y, 0.0f);</span></a>
+<a name="371"><span class="lineNum">     371 </span><span class="lineCov">       7085 :     film_write_pass_float3(buffer + kernel_data.film.pass_denoising_backward_motion,</span></a>
+<a name="372"><span class="lineNum">     372 </span>            :                            backward_motion);</a>
+<a name="373"><span class="lineNum">     373 </span>            :   }</a>
+<a name="374"><span class="lineNum">     374 </span>            : </a>
+<a name="375"><span class="lineNum">     375 </span>            :   /* 'pass_denoising_albedo' is written by 'film_write_emission_or_background_pass' */</a>
+<a name="376"><span class="lineNum">     376 </span>            : }</a>
+<a name="377"><span class="lineNum">     377 </span>            : #endif /* __DENOISING_FEATURES__ */</a>
+<a name="378"><span class="lineNum">     378 </span>            : </a>
+<a name="379"><span class="lineNum">     379 </span>            : CCL_NAMESPACE_END</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,730 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - /home/dev/Blender_PA1483/blender/lib/linux_x64/openimageio/include/OpenImageIO/typedesc.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../../../../index.html">top level</a> - <a href="index.html">home/dev/Blender_PA1483/blender/lib/linux_x64/openimageio/include/OpenImageIO</a> - typedesc.h<span style="font-size: 80%;"> (source / <a href="typedesc.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright Contributors to the OpenImageIO project.</a>
+<a name="2"><span class="lineNum">       2 </span>            : // SPDX-License-Identifier: Apache-2.0</a>
+<a name="3"><span class="lineNum">       3 </span>            : // https://github.com/AcademySoftwareFoundation/OpenImageIO</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : // clang-format off</a>
+<a name="6"><span class="lineNum">       6 </span>            : </a>
+<a name="7"><span class="lineNum">       7 </span>            : /// \file</a>
+<a name="8"><span class="lineNum">       8 </span>            : /// The TypeDesc class is used to describe simple data types.</a>
+<a name="9"><span class="lineNum">       9 </span>            : </a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : #pragma once</a>
+<a name="12"><span class="lineNum">      12 </span>            : </a>
+<a name="13"><span class="lineNum">      13 </span>            : #if defined(_MSC_VER)</a>
+<a name="14"><span class="lineNum">      14 </span>            : // Ignore warnings about conditional expressions that always evaluate true</a>
+<a name="15"><span class="lineNum">      15 </span>            : // on a given platform but may evaluate differently on another. There's</a>
+<a name="16"><span class="lineNum">      16 </span>            : // nothing wrong with such conditionals.</a>
+<a name="17"><span class="lineNum">      17 </span>            : #    pragma warning(disable : 4127)</a>
+<a name="18"><span class="lineNum">      18 </span>            : #endif</a>
+<a name="19"><span class="lineNum">      19 </span>            : </a>
+<a name="20"><span class="lineNum">      20 </span>            : #include &lt;cmath&gt;</a>
+<a name="21"><span class="lineNum">      21 </span>            : #include &lt;cstddef&gt;</a>
+<a name="22"><span class="lineNum">      22 </span>            : #include &lt;iostream&gt;</a>
+<a name="23"><span class="lineNum">      23 </span>            : #include &lt;limits&gt;</a>
+<a name="24"><span class="lineNum">      24 </span>            : </a>
+<a name="25"><span class="lineNum">      25 </span>            : #include &lt;OpenImageIO/dassert.h&gt;</a>
+<a name="26"><span class="lineNum">      26 </span>            : #include &lt;OpenImageIO/export.h&gt;</a>
+<a name="27"><span class="lineNum">      27 </span>            : #include &lt;OpenImageIO/oiioversion.h&gt;</a>
+<a name="28"><span class="lineNum">      28 </span>            : #include &lt;OpenImageIO/span.h&gt;</a>
+<a name="29"><span class="lineNum">      29 </span>            : #include &lt;OpenImageIO/string_view.h&gt;</a>
+<a name="30"><span class="lineNum">      30 </span>            : #include &lt;OpenImageIO/strutil.h&gt;</a>
+<a name="31"><span class="lineNum">      31 </span>            : </a>
+<a name="32"><span class="lineNum">      32 </span>            : // Define symbols that let client applications determine if newly added</a>
+<a name="33"><span class="lineNum">      33 </span>            : // features are supported.</a>
+<a name="34"><span class="lineNum">      34 </span>            : #define OIIO_TYPEDESC_VECTOR2 1</a>
+<a name="35"><span class="lineNum">      35 </span>            : </a>
+<a name="36"><span class="lineNum">      36 </span>            : </a>
+<a name="37"><span class="lineNum">      37 </span>            : </a>
+<a name="38"><span class="lineNum">      38 </span>            : OIIO_NAMESPACE_3_1_BEGIN</a>
+<a name="39"><span class="lineNum">      39 </span>            : </a>
+<a name="40"><span class="lineNum">      40 </span>            : /////////////////////////////////////////////////////////////////////////////</a>
+<a name="41"><span class="lineNum">      41 </span>            : /// A TypeDesc describes simple data types.</a>
+<a name="42"><span class="lineNum">      42 </span>            : ///</a>
+<a name="43"><span class="lineNum">      43 </span>            : /// It frequently comes up (in my experience, with renderers and image</a>
+<a name="44"><span class="lineNum">      44 </span>            : /// handling programs) that you want a way to describe data that is passed</a>
+<a name="45"><span class="lineNum">      45 </span>            : /// through APIs through blind pointers.  These are some simple classes</a>
+<a name="46"><span class="lineNum">      46 </span>            : /// that provide a simple type descriptor system.  This is not meant to</a>
+<a name="47"><span class="lineNum">      47 </span>            : /// be comprehensive -- for example, there is no provision for structs,</a>
+<a name="48"><span class="lineNum">      48 </span>            : /// unions, typed pointers, const, or 'nested' type definitions.  Just simple</a>
+<a name="49"><span class="lineNum">      49 </span>            : /// integer and floating point, *common* aggregates such as 3-points, and</a>
+<a name="50"><span class="lineNum">      50 </span>            : /// reasonably-lengthed arrays thereof.</a>
+<a name="51"><span class="lineNum">      51 </span>            : ///</a>
+<a name="52"><span class="lineNum">      52 </span>            : /////////////////////////////////////////////////////////////////////////////</a>
+<a name="53"><span class="lineNum">      53 </span>            : </a>
+<a name="54"><span class="lineNum">      54 </span>            : struct OIIO_UTIL_API TypeDesc {</a>
+<a name="55"><span class="lineNum">      55 </span>            :     /// BASETYPE is a simple enum describing the base data types that</a>
+<a name="56"><span class="lineNum">      56 </span>            :     /// correspond (mostly) to the C/C++ built-in types.</a>
+<a name="57"><span class="lineNum">      57 </span>            :     enum BASETYPE {</a>
+<a name="58"><span class="lineNum">      58 </span>            :         UNKNOWN,            ///&lt; unknown type</a>
+<a name="59"><span class="lineNum">      59 </span>            :         NONE,               ///&lt; void/no type</a>
+<a name="60"><span class="lineNum">      60 </span>            :         UINT8,              ///&lt; 8-bit unsigned int values ranging from 0..255,</a>
+<a name="61"><span class="lineNum">      61 </span>            :                             ///&lt;   (C/C++ `unsigned char`).</a>
+<a name="62"><span class="lineNum">      62 </span>            :         UCHAR=UINT8,</a>
+<a name="63"><span class="lineNum">      63 </span>            :         INT8,               ///&lt; 8-bit int values ranging from -128..127,</a>
+<a name="64"><span class="lineNum">      64 </span>            :                             ///&lt;   (C/C++ `char`).</a>
+<a name="65"><span class="lineNum">      65 </span>            :         CHAR=INT8,</a>
+<a name="66"><span class="lineNum">      66 </span>            :         UINT16,             ///&lt; 16-bit int values ranging from 0..65535,</a>
+<a name="67"><span class="lineNum">      67 </span>            :                             ///&lt;   (C/C++ `unsigned short`).</a>
+<a name="68"><span class="lineNum">      68 </span>            :         USHORT=UINT16,</a>
+<a name="69"><span class="lineNum">      69 </span>            :         INT16,              ///&lt; 16-bit int values ranging from -32768..32767,</a>
+<a name="70"><span class="lineNum">      70 </span>            :                             ///&lt;   (C/C++ `short`).</a>
+<a name="71"><span class="lineNum">      71 </span>            :         SHORT=INT16,</a>
+<a name="72"><span class="lineNum">      72 </span>            :         UINT32,             ///&lt; 32-bit unsigned int values (C/C++ `unsigned int`).</a>
+<a name="73"><span class="lineNum">      73 </span>            :         UINT=UINT32,</a>
+<a name="74"><span class="lineNum">      74 </span>            :         INT32,              ///&lt; signed 32-bit int values (C/C++ `int`).</a>
+<a name="75"><span class="lineNum">      75 </span>            :         INT=INT32,</a>
+<a name="76"><span class="lineNum">      76 </span>            :         UINT64,             ///&lt; 64-bit unsigned int values (C/C++</a>
+<a name="77"><span class="lineNum">      77 </span>            :                             ///&lt;   `unsigned long long` on most architectures).</a>
+<a name="78"><span class="lineNum">      78 </span>            :         ULONGLONG=UINT64,</a>
+<a name="79"><span class="lineNum">      79 </span>            :         INT64,              ///&lt; signed 64-bit int values (C/C++ `long long`</a>
+<a name="80"><span class="lineNum">      80 </span>            :                             ///&lt;   on most architectures).</a>
+<a name="81"><span class="lineNum">      81 </span>            :         LONGLONG=INT64,</a>
+<a name="82"><span class="lineNum">      82 </span>            :         HALF,               ///&lt; 16-bit IEEE floating point values (OpenEXR `half`).</a>
+<a name="83"><span class="lineNum">      83 </span>            :         FLOAT,              ///&lt; 32-bit IEEE floating point values, (C/C++ `float`).</a>
+<a name="84"><span class="lineNum">      84 </span>            :         DOUBLE,             ///&lt; 64-bit IEEE floating point values, (C/C++ `double`).</a>
+<a name="85"><span class="lineNum">      85 </span>            :         STRING,             ///&lt; Character string.</a>
+<a name="86"><span class="lineNum">      86 </span>            :         PTR,                ///&lt; A pointer value.</a>
+<a name="87"><span class="lineNum">      87 </span>            :         USTRINGHASH,        ///&lt; A uint64 that is the hash of a ustring.</a>
+<a name="88"><span class="lineNum">      88 </span>            :         LASTBASE</a>
+<a name="89"><span class="lineNum">      89 </span>            :     };</a>
+<a name="90"><span class="lineNum">      90 </span>            : </a>
+<a name="91"><span class="lineNum">      91 </span>            :     /// AGGREGATE describes whether our TypeDesc is a simple scalar of one</a>
+<a name="92"><span class="lineNum">      92 </span>            :     /// of the BASETYPE's, or one of several simple aggregates.</a>
+<a name="93"><span class="lineNum">      93 </span>            :     ///</a>
+<a name="94"><span class="lineNum">      94 </span>            :     /// Note that aggregates and arrays are different. A `TypeDesc(FLOAT,3)`</a>
+<a name="95"><span class="lineNum">      95 </span>            :     /// is an array of three floats, a `TypeDesc(FLOAT,VEC3)` is a single</a>
+<a name="96"><span class="lineNum">      96 </span>            :     /// 3-component vector comprised of floats, and `TypeDesc(FLOAT,3,VEC3)`</a>
+<a name="97"><span class="lineNum">      97 </span>            :     /// is an array of 3 vectors, each of which is comprised of 3 floats.</a>
+<a name="98"><span class="lineNum">      98 </span>            :     enum AGGREGATE {</a>
+<a name="99"><span class="lineNum">      99 </span>            :         SCALAR   =  1,  ///&lt; A single scalar value (such as a raw `int` or</a>
+<a name="100"><span class="lineNum">     100 </span>            :                         ///&lt;   `float` in C).  This is the default.</a>
+<a name="101"><span class="lineNum">     101 </span>            :         VEC2     =  2,  ///&lt; 2 values representing a 2D vector.</a>
+<a name="102"><span class="lineNum">     102 </span>            :         VEC3     =  3,  ///&lt; 3 values representing a 3D vector.</a>
+<a name="103"><span class="lineNum">     103 </span>            :         VEC4     =  4,  ///&lt; 4 values representing a 4D vector.</a>
+<a name="104"><span class="lineNum">     104 </span>            :         MATRIX33 =  9,  ///&lt; 9 values representing a 3x3 matrix.</a>
+<a name="105"><span class="lineNum">     105 </span>            :         MATRIX44 = 16   ///&lt; 16 values representing a 4x4 matrix.</a>
+<a name="106"><span class="lineNum">     106 </span>            :     };</a>
+<a name="107"><span class="lineNum">     107 </span>            : </a>
+<a name="108"><span class="lineNum">     108 </span>            :     /// VECSEMANTICS gives hints about what the data represent (for example,</a>
+<a name="109"><span class="lineNum">     109 </span>            :     /// if a spatial vector quantity should transform as a point, direction</a>
+<a name="110"><span class="lineNum">     110 </span>            :     /// vector, or surface normal).</a>
+<a name="111"><span class="lineNum">     111 </span>            :     enum VECSEMANTICS {</a>
+<a name="112"><span class="lineNum">     112 </span>            :         NOXFORM     = 0,  ///&lt; No semantic hints.</a>
+<a name="113"><span class="lineNum">     113 </span>            :         NOSEMANTICS = 0,  ///&lt; No semantic hints.</a>
+<a name="114"><span class="lineNum">     114 </span>            :         COLOR,            ///&lt; Color</a>
+<a name="115"><span class="lineNum">     115 </span>            :         POINT,            ///&lt; Point: a spatial location</a>
+<a name="116"><span class="lineNum">     116 </span>            :         VECTOR,           ///&lt; Vector: a spatial direction</a>
+<a name="117"><span class="lineNum">     117 </span>            :         NORMAL,           ///&lt; Normal: a surface normal</a>
+<a name="118"><span class="lineNum">     118 </span>            :         TIMECODE,         ///&lt; indicates an `int[2]` representing the standard</a>
+<a name="119"><span class="lineNum">     119 </span>            :                           ///&lt;   4-byte encoding of an SMPTE timecode.</a>
+<a name="120"><span class="lineNum">     120 </span>            :         KEYCODE,          ///&lt; indicates an `int[7]` representing the standard</a>
+<a name="121"><span class="lineNum">     121 </span>            :                           ///&lt;   28-byte encoding of an SMPTE keycode.</a>
+<a name="122"><span class="lineNum">     122 </span>            :         RATIONAL,         ///&lt; A VEC2 representing a rational number `val[0] / val[1]`</a>
+<a name="123"><span class="lineNum">     123 </span>            :         BOX,              ///&lt; A VEC2[2] or VEC3[2] that represents a 2D or 3D bounds (min/max)</a>
+<a name="124"><span class="lineNum">     124 </span>            :     };</a>
+<a name="125"><span class="lineNum">     125 </span>            : </a>
+<a name="126"><span class="lineNum">     126 </span>            :     unsigned char basetype;      ///&lt; C data type at the heart of our type</a>
+<a name="127"><span class="lineNum">     127 </span>            :     unsigned char aggregate;     ///&lt; What kind of AGGREGATE is it?</a>
+<a name="128"><span class="lineNum">     128 </span>            :     unsigned char vecsemantics;  ///&lt; Hint: What does the aggregate represent?</a>
+<a name="129"><span class="lineNum">     129 </span>            :     unsigned char reserved;      ///&lt; Reserved for future expansion</a>
+<a name="130"><span class="lineNum">     130 </span>            :     int arraylen;                ///&lt; Array length, 0 = not array, -1 = unsized</a>
+<a name="131"><span class="lineNum">     131 </span>            : </a>
+<a name="132"><span class="lineNum">     132 </span>            :     /// Construct from a BASETYPE and optional aggregateness, semantics,</a>
+<a name="133"><span class="lineNum">     133 </span>            :     /// and arrayness.</a>
+<a name="134"><span class="lineNum">     134 </span><span class="lineCov">    8249214 :     OIIO_HOSTDEVICE constexpr TypeDesc (BASETYPE btype=UNKNOWN, AGGREGATE agg=SCALAR,</span></a>
+<a name="135"><span class="lineNum">     135 </span>            :                         VECSEMANTICS semantics=NOSEMANTICS,</a>
+<a name="136"><span class="lineNum">     136 </span>            :                         int arraylen=0) noexcept</a>
+<a name="137"><span class="lineNum">     137 </span><span class="lineCov">    8249214 :         : basetype(static_cast&lt;unsigned char&gt;(btype)),</span></a>
+<a name="138"><span class="lineNum">     138 </span><span class="lineCov">    8249214 :           aggregate(static_cast&lt;unsigned char&gt;(agg)),</span></a>
+<a name="139"><span class="lineNum">     139 </span><span class="lineCov">    8249214 :           vecsemantics(static_cast&lt;unsigned char&gt;(semantics)), reserved(0),</span></a>
+<a name="140"><span class="lineNum">     140 </span><span class="lineCov">    8249214 :           arraylen(arraylen)</span></a>
+<a name="141"><span class="lineNum">     141 </span><span class="lineCov">    8249214 :           { }</span></a>
+<a name="142"><span class="lineNum">     142 </span>            : </a>
+<a name="143"><span class="lineNum">     143 </span>            :     /// Construct an array of a non-aggregate BASETYPE.</a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineCov">       4610 :     OIIO_HOSTDEVICE constexpr TypeDesc (BASETYPE btype, int arraylen) noexcept</span></a>
+<a name="145"><span class="lineNum">     145 </span><span class="lineCov">       4610 :         : TypeDesc(btype, SCALAR, NOSEMANTICS, arraylen) {}</span></a>
+<a name="146"><span class="lineNum">     146 </span>            : </a>
+<a name="147"><span class="lineNum">     147 </span>            :     /// Construct an array from BASETYPE, AGGREGATE, and array length,</a>
+<a name="148"><span class="lineNum">     148 </span>            :     /// with unspecified (or moot) semantic hints.</a>
+<a name="149"><span class="lineNum">     149 </span>            :     OIIO_HOSTDEVICE constexpr TypeDesc (BASETYPE btype, AGGREGATE agg, int arraylen) noexcept</a>
+<a name="150"><span class="lineNum">     150 </span>            :         : TypeDesc(btype, agg, NOSEMANTICS, arraylen) {}</a>
+<a name="151"><span class="lineNum">     151 </span>            : </a>
+<a name="152"><span class="lineNum">     152 </span>            :     /// Construct from a string (e.g., &quot;float[3]&quot;).  If no valid</a>
+<a name="153"><span class="lineNum">     153 </span>            :     /// type could be assembled, set base to UNKNOWN.</a>
+<a name="154"><span class="lineNum">     154 </span>            :     ///</a>
+<a name="155"><span class="lineNum">     155 </span>            :     /// Examples:</a>
+<a name="156"><span class="lineNum">     156 </span>            :     /// ```</a>
+<a name="157"><span class="lineNum">     157 </span>            :     ///      TypeDesc(&quot;int&quot;) == TypeDesc(TypeDesc::INT)            // C++ int32_t</a>
+<a name="158"><span class="lineNum">     158 </span>            :     ///      TypeDesc(&quot;float&quot;) == TypeDesc(TypeDesc::FLOAT)        // C++ float</a>
+<a name="159"><span class="lineNum">     159 </span>            :     ///      TypeDesc(&quot;uint16&quot;) == TypeDesc(TypeDesc::UINT16)      // C++ uint16_t</a>
+<a name="160"><span class="lineNum">     160 </span>            :     ///      TypeDesc(&quot;float[4]&quot;) == TypeDesc(TypeDesc::FLOAT, 4)  // array</a>
+<a name="161"><span class="lineNum">     161 </span>            :     ///      TypeDesc(&quot;point&quot;) == TypeDesc(TypeDesc::FLOAT,</a>
+<a name="162"><span class="lineNum">     162 </span>            :     ///                                    TypeDesc::VEC3, TypeDesc::POINT)</a>
+<a name="163"><span class="lineNum">     163 </span>            :     /// ```</a>
+<a name="164"><span class="lineNum">     164 </span>            :     ///</a>
+<a name="165"><span class="lineNum">     165 </span>            :     TypeDesc (string_view typestring);</a>
+<a name="166"><span class="lineNum">     166 </span>            : </a>
+<a name="167"><span class="lineNum">     167 </span>            :     /// Copy constructor.</a>
+<a name="168"><span class="lineNum">     168 </span>            :     constexpr TypeDesc (const TypeDesc &amp;t) noexcept = default;</a>
+<a name="169"><span class="lineNum">     169 </span>            : </a>
+<a name="170"><span class="lineNum">     170 </span>            :     /// Return the name, for printing and whatnot.  For example,</a>
+<a name="171"><span class="lineNum">     171 </span>            :     /// &quot;float&quot;, &quot;int[5]&quot;, &quot;normal&quot;</a>
+<a name="172"><span class="lineNum">     172 </span>            :     const char *c_str() const;</a>
+<a name="173"><span class="lineNum">     173 </span>            : </a>
+<a name="174"><span class="lineNum">     174 </span>            :     friend std::ostream&amp; operator&lt;&lt; (std::ostream&amp; o, const TypeDesc&amp; t) {</a>
+<a name="175"><span class="lineNum">     175 </span>            :         o &lt;&lt; t.c_str();  return o;</a>
+<a name="176"><span class="lineNum">     176 </span>            :     }</a>
+<a name="177"><span class="lineNum">     177 </span>            : </a>
+<a name="178"><span class="lineNum">     178 </span>            :     /// Return the number of elements: 1 if not an array, or the array</a>
+<a name="179"><span class="lineNum">     179 </span>            :     /// length. Invalid to call this for arrays of undetermined size.</a>
+<a name="180"><span class="lineNum">     180 </span>            :     OIIO_HOSTDEVICE constexpr size_t numelements () const noexcept {</a>
+<a name="181"><span class="lineNum">     181 </span>            :         OIIO_DASSERT_MSG (arraylen &gt;= 0, &quot;Called numelements() on TypeDesc &quot;</a>
+<a name="182"><span class="lineNum">     182 </span>            :                           &quot;of array with unspecified length (%d)&quot;, arraylen);</a>
+<a name="183"><span class="lineNum">     183 </span>            :         return (arraylen &gt;= 1 ? arraylen : 1);</a>
+<a name="184"><span class="lineNum">     184 </span>            :     }</a>
+<a name="185"><span class="lineNum">     185 </span>            : </a>
+<a name="186"><span class="lineNum">     186 </span>            :     /// Return the number of basetype values: the aggregate count multiplied</a>
+<a name="187"><span class="lineNum">     187 </span>            :     /// by the array length (or 1 if not an array). Invalid to call this</a>
+<a name="188"><span class="lineNum">     188 </span>            :     /// for arrays of undetermined size.</a>
+<a name="189"><span class="lineNum">     189 </span>            :     OIIO_HOSTDEVICE constexpr size_t basevalues () const noexcept {</a>
+<a name="190"><span class="lineNum">     190 </span>            :         return numelements() * aggregate;</a>
+<a name="191"><span class="lineNum">     191 </span>            :     }</a>
+<a name="192"><span class="lineNum">     192 </span>            : </a>
+<a name="193"><span class="lineNum">     193 </span>            :     /// Does this TypeDesc describe an array?</a>
+<a name="194"><span class="lineNum">     194 </span><span class="lineCov">        192 :     OIIO_HOSTDEVICE constexpr bool is_array () const noexcept { return (arraylen != 0); }</span></a>
+<a name="195"><span class="lineNum">     195 </span>            : </a>
+<a name="196"><span class="lineNum">     196 </span>            :     /// Does this TypeDesc describe an array, but whose length is not</a>
+<a name="197"><span class="lineNum">     197 </span>            :     /// specified?</a>
+<a name="198"><span class="lineNum">     198 </span>            :     OIIO_HOSTDEVICE constexpr bool is_unsized_array () const noexcept { return (arraylen &lt; 0); }</a>
+<a name="199"><span class="lineNum">     199 </span>            : </a>
+<a name="200"><span class="lineNum">     200 </span>            :     /// Does this TypeDesc describe an array, whose length is specified?</a>
+<a name="201"><span class="lineNum">     201 </span>            :     OIIO_HOSTDEVICE constexpr bool is_sized_array () const noexcept { return (arraylen &gt; 0); }</a>
+<a name="202"><span class="lineNum">     202 </span>            : </a>
+<a name="203"><span class="lineNum">     203 </span>            :     /// Return the size, in bytes, of this type.</a>
+<a name="204"><span class="lineNum">     204 </span>            :     ///</a>
+<a name="205"><span class="lineNum">     205 </span><span class="lineCov">      27415 :     OIIO_HOSTDEVICE size_t size () const noexcept {</span></a>
+<a name="206"><span class="lineNum">     206 </span><span class="lineCov">      27415 :         OIIO_DASSERT_MSG (arraylen &gt;= 0, &quot;Called size() on TypeDesc &quot;</span></a>
+<a name="207"><span class="lineNum">     207 </span>            :                           &quot;of array with unspecified length (%d)&quot;, arraylen);</a>
+<a name="208"><span class="lineNum">     208 </span><span class="lineCov">      27415 :         size_t a = (size_t) (arraylen &gt; 0 ? arraylen : 1);</span></a>
+<a name="209"><span class="lineNum">     209 </span>            :         if (sizeof(size_t) &gt; sizeof(int)) {</a>
+<a name="210"><span class="lineNum">     210 </span>            :             // size_t has plenty of room for this multiplication</a>
+<a name="211"><span class="lineNum">     211 </span><span class="lineCov">      27415 :             return a * elementsize();</span></a>
+<a name="212"><span class="lineNum">     212 </span>            :         } else {</a>
+<a name="213"><span class="lineNum">     213 </span>            :             // need overflow protection</a>
+<a name="214"><span class="lineNum">     214 </span>            :             unsigned long long s = (unsigned long long) a * elementsize();</a>
+<a name="215"><span class="lineNum">     215 </span>            :             const size_t toobig = std::numeric_limits&lt;size_t&gt;::max();</a>
+<a name="216"><span class="lineNum">     216 </span>            :             return s &lt; toobig ? (size_t)s : toobig;</a>
+<a name="217"><span class="lineNum">     217 </span>            :         }</a>
+<a name="218"><span class="lineNum">     218 </span>            :     }</a>
+<a name="219"><span class="lineNum">     219 </span>            : </a>
+<a name="220"><span class="lineNum">     220 </span>            :     /// Return the type of one element, i.e., strip out the array-ness.</a>
+<a name="221"><span class="lineNum">     221 </span>            :     ///</a>
+<a name="222"><span class="lineNum">     222 </span>            :     OIIO_HOSTDEVICE constexpr TypeDesc elementtype () const noexcept {</a>
+<a name="223"><span class="lineNum">     223 </span>            :         TypeDesc t (*this);  t.arraylen = 0;  return t;</a>
+<a name="224"><span class="lineNum">     224 </span>            :     }</a>
+<a name="225"><span class="lineNum">     225 </span>            : </a>
+<a name="226"><span class="lineNum">     226 </span>            :     /// Return the size, in bytes, of one element of this type (that is,</a>
+<a name="227"><span class="lineNum">     227 </span>            :     /// ignoring whether it's an array).</a>
+<a name="228"><span class="lineNum">     228 </span><span class="lineCov">      27415 :     OIIO_HOSTDEVICE size_t elementsize () const noexcept { return aggregate * basesize(); }</span></a>
+<a name="229"><span class="lineNum">     229 </span>            : </a>
+<a name="230"><span class="lineNum">     230 </span>            :     /// Return just the underlying C scalar type, i.e., strip out the</a>
+<a name="231"><span class="lineNum">     231 </span>            :     /// array-ness and the aggregateness.</a>
+<a name="232"><span class="lineNum">     232 </span>            :     OIIO_HOSTDEVICE constexpr TypeDesc scalartype() const { return TypeDesc(BASETYPE(basetype)); }</a>
+<a name="233"><span class="lineNum">     233 </span>            : </a>
+<a name="234"><span class="lineNum">     234 </span>            :     /// Return the base type size, i.e., stripped of both array-ness</a>
+<a name="235"><span class="lineNum">     235 </span>            :     /// and aggregateness.</a>
+<a name="236"><span class="lineNum">     236 </span>            :     size_t basesize () const noexcept;</a>
+<a name="237"><span class="lineNum">     237 </span>            : </a>
+<a name="238"><span class="lineNum">     238 </span>            :     /// True if it's a floating-point type (versus a fundamentally</a>
+<a name="239"><span class="lineNum">     239 </span>            :     /// integral type or something else like a string).</a>
+<a name="240"><span class="lineNum">     240 </span>            :     bool is_floating_point () const noexcept;</a>
+<a name="241"><span class="lineNum">     241 </span>            : </a>
+<a name="242"><span class="lineNum">     242 </span>            :     /// True if it's a signed type that allows for negative values.</a>
+<a name="243"><span class="lineNum">     243 </span>            :     bool is_signed () const noexcept;</a>
+<a name="244"><span class="lineNum">     244 </span>            : </a>
+<a name="245"><span class="lineNum">     245 </span>            :     /// Shortcut: is it UNKNOWN?</a>
+<a name="246"><span class="lineNum">     246 </span>            :     OIIO_HOSTDEVICE constexpr bool is_unknown () const noexcept { return (basetype == UNKNOWN); }</a>
+<a name="247"><span class="lineNum">     247 </span>            : </a>
+<a name="248"><span class="lineNum">     248 </span>            :     /// if (typedesc) is the same as asking whether it's not UNKNOWN.</a>
+<a name="249"><span class="lineNum">     249 </span>            :     OIIO_HOSTDEVICE constexpr operator bool () const noexcept { return (basetype != UNKNOWN); }</a>
+<a name="250"><span class="lineNum">     250 </span>            : </a>
+<a name="251"><span class="lineNum">     251 </span>            :     /// Set *this to the type described in the string.  Return the</a>
+<a name="252"><span class="lineNum">     252 </span>            :     /// length of the part of the string that describes the type.  If</a>
+<a name="253"><span class="lineNum">     253 </span>            :     /// no valid type could be assembled, return 0 and do not modify</a>
+<a name="254"><span class="lineNum">     254 </span>            :     /// *this.</a>
+<a name="255"><span class="lineNum">     255 </span>            :     size_t fromstring (string_view typestring);</a>
+<a name="256"><span class="lineNum">     256 </span>            : </a>
+<a name="257"><span class="lineNum">     257 </span>            :     /// Compare two TypeDesc values for equality.</a>
+<a name="258"><span class="lineNum">     258 </span>            :     ///</a>
+<a name="259"><span class="lineNum">     259 </span><span class="lineCov">   19319053 :     OIIO_HOSTDEVICE constexpr bool operator== (const TypeDesc &amp;t) const noexcept {</span></a>
+<a name="260"><span class="lineNum">     260 </span><span class="lineCov">   18078120 :         return basetype == t.basetype &amp;&amp; aggregate == t.aggregate &amp;&amp;</span></a>
+<a name="261"><span class="lineNum">     261 </span><span class="lineCov">   37397173 :             vecsemantics == t.vecsemantics &amp;&amp; arraylen == t.arraylen;</span></a>
+<a name="262"><span class="lineNum">     262 </span>            :     }</a>
+<a name="263"><span class="lineNum">     263 </span>            : </a>
+<a name="264"><span class="lineNum">     264 </span>            :     /// Compare two TypeDesc values for inequality.</a>
+<a name="265"><span class="lineNum">     265 </span>            :     ///</a>
+<a name="266"><span class="lineNum">     266 </span><span class="lineCov">       5524 :     OIIO_HOSTDEVICE constexpr bool operator!= (const TypeDesc &amp;t) const noexcept { return ! (*this == t); }</span></a>
+<a name="267"><span class="lineNum">     267 </span>            : </a>
+<a name="268"><span class="lineNum">     268 </span>            :     /// Compare a TypeDesc to a basetype (it's the same if it has the</a>
+<a name="269"><span class="lineNum">     269 </span>            :     /// same base type and is not an aggregate or an array).</a>
+<a name="270"><span class="lineNum">     270 </span><span class="lineCov">       4391 :     OIIO_HOSTDEVICE friend constexpr bool operator== (const TypeDesc &amp;t, BASETYPE b) noexcept {</span></a>
+<a name="271"><span class="lineNum">     271 </span><span class="lineCov">       4391 :         return (BASETYPE)t.basetype == b &amp;&amp; (AGGREGATE)t.aggregate == SCALAR &amp;&amp; !t.is_array();</span></a>
+<a name="272"><span class="lineNum">     272 </span>            :     }</a>
+<a name="273"><span class="lineNum">     273 </span>            :     OIIO_HOSTDEVICE friend constexpr bool operator== (BASETYPE b, const TypeDesc &amp;t) noexcept {</a>
+<a name="274"><span class="lineNum">     274 </span>            :         return (BASETYPE)t.basetype == b &amp;&amp; (AGGREGATE)t.aggregate == SCALAR &amp;&amp; !t.is_array();</a>
+<a name="275"><span class="lineNum">     275 </span>            :     }</a>
+<a name="276"><span class="lineNum">     276 </span>            : </a>
+<a name="277"><span class="lineNum">     277 </span>            :     /// Compare a TypeDesc to a basetype (it's the same if it has the</a>
+<a name="278"><span class="lineNum">     278 </span>            :     /// same base type and is not an aggregate or an array).</a>
+<a name="279"><span class="lineNum">     279 </span><span class="lineCov">        176 :     OIIO_HOSTDEVICE friend constexpr bool operator!= (const TypeDesc &amp;t, BASETYPE b) noexcept {</span></a>
+<a name="280"><span class="lineNum">     280 </span><span class="lineCov">        176 :         return (BASETYPE)t.basetype != b || (AGGREGATE)t.aggregate != SCALAR || t.is_array();</span></a>
+<a name="281"><span class="lineNum">     281 </span>            :     }</a>
+<a name="282"><span class="lineNum">     282 </span>            :     OIIO_HOSTDEVICE friend constexpr bool operator!= (BASETYPE b, const TypeDesc &amp;t) noexcept {</a>
+<a name="283"><span class="lineNum">     283 </span>            :         return (BASETYPE)t.basetype != b || (AGGREGATE)t.aggregate != SCALAR || t.is_array();</a>
+<a name="284"><span class="lineNum">     284 </span>            :     }</a>
+<a name="285"><span class="lineNum">     285 </span>            : </a>
+<a name="286"><span class="lineNum">     286 </span>            :     /// TypeDesc's are equivalent if they are equal, or if their only</a>
+<a name="287"><span class="lineNum">     287 </span>            :     /// inequality is differing vector semantics.</a>
+<a name="288"><span class="lineNum">     288 </span>            :     OIIO_HOSTDEVICE friend constexpr bool equivalent (const TypeDesc &amp;a, const TypeDesc &amp;b) noexcept {</a>
+<a name="289"><span class="lineNum">     289 </span>            :         return a.basetype == b.basetype &amp;&amp; a.aggregate == b.aggregate &amp;&amp;</a>
+<a name="290"><span class="lineNum">     290 </span>            :                (a.arraylen == b.arraylen || (a.is_unsized_array() &amp;&amp; b.is_sized_array())</a>
+<a name="291"><span class="lineNum">     291 </span>            :                                          || (a.is_sized_array()   &amp;&amp; b.is_unsized_array()));</a>
+<a name="292"><span class="lineNum">     292 </span>            :     }</a>
+<a name="293"><span class="lineNum">     293 </span>            :     /// Member version of equivalent</a>
+<a name="294"><span class="lineNum">     294 </span>            :     OIIO_HOSTDEVICE constexpr bool equivalent (const TypeDesc &amp;b) const noexcept {</a>
+<a name="295"><span class="lineNum">     295 </span>            :         return this-&gt;basetype == b.basetype &amp;&amp; this-&gt;aggregate == b.aggregate &amp;&amp;</a>
+<a name="296"><span class="lineNum">     296 </span>            :                (this-&gt;arraylen == b.arraylen || (this-&gt;is_unsized_array() &amp;&amp; b.is_sized_array())</a>
+<a name="297"><span class="lineNum">     297 </span>            :                                              || (this-&gt;is_sized_array()   &amp;&amp; b.is_unsized_array()));</a>
+<a name="298"><span class="lineNum">     298 </span>            :     }</a>
+<a name="299"><span class="lineNum">     299 </span>            : </a>
+<a name="300"><span class="lineNum">     300 </span>            :     /// Is this a 2-vector aggregate (of the given type, float by default)?</a>
+<a name="301"><span class="lineNum">     301 </span>            :     OIIO_HOSTDEVICE constexpr bool is_vec2 (BASETYPE b=FLOAT) const noexcept {</a>
+<a name="302"><span class="lineNum">     302 </span>            :         return this-&gt;aggregate == VEC2 &amp;&amp; this-&gt;basetype == b &amp;&amp; !is_array();</a>
+<a name="303"><span class="lineNum">     303 </span>            :     }</a>
+<a name="304"><span class="lineNum">     304 </span>            : </a>
+<a name="305"><span class="lineNum">     305 </span>            :     /// Is this a 3-vector aggregate (of the given type, float by default)?</a>
+<a name="306"><span class="lineNum">     306 </span>            :     OIIO_HOSTDEVICE constexpr bool is_vec3 (BASETYPE b=FLOAT) const noexcept {</a>
+<a name="307"><span class="lineNum">     307 </span>            :         return this-&gt;aggregate == VEC3 &amp;&amp; this-&gt;basetype == b &amp;&amp; !is_array();</a>
+<a name="308"><span class="lineNum">     308 </span>            :     }</a>
+<a name="309"><span class="lineNum">     309 </span>            : </a>
+<a name="310"><span class="lineNum">     310 </span>            :     /// Is this a 4-vector aggregate (of the given type, float by default)?</a>
+<a name="311"><span class="lineNum">     311 </span>            :     OIIO_HOSTDEVICE constexpr bool is_vec4 (BASETYPE b=FLOAT) const noexcept {</a>
+<a name="312"><span class="lineNum">     312 </span>            :         return this-&gt;aggregate == VEC4 &amp;&amp; this-&gt;basetype == b &amp;&amp; !is_array();</a>
+<a name="313"><span class="lineNum">     313 </span>            :     }</a>
+<a name="314"><span class="lineNum">     314 </span>            : </a>
+<a name="315"><span class="lineNum">     315 </span>            :     /// Is this an array of aggregates that represents a 2D bounding box?</a>
+<a name="316"><span class="lineNum">     316 </span>            :     OIIO_HOSTDEVICE constexpr bool is_box2 (BASETYPE b=FLOAT) const noexcept {</a>
+<a name="317"><span class="lineNum">     317 </span>            :         return this-&gt;aggregate == VEC2 &amp;&amp; this-&gt;basetype == b &amp;&amp; arraylen == 2</a>
+<a name="318"><span class="lineNum">     318 </span>            :                 &amp;&amp; this-&gt;vecsemantics == BOX;</a>
+<a name="319"><span class="lineNum">     319 </span>            :     }</a>
+<a name="320"><span class="lineNum">     320 </span>            : </a>
+<a name="321"><span class="lineNum">     321 </span>            :     /// Is this an array of aggregates that represents a 3D bounding box?</a>
+<a name="322"><span class="lineNum">     322 </span>            :     OIIO_HOSTDEVICE constexpr bool is_box3 (BASETYPE b=FLOAT) const noexcept {</a>
+<a name="323"><span class="lineNum">     323 </span>            :         return this-&gt;aggregate == VEC3 &amp;&amp; this-&gt;basetype == b &amp;&amp; arraylen == 2</a>
+<a name="324"><span class="lineNum">     324 </span>            :                 &amp;&amp; this-&gt;vecsemantics == BOX;</a>
+<a name="325"><span class="lineNum">     325 </span>            :     }</a>
+<a name="326"><span class="lineNum">     326 </span>            : </a>
+<a name="327"><span class="lineNum">     327 </span>            :     /// Demote the type to a non-array</a>
+<a name="328"><span class="lineNum">     328 </span>            :     ///</a>
+<a name="329"><span class="lineNum">     329 </span>            :     OIIO_HOSTDEVICE void unarray (void) noexcept { arraylen = 0; }</a>
+<a name="330"><span class="lineNum">     330 </span>            : </a>
+<a name="331"><span class="lineNum">     331 </span>            :     /// Test for lexicographic 'less', comes in handy for lots of STL</a>
+<a name="332"><span class="lineNum">     332 </span>            :     /// containers and algorithms.</a>
+<a name="333"><span class="lineNum">     333 </span>            :     bool operator&lt; (const TypeDesc &amp;x) const noexcept;</a>
+<a name="334"><span class="lineNum">     334 </span>            : </a>
+<a name="335"><span class="lineNum">     335 </span>            :     /// Given base data types of a and b, return a basetype that is a best</a>
+<a name="336"><span class="lineNum">     336 </span>            :     /// guess for one that can handle both without any loss of range or</a>
+<a name="337"><span class="lineNum">     337 </span>            :     /// precision.</a>
+<a name="338"><span class="lineNum">     338 </span>            :     static BASETYPE basetype_merge(TypeDesc a, TypeDesc b);</a>
+<a name="339"><span class="lineNum">     339 </span>            :     static BASETYPE basetype_merge(TypeDesc a, TypeDesc b, TypeDesc c) {</a>
+<a name="340"><span class="lineNum">     340 </span>            :         return basetype_merge(basetype_merge(a, b), c);</a>
+<a name="341"><span class="lineNum">     341 </span>            :     }</a>
+<a name="342"><span class="lineNum">     342 </span>            :     /// Merge the basetype of a contiguous span of TypeDesc's</a>
+<a name="343"><span class="lineNum">     343 </span>            :     static BASETYPE basetype_merge(cspan&lt;TypeDesc&gt; types) {</a>
+<a name="344"><span class="lineNum">     344 </span>            :         TypeDesc merged_type;</a>
+<a name="345"><span class="lineNum">     345 </span>            :         for (auto t : types)</a>
+<a name="346"><span class="lineNum">     346 </span>            :             merged_type = basetype_merge(merged_type, t);</a>
+<a name="347"><span class="lineNum">     347 </span>            :         return BASETYPE(merged_type.basetype);</a>
+<a name="348"><span class="lineNum">     348 </span>            :     }</a>
+<a name="349"><span class="lineNum">     349 </span>            :     /// Are all of the types in a contiguous span exactly the same?</a>
+<a name="350"><span class="lineNum">     350 </span>            :     static bool all_types_equal(cspan&lt;TypeDesc&gt; types) {</a>
+<a name="351"><span class="lineNum">     351 </span>            :         bool r = true;</a>
+<a name="352"><span class="lineNum">     352 </span>            :         for (size_t i = 1, e = types.size(); i &lt; e; ++i)</a>
+<a name="353"><span class="lineNum">     353 </span>            :             r &amp;= (types[i] == types[0]);</a>
+<a name="354"><span class="lineNum">     354 </span>            :         return r;</a>
+<a name="355"><span class="lineNum">     355 </span>            :     }</a>
+<a name="356"><span class="lineNum">     356 </span>            : };</a>
+<a name="357"><span class="lineNum">     357 </span>            : </a>
+<a name="358"><span class="lineNum">     358 </span>            : // Validate that TypeDesc can be used directly as POD in a C interface.</a>
+<a name="359"><span class="lineNum">     359 </span>            : static_assert(std::is_default_constructible&lt;TypeDesc&gt;(), &quot;TypeDesc is not default constructable.&quot;);</a>
+<a name="360"><span class="lineNum">     360 </span>            : static_assert(std::is_trivially_copyable&lt;TypeDesc&gt;(), &quot;TypeDesc is not trivially copyable.&quot;);</a>
+<a name="361"><span class="lineNum">     361 </span>            : static_assert(std::is_trivially_destructible&lt;TypeDesc&gt;(), &quot;TypeDesc is not trivially destructible.&quot;);</a>
+<a name="362"><span class="lineNum">     362 </span>            : static_assert(std::is_trivially_move_constructible&lt;TypeDesc&gt;(), &quot;TypeDesc is not move constructible.&quot;);</a>
+<a name="363"><span class="lineNum">     363 </span>            : static_assert(std::is_trivially_copy_constructible&lt;TypeDesc&gt;(), &quot;TypeDesc is not copy constructible.&quot;);</a>
+<a name="364"><span class="lineNum">     364 </span>            : static_assert(std::is_trivially_move_assignable&lt;TypeDesc&gt;(), &quot;TypeDesc is not move assignable.&quot;);</a>
+<a name="365"><span class="lineNum">     365 </span>            : </a>
+<a name="366"><span class="lineNum">     366 </span>            : // Static values for commonly used types. Because these are constexpr,</a>
+<a name="367"><span class="lineNum">     367 </span>            : // they should incur no runtime construction cost and should optimize nicely</a>
+<a name="368"><span class="lineNum">     368 </span>            : // in various ways.</a>
+<a name="369"><span class="lineNum">     369 </span>            : inline constexpr TypeDesc TypeUnknown (TypeDesc::UNKNOWN);</a>
+<a name="370"><span class="lineNum">     370 </span>            : inline constexpr TypeDesc TypeFloat (TypeDesc::FLOAT);</a>
+<a name="371"><span class="lineNum">     371 </span>            : inline constexpr TypeDesc TypeColor (TypeDesc::FLOAT, TypeDesc::VEC3, TypeDesc::COLOR);</a>
+<a name="372"><span class="lineNum">     372 </span>            : inline constexpr TypeDesc TypePoint (TypeDesc::FLOAT, TypeDesc::VEC3, TypeDesc::POINT);</a>
+<a name="373"><span class="lineNum">     373 </span>            : inline constexpr TypeDesc TypeVector (TypeDesc::FLOAT, TypeDesc::VEC3, TypeDesc::VECTOR);</a>
+<a name="374"><span class="lineNum">     374 </span>            : inline constexpr TypeDesc TypeNormal (TypeDesc::FLOAT, TypeDesc::VEC3, TypeDesc::NORMAL);</a>
+<a name="375"><span class="lineNum">     375 </span>            : inline constexpr TypeDesc TypeMatrix33 (TypeDesc::FLOAT, TypeDesc::MATRIX33);</a>
+<a name="376"><span class="lineNum">     376 </span>            : inline constexpr TypeDesc TypeMatrix44 (TypeDesc::FLOAT, TypeDesc::MATRIX44);</a>
+<a name="377"><span class="lineNum">     377 </span>            : inline constexpr TypeDesc TypeMatrix = TypeMatrix44;</a>
+<a name="378"><span class="lineNum">     378 </span>            : inline constexpr TypeDesc TypeFloat2 (TypeDesc::FLOAT, TypeDesc::VEC2);</a>
+<a name="379"><span class="lineNum">     379 </span>            : inline constexpr TypeDesc TypeVector2 (TypeDesc::FLOAT, TypeDesc::VEC2, TypeDesc::VECTOR);</a>
+<a name="380"><span class="lineNum">     380 </span>            : inline constexpr TypeDesc TypeFloat4 (TypeDesc::FLOAT, TypeDesc::VEC4);</a>
+<a name="381"><span class="lineNum">     381 </span>            : inline constexpr TypeDesc TypeVector4 = TypeFloat4;</a>
+<a name="382"><span class="lineNum">     382 </span>            : inline constexpr TypeDesc TypeString (TypeDesc::STRING);</a>
+<a name="383"><span class="lineNum">     383 </span>            : inline constexpr TypeDesc TypeInt (TypeDesc::INT);</a>
+<a name="384"><span class="lineNum">     384 </span>            : inline constexpr TypeDesc TypeUInt (TypeDesc::UINT);</a>
+<a name="385"><span class="lineNum">     385 </span>            : inline constexpr TypeDesc TypeInt32 (TypeDesc::INT);</a>
+<a name="386"><span class="lineNum">     386 </span>            : inline constexpr TypeDesc TypeUInt32 (TypeDesc::UINT);</a>
+<a name="387"><span class="lineNum">     387 </span>            : inline constexpr TypeDesc TypeInt16 (TypeDesc::INT16);</a>
+<a name="388"><span class="lineNum">     388 </span>            : inline constexpr TypeDesc TypeUInt16 (TypeDesc::UINT16);</a>
+<a name="389"><span class="lineNum">     389 </span>            : inline constexpr TypeDesc TypeInt8 (TypeDesc::INT8);</a>
+<a name="390"><span class="lineNum">     390 </span>            : inline constexpr TypeDesc TypeUInt8 (TypeDesc::UINT8);</a>
+<a name="391"><span class="lineNum">     391 </span>            : inline constexpr TypeDesc TypeInt64 (TypeDesc::INT64);</a>
+<a name="392"><span class="lineNum">     392 </span>            : inline constexpr TypeDesc TypeUInt64 (TypeDesc::UINT64);</a>
+<a name="393"><span class="lineNum">     393 </span>            : inline constexpr TypeDesc TypeVector2i(TypeDesc::INT, TypeDesc::VEC2);</a>
+<a name="394"><span class="lineNum">     394 </span>            : inline constexpr TypeDesc TypeVector3i(TypeDesc::INT, TypeDesc::VEC3);</a>
+<a name="395"><span class="lineNum">     395 </span>            : inline constexpr TypeDesc TypeBox2(TypeDesc::FLOAT, TypeDesc::VEC2, TypeDesc::BOX, 2);</a>
+<a name="396"><span class="lineNum">     396 </span>            : inline constexpr TypeDesc TypeBox3(TypeDesc::FLOAT, TypeDesc::VEC3, TypeDesc::BOX, 2);</a>
+<a name="397"><span class="lineNum">     397 </span>            : inline constexpr TypeDesc TypeBox2i(TypeDesc::INT, TypeDesc::VEC2, TypeDesc::BOX, 2);</a>
+<a name="398"><span class="lineNum">     398 </span>            : inline constexpr TypeDesc TypeBox3i(TypeDesc::INT, TypeDesc::VEC3, TypeDesc::BOX, 2);</a>
+<a name="399"><span class="lineNum">     399 </span>            : inline constexpr TypeDesc TypeHalf (TypeDesc::HALF);</a>
+<a name="400"><span class="lineNum">     400 </span>            : inline constexpr TypeDesc TypeTimeCode (TypeDesc::UINT, TypeDesc::SCALAR, TypeDesc::TIMECODE, 2);</a>
+<a name="401"><span class="lineNum">     401 </span>            : inline constexpr TypeDesc TypeKeyCode (TypeDesc::INT, TypeDesc::SCALAR, TypeDesc::KEYCODE, 7);</a>
+<a name="402"><span class="lineNum">     402 </span>            : inline constexpr TypeDesc TypeRational(TypeDesc::INT, TypeDesc::VEC2, TypeDesc::RATIONAL);</a>
+<a name="403"><span class="lineNum">     403 </span>            : inline constexpr TypeDesc TypeURational(TypeDesc::UINT, TypeDesc::VEC2, TypeDesc::RATIONAL);</a>
+<a name="404"><span class="lineNum">     404 </span>            : inline constexpr TypeDesc TypePointer(TypeDesc::PTR);</a>
+<a name="405"><span class="lineNum">     405 </span>            : inline constexpr TypeDesc TypeUstringhash(TypeDesc::USTRINGHASH);</a>
+<a name="406"><span class="lineNum">     406 </span>            : </a>
+<a name="407"><span class="lineNum">     407 </span>            : </a>
+<a name="408"><span class="lineNum">     408 </span>            : </a>
+<a name="409"><span class="lineNum">     409 </span>            : /// A template mechanism for getting the a base type from C type</a>
+<a name="410"><span class="lineNum">     410 </span>            : ///</a>
+<a name="411"><span class="lineNum">     411 </span>            : template&lt;typename T&gt; struct BaseTypeFromC {};</a>
+<a name="412"><span class="lineNum">     412 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;unsigned char&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::UINT8; };</a>
+<a name="413"><span class="lineNum">     413 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;const unsigned char&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::UINT8; };</a>
+<a name="414"><span class="lineNum">     414 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;char&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::INT8; };</a>
+<a name="415"><span class="lineNum">     415 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;const char&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::INT8; };</a>
+<a name="416"><span class="lineNum">     416 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;uint16_t&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::UINT16; };</a>
+<a name="417"><span class="lineNum">     417 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;const uint16_t&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::UINT16; };</a>
+<a name="418"><span class="lineNum">     418 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;int16_t&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::INT16; };</a>
+<a name="419"><span class="lineNum">     419 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;const int16_t&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::INT16; };</a>
+<a name="420"><span class="lineNum">     420 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;uint32_t&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::UINT; };</a>
+<a name="421"><span class="lineNum">     421 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;const uint32_t&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::UINT; };</a>
+<a name="422"><span class="lineNum">     422 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;int32_t&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::INT; };</a>
+<a name="423"><span class="lineNum">     423 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;const int32_t&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::INT; };</a>
+<a name="424"><span class="lineNum">     424 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;uint64_t&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::UINT64; };</a>
+<a name="425"><span class="lineNum">     425 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;const uint64_t&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::UINT64; };</a>
+<a name="426"><span class="lineNum">     426 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;int64_t&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::INT64; };</a>
+<a name="427"><span class="lineNum">     427 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;const int64_t&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::INT64; };</a>
+<a name="428"><span class="lineNum">     428 </span>            : #if defined(__GNUC__) &amp;&amp; (ULONG_MAX == 0xffffffffffffffff) &amp;&amp; !(defined(__APPLE__) &amp;&amp; defined(__MACH__)) &amp;&amp; !defined(__OpenBSD__) || defined(__NetBSD__)</a>
+<a name="429"><span class="lineNum">     429 </span>            : // Some platforms consider int64_t and long long to be different types, even</a>
+<a name="430"><span class="lineNum">     430 </span>            : // though they are actually the same size.</a>
+<a name="431"><span class="lineNum">     431 </span>            : static_assert(!std::is_same_v&lt;unsigned long long, uint64_t&gt;);</a>
+<a name="432"><span class="lineNum">     432 </span>            : static_assert(!std::is_same_v&lt;long long, int64_t&gt;);</a>
+<a name="433"><span class="lineNum">     433 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;unsigned long long&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::UINT64; };</a>
+<a name="434"><span class="lineNum">     434 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;const unsigned long long&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::UINT64; };</a>
+<a name="435"><span class="lineNum">     435 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;long long&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::INT64; };</a>
+<a name="436"><span class="lineNum">     436 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;const long long&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::INT64; };</a>
+<a name="437"><span class="lineNum">     437 </span>            : #endif</a>
+<a name="438"><span class="lineNum">     438 </span>            : #if defined(_HALF_H_) || defined(IMATH_HALF_H_)</a>
+<a name="439"><span class="lineNum">     439 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;half&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::HALF; };</a>
+<a name="440"><span class="lineNum">     440 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;const half&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::HALF; };</a>
+<a name="441"><span class="lineNum">     441 </span>            : #endif</a>
+<a name="442"><span class="lineNum">     442 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;float&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::FLOAT; };</a>
+<a name="443"><span class="lineNum">     443 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;const float&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::FLOAT; };</a>
+<a name="444"><span class="lineNum">     444 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;double&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::DOUBLE; };</a>
+<a name="445"><span class="lineNum">     445 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;const double&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::DOUBLE; };</a>
+<a name="446"><span class="lineNum">     446 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;char*&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::STRING; };</a>
+<a name="447"><span class="lineNum">     447 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;const char*&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::STRING; };</a>
+<a name="448"><span class="lineNum">     448 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;const char* const&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::STRING; };</a>
+<a name="449"><span class="lineNum">     449 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;std::string&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::STRING; };</a>
+<a name="450"><span class="lineNum">     450 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;const std::string&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::STRING; };</a>
+<a name="451"><span class="lineNum">     451 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;string_view&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::STRING; };</a>
+<a name="452"><span class="lineNum">     452 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;const string_view&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::STRING; };</a>
+<a name="453"><span class="lineNum">     453 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;ustring&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::STRING; };</a>
+<a name="454"><span class="lineNum">     454 </span>            : template&lt;&gt; struct BaseTypeFromC&lt;const ustring&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::STRING; };</a>
+<a name="455"><span class="lineNum">     455 </span>            : template&lt;size_t S&gt; struct BaseTypeFromC&lt;char[S]&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::STRING; };</a>
+<a name="456"><span class="lineNum">     456 </span>            : template&lt;size_t S&gt; struct BaseTypeFromC&lt;const char[S]&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::STRING; };</a>
+<a name="457"><span class="lineNum">     457 </span>            : template&lt;typename P&gt; struct BaseTypeFromC&lt;P*&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::PTR; };</a>
+<a name="458"><span class="lineNum">     458 </span>            : template&lt;typename P&gt; struct BaseTypeFromC&lt;const P*&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::PTR; };</a>
+<a name="459"><span class="lineNum">     459 </span>            : template&lt;typename P&gt; struct BaseTypeFromC&lt;const P* const&gt; { static constexpr TypeDesc::BASETYPE value = TypeDesc::PTR; };</a>
+<a name="460"><span class="lineNum">     460 </span>            : </a>
+<a name="461"><span class="lineNum">     461 </span>            : /// `BaseTypeFromC_v&lt;T&gt;` is shorthand for `BaseTypeFromC&lt;T&gt;::value()`.</a>
+<a name="462"><span class="lineNum">     462 </span>            : template&lt;typename T&gt;</a>
+<a name="463"><span class="lineNum">     463 </span>            : constexpr TypeDesc::BASETYPE BaseTypeFromC_v = BaseTypeFromC&lt;std::remove_cv_t&lt;T&gt;&gt;::value;</a>
+<a name="464"><span class="lineNum">     464 </span>            : </a>
+<a name="465"><span class="lineNum">     465 </span>            : /// A template mechanism for getting the TypeDesc from a C type.</a>
+<a name="466"><span class="lineNum">     466 </span>            : /// The default for simple types is just the TypeDesc based on BaseTypeFromC.</a>
+<a name="467"><span class="lineNum">     467 </span>            : /// But we can specialize more complex types.</a>
+<a name="468"><span class="lineNum">     468 </span>            : template&lt;typename T&gt; struct TypeDescFromC { static const constexpr TypeDesc value() { return TypeDesc(BaseTypeFromC_v&lt;T&gt;); } };</a>
+<a name="469"><span class="lineNum">     469 </span>            : template&lt;&gt; struct TypeDescFromC&lt;int32_t&gt; { static const constexpr TypeDesc value() { return TypeDesc::INT32; } };</a>
+<a name="470"><span class="lineNum">     470 </span>            : template&lt;&gt; struct TypeDescFromC&lt;uint32_t&gt; { static const constexpr TypeDesc value() { return TypeDesc::UINT32; } };</a>
+<a name="471"><span class="lineNum">     471 </span>            : template&lt;&gt; struct TypeDescFromC&lt;int16_t&gt; { static const constexpr TypeDesc value() { return TypeDesc::INT16; } };</a>
+<a name="472"><span class="lineNum">     472 </span>            : template&lt;&gt; struct TypeDescFromC&lt;uint16_t&gt; { static const constexpr TypeDesc value() { return TypeDesc::UINT16; } };</a>
+<a name="473"><span class="lineNum">     473 </span>            : template&lt;&gt; struct TypeDescFromC&lt;int8_t&gt; { static const constexpr TypeDesc value() { return TypeDesc::INT8; } };</a>
+<a name="474"><span class="lineNum">     474 </span>            : template&lt;&gt; struct TypeDescFromC&lt;uint8_t&gt; { static const constexpr TypeDesc value() { return TypeDesc::UINT8; } };</a>
+<a name="475"><span class="lineNum">     475 </span>            : template&lt;&gt; struct TypeDescFromC&lt;float&gt; { static const constexpr TypeDesc value() { return TypeDesc::FLOAT; } };</a>
+<a name="476"><span class="lineNum">     476 </span>            : #if defined(_HALF_H_) || defined(IMATH_HALF_H_)</a>
+<a name="477"><span class="lineNum">     477 </span>            : template&lt;&gt; struct TypeDescFromC&lt;half&gt; { static const constexpr TypeDesc value() { return TypeDesc::HALF; } };</a>
+<a name="478"><span class="lineNum">     478 </span>            : #endif</a>
+<a name="479"><span class="lineNum">     479 </span>            : template&lt;&gt; struct TypeDescFromC&lt;double&gt; { static const constexpr TypeDesc value() { return TypeDesc::DOUBLE; } };</a>
+<a name="480"><span class="lineNum">     480 </span>            : template&lt;&gt; struct TypeDescFromC&lt;char*&gt; { static const constexpr TypeDesc value() { return TypeDesc::STRING; } };</a>
+<a name="481"><span class="lineNum">     481 </span>            : template&lt;&gt; struct TypeDescFromC&lt;const char*&gt; { static const constexpr TypeDesc value() { return TypeDesc::STRING; } };</a>
+<a name="482"><span class="lineNum">     482 </span>            : template&lt;&gt; struct TypeDescFromC&lt;const char* const&gt; { static const constexpr TypeDesc value() { return TypeDesc::STRING; } };</a>
+<a name="483"><span class="lineNum">     483 </span>            : template&lt;size_t S&gt; struct TypeDescFromC&lt;char[S]&gt; { static const constexpr TypeDesc value() { return TypeDesc::STRING; } };</a>
+<a name="484"><span class="lineNum">     484 </span>            : template&lt;size_t S&gt; struct TypeDescFromC&lt;const char[S]&gt; { static const constexpr TypeDesc value() { return TypeDesc::STRING; } };</a>
+<a name="485"><span class="lineNum">     485 </span>            : template&lt;&gt; struct TypeDescFromC&lt;ustring&gt; { static const constexpr TypeDesc value() { return TypeDesc::STRING; } };</a>
+<a name="486"><span class="lineNum">     486 </span>            : template&lt;typename T&gt; struct TypeDescFromC&lt;T*&gt; { static const constexpr TypeDesc value() { return TypeDesc::PTR; } };</a>
+<a name="487"><span class="lineNum">     487 </span>            : template&lt;typename T&gt; struct TypeDescFromC&lt;const T*&gt; { static const constexpr TypeDesc value() { return TypeDesc::PTR; } };</a>
+<a name="488"><span class="lineNum">     488 </span>            : #ifdef INCLUDED_IMATHVEC_H</a>
+<a name="489"><span class="lineNum">     489 </span>            : template&lt;&gt; struct TypeDescFromC&lt;Imath::V3f&gt; { static const constexpr TypeDesc value() { return TypeVector; } };</a>
+<a name="490"><span class="lineNum">     490 </span>            : template&lt;&gt; struct TypeDescFromC&lt;Imath::V2f&gt; { static const constexpr TypeDesc value() { return TypeVector2; } };</a>
+<a name="491"><span class="lineNum">     491 </span>            : template&lt;&gt; struct TypeDescFromC&lt;Imath::V4f&gt; { static const constexpr TypeDesc value() { return TypeVector4; } };</a>
+<a name="492"><span class="lineNum">     492 </span>            : template&lt;&gt; struct TypeDescFromC&lt;Imath::V2i&gt; { static const constexpr TypeDesc value() { return TypeVector2i; } };</a>
+<a name="493"><span class="lineNum">     493 </span>            : template&lt;&gt; struct TypeDescFromC&lt;Imath::V3i&gt; { static const constexpr TypeDesc value() { return TypeVector3i; } };</a>
+<a name="494"><span class="lineNum">     494 </span>            : #endif</a>
+<a name="495"><span class="lineNum">     495 </span>            : #ifdef INCLUDED_IMATHCOLOR_H</a>
+<a name="496"><span class="lineNum">     496 </span>            : template&lt;&gt; struct TypeDescFromC&lt;Imath::Color3f&gt; { static const constexpr TypeDesc value() { return TypeColor; } };</a>
+<a name="497"><span class="lineNum">     497 </span>            : #endif</a>
+<a name="498"><span class="lineNum">     498 </span>            : #ifdef INCLUDED_IMATHMATRIX_H</a>
+<a name="499"><span class="lineNum">     499 </span>            : template&lt;&gt; struct TypeDescFromC&lt;Imath::M33f&gt; { static const constexpr TypeDesc value() { return TypeMatrix33; } };</a>
+<a name="500"><span class="lineNum">     500 </span>            : template&lt;&gt; struct TypeDescFromC&lt;Imath::M44f&gt; { static const constexpr TypeDesc value() { return TypeMatrix44; } };</a>
+<a name="501"><span class="lineNum">     501 </span>            : template&lt;&gt; struct TypeDescFromC&lt;Imath::M33d&gt; { static const constexpr TypeDesc value() { return TypeDesc(TypeDesc::DOUBLE, TypeDesc::MATRIX33); } };</a>
+<a name="502"><span class="lineNum">     502 </span>            : template&lt;&gt; struct TypeDescFromC&lt;Imath::M44d&gt; { static const constexpr TypeDesc value() { return TypeDesc(TypeDesc::DOUBLE, TypeDesc::MATRIX44); } };</a>
+<a name="503"><span class="lineNum">     503 </span>            : #endif</a>
+<a name="504"><span class="lineNum">     504 </span>            : #ifdef INCLUDED_IMATHBOX_H</a>
+<a name="505"><span class="lineNum">     505 </span>            : template&lt;&gt; struct TypeDescFromC&lt;Imath::Box2f&gt; { static const constexpr TypeDesc value() { return TypeBox2; } };</a>
+<a name="506"><span class="lineNum">     506 </span>            : template&lt;&gt; struct TypeDescFromC&lt;Imath::Box2i&gt; { static const constexpr TypeDesc value() { return TypeBox2i; } };</a>
+<a name="507"><span class="lineNum">     507 </span>            : template&lt;&gt; struct TypeDescFromC&lt;Imath::Box3f&gt; { static const constexpr TypeDesc value() { return TypeBox3; } };</a>
+<a name="508"><span class="lineNum">     508 </span>            : template&lt;&gt; struct TypeDescFromC&lt;Imath::Box3i&gt; { static const constexpr TypeDesc value() { return TypeBox3i; } };</a>
+<a name="509"><span class="lineNum">     509 </span>            : #endif</a>
+<a name="510"><span class="lineNum">     510 </span>            : </a>
+<a name="511"><span class="lineNum">     511 </span>            : /// `TypeDescFromC_v&lt;T&gt;` is shorthand for `TypeDescFromC&lt;T&gt;::value()`.</a>
+<a name="512"><span class="lineNum">     512 </span>            : template&lt;typename T&gt;</a>
+<a name="513"><span class="lineNum">     513 </span>            : constexpr TypeDesc TypeDescFromC_v = TypeDescFromC&lt;std::remove_cv_t&lt;T&gt;&gt;::value();</a>
+<a name="514"><span class="lineNum">     514 </span>            : </a>
+<a name="515"><span class="lineNum">     515 </span>            : </a>
+<a name="516"><span class="lineNum">     516 </span>            : </a>
+<a name="517"><span class="lineNum">     517 </span>            : /// A template mechanism for getting C type of TypeDesc::BASETYPE.</a>
+<a name="518"><span class="lineNum">     518 </span>            : ///</a>
+<a name="519"><span class="lineNum">     519 </span>            : template&lt;int b&gt; struct CType {};</a>
+<a name="520"><span class="lineNum">     520 </span>            : template&lt;&gt; struct CType&lt;(int)TypeDesc::UINT8&gt; { typedef unsigned char type; };</a>
+<a name="521"><span class="lineNum">     521 </span>            : template&lt;&gt; struct CType&lt;(int)TypeDesc::INT8&gt; { typedef char type; };</a>
+<a name="522"><span class="lineNum">     522 </span>            : template&lt;&gt; struct CType&lt;(int)TypeDesc::UINT16&gt; { typedef unsigned short type; };</a>
+<a name="523"><span class="lineNum">     523 </span>            : template&lt;&gt; struct CType&lt;(int)TypeDesc::INT16&gt; { typedef short type; };</a>
+<a name="524"><span class="lineNum">     524 </span>            : template&lt;&gt; struct CType&lt;(int)TypeDesc::UINT&gt; { typedef unsigned int type; };</a>
+<a name="525"><span class="lineNum">     525 </span>            : template&lt;&gt; struct CType&lt;(int)TypeDesc::INT&gt; { typedef int type; };</a>
+<a name="526"><span class="lineNum">     526 </span>            : template&lt;&gt; struct CType&lt;(int)TypeDesc::UINT64&gt; { typedef unsigned long long type; };</a>
+<a name="527"><span class="lineNum">     527 </span>            : template&lt;&gt; struct CType&lt;(int)TypeDesc::INT64&gt; { typedef long long type; };</a>
+<a name="528"><span class="lineNum">     528 </span>            : #if defined(_HALF_H_) || defined(IMATH_HALF_H_)</a>
+<a name="529"><span class="lineNum">     529 </span>            : template&lt;&gt; struct CType&lt;(int)TypeDesc::HALF&gt; { typedef half type; };</a>
+<a name="530"><span class="lineNum">     530 </span>            : #endif</a>
+<a name="531"><span class="lineNum">     531 </span>            : template&lt;&gt; struct CType&lt;(int)TypeDesc::FLOAT&gt; { typedef float type; };</a>
+<a name="532"><span class="lineNum">     532 </span>            : template&lt;&gt; struct CType&lt;(int)TypeDesc::DOUBLE&gt; { typedef double type; };</a>
+<a name="533"><span class="lineNum">     533 </span>            : template&lt;&gt; struct CType&lt;(int)TypeDesc::USTRINGHASH&gt; { typedef ustringhash type; };</a>
+<a name="534"><span class="lineNum">     534 </span>            : </a>
+<a name="535"><span class="lineNum">     535 </span>            : </a>
+<a name="536"><span class="lineNum">     536 </span>            : </a>
+<a name="537"><span class="lineNum">     537 </span>            : /// Helper class for tostring() that contains a whole bunch of parameters</a>
+<a name="538"><span class="lineNum">     538 </span>            : /// that control exactly how all the data types that can be described as</a>
+<a name="539"><span class="lineNum">     539 </span>            : /// TypeDesc ought to be formatted as a string. Uses printf-like</a>
+<a name="540"><span class="lineNum">     540 </span>            : /// conventions. This will someday be deprecated.</a>
+<a name="541"><span class="lineNum">     541 </span>            : struct OIIO_UTIL_API tostring_formatting {</a>
+<a name="542"><span class="lineNum">     542 </span>            :     // Printf-like formatting specs for int, float, string, pointer data.</a>
+<a name="543"><span class="lineNum">     543 </span>            :     const char *int_fmt = &quot;%d&quot;;</a>
+<a name="544"><span class="lineNum">     544 </span>            :     const char *float_fmt = &quot;%g&quot;;</a>
+<a name="545"><span class="lineNum">     545 </span>            :     const char *string_fmt = &quot;\&quot;%s\&quot;&quot;;</a>
+<a name="546"><span class="lineNum">     546 </span>            :     const char *ptr_fmt = &quot;%p&quot;;</a>
+<a name="547"><span class="lineNum">     547 </span>            :     // Aggregates are multi-part types, like VEC3, etc. How do we mark the</a>
+<a name="548"><span class="lineNum">     548 </span>            :     // start, separation between elements, and end?</a>
+<a name="549"><span class="lineNum">     549 </span>            :     const char *aggregate_begin = &quot;(&quot;;</a>
+<a name="550"><span class="lineNum">     550 </span>            :     const char *aggregate_end = &quot;)&quot;;</a>
+<a name="551"><span class="lineNum">     551 </span>            :     const char *aggregate_sep = &quot;,&quot;;</a>
+<a name="552"><span class="lineNum">     552 </span>            :     // For arrays, how do we mark the start, separation between elements,</a>
+<a name="553"><span class="lineNum">     553 </span>            :     // and end?</a>
+<a name="554"><span class="lineNum">     554 </span>            :     const char *array_begin = &quot;{&quot;;</a>
+<a name="555"><span class="lineNum">     555 </span>            :     const char *array_end = &quot;}&quot;;</a>
+<a name="556"><span class="lineNum">     556 </span>            :     const char *array_sep = &quot;,&quot;;</a>
+<a name="557"><span class="lineNum">     557 </span>            :     // Miscellaneous control flags, OR the enum values together.</a>
+<a name="558"><span class="lineNum">     558 </span>            :     enum Flags { None=0, escape_strings=1, quote_single_string=2 };</a>
+<a name="559"><span class="lineNum">     559 </span>            :     int flags = escape_strings;</a>
+<a name="560"><span class="lineNum">     560 </span>            :     // Reserved space for future expansion without breaking the ABI.</a>
+<a name="561"><span class="lineNum">     561 </span>            :     const char *uint_fmt = &quot;%u&quot;;</a>
+<a name="562"><span class="lineNum">     562 </span>            :     const char *reserved2 = &quot;&quot;;</a>
+<a name="563"><span class="lineNum">     563 </span>            :     const char *reserved3 = &quot;&quot;;</a>
+<a name="564"><span class="lineNum">     564 </span>            :     bool use_sprintf = true;</a>
+<a name="565"><span class="lineNum">     565 </span>            : </a>
+<a name="566"><span class="lineNum">     566 </span>            :     enum Notation { STDFORMAT };</a>
+<a name="567"><span class="lineNum">     567 </span>            : </a>
+<a name="568"><span class="lineNum">     568 </span>            :     tostring_formatting() = default;</a>
+<a name="569"><span class="lineNum">     569 </span>            :     tostring_formatting(const char *int_fmt, const char *float_fmt = &quot;%g&quot;,</a>
+<a name="570"><span class="lineNum">     570 </span>            :         const char *string_fmt = &quot;\&quot;%s\&quot;&quot;, const char *ptr_fmt = &quot;%p&quot;,</a>
+<a name="571"><span class="lineNum">     571 </span>            :         const char *aggregate_begin = &quot;(&quot;, const char *aggregate_end = &quot;)&quot;,</a>
+<a name="572"><span class="lineNum">     572 </span>            :         const char *aggregate_sep = &quot;,&quot;, const char *array_begin = &quot;{&quot;,</a>
+<a name="573"><span class="lineNum">     573 </span>            :         const char *array_end = &quot;}&quot;, const char *array_sep = &quot;,&quot;,</a>
+<a name="574"><span class="lineNum">     574 </span>            :         int flags = escape_strings,</a>
+<a name="575"><span class="lineNum">     575 </span>            :         const char *uint_fmt = &quot;%u&quot;);</a>
+<a name="576"><span class="lineNum">     576 </span>            : </a>
+<a name="577"><span class="lineNum">     577 </span>            :     // Alternative ctr for std::format notation. You must pass STDFORMAT</a>
+<a name="578"><span class="lineNum">     578 </span>            :     // as the first argument.</a>
+<a name="579"><span class="lineNum">     579 </span>            :     tostring_formatting(Notation notation,</a>
+<a name="580"><span class="lineNum">     580 </span>            :         const char *int_fmt = &quot;{}&quot;, const char *uint_fmt = &quot;{}&quot;,</a>
+<a name="581"><span class="lineNum">     581 </span>            :         const char *float_fmt = &quot;{}&quot;,</a>
+<a name="582"><span class="lineNum">     582 </span>            :         const char *string_fmt = &quot;\&quot;{}\&quot;&quot;, const char *ptr_fmt = &quot;{}&quot;,</a>
+<a name="583"><span class="lineNum">     583 </span>            :         const char *aggregate_begin = &quot;(&quot;, const char *aggregate_end = &quot;)&quot;,</a>
+<a name="584"><span class="lineNum">     584 </span>            :         const char *aggregate_sep = &quot;,&quot;, const char *array_begin = &quot;{&quot;,</a>
+<a name="585"><span class="lineNum">     585 </span>            :         const char *array_end = &quot;}&quot;, const char *array_sep = &quot;,&quot;,</a>
+<a name="586"><span class="lineNum">     586 </span>            :         int flags = escape_strings);</a>
+<a name="587"><span class="lineNum">     587 </span>            : };</a>
+<a name="588"><span class="lineNum">     588 </span>            : </a>
+<a name="589"><span class="lineNum">     589 </span>            : </a>
+<a name="590"><span class="lineNum">     590 </span>            : </a>
+<a name="591"><span class="lineNum">     591 </span>            : /// Return a string containing the data values formatted according</a>
+<a name="592"><span class="lineNum">     592 </span>            : /// to the type and the optional formatting control arguments. Will be</a>
+<a name="593"><span class="lineNum">     593 </span>            : /// deprecated someday as printf formatting falls out of favor.</a>
+<a name="594"><span class="lineNum">     594 </span>            : OIIO_UTIL_API std::string</a>
+<a name="595"><span class="lineNum">     595 </span>            : tostring(TypeDesc type, const void* data, const tostring_formatting&amp; fmt = {});</a>
+<a name="596"><span class="lineNum">     596 </span>            : </a>
+<a name="597"><span class="lineNum">     597 </span>            : </a>
+<a name="598"><span class="lineNum">     598 </span>            : </a>
+<a name="599"><span class="lineNum">     599 </span>            : /// Given data pointed to by src and described by srctype, copy it to the</a>
+<a name="600"><span class="lineNum">     600 </span>            : /// memory pointed to by dst and described by dsttype, and return true if a</a>
+<a name="601"><span class="lineNum">     601 </span>            : /// conversion is possible, false if it is not. If the types are equivalent,</a>
+<a name="602"><span class="lineNum">     602 </span>            : /// this is a straightforward memory copy. If the types differ, there are</a>
+<a name="603"><span class="lineNum">     603 </span>            : /// several non-equivalent type conversions that will nonetheless succeed:</a>
+<a name="604"><span class="lineNum">     604 </span>            : /// * If dsttype is a string (and therefore dst points to a ustring or a</a>
+<a name="605"><span class="lineNum">     605 </span>            : ///   `char*`): it will always succeed, producing a string akin to calling</a>
+<a name="606"><span class="lineNum">     606 </span>            : ///   `tostring()`.</a>
+<a name="607"><span class="lineNum">     607 </span>            : /// * If dsttype is int32 or uint32: other integer types will do their best</a>
+<a name="608"><span class="lineNum">     608 </span>            : ///   (caveat emptor if you mix signed/unsigned). Also a source string will</a>
+<a name="609"><span class="lineNum">     609 </span>            : ///   convert to int if and only if its characters form a valid integer.</a>
+<a name="610"><span class="lineNum">     610 </span>            : /// * If dsttype is float: integers and other float types will do</a>
+<a name="611"><span class="lineNum">     611 </span>            : ///   their best conversion; strings will convert if and only if their</a>
+<a name="612"><span class="lineNum">     612 </span>            : ///   characters form a valid float number.</a>
+<a name="613"><span class="lineNum">     613 </span>            : OIIO_UTIL_API bool</a>
+<a name="614"><span class="lineNum">     614 </span>            : convert_type(TypeDesc srctype, const void* src,</a>
+<a name="615"><span class="lineNum">     615 </span>            :              TypeDesc dsttype, void* dst, int n = 1);</a>
+<a name="616"><span class="lineNum">     616 </span>            : </a>
+<a name="617"><span class="lineNum">     617 </span>            : </a>
+<a name="618"><span class="lineNum">     618 </span>            : OIIO_NAMESPACE_3_1_END</a>
+<a name="619"><span class="lineNum">     619 </span>            : </a>
+<a name="620"><span class="lineNum">     620 </span>            : </a>
+<a name="621"><span class="lineNum">     621 </span>            : </a>
+<a name="622"><span class="lineNum">     622 </span>            : </a>
+<a name="623"><span class="lineNum">     623 </span>            : // Supply a fmtlib compatible custom formatter for TypeDesc.</a>
+<a name="624"><span class="lineNum">     624 </span>            : #if FMT_VERSION &gt;= 100000</a>
+<a name="625"><span class="lineNum">     625 </span>            : template&lt;&gt; struct fmt::formatter&lt;OIIO::TypeDesc&gt; : ostream_formatter {};</a>
+<a name="626"><span class="lineNum">     626 </span>            : #else</a>
+<a name="627"><span class="lineNum">     627 </span>            : template &lt;&gt;</a>
+<a name="628"><span class="lineNum">     628 </span>            : struct fmt::formatter&lt;OIIO::TypeDesc&gt; {</a>
+<a name="629"><span class="lineNum">     629 </span>            :     // Parses format specification</a>
+<a name="630"><span class="lineNum">     630 </span>            :     // C++14: constexpr auto parse(format_parse_context&amp; ctx) const {</a>
+<a name="631"><span class="lineNum">     631 </span>            :     auto parse(format_parse_context &amp;ctx) -&gt; decltype(ctx.begin()) // c++11</a>
+<a name="632"><span class="lineNum">     632 </span>            :     {</a>
+<a name="633"><span class="lineNum">     633 </span>            :         // Get the presentation type, if any. Required to be 's'.</a>
+<a name="634"><span class="lineNum">     634 </span>            :         auto it = ctx.begin(), end = ctx.end();</a>
+<a name="635"><span class="lineNum">     635 </span>            :         // Skip any width specifier. Remember that this is only for old</a>
+<a name="636"><span class="lineNum">     636 </span>            :         // versions of fmt, so just don't sweat it.</a>
+<a name="637"><span class="lineNum">     637 </span>            :         while (it != end &amp;&amp; isdigit(*it)) ++it;</a>
+<a name="638"><span class="lineNum">     638 </span>            :         if (it != end &amp;&amp; (*it == 's')) ++it;</a>
+<a name="639"><span class="lineNum">     639 </span>            :         // Check if reached the end of the range:</a>
+<a name="640"><span class="lineNum">     640 </span>            :         if (it != end &amp;&amp; *it != '}')</a>
+<a name="641"><span class="lineNum">     641 </span>            :             throw format_error(&quot;invalid format&quot;);</a>
+<a name="642"><span class="lineNum">     642 </span>            :         // Return an iterator past the end of the parsed range:</a>
+<a name="643"><span class="lineNum">     643 </span>            :         return it;</a>
+<a name="644"><span class="lineNum">     644 </span>            :     }</a>
+<a name="645"><span class="lineNum">     645 </span>            : </a>
+<a name="646"><span class="lineNum">     646 </span>            :     template &lt;typename FormatContext&gt;</a>
+<a name="647"><span class="lineNum">     647 </span>            :     auto format(const OIIO::TypeDesc&amp; t, FormatContext&amp; ctx) OIIO_FMT_CUSTOM_FORMATTER_CONST</a>
+<a name="648"><span class="lineNum">     648 </span>            :     {</a>
+<a name="649"><span class="lineNum">     649 </span>            :         // C++14:   auto format(const OIIO::TypeDesc&amp; p, FormatContext&amp; ctx) const {</a>
+<a name="650"><span class="lineNum">     650 </span>            :         // ctx.out() is an output iterator to write to.</a>
+<a name="651"><span class="lineNum">     651 </span>            :         return format_to(ctx.out(), &quot;{}&quot;, t.c_str());</a>
+<a name="652"><span class="lineNum">     652 </span>            :     }</a>
+<a name="653"><span class="lineNum">     653 </span>            : };</a>
+<a name="654"><span class="lineNum">     654 </span>            : #endif</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

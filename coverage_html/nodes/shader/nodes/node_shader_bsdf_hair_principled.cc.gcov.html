@@ -1,0 +1,357 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - nodes/shader/nodes/node_shader_bsdf_hair_principled.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">nodes/shader/nodes</a> - node_shader_bsdf_hair_principled.cc<span style="font-size: 80%;"> (source / <a href="node_shader_bsdf_hair_principled.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">171</td>
+            <td class="headerCovTableEntry">179</td>
+            <td class="headerCovTableEntryHi">95.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryMed">81.8 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2018 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup shdnodes</a>
+<a name="7"><span class="lineNum">       7 </span>            :  */</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &quot;BLI_string.hh&quot;</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &quot;node_shader_util.hh&quot;</a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &quot;node_util.hh&quot;</a>
+<a name="13"><span class="lineNum">      13 </span>            : </a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;UI_interface_layout.hh&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;UI_resources.hh&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : </a>
+<a name="17"><span class="lineNum">      17 </span>            : namespace blender {</a>
+<a name="18"><span class="lineNum">      18 </span>            : </a>
+<a name="19"><span class="lineNum">      19 </span>            : namespace nodes::node_shader_bsdf_hair_principled_cc {</a>
+<a name="20"><span class="lineNum">      20 </span>            : </a>
+<a name="21"><span class="lineNum">      21 </span>            : /* Color, melanin and absorption coefficient default to approximately same brownish hair. */</a>
+<a name="22"><span class="lineNum">      22 </span><span class="lineCov">       1099 : static void node_declare(NodeDeclarationBuilder &amp;b)</span></a>
+<a name="23"><span class="lineNum">      23 </span>            : {</a>
+<a name="24"><span class="lineNum">      24 </span><span class="lineCov">          5 :   auto set_parametrization_reflectance = [](bNode &amp;node) {</span></a>
+<a name="25"><span class="lineNum">      25 </span><span class="lineCov">          5 :     static_cast&lt;NodeShaderHairPrincipled *&gt;(node.storage)-&gt;parametrization =</span></a>
+<a name="26"><span class="lineNum">      26 </span>            :         SHD_PRINCIPLED_HAIR_REFLECTANCE;</a>
+<a name="27"><span class="lineNum">      27 </span><span class="lineCov">          5 :   };</span></a>
+<a name="28"><span class="lineNum">      28 </span><span class="lineCov">         20 :   auto set_parametrization_pigment_concentration = [](bNode &amp;node) {</span></a>
+<a name="29"><span class="lineNum">      29 </span><span class="lineCov">         20 :     static_cast&lt;NodeShaderHairPrincipled *&gt;(node.storage)-&gt;parametrization =</span></a>
+<a name="30"><span class="lineNum">      30 </span>            :         SHD_PRINCIPLED_HAIR_PIGMENT_CONCENTRATION;</a>
+<a name="31"><span class="lineNum">      31 </span><span class="lineCov">         20 :   };</span></a>
+<a name="32"><span class="lineNum">      32 </span><span class="lineCov">          5 :   auto set_parametrization_direct_absorption = [](bNode &amp;node) {</span></a>
+<a name="33"><span class="lineNum">      33 </span><span class="lineCov">          5 :     static_cast&lt;NodeShaderHairPrincipled *&gt;(node.storage)-&gt;parametrization =</span></a>
+<a name="34"><span class="lineNum">      34 </span>            :         SHD_PRINCIPLED_HAIR_DIRECT_ABSORPTION;</a>
+<a name="35"><span class="lineNum">      35 </span><span class="lineCov">          5 :   };</span></a>
+<a name="36"><span class="lineNum">      36 </span><span class="lineCov">         20 :   auto set_model_huang = [](bNode &amp;node) {</span></a>
+<a name="37"><span class="lineNum">      37 </span><span class="lineCov">         20 :     static_cast&lt;NodeShaderHairPrincipled *&gt;(node.storage)-&gt;model = SHD_PRINCIPLED_HAIR_HUANG;</span></a>
+<a name="38"><span class="lineNum">      38 </span><span class="lineCov">         20 :   };</span></a>
+<a name="39"><span class="lineNum">      39 </span><span class="lineCov">         10 :   auto set_model_chiang = [](bNode &amp;node) {</span></a>
+<a name="40"><span class="lineNum">      40 </span><span class="lineCov">         10 :     static_cast&lt;NodeShaderHairPrincipled *&gt;(node.storage)-&gt;model = SHD_PRINCIPLED_HAIR_CHIANG;</span></a>
+<a name="41"><span class="lineNum">      41 </span><span class="lineCov">         10 :   };</span></a>
+<a name="42"><span class="lineNum">      42 </span>            : </a>
+<a name="43"><span class="lineNum">      43 </span><span class="lineCov">       1099 :   const bNodeTree *ntree = b.tree_or_null();</span></a>
+<a name="44"><span class="lineNum">      44 </span><span class="lineCov">       1099 :   const bool is_gpu_internal = ntree &amp;&amp; (ntree-&gt;flag &amp; NTREE_IS_GPU_SHADER_INTERNAL);</span></a>
+<a name="45"><span class="lineNum">      45 </span>            : </a>
+<a name="46"><span class="lineNum">      46 </span><span class="lineCov">       1099 :   b.add_input&lt;decl::Color&gt;(&quot;Color&quot;_ustr)</span></a>
+<a name="47"><span class="lineNum">      47 </span><span class="lineCov">       1099 :       .default_value({0.017513f, 0.005763f, 0.002059f, 1.0f})</span></a>
+<a name="48"><span class="lineNum">      48 </span><span class="lineCov">       2198 :       .description(&quot;The RGB color of the strand. Only used in Direct Coloring&quot;)</span></a>
+<a name="49"><span class="lineNum">      49 </span><span class="lineCov">       1099 :       .make_available(set_parametrization_reflectance);</span></a>
+<a name="50"><span class="lineNum">      50 </span><span class="lineCov">       1099 :   b.add_input&lt;decl::Float&gt;(&quot;Melanin&quot;_ustr)</span></a>
+<a name="51"><span class="lineNum">      51 </span><span class="lineCov">       1099 :       .default_value(0.8f)</span></a>
+<a name="52"><span class="lineNum">      52 </span><span class="lineCov">       1099 :       .min(0.0f)</span></a>
+<a name="53"><span class="lineNum">      53 </span><span class="lineCov">       1099 :       .max(1.0f)</span></a>
+<a name="54"><span class="lineNum">      54 </span><span class="lineCov">       1099 :       .subtype(PROP_FACTOR)</span></a>
+<a name="55"><span class="lineNum">      55 </span><span class="lineCov">       2198 :       .description(&quot;Hair pigment. Specify its absolute quantity between 0 and 1&quot;)</span></a>
+<a name="56"><span class="lineNum">      56 </span><span class="lineCov">       1099 :       .make_available(set_parametrization_pigment_concentration);</span></a>
+<a name="57"><span class="lineNum">      57 </span><span class="lineCov">       1099 :   b.add_input&lt;decl::Float&gt;(&quot;Melanin Redness&quot;_ustr)</span></a>
+<a name="58"><span class="lineNum">      58 </span><span class="lineCov">       1099 :       .default_value(1.0f)</span></a>
+<a name="59"><span class="lineNum">      59 </span><span class="lineCov">       1099 :       .min(0.0f)</span></a>
+<a name="60"><span class="lineNum">      60 </span><span class="lineCov">       1099 :       .max(1.0f)</span></a>
+<a name="61"><span class="lineNum">      61 </span><span class="lineCov">       1099 :       .subtype(PROP_FACTOR)</span></a>
+<a name="62"><span class="lineNum">      62 </span><span class="lineCov">       2198 :       .description(</span></a>
+<a name="63"><span class="lineNum">      63 </span>            :           &quot;Fraction of pheomelanin in melanin, gives yellowish to reddish color, as opposed to &quot;</a>
+<a name="64"><span class="lineNum">      64 </span>            :           &quot;the brownish to black color of eumelanin&quot;)</a>
+<a name="65"><span class="lineNum">      65 </span><span class="lineCov">       1099 :       .make_available(set_parametrization_pigment_concentration);</span></a>
+<a name="66"><span class="lineNum">      66 </span><span class="lineCov">       1099 :   b.add_input&lt;decl::Color&gt;(&quot;Tint&quot;_ustr)</span></a>
+<a name="67"><span class="lineNum">      67 </span><span class="lineCov">       1099 :       .default_value({1.0f, 1.0f, 1.0f, 1.0f})</span></a>
+<a name="68"><span class="lineNum">      68 </span><span class="lineCov">       2198 :       .description(&quot;Additional color used for dyeing the hair&quot;)</span></a>
+<a name="69"><span class="lineNum">      69 </span><span class="lineCov">       1099 :       .make_available(set_parametrization_pigment_concentration);</span></a>
+<a name="70"><span class="lineNum">      70 </span><span class="lineCov">       1099 :   b.add_input&lt;decl::Vector&gt;(&quot;Absorption Coefficient&quot;_ustr)</span></a>
+<a name="71"><span class="lineNum">      71 </span><span class="lineCov">       1099 :       .default_value({0.245531f, 0.52f, 1.365f})</span></a>
+<a name="72"><span class="lineNum">      72 </span><span class="lineCov">       1099 :       .min(0.0f)</span></a>
+<a name="73"><span class="lineNum">      73 </span><span class="lineCov">       1099 :       .max(1000.0f)</span></a>
+<a name="74"><span class="lineNum">      74 </span><span class="lineCov">       2198 :       .description(</span></a>
+<a name="75"><span class="lineNum">      75 </span>            :           &quot;Specifies energy absorption per unit length as light passes through the hair. A higher &quot;</a>
+<a name="76"><span class="lineNum">      76 </span>            :           &quot;value leads to a darker color&quot;)</a>
+<a name="77"><span class="lineNum">      77 </span><span class="lineCov">       1099 :       .make_available(set_parametrization_direct_absorption);</span></a>
+<a name="78"><span class="lineNum">      78 </span><span class="lineCov">       1099 :   b.add_input&lt;decl::Float&gt;(&quot;Aspect Ratio&quot;_ustr)</span></a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineCov">       1099 :       .default_value(0.85f)</span></a>
+<a name="80"><span class="lineNum">      80 </span><span class="lineCov">       1099 :       .min(0.0f)</span></a>
+<a name="81"><span class="lineNum">      81 </span><span class="lineCov">       1099 :       .max(1.0f)</span></a>
+<a name="82"><span class="lineNum">      82 </span><span class="lineCov">       1099 :       .subtype(PROP_FACTOR)</span></a>
+<a name="83"><span class="lineNum">      83 </span><span class="lineCov">       2198 :       .description(</span></a>
+<a name="84"><span class="lineNum">      84 </span>            :           &quot;The ratio of the minor axis to the major axis of an elliptical cross-section. &quot;</a>
+<a name="85"><span class="lineNum">      85 </span>            :           &quot;Recommended values are 0.8~1 for Asian hair, 0.65~0.9 for Caucasian hair, 0.5~0.65 for &quot;</a>
+<a name="86"><span class="lineNum">      86 </span>            :           &quot;African hair. The major axis is aligned with the curve normal, which is not supported &quot;</a>
+<a name="87"><span class="lineNum">      87 </span>            :           &quot;in particle hair&quot;)</a>
+<a name="88"><span class="lineNum">      88 </span><span class="lineCov">       1099 :       .make_available(set_model_huang);</span></a>
+<a name="89"><span class="lineNum">      89 </span><span class="lineCov">       1099 :   b.add_input&lt;decl::Float&gt;(&quot;Roughness&quot;_ustr)</span></a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineCov">       1099 :       .default_value(0.3f)</span></a>
+<a name="91"><span class="lineNum">      91 </span><span class="lineCov">       1099 :       .min(0.0f)</span></a>
+<a name="92"><span class="lineNum">      92 </span><span class="lineCov">       1099 :       .max(1.0f)</span></a>
+<a name="93"><span class="lineNum">      93 </span><span class="lineCov">       1099 :       .subtype(PROP_FACTOR)</span></a>
+<a name="94"><span class="lineNum">      94 </span><span class="lineCov">       2198 :       .description(&quot;Hair roughness. A low value leads to a metallic look&quot;);</span></a>
+<a name="95"><span class="lineNum">      95 </span><span class="lineCov">       1099 :   b.add_input&lt;decl::Float&gt;(&quot;Radial Roughness&quot;_ustr)</span></a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineCov">       1099 :       .default_value(0.3f)</span></a>
+<a name="97"><span class="lineNum">      97 </span><span class="lineCov">       1099 :       .min(0.0f)</span></a>
+<a name="98"><span class="lineNum">      98 </span><span class="lineCov">       1099 :       .max(1.0f)</span></a>
+<a name="99"><span class="lineNum">      99 </span><span class="lineCov">       1099 :       .subtype(PROP_FACTOR)</span></a>
+<a name="100"><span class="lineNum">     100 </span><span class="lineCov">       1099 :       .make_available(set_model_chiang);</span></a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineCov">       1099 :   b.add_input&lt;decl::Float&gt;(&quot;Coat&quot;_ustr)</span></a>
+<a name="102"><span class="lineNum">     102 </span><span class="lineCov">       1099 :       .default_value(0.0f)</span></a>
+<a name="103"><span class="lineNum">     103 </span><span class="lineCov">       1099 :       .min(0.0f)</span></a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineCov">       1099 :       .max(1.0f)</span></a>
+<a name="105"><span class="lineNum">     105 </span><span class="lineCov">       1099 :       .subtype(PROP_FACTOR)</span></a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineCov">       2198 :       .description(</span></a>
+<a name="107"><span class="lineNum">     107 </span>            :           &quot;Simulate a shiny coat by reducing the roughness to the given factor only for the first &quot;</a>
+<a name="108"><span class="lineNum">     108 </span>            :           &quot;light bounce (diffuse). Range [0, 1] is equivalent to a reduction of [0%, 100%] of the &quot;</a>
+<a name="109"><span class="lineNum">     109 </span>            :           &quot;original roughness&quot;)</a>
+<a name="110"><span class="lineNum">     110 </span><span class="lineCov">       1099 :       .make_available(set_model_chiang);</span></a>
+<a name="111"><span class="lineNum">     111 </span><span class="lineCov">       1099 :   b.add_input&lt;decl::Float&gt;(&quot;IOR&quot;_ustr)</span></a>
+<a name="112"><span class="lineNum">     112 </span><span class="lineCov">       1099 :       .default_value(1.55f)</span></a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineCov">       1099 :       .min(0.0f)</span></a>
+<a name="114"><span class="lineNum">     114 </span><span class="lineCov">       1099 :       .max(1000.0f)</span></a>
+<a name="115"><span class="lineNum">     115 </span><span class="lineCov">       2198 :       .description(</span></a>
+<a name="116"><span class="lineNum">     116 </span>            :           &quot;Index of refraction determines how much the ray is bent. At 1.0 rays pass straight &quot;</a>
+<a name="117"><span class="lineNum">     117 </span>            :           &quot;through &quot;</a>
+<a name="118"><span class="lineNum">     118 </span>            :           &quot;like in a transparent material; higher values cause larger deflection in angle. &quot;</a>
+<a name="119"><span class="lineNum">     119 </span>            :           &quot;Default &quot;</a>
+<a name="120"><span class="lineNum">     120 </span>            :           &quot;value is 1.55 (the IOR of keratin)&quot;);</a>
+<a name="121"><span class="lineNum">     121 </span><span class="lineCov">       1099 :   b.add_input&lt;decl::Float&gt;(&quot;Offset&quot;_ustr)</span></a>
+<a name="122"><span class="lineNum">     122 </span><span class="lineCov">       1099 :       .default_value(2.0f * float(M_PI) / 180.0f)</span></a>
+<a name="123"><span class="lineNum">     123 </span><span class="lineCov">       1099 :       .min(-M_PI_2)</span></a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineCov">       1099 :       .max(M_PI_2)</span></a>
+<a name="125"><span class="lineNum">     125 </span><span class="lineCov">       1099 :       .subtype(PROP_ANGLE)</span></a>
+<a name="126"><span class="lineNum">     126 </span><span class="lineCov">       2198 :       .description(</span></a>
+<a name="127"><span class="lineNum">     127 </span>            :           &quot;The tilt angle of the cuticle scales (the outermost part of the hair). They are always &quot;</a>
+<a name="128"><span class="lineNum">     128 </span>            :           &quot;tilted towards the hair root. The value is usually between 2 and 4 for human hair&quot;);</a>
+<a name="129"><span class="lineNum">     129 </span><span class="lineCov">       1099 :   b.add_input&lt;decl::Float&gt;(&quot;Random Color&quot;_ustr)</span></a>
+<a name="130"><span class="lineNum">     130 </span><span class="lineCov">       1099 :       .default_value(0.0f)</span></a>
+<a name="131"><span class="lineNum">     131 </span><span class="lineCov">       1099 :       .min(0.0f)</span></a>
+<a name="132"><span class="lineNum">     132 </span><span class="lineCov">       1099 :       .max(1.0f)</span></a>
+<a name="133"><span class="lineNum">     133 </span><span class="lineCov">       1099 :       .subtype(PROP_FACTOR)</span></a>
+<a name="134"><span class="lineNum">     134 </span><span class="lineCov">       2198 :       .description(&quot;Vary the melanin concentration for each strand&quot;)</span></a>
+<a name="135"><span class="lineNum">     135 </span><span class="lineCov">       1099 :       .make_available(set_parametrization_pigment_concentration);</span></a>
+<a name="136"><span class="lineNum">     136 </span><span class="lineCov">       1099 :   b.add_input&lt;decl::Float&gt;(&quot;Random Roughness&quot;_ustr)</span></a>
+<a name="137"><span class="lineNum">     137 </span><span class="lineCov">       1099 :       .default_value(0.0f)</span></a>
+<a name="138"><span class="lineNum">     138 </span><span class="lineCov">       1099 :       .min(0.0f)</span></a>
+<a name="139"><span class="lineNum">     139 </span><span class="lineCov">       1099 :       .max(1.0f)</span></a>
+<a name="140"><span class="lineNum">     140 </span><span class="lineCov">       1099 :       .subtype(PROP_FACTOR)</span></a>
+<a name="141"><span class="lineNum">     141 </span><span class="lineCov">       2198 :       .description(&quot;Vary roughness values for each strand&quot;);</span></a>
+<a name="142"><span class="lineNum">     142 </span><span class="lineCov">       1099 :   b.add_input&lt;decl::Float&gt;(&quot;Random&quot;_ustr).hide_value();</span></a>
+<a name="143"><span class="lineNum">     143 </span><span class="lineCov">       1099 :   b.add_input&lt;decl::Float&gt;(&quot;Weight&quot;_ustr).available(is_gpu_internal);</span></a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineCov">       1099 :   b.add_input&lt;decl::Float&gt;(&quot;Reflection&quot;_ustr, &quot;R lobe&quot;_ustr)</span></a>
+<a name="145"><span class="lineNum">     145 </span><span class="lineCov">       1099 :       .default_value(1.0f)</span></a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineCov">       1099 :       .min(0.0f)</span></a>
+<a name="147"><span class="lineNum">     147 </span><span class="lineCov">       1099 :       .max(1.0f)</span></a>
+<a name="148"><span class="lineNum">     148 </span><span class="lineCov">       1099 :       .subtype(PROP_FACTOR)</span></a>
+<a name="149"><span class="lineNum">     149 </span><span class="lineCov">       2198 :       .description(</span></a>
+<a name="150"><span class="lineNum">     150 </span>            :           &quot;Optional factor for modulating the first light bounce off the hair surface. The color &quot;</a>
+<a name="151"><span class="lineNum">     151 </span>            :           &quot;of this component is always white. Keep this 1.0 for physical correctness&quot;)</a>
+<a name="152"><span class="lineNum">     152 </span><span class="lineCov">       1099 :       .make_available(set_model_huang);</span></a>
+<a name="153"><span class="lineNum">     153 </span><span class="lineCov">       1099 :   b.add_input&lt;decl::Float&gt;(&quot;Transmission&quot;_ustr, &quot;TT lobe&quot;_ustr)</span></a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineCov">       1099 :       .default_value(1.0f)</span></a>
+<a name="155"><span class="lineNum">     155 </span><span class="lineCov">       1099 :       .min(0.0f)</span></a>
+<a name="156"><span class="lineNum">     156 </span><span class="lineCov">       1099 :       .max(1.0f)</span></a>
+<a name="157"><span class="lineNum">     157 </span><span class="lineCov">       1099 :       .subtype(PROP_FACTOR)</span></a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineCov">       2198 :       .description(</span></a>
+<a name="159"><span class="lineNum">     159 </span>            :           &quot;Optional factor for modulating the transmission component. Picks up the color of the &quot;</a>
+<a name="160"><span class="lineNum">     160 </span>            :           &quot;pigment inside the hair. Keep this 1.0 for physical correctness&quot;)</a>
+<a name="161"><span class="lineNum">     161 </span><span class="lineCov">       1099 :       .make_available(set_model_huang);</span></a>
+<a name="162"><span class="lineNum">     162 </span><span class="lineCov">       1099 :   b.add_input&lt;decl::Float&gt;(&quot;Secondary Reflection&quot;_ustr, &quot;TRT lobe&quot;_ustr)</span></a>
+<a name="163"><span class="lineNum">     163 </span><span class="lineCov">       1099 :       .default_value(1.0f)</span></a>
+<a name="164"><span class="lineNum">     164 </span><span class="lineCov">       1099 :       .min(0.0f)</span></a>
+<a name="165"><span class="lineNum">     165 </span><span class="lineCov">       1099 :       .max(1.0f)</span></a>
+<a name="166"><span class="lineNum">     166 </span><span class="lineCov">       1099 :       .subtype(PROP_FACTOR)</span></a>
+<a name="167"><span class="lineNum">     167 </span><span class="lineCov">       2198 :       .description(</span></a>
+<a name="168"><span class="lineNum">     168 </span>            :           &quot;Optional factor for modulating the component which is transmitted into the hair, &quot;</a>
+<a name="169"><span class="lineNum">     169 </span>            :           &quot;reflected off the backside of the hair and then transmitted out of the hair. This &quot;</a>
+<a name="170"><span class="lineNum">     170 </span>            :           &quot;component is oriented approximately around the incoming direction, and picks up the &quot;</a>
+<a name="171"><span class="lineNum">     171 </span>            :           &quot;color of the pigment inside the hair. Keep this 1.0 for physical correctness&quot;)</a>
+<a name="172"><span class="lineNum">     172 </span><span class="lineCov">       1099 :       .make_available(set_model_huang);</span></a>
+<a name="173"><span class="lineNum">     173 </span><span class="lineCov">       1099 :   b.add_output&lt;decl::Shader&gt;(&quot;BSDF&quot;_ustr);</span></a>
+<a name="174"><span class="lineNum">     174 </span><span class="lineCov">       1099 : }</span></a>
+<a name="175"><span class="lineNum">     175 </span>            : </a>
+<a name="176"><span class="lineNum">     176 </span><span class="lineNoCov">          0 : static void node_shader_buts_principled_hair(ui::Layout &amp;layout, bContext * /*C*/, PointerRNA *ptr)</span></a>
+<a name="177"><span class="lineNum">     177 </span>            : {</a>
+<a name="178"><span class="lineNum">     178 </span><span class="lineNoCov">          0 :   layout.prop(ptr, &quot;model&quot;, ui::ITEM_R_SPLIT_EMPTY_NAME, &quot;&quot;, ICON_NONE);</span></a>
+<a name="179"><span class="lineNum">     179 </span><span class="lineNoCov">          0 :   layout.prop(ptr, &quot;parametrization&quot;, ui::ITEM_R_SPLIT_EMPTY_NAME, &quot;&quot;, ICON_NONE);</span></a>
+<a name="180"><span class="lineNum">     180 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="181"><span class="lineNum">     181 </span>            : </a>
+<a name="182"><span class="lineNum">     182 </span>            : /* Initialize custom properties. */</a>
+<a name="183"><span class="lineNum">     183 </span><span class="lineCov">         86 : static void node_shader_init_hair_principled(bNodeTree * /*ntree*/, bNode *node)</span></a>
+<a name="184"><span class="lineNum">     184 </span>            : {</a>
+<a name="185"><span class="lineNum">     185 </span><span class="lineCov">         86 :   NodeShaderHairPrincipled *data = MEM_new&lt;NodeShaderHairPrincipled&gt;(__func__);</span></a>
+<a name="186"><span class="lineNum">     186 </span>            : </a>
+<a name="187"><span class="lineNum">     187 </span><span class="lineCov">         86 :   data-&gt;model = SHD_PRINCIPLED_HAIR_CHIANG;</span></a>
+<a name="188"><span class="lineNum">     188 </span><span class="lineCov">         86 :   data-&gt;parametrization = SHD_PRINCIPLED_HAIR_REFLECTANCE;</span></a>
+<a name="189"><span class="lineNum">     189 </span>            : </a>
+<a name="190"><span class="lineNum">     190 </span><span class="lineCov">         86 :   node-&gt;storage = data;</span></a>
+<a name="191"><span class="lineNum">     191 </span><span class="lineCov">         86 : }</span></a>
+<a name="192"><span class="lineNum">     192 </span>            : </a>
+<a name="193"><span class="lineNum">     193 </span>            : /* Triggers (in)visibility of some sockets when changing the parametrization or the model. */</a>
+<a name="194"><span class="lineNum">     194 </span><span class="lineCov">        138 : static void node_shader_update_hair_principled(bNodeTree *ntree, bNode *node)</span></a>
+<a name="195"><span class="lineNum">     195 </span>            : {</a>
+<a name="196"><span class="lineNum">     196 </span><span class="lineCov">        138 :   NodeShaderHairPrincipled *data = static_cast&lt;NodeShaderHairPrincipled *&gt;(node-&gt;storage);</span></a>
+<a name="197"><span class="lineNum">     197 </span>            : </a>
+<a name="198"><span class="lineNum">     198 </span><span class="lineCov">        138 :   int parametrization = data-&gt;parametrization;</span></a>
+<a name="199"><span class="lineNum">     199 </span><span class="lineCov">        138 :   int model = data-&gt;model;</span></a>
+<a name="200"><span class="lineNum">     200 </span>            : </a>
+<a name="201"><span class="lineNum">     201 </span><span class="lineCov">       2622 :   for (bNodeSocket &amp;sock : node-&gt;inputs) {</span></a>
+<a name="202"><span class="lineNum">     202 </span><span class="lineCov">       2484 :     if (STREQ(sock.name, &quot;Color&quot;)) {</span></a>
+<a name="203"><span class="lineNum">     203 </span><span class="lineCov">        138 :       bke::node_set_socket_availability(</span></a>
+<a name="204"><span class="lineNum">     204 </span>            :           *ntree, sock, parametrization == SHD_PRINCIPLED_HAIR_REFLECTANCE);</a>
+<a name="205"><span class="lineNum">     205 </span>            :     }</a>
+<a name="206"><span class="lineNum">     206 </span><span class="lineCov">       2346 :     else if (STREQ(sock.name, &quot;Melanin&quot;)) {</span></a>
+<a name="207"><span class="lineNum">     207 </span><span class="lineCov">        138 :       bke::node_set_socket_availability(</span></a>
+<a name="208"><span class="lineNum">     208 </span>            :           *ntree, sock, parametrization == SHD_PRINCIPLED_HAIR_PIGMENT_CONCENTRATION);</a>
+<a name="209"><span class="lineNum">     209 </span>            :     }</a>
+<a name="210"><span class="lineNum">     210 </span><span class="lineCov">       2208 :     else if (STREQ(sock.name, &quot;Melanin Redness&quot;)) {</span></a>
+<a name="211"><span class="lineNum">     211 </span><span class="lineCov">        138 :       bke::node_set_socket_availability(</span></a>
+<a name="212"><span class="lineNum">     212 </span>            :           *ntree, sock, parametrization == SHD_PRINCIPLED_HAIR_PIGMENT_CONCENTRATION);</a>
+<a name="213"><span class="lineNum">     213 </span>            :     }</a>
+<a name="214"><span class="lineNum">     214 </span><span class="lineCov">       2070 :     else if (STREQ(sock.name, &quot;Tint&quot;)) {</span></a>
+<a name="215"><span class="lineNum">     215 </span><span class="lineCov">        138 :       bke::node_set_socket_availability(</span></a>
+<a name="216"><span class="lineNum">     216 </span>            :           *ntree, sock, parametrization == SHD_PRINCIPLED_HAIR_PIGMENT_CONCENTRATION);</a>
+<a name="217"><span class="lineNum">     217 </span>            :     }</a>
+<a name="218"><span class="lineNum">     218 </span><span class="lineCov">       1932 :     else if (STREQ(sock.name, &quot;Absorption Coefficient&quot;)) {</span></a>
+<a name="219"><span class="lineNum">     219 </span><span class="lineCov">        138 :       bke::node_set_socket_availability(</span></a>
+<a name="220"><span class="lineNum">     220 </span>            :           *ntree, sock, parametrization == SHD_PRINCIPLED_HAIR_DIRECT_ABSORPTION);</a>
+<a name="221"><span class="lineNum">     221 </span>            :     }</a>
+<a name="222"><span class="lineNum">     222 </span><span class="lineCov">       1794 :     else if (STREQ(sock.name, &quot;Random Color&quot;)) {</span></a>
+<a name="223"><span class="lineNum">     223 </span><span class="lineCov">        138 :       bke::node_set_socket_availability(</span></a>
+<a name="224"><span class="lineNum">     224 </span>            :           *ntree, sock, parametrization == SHD_PRINCIPLED_HAIR_PIGMENT_CONCENTRATION);</a>
+<a name="225"><span class="lineNum">     225 </span>            :     }</a>
+<a name="226"><span class="lineNum">     226 </span><span class="lineCov">       1656 :     else if (STREQ(sock.name, &quot;Radial Roughness&quot;)) {</span></a>
+<a name="227"><span class="lineNum">     227 </span><span class="lineCov">        138 :       bke::node_set_socket_availability(*ntree, sock, model == SHD_PRINCIPLED_HAIR_CHIANG);</span></a>
+<a name="228"><span class="lineNum">     228 </span>            :     }</a>
+<a name="229"><span class="lineNum">     229 </span><span class="lineCov">       1518 :     else if (STREQ(sock.name, &quot;Coat&quot;)) {</span></a>
+<a name="230"><span class="lineNum">     230 </span><span class="lineCov">        138 :       bke::node_set_socket_availability(*ntree, sock, model == SHD_PRINCIPLED_HAIR_CHIANG);</span></a>
+<a name="231"><span class="lineNum">     231 </span>            :     }</a>
+<a name="232"><span class="lineNum">     232 </span><span class="lineCov">       1380 :     else if (STREQ(sock.name, &quot;Aspect Ratio&quot;)) {</span></a>
+<a name="233"><span class="lineNum">     233 </span><span class="lineCov">        138 :       bke::node_set_socket_availability(*ntree, sock, model == SHD_PRINCIPLED_HAIR_HUANG);</span></a>
+<a name="234"><span class="lineNum">     234 </span>            :     }</a>
+<a name="235"><span class="lineNum">     235 </span><span class="lineCov">       1242 :     else if (STR_ELEM(sock.name, &quot;Reflection&quot;, &quot;Transmission&quot;, &quot;Secondary Reflection&quot;)) {</span></a>
+<a name="236"><span class="lineNum">     236 </span><span class="lineCov">        414 :       bke::node_set_socket_availability(*ntree, sock, model == SHD_PRINCIPLED_HAIR_HUANG);</span></a>
+<a name="237"><span class="lineNum">     237 </span>            :     }</a>
+<a name="238"><span class="lineNum">     238 </span>            :   }</a>
+<a name="239"><span class="lineNum">     239 </span><span class="lineCov">        138 : }</span></a>
+<a name="240"><span class="lineNum">     240 </span>            : </a>
+<a name="241"><span class="lineNum">     241 </span><span class="lineNoCov">          0 : static int node_shader_gpu_hair_principled(GPUMaterial *mat,</span></a>
+<a name="242"><span class="lineNum">     242 </span>            :                                            bNode *node,</a>
+<a name="243"><span class="lineNum">     243 </span>            :                                            bNodeExecData * /*execdata*/,</a>
+<a name="244"><span class="lineNum">     244 </span>            :                                            GPUNodeStack *in,</a>
+<a name="245"><span class="lineNum">     245 </span>            :                                            GPUNodeStack *out)</a>
+<a name="246"><span class="lineNum">     246 </span>            : {</a>
+<a name="247"><span class="lineNum">     247 </span><span class="lineNoCov">          0 :   GPU_material_flag_set(mat, GPU_MATFLAG_DIFFUSE);</span></a>
+<a name="248"><span class="lineNum">     248 </span>            : </a>
+<a name="249"><span class="lineNum">     249 </span><span class="lineNoCov">          0 :   return GPU_stack_link(</span></a>
+<a name="250"><span class="lineNum">     250 </span><span class="lineNoCov">          0 :       mat, node, &quot;node_bsdf_hair_principled&quot;, in, out, GPU_kernel_globals(), GPU_shading_data());</span></a>
+<a name="251"><span class="lineNum">     251 </span>            : }</a>
+<a name="252"><span class="lineNum">     252 </span>            : </a>
+<a name="253"><span class="lineNum">     253 </span>            : }  // namespace nodes::node_shader_bsdf_hair_principled_cc</a>
+<a name="254"><span class="lineNum">     254 </span>            : </a>
+<a name="255"><span class="lineNum">     255 </span>            : /* node type definition */</a>
+<a name="256"><span class="lineNum">     256 </span><span class="lineCov">        785 : void register_node_type_sh_bsdf_hair_principled()</span></a>
+<a name="257"><span class="lineNum">     257 </span>            : {</a>
+<a name="258"><span class="lineNum">     258 </span>            :   namespace file_ns = nodes::node_shader_bsdf_hair_principled_cc;</a>
+<a name="259"><span class="lineNum">     259 </span>            : </a>
+<a name="260"><span class="lineNum">     260 </span><span class="lineCov">        785 :   static bke::bNodeType ntype;</span></a>
+<a name="261"><span class="lineNum">     261 </span>            : </a>
+<a name="262"><span class="lineNum">     262 </span><span class="lineCov">        785 :   sh_node_type_base(&amp;ntype, &quot;ShaderNodeBsdfHairPrincipled&quot;_ustr, SH_NODE_BSDF_HAIR_PRINCIPLED);</span></a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineCov">        785 :   ntype.ui_name = &quot;Principled Hair BSDF&quot;;</span></a>
+<a name="264"><span class="lineNum">     264 </span><span class="lineCov">        785 :   ntype.ui_description = &quot;Physically-based, easy-to-use shader for rendering hair and fur&quot;;</span></a>
+<a name="265"><span class="lineNum">     265 </span><span class="lineCov">        785 :   ntype.enum_name_legacy = &quot;BSDF_HAIR_PRINCIPLED&quot;;</span></a>
+<a name="266"><span class="lineNum">     266 </span><span class="lineCov">        785 :   ntype.nclass = NODE_CLASS_SHADER;</span></a>
+<a name="267"><span class="lineNum">     267 </span><span class="lineCov">        785 :   ntype.declare = file_ns::node_declare;</span></a>
+<a name="268"><span class="lineNum">     268 </span><span class="lineCov">        785 :   ntype.gather_link_search_ops = search_link_ops_for_shader_bsdf_node;</span></a>
+<a name="269"><span class="lineNum">     269 </span><span class="lineCov">        785 :   ntype.add_ui_poll = object_cycles_shader_nodes_poll;</span></a>
+<a name="270"><span class="lineNum">     270 </span><span class="lineCov">        785 :   ntype.draw_buttons = file_ns::node_shader_buts_principled_hair;</span></a>
+<a name="271"><span class="lineNum">     271 </span><span class="lineCov">        785 :   ntype.default_width = bke::NodeWidth::_240;</span></a>
+<a name="272"><span class="lineNum">     272 </span><span class="lineCov">        785 :   ntype.initfunc = file_ns::node_shader_init_hair_principled;</span></a>
+<a name="273"><span class="lineNum">     273 </span><span class="lineCov">        785 :   ntype.updatefunc = file_ns::node_shader_update_hair_principled;</span></a>
+<a name="274"><span class="lineNum">     274 </span><span class="lineCov">        785 :   ntype.gpu_fn = file_ns::node_shader_gpu_hair_principled;</span></a>
+<a name="275"><span class="lineNum">     275 </span><span class="lineCov">        785 :   bke::node_type_storage(</span></a>
+<a name="276"><span class="lineNum">     276 </span>            :       ntype, &quot;NodeShaderHairPrincipled&quot;, node_free_standard_storage, node_copy_standard_storage);</a>
+<a name="277"><span class="lineNum">     277 </span>            : </a>
+<a name="278"><span class="lineNum">     278 </span><span class="lineCov">        785 :   bke::node_register_type(ntype);</span></a>
+<a name="279"><span class="lineNum">     279 </span><span class="lineCov">        785 : }</span></a>
+<a name="280"><span class="lineNum">     280 </span>            : </a>
+<a name="281"><span class="lineNum">     281 </span>            : }  // namespace blender</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,501 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - blenkernel/intern/subdiv_converter_mesh.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">blenkernel/intern</a> - subdiv_converter_mesh.cc<span style="font-size: 80%;"> (source / <a href="subdiv_converter_mesh.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">195</td>
+            <td class="headerCovTableEntry">195</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2018 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup bke</a>
+<a name="7"><span class="lineNum">       7 </span>            :  */</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &quot;subdiv_converter.hh&quot;</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &lt;cstring&gt;</a>
+<a name="12"><span class="lineNum">      12 </span>            : </a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;BLI_array_utils.hh&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;BLI_task.hh&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : </a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &quot;BKE_attribute.hh&quot;</a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;BKE_customdata.hh&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : #include &quot;BKE_mesh.hh&quot;</a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &quot;BKE_mesh_mapping.hh&quot;</a>
+<a name="20"><span class="lineNum">      20 </span>            : #include &quot;BKE_subdiv.hh&quot;</a>
+<a name="21"><span class="lineNum">      21 </span>            : </a>
+<a name="22"><span class="lineNum">      22 </span>            : #include &quot;MEM_guardedalloc.h&quot;</a>
+<a name="23"><span class="lineNum">      23 </span>            : </a>
+<a name="24"><span class="lineNum">      24 </span>            : #include &quot;opensubdiv_converter_capi.hh&quot;</a>
+<a name="25"><span class="lineNum">      25 </span>            : </a>
+<a name="26"><span class="lineNum">      26 </span>            : namespace blender::bke::subdiv {</a>
+<a name="27"><span class="lineNum">      27 </span>            : </a>
+<a name="28"><span class="lineNum">      28 </span>            : /* Enable work-around for non-working CPU evaluator when using bilinear scheme.</a>
+<a name="29"><span class="lineNum">      29 </span>            :  * This forces Catmark scheme with all edges marked as infinitely sharp. */</a>
+<a name="30"><span class="lineNum">      30 </span>            : #define BUGGY_SIMPLE_SCHEME_WORKAROUND 1</a>
+<a name="31"><span class="lineNum">      31 </span>            : </a>
+<a name="32"><span class="lineNum">      32 </span>            : struct ConverterStorage : NonMovable {</a>
+<a name="33"><span class="lineNum">      33 </span>            :   Settings settings;</a>
+<a name="34"><span class="lineNum">      34 </span>            :   const Mesh *mesh;</a>
+<a name="35"><span class="lineNum">      35 </span>            :   /* Edge vertices, either referencing Mesh::edges() or #edges_manifold. */</a>
+<a name="36"><span class="lineNum">      36 </span>            :   Span&lt;int2&gt; edges;</a>
+<a name="37"><span class="lineNum">      37 </span>            :   Array&lt;int2&gt; edges_manifold;</a>
+<a name="38"><span class="lineNum">      38 </span>            : </a>
+<a name="39"><span class="lineNum">      39 </span>            :   OffsetIndices&lt;int&gt; faces;</a>
+<a name="40"><span class="lineNum">      40 </span>            :   /* Vertex indices of face corners, using manifold vertex indices (see #manifold_vertex_index</a>
+<a name="41"><span class="lineNum">      41 </span>            :    * below). Either referencing of Mesh::corner_verts()  #corner_verts_manifold. */</a>
+<a name="42"><span class="lineNum">      42 </span>            :   Span&lt;int&gt; corner_verts;</a>
+<a name="43"><span class="lineNum">      43 </span>            :   Array&lt;int&gt; corner_verts_manifold;</a>
+<a name="44"><span class="lineNum">      44 </span>            : </a>
+<a name="45"><span class="lineNum">      45 </span>            :   /* Sharpness of every manifold edge and vertex, or empty when nothing is sharp. See</a>
+<a name="46"><span class="lineNum">      46 </span>            :    * #OpenSubdiv_Converter::edge_sharpness. */</a>
+<a name="47"><span class="lineNum">      47 </span>            :   Array&lt;float&gt; edge_sharpness;</a>
+<a name="48"><span class="lineNum">      48 </span>            :   Array&lt;float&gt; vert_sharpness;</a>
+<a name="49"><span class="lineNum">      49 </span>            : </a>
+<a name="50"><span class="lineNum">      50 </span>            :   VectorSet&lt;StringRefNull&gt; uv_map_names;</a>
+<a name="51"><span class="lineNum">      51 </span>            : </a>
+<a name="52"><span class="lineNum">      52 </span>            :   /* CustomData layer for vertex sharpnesses. */</a>
+<a name="53"><span class="lineNum">      53 </span>            :   VArraySpan&lt;float&gt; cd_vertex_crease;</a>
+<a name="54"><span class="lineNum">      54 </span>            :   /* CustomData layer for edge sharpness. */</a>
+<a name="55"><span class="lineNum">      55 </span>            :   VArraySpan&lt;float&gt; cd_edge_crease;</a>
+<a name="56"><span class="lineNum">      56 </span>            :   /* Indexed by loop index, value denotes index of face-varying vertex</a>
+<a name="57"><span class="lineNum">      57 </span>            :    * which corresponds to the UV coordinate.</a>
+<a name="58"><span class="lineNum">      58 </span>            :    */</a>
+<a name="59"><span class="lineNum">      59 </span>            :   int *loop_uv_indices;</a>
+<a name="60"><span class="lineNum">      60 </span>            :   int num_uv_coordinates;</a>
+<a name="61"><span class="lineNum">      61 </span>            :   /* Indexed by coarse mesh elements, gives index of corresponding element</a>
+<a name="62"><span class="lineNum">      62 </span>            :    * with ignoring all non-manifold entities.</a>
+<a name="63"><span class="lineNum">      63 </span>            :    *</a>
+<a name="64"><span class="lineNum">      64 </span>            :    * NOTE: This isn't strictly speaking manifold, this is more like non-loose</a>
+<a name="65"><span class="lineNum">      65 </span>            :    * geometry index. As in, index of element as if there were no loose edges</a>
+<a name="66"><span class="lineNum">      66 </span>            :    * or vertices in the mesh.</a>
+<a name="67"><span class="lineNum">      67 </span>            :    *</a>
+<a name="68"><span class="lineNum">      68 </span>            :    * Left empty when the mapping is the identity for all elements that are kept, which is the</a>
+<a name="69"><span class="lineNum">      69 </span>            :    * case whenever the removed (loose) elements are already a contiguous run at the end of the</a>
+<a name="70"><span class="lineNum">      70 </span>            :    * array. See #initialize_manifold_index_map.</a>
+<a name="71"><span class="lineNum">      71 </span>            :    */</a>
+<a name="72"><span class="lineNum">      72 </span>            :   Array&lt;int&gt; manifold_verts;</a>
+<a name="73"><span class="lineNum">      73 </span>            :   /* Reverse mapping to above. */</a>
+<a name="74"><span class="lineNum">      74 </span>            :   Array&lt;int&gt; manifold_vert_to_orig;</a>
+<a name="75"><span class="lineNum">      75 </span>            :   Array&lt;int&gt; manifold_edge_to_orig;</a>
+<a name="76"><span class="lineNum">      76 </span>            :   /* Number of non-loose elements. */</a>
+<a name="77"><span class="lineNum">      77 </span>            :   int num_manifold_vertices;</a>
+<a name="78"><span class="lineNum">      78 </span>            :   int num_manifold_edges;</a>
+<a name="79"><span class="lineNum">      79 </span>            : };</a>
+<a name="80"><span class="lineNum">      80 </span>            : </a>
+<a name="81"><span class="lineNum">      81 </span><span class="lineCov">       2608 : static OpenSubdiv_SchemeType get_scheme_type(const Settings &amp;settings)</span></a>
+<a name="82"><span class="lineNum">      82 </span>            : {</a>
+<a name="83"><span class="lineNum">      83 </span>            : #if BUGGY_SIMPLE_SCHEME_WORKAROUND</a>
+<a name="84"><span class="lineNum">      84 </span>            :   (void)settings;</a>
+<a name="85"><span class="lineNum">      85 </span><span class="lineCov">       2608 :   return OSD_SCHEME_CATMARK;</span></a>
+<a name="86"><span class="lineNum">      86 </span>            : #else</a>
+<a name="87"><span class="lineNum">      87 </span>            :   if (settings.is_simple) {</a>
+<a name="88"><span class="lineNum">      88 </span>            :     return OSD_SCHEME_BILINEAR;</a>
+<a name="89"><span class="lineNum">      89 </span>            :   }</a>
+<a name="90"><span class="lineNum">      90 </span>            :   else {</a>
+<a name="91"><span class="lineNum">      91 </span>            :     return OSD_SCHEME_CATMARK;</a>
+<a name="92"><span class="lineNum">      92 </span>            :   }</a>
+<a name="93"><span class="lineNum">      93 </span>            : #endif</a>
+<a name="94"><span class="lineNum">      94 </span>            : }</a>
+<a name="95"><span class="lineNum">      95 </span>            : </a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineCov">       5214 : static bool specifies_full_topology(const OpenSubdiv_Converter * /*converter*/)</span></a>
+<a name="97"><span class="lineNum">      97 </span>            : {</a>
+<a name="98"><span class="lineNum">      98 </span><span class="lineCov">       5214 :   return false;</span></a>
+<a name="99"><span class="lineNum">      99 </span>            : }</a>
+<a name="100"><span class="lineNum">     100 </span>            : </a>
+<a name="101"><span class="lineNum">     101 </span>            : /* Both `original_to_manifold()` and `manifold_to_original()` treat an empty map as the identity</a>
+<a name="102"><span class="lineNum">     102 </span>            :  * mapping. This is the case whenever the elements not passed to OpenSubdiv (loose vertices or</a>
+<a name="103"><span class="lineNum">     103 </span>            :  * edges) are already a contiguous run at the end of the array, see</a>
+<a name="104"><span class="lineNum">     104 </span>            :  * #initialize_manifold_index_map. */</a>
+<a name="105"><span class="lineNum">     105 </span>            : </a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineCov">       5851 : static int original_to_manifold(const Array&lt;int&gt; &amp;forward_map, const int original_index)</span></a>
+<a name="107"><span class="lineNum">     107 </span>            : {</a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineCov">       5851 :   return forward_map.is_empty() ? original_index : forward_map[original_index];</span></a>
+<a name="109"><span class="lineNum">     109 </span>            : }</a>
+<a name="110"><span class="lineNum">     110 </span>            : </a>
+<a name="111"><span class="lineNum">     111 </span><span class="lineCov">       4460 : static int manifold_to_original(const Array&lt;int&gt; &amp;reverse_map, const int manifold_index)</span></a>
+<a name="112"><span class="lineNum">     112 </span>            : {</a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineCov">       4460 :   return reverse_map.is_empty() ? manifold_index : reverse_map[manifold_index];</span></a>
+<a name="114"><span class="lineNum">     114 </span>            : }</a>
+<a name="115"><span class="lineNum">     115 </span>            : </a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineCov">       2611 : static int get_num_uv_layers(const OpenSubdiv_Converter *converter)</span></a>
+<a name="117"><span class="lineNum">     117 </span>            : {</a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineCov">       2611 :   ConverterStorage *storage = static_cast&lt;ConverterStorage *&gt;(converter-&gt;user_data);</span></a>
+<a name="119"><span class="lineNum">     119 </span><span class="lineCov">       2611 :   return storage-&gt;uv_map_names.size();</span></a>
+<a name="120"><span class="lineNum">     120 </span>            : }</a>
+<a name="121"><span class="lineNum">     121 </span>            : </a>
+<a name="122"><span class="lineNum">     122 </span><span class="lineCov">       1721 : static void precalc_uv_layer(const OpenSubdiv_Converter *converter, const int layer_index)</span></a>
+<a name="123"><span class="lineNum">     123 </span>            : {</a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineCov">       1721 :   ConverterStorage *storage = static_cast&lt;ConverterStorage *&gt;(converter-&gt;user_data);</span></a>
+<a name="125"><span class="lineNum">     125 </span><span class="lineCov">       1721 :   const Mesh *mesh = storage-&gt;mesh;</span></a>
+<a name="126"><span class="lineNum">     126 </span><span class="lineCov">       1721 :   const StringRef name = storage-&gt;uv_map_names[layer_index];</span></a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineCov">       1723 :   const bke::AttributeAccessor attributes = mesh-&gt;attributes();</span></a>
+<a name="128"><span class="lineNum">     128 </span><span class="lineCov">       1723 :   const VArraySpan uv_map = *attributes.lookup&lt;float2&gt;(name, bke::AttrDomain::Corner);</span></a>
+<a name="129"><span class="lineNum">     129 </span><span class="lineCov">       1724 :   const int num_vert = storage-&gt;num_manifold_vertices;</span></a>
+<a name="130"><span class="lineNum">     130 </span>            :   /* Initialize memory required for the operations. */</a>
+<a name="131"><span class="lineNum">     131 </span><span class="lineCov">       1724 :   if (storage-&gt;loop_uv_indices == nullptr) {</span></a>
+<a name="132"><span class="lineNum">     132 </span><span class="lineCov">       1695 :     storage-&gt;loop_uv_indices = MEM_new_array_uninitialized&lt;int&gt;(size_t(mesh-&gt;corners_num),</span></a>
+<a name="133"><span class="lineNum">     133 </span>            :                                                                 &quot;loop uv vertex index&quot;);</a>
+<a name="134"><span class="lineNum">     134 </span>            :   }</a>
+<a name="135"><span class="lineNum">     135 </span><span class="lineCov">       1724 :   UvVertMap *uv_vert_map = BKE_mesh_uv_vert_map_create(</span></a>
+<a name="136"><span class="lineNum">     136 </span><span class="lineCov">       1724 :       storage-&gt;faces, storage-&gt;corner_verts, uv_map, num_vert, float2(STD_UV_CONNECT_LIMIT), true);</span></a>
+<a name="137"><span class="lineNum">     137 </span>            :   /* NOTE: First UV vertex is supposed to be always marked as separate. */</a>
+<a name="138"><span class="lineNum">     138 </span><span class="lineCov">       1723 :   storage-&gt;num_uv_coordinates = -1;</span></a>
+<a name="139"><span class="lineNum">     139 </span><span class="lineCov">     848726 :   for (int vertex_index = 0; vertex_index &lt; num_vert; vertex_index++) {</span></a>
+<a name="140"><span class="lineNum">     140 </span><span class="lineCov">     847170 :     const UvMapVert *uv_vert = BKE_mesh_uv_vert_map_get_vert(uv_vert_map, vertex_index);</span></a>
+<a name="141"><span class="lineNum">     141 </span><span class="lineCov">    4163397 :     while (uv_vert != nullptr) {</span></a>
+<a name="142"><span class="lineNum">     142 </span><span class="lineCov">    3316394 :       if (uv_vert-&gt;separate) {</span></a>
+<a name="143"><span class="lineNum">     143 </span><span class="lineCov">     957822 :         storage-&gt;num_uv_coordinates++;</span></a>
+<a name="144"><span class="lineNum">     144 </span>            :       }</a>
+<a name="145"><span class="lineNum">     145 </span><span class="lineCov">    3316394 :       const IndexRange face = storage-&gt;faces[uv_vert-&gt;face_index];</span></a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineCov">    3316326 :       const int global_loop_index = face.start() + uv_vert-&gt;loop_of_face_index;</span></a>
+<a name="147"><span class="lineNum">     147 </span><span class="lineCov">    3316211 :       storage-&gt;loop_uv_indices[global_loop_index] = storage-&gt;num_uv_coordinates;</span></a>
+<a name="148"><span class="lineNum">     148 </span><span class="lineCov">    3316211 :       uv_vert = uv_vert-&gt;next;</span></a>
+<a name="149"><span class="lineNum">     149 </span>            :     }</a>
+<a name="150"><span class="lineNum">     150 </span>            :   }</a>
+<a name="151"><span class="lineNum">     151 </span>            :   /* So far this value was used as a 0-based index, actual number of UV</a>
+<a name="152"><span class="lineNum">     152 </span>            :    * vertices is 1 more.</a>
+<a name="153"><span class="lineNum">     153 </span>            :    */</a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineCov">       1556 :   storage-&gt;num_uv_coordinates += 1;</span></a>
+<a name="155"><span class="lineNum">     155 </span><span class="lineCov">       1556 :   BKE_mesh_uv_vert_map_free(uv_vert_map);</span></a>
+<a name="156"><span class="lineNum">     156 </span><span class="lineCov">       1724 : }</span></a>
+<a name="157"><span class="lineNum">     157 </span>            : </a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineCov">       1724 : static void finish_uv_layer(const OpenSubdiv_Converter * /*converter*/) {}</span></a>
+<a name="159"><span class="lineNum">     159 </span>            : </a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineCov">       1096 : static int get_num_uvs(const OpenSubdiv_Converter *converter)</span></a>
+<a name="161"><span class="lineNum">     161 </span>            : {</a>
+<a name="162"><span class="lineNum">     162 </span><span class="lineCov">       1096 :   ConverterStorage *storage = static_cast&lt;ConverterStorage *&gt;(converter-&gt;user_data);</span></a>
+<a name="163"><span class="lineNum">     163 </span><span class="lineCov">       1096 :   return storage-&gt;num_uv_coordinates;</span></a>
+<a name="164"><span class="lineNum">     164 </span>            : }</a>
+<a name="165"><span class="lineNum">     165 </span>            : </a>
+<a name="166"><span class="lineNum">     166 </span><span class="lineCov">    3320983 : static int get_face_corner_uv_index(const OpenSubdiv_Converter *converter,</span></a>
+<a name="167"><span class="lineNum">     167 </span>            :                                     const int face_index,</a>
+<a name="168"><span class="lineNum">     168 </span>            :                                     const int corner)</a>
+<a name="169"><span class="lineNum">     169 </span>            : {</a>
+<a name="170"><span class="lineNum">     170 </span><span class="lineCov">    3320983 :   ConverterStorage *storage = static_cast&lt;ConverterStorage *&gt;(converter-&gt;user_data);</span></a>
+<a name="171"><span class="lineNum">     171 </span><span class="lineCov">    3320983 :   const IndexRange face = storage-&gt;faces[face_index];</span></a>
+<a name="172"><span class="lineNum">     172 </span><span class="lineCov">    6637900 :   return storage-&gt;loop_uv_indices[face.start() + corner];</span></a>
+<a name="173"><span class="lineNum">     173 </span>            : }</a>
+<a name="174"><span class="lineNum">     174 </span>            : </a>
+<a name="175"><span class="lineNum">     175 </span><span class="lineCov">       2613 : static void free_user_data(const OpenSubdiv_Converter *converter)</span></a>
+<a name="176"><span class="lineNum">     176 </span>            : {</a>
+<a name="177"><span class="lineNum">     177 </span><span class="lineCov">       2613 :   ConverterStorage *user_data = static_cast&lt;ConverterStorage *&gt;(converter-&gt;user_data);</span></a>
+<a name="178"><span class="lineNum">     178 </span><span class="lineCov">       2613 :   MEM_SAFE_DELETE(user_data-&gt;loop_uv_indices);</span></a>
+<a name="179"><span class="lineNum">     179 </span><span class="lineCov">       2613 :   MEM_delete(user_data);</span></a>
+<a name="180"><span class="lineNum">     180 </span><span class="lineCov">       2615 : }</span></a>
+<a name="181"><span class="lineNum">     181 </span>            : </a>
+<a name="182"><span class="lineNum">     182 </span><span class="lineCov">       2609 : static void init_functions(OpenSubdiv_Converter *converter)</span></a>
+<a name="183"><span class="lineNum">     183 </span>            : {</a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineCov">       2609 :   converter-&gt;specifiesFullTopology = specifies_full_topology;</span></a>
+<a name="185"><span class="lineNum">     185 </span>            : </a>
+<a name="186"><span class="lineNum">     186 </span><span class="lineCov">       2609 :   converter-&gt;getFaceEdges = nullptr;</span></a>
+<a name="187"><span class="lineNum">     187 </span>            : </a>
+<a name="188"><span class="lineNum">     188 </span><span class="lineCov">       2609 :   converter-&gt;getNumEdgeFaces = nullptr;</span></a>
+<a name="189"><span class="lineNum">     189 </span><span class="lineCov">       2609 :   converter-&gt;getEdgeFaces = nullptr;</span></a>
+<a name="190"><span class="lineNum">     190 </span>            : </a>
+<a name="191"><span class="lineNum">     191 </span><span class="lineCov">       2609 :   converter-&gt;getNumVertexEdges = nullptr;</span></a>
+<a name="192"><span class="lineNum">     192 </span><span class="lineCov">       2609 :   converter-&gt;getVertexEdges = nullptr;</span></a>
+<a name="193"><span class="lineNum">     193 </span><span class="lineCov">       2609 :   converter-&gt;getNumVertexFaces = nullptr;</span></a>
+<a name="194"><span class="lineNum">     194 </span><span class="lineCov">       2609 :   converter-&gt;getVertexFaces = nullptr;</span></a>
+<a name="195"><span class="lineNum">     195 </span>            : </a>
+<a name="196"><span class="lineNum">     196 </span><span class="lineCov">       2609 :   converter-&gt;getNumUVLayers = get_num_uv_layers;</span></a>
+<a name="197"><span class="lineNum">     197 </span><span class="lineCov">       2609 :   converter-&gt;precalcUVLayer = precalc_uv_layer;</span></a>
+<a name="198"><span class="lineNum">     198 </span><span class="lineCov">       2609 :   converter-&gt;finishUVLayer = finish_uv_layer;</span></a>
+<a name="199"><span class="lineNum">     199 </span><span class="lineCov">       2609 :   converter-&gt;getNumUVCoordinates = get_num_uvs;</span></a>
+<a name="200"><span class="lineNum">     200 </span><span class="lineCov">       2609 :   converter-&gt;getFaceCornerUVIndex = get_face_corner_uv_index;</span></a>
+<a name="201"><span class="lineNum">     201 </span>            : </a>
+<a name="202"><span class="lineNum">     202 </span><span class="lineCov">       2609 :   converter-&gt;freeUserData = free_user_data;</span></a>
+<a name="203"><span class="lineNum">     203 </span><span class="lineCov">       2609 : }</span></a>
+<a name="204"><span class="lineNum">     204 </span>            : </a>
+<a name="205"><span class="lineNum">     205 </span>            : /* Whether `unused_mask` (e.g. loose vertices/edges) is empty, or is exactly a contiguous section</a>
+<a name="206"><span class="lineNum">     206 </span>            :  * of indices at the end. In that case every kept element already has the same index whether or not</a>
+<a name="207"><span class="lineNum">     207 </span>            :  * the unused elements are removed, so no remapping is necessary. */</a>
+<a name="208"><span class="lineNum">     208 </span><span class="lineCov">       5221 : static bool unused_is_trailing_range(const IndexMask &amp;unused_mask, const int num_elements)</span></a>
+<a name="209"><span class="lineNum">     209 </span>            : {</a>
+<a name="210"><span class="lineNum">     210 </span><span class="lineCov">       5221 :   if (unused_mask.is_empty()) {</span></a>
+<a name="211"><span class="lineNum">     211 </span><span class="lineCov">       5178 :     return true;</span></a>
+<a name="212"><span class="lineNum">     212 </span>            :   }</a>
+<a name="213"><span class="lineNum">     213 </span><span class="lineCov">         44 :   const std::optional&lt;IndexRange&gt; range = unused_mask.to_range();</span></a>
+<a name="214"><span class="lineNum">     214 </span><span class="lineCov">         44 :   return range.has_value() &amp;&amp; range-&gt;one_after_last() == num_elements;</span></a>
+<a name="215"><span class="lineNum">     215 </span>            : }</a>
+<a name="216"><span class="lineNum">     216 </span>            : </a>
+<a name="217"><span class="lineNum">     217 </span>            : /* Builds the mapping between original and manifold (i.e. skipping `unused_mask`) indices for a</a>
+<a name="218"><span class="lineNum">     218 </span>            :  * set of coarse mesh elements (vertices or edges). Returns the number of manifold elements. */</a>
+<a name="219"><span class="lineNum">     219 </span><span class="lineCov">       5215 : static int initialize_manifold_index_map(const IndexMask &amp;unused_mask,</span></a>
+<a name="220"><span class="lineNum">     220 </span>            :                                          const int num_elements,</a>
+<a name="221"><span class="lineNum">     221 </span>            :                                          Array&lt;int&gt; *r_index_forward,</a>
+<a name="222"><span class="lineNum">     222 </span>            :                                          Array&lt;int&gt; *r_index_reverse)</a>
+<a name="223"><span class="lineNum">     223 </span>            : {</a>
+<a name="224"><span class="lineNum">     224 </span><span class="lineCov">       5215 :   const int num_manifold_elements = num_elements - unused_mask.size();</span></a>
+<a name="225"><span class="lineNum">     225 </span><span class="lineCov">       5219 :   if (unused_is_trailing_range(unused_mask, num_elements)) {</span></a>
+<a name="226"><span class="lineNum">     226 </span><span class="lineCov">       5180 :     return num_manifold_elements;</span></a>
+<a name="227"><span class="lineNum">     227 </span>            :   }</a>
+<a name="228"><span class="lineNum">     228 </span><span class="lineCov">         44 :   IndexMaskMemory memory;</span></a>
+<a name="229"><span class="lineNum">     229 </span><span class="lineCov">         44 :   const IndexMask used_mask = unused_mask.complement(IndexRange(num_elements), memory);</span></a>
+<a name="230"><span class="lineNum">     230 </span><span class="lineCov">         44 :   if (r_index_forward != nullptr) {</span></a>
+<a name="231"><span class="lineNum">     231 </span><span class="lineCov">         22 :     r_index_forward-&gt;reinitialize(num_elements);</span></a>
+<a name="232"><span class="lineNum">     232 </span><span class="lineCov">         22 :     index_mask::build_reverse_map&lt;int&gt;(used_mask, *r_index_forward);</span></a>
+<a name="233"><span class="lineNum">     233 </span>            :   }</a>
+<a name="234"><span class="lineNum">     234 </span><span class="lineCov">         43 :   if (r_index_reverse != nullptr) {</span></a>
+<a name="235"><span class="lineNum">     235 </span><span class="lineCov">         43 :     r_index_reverse-&gt;reinitialize(num_manifold_elements);</span></a>
+<a name="236"><span class="lineNum">     236 </span><span class="lineCov">         44 :     used_mask.to_indices&lt;int&gt;(*r_index_reverse);</span></a>
+<a name="237"><span class="lineNum">     237 </span>            :   }</a>
+<a name="238"><span class="lineNum">     238 </span><span class="lineCov">         43 :   return num_manifold_elements;</span></a>
+<a name="239"><span class="lineNum">     239 </span><span class="lineCov">         43 : }</span></a>
+<a name="240"><span class="lineNum">     240 </span>            : </a>
+<a name="241"><span class="lineNum">     241 </span>            : /* Builds the manifold-space edges array exposed as `converter-&gt;edges`: for each manifold edge</a>
+<a name="242"><span class="lineNum">     242 </span>            :  * index, the pair of manifold vertex indices, skipping loose edges. */</a>
+<a name="243"><span class="lineNum">     243 </span><span class="lineCov">       2608 : static void initialize_manifold_edges(ConverterStorage &amp;storage)</span></a>
+<a name="244"><span class="lineNum">     244 </span>            : {</a>
+<a name="245"><span class="lineNum">     245 </span><span class="lineCov">       2608 :   const Span&lt;int2&gt; mesh_edges = storage.mesh-&gt;edges();</span></a>
+<a name="246"><span class="lineNum">     246 </span><span class="lineCov">       2614 :   if (storage.manifold_edge_to_orig.is_empty() &amp;&amp; storage.manifold_verts.is_empty()) {</span></a>
+<a name="247"><span class="lineNum">     247 </span><span class="lineCov">       2591 :     storage.edges = mesh_edges.take_front(storage.num_manifold_edges);</span></a>
+<a name="248"><span class="lineNum">     248 </span><span class="lineCov">       2589 :     return;</span></a>
+<a name="249"><span class="lineNum">     249 </span>            :   }</a>
+<a name="250"><span class="lineNum">     250 </span><span class="lineCov">         20 :   storage.edges_manifold.reinitialize(storage.num_manifold_edges);</span></a>
+<a name="251"><span class="lineNum">     251 </span><span class="lineCov">         22 :   const MutableSpan&lt;int2&gt; edges_manifold = storage.edges_manifold;</span></a>
+<a name="252"><span class="lineNum">     252 </span><span class="lineCov">         22 :   threading::parallel_for(edges_manifold.index_range(), 4096, [&amp;](const IndexRange range) {</span></a>
+<a name="253"><span class="lineNum">     253 </span><span class="lineCov">       2948 :     for (const int manifold_edge_index : range) {</span></a>
+<a name="254"><span class="lineNum">     254 </span><span class="lineCov">       2925 :       const int edge_index = manifold_to_original(storage.manifold_edge_to_orig,</span></a>
+<a name="255"><span class="lineNum">     255 </span>            :                                                   manifold_edge_index);</a>
+<a name="256"><span class="lineNum">     256 </span><span class="lineCov">       2925 :       const int2 &amp;edge = mesh_edges[edge_index];</span></a>
+<a name="257"><span class="lineNum">     257 </span><span class="lineCov">       2925 :       edges_manifold[manifold_edge_index] = int2(</span></a>
+<a name="258"><span class="lineNum">     258 </span><span class="lineCov">       5852 :           original_to_manifold(storage.manifold_verts, edge[0]),</span></a>
+<a name="259"><span class="lineNum">     259 </span><span class="lineCov">       2925 :           original_to_manifold(storage.manifold_verts, edge[1]));</span></a>
+<a name="260"><span class="lineNum">     260 </span>            :     }</a>
+<a name="261"><span class="lineNum">     261 </span><span class="lineCov">         22 :   });</span></a>
+<a name="262"><span class="lineNum">     262 </span><span class="lineCov">         22 :   storage.edges = storage.edges_manifold;</span></a>
+<a name="263"><span class="lineNum">     263 </span>            : }</a>
+<a name="264"><span class="lineNum">     264 </span>            : </a>
+<a name="265"><span class="lineNum">     265 </span><span class="lineCov">       2606 : static void initialize_manifold_indices(ConverterStorage &amp;storage)</span></a>
+<a name="266"><span class="lineNum">     266 </span>            : {</a>
+<a name="267"><span class="lineNum">     267 </span><span class="lineCov">       2606 :   const Mesh *mesh = storage.mesh;</span></a>
+<a name="268"><span class="lineNum">     268 </span><span class="lineCov">       2606 :   const IndexMask &amp;loose_verts = mesh-&gt;verts_no_face();</span></a>
+<a name="269"><span class="lineNum">     269 </span><span class="lineCov">       2609 :   const IndexMask &amp;loose_edges = mesh-&gt;loose_edges();</span></a>
+<a name="270"><span class="lineNum">     270 </span>            : </a>
+<a name="271"><span class="lineNum">     271 </span><span class="lineCov">       5222 :   storage.num_manifold_vertices = initialize_manifold_index_map(</span></a>
+<a name="272"><span class="lineNum">     272 </span><span class="lineCov">       2614 :       loose_verts, mesh-&gt;verts_num, &amp;storage.manifold_verts, &amp;storage.manifold_vert_to_orig);</span></a>
+<a name="273"><span class="lineNum">     273 </span><span class="lineCov">       2608 :   if (storage.manifold_verts.is_empty()) {</span></a>
+<a name="274"><span class="lineNum">     274 </span><span class="lineCov">       2588 :     storage.corner_verts = mesh-&gt;corner_verts();</span></a>
+<a name="275"><span class="lineNum">     275 </span>            :   }</a>
+<a name="276"><span class="lineNum">     276 </span>            :   else {</a>
+<a name="277"><span class="lineNum">     277 </span><span class="lineCov">         21 :     const Span&lt;int&gt; mesh_corner_verts = mesh-&gt;corner_verts();</span></a>
+<a name="278"><span class="lineNum">     278 </span><span class="lineCov">         22 :     storage.corner_verts_manifold.reinitialize(mesh_corner_verts.size());</span></a>
+<a name="279"><span class="lineNum">     279 </span><span class="lineCov">         22 :     array_utils::gather(storage.manifold_verts.as_span(),</span></a>
+<a name="280"><span class="lineNum">     280 </span>            :                         mesh_corner_verts,</a>
+<a name="281"><span class="lineNum">     281 </span>            :                         storage.corner_verts_manifold.as_mutable_span());</a>
+<a name="282"><span class="lineNum">     282 </span><span class="lineCov">         21 :     storage.corner_verts = storage.corner_verts_manifold;</span></a>
+<a name="283"><span class="lineNum">     283 </span>            :   }</a>
+<a name="284"><span class="lineNum">     284 </span>            : </a>
+<a name="285"><span class="lineNum">     285 </span><span class="lineCov">       5220 :   storage.num_manifold_edges = initialize_manifold_index_map(</span></a>
+<a name="286"><span class="lineNum">     286 </span><span class="lineCov">       2613 :       loose_edges, mesh-&gt;edges_num, nullptr, &amp;storage.manifold_edge_to_orig);</span></a>
+<a name="287"><span class="lineNum">     287 </span><span class="lineCov">       2607 :   initialize_manifold_edges(storage);</span></a>
+<a name="288"><span class="lineNum">     288 </span><span class="lineCov">       2607 : }</span></a>
+<a name="289"><span class="lineNum">     289 </span>            : </a>
+<a name="290"><span class="lineNum">     290 </span>            : /* Fills `sharpness` with the sharpness of every manifold element, from the crease attribute of the</a>
+<a name="291"><span class="lineNum">     291 </span>            :  * original elements. `manifold_to_orig` is empty when it is the identity mapping, in which case</a>
+<a name="292"><span class="lineNum">     292 </span>            :  * the manifold elements are simply the first `sharpness.size()` original ones. */</a>
+<a name="293"><span class="lineNum">     293 </span><span class="lineCov">        414 : static void gather_manifold_sharpness(const Span&lt;float&gt; creases,</span></a>
+<a name="294"><span class="lineNum">     294 </span>            :                                       const Span&lt;int&gt; manifold_to_orig,</a>
+<a name="295"><span class="lineNum">     295 </span>            :                                       const MutableSpan&lt;float&gt; sharpness)</a>
+<a name="296"><span class="lineNum">     296 </span>            : {</a>
+<a name="297"><span class="lineNum">     297 </span><span class="lineCov">        414 :   if (manifold_to_orig.is_empty()) {</span></a>
+<a name="298"><span class="lineNum">     298 </span><span class="lineCov">        406 :     array_utils::copy(creases.take_front(sharpness.size()), sharpness);</span></a>
+<a name="299"><span class="lineNum">     299 </span>            :   }</a>
+<a name="300"><span class="lineNum">     300 </span>            :   else {</a>
+<a name="301"><span class="lineNum">     301 </span><span class="lineCov">          8 :     array_utils::gather(creases, manifold_to_orig, sharpness);</span></a>
+<a name="302"><span class="lineNum">     302 </span>            :   }</a>
+<a name="303"><span class="lineNum">     303 </span><span class="lineCov">        414 :   threading::parallel_for(sharpness.index_range(), 4096, [&amp;](const IndexRange range) {</span></a>
+<a name="304"><span class="lineNum">     304 </span><span class="lineCov">      11099 :     for (const int i : range) {</span></a>
+<a name="305"><span class="lineNum">     305 </span><span class="lineCov">      21370 :       sharpness[i] = crease_to_sharpness(sharpness[i]);</span></a>
+<a name="306"><span class="lineNum">     306 </span>            :     }</a>
+<a name="307"><span class="lineNum">     307 </span><span class="lineCov">        414 :   });</span></a>
+<a name="308"><span class="lineNum">     308 </span><span class="lineCov">        414 : }</span></a>
+<a name="309"><span class="lineNum">     309 </span>            : </a>
+<a name="310"><span class="lineNum">     310 </span>            : /* Builds the sharpness of every manifold edge, exposed as `converter-&gt;edge_sharpness`. Left empty</a>
+<a name="311"><span class="lineNum">     311 </span>            :  * when no edge is sharp, which OpenSubdiv treats the same as all-zero sharpness. */</a>
+<a name="312"><span class="lineNum">     312 </span><span class="lineCov">       2607 : static void initialize_edge_sharpness(ConverterStorage &amp;storage)</span></a>
+<a name="313"><span class="lineNum">     313 </span>            : {</a>
+<a name="314"><span class="lineNum">     314 </span>            : #if BUGGY_SIMPLE_SCHEME_WORKAROUND</a>
+<a name="315"><span class="lineNum">     315 </span><span class="lineCov">       2607 :   if (storage.settings.is_simple) {</span></a>
+<a name="316"><span class="lineNum">     316 </span>            :     /* Emulate the bilinear scheme by making every edge infinitely sharp. */</a>
+<a name="317"><span class="lineNum">     317 </span><span class="lineCov">         82 :     storage.edge_sharpness = Array&lt;float&gt;(storage.num_manifold_edges,</span></a>
+<a name="318"><span class="lineNum">     318 </span><span class="lineCov">         81 :                                           OPENSUBDIV_SHARPNESS_INFINITE);</span></a>
+<a name="319"><span class="lineNum">     319 </span><span class="lineCov">         82 :     return;</span></a>
+<a name="320"><span class="lineNum">     320 </span>            :   }</a>
+<a name="321"><span class="lineNum">     321 </span>            : #endif</a>
+<a name="322"><span class="lineNum">     322 </span><span class="lineCov">       2526 :   if (storage.cd_edge_crease.is_empty()) {</span></a>
+<a name="323"><span class="lineNum">     323 </span><span class="lineCov">       2152 :     return;</span></a>
+<a name="324"><span class="lineNum">     324 </span>            :   }</a>
+<a name="325"><span class="lineNum">     325 </span><span class="lineCov">        376 :   storage.edge_sharpness.reinitialize(storage.num_manifold_edges);</span></a>
+<a name="326"><span class="lineNum">     326 </span><span class="lineCov">        376 :   gather_manifold_sharpness(</span></a>
+<a name="327"><span class="lineNum">     327 </span>            :       storage.cd_edge_crease, storage.manifold_edge_to_orig, storage.edge_sharpness);</a>
+<a name="328"><span class="lineNum">     328 </span>            : }</a>
+<a name="329"><span class="lineNum">     329 </span>            : </a>
+<a name="330"><span class="lineNum">     330 </span>            : /* Builds the sharpness of every manifold vertex, exposed as `converter-&gt;vert_sharpness`. Besides</a>
+<a name="331"><span class="lineNum">     331 </span>            :  * the vertex crease this includes the infinite sharpness given to vertices adjacent to a loose</a>
+<a name="332"><span class="lineNum">     332 </span>            :  * edge, since OpenSubdiv expects non-manifold vertices to be sharp. Left empty when no vertex is</a>
+<a name="333"><span class="lineNum">     333 </span>            :  * sharp. */</a>
+<a name="334"><span class="lineNum">     334 </span><span class="lineCov">       2607 : static void initialize_vert_sharpness(ConverterStorage &amp;storage)</span></a>
+<a name="335"><span class="lineNum">     335 </span>            : {</a>
+<a name="336"><span class="lineNum">     336 </span>            : #if BUGGY_SIMPLE_SCHEME_WORKAROUND</a>
+<a name="337"><span class="lineNum">     337 </span><span class="lineCov">       2607 :   if (storage.settings.is_simple) {</span></a>
+<a name="338"><span class="lineNum">     338 </span>            :     /* Emulate the bilinear scheme by making every vertex infinitely sharp. */</a>
+<a name="339"><span class="lineNum">     339 </span><span class="lineCov">         81 :     storage.vert_sharpness = Array&lt;float&gt;(storage.num_manifold_vertices,</span></a>
+<a name="340"><span class="lineNum">     340 </span><span class="lineCov">         81 :                                           OPENSUBDIV_SHARPNESS_INFINITE);</span></a>
+<a name="341"><span class="lineNum">     341 </span><span class="lineCov">       2588 :     return;</span></a>
+<a name="342"><span class="lineNum">     342 </span>            :   }</a>
+<a name="343"><span class="lineNum">     343 </span>            : #endif</a>
+<a name="344"><span class="lineNum">     344 </span><span class="lineCov">       2526 :   const Mesh *mesh = storage.mesh;</span></a>
+<a name="345"><span class="lineNum">     345 </span><span class="lineCov">       2526 :   const IndexMask &amp;loose_edges = mesh-&gt;loose_edges();</span></a>
+<a name="346"><span class="lineNum">     346 </span><span class="lineCov">       2533 :   if (storage.cd_vertex_crease.is_empty() &amp;&amp; loose_edges.is_empty()) {</span></a>
+<a name="347"><span class="lineNum">     347 </span><span class="lineCov">       2469 :     return;</span></a>
+<a name="348"><span class="lineNum">     348 </span>            :   }</a>
+<a name="349"><span class="lineNum">     349 </span>            : </a>
+<a name="350"><span class="lineNum">     350 </span><span class="lineCov">         64 :   storage.vert_sharpness.reinitialize(storage.num_manifold_vertices);</span></a>
+<a name="351"><span class="lineNum">     351 </span><span class="lineCov">         60 :   const MutableSpan&lt;float&gt; sharpness = storage.vert_sharpness;</span></a>
+<a name="352"><span class="lineNum">     352 </span><span class="lineCov">         60 :   if (storage.cd_vertex_crease.is_empty()) {</span></a>
+<a name="353"><span class="lineNum">     353 </span><span class="lineCov">         22 :     sharpness.fill(0.0f);</span></a>
+<a name="354"><span class="lineNum">     354 </span>            :   }</a>
+<a name="355"><span class="lineNum">     355 </span>            :   else {</a>
+<a name="356"><span class="lineNum">     356 </span><span class="lineCov">         38 :     gather_manifold_sharpness(storage.cd_vertex_crease, storage.manifold_vert_to_orig, sharpness);</span></a>
+<a name="357"><span class="lineNum">     357 </span>            :   }</a>
+<a name="358"><span class="lineNum">     358 </span>            : </a>
+<a name="359"><span class="lineNum">     359 </span><span class="lineCov">         60 :   if (loose_edges.is_empty()) {</span></a>
+<a name="360"><span class="lineNum">     360 </span><span class="lineCov">         38 :     return;</span></a>
+<a name="361"><span class="lineNum">     361 </span>            :   }</a>
+<a name="362"><span class="lineNum">     362 </span>            : </a>
+<a name="363"><span class="lineNum">     363 </span>            :   /* Vertices adjacent to a loose edge are infinitely sharp, which overrides the vertex crease.</a>
+<a name="364"><span class="lineNum">     364 </span>            :    * The map is indexed by the original vertex index, since such a vertex may itself be loose, in</a>
+<a name="365"><span class="lineNum">     365 </span>            :    * which case it is not one of the manifold vertices at all. */</a>
+<a name="366"><span class="lineNum">     366 </span><span class="lineCov">         22 :   BitVector&lt;&gt; infinite_sharp_verts(mesh-&gt;verts_num, false);</span></a>
+<a name="367"><span class="lineNum">     367 </span><span class="lineCov">         22 :   const Span&lt;int2&gt; edges = mesh-&gt;edges();</span></a>
+<a name="368"><span class="lineNum">     368 </span><span class="lineCov">         22 :   loose_edges.foreach_index([&amp;](const int edge_index) {</span></a>
+<a name="369"><span class="lineNum">     369 </span><span class="lineCov">        158 :     const int2 edge = edges[edge_index];</span></a>
+<a name="370"><span class="lineNum">     370 </span><span class="lineCov">        158 :     infinite_sharp_verts[edge[0]].set();</span></a>
+<a name="371"><span class="lineNum">     371 </span><span class="lineCov">        158 :     infinite_sharp_verts[edge[1]].set();</span></a>
+<a name="372"><span class="lineNum">     372 </span><span class="lineCov">        159 :   });</span></a>
+<a name="373"><span class="lineNum">     373 </span><span class="lineCov">         22 :   threading::parallel_for(sharpness.index_range(), 4096, [&amp;](const IndexRange range) {</span></a>
+<a name="374"><span class="lineNum">     374 </span><span class="lineCov">       1585 :     for (const int manifold_vertex_index : range) {</span></a>
+<a name="375"><span class="lineNum">     375 </span><span class="lineCov">       1564 :       const int vertex_index = manifold_to_original(storage.manifold_vert_to_orig,</span></a>
+<a name="376"><span class="lineNum">     376 </span>            :                                                     manifold_vertex_index);</a>
+<a name="377"><span class="lineNum">     377 </span><span class="lineCov">       1564 :       if (infinite_sharp_verts[vertex_index]) {</span></a>
+<a name="378"><span class="lineNum">     378 </span><span class="lineCov">         36 :         sharpness[manifold_vertex_index] = OPENSUBDIV_SHARPNESS_INFINITE;</span></a>
+<a name="379"><span class="lineNum">     379 </span>            :       }</a>
+<a name="380"><span class="lineNum">     380 </span>            :     }</a>
+<a name="381"><span class="lineNum">     381 </span><span class="lineCov">         22 :   });</span></a>
+<a name="382"><span class="lineNum">     382 </span><span class="lineCov">         21 : }</span></a>
+<a name="383"><span class="lineNum">     383 </span>            : </a>
+<a name="384"><span class="lineNum">     384 </span><span class="lineCov">       2610 : static void init_user_data(OpenSubdiv_Converter *converter,</span></a>
+<a name="385"><span class="lineNum">     385 </span>            :                            const Settings *settings,</a>
+<a name="386"><span class="lineNum">     386 </span>            :                            const Mesh *mesh)</a>
+<a name="387"><span class="lineNum">     387 </span>            : {</a>
+<a name="388"><span class="lineNum">     388 </span><span class="lineCov">       2610 :   ConverterStorage *user_data = MEM_new&lt;ConverterStorage&gt;(__func__);</span></a>
+<a name="389"><span class="lineNum">     389 </span><span class="lineCov">       2615 :   user_data-&gt;settings = *settings;</span></a>
+<a name="390"><span class="lineNum">     390 </span><span class="lineCov">       2615 :   user_data-&gt;mesh = mesh;</span></a>
+<a name="391"><span class="lineNum">     391 </span><span class="lineCov">       2615 :   user_data-&gt;faces = mesh-&gt;faces();</span></a>
+<a name="392"><span class="lineNum">     392 </span><span class="lineCov">       2614 :   if (settings-&gt;use_creases) {</span></a>
+<a name="393"><span class="lineNum">     393 </span><span class="lineCov">       2539 :     const AttributeAccessor attributes = mesh-&gt;attributes();</span></a>
+<a name="394"><span class="lineNum">     394 </span><span class="lineCov">       2533 :     user_data-&gt;cd_vertex_crease = *attributes.lookup&lt;float&gt;(&quot;crease_vert&quot;, AttrDomain::Point);</span></a>
+<a name="395"><span class="lineNum">     395 </span><span class="lineCov">       2538 :     user_data-&gt;cd_edge_crease = *attributes.lookup&lt;float&gt;(&quot;crease_edge&quot;, AttrDomain::Edge);</span></a>
+<a name="396"><span class="lineNum">     396 </span>            :   }</a>
+<a name="397"><span class="lineNum">     397 </span><span class="lineCov">       2614 :   user_data-&gt;uv_map_names = mesh-&gt;uv_map_names();</span></a>
+<a name="398"><span class="lineNum">     398 </span><span class="lineCov">       2613 :   user_data-&gt;loop_uv_indices = nullptr;</span></a>
+<a name="399"><span class="lineNum">     399 </span><span class="lineCov">       2613 :   initialize_manifold_indices(*user_data);</span></a>
+<a name="400"><span class="lineNum">     400 </span><span class="lineCov">       2609 :   initialize_edge_sharpness(*user_data);</span></a>
+<a name="401"><span class="lineNum">     401 </span><span class="lineCov">       2611 :   initialize_vert_sharpness(*user_data);</span></a>
+<a name="402"><span class="lineNum">     402 </span><span class="lineCov">       2610 :   converter-&gt;user_data = user_data;</span></a>
+<a name="403"><span class="lineNum">     403 </span><span class="lineCov">       2610 : }</span></a>
+<a name="404"><span class="lineNum">     404 </span>            : </a>
+<a name="405"><span class="lineNum">     405 </span><span class="lineCov">       2609 : void converter_init_for_mesh(OpenSubdiv_Converter *converter,</span></a>
+<a name="406"><span class="lineNum">     406 </span>            :                              const Settings *settings,</a>
+<a name="407"><span class="lineNum">     407 </span>            :                              const Mesh *mesh)</a>
+<a name="408"><span class="lineNum">     408 </span>            : {</a>
+<a name="409"><span class="lineNum">     409 </span><span class="lineCov">       2609 :   init_functions(converter);</span></a>
+<a name="410"><span class="lineNum">     410 </span><span class="lineCov">       2611 :   init_user_data(converter, settings, mesh);</span></a>
+<a name="411"><span class="lineNum">     411 </span><span class="lineCov">       2609 :   const auto &amp;storage = *static_cast&lt;ConverterStorage *&gt;(converter-&gt;user_data);</span></a>
+<a name="412"><span class="lineNum">     412 </span><span class="lineCov">       2609 :   converter-&gt;verts_num = storage.num_manifold_vertices;</span></a>
+<a name="413"><span class="lineNum">     413 </span><span class="lineCov">       2609 :   converter-&gt;face_offsets = storage.mesh-&gt;face_offsets();</span></a>
+<a name="414"><span class="lineNum">     414 </span><span class="lineCov">       2607 :   converter-&gt;edges = storage.edges.cast&lt;std::pair&lt;int, int&gt;&gt;();</span></a>
+<a name="415"><span class="lineNum">     415 </span><span class="lineCov">       2614 :   converter-&gt;corner_verts = storage.corner_verts;</span></a>
+<a name="416"><span class="lineNum">     416 </span><span class="lineCov">       2614 :   converter-&gt;edge_sharpness = storage.edge_sharpness;</span></a>
+<a name="417"><span class="lineNum">     417 </span><span class="lineCov">       2612 :   converter-&gt;vert_sharpness = storage.vert_sharpness;</span></a>
+<a name="418"><span class="lineNum">     418 </span><span class="lineCov">       2614 :   converter-&gt;scheme_type = get_scheme_type(*settings);</span></a>
+<a name="419"><span class="lineNum">     419 </span><span class="lineCov">       2611 :   converter-&gt;vtx_boundary_interpolation = OpenSubdiv_VtxBoundaryInterpolation(</span></a>
+<a name="420"><span class="lineNum">     420 </span><span class="lineCov">       2609 :       converter_vtx_boundary_interpolation_from_settings(settings));</span></a>
+<a name="421"><span class="lineNum">     421 </span><span class="lineCov">       2608 :   converter-&gt;fvar_linear_interpolation = OpenSubdiv_FVarLinearInterpolation(</span></a>
+<a name="422"><span class="lineNum">     422 </span><span class="lineCov">       2611 :       converter_fvar_linear_from_settings(settings));</span></a>
+<a name="423"><span class="lineNum">     423 </span><span class="lineCov">       2608 : }</span></a>
+<a name="424"><span class="lineNum">     424 </span>            : </a>
+<a name="425"><span class="lineNum">     425 </span>            : }  // namespace blender::bke::subdiv</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

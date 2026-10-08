@@ -1,0 +1,425 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - io/usd/intern/usd_reader_camera.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">io/usd/intern</a> - usd_reader_camera.cc<span style="font-size: 80%;"> (source / <a href="usd_reader_camera.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">168</td>
+            <td class="headerCovTableEntry">173</td>
+            <td class="headerCovTableEntryHi">97.1 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2021 Tangent Animation. All rights reserved.</a>
+<a name="2"><span class="lineNum">       2 </span>            :  * SPDX-FileCopyrightText: 2023 Blender Authors</a>
+<a name="3"><span class="lineNum">       3 </span>            :  *</a>
+<a name="4"><span class="lineNum">       4 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later</a>
+<a name="5"><span class="lineNum">       5 </span>            :  *</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * Adapted from the Blender Alembic importer implementation. */</a>
+<a name="7"><span class="lineNum">       7 </span>            : </a>
+<a name="8"><span class="lineNum">       8 </span>            : #include &quot;usd_reader_camera.hh&quot;</a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &quot;usd_armature_utils.hh&quot;</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &quot;ANIM_action.hh&quot;</a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &quot;ANIM_animdata.hh&quot;</a>
+<a name="13"><span class="lineNum">      13 </span>            : </a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;BLI_math_base_c.hh&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : </a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &quot;BKE_camera.h&quot;</a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;BKE_fcurve.hh&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : #include &quot;BKE_object.hh&quot;</a>
+<a name="19"><span class="lineNum">      19 </span>            : </a>
+<a name="20"><span class="lineNum">      20 </span>            : #include &quot;DNA_camera_types.h&quot;</a>
+<a name="21"><span class="lineNum">      21 </span>            : #include &quot;DNA_object_types.h&quot;</a>
+<a name="22"><span class="lineNum">      22 </span>            : </a>
+<a name="23"><span class="lineNum">      23 </span>            : #include &lt;pxr/usd/usdGeom/camera.h&gt;</a>
+<a name="24"><span class="lineNum">      24 </span>            : </a>
+<a name="25"><span class="lineNum">      25 </span>            : #include &lt;array&gt;</a>
+<a name="26"><span class="lineNum">      26 </span>            : #include &lt;optional&gt;</a>
+<a name="27"><span class="lineNum">      27 </span>            : </a>
+<a name="28"><span class="lineNum">      28 </span>            : namespace blender::io::usd {</a>
+<a name="29"><span class="lineNum">      29 </span>            : </a>
+<a name="30"><span class="lineNum">      30 </span>            : namespace {</a>
+<a name="31"><span class="lineNum">      31 </span>            : </a>
+<a name="32"><span class="lineNum">      32 </span>            : template&lt;typename T&gt; struct SampleData {</a>
+<a name="33"><span class="lineNum">      33 </span>            :   float frame;</a>
+<a name="34"><span class="lineNum">      34 </span>            :   T value;</a>
+<a name="35"><span class="lineNum">      35 </span>            : };</a>
+<a name="36"><span class="lineNum">      36 </span>            : </a>
+<a name="37"><span class="lineNum">      37 </span>            : template&lt;typename T&gt; struct AttributeData {</a>
+<a name="38"><span class="lineNum">      38 </span>            :   std::optional&lt;T&gt; initial_value = std::nullopt;</a>
+<a name="39"><span class="lineNum">      39 </span>            :   Vector&lt;SampleData&lt;T&gt;&gt; samples;</a>
+<a name="40"><span class="lineNum">      40 </span>            : </a>
+<a name="41"><span class="lineNum">      41 </span><span class="lineCov">         88 :   void reset()</span></a>
+<a name="42"><span class="lineNum">      42 </span>            :   {</a>
+<a name="43"><span class="lineNum">      43 </span><span class="lineCov">         88 :     initial_value = std::nullopt;</span></a>
+<a name="44"><span class="lineNum">      44 </span><span class="lineCov">         88 :     samples.clear();</span></a>
+<a name="45"><span class="lineNum">      45 </span><span class="lineCov">         88 :   }</span></a>
+<a name="46"><span class="lineNum">      46 </span>            : };</a>
+<a name="47"><span class="lineNum">      47 </span>            : </a>
+<a name="48"><span class="lineNum">      48 </span>            : template&lt;typename T&gt;</a>
+<a name="49"><span class="lineNum">      49 </span><span class="lineCov">         88 : bool read_attribute_values(const pxr::UsdAttribute &amp;attr,</span></a>
+<a name="50"><span class="lineNum">      50 </span>            :                            const pxr::UsdTimeCode initial_time,</a>
+<a name="51"><span class="lineNum">      51 </span>            :                            AttributeData&lt;T&gt; &amp;data)</a>
+<a name="52"><span class="lineNum">      52 </span>            : {</a>
+<a name="53"><span class="lineNum">      53 </span><span class="lineCov">         88 :   data.reset(); /* Clear any prior data. */</span></a>
+<a name="54"><span class="lineNum">      54 </span>            : </a>
+<a name="55"><span class="lineNum">      55 </span><span class="lineCov">        110 :   T value{};</span></a>
+<a name="56"><span class="lineNum">      56 </span><span class="lineCov">         88 :   if (attr.Get(&amp;value, initial_time)) {</span></a>
+<a name="57"><span class="lineNum">      57 </span><span class="lineCov">         88 :     data.initial_value = value;</span></a>
+<a name="58"><span class="lineNum">      58 </span>            :   }</a>
+<a name="59"><span class="lineNum">      59 </span>            :   else {</a>
+<a name="60"><span class="lineNum">      60 </span><span class="lineNoCov">          0 :     data.initial_value = std::nullopt;</span></a>
+<a name="61"><span class="lineNum">      61 </span>            :   }</a>
+<a name="62"><span class="lineNum">      62 </span>            : </a>
+<a name="63"><span class="lineNum">      63 </span><span class="lineCov">         88 :   if (attr.ValueMightBeTimeVarying()) {</span></a>
+<a name="64"><span class="lineNum">      64 </span><span class="lineCov">          4 :     std::vector&lt;double&gt; times;</span></a>
+<a name="65"><span class="lineNum">      65 </span><span class="lineCov">          4 :     attr.GetTimeSamples(&amp;times);</span></a>
+<a name="66"><span class="lineNum">      66 </span>            : </a>
+<a name="67"><span class="lineNum">      67 </span><span class="lineCov">          4 :     data.samples.resize(times.size());</span></a>
+<a name="68"><span class="lineNum">      68 </span><span class="lineCov">         22 :     for (int64_t i = 0; i &lt; times.size(); i++) {</span></a>
+<a name="69"><span class="lineNum">      69 </span><span class="lineCov">         18 :       data.samples[i].frame = float(times[i]);</span></a>
+<a name="70"><span class="lineNum">      70 </span><span class="lineCov">         18 :       attr.Get(&amp;data.samples[i].value, times[i]);</span></a>
+<a name="71"><span class="lineNum">      71 </span>            :     }</a>
+<a name="72"><span class="lineNum">      72 </span><span class="lineCov">          4 :   }</span></a>
+<a name="73"><span class="lineNum">      73 </span>            : </a>
+<a name="74"><span class="lineNum">      74 </span><span class="lineCov">        176 :   return data.initial_value.has_value() || !data.samples.is_empty();</span></a>
+<a name="75"><span class="lineNum">      75 </span>            : }</a>
+<a name="76"><span class="lineNum">      76 </span>            : </a>
+<a name="77"><span class="lineNum">      77 </span><span class="lineCov">         22 : void read_aperture_data(Camera *camera,</span></a>
+<a name="78"><span class="lineNum">      78 </span>            :                         const pxr::UsdAttribute &amp;usd_horiz_aperture,</a>
+<a name="79"><span class="lineNum">      79 </span>            :                         const pxr::UsdAttribute &amp;usd_vert_aperture,</a>
+<a name="80"><span class="lineNum">      80 </span>            :                         const pxr::UsdAttribute &amp;usd_horiz_offset,</a>
+<a name="81"><span class="lineNum">      81 </span>            :                         const pxr::UsdAttribute &amp;usd_vert_offset,</a>
+<a name="82"><span class="lineNum">      82 </span>            :                         const pxr::UsdTimeCode initial_time,</a>
+<a name="83"><span class="lineNum">      83 </span>            :                         const double tenth_unit_to_millimeters,</a>
+<a name="84"><span class="lineNum">      84 </span>            :                         animrig::Channelbag &amp;channelbag)</a>
+<a name="85"><span class="lineNum">      85 </span>            : {</a>
+<a name="86"><span class="lineNum">      86 </span>            :   /* If the Aperture values are changing, that effects the sensor_fit and shift_x|y values as</a>
+<a name="87"><span class="lineNum">      87 </span>            :    * well. We need to put animation data on all of them. */</a>
+<a name="88"><span class="lineNum">      88 </span><span class="lineCov">         22 :   if (usd_horiz_aperture.ValueMightBeTimeVarying() || usd_vert_aperture.ValueMightBeTimeVarying())</span></a>
+<a name="89"><span class="lineNum">      89 </span>            :   {</a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineCov">          1 :     std::vector&lt;double&gt; times;</span></a>
+<a name="91"><span class="lineNum">      91 </span><span class="lineCov">          6 :     pxr::UsdAttribute::GetUnionedTimeSamples(</span></a>
+<a name="92"><span class="lineNum">      92 </span>            :         {usd_horiz_aperture, usd_vert_aperture, usd_horiz_offset, usd_vert_offset}, &amp;times);</a>
+<a name="93"><span class="lineNum">      93 </span>            : </a>
+<a name="94"><span class="lineNum">      94 </span>            :     std::array&lt;FCurve *, 5&gt; curves = {</a>
+<a name="95"><span class="lineNum">      95 </span><span class="lineCov">          1 :         create_fcurve(channelbag, {&quot;sensor_width&quot;, 0}, times.size()),</span></a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineCov">          1 :         create_fcurve(channelbag, {&quot;sensor_height&quot;, 0}, times.size()),</span></a>
+<a name="97"><span class="lineNum">      97 </span><span class="lineCov">          1 :         create_fcurve(channelbag, {&quot;sensor_fit&quot;, 0}, times.size()),</span></a>
+<a name="98"><span class="lineNum">      98 </span><span class="lineCov">          1 :         create_fcurve(channelbag, {&quot;shift_x&quot;, 0}, times.size()),</span></a>
+<a name="99"><span class="lineNum">      99 </span><span class="lineCov">          4 :         create_fcurve(channelbag, {&quot;shift_y&quot;, 0}, times.size())};</span></a>
+<a name="100"><span class="lineNum">     100 </span>            : </a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineCov">          6 :     for (int64_t i = 0; i &lt; times.size(); i++) {</span></a>
+<a name="102"><span class="lineNum">     102 </span><span class="lineCov">          5 :       const double time = times[i];</span></a>
+<a name="103"><span class="lineNum">     103 </span>            : </a>
+<a name="104"><span class="lineNum">     104 </span>            :       float horiz_aperture, vert_aperture;</a>
+<a name="105"><span class="lineNum">     105 </span>            :       float shift_x, shift_y;</a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineCov">          5 :       usd_horiz_aperture.Get(&amp;horiz_aperture, time);</span></a>
+<a name="107"><span class="lineNum">     107 </span><span class="lineCov">          5 :       usd_vert_aperture.Get(&amp;vert_aperture, time);</span></a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineCov">          5 :       usd_horiz_offset.Get(&amp;shift_x, time);</span></a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineCov">          5 :       usd_vert_offset.Get(&amp;shift_y, time);</span></a>
+<a name="110"><span class="lineNum">     110 </span>            : </a>
+<a name="111"><span class="lineNum">     111 </span><span class="lineCov">          5 :       const float sensor_x = horiz_aperture * tenth_unit_to_millimeters;</span></a>
+<a name="112"><span class="lineNum">     112 </span><span class="lineCov">          5 :       const float sensor_y = vert_aperture * tenth_unit_to_millimeters;</span></a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineCov">          5 :       const char sensor_fit = horiz_aperture &gt;= vert_aperture ? CAMERA_SENSOR_FIT_HOR :</span></a>
+<a name="114"><span class="lineNum">     114 </span>            :                                                                 CAMERA_SENSOR_FIT_VERT;</a>
+<a name="115"><span class="lineNum">     115 </span>            : </a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineCov">          5 :       const float sensor_size = sensor_x &gt;= sensor_y ? sensor_x : sensor_y;</span></a>
+<a name="117"><span class="lineNum">     117 </span><span class="lineCov">          5 :       shift_x = (shift_x * tenth_unit_to_millimeters) / sensor_size;</span></a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineCov">          5 :       shift_y = (shift_y * tenth_unit_to_millimeters) / sensor_size;</span></a>
+<a name="119"><span class="lineNum">     119 </span>            : </a>
+<a name="120"><span class="lineNum">     120 </span><span class="lineCov">          5 :       set_fcurve_sample(curves[0], i, float(time), sensor_x);</span></a>
+<a name="121"><span class="lineNum">     121 </span><span class="lineCov">          5 :       set_fcurve_sample(curves[1], i, float(time), sensor_y);</span></a>
+<a name="122"><span class="lineNum">     122 </span><span class="lineCov">          5 :       set_fcurve_sample(curves[2], i, float(time), sensor_fit);</span></a>
+<a name="123"><span class="lineNum">     123 </span><span class="lineCov">          5 :       set_fcurve_sample(curves[3], i, float(time), shift_x);</span></a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineCov">          5 :       set_fcurve_sample(curves[4], i, float(time), shift_y);</span></a>
+<a name="125"><span class="lineNum">     125 </span>            :     }</a>
+<a name="126"><span class="lineNum">     126 </span><span class="lineCov">          1 :   }</span></a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineCov">         21 :   else if (usd_horiz_offset.ValueMightBeTimeVarying() || usd_vert_offset.ValueMightBeTimeVarying())</span></a>
+<a name="128"><span class="lineNum">     128 </span>            :   {</a>
+<a name="129"><span class="lineNum">     129 </span>            :     /* Only the shift_x|y values are changing. Load in the initial values for aperture and</a>
+<a name="130"><span class="lineNum">     130 </span>            :      * sensor_fit and use those when setting the shift_x|y curves. */</a>
+<a name="131"><span class="lineNum">     131 </span>            :     float horiz_aperture, vert_aperture;</a>
+<a name="132"><span class="lineNum">     132 </span><span class="lineCov">          1 :     usd_horiz_aperture.Get(&amp;horiz_aperture, initial_time);</span></a>
+<a name="133"><span class="lineNum">     133 </span><span class="lineCov">          1 :     usd_vert_aperture.Get(&amp;vert_aperture, initial_time);</span></a>
+<a name="134"><span class="lineNum">     134 </span>            : </a>
+<a name="135"><span class="lineNum">     135 </span><span class="lineCov">          1 :     camera-&gt;sensor_x = horiz_aperture * tenth_unit_to_millimeters;</span></a>
+<a name="136"><span class="lineNum">     136 </span><span class="lineCov">          1 :     camera-&gt;sensor_y = vert_aperture * tenth_unit_to_millimeters;</span></a>
+<a name="137"><span class="lineNum">     137 </span><span class="lineCov">          1 :     camera-&gt;sensor_fit = camera-&gt;sensor_x &gt;= camera-&gt;sensor_y ? CAMERA_SENSOR_FIT_HOR :</span></a>
+<a name="138"><span class="lineNum">     138 </span>            :                                                                 CAMERA_SENSOR_FIT_VERT;</a>
+<a name="139"><span class="lineNum">     139 </span><span class="lineCov">          1 :     const float sensor_size = camera-&gt;sensor_x &gt;= camera-&gt;sensor_y ? camera-&gt;sensor_x :</span></a>
+<a name="140"><span class="lineNum">     140 </span>            :                                                                      camera-&gt;sensor_y;</a>
+<a name="141"><span class="lineNum">     141 </span>            : </a>
+<a name="142"><span class="lineNum">     142 </span><span class="lineCov">          1 :     std::vector&lt;double&gt; times;</span></a>
+<a name="143"><span class="lineNum">     143 </span><span class="lineCov">          1 :     if (usd_horiz_offset.GetTimeSamples(&amp;times)) {</span></a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineCov">          1 :       FCurve *fcu = create_fcurve(channelbag, {&quot;shift_x&quot;, 0}, times.size());</span></a>
+<a name="145"><span class="lineNum">     145 </span><span class="lineCov">          4 :       for (int64_t i = 0; i &lt; times.size(); i++) {</span></a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineCov">          3 :         const double time = times[i];</span></a>
+<a name="147"><span class="lineNum">     147 </span>            :         float shift;</a>
+<a name="148"><span class="lineNum">     148 </span><span class="lineCov">          3 :         usd_horiz_offset.Get(&amp;shift, time);</span></a>
+<a name="149"><span class="lineNum">     149 </span>            : </a>
+<a name="150"><span class="lineNum">     150 </span><span class="lineCov">          3 :         shift = (shift * tenth_unit_to_millimeters) / sensor_size;</span></a>
+<a name="151"><span class="lineNum">     151 </span><span class="lineCov">          3 :         set_fcurve_sample(fcu, i, float(time), shift);</span></a>
+<a name="152"><span class="lineNum">     152 </span>            :       }</a>
+<a name="153"><span class="lineNum">     153 </span>            :     }</a>
+<a name="154"><span class="lineNum">     154 </span>            : </a>
+<a name="155"><span class="lineNum">     155 </span><span class="lineCov">          1 :     if (usd_vert_offset.GetTimeSamples(&amp;times)) {</span></a>
+<a name="156"><span class="lineNum">     156 </span><span class="lineCov">          1 :       FCurve *fcu = create_fcurve(channelbag, {&quot;shift_y&quot;, 0}, times.size());</span></a>
+<a name="157"><span class="lineNum">     157 </span><span class="lineCov">          4 :       for (int64_t i = 0; i &lt; times.size(); i++) {</span></a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineCov">          3 :         const double time = times[i];</span></a>
+<a name="159"><span class="lineNum">     159 </span>            :         float shift;</a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineCov">          3 :         usd_vert_offset.Get(&amp;shift, time);</span></a>
+<a name="161"><span class="lineNum">     161 </span>            : </a>
+<a name="162"><span class="lineNum">     162 </span><span class="lineCov">          3 :         shift = (shift * tenth_unit_to_millimeters) / sensor_size;</span></a>
+<a name="163"><span class="lineNum">     163 </span><span class="lineCov">          3 :         set_fcurve_sample(fcu, i, float(time), shift);</span></a>
+<a name="164"><span class="lineNum">     164 </span>            :       }</a>
+<a name="165"><span class="lineNum">     165 </span>            :     }</a>
+<a name="166"><span class="lineNum">     166 </span><span class="lineCov">          1 :   }</span></a>
+<a name="167"><span class="lineNum">     167 </span>            :   else {</a>
+<a name="168"><span class="lineNum">     168 </span>            :     /* No animation data. */</a>
+<a name="169"><span class="lineNum">     169 </span>            :     float horiz_aperture, vert_aperture;</a>
+<a name="170"><span class="lineNum">     170 </span>            :     float shift_x, shift_y;</a>
+<a name="171"><span class="lineNum">     171 </span><span class="lineCov">         20 :     usd_horiz_aperture.Get(&amp;horiz_aperture, initial_time);</span></a>
+<a name="172"><span class="lineNum">     172 </span><span class="lineCov">         20 :     usd_vert_aperture.Get(&amp;vert_aperture, initial_time);</span></a>
+<a name="173"><span class="lineNum">     173 </span><span class="lineCov">         20 :     usd_horiz_offset.Get(&amp;shift_x, initial_time);</span></a>
+<a name="174"><span class="lineNum">     174 </span><span class="lineCov">         20 :     usd_vert_offset.Get(&amp;shift_y, initial_time);</span></a>
+<a name="175"><span class="lineNum">     175 </span>            : </a>
+<a name="176"><span class="lineNum">     176 </span><span class="lineCov">         20 :     camera-&gt;sensor_x = horiz_aperture * tenth_unit_to_millimeters;</span></a>
+<a name="177"><span class="lineNum">     177 </span><span class="lineCov">         20 :     camera-&gt;sensor_y = vert_aperture * tenth_unit_to_millimeters;</span></a>
+<a name="178"><span class="lineNum">     178 </span><span class="lineCov">         20 :     camera-&gt;sensor_fit = camera-&gt;sensor_x &gt;= camera-&gt;sensor_y ? CAMERA_SENSOR_FIT_HOR :</span></a>
+<a name="179"><span class="lineNum">     179 </span>            :                                                                 CAMERA_SENSOR_FIT_VERT;</a>
+<a name="180"><span class="lineNum">     180 </span><span class="lineCov">         20 :     const float sensor_size = camera-&gt;sensor_x &gt;= camera-&gt;sensor_y ? camera-&gt;sensor_x :</span></a>
+<a name="181"><span class="lineNum">     181 </span>            :                                                                      camera-&gt;sensor_y;</a>
+<a name="182"><span class="lineNum">     182 </span><span class="lineCov">         20 :     camera-&gt;shiftx = (shift_x * tenth_unit_to_millimeters) / sensor_size;</span></a>
+<a name="183"><span class="lineNum">     183 </span><span class="lineCov">         20 :     camera-&gt;shifty = (shift_y * tenth_unit_to_millimeters) / sensor_size;</span></a>
+<a name="184"><span class="lineNum">     184 </span>            :   }</a>
+<a name="185"><span class="lineNum">     185 </span><span class="lineCov">         23 : }</span></a>
+<a name="186"><span class="lineNum">     186 </span>            : </a>
+<a name="187"><span class="lineNum">     187 </span>            : }  // namespace</a>
+<a name="188"><span class="lineNum">     188 </span>            : </a>
+<a name="189"><span class="lineNum">     189 </span><span class="lineCov">         22 : void USDCameraReader::create_object(Main *bmain)</span></a>
+<a name="190"><span class="lineNum">     190 </span>            : {</a>
+<a name="191"><span class="lineNum">     191 </span><span class="lineCov">         22 :   Camera *camera = BKE_camera_add(bmain, name_.c_str());</span></a>
+<a name="192"><span class="lineNum">     192 </span>            : </a>
+<a name="193"><span class="lineNum">     193 </span><span class="lineCov">         22 :   object_ = BKE_object_add_only_object(bmain, OB_CAMERA, name_.c_str());</span></a>
+<a name="194"><span class="lineNum">     194 </span><span class="lineCov">         22 :   object_-&gt;data = id_cast&lt;ID *&gt;(camera);</span></a>
+<a name="195"><span class="lineNum">     195 </span><span class="lineCov">         22 : }</span></a>
+<a name="196"><span class="lineNum">     196 </span>            : </a>
+<a name="197"><span class="lineNum">     197 </span><span class="lineCov">         22 : void USDCameraReader::read_object_data(Main *bmain, const pxr::UsdTimeCode time)</span></a>
+<a name="198"><span class="lineNum">     198 </span>            : {</a>
+<a name="199"><span class="lineNum">     199 </span><span class="lineCov">         22 :   pxr::UsdAttribute usd_focal_length = cam_prim_.GetFocalLengthAttr();</span></a>
+<a name="200"><span class="lineNum">     200 </span><span class="lineCov">         22 :   pxr::UsdAttribute usd_focus_dist = cam_prim_.GetFocusDistanceAttr();</span></a>
+<a name="201"><span class="lineNum">     201 </span><span class="lineCov">         22 :   pxr::UsdAttribute usd_fstop = cam_prim_.GetFStopAttr();</span></a>
+<a name="202"><span class="lineNum">     202 </span><span class="lineCov">         22 :   pxr::UsdAttribute usd_clipping_range = cam_prim_.GetClippingRangeAttr();</span></a>
+<a name="203"><span class="lineNum">     203 </span><span class="lineCov">         22 :   pxr::UsdAttribute usd_horiz_aperture = cam_prim_.GetHorizontalApertureAttr();</span></a>
+<a name="204"><span class="lineNum">     204 </span><span class="lineCov">         22 :   pxr::UsdAttribute usd_vert_aperture = cam_prim_.GetVerticalApertureAttr();</span></a>
+<a name="205"><span class="lineNum">     205 </span><span class="lineCov">         22 :   pxr::UsdAttribute usd_horiz_offset = cam_prim_.GetHorizontalApertureOffsetAttr();</span></a>
+<a name="206"><span class="lineNum">     206 </span><span class="lineCov">         22 :   pxr::UsdAttribute usd_vert_offset = cam_prim_.GetVerticalApertureOffsetAttr();</span></a>
+<a name="207"><span class="lineNum">     207 </span>            : </a>
+<a name="208"><span class="lineNum">     208 </span>            :   /* If any of the camera attributes are time varying, then prepare the animation data. */</a>
+<a name="209"><span class="lineNum">     209 </span><span class="lineCov">         22 :   const bool is_time_varying = usd_focal_length.ValueMightBeTimeVarying() ||</span></a>
+<a name="210"><span class="lineNum">     210 </span><span class="lineCov">         21 :                                usd_focus_dist.ValueMightBeTimeVarying() ||</span></a>
+<a name="211"><span class="lineNum">     211 </span><span class="lineCov">         21 :                                usd_fstop.ValueMightBeTimeVarying() ||</span></a>
+<a name="212"><span class="lineNum">     212 </span><span class="lineCov">         21 :                                usd_clipping_range.ValueMightBeTimeVarying() ||</span></a>
+<a name="213"><span class="lineNum">     213 </span><span class="lineCov">         20 :                                usd_horiz_aperture.ValueMightBeTimeVarying() ||</span></a>
+<a name="214"><span class="lineNum">     214 </span><span class="lineCov">         19 :                                usd_vert_aperture.ValueMightBeTimeVarying() ||</span></a>
+<a name="215"><span class="lineNum">     215 </span><span class="lineCov">         61 :                                usd_horiz_offset.ValueMightBeTimeVarying() ||</span></a>
+<a name="216"><span class="lineNum">     216 </span><span class="lineCov">         18 :                                usd_vert_offset.ValueMightBeTimeVarying();</span></a>
+<a name="217"><span class="lineNum">     217 </span>            : </a>
+<a name="218"><span class="lineNum">     218 </span><span class="lineCov">         22 :   Camera *camera = id_cast&lt;Camera *&gt;(object_-&gt;data);</span></a>
+<a name="219"><span class="lineNum">     219 </span>            : </a>
+<a name="220"><span class="lineNum">     220 </span><span class="lineCov">         22 :   bAction *action = nullptr;</span></a>
+<a name="221"><span class="lineNum">     221 </span><span class="lineCov">         22 :   if (is_time_varying) {</span></a>
+<a name="222"><span class="lineNum">     222 </span><span class="lineCov">          4 :     action = animrig::id_action_ensure(bmain, &amp;camera-&gt;id);</span></a>
+<a name="223"><span class="lineNum">     223 </span>            :   }</a>
+<a name="224"><span class="lineNum">     224 </span>            : </a>
+<a name="225"><span class="lineNum">     225 </span><span class="lineCov">         22 :   animrig::Channelbag empty{};</span></a>
+<a name="226"><span class="lineNum">     226 </span><span class="lineCov">         22 :   animrig::Channelbag &amp;channelbag = is_time_varying ?</span></a>
+<a name="227"><span class="lineNum">     227 </span><span class="lineCov">          4 :                                         animrig::action_channelbag_ensure(*action, camera-&gt;id) :</span></a>
+<a name="228"><span class="lineNum">     228 </span><span class="lineCov">         22 :                                         empty;</span></a>
+<a name="229"><span class="lineNum">     229 </span>            : </a>
+<a name="230"><span class="lineNum">     230 </span>            :   /*</a>
+<a name="231"><span class="lineNum">     231 </span>            :    * In USD, some camera properties are in tenths of a world unit.</a>
+<a name="232"><span class="lineNum">     232 </span>            :    * https://graphics.pixar.com/usd/release/api/class_usd_geom_camera.html#UsdGeom_CameraUnits</a>
+<a name="233"><span class="lineNum">     233 </span>            :    *</a>
+<a name="234"><span class="lineNum">     234 </span>            :    * tenth_unit_to_meters  = stage_meters_per_unit / 10</a>
+<a name="235"><span class="lineNum">     235 </span>            :    * tenth_unit_to_millimeters = 1000 * tenth_unit_to_meters</a>
+<a name="236"><span class="lineNum">     236 </span>            :    *                           = 100 * stage_meters_per_unit</a>
+<a name="237"><span class="lineNum">     237 </span>            :    */</a>
+<a name="238"><span class="lineNum">     238 </span><span class="lineCov">         22 :   const double tenth_unit_to_millimeters = 100.0 * settings_-&gt;stage_meters_per_unit;</span></a>
+<a name="239"><span class="lineNum">     239 </span><span class="lineCov">         66 :   auto scale_default = [](std::optional&lt;float&gt; input, double scale, float default_value) {</span></a>
+<a name="240"><span class="lineNum">     240 </span><span class="lineCov">         66 :     return input.has_value() ? input.value() * scale : default_value;</span></a>
+<a name="241"><span class="lineNum">     241 </span>            :   };</a>
+<a name="242"><span class="lineNum">     242 </span>            : </a>
+<a name="243"><span class="lineNum">     243 </span><span class="lineCov">         22 :   AttributeData&lt;float&gt; data;</span></a>
+<a name="244"><span class="lineNum">     244 </span><span class="lineCov">         22 :   if (read_attribute_values(usd_focal_length, time, data)) {</span></a>
+<a name="245"><span class="lineNum">     245 </span><span class="lineCov">         22 :     camera-&gt;lens = scale_default(data.initial_value, tenth_unit_to_millimeters, camera-&gt;lens);</span></a>
+<a name="246"><span class="lineNum">     246 </span>            : </a>
+<a name="247"><span class="lineNum">     247 </span><span class="lineCov">         22 :     if (!data.samples.is_empty()) {</span></a>
+<a name="248"><span class="lineNum">     248 </span><span class="lineCov">          1 :       FCurve *fcu = create_fcurve(channelbag, {&quot;lens&quot;, 0}, data.samples.size());</span></a>
+<a name="249"><span class="lineNum">     249 </span><span class="lineCov">          5 :       for (int64_t i = 0; i &lt; data.samples.size(); i++) {</span></a>
+<a name="250"><span class="lineNum">     250 </span><span class="lineCov">          4 :         const SampleData&lt;float&gt; &amp;sample = data.samples[i];</span></a>
+<a name="251"><span class="lineNum">     251 </span><span class="lineCov">          4 :         set_fcurve_sample(fcu, i, sample.frame, sample.value * tenth_unit_to_millimeters);</span></a>
+<a name="252"><span class="lineNum">     252 </span>            :       }</a>
+<a name="253"><span class="lineNum">     253 </span>            :     }</a>
+<a name="254"><span class="lineNum">     254 </span>            :   }</a>
+<a name="255"><span class="lineNum">     255 </span>            : </a>
+<a name="256"><span class="lineNum">     256 </span><span class="lineCov">         22 :   if (read_attribute_values(usd_focus_dist, time, data)) {</span></a>
+<a name="257"><span class="lineNum">     257 </span><span class="lineCov">         44 :     camera-&gt;dof.focus_distance = scale_default(</span></a>
+<a name="258"><span class="lineNum">     258 </span><span class="lineCov">         22 :         data.initial_value, this-&gt;settings_-&gt;scene_scale, camera-&gt;dof.focus_distance);</span></a>
+<a name="259"><span class="lineNum">     259 </span>            : </a>
+<a name="260"><span class="lineNum">     260 </span><span class="lineCov">         22 :     if (!data.samples.is_empty()) {</span></a>
+<a name="261"><span class="lineNum">     261 </span><span class="lineCov">          1 :       FCurve *fcu = create_fcurve(channelbag, {&quot;dof.focus_distance&quot;, 0}, data.samples.size());</span></a>
+<a name="262"><span class="lineNum">     262 </span><span class="lineCov">          5 :       for (int64_t i = 0; i &lt; data.samples.size(); i++) {</span></a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineCov">          4 :         const SampleData&lt;float&gt; &amp;sample = data.samples[i];</span></a>
+<a name="264"><span class="lineNum">     264 </span><span class="lineCov">          4 :         set_fcurve_sample(fcu, i, sample.frame, sample.value * this-&gt;settings_-&gt;scene_scale);</span></a>
+<a name="265"><span class="lineNum">     265 </span>            :       }</a>
+<a name="266"><span class="lineNum">     266 </span>            :     }</a>
+<a name="267"><span class="lineNum">     267 </span>            :   }</a>
+<a name="268"><span class="lineNum">     268 </span>            : </a>
+<a name="269"><span class="lineNum">     269 </span>            :   /* The FStop controls camera focusing and values of 0.0 should disable DOF.</a>
+<a name="270"><span class="lineNum">     270 </span>            :    * https://openusd.org/release/api/class_usd_geom_camera.html#a335e1647b730a575e3c0565e91eb8d49</a>
+<a name="271"><span class="lineNum">     271 </span>            :    */</a>
+<a name="272"><span class="lineNum">     272 </span><span class="lineCov">         22 :   if (read_attribute_values(usd_fstop, time, data)) {</span></a>
+<a name="273"><span class="lineNum">     273 </span><span class="lineCov">         22 :     camera-&gt;dof.aperture_fstop = scale_default(data.initial_value, 1, camera-&gt;dof.aperture_fstop);</span></a>
+<a name="274"><span class="lineNum">     274 </span><span class="lineCov">         22 :     camera-&gt;dof.flag |= data.initial_value.value_or(0.0f) != 0.0f ? CAM_DOF_ENABLED :</span></a>
+<a name="275"><span class="lineNum">     275 </span><span class="lineCov">         22 :                                                                     eCamera_DOF_Flag{};</span></a>
+<a name="276"><span class="lineNum">     276 </span>            : </a>
+<a name="277"><span class="lineNum">     277 </span><span class="lineCov">         22 :     if (!data.samples.is_empty()) {</span></a>
+<a name="278"><span class="lineNum">     278 </span><span class="lineCov">          1 :       FCurve *curve1 = create_fcurve(channelbag, {&quot;dof.aperture_fstop&quot;, 0}, data.samples.size());</span></a>
+<a name="279"><span class="lineNum">     279 </span><span class="lineCov">          1 :       FCurve *curve2 = create_fcurve(channelbag, {&quot;dof.use_dof&quot;, 0}, data.samples.size());</span></a>
+<a name="280"><span class="lineNum">     280 </span><span class="lineCov">          6 :       for (int64_t i = 0; i &lt; data.samples.size(); i++) {</span></a>
+<a name="281"><span class="lineNum">     281 </span><span class="lineCov">          5 :         const SampleData&lt;float&gt; &amp;sample = data.samples[i];</span></a>
+<a name="282"><span class="lineNum">     282 </span><span class="lineCov">          5 :         const bool use_dof = sample.value != 0.0f;</span></a>
+<a name="283"><span class="lineNum">     283 </span><span class="lineCov">          5 :         set_fcurve_sample(curve1, i, sample.frame, sample.value);</span></a>
+<a name="284"><span class="lineNum">     284 </span><span class="lineCov">          5 :         set_fcurve_sample(curve2, i, sample.frame, use_dof);</span></a>
+<a name="285"><span class="lineNum">     285 </span>            :       }</a>
+<a name="286"><span class="lineNum">     286 </span>            :     }</a>
+<a name="287"><span class="lineNum">     287 </span>            :   }</a>
+<a name="288"><span class="lineNum">     288 </span>            : </a>
+<a name="289"><span class="lineNum">     289 </span><span class="lineCov">         22 :   AttributeData&lt;pxr::GfVec2f&gt; clip_data;</span></a>
+<a name="290"><span class="lineNum">     290 </span><span class="lineCov">         22 :   if (read_attribute_values(usd_clipping_range, time, clip_data)) {</span></a>
+<a name="291"><span class="lineNum">     291 </span><span class="lineCov">         27 :     auto clamp_clip = [this](pxr::GfVec2f value) {</span></a>
+<a name="292"><span class="lineNum">     292 </span>            :       /* Clamp the value for clip-start, matching the range defined in RNA. */</a>
+<a name="293"><span class="lineNum">     293 </span><span class="lineCov">         27 :       return pxr::GfVec2f(max_ff(1e-6f, value[0] * settings_-&gt;scene_scale),</span></a>
+<a name="294"><span class="lineNum">     294 </span><span class="lineCov">         27 :                           value[1] * settings_-&gt;scene_scale);</span></a>
+<a name="295"><span class="lineNum">     295 </span><span class="lineCov">         22 :     };</span></a>
+<a name="296"><span class="lineNum">     296 </span>            : </a>
+<a name="297"><span class="lineNum">     297 </span><span class="lineCov">         22 :     pxr::GfVec2f clip_range = clip_data.initial_value.has_value() ?</span></a>
+<a name="298"><span class="lineNum">     298 </span><span class="lineCov">         22 :                                   clamp_clip(clip_data.initial_value.value()) :</span></a>
+<a name="299"><span class="lineNum">     299 </span><span class="lineNoCov">          0 :                                   pxr::GfVec2f(camera-&gt;clip_start, camera-&gt;clip_end);</span></a>
+<a name="300"><span class="lineNum">     300 </span><span class="lineCov">         22 :     camera-&gt;clip_start = clip_range[0];</span></a>
+<a name="301"><span class="lineNum">     301 </span><span class="lineCov">         22 :     camera-&gt;clip_end = clip_range[1];</span></a>
+<a name="302"><span class="lineNum">     302 </span>            : </a>
+<a name="303"><span class="lineNum">     303 </span><span class="lineCov">         22 :     if (!clip_data.samples.is_empty()) {</span></a>
+<a name="304"><span class="lineNum">     304 </span>            :       std::array&lt;FCurve *, 2&gt; curves = {</a>
+<a name="305"><span class="lineNum">     305 </span><span class="lineCov">          1 :           create_fcurve(channelbag, {&quot;clip_start&quot;, 0}, clip_data.samples.size()),</span></a>
+<a name="306"><span class="lineNum">     306 </span><span class="lineCov">          1 :           create_fcurve(channelbag, {&quot;clip_end&quot;, 0}, clip_data.samples.size())};</span></a>
+<a name="307"><span class="lineNum">     307 </span>            : </a>
+<a name="308"><span class="lineNum">     308 </span><span class="lineCov">          6 :       for (int64_t i = 0; i &lt; clip_data.samples.size(); i++) {</span></a>
+<a name="309"><span class="lineNum">     309 </span><span class="lineCov">          5 :         const SampleData&lt;pxr::GfVec2f&gt; &amp;sample = clip_data.samples[i];</span></a>
+<a name="310"><span class="lineNum">     310 </span><span class="lineCov">          5 :         clip_range = clamp_clip(sample.value);</span></a>
+<a name="311"><span class="lineNum">     311 </span><span class="lineCov">          5 :         set_fcurve_sample(curves[0], i, sample.frame, clip_range[0]);</span></a>
+<a name="312"><span class="lineNum">     312 </span><span class="lineCov">          5 :         set_fcurve_sample(curves[1], i, sample.frame, clip_range[1]);</span></a>
+<a name="313"><span class="lineNum">     313 </span>            :       }</a>
+<a name="314"><span class="lineNum">     314 </span>            :     }</a>
+<a name="315"><span class="lineNum">     315 </span>            :   }</a>
+<a name="316"><span class="lineNum">     316 </span>            : </a>
+<a name="317"><span class="lineNum">     317 </span>            :   /* Aperture data impacts sensor size, sensor fit, and shift values simultaneously. */</a>
+<a name="318"><span class="lineNum">     318 </span><span class="lineCov">         22 :   read_aperture_data(camera,</span></a>
+<a name="319"><span class="lineNum">     319 </span>            :                      usd_horiz_aperture,</a>
+<a name="320"><span class="lineNum">     320 </span>            :                      usd_vert_aperture,</a>
+<a name="321"><span class="lineNum">     321 </span>            :                      usd_horiz_offset,</a>
+<a name="322"><span class="lineNum">     322 </span>            :                      usd_vert_offset,</a>
+<a name="323"><span class="lineNum">     323 </span>            :                      time,</a>
+<a name="324"><span class="lineNum">     324 </span>            :                      tenth_unit_to_millimeters,</a>
+<a name="325"><span class="lineNum">     325 </span>            :                      channelbag);</a>
+<a name="326"><span class="lineNum">     326 </span>            : </a>
+<a name="327"><span class="lineNum">     327 </span>            :   /* USD Orthographic cameras have very limited support. Support a basic, non-animated, translation</a>
+<a name="328"><span class="lineNum">     328 </span>            :    * between USD and Blender. */</a>
+<a name="329"><span class="lineNum">     329 </span><span class="lineCov">         22 :   pxr::TfToken projection;</span></a>
+<a name="330"><span class="lineNum">     330 </span><span class="lineCov">         22 :   cam_prim_.GetProjectionAttr().Get(&amp;projection, time);</span></a>
+<a name="331"><span class="lineNum">     331 </span><span class="lineCov">         22 :   camera-&gt;type = (projection.GetString() == &quot;perspective&quot;) ? CAM_PERSP : CAM_ORTHO;</span></a>
+<a name="332"><span class="lineNum">     332 </span><span class="lineCov">         22 :   if (camera-&gt;type == CAM_ORTHO) {</span></a>
+<a name="333"><span class="lineNum">     333 </span>            :     float horiz_aperture, vert_aperture;</a>
+<a name="334"><span class="lineNum">     334 </span><span class="lineNoCov">          0 :     usd_horiz_aperture.Get(&amp;horiz_aperture, time);</span></a>
+<a name="335"><span class="lineNum">     335 </span><span class="lineNoCov">          0 :     usd_vert_aperture.Get(&amp;vert_aperture, time);</span></a>
+<a name="336"><span class="lineNum">     336 </span><span class="lineNoCov">          0 :     camera-&gt;ortho_scale = max_ff(vert_aperture, horiz_aperture);</span></a>
+<a name="337"><span class="lineNum">     337 </span>            :   }</a>
+<a name="338"><span class="lineNum">     338 </span>            : </a>
+<a name="339"><span class="lineNum">     339 </span>            :   /* Recalculate any animation curve handles. */</a>
+<a name="340"><span class="lineNum">     340 </span><span class="lineCov">         35 :   for (FCurve *fcu : channelbag.fcurves()) {</span></a>
+<a name="341"><span class="lineNum">     341 </span><span class="lineCov">         13 :     if (fcu) {</span></a>
+<a name="342"><span class="lineNum">     342 </span><span class="lineCov">         13 :       BKE_fcurve_handles_recalc(*fcu);</span></a>
+<a name="343"><span class="lineNum">     343 </span>            :     }</a>
+<a name="344"><span class="lineNum">     344 </span>            :   }</a>
+<a name="345"><span class="lineNum">     345 </span>            : </a>
+<a name="346"><span class="lineNum">     346 </span><span class="lineCov">         22 :   USDXformReader::read_object_data(bmain, time);</span></a>
+<a name="347"><span class="lineNum">     347 </span><span class="lineCov">         22 : }</span></a>
+<a name="348"><span class="lineNum">     348 </span>            : </a>
+<a name="349"><span class="lineNum">     349 </span>            : }  // namespace blender::io::usd</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

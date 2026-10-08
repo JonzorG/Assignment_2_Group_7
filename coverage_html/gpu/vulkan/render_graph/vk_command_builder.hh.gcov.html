@@ -1,0 +1,452 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - gpu/vulkan/render_graph/vk_command_builder.hh</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">gpu/vulkan/render_graph</a> - vk_command_builder.hh<span style="font-size: 80%;"> (source / <a href="vk_command_builder.hh.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2024 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup gpu</a>
+<a name="7"><span class="lineNum">       7 </span>            :  */</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #pragma once</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &quot;BLI_set.hh&quot;</a>
+<a name="12"><span class="lineNum">      12 </span>            : </a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;vk_common.hh&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;vk_render_graph_node.hh&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;vk_scheduler.hh&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : </a>
+<a name="17"><span class="lineNum">      17 </span>            : namespace blender::gpu::render_graph {</a>
+<a name="18"><span class="lineNum">      18 </span>            : class VKRenderGraph;</a>
+<a name="19"><span class="lineNum">      19 </span>            : </a>
+<a name="20"><span class="lineNum">      20 </span>            : struct LayeredImageBinding {</a>
+<a name="21"><span class="lineNum">      21 </span>            :   VkImage vk_image;</a>
+<a name="22"><span class="lineNum">      22 </span>            :   VkImageLayout vk_image_layout;</a>
+<a name="23"><span class="lineNum">      23 </span>            :   uint32_t layer;</a>
+<a name="24"><span class="lineNum">      24 </span>            :   uint32_t layer_count;</a>
+<a name="25"><span class="lineNum">      25 </span>            : };</a>
+<a name="26"><span class="lineNum">      26 </span>            : </a>
+<a name="27"><span class="lineNum">      27 </span>            : /**</a>
+<a name="28"><span class="lineNum">      28 </span>            :  * Build the command buffer for sending to the device queue.</a>
+<a name="29"><span class="lineNum">      29 </span>            :  *</a>
+<a name="30"><span class="lineNum">      30 </span>            :  * Determine which nodes needs to be scheduled, Then for each node generate the needed pipeline</a>
+<a name="31"><span class="lineNum">      31 </span>            :  * barriers and commands.</a>
+<a name="32"><span class="lineNum">      32 </span>            :  */</a>
+<a name="33"><span class="lineNum">      33 </span>            : class VKCommandBuilder {</a>
+<a name="34"><span class="lineNum">      34 </span>            :  private:</a>
+<a name="35"><span class="lineNum">      35 </span>            :   /**</a>
+<a name="36"><span class="lineNum">      36 </span>            :    * List of all extracted VkBufferMemoryBarriers. These barriers will be referenced by</a>
+<a name="37"><span class="lineNum">      37 </span>            :    * Barrier::buffer_memory_barriers.</a>
+<a name="38"><span class="lineNum">      38 </span>            :    */</a>
+<a name="39"><span class="lineNum">      39 </span>            :   Vector&lt;VkBufferMemoryBarrier&gt; vk_buffer_memory_barriers_;</a>
+<a name="40"><span class="lineNum">      40 </span>            :   /**</a>
+<a name="41"><span class="lineNum">      41 </span>            :    * List of all extracted VkImageMemoryBarriers. These barriers will be referenced by</a>
+<a name="42"><span class="lineNum">      42 </span>            :    * Barrier::image_memory_barriers.</a>
+<a name="43"><span class="lineNum">      43 </span>            :    */</a>
+<a name="44"><span class="lineNum">      44 </span>            :   Vector&lt;VkImageMemoryBarrier&gt; vk_image_memory_barriers_;</a>
+<a name="45"><span class="lineNum">      45 </span>            : </a>
+<a name="46"><span class="lineNum">      46 </span>            :   struct Barrier {</a>
+<a name="47"><span class="lineNum">      47 </span>            :     /** Index range into `VKCommandBuilder::vk_buffer_memory_barriers_` */</a>
+<a name="48"><span class="lineNum">      48 </span>            :     IndexRange buffer_memory_barriers;</a>
+<a name="49"><span class="lineNum">      49 </span>            :     /** Index range into `VKCommandBuilder::vk_image_memory_barriers_` */</a>
+<a name="50"><span class="lineNum">      50 </span>            :     IndexRange image_memory_barriers;</a>
+<a name="51"><span class="lineNum">      51 </span>            : </a>
+<a name="52"><span class="lineNum">      52 </span>            :     VkPipelineStageFlags src_stage_mask = VK_PIPELINE_STAGE_NONE;</a>
+<a name="53"><span class="lineNum">      53 </span>            :     VkPipelineStageFlags dst_stage_mask = VK_PIPELINE_STAGE_NONE;</a>
+<a name="54"><span class="lineNum">      54 </span>            : </a>
+<a name="55"><span class="lineNum">      55 </span><span class="lineNoCov">          0 :     bool is_empty() const</span></a>
+<a name="56"><span class="lineNum">      56 </span>            :     {</a>
+<a name="57"><span class="lineNum">      57 </span><span class="lineNoCov">          0 :       return buffer_memory_barriers.is_empty() &amp;&amp; image_memory_barriers.is_empty();</span></a>
+<a name="58"><span class="lineNum">      58 </span>            :     }</a>
+<a name="59"><span class="lineNum">      59 </span>            :   };</a>
+<a name="60"><span class="lineNum">      60 </span>            : </a>
+<a name="61"><span class="lineNum">      61 </span>            :   /**</a>
+<a name="62"><span class="lineNum">      62 </span>            :    * An image can consist out of layers and mipmaps. In some cases each layer/mipmap can get</a>
+<a name="63"><span class="lineNum">      63 </span>            :    * different VkImageLayouts. To not complicate the global state tracker we track sub-resources</a>
+<a name="64"><span class="lineNum">      64 </span>            :    * only when building the barriers.</a>
+<a name="65"><span class="lineNum">      65 </span>            :    */</a>
+<a name="66"><span class="lineNum">      66 </span>            :   struct ImageTracker {</a>
+<a name="67"><span class="lineNum">      67 </span>            :     /**</a>
+<a name="68"><span class="lineNum">      68 </span>            :      * Local reference to the active command builder.</a>
+<a name="69"><span class="lineNum">      69 </span>            :      *</a>
+<a name="70"><span class="lineNum">      70 </span>            :      * The reference is used to add VkImageMemoryBarrier's to the command builder.</a>
+<a name="71"><span class="lineNum">      71 </span>            :      */</a>
+<a name="72"><span class="lineNum">      72 </span>            :     VKCommandBuilder &amp;command_builder;</a>
+<a name="73"><span class="lineNum">      73 </span><span class="lineNoCov">          0 :     ImageTracker(VKCommandBuilder &amp;command_builder) : command_builder(command_builder) {}</span></a>
+<a name="74"><span class="lineNum">      74 </span>            : </a>
+<a name="75"><span class="lineNum">      75 </span>            :     /**</a>
+<a name="76"><span class="lineNum">      76 </span>            :      * All layered attachments of the last rendering scope (VKNodeType::BEGIN_RENDERING).</a>
+<a name="77"><span class="lineNum">      77 </span>            :      *</a>
+<a name="78"><span class="lineNum">      78 </span>            :      * When binding layer from these images we expect that they aren't used as attachment and can</a>
+<a name="79"><span class="lineNum">      79 </span>            :      * be transitioned into a different image layout. These image layouts are stored in</a>
+<a name="80"><span class="lineNum">      80 </span>            :      * `layered_bindings`.</a>
+<a name="81"><span class="lineNum">      81 </span>            :      */</a>
+<a name="82"><span class="lineNum">      82 </span>            :     Set&lt;VkImage&gt; tracked_attachments;</a>
+<a name="83"><span class="lineNum">      83 </span>            : </a>
+<a name="84"><span class="lineNum">      84 </span>            :     /**</a>
+<a name="85"><span class="lineNum">      85 </span>            :      * Keep track of the changes to images since the start of the rendering scope. This allows</a>
+<a name="86"><span class="lineNum">      86 </span>            :      * reverting and rebuilding the correct state when ending or resuming the render scope.</a>
+<a name="87"><span class="lineNum">      87 </span>            :      */</a>
+<a name="88"><span class="lineNum">      88 </span>            :     struct SubImageChange {</a>
+<a name="89"><span class="lineNum">      89 </span>            :       VkImage vk_image;</a>
+<a name="90"><span class="lineNum">      90 </span>            :       VkImageLayout vk_image_layout;</a>
+<a name="91"><span class="lineNum">      91 </span>            :       VkImageAspectFlags vk_image_aspect;</a>
+<a name="92"><span class="lineNum">      92 </span>            :       VKSubImageRange subimage;</a>
+<a name="93"><span class="lineNum">      93 </span>            :     };</a>
+<a name="94"><span class="lineNum">      94 </span>            :     Vector&lt;SubImageChange&gt; changes;</a>
+<a name="95"><span class="lineNum">      95 </span>            : </a>
+<a name="96"><span class="lineNum">      96 </span>            :     /**</a>
+<a name="97"><span class="lineNum">      97 </span>            :      * Update the layered attachments list when beginning a new render scope.</a>
+<a name="98"><span class="lineNum">      98 </span>            :      *</a>
+<a name="99"><span class="lineNum">      99 </span>            :      * node_handle should be a handle that points to a VKNodeType::BEGIN_RENDERING.</a>
+<a name="100"><span class="lineNum">     100 </span>            :      * Any attachments that are layered will be added to the `tracked_attachments` list.</a>
+<a name="101"><span class="lineNum">     101 </span>            :      */</a>
+<a name="102"><span class="lineNum">     102 </span>            :     void begin(const VKRenderGraph &amp;render_graph, NodeHandle node_handle);</a>
+<a name="103"><span class="lineNum">     103 </span>            : </a>
+<a name="104"><span class="lineNum">     104 </span>            :     /**</a>
+<a name="105"><span class="lineNum">     105 </span>            :      * Is layered tracking enabled for the given vk_image.</a>
+<a name="106"><span class="lineNum">     106 </span>            :      */</a>
+<a name="107"><span class="lineNum">     107 </span><span class="lineNoCov">          0 :     inline bool contains(VkImage vk_image) const</span></a>
+<a name="108"><span class="lineNum">     108 </span>            :     {</a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineNoCov">          0 :       return tracked_attachments.contains(vk_image);</span></a>
+<a name="110"><span class="lineNum">     110 </span>            :     }</a>
+<a name="111"><span class="lineNum">     111 </span>            : </a>
+<a name="112"><span class="lineNum">     112 </span>            :     /**</a>
+<a name="113"><span class="lineNum">     113 </span>            :      * Ensure the layout of a layer.</a>
+<a name="114"><span class="lineNum">     114 </span>            :      *</a>
+<a name="115"><span class="lineNum">     115 </span>            :      * - `old_layout` should be the expected layout of the full image.</a>
+<a name="116"><span class="lineNum">     116 </span>            :      */</a>
+<a name="117"><span class="lineNum">     117 </span>            :     void update(VkImage vk_image,</a>
+<a name="118"><span class="lineNum">     118 </span>            :                 const VKSubImageRange &amp;subimage,</a>
+<a name="119"><span class="lineNum">     119 </span>            :                 VkImageLayout old_layout,</a>
+<a name="120"><span class="lineNum">     120 </span>            :                 VkImageLayout new_layout,</a>
+<a name="121"><span class="lineNum">     121 </span>            :                 VkImageAspectFlags aspect,</a>
+<a name="122"><span class="lineNum">     122 </span>            :                 Barrier &amp;r_barrier);</a>
+<a name="123"><span class="lineNum">     123 </span>            :     /**</a>
+<a name="124"><span class="lineNum">     124 </span>            :      * Ensure the layout of a mipmap level.</a>
+<a name="125"><span class="lineNum">     125 </span>            :      *</a>
+<a name="126"><span class="lineNum">     126 </span>            :      * - `old_layout` should be the expected layout of the full image.</a>
+<a name="127"><span class="lineNum">     127 </span>            :      */</a>
+<a name="128"><span class="lineNum">     128 </span>            :     void update(VkImage vk_image,</a>
+<a name="129"><span class="lineNum">     129 </span>            :                 uint32_t mipmap_level,</a>
+<a name="130"><span class="lineNum">     130 </span>            :                 VkImageLayout old_layout,</a>
+<a name="131"><span class="lineNum">     131 </span>            :                 VkImageLayout new_layout,</a>
+<a name="132"><span class="lineNum">     132 </span>            :                 VkImageAspectFlags aspect,</a>
+<a name="133"><span class="lineNum">     133 </span>            :                 Barrier &amp;r_barrier);</a>
+<a name="134"><span class="lineNum">     134 </span>            : </a>
+<a name="135"><span class="lineNum">     135 </span>            :     /**</a>
+<a name="136"><span class="lineNum">     136 </span>            :      * End layer tracking.</a>
+<a name="137"><span class="lineNum">     137 </span>            :      *</a>
+<a name="138"><span class="lineNum">     138 </span>            :      * All modified layers (layer_tracking_update) will be changed back to the image layout of</a>
+<a name="139"><span class="lineNum">     139 </span>            :      * the texture (most likely a `VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL`).</a>
+<a name="140"><span class="lineNum">     140 </span>            :      *</a>
+<a name="141"><span class="lineNum">     141 </span>            :      * Render suspension/resuming will not work after calling this method.</a>
+<a name="142"><span class="lineNum">     142 </span>            :      */</a>
+<a name="143"><span class="lineNum">     143 </span>            :     void end(Barrier &amp;r_barrier, bool use_local_read);</a>
+<a name="144"><span class="lineNum">     144 </span>            : </a>
+<a name="145"><span class="lineNum">     145 </span>            :     /**</a>
+<a name="146"><span class="lineNum">     146 </span>            :      * Suspend layer tracking</a>
+<a name="147"><span class="lineNum">     147 </span>            :      *</a>
+<a name="148"><span class="lineNum">     148 </span>            :      * Temporarily suspend layer tracking. This transits all modified layers back to its original</a>
+<a name="149"><span class="lineNum">     149 </span>            :      * layout.</a>
+<a name="150"><span class="lineNum">     150 </span>            :      * NOTE: Only call this method when you the rendering will be resumed, otherwise use</a>
+<a name="151"><span class="lineNum">     151 </span>            :      * `layer_tracking_end`.</a>
+<a name="152"><span class="lineNum">     152 </span>            :      */</a>
+<a name="153"><span class="lineNum">     153 </span>            :     void suspend(Barrier &amp;r_barrier, bool use_local_read);</a>
+<a name="154"><span class="lineNum">     154 </span>            : </a>
+<a name="155"><span class="lineNum">     155 </span>            :     /**</a>
+<a name="156"><span class="lineNum">     156 </span>            :      * Resume suspended layer tracking.</a>
+<a name="157"><span class="lineNum">     157 </span>            :      *</a>
+<a name="158"><span class="lineNum">     158 </span>            :      * Resume suspended layer tracking. This transits all registered layers back to its modified</a>
+<a name="159"><span class="lineNum">     159 </span>            :      * state.</a>
+<a name="160"><span class="lineNum">     160 </span>            :      */</a>
+<a name="161"><span class="lineNum">     161 </span>            :     void resume(Barrier &amp;r_barrier, bool use_local_read);</a>
+<a name="162"><span class="lineNum">     162 </span>            :   };</a>
+<a name="163"><span class="lineNum">     163 </span>            : </a>
+<a name="164"><span class="lineNum">     164 </span>            :   /**</a>
+<a name="165"><span class="lineNum">     165 </span>            :    * Index range of the nodes of a group.</a>
+<a name="166"><span class="lineNum">     166 </span>            :    *</a>
+<a name="167"><span class="lineNum">     167 </span>            :    * The indexes are to `VKScheduler::result_` that is passed along `Span&lt;NodeHandle&gt; nodes` of</a>
+<a name="168"><span class="lineNum">     168 </span>            :    * `build_nodes`.</a>
+<a name="169"><span class="lineNum">     169 </span>            :    */</a>
+<a name="170"><span class="lineNum">     170 </span>            :   using GroupNodes = IndexRange;</a>
+<a name="171"><span class="lineNum">     171 </span>            : </a>
+<a name="172"><span class="lineNum">     172 </span>            :   /**</a>
+<a name="173"><span class="lineNum">     173 </span>            :    * Index range into barrier_list_;</a>
+<a name="174"><span class="lineNum">     174 </span>            :    */</a>
+<a name="175"><span class="lineNum">     175 </span>            :   using Barriers = IndexRange;</a>
+<a name="176"><span class="lineNum">     176 </span>            :   using BarrierIndex = int64_t;</a>
+<a name="177"><span class="lineNum">     177 </span>            : </a>
+<a name="178"><span class="lineNum">     178 </span>            :   /** Per group store the indices of the nodes. */</a>
+<a name="179"><span class="lineNum">     179 </span>            :   Vector&lt;GroupNodes&gt; group_nodes_;</a>
+<a name="180"><span class="lineNum">     180 </span>            :   /** Barriers that will be recorded just before the commands of a group are recorded. */</a>
+<a name="181"><span class="lineNum">     181 </span>            :   Vector&lt;Barriers&gt; group_pre_barriers_;</a>
+<a name="182"><span class="lineNum">     182 </span>            :   /** Barriers that will be recorded after a group is recorded. */</a>
+<a name="183"><span class="lineNum">     183 </span>            :   Vector&lt;Barriers&gt; group_post_barriers_;</a>
+<a name="184"><span class="lineNum">     184 </span>            :   /**</a>
+<a name="185"><span class="lineNum">     185 </span>            :    * Barriers that will be recorded just before the commands of a specific node are recorded. The</a>
+<a name="186"><span class="lineNum">     186 </span>            :    * barriers are stored per NodeHandle and in the same order as `Span&lt;NodeHandle&gt; nodes`.</a>
+<a name="187"><span class="lineNum">     187 </span>            :    */</a>
+<a name="188"><span class="lineNum">     188 </span>            :   Vector&lt;Barriers&gt; node_pre_barriers_;</a>
+<a name="189"><span class="lineNum">     189 </span>            : </a>
+<a name="190"><span class="lineNum">     190 </span>            :   /** List of all generated barriers. */</a>
+<a name="191"><span class="lineNum">     191 </span>            :   Vector&lt;Barrier&gt; barrier_list_;</a>
+<a name="192"><span class="lineNum">     192 </span>            : </a>
+<a name="193"><span class="lineNum">     193 </span>            :  public:</a>
+<a name="194"><span class="lineNum">     194 </span>            :   /**</a>
+<a name="195"><span class="lineNum">     195 </span>            :    * Build execution groups and barriers.</a>
+<a name="196"><span class="lineNum">     196 </span>            :    * This method should be performed when the resources are locked.</a>
+<a name="197"><span class="lineNum">     197 </span>            :    */</a>
+<a name="198"><span class="lineNum">     198 </span>            :   void build_nodes(VKRenderGraph &amp;render_graph,</a>
+<a name="199"><span class="lineNum">     199 </span>            :                    VKCommandBufferInterface &amp;command_buffer,</a>
+<a name="200"><span class="lineNum">     200 </span>            :                    Span&lt;NodeHandle&gt; node_handles);</a>
+<a name="201"><span class="lineNum">     201 </span>            : </a>
+<a name="202"><span class="lineNum">     202 </span>            :   /**</a>
+<a name="203"><span class="lineNum">     203 </span>            :    * Record commands of the nodes provided by the `node_handles` parameter. The commands are</a>
+<a name="204"><span class="lineNum">     204 </span>            :    * recorded into the given `command_buffer`.</a>
+<a name="205"><span class="lineNum">     205 </span>            :    *</a>
+<a name="206"><span class="lineNum">     206 </span>            :    * `build_nodes` needs to be called before calling with exact the same parameters.</a>
+<a name="207"><span class="lineNum">     207 </span>            :    */</a>
+<a name="208"><span class="lineNum">     208 </span>            :   void record_commands(VKRenderGraph &amp;render_graph,</a>
+<a name="209"><span class="lineNum">     209 </span>            :                        VKCommandBufferInterface &amp;command_buffer,</a>
+<a name="210"><span class="lineNum">     210 </span>            :                        Span&lt;NodeHandle&gt; node_handles);</a>
+<a name="211"><span class="lineNum">     211 </span>            : </a>
+<a name="212"><span class="lineNum">     212 </span>            :  private:</a>
+<a name="213"><span class="lineNum">     213 </span>            :   /**</a>
+<a name="214"><span class="lineNum">     214 </span>            :    *  Split the node_handles in logical groups.</a>
+<a name="215"><span class="lineNum">     215 </span>            :    *</a>
+<a name="216"><span class="lineNum">     216 </span>            :    * A new group is created when the next node is switching from data/compute to graphics and each</a>
+<a name="217"><span class="lineNum">     217 </span>            :    * data/compute is also put in its own group.</a>
+<a name="218"><span class="lineNum">     218 </span>            :    */</a>
+<a name="219"><span class="lineNum">     219 </span>            :   void groups_init(const VKRenderGraph &amp;render_graph, Span&lt;NodeHandle&gt; node_handles);</a>
+<a name="220"><span class="lineNum">     220 </span>            : </a>
+<a name="221"><span class="lineNum">     221 </span>            :   /**</a>
+<a name="222"><span class="lineNum">     222 </span>            :    * Extract the memory/buffer/image barriers from the command groups and add them to the pre/post</a>
+<a name="223"><span class="lineNum">     223 </span>            :    * barriers.</a>
+<a name="224"><span class="lineNum">     224 </span>            :    *</a>
+<a name="225"><span class="lineNum">     225 </span>            :    * This process is single threaded as resource states change during the extraction process. The</a>
+<a name="226"><span class="lineNum">     226 </span>            :    * result of this function would allow the sub builders to be built in parallel.</a>
+<a name="227"><span class="lineNum">     227 </span>            :    */</a>
+<a name="228"><span class="lineNum">     228 </span>            :   void groups_extract_barriers(VKRenderGraph &amp;render_graph,</a>
+<a name="229"><span class="lineNum">     229 </span>            :                                Span&lt;NodeHandle&gt; node_handles,</a>
+<a name="230"><span class="lineNum">     230 </span>            :                                bool use_local_read);</a>
+<a name="231"><span class="lineNum">     231 </span>            : </a>
+<a name="232"><span class="lineNum">     232 </span>            :   /**</a>
+<a name="233"><span class="lineNum">     233 </span>            :    * Record all the commands for all the groups to the command buffer.</a>
+<a name="234"><span class="lineNum">     234 </span>            :    */</a>
+<a name="235"><span class="lineNum">     235 </span>            :   void groups_build_commands(VKRenderGraph &amp;render_graph,</a>
+<a name="236"><span class="lineNum">     236 </span>            :                              VKCommandBufferInterface &amp;command_buffer,</a>
+<a name="237"><span class="lineNum">     237 </span>            :                              Span&lt;NodeHandle&gt; node_handles);</a>
+<a name="238"><span class="lineNum">     238 </span>            : </a>
+<a name="239"><span class="lineNum">     239 </span>            :   /**</a>
+<a name="240"><span class="lineNum">     240 </span>            :    * Build the pipeline barriers that should be recorded before any other commands of the node</a>
+<a name="241"><span class="lineNum">     241 </span>            :    * group the given node is part of is being recorded.</a>
+<a name="242"><span class="lineNum">     242 </span>            :    */</a>
+<a name="243"><span class="lineNum">     243 </span>            :   void build_pipeline_barriers(VKRenderGraph &amp;render_graph,</a>
+<a name="244"><span class="lineNum">     244 </span>            :                                NodeHandle node_handle,</a>
+<a name="245"><span class="lineNum">     245 </span>            :                                VkPipelineStageFlags pipeline_stage,</a>
+<a name="246"><span class="lineNum">     246 </span>            :                                ImageTracker &amp;image_tracker,</a>
+<a name="247"><span class="lineNum">     247 </span>            :                                Barrier &amp;r_barrier,</a>
+<a name="248"><span class="lineNum">     248 </span>            :                                bool within_rendering = false);</a>
+<a name="249"><span class="lineNum">     249 </span>            :   void reset_barriers(Barrier &amp;r_barrier);</a>
+<a name="250"><span class="lineNum">     250 </span>            :   void send_pipeline_barriers(VKCommandBufferInterface &amp;command_buffer,</a>
+<a name="251"><span class="lineNum">     251 </span>            :                               const Barrier &amp;barrier,</a>
+<a name="252"><span class="lineNum">     252 </span>            :                               bool within_rendering);</a>
+<a name="253"><span class="lineNum">     253 </span>            : </a>
+<a name="254"><span class="lineNum">     254 </span>            :   void add_buffer_barriers(VKRenderGraph &amp;render_graph,</a>
+<a name="255"><span class="lineNum">     255 </span>            :                            NodeHandle node_handle,</a>
+<a name="256"><span class="lineNum">     256 </span>            :                            VkPipelineStageFlags node_stages,</a>
+<a name="257"><span class="lineNum">     257 </span>            :                            Barrier &amp;r_barrier);</a>
+<a name="258"><span class="lineNum">     258 </span>            :   void add_buffer_barrier(VkBuffer vk_buffer,</a>
+<a name="259"><span class="lineNum">     259 </span>            :                           Barrier &amp;r_barrier,</a>
+<a name="260"><span class="lineNum">     260 </span>            :                           VkAccessFlags src_access_mask,</a>
+<a name="261"><span class="lineNum">     261 </span>            :                           VkAccessFlags dst_access_mask);</a>
+<a name="262"><span class="lineNum">     262 </span>            :   void add_buffer_read_barriers(VKRenderGraph &amp;render_graph,</a>
+<a name="263"><span class="lineNum">     263 </span>            :                                 NodeHandle node_handle,</a>
+<a name="264"><span class="lineNum">     264 </span>            :                                 VkPipelineStageFlags node_stages,</a>
+<a name="265"><span class="lineNum">     265 </span>            :                                 Barrier &amp;r_barrier);</a>
+<a name="266"><span class="lineNum">     266 </span>            :   void add_buffer_write_barriers(VKRenderGraph &amp;render_graph,</a>
+<a name="267"><span class="lineNum">     267 </span>            :                                  NodeHandle node_handle,</a>
+<a name="268"><span class="lineNum">     268 </span>            :                                  VkPipelineStageFlags node_stages,</a>
+<a name="269"><span class="lineNum">     269 </span>            :                                  Barrier &amp;r_barrier);</a>
+<a name="270"><span class="lineNum">     270 </span>            : </a>
+<a name="271"><span class="lineNum">     271 </span>            :   void add_image_barriers(VKRenderGraph &amp;render_graph,</a>
+<a name="272"><span class="lineNum">     272 </span>            :                           NodeHandle node_handle,</a>
+<a name="273"><span class="lineNum">     273 </span>            :                           VkPipelineStageFlags node_stages,</a>
+<a name="274"><span class="lineNum">     274 </span>            :                           ImageTracker &amp;image_tracker,</a>
+<a name="275"><span class="lineNum">     275 </span>            :                           Barrier &amp;r_barrier,</a>
+<a name="276"><span class="lineNum">     276 </span>            :                           bool within_rendering);</a>
+<a name="277"><span class="lineNum">     277 </span>            :   void add_image_barrier(VkImage vk_image,</a>
+<a name="278"><span class="lineNum">     278 </span>            :                          Barrier &amp;r_barrier,</a>
+<a name="279"><span class="lineNum">     279 </span>            :                          VkAccessFlags src_access_mask,</a>
+<a name="280"><span class="lineNum">     280 </span>            :                          VkAccessFlags dst_access_mask,</a>
+<a name="281"><span class="lineNum">     281 </span>            :                          VkImageLayout old_image_layout,</a>
+<a name="282"><span class="lineNum">     282 </span>            :                          VkImageLayout new_image_layout,</a>
+<a name="283"><span class="lineNum">     283 </span>            :                          VkImageAspectFlags aspect_mask,</a>
+<a name="284"><span class="lineNum">     284 </span>            :                          const VKSubImageRange &amp;subimage);</a>
+<a name="285"><span class="lineNum">     285 </span>            :   void add_image_read_barriers(VKRenderGraph &amp;render_graph,</a>
+<a name="286"><span class="lineNum">     286 </span>            :                                NodeHandle node_handle,</a>
+<a name="287"><span class="lineNum">     287 </span>            :                                VkPipelineStageFlags node_stages,</a>
+<a name="288"><span class="lineNum">     288 </span>            :                                ImageTracker &amp;image_tracker,</a>
+<a name="289"><span class="lineNum">     289 </span>            :                                Barrier &amp;r_barrier,</a>
+<a name="290"><span class="lineNum">     290 </span>            :                                bool within_rendering);</a>
+<a name="291"><span class="lineNum">     291 </span>            :   void add_image_write_barriers(VKRenderGraph &amp;render_graph,</a>
+<a name="292"><span class="lineNum">     292 </span>            :                                 NodeHandle node_handle,</a>
+<a name="293"><span class="lineNum">     293 </span>            :                                 VkPipelineStageFlags node_stages,</a>
+<a name="294"><span class="lineNum">     294 </span>            :                                 ImageTracker &amp;image_tracker,</a>
+<a name="295"><span class="lineNum">     295 </span>            :                                 Barrier &amp;r_barrier,</a>
+<a name="296"><span class="lineNum">     296 </span>            :                                 bool within_rendering);</a>
+<a name="297"><span class="lineNum">     297 </span>            : </a>
+<a name="298"><span class="lineNum">     298 </span>            :   struct DebugGroups {</a>
+<a name="299"><span class="lineNum">     299 </span>            :     /**</a>
+<a name="300"><span class="lineNum">     300 </span>            :      * Index of the active debug_group. Points to an element in</a>
+<a name="301"><span class="lineNum">     301 </span>            :      * `VKRenderGraph.debug_.used_groups`.</a>
+<a name="302"><span class="lineNum">     302 </span>            :      */</a>
+<a name="303"><span class="lineNum">     303 </span>            :     int64_t active_debug_group_id = -1;</a>
+<a name="304"><span class="lineNum">     304 </span>            :     /** Current level of debug groups. (number of nested debug groups). */</a>
+<a name="305"><span class="lineNum">     305 </span>            :     int debug_level = 0;</a>
+<a name="306"><span class="lineNum">     306 </span>            :   };</a>
+<a name="307"><span class="lineNum">     307 </span>            : </a>
+<a name="308"><span class="lineNum">     308 </span>            :   /**</a>
+<a name="309"><span class="lineNum">     309 </span>            :    * Ensure that the debug group associated with the given node_handle is activated.</a>
+<a name="310"><span class="lineNum">     310 </span>            :    *</a>
+<a name="311"><span class="lineNum">     311 </span>            :    * When activating it determines how to walk from the current debug group to the to be activated</a>
+<a name="312"><span class="lineNum">     312 </span>            :    * debug group by performing end/begin commands on the command buffer.</a>
+<a name="313"><span class="lineNum">     313 </span>            :    *</a>
+<a name="314"><span class="lineNum">     314 </span>            :    * This ensures that when nodes are reordered that they still appear in the right debug group.</a>
+<a name="315"><span class="lineNum">     315 </span>            :    */</a>
+<a name="316"><span class="lineNum">     316 </span>            :   void activate_debug_group(VKRenderGraph &amp;render_graph,</a>
+<a name="317"><span class="lineNum">     317 </span>            :                             VKCommandBufferInterface &amp;command_buffer,</a>
+<a name="318"><span class="lineNum">     318 </span>            :                             DebugGroups &amp;debug_groups,</a>
+<a name="319"><span class="lineNum">     319 </span>            :                             NodeHandle node_handle);</a>
+<a name="320"><span class="lineNum">     320 </span>            : </a>
+<a name="321"><span class="lineNum">     321 </span>            :   /**</a>
+<a name="322"><span class="lineNum">     322 </span>            :    * Make sure no debugging groups are active anymore.</a>
+<a name="323"><span class="lineNum">     323 </span>            :    */</a>
+<a name="324"><span class="lineNum">     324 </span>            :   void finish_debug_groups(VKCommandBufferInterface &amp;command_buffer, DebugGroups &amp;debug_groups);</a>
+<a name="325"><span class="lineNum">     325 </span>            : </a>
+<a name="326"><span class="lineNum">     326 </span>            :  private:</a>
+<a name="327"><span class="lineNum">     327 </span>            :   /**</a>
+<a name="328"><span class="lineNum">     328 </span>            :    * Update the layered attachments list when beginning a new render scope.</a>
+<a name="329"><span class="lineNum">     329 </span>            :    */</a>
+<a name="330"><span class="lineNum">     330 </span>            :   void layer_tracking_begin(const VKRenderGraph &amp;render_graph, NodeHandle node_handle);</a>
+<a name="331"><span class="lineNum">     331 </span>            : </a>
+<a name="332"><span class="lineNum">     332 </span>            :   /**</a>
+<a name="333"><span class="lineNum">     333 </span>            :    * Ensure the layout of a layer.</a>
+<a name="334"><span class="lineNum">     334 </span>            :    *</a>
+<a name="335"><span class="lineNum">     335 </span>            :    * - `old_layout` should be the expected layout of the full image.</a>
+<a name="336"><span class="lineNum">     336 </span>            :    */</a>
+<a name="337"><span class="lineNum">     337 </span>            :   void layer_tracking_update(VkImage vk_image,</a>
+<a name="338"><span class="lineNum">     338 </span>            :                              uint32_t layer,</a>
+<a name="339"><span class="lineNum">     339 </span>            :                              uint32_t layer_count,</a>
+<a name="340"><span class="lineNum">     340 </span>            :                              VkImageLayout old_layout,</a>
+<a name="341"><span class="lineNum">     341 </span>            :                              VkImageLayout new_layout);</a>
+<a name="342"><span class="lineNum">     342 </span>            : </a>
+<a name="343"><span class="lineNum">     343 </span>            :   /**</a>
+<a name="344"><span class="lineNum">     344 </span>            :    * End layer tracking.</a>
+<a name="345"><span class="lineNum">     345 </span>            :    *</a>
+<a name="346"><span class="lineNum">     346 </span>            :    * All modified layers (layer_tracking_update) will be changed back to the image layout of</a>
+<a name="347"><span class="lineNum">     347 </span>            :    * the texture (most likely a `VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL`).</a>
+<a name="348"><span class="lineNum">     348 </span>            :    *</a>
+<a name="349"><span class="lineNum">     349 </span>            :    * Render suspension/resuming will not work after calling this method.</a>
+<a name="350"><span class="lineNum">     350 </span>            :    */</a>
+<a name="351"><span class="lineNum">     351 </span>            :   void layer_tracking_end(VKCommandBufferInterface &amp;command_buffer);</a>
+<a name="352"><span class="lineNum">     352 </span>            : </a>
+<a name="353"><span class="lineNum">     353 </span>            :   /**</a>
+<a name="354"><span class="lineNum">     354 </span>            :    * Suspend layer tracking</a>
+<a name="355"><span class="lineNum">     355 </span>            :    *</a>
+<a name="356"><span class="lineNum">     356 </span>            :    * Temporarily suspend layer tracking. This transits all modified layers back to its original</a>
+<a name="357"><span class="lineNum">     357 </span>            :    * layout.</a>
+<a name="358"><span class="lineNum">     358 </span>            :    * NOTE: Only call this method when you the rendering will be resumed, otherwise use</a>
+<a name="359"><span class="lineNum">     359 </span>            :    * `layer_tracking_end`.</a>
+<a name="360"><span class="lineNum">     360 </span>            :    */</a>
+<a name="361"><span class="lineNum">     361 </span>            :   void layer_tracking_suspend(VKCommandBufferInterface &amp;command_buffer);</a>
+<a name="362"><span class="lineNum">     362 </span>            : </a>
+<a name="363"><span class="lineNum">     363 </span>            :   /**</a>
+<a name="364"><span class="lineNum">     364 </span>            :    * Resume suspended layer tracking.</a>
+<a name="365"><span class="lineNum">     365 </span>            :    *</a>
+<a name="366"><span class="lineNum">     366 </span>            :    * Resume suspended layer tracking. This transits all registered layers back to its modified</a>
+<a name="367"><span class="lineNum">     367 </span>            :    * state.</a>
+<a name="368"><span class="lineNum">     368 </span>            :    */</a>
+<a name="369"><span class="lineNum">     369 </span>            :   void layer_tracking_resume(VKCommandBufferInterface &amp;command_buffer);</a>
+<a name="370"><span class="lineNum">     370 </span>            : </a>
+<a name="371"><span class="lineNum">     371 </span>            :   bool node_has_input_attachments(const VKRenderGraph &amp;render_graph, NodeHandle node);</a>
+<a name="372"><span class="lineNum">     372 </span>            : </a>
+<a name="373"><span class="lineNum">     373 </span>            :   std::string to_string_barrier(const Barrier &amp;barrier);</a>
+<a name="374"><span class="lineNum">     374 </span>            : };</a>
+<a name="375"><span class="lineNum">     375 </span>            : </a>
+<a name="376"><span class="lineNum">     376 </span>            : }  // namespace blender::gpu::render_graph</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

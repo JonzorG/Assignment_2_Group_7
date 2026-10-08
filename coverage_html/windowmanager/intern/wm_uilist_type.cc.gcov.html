@@ -1,0 +1,246 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - windowmanager/intern/wm_uilist_type.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">windowmanager/intern</a> - wm_uilist_type.cc<span style="font-size: 80%;"> (source / <a href="wm_uilist_type.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">50</td>
+            <td class="headerCovTableEntry">61</td>
+            <td class="headerCovTableEntryMed">82.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntryMed">83.3 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2023 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup wm</a>
+<a name="7"><span class="lineNum">       7 </span>            :  *</a>
+<a name="8"><span class="lineNum">       8 </span>            :  * UI List Registry.</a>
+<a name="9"><span class="lineNum">       9 </span>            :  */</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &lt;cstdio&gt;</a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &lt;cstring&gt;</a>
+<a name="13"><span class="lineNum">      13 </span>            : </a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;BLI_listbase.hh&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : </a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &quot;DNA_space_types.h&quot;</a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;DNA_windowmanager_types.h&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : </a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &quot;MEM_guardedalloc.h&quot;</a>
+<a name="20"><span class="lineNum">      20 </span>            : </a>
+<a name="21"><span class="lineNum">      21 </span>            : #include &quot;BLI_string_utf8.hh&quot;</a>
+<a name="22"><span class="lineNum">      22 </span>            : #include &quot;BLI_utildefines.hh&quot;</a>
+<a name="23"><span class="lineNum">      23 </span>            : #include &quot;BLI_vector_set.hh&quot;</a>
+<a name="24"><span class="lineNum">      24 </span>            : </a>
+<a name="25"><span class="lineNum">      25 </span>            : #include &quot;BKE_main.hh&quot;</a>
+<a name="26"><span class="lineNum">      26 </span>            : #include &quot;BKE_screen.hh&quot;</a>
+<a name="27"><span class="lineNum">      27 </span>            : </a>
+<a name="28"><span class="lineNum">      28 </span>            : #include &quot;UI_interface_types.hh&quot;</a>
+<a name="29"><span class="lineNum">      29 </span>            : </a>
+<a name="30"><span class="lineNum">      30 </span>            : #include &quot;WM_api.hh&quot;</a>
+<a name="31"><span class="lineNum">      31 </span>            : #include &quot;WM_types.hh&quot;</a>
+<a name="32"><span class="lineNum">      32 </span>            : </a>
+<a name="33"><span class="lineNum">      33 </span>            : namespace blender {</a>
+<a name="34"><span class="lineNum">      34 </span>            : </a>
+<a name="35"><span class="lineNum">      35 </span><span class="lineCov">      85476 : static auto &amp;get_list_type_map()</span></a>
+<a name="36"><span class="lineNum">      36 </span>            : {</a>
+<a name="37"><span class="lineNum">      37 </span>            :   struct IDNameGetter {</a>
+<a name="38"><span class="lineNum">      38 </span><span class="lineCov">     293857 :     StringRef operator()(const uiListType *value) const</span></a>
+<a name="39"><span class="lineNum">      39 </span>            :     {</a>
+<a name="40"><span class="lineNum">      40 </span><span class="lineCov">     293857 :       return StringRef(value-&gt;idname);</span></a>
+<a name="41"><span class="lineNum">      41 </span>            :     }</a>
+<a name="42"><span class="lineNum">      42 </span>            :   };</a>
+<a name="43"><span class="lineNum">      43 </span><span class="lineCov">      85476 :   static CustomIDVectorSet&lt;uiListType *, IDNameGetter&gt; map;</span></a>
+<a name="44"><span class="lineNum">      44 </span><span class="lineCov">      85476 :   return map;</span></a>
+<a name="45"><span class="lineNum">      45 </span>            : }</a>
+<a name="46"><span class="lineNum">      46 </span>            : </a>
+<a name="47"><span class="lineNum">      47 </span><span class="lineCov">      26922 : uiListType *WM_uilisttype_find(const StringRef idname, bool quiet)</span></a>
+<a name="48"><span class="lineNum">      48 </span>            : {</a>
+<a name="49"><span class="lineNum">      49 </span><span class="lineCov">      26922 :   if (!idname.is_empty()) {</span></a>
+<a name="50"><span class="lineNum">      50 </span><span class="lineCov">      26922 :     if (uiListType *const *ult = get_list_type_map().lookup_key_ptr_as(idname)) {</span></a>
+<a name="51"><span class="lineNum">      51 </span><span class="lineNoCov">          0 :       return *ult;</span></a>
+<a name="52"><span class="lineNum">      52 </span>            :     }</a>
+<a name="53"><span class="lineNum">      53 </span>            :   }</a>
+<a name="54"><span class="lineNum">      54 </span>            : </a>
+<a name="55"><span class="lineNum">      55 </span><span class="lineCov">      26922 :   if (!quiet) {</span></a>
+<a name="56"><span class="lineNum">      56 </span><span class="lineNoCov">          0 :     printf(&quot;search for unknown uilisttype %s\n&quot;, std::string(idname).c_str());</span></a>
+<a name="57"><span class="lineNum">      57 </span>            :   }</a>
+<a name="58"><span class="lineNum">      58 </span>            : </a>
+<a name="59"><span class="lineNum">      59 </span><span class="lineCov">      26922 :   return nullptr;</span></a>
+<a name="60"><span class="lineNum">      60 </span>            : }</a>
+<a name="61"><span class="lineNum">      61 </span>            : </a>
+<a name="62"><span class="lineNum">      62 </span><span class="lineCov">      29277 : bool WM_uilisttype_add(uiListType *ult)</span></a>
+<a name="63"><span class="lineNum">      63 </span>            : {</a>
+<a name="64"><span class="lineNum">      64 </span><span class="lineCov">      29277 :   get_list_type_map().add(ult);</span></a>
+<a name="65"><span class="lineNum">      65 </span><span class="lineCov">      29277 :   return true;</span></a>
+<a name="66"><span class="lineNum">      66 </span>            : }</a>
+<a name="67"><span class="lineNum">      67 </span>            : </a>
+<a name="68"><span class="lineNum">      68 </span><span class="lineCov">    5973468 : static void wm_uilisttype_unlink_from_region(const uiListType *ult, ARegion *region)</span></a>
+<a name="69"><span class="lineNum">      69 </span>            : {</a>
+<a name="70"><span class="lineNum">      70 </span><span class="lineCov">    6134880 :   for (uiList &amp;list : region-&gt;ui_lists) {</span></a>
+<a name="71"><span class="lineNum">      71 </span><span class="lineCov">     161412 :     if (list.type == ult) {</span></a>
+<a name="72"><span class="lineNum">      72 </span>            :       /* Don't delete the list, it's not just runtime data but stored in files. Freeing would make</a>
+<a name="73"><span class="lineNum">      73 </span>            :        * that data get lost. */</a>
+<a name="74"><span class="lineNum">      74 </span><span class="lineNoCov">          0 :       list.type = nullptr;</span></a>
+<a name="75"><span class="lineNum">      75 </span>            :     }</a>
+<a name="76"><span class="lineNum">      76 </span>            :   }</a>
+<a name="77"><span class="lineNum">      77 </span><span class="lineCov">    5973468 : }</span></a>
+<a name="78"><span class="lineNum">      78 </span>            : </a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineCov">    1282032 : static void wm_uilisttype_unlink_from_area(const uiListType *ult, ScrArea *area)</span></a>
+<a name="80"><span class="lineNum">      80 </span>            : {</a>
+<a name="81"><span class="lineNum">      81 </span><span class="lineCov">    2613813 :   for (SpaceLink &amp;space_link : area-&gt;spacedata) {</span></a>
+<a name="82"><span class="lineNum">      82 </span><span class="lineCov">    1331781 :     ListBaseT&lt;ARegion&gt; *regionbase = (&amp;space_link == area-&gt;spacedata.first_) ?</span></a>
+<a name="83"><span class="lineNum">      83 </span>            :                                          &amp;area-&gt;regionbase :</a>
+<a name="84"><span class="lineNum">      84 </span>            :                                          &amp;space_link.regionbase;</a>
+<a name="85"><span class="lineNum">      85 </span><span class="lineCov">    7305249 :     for (ARegion &amp;region : *regionbase) {</span></a>
+<a name="86"><span class="lineNum">      86 </span><span class="lineCov">    5973468 :       wm_uilisttype_unlink_from_region(ult, &amp;region);</span></a>
+<a name="87"><span class="lineNum">      87 </span>            :     }</a>
+<a name="88"><span class="lineNum">      88 </span>            :   }</a>
+<a name="89"><span class="lineNum">      89 </span><span class="lineCov">    1282032 : }</span></a>
+<a name="90"><span class="lineNum">      90 </span>            : </a>
+<a name="91"><span class="lineNum">      91 </span>            : /**</a>
+<a name="92"><span class="lineNum">      92 </span>            :  * For all lists representing \a ult, clear their `uiListType` pointer. Use when a list-type is</a>
+<a name="93"><span class="lineNum">      93 </span>            :  * deleted, so that the UI doesn't keep references to it.</a>
+<a name="94"><span class="lineNum">      94 </span>            :  *</a>
+<a name="95"><span class="lineNum">      95 </span>            :  * This is a common pattern for unregistering (usually `.py` defined) types at runtime, e.g.</a>
+<a name="96"><span class="lineNum">      96 </span>            :  * see #WM_gizmomaptype_group_unlink().</a>
+<a name="97"><span class="lineNum">      97 </span>            :  * Note that unlike in some other cases using this pattern, we don't actually free the lists with</a>
+<a name="98"><span class="lineNum">      98 </span>            :  * type \a ult, we just clear the reference to the type. That's because UI-Lists are written to</a>
+<a name="99"><span class="lineNum">      99 </span>            :  * files and we don't want them to get lost together with their (user visible) settings.</a>
+<a name="100"><span class="lineNum">     100 </span>            :  */</a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineCov">      26922 : static void wm_uilisttype_unlink(Main *bmain, const uiListType *ult)</span></a>
+<a name="102"><span class="lineNum">     102 </span>            : {</a>
+<a name="103"><span class="lineNum">     103 </span><span class="lineCov">      53844 :   for (wmWindowManager *wm = bmain-&gt;wm.first(); wm != nullptr;</span></a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineCov">      26922 :        wm = static_cast&lt;wmWindowManager *&gt;(wm-&gt;id.next))</span></a>
+<a name="105"><span class="lineNum">     105 </span>            :   {</a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineCov">      53878 :     for (wmWindow &amp;win : wm-&gt;windows) {</span></a>
+<a name="107"><span class="lineNum">     107 </span><span class="lineCov">      77670 :       for (ScrArea &amp;global_area : win.global_areas.areabase) {</span></a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineCov">      50714 :         wm_uilisttype_unlink_from_area(ult, &amp;global_area);</span></a>
+<a name="109"><span class="lineNum">     109 </span>            :       }</a>
+<a name="110"><span class="lineNum">     110 </span>            :     }</a>
+<a name="111"><span class="lineNum">     111 </span>            :   }</a>
+<a name="112"><span class="lineNum">     112 </span>            : </a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineCov">     299852 :   for (bScreen *screen = bmain-&gt;screens.first(); screen != nullptr;</span></a>
+<a name="114"><span class="lineNum">     114 </span><span class="lineCov">     272930 :        screen = static_cast&lt;bScreen *&gt;(screen-&gt;id.next))</span></a>
+<a name="115"><span class="lineNum">     115 </span>            :   {</a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineCov">    1504248 :     for (ScrArea &amp;area : screen-&gt;areabase) {</span></a>
+<a name="117"><span class="lineNum">     117 </span><span class="lineCov">    1231318 :       wm_uilisttype_unlink_from_area(ult, &amp;area);</span></a>
+<a name="118"><span class="lineNum">     118 </span>            :     }</a>
+<a name="119"><span class="lineNum">     119 </span>            : </a>
+<a name="120"><span class="lineNum">     120 </span><span class="lineCov">     272930 :     for (ARegion &amp;region : screen-&gt;regionbase) {</span></a>
+<a name="121"><span class="lineNum">     121 </span><span class="lineNoCov">          0 :       wm_uilisttype_unlink_from_region(ult, &amp;region);</span></a>
+<a name="122"><span class="lineNum">     122 </span>            :     }</a>
+<a name="123"><span class="lineNum">     123 </span>            :   }</a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineCov">      26922 : }</span></a>
+<a name="125"><span class="lineNum">     125 </span>            : </a>
+<a name="126"><span class="lineNum">     126 </span><span class="lineCov">      26922 : void WM_uilisttype_remove_ptr(Main *bmain, uiListType *ult)</span></a>
+<a name="127"><span class="lineNum">     127 </span>            : {</a>
+<a name="128"><span class="lineNum">     128 </span><span class="lineCov">      26922 :   wm_uilisttype_unlink(bmain, ult);</span></a>
+<a name="129"><span class="lineNum">     129 </span>            : </a>
+<a name="130"><span class="lineNum">     130 </span><span class="lineCov">      26922 :   bool ok = get_list_type_map().remove(ult);</span></a>
+<a name="131"><span class="lineNum">     131 </span><span class="lineCov">      26922 :   MEM_delete(ult);</span></a>
+<a name="132"><span class="lineNum">     132 </span>            : </a>
+<a name="133"><span class="lineNum">     133 </span><span class="lineCov">      26922 :   BLI_assert(ok);</span></a>
+<a name="134"><span class="lineNum">     134 </span>            :   UNUSED_VARS_NDEBUG(ok);</a>
+<a name="135"><span class="lineNum">     135 </span><span class="lineCov">      26922 : }</span></a>
+<a name="136"><span class="lineNum">     136 </span>            : </a>
+<a name="137"><span class="lineNum">     137 </span><span class="lineCov">        785 : void WM_uilisttype_init()</span></a>
+<a name="138"><span class="lineNum">     138 </span>            : {</a>
+<a name="139"><span class="lineNum">     139 </span><span class="lineCov">        785 :   get_list_type_map().reserve(16);</span></a>
+<a name="140"><span class="lineNum">     140 </span><span class="lineCov">        785 : }</span></a>
+<a name="141"><span class="lineNum">     141 </span>            : </a>
+<a name="142"><span class="lineNum">     142 </span><span class="lineCov">        785 : void WM_uilisttype_free()</span></a>
+<a name="143"><span class="lineNum">     143 </span>            : {</a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineCov">       3140 :   for (uiListType *ult : get_list_type_map()) {</span></a>
+<a name="145"><span class="lineNum">     145 </span><span class="lineCov">       2355 :     if (ult-&gt;rna_ext.free) {</span></a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineNoCov">          0 :       ult-&gt;rna_ext.free(ult-&gt;rna_ext.data);</span></a>
+<a name="147"><span class="lineNum">     147 </span>            :     }</a>
+<a name="148"><span class="lineNum">     148 </span><span class="lineCov">       2355 :     MEM_delete(ult);</span></a>
+<a name="149"><span class="lineNum">     149 </span>            :   }</a>
+<a name="150"><span class="lineNum">     150 </span>            : </a>
+<a name="151"><span class="lineNum">     151 </span><span class="lineCov">        785 :   get_list_type_map().clear();</span></a>
+<a name="152"><span class="lineNum">     152 </span><span class="lineCov">        785 : }</span></a>
+<a name="153"><span class="lineNum">     153 </span>            : </a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineNoCov">          0 : void WM_uilisttype_to_full_list_id(const uiListType *ult,</span></a>
+<a name="155"><span class="lineNum">     155 </span>            :                                    const char *list_id,</a>
+<a name="156"><span class="lineNum">     156 </span>            :                                    char r_full_list_id[/*UI_MAX_NAME_STR*/])</a>
+<a name="157"><span class="lineNum">     157 </span>            : {</a>
+<a name="158"><span class="lineNum">     158 </span>            :   /* We tag the list id with the list type... */</a>
+<a name="159"><span class="lineNum">     159 </span><span class="lineNoCov">          0 :   BLI_snprintf_utf8(r_full_list_id, UI_MAX_NAME_STR, &quot;%s_%s&quot;, ult-&gt;idname, list_id ? list_id : &quot;&quot;);</span></a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="161"><span class="lineNum">     161 </span>            : </a>
+<a name="162"><span class="lineNum">     162 </span><span class="lineNoCov">          0 : const char *WM_uilisttype_list_id_get(const uiListType *ult, uiList *list)</span></a>
+<a name="163"><span class="lineNum">     163 </span>            : {</a>
+<a name="164"><span class="lineNum">     164 </span>            :   /* Some sanity check for the assumed behavior of #WM_uilisttype_to_full_list_id(). */</a>
+<a name="165"><span class="lineNum">     165 </span><span class="lineNoCov">          0 :   BLI_assert((list-&gt;list_id + strlen(ult-&gt;idname))[0] == '_');</span></a>
+<a name="166"><span class="lineNum">     166 </span>            :   /* +1 to skip the '_'. */</a>
+<a name="167"><span class="lineNum">     167 </span><span class="lineNoCov">          0 :   return list-&gt;list_id + strlen(ult-&gt;idname) + 1;</span></a>
+<a name="168"><span class="lineNum">     168 </span>            : }</a>
+<a name="169"><span class="lineNum">     169 </span>            : </a>
+<a name="170"><span class="lineNum">     170 </span>            : }  // namespace blender</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

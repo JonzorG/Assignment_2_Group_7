@@ -1,0 +1,344 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - /home/dev/Blender_PA1483/blender/lib/linux_x64/usd/include/pxr/usd/sdf/pool.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../../../../../../index.html">top level</a> - <a href="index.html">home/dev/Blender_PA1483/blender/lib/linux_x64/usd/include/pxr/usd/sdf</a> - pool.h<span style="font-size: 80%;"> (source / <a href="pool.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : //</a>
+<a name="2"><span class="lineNum">       2 </span>            : // Copyright 2019 Pixar</a>
+<a name="3"><span class="lineNum">       3 </span>            : //</a>
+<a name="4"><span class="lineNum">       4 </span>            : // Licensed under the terms set forth in the LICENSE.txt file available at</a>
+<a name="5"><span class="lineNum">       5 </span>            : // https://openusd.org/license.</a>
+<a name="6"><span class="lineNum">       6 </span>            : //</a>
+<a name="7"><span class="lineNum">       7 </span>            : #ifndef PXR_USD_SDF_POOL_H</a>
+<a name="8"><span class="lineNum">       8 </span>            : #define PXR_USD_SDF_POOL_H</a>
+<a name="9"><span class="lineNum">       9 </span>            : </a>
+<a name="10"><span class="lineNum">      10 </span>            : #include &quot;pxr/pxr.h&quot;</a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &quot;pxr/usd/sdf/api.h&quot;</a>
+<a name="12"><span class="lineNum">      12 </span>            : </a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;pxr/base/arch/demangle.h&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;pxr/base/arch/hints.h&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;pxr/base/arch/pragmas.h&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &quot;pxr/base/tf/diagnostic.h&quot;</a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;pxr/base/tf/staticData.h&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : </a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &lt;tbb/concurrent_queue.h&gt;</a>
+<a name="20"><span class="lineNum">      20 </span>            : </a>
+<a name="21"><span class="lineNum">      21 </span>            : #include &lt;atomic&gt;</a>
+<a name="22"><span class="lineNum">      22 </span>            : #include &lt;thread&gt;</a>
+<a name="23"><span class="lineNum">      23 </span>            : </a>
+<a name="24"><span class="lineNum">      24 </span>            : PXR_NAMESPACE_OPEN_SCOPE</a>
+<a name="25"><span class="lineNum">      25 </span>            : </a>
+<a name="26"><span class="lineNum">      26 </span>            : // A helper struct for thread_local that uses nullptr initialization as a</a>
+<a name="27"><span class="lineNum">      27 </span>            : // sentinel to prevent guard variable use from being invoked after first</a>
+<a name="28"><span class="lineNum">      28 </span>            : // initialization.</a>
+<a name="29"><span class="lineNum">      29 </span>            : template &lt;class T&gt;</a>
+<a name="30"><span class="lineNum">      30 </span>            : struct Sdf_FastThreadLocalBase</a>
+<a name="31"><span class="lineNum">      31 </span>            : {</a>
+<a name="32"><span class="lineNum">      32 </span>            :     static T &amp;Get() {</a>
+<a name="33"><span class="lineNum">      33 </span>            :         static thread_local T *theTPtr = nullptr;</a>
+<a name="34"><span class="lineNum">      34 </span>            :         if (ARCH_LIKELY(theTPtr)) {</a>
+<a name="35"><span class="lineNum">      35 </span>            :             return *theTPtr;</a>
+<a name="36"><span class="lineNum">      36 </span>            :         }</a>
+<a name="37"><span class="lineNum">      37 </span>            :         static thread_local T theT;</a>
+<a name="38"><span class="lineNum">      38 </span>            :         T *p = &amp;theT;</a>
+<a name="39"><span class="lineNum">      39 </span>            :         theTPtr = p;</a>
+<a name="40"><span class="lineNum">      40 </span>            :         return *p;</a>
+<a name="41"><span class="lineNum">      41 </span>            :     }</a>
+<a name="42"><span class="lineNum">      42 </span>            : };</a>
+<a name="43"><span class="lineNum">      43 </span>            : </a>
+<a name="44"><span class="lineNum">      44 </span>            : // Fixed-size scalable pool allocator with 32-bit &quot;handles&quot; returned.  Reserves</a>
+<a name="45"><span class="lineNum">      45 </span>            : // virtual memory in big regions.  It's optimized for per-thread allocations,</a>
+<a name="46"><span class="lineNum">      46 </span>            : // and intended to be used for SdfPath.  The Tag template argument just serves</a>
+<a name="47"><span class="lineNum">      47 </span>            : // as to distinguish one pool instantiation from another with otherwise</a>
+<a name="48"><span class="lineNum">      48 </span>            : // equivalent template arguments.  The ElemSize argument is the size of an</a>
+<a name="49"><span class="lineNum">      49 </span>            : // allocated element in bytes.  It must be at least 4 bytes.  The RegionBits</a>
+<a name="50"><span class="lineNum">      50 </span>            : // argument determines how many contiguous &quot;chunks&quot; of virtual memory the pool</a>
+<a name="51"><span class="lineNum">      51 </span>            : // will use.  A good number for this is 8, meaning we'll have at most 256</a>
+<a name="52"><span class="lineNum">      52 </span>            : // &quot;regions&quot; or &quot;chunks&quot; of contiguous virtual memory, each 2^24 times ElemSize</a>
+<a name="53"><span class="lineNum">      53 </span>            : // bytes in size.  To allocate from reserved chunks, each thread acquires a span</a>
+<a name="54"><span class="lineNum">      54 </span>            : // to hold ElemsPerSpan elements from the range, then uses that to dole out</a>
+<a name="55"><span class="lineNum">      55 </span>            : // individual allocations.  When freed, allocations are placed on a thread-local</a>
+<a name="56"><span class="lineNum">      56 </span>            : // free list, and eventually shared back for use by other threads when the free</a>
+<a name="57"><span class="lineNum">      57 </span>            : // list gets large.</a>
+<a name="58"><span class="lineNum">      58 </span>            : template &lt;class Tag,</a>
+<a name="59"><span class="lineNum">      59 </span>            :           unsigned ElemSize,</a>
+<a name="60"><span class="lineNum">      60 </span>            :           unsigned RegionBits,</a>
+<a name="61"><span class="lineNum">      61 </span>            :           unsigned ElemsPerSpan=16384&gt;</a>
+<a name="62"><span class="lineNum">      62 </span>            : class Sdf_Pool</a>
+<a name="63"><span class="lineNum">      63 </span>            : {</a>
+<a name="64"><span class="lineNum">      64 </span>            :     static_assert(ElemSize &gt;= sizeof(uint32_t),</a>
+<a name="65"><span class="lineNum">      65 </span>            :                   &quot;ElemSize must be at least sizeof(uint32_t)&quot;);</a>
+<a name="66"><span class="lineNum">      66 </span>            : </a>
+<a name="67"><span class="lineNum">      67 </span>            : public:</a>
+<a name="68"><span class="lineNum">      68 </span>            :     // Number of pool elements per region.</a>
+<a name="69"><span class="lineNum">      69 </span>            :     static constexpr uint64_t ElemsPerRegion = 1ull &lt;&lt; (32-RegionBits);</a>
+<a name="70"><span class="lineNum">      70 </span>            : </a>
+<a name="71"><span class="lineNum">      71 </span>            :     // Maximum index of an element in a region.</a>
+<a name="72"><span class="lineNum">      72 </span>            :     static constexpr uint32_t MaxIndex = ElemsPerRegion - 1;</a>
+<a name="73"><span class="lineNum">      73 </span>            : </a>
+<a name="74"><span class="lineNum">      74 </span>            :     // Mask to extract region number from a handle value.</a>
+<a name="75"><span class="lineNum">      75 </span>            :     static constexpr uint32_t RegionMask = ((1 &lt;&lt; RegionBits)-1);</a>
+<a name="76"><span class="lineNum">      76 </span>            : </a>
+<a name="77"><span class="lineNum">      77 </span>            :     friend struct Handle;</a>
+<a name="78"><span class="lineNum">      78 </span>            :     // A Handle refers to an item in the pool.  It just wraps around a uint32_t</a>
+<a name="79"><span class="lineNum">      79 </span>            :     // that represents the item's index and the item's region.</a>
+<a name="80"><span class="lineNum">      80 </span>            :     struct Handle {</a>
+<a name="81"><span class="lineNum">      81 </span><span class="lineCov">      18048 :         constexpr Handle() noexcept = default;</span></a>
+<a name="82"><span class="lineNum">      82 </span><span class="lineCov">      18099 :         constexpr Handle(std::nullptr_t) noexcept : value(0) {}</span></a>
+<a name="83"><span class="lineNum">      83 </span>            :         Handle(unsigned region, uint32_t index) </a>
+<a name="84"><span class="lineNum">      84 </span>            :             : value((index &lt;&lt; RegionBits) | region) {}</a>
+<a name="85"><span class="lineNum">      85 </span>            :         Handle &amp;operator=(Handle const &amp;) = default;</a>
+<a name="86"><span class="lineNum">      86 </span><span class="lineCov">      18048 :         Handle &amp;operator=(std::nullptr_t) { return *this = Handle(); }</span></a>
+<a name="87"><span class="lineNum">      87 </span><span class="lineCov">      27010 :         inline char *GetPtr() const noexcept {</span></a>
+<a name="88"><span class="lineNum">      88 </span>            :             ARCH_PRAGMA_PUSH</a>
+<a name="89"><span class="lineNum">      89 </span>            :             ARCH_PRAGMA_MAYBE_UNINITIALIZED</a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineCov">      27010 :             return Sdf_Pool::_GetPtr(value &amp; RegionMask, value &gt;&gt; RegionBits);</span></a>
+<a name="91"><span class="lineNum">      91 </span>            :             ARCH_PRAGMA_POP</a>
+<a name="92"><span class="lineNum">      92 </span>            :         }</a>
+<a name="93"><span class="lineNum">      93 </span>            :         static inline Handle GetHandle(char const *ptr) noexcept {</a>
+<a name="94"><span class="lineNum">      94 </span>            :             return Sdf_Pool::_GetHandle(ptr);</a>
+<a name="95"><span class="lineNum">      95 </span>            :         }</a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineCov">     387823 :         explicit operator bool() const {</span></a>
+<a name="97"><span class="lineNum">      97 </span><span class="lineCov">     387823 :             return value != 0;</span></a>
+<a name="98"><span class="lineNum">      98 </span>            :         }</a>
+<a name="99"><span class="lineNum">      99 </span><span class="lineCov">       1666 :         inline bool operator ==(Handle const &amp;r) const noexcept {</span></a>
+<a name="100"><span class="lineNum">     100 </span><span class="lineCov">       1666 :             return value == r.value;</span></a>
+<a name="101"><span class="lineNum">     101 </span>            :         }</a>
+<a name="102"><span class="lineNum">     102 </span>            :         inline bool operator !=(Handle const &amp;r) const noexcept {</a>
+<a name="103"><span class="lineNum">     103 </span>            :             return value != r.value;</a>
+<a name="104"><span class="lineNum">     104 </span>            :         }</a>
+<a name="105"><span class="lineNum">     105 </span>            :         inline bool operator &lt;(Handle const &amp;r) const noexcept {</a>
+<a name="106"><span class="lineNum">     106 </span>            :             return value &lt; r.value;</a>
+<a name="107"><span class="lineNum">     107 </span>            :         }</a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineCov">      11461 :         inline void swap(Handle &amp;r) noexcept {</span></a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineCov">      11461 :             std::swap(value, r.value);</span></a>
+<a name="110"><span class="lineNum">     110 </span><span class="lineCov">      11461 :         }</span></a>
+<a name="111"><span class="lineNum">     111 </span>            :         uint32_t value = 0;</a>
+<a name="112"><span class="lineNum">     112 </span>            :     };</a>
+<a name="113"><span class="lineNum">     113 </span>            : </a>
+<a name="114"><span class="lineNum">     114 </span>            : private:</a>
+<a name="115"><span class="lineNum">     115 </span>            :     // We maintain per-thread free lists of pool items.</a>
+<a name="116"><span class="lineNum">     116 </span>            :     struct _FreeList {</a>
+<a name="117"><span class="lineNum">     117 </span>            :         inline void Pop() {</a>
+<a name="118"><span class="lineNum">     118 </span>            :             char *p = head.GetPtr();</a>
+<a name="119"><span class="lineNum">     119 </span>            :             Handle *hp = reinterpret_cast&lt;Handle *&gt;(p);</a>
+<a name="120"><span class="lineNum">     120 </span>            :             head = *hp;</a>
+<a name="121"><span class="lineNum">     121 </span>            :             --size;</a>
+<a name="122"><span class="lineNum">     122 </span>            :         }</a>
+<a name="123"><span class="lineNum">     123 </span>            :         inline void Push(Handle h) {</a>
+<a name="124"><span class="lineNum">     124 </span>            :             ++size;</a>
+<a name="125"><span class="lineNum">     125 </span>            :             char *p = h.GetPtr();</a>
+<a name="126"><span class="lineNum">     126 </span>            :             Handle *hp = reinterpret_cast&lt;Handle *&gt;(p);</a>
+<a name="127"><span class="lineNum">     127 </span>            :             *hp = head;</a>
+<a name="128"><span class="lineNum">     128 </span>            :             head = h;</a>
+<a name="129"><span class="lineNum">     129 </span>            :         }</a>
+<a name="130"><span class="lineNum">     130 </span>            :         Handle head;</a>
+<a name="131"><span class="lineNum">     131 </span>            :         size_t size = 0;</a>
+<a name="132"><span class="lineNum">     132 </span>            :     };</a>
+<a name="133"><span class="lineNum">     133 </span>            :     </a>
+<a name="134"><span class="lineNum">     134 </span>            :     // A pool span represents a &quot;chunk&quot; of new pool space that threads allocate</a>
+<a name="135"><span class="lineNum">     135 </span>            :     // from when their free lists are empty.  When both the free list and the</a>
+<a name="136"><span class="lineNum">     136 </span>            :     // pool span are exhausted, a thread will look for a shared free list, or</a>
+<a name="137"><span class="lineNum">     137 </span>            :     // will obtain a new chunk of pool space to use.</a>
+<a name="138"><span class="lineNum">     138 </span>            :     struct _PoolSpan {</a>
+<a name="139"><span class="lineNum">     139 </span>            :         size_t size() const { return endIndex - beginIndex; }</a>
+<a name="140"><span class="lineNum">     140 </span>            :         inline Handle Alloc() {</a>
+<a name="141"><span class="lineNum">     141 </span>            :             return Handle(region, beginIndex++);</a>
+<a name="142"><span class="lineNum">     142 </span>            :         }</a>
+<a name="143"><span class="lineNum">     143 </span>            :         inline bool empty() const {</a>
+<a name="144"><span class="lineNum">     144 </span>            :             return beginIndex == endIndex;</a>
+<a name="145"><span class="lineNum">     145 </span>            :         }</a>
+<a name="146"><span class="lineNum">     146 </span>            :         unsigned region;</a>
+<a name="147"><span class="lineNum">     147 </span>            :         uint32_t beginIndex;</a>
+<a name="148"><span class="lineNum">     148 </span>            :         uint32_t endIndex;</a>
+<a name="149"><span class="lineNum">     149 </span>            :     };</a>
+<a name="150"><span class="lineNum">     150 </span>            : </a>
+<a name="151"><span class="lineNum">     151 </span>            :     struct _PerThreadData {</a>
+<a name="152"><span class="lineNum">     152 </span>            :         // Local free-list of elems returned to the pool.</a>
+<a name="153"><span class="lineNum">     153 </span>            :         _FreeList freeList;</a>
+<a name="154"><span class="lineNum">     154 </span>            :         // Contiguous range of reserved but as-yet-unalloc'd space.</a>
+<a name="155"><span class="lineNum">     155 </span>            :         _PoolSpan span;</a>
+<a name="156"><span class="lineNum">     156 </span>            :     };</a>
+<a name="157"><span class="lineNum">     157 </span>            : </a>
+<a name="158"><span class="lineNum">     158 </span>            :     // The region state structure represents the global state of the pool.  This</a>
+<a name="159"><span class="lineNum">     159 </span>            :     // is a pool-global structure that is used to reserve new spans of pool data</a>
+<a name="160"><span class="lineNum">     160 </span>            :     // by threads when needed.  See the Reserve() member, and the _ReserveSpan()</a>
+<a name="161"><span class="lineNum">     161 </span>            :     // function that does most of the state manipulation.</a>
+<a name="162"><span class="lineNum">     162 </span>            :     struct _RegionState {</a>
+<a name="163"><span class="lineNum">     163 </span>            :         static constexpr uint32_t LockedState = ~0;</a>
+<a name="164"><span class="lineNum">     164 </span>            :         </a>
+<a name="165"><span class="lineNum">     165 </span>            :         _RegionState() = default;</a>
+<a name="166"><span class="lineNum">     166 </span>            :         constexpr _RegionState(unsigned region, uint32_t index)</a>
+<a name="167"><span class="lineNum">     167 </span>            :             : _state((index &lt;&lt; RegionBits) | region) {}</a>
+<a name="168"><span class="lineNum">     168 </span>            :         </a>
+<a name="169"><span class="lineNum">     169 </span>            :         // Make a new state that reserves up to \p num elements.  There must be</a>
+<a name="170"><span class="lineNum">     170 </span>            :         // space left remaining.</a>
+<a name="171"><span class="lineNum">     171 </span>            :         inline _RegionState Reserve(unsigned num) const;</a>
+<a name="172"><span class="lineNum">     172 </span>            : </a>
+<a name="173"><span class="lineNum">     173 </span>            :         static constexpr _RegionState GetInitState() {</a>
+<a name="174"><span class="lineNum">     174 </span>            :             return _RegionState(0, 0);</a>
+<a name="175"><span class="lineNum">     175 </span>            :         }</a>
+<a name="176"><span class="lineNum">     176 </span>            : </a>
+<a name="177"><span class="lineNum">     177 </span>            :         static constexpr _RegionState GetLockedState() {</a>
+<a name="178"><span class="lineNum">     178 </span>            :             return _RegionState(LockedState, LockedState);</a>
+<a name="179"><span class="lineNum">     179 </span>            :         }</a>
+<a name="180"><span class="lineNum">     180 </span>            :         </a>
+<a name="181"><span class="lineNum">     181 </span>            :         constexpr bool operator==(_RegionState other) const {</a>
+<a name="182"><span class="lineNum">     182 </span>            :             return _state == other._state;</a>
+<a name="183"><span class="lineNum">     183 </span>            :         }</a>
+<a name="184"><span class="lineNum">     184 </span>            :         </a>
+<a name="185"><span class="lineNum">     185 </span>            :         uint32_t GetIndex() const {</a>
+<a name="186"><span class="lineNum">     186 </span>            :             return _state &gt;&gt; RegionBits;</a>
+<a name="187"><span class="lineNum">     187 </span>            :         }</a>
+<a name="188"><span class="lineNum">     188 </span>            :         </a>
+<a name="189"><span class="lineNum">     189 </span>            :         unsigned GetRegion() const {</a>
+<a name="190"><span class="lineNum">     190 </span>            :             return _state &amp; RegionMask;</a>
+<a name="191"><span class="lineNum">     191 </span>            :         }</a>
+<a name="192"><span class="lineNum">     192 </span>            : </a>
+<a name="193"><span class="lineNum">     193 </span>            :         bool IsLocked() const {</a>
+<a name="194"><span class="lineNum">     194 </span>            :             return _state == LockedState;</a>
+<a name="195"><span class="lineNum">     195 </span>            :         }</a>
+<a name="196"><span class="lineNum">     196 </span>            :         </a>
+<a name="197"><span class="lineNum">     197 </span>            :         // low RegionBits bits are region id, rest are index.</a>
+<a name="198"><span class="lineNum">     198 </span>            :         uint32_t _state;</a>
+<a name="199"><span class="lineNum">     199 </span>            :     };</a>
+<a name="200"><span class="lineNum">     200 </span>            : </a>
+<a name="201"><span class="lineNum">     201 </span>            : public:</a>
+<a name="202"><span class="lineNum">     202 </span>            :     static inline Handle Allocate();</a>
+<a name="203"><span class="lineNum">     203 </span>            :     static inline void Free(Handle h);</a>
+<a name="204"><span class="lineNum">     204 </span>            : </a>
+<a name="205"><span class="lineNum">     205 </span>            : private:</a>
+<a name="206"><span class="lineNum">     206 </span>            : </a>
+<a name="207"><span class="lineNum">     207 </span>            :     // Given a region id and index, form the pointer into the pool.</a>
+<a name="208"><span class="lineNum">     208 </span><span class="lineCov">      27011 :     static inline char *_GetPtr(unsigned region, uint32_t index) {</span></a>
+<a name="209"><span class="lineNum">     209 </span>            :         // Suppress undefined-var-template warnings from clang; _regionStarts</a>
+<a name="210"><span class="lineNum">     210 </span>            :         // is expected to be instantiated in another translation unit via </a>
+<a name="211"><span class="lineNum">     211 </span>            :         // the SDF_INSTANTIATE_POOL macro.</a>
+<a name="212"><span class="lineNum">     212 </span>            :         ARCH_PRAGMA_PUSH</a>
+<a name="213"><span class="lineNum">     213 </span>            :         ARCH_PRAGMA_UNDEFINED_VAR_TEMPLATE</a>
+<a name="214"><span class="lineNum">     214 </span><span class="lineCov">      27011 :         return _regionStarts[region] + (index * ElemSize);</span></a>
+<a name="215"><span class="lineNum">     215 </span>            :         ARCH_PRAGMA_POP</a>
+<a name="216"><span class="lineNum">     216 </span>            :     }</a>
+<a name="217"><span class="lineNum">     217 </span>            :     </a>
+<a name="218"><span class="lineNum">     218 </span>            :     // Given a pointer into the pool, produce its corresponding Handle.  Don't</a>
+<a name="219"><span class="lineNum">     219 </span>            :     // do this unless you really have to, it has to do a bit of a search.</a>
+<a name="220"><span class="lineNum">     220 </span>            :     static inline Handle _GetHandle(char const *ptr) {</a>
+<a name="221"><span class="lineNum">     221 </span>            :         if (ptr) {</a>
+<a name="222"><span class="lineNum">     222 </span>            :             for (unsigned region = 1; region != NumRegions+1; ++region) {</a>
+<a name="223"><span class="lineNum">     223 </span>            :                 // Suppress undefined-var-template warnings from clang; _regionStarts</a>
+<a name="224"><span class="lineNum">     224 </span>            :                 // is expected to be instantiated in another translation unit via </a>
+<a name="225"><span class="lineNum">     225 </span>            :                 // the SDF_INSTANTIATE_POOL macro.</a>
+<a name="226"><span class="lineNum">     226 </span>            :                 ARCH_PRAGMA_PUSH</a>
+<a name="227"><span class="lineNum">     227 </span>            :                 ARCH_PRAGMA_UNDEFINED_VAR_TEMPLATE</a>
+<a name="228"><span class="lineNum">     228 </span>            :                 uintptr_t start = (uintptr_t)_regionStarts[region];</a>
+<a name="229"><span class="lineNum">     229 </span>            :                 ARCH_PRAGMA_POP</a>
+<a name="230"><span class="lineNum">     230 </span>            : </a>
+<a name="231"><span class="lineNum">     231 </span>            :                 // We rely on modular arithmetic so that if ptr is less than</a>
+<a name="232"><span class="lineNum">     232 </span>            :                 // start, the diff will be larger than ElemsPerRegion*ElemSize.</a>
+<a name="233"><span class="lineNum">     233 </span>            :                 uintptr_t diff = (uintptr_t)ptr - start;</a>
+<a name="234"><span class="lineNum">     234 </span>            :                 if (diff &lt; (uintptr_t)(ElemsPerRegion*ElemSize)) {</a>
+<a name="235"><span class="lineNum">     235 </span>            :                     return Handle(</a>
+<a name="236"><span class="lineNum">     236 </span>            :                         region, static_cast&lt;uint32_t&gt;(diff / ElemSize));</a>
+<a name="237"><span class="lineNum">     237 </span>            :                 }</a>
+<a name="238"><span class="lineNum">     238 </span>            :             }</a>
+<a name="239"><span class="lineNum">     239 </span>            :         }</a>
+<a name="240"><span class="lineNum">     240 </span>            :         return nullptr;</a>
+<a name="241"><span class="lineNum">     241 </span>            :     }</a>
+<a name="242"><span class="lineNum">     242 </span>            : </a>
+<a name="243"><span class="lineNum">     243 </span>            :     // Try to take a shared free list.</a>
+<a name="244"><span class="lineNum">     244 </span>            :     static bool _TakeSharedFreeList(_FreeList &amp;out) {</a>
+<a name="245"><span class="lineNum">     245 </span>            :         return _sharedFreeLists-&gt;try_pop(out);</a>
+<a name="246"><span class="lineNum">     246 </span>            :     }</a>
+<a name="247"><span class="lineNum">     247 </span>            :     </a>
+<a name="248"><span class="lineNum">     248 </span>            :     // Give a free list to be shared by other threads.</a>
+<a name="249"><span class="lineNum">     249 </span>            :     static void _ShareFreeList(_FreeList &amp;in) {</a>
+<a name="250"><span class="lineNum">     250 </span>            :         _sharedFreeLists-&gt;push(in);</a>
+<a name="251"><span class="lineNum">     251 </span>            :         in = {};</a>
+<a name="252"><span class="lineNum">     252 </span>            :     }</a>
+<a name="253"><span class="lineNum">     253 </span>            : </a>
+<a name="254"><span class="lineNum">     254 </span>            :     // Reserve a new span of pool space.</a>
+<a name="255"><span class="lineNum">     255 </span>            :     static inline void _ReserveSpan(_PoolSpan &amp;out);</a>
+<a name="256"><span class="lineNum">     256 </span>            : </a>
+<a name="257"><span class="lineNum">     257 </span>            :     static constexpr int NumRegions = 1 &lt;&lt; RegionBits;</a>
+<a name="258"><span class="lineNum">     258 </span>            : </a>
+<a name="259"><span class="lineNum">     259 </span>            :     using _ThreadData = Sdf_FastThreadLocalBase&lt;_PerThreadData&gt;;</a>
+<a name="260"><span class="lineNum">     260 </span>            :     SDF_API static _ThreadData _threadData;</a>
+<a name="261"><span class="lineNum">     261 </span>            :     SDF_API static char *_regionStarts[NumRegions+1];</a>
+<a name="262"><span class="lineNum">     262 </span>            :     SDF_API static std::atomic&lt;_RegionState&gt; _regionState;</a>
+<a name="263"><span class="lineNum">     263 </span>            :     SDF_API static TfStaticData&lt;tbb::concurrent_queue&lt;_FreeList&gt;&gt; _sharedFreeLists;</a>
+<a name="264"><span class="lineNum">     264 </span>            : };</a>
+<a name="265"><span class="lineNum">     265 </span>            : </a>
+<a name="266"><span class="lineNum">     266 </span>            : PXR_NAMESPACE_CLOSE_SCOPE</a>
+<a name="267"><span class="lineNum">     267 </span>            : </a>
+<a name="268"><span class="lineNum">     268 </span>            : #endif // PXR_USD_SDF_POOL_H</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

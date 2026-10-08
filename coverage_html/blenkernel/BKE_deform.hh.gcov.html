@@ -1,0 +1,448 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - blenkernel/BKE_deform.hh</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">blenkernel</a> - BKE_deform.hh<span style="font-size: 80%;"> (source / <a href="BKE_deform.hh.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2001-2002 NaN Holding BV. All rights reserved.</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : #pragma once</a>
+<a name="6"><span class="lineNum">       6 </span>            : </a>
+<a name="7"><span class="lineNum">       7 </span>            : #include &quot;DNA_listBase.h&quot;</a>
+<a name="8"><span class="lineNum">       8 </span>            : #include &quot;DNA_meshdata_types.h&quot;</a>
+<a name="9"><span class="lineNum">       9 </span>            : </a>
+<a name="10"><span class="lineNum">      10 </span>            : #include &quot;BLI_math_vector_types.hh&quot;</a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &quot;BLI_offset_indices.hh&quot;</a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &quot;BLI_span.hh&quot;</a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;BLI_string_ref.hh&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;BLI_vector_set.hh&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;BLI_virtual_array_fwd.hh&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : </a>
+<a name="17"><span class="lineNum">      17 </span>            : namespace blender {</a>
+<a name="18"><span class="lineNum">      18 </span>            : </a>
+<a name="19"><span class="lineNum">      19 </span>            : /** \file</a>
+<a name="20"><span class="lineNum">      20 </span>            :  * \ingroup bke</a>
+<a name="21"><span class="lineNum">      21 </span>            :  * \brief support for deformation groups and hooks.</a>
+<a name="22"><span class="lineNum">      22 </span>            :  */</a>
+<a name="23"><span class="lineNum">      23 </span>            : </a>
+<a name="24"><span class="lineNum">      24 </span>            : struct BlendDataReader;</a>
+<a name="25"><span class="lineNum">      25 </span>            : struct BlendWriter;</a>
+<a name="26"><span class="lineNum">      26 </span>            : struct ID;</a>
+<a name="27"><span class="lineNum">      27 </span>            : struct MDeformVert;</a>
+<a name="28"><span class="lineNum">      28 </span>            : struct MDeformWeight;</a>
+<a name="29"><span class="lineNum">      29 </span>            : struct Object;</a>
+<a name="30"><span class="lineNum">      30 </span>            : struct bDeformGroup;</a>
+<a name="31"><span class="lineNum">      31 </span>            : </a>
+<a name="32"><span class="lineNum">      32 </span>            : bool BKE_id_supports_vertex_groups(const ID *id);</a>
+<a name="33"><span class="lineNum">      33 </span>            : bool BKE_object_supports_vertex_groups(const Object *ob);</a>
+<a name="34"><span class="lineNum">      34 </span>            : const ListBaseT&lt;bDeformGroup&gt; *BKE_object_defgroup_list(const Object *ob);</a>
+<a name="35"><span class="lineNum">      35 </span>            : ListBaseT&lt;bDeformGroup&gt; *BKE_object_defgroup_list_mutable(Object *ob);</a>
+<a name="36"><span class="lineNum">      36 </span>            : </a>
+<a name="37"><span class="lineNum">      37 </span>            : int BKE_object_defgroup_count(const Object *ob);</a>
+<a name="38"><span class="lineNum">      38 </span>            : /**</a>
+<a name="39"><span class="lineNum">      39 </span>            :  * \note For historical reasons, the index starts at 1 rather than 0.</a>
+<a name="40"><span class="lineNum">      40 </span>            :  */</a>
+<a name="41"><span class="lineNum">      41 </span>            : int BKE_object_defgroup_active_index_get(const Object *ob);</a>
+<a name="42"><span class="lineNum">      42 </span>            : /**</a>
+<a name="43"><span class="lineNum">      43 </span>            :  * \note For historical reasons, the index starts at 1 rather than 0.</a>
+<a name="44"><span class="lineNum">      44 </span>            :  */</a>
+<a name="45"><span class="lineNum">      45 </span>            : void BKE_object_defgroup_active_index_set(Object *ob, int new_index);</a>
+<a name="46"><span class="lineNum">      46 </span>            : </a>
+<a name="47"><span class="lineNum">      47 </span>            : /**</a>
+<a name="48"><span class="lineNum">      48 </span>            :  * Return the ID's vertex group names.</a>
+<a name="49"><span class="lineNum">      49 </span>            :  * Supports Mesh (ME), Lattice (LT), and GreasePencil (GD) IDs.</a>
+<a name="50"><span class="lineNum">      50 </span>            :  * \return ListBaseT of bDeformGroup pointers.</a>
+<a name="51"><span class="lineNum">      51 </span>            :  */</a>
+<a name="52"><span class="lineNum">      52 </span>            : const ListBaseT&lt;bDeformGroup&gt; *BKE_id_defgroup_list_get(const ID *id);</a>
+<a name="53"><span class="lineNum">      53 </span>            : ListBaseT&lt;bDeformGroup&gt; *BKE_id_defgroup_list_get_mutable(ID *id);</a>
+<a name="54"><span class="lineNum">      54 </span>            : int BKE_defgroup_name_index(const ListBaseT&lt;bDeformGroup&gt; *defbase, StringRef name);</a>
+<a name="55"><span class="lineNum">      55 </span>            : int BKE_id_defgroup_name_index(const ID *id, StringRef name);</a>
+<a name="56"><span class="lineNum">      56 </span>            : bool BKE_defgroup_listbase_name_find(ListBaseT&lt;bDeformGroup&gt; *defbase,</a>
+<a name="57"><span class="lineNum">      57 </span>            :                                      StringRef name,</a>
+<a name="58"><span class="lineNum">      58 </span>            :                                      int *r_index,</a>
+<a name="59"><span class="lineNum">      59 </span>            :                                      bDeformGroup **r_group);</a>
+<a name="60"><span class="lineNum">      60 </span>            : bool BKE_id_defgroup_name_find(ID *id, StringRef name, int *r_index, bDeformGroup **r_group);</a>
+<a name="61"><span class="lineNum">      61 </span>            : </a>
+<a name="62"><span class="lineNum">      62 </span>            : bDeformGroup *BKE_object_defgroup_new(Object *ob, StringRef name);</a>
+<a name="63"><span class="lineNum">      63 </span>            : void BKE_defgroup_copy_list(ListBaseT&lt;bDeformGroup&gt; *outbase,</a>
+<a name="64"><span class="lineNum">      64 </span>            :                             const ListBaseT&lt;bDeformGroup&gt; *inbase);</a>
+<a name="65"><span class="lineNum">      65 </span>            : bDeformGroup *BKE_defgroup_duplicate(const bDeformGroup *ingroup);</a>
+<a name="66"><span class="lineNum">      66 </span>            : bDeformGroup *BKE_object_defgroup_find_name(const Object *ob, StringRef name);</a>
+<a name="67"><span class="lineNum">      67 </span>            : /**</a>
+<a name="68"><span class="lineNum">      68 </span>            :  * Returns flip map for the vertex-groups of `ob`.</a>
+<a name="69"><span class="lineNum">      69 </span>            :  *</a>
+<a name="70"><span class="lineNum">      70 </span>            :  * \param use_default: How to handle cases where no symmetrical group is found.</a>
+<a name="71"><span class="lineNum">      71 </span>            :  * - false: sets these indices to -1, indicating the group should be ignored.</a>
+<a name="72"><span class="lineNum">      72 </span>            :  * - true: sets the index to its location in the array (making the group point to itself).</a>
+<a name="73"><span class="lineNum">      73 </span>            :  *   Enable this for symmetrical actions which apply weight operations on symmetrical vertices</a>
+<a name="74"><span class="lineNum">      74 </span>            :  *   where the symmetrical group will be used (if found), otherwise the same group is used.</a>
+<a name="75"><span class="lineNum">      75 </span>            :  *</a>
+<a name="76"><span class="lineNum">      76 </span>            :  * \return An index array `r_flip_map_num` length,</a>
+<a name="77"><span class="lineNum">      77 </span>            :  * (aligned with the list result from `BKE_id_defgroup_list_get(ob)`).</a>
+<a name="78"><span class="lineNum">      78 </span>            :  * referencing the index of the symmetrical vertex-group of a fall-back value (see `use_default`).</a>
+<a name="79"><span class="lineNum">      79 </span>            :  * The caller is responsible for freeing the array.</a>
+<a name="80"><span class="lineNum">      80 </span>            :  */</a>
+<a name="81"><span class="lineNum">      81 </span>            : int *BKE_object_defgroup_flip_map(const Object *ob, bool use_default, int *r_flip_map_num);</a>
+<a name="82"><span class="lineNum">      82 </span>            : </a>
+<a name="83"><span class="lineNum">      83 </span>            : /**</a>
+<a name="84"><span class="lineNum">      84 </span>            :  * A version of #BKE_object_defgroup_flip_map that ignores locked groups.</a>
+<a name="85"><span class="lineNum">      85 </span>            :  */</a>
+<a name="86"><span class="lineNum">      86 </span>            : int *BKE_object_defgroup_flip_map_unlocked(const Object *ob,</a>
+<a name="87"><span class="lineNum">      87 </span>            :                                            bool use_default,</a>
+<a name="88"><span class="lineNum">      88 </span>            :                                            int *r_flip_map_num);</a>
+<a name="89"><span class="lineNum">      89 </span>            : /**</a>
+<a name="90"><span class="lineNum">      90 </span>            :  * A version of #BKE_object_defgroup_flip_map that only takes a single group into account.</a>
+<a name="91"><span class="lineNum">      91 </span>            :  */</a>
+<a name="92"><span class="lineNum">      92 </span>            : int *BKE_object_defgroup_flip_map_single(const Object *ob,</a>
+<a name="93"><span class="lineNum">      93 </span>            :                                          bool use_default,</a>
+<a name="94"><span class="lineNum">      94 </span>            :                                          int defgroup,</a>
+<a name="95"><span class="lineNum">      95 </span>            :                                          int *r_flip_map_num);</a>
+<a name="96"><span class="lineNum">      96 </span>            : int BKE_object_defgroup_flip_index(const Object *ob, int index, bool use_default);</a>
+<a name="97"><span class="lineNum">      97 </span>            : int BKE_object_defgroup_name_index(const Object *ob, StringRef name);</a>
+<a name="98"><span class="lineNum">      98 </span>            : void BKE_object_defgroup_unique_name(bDeformGroup *dg, Object *ob);</a>
+<a name="99"><span class="lineNum">      99 </span>            : void BKE_object_defgroup_set_name(bDeformGroup *dg, Object *ob, const char *new_name);</a>
+<a name="100"><span class="lineNum">     100 </span>            : </a>
+<a name="101"><span class="lineNum">     101 </span>            : MDeformWeight *BKE_defvert_find_index(const MDeformVert *dv, int defgroup);</a>
+<a name="102"><span class="lineNum">     102 </span>            : /**</a>
+<a name="103"><span class="lineNum">     103 </span>            :  * Ensures that `dv` has a deform weight entry for the specified group (`defgroup`).</a>
+<a name="104"><span class="lineNum">     104 </span>            :  *</a>
+<a name="105"><span class="lineNum">     105 </span>            :  * \note this function is mirrored in editmesh_tools.cc, for use for edit-vertices.</a>
+<a name="106"><span class="lineNum">     106 </span>            :  */</a>
+<a name="107"><span class="lineNum">     107 </span>            : MDeformWeight *BKE_defvert_ensure_index(MDeformVert *dv, int defgroup);</a>
+<a name="108"><span class="lineNum">     108 </span>            : /**</a>
+<a name="109"><span class="lineNum">     109 </span>            :  * Adds the given vertex to the specified vertex group, with given weight.</a>
+<a name="110"><span class="lineNum">     110 </span>            :  *</a>
+<a name="111"><span class="lineNum">     111 </span>            :  * \warning this does NOT check for existing, assume caller already knows its not there.</a>
+<a name="112"><span class="lineNum">     112 </span>            :  */</a>
+<a name="113"><span class="lineNum">     113 </span>            : void BKE_defvert_add_index_notest(MDeformVert *dv, int defgroup, float weight);</a>
+<a name="114"><span class="lineNum">     114 </span>            : /**</a>
+<a name="115"><span class="lineNum">     115 </span>            :  * Removes the given vertex from the vertex group.</a>
+<a name="116"><span class="lineNum">     116 </span>            :  *</a>
+<a name="117"><span class="lineNum">     117 </span>            :  * \warning This function frees the given #MDeformWeight, do not use it afterward!</a>
+<a name="118"><span class="lineNum">     118 </span>            :  */</a>
+<a name="119"><span class="lineNum">     119 </span>            : void BKE_defvert_remove_group(MDeformVert *dvert, MDeformWeight *dw);</a>
+<a name="120"><span class="lineNum">     120 </span>            : void BKE_defvert_clear(MDeformVert *dvert);</a>
+<a name="121"><span class="lineNum">     121 </span>            : /**</a>
+<a name="122"><span class="lineNum">     122 </span>            :  * \return The first group index shared by both deform verts</a>
+<a name="123"><span class="lineNum">     123 </span>            :  * or -1 if none are found.</a>
+<a name="124"><span class="lineNum">     124 </span>            :  */</a>
+<a name="125"><span class="lineNum">     125 </span>            : int BKE_defvert_find_shared(const MDeformVert *dvert_a, const MDeformVert *dvert_b);</a>
+<a name="126"><span class="lineNum">     126 </span>            : /**</a>
+<a name="127"><span class="lineNum">     127 </span>            :  * \return true if has no weights.</a>
+<a name="128"><span class="lineNum">     128 </span>            :  */</a>
+<a name="129"><span class="lineNum">     129 </span>            : bool BKE_defvert_is_weight_zero(const MDeformVert *dvert, int defgroup_tot);</a>
+<a name="130"><span class="lineNum">     130 </span>            : </a>
+<a name="131"><span class="lineNum">     131 </span>            : void BKE_defvert_array_free_elems(MDeformVert *dvert, int totvert);</a>
+<a name="132"><span class="lineNum">     132 </span>            : void BKE_defvert_array_free(MDeformVert *dvert, int totvert);</a>
+<a name="133"><span class="lineNum">     133 </span>            : void BKE_defvert_array_copy(MDeformVert *dst, const MDeformVert *src, int totvert);</a>
+<a name="134"><span class="lineNum">     134 </span>            : </a>
+<a name="135"><span class="lineNum">     135 </span>            : float BKE_defvert_find_weight(const MDeformVert *dvert, int defgroup);</a>
+<a name="136"><span class="lineNum">     136 </span>            : /**</a>
+<a name="137"><span class="lineNum">     137 </span>            :  * Take care with this the rationale is:</a>
+<a name="138"><span class="lineNum">     138 </span>            :  * - if the object has no vertex group. act like vertex group isn't set and return 1.0.</a>
+<a name="139"><span class="lineNum">     139 </span>            :  * - if the vertex group exists but the 'defgroup' isn't found on this vertex, _still_ return 0.0.</a>
+<a name="140"><span class="lineNum">     140 </span>            :  *</a>
+<a name="141"><span class="lineNum">     141 </span>            :  * This is a bit confusing, just saves some checks from the caller.</a>
+<a name="142"><span class="lineNum">     142 </span>            :  */</a>
+<a name="143"><span class="lineNum">     143 </span>            : float BKE_defvert_array_find_weight_safe(const MDeformVert *dvert,</a>
+<a name="144"><span class="lineNum">     144 </span>            :                                          int index,</a>
+<a name="145"><span class="lineNum">     145 </span>            :                                          int defgroup,</a>
+<a name="146"><span class="lineNum">     146 </span>            :                                          bool invert);</a>
+<a name="147"><span class="lineNum">     147 </span>            : </a>
+<a name="148"><span class="lineNum">     148 </span>            : /**</a>
+<a name="149"><span class="lineNum">     149 </span>            :  * \return The total weight in all groups marked in the selection mask.</a>
+<a name="150"><span class="lineNum">     150 </span>            :  */</a>
+<a name="151"><span class="lineNum">     151 </span>            : float BKE_defvert_total_selected_weight(const MDeformVert *dv,</a>
+<a name="152"><span class="lineNum">     152 </span>            :                                         int defbase_num,</a>
+<a name="153"><span class="lineNum">     153 </span>            :                                         const bool *defbase_sel);</a>
+<a name="154"><span class="lineNum">     154 </span>            : </a>
+<a name="155"><span class="lineNum">     155 </span>            : /**</a>
+<a name="156"><span class="lineNum">     156 </span>            :  * \return The representative weight of a multi-paint group, used for</a>
+<a name="157"><span class="lineNum">     157 </span>            :  * viewport colors and actual painting.</a>
+<a name="158"><span class="lineNum">     158 </span>            :  *</a>
+<a name="159"><span class="lineNum">     159 </span>            :  * Result equal to sum of weights with auto normalize, and average otherwise.</a>
+<a name="160"><span class="lineNum">     160 </span>            :  * Value is not clamped, since painting relies on multiplication being always</a>
+<a name="161"><span class="lineNum">     161 </span>            :  * commutative with the collective weight function.</a>
+<a name="162"><span class="lineNum">     162 </span>            :  */</a>
+<a name="163"><span class="lineNum">     163 </span>            : float BKE_defvert_multipaint_collective_weight(const MDeformVert *dv,</a>
+<a name="164"><span class="lineNum">     164 </span>            :                                                int defbase_num,</a>
+<a name="165"><span class="lineNum">     165 </span>            :                                                const bool *defbase_sel,</a>
+<a name="166"><span class="lineNum">     166 </span>            :                                                int defbase_sel_num,</a>
+<a name="167"><span class="lineNum">     167 </span>            :                                                bool is_normalized);</a>
+<a name="168"><span class="lineNum">     168 </span>            : </a>
+<a name="169"><span class="lineNum">     169 </span>            : /* This much unlocked weight is considered equivalent to none. */</a>
+<a name="170"><span class="lineNum">     170 </span>            : #define VERTEX_WEIGHT_LOCK_EPSILON 1e-6f</a>
+<a name="171"><span class="lineNum">     171 </span>            : </a>
+<a name="172"><span class="lineNum">     172 </span>            : /**</a>
+<a name="173"><span class="lineNum">     173 </span>            :  * Computes the display weight for the lock relative weight paint mode.</a>
+<a name="174"><span class="lineNum">     174 </span>            :  *</a>
+<a name="175"><span class="lineNum">     175 </span>            :  * \return weight divided by 1-locked_weight with division by zero check</a>
+<a name="176"><span class="lineNum">     176 </span>            :  */</a>
+<a name="177"><span class="lineNum">     177 </span>            : float BKE_defvert_calc_lock_relative_weight(float weight,</a>
+<a name="178"><span class="lineNum">     178 </span>            :                                             float locked_weight,</a>
+<a name="179"><span class="lineNum">     179 </span>            :                                             float unlocked_weight);</a>
+<a name="180"><span class="lineNum">     180 </span>            : /**</a>
+<a name="181"><span class="lineNum">     181 </span>            :  * Computes the display weight for the lock relative weight paint mode, using weight data.</a>
+<a name="182"><span class="lineNum">     182 </span>            :  *</a>
+<a name="183"><span class="lineNum">     183 </span>            :  * \return weight divided by unlocked, or 1-locked_weight with division by zero check.</a>
+<a name="184"><span class="lineNum">     184 </span>            :  */</a>
+<a name="185"><span class="lineNum">     185 </span>            : float BKE_defvert_lock_relative_weight(float weight,</a>
+<a name="186"><span class="lineNum">     186 </span>            :                                        const MDeformVert *dv,</a>
+<a name="187"><span class="lineNum">     187 </span>            :                                        int defbase_num,</a>
+<a name="188"><span class="lineNum">     188 </span>            :                                        const bool *defbase_locked,</a>
+<a name="189"><span class="lineNum">     189 </span>            :                                        const bool *defbase_unlocked);</a>
+<a name="190"><span class="lineNum">     190 </span>            : </a>
+<a name="191"><span class="lineNum">     191 </span>            : void BKE_defvert_copy(MDeformVert *dvert_dst, const MDeformVert *dvert_src);</a>
+<a name="192"><span class="lineNum">     192 </span>            : /**</a>
+<a name="193"><span class="lineNum">     193 </span>            :  * Overwrite weights filtered by vgroup_subset.</a>
+<a name="194"><span class="lineNum">     194 </span>            :  * - do nothing if neither are set.</a>
+<a name="195"><span class="lineNum">     195 </span>            :  * - add destination weight if needed</a>
+<a name="196"><span class="lineNum">     196 </span>            :  */</a>
+<a name="197"><span class="lineNum">     197 </span>            : void BKE_defvert_copy_subset(MDeformVert *dvert_dst,</a>
+<a name="198"><span class="lineNum">     198 </span>            :                              const MDeformVert *dvert_src,</a>
+<a name="199"><span class="lineNum">     199 </span>            :                              const bool *vgroup_subset,</a>
+<a name="200"><span class="lineNum">     200 </span>            :                              int vgroup_num);</a>
+<a name="201"><span class="lineNum">     201 </span>            : /**</a>
+<a name="202"><span class="lineNum">     202 </span>            :  * Overwrite weights filtered by vgroup_subset and with mirroring specified by the flip map</a>
+<a name="203"><span class="lineNum">     203 </span>            :  * - do nothing if neither are set.</a>
+<a name="204"><span class="lineNum">     204 </span>            :  * - add destination weight if needed</a>
+<a name="205"><span class="lineNum">     205 </span>            :  */</a>
+<a name="206"><span class="lineNum">     206 </span>            : void BKE_defvert_mirror_subset(MDeformVert *dvert_dst,</a>
+<a name="207"><span class="lineNum">     207 </span>            :                                const MDeformVert *dvert_src,</a>
+<a name="208"><span class="lineNum">     208 </span>            :                                const bool *vgroup_subset,</a>
+<a name="209"><span class="lineNum">     209 </span>            :                                int vgroup_num,</a>
+<a name="210"><span class="lineNum">     210 </span>            :                                const int *flip_map,</a>
+<a name="211"><span class="lineNum">     211 </span>            :                                int flip_map_num);</a>
+<a name="212"><span class="lineNum">     212 </span>            : /**</a>
+<a name="213"><span class="lineNum">     213 </span>            :  * Copy an index from one #MDeformVert to another.</a>
+<a name="214"><span class="lineNum">     214 </span>            :  * - do nothing if neither are set.</a>
+<a name="215"><span class="lineNum">     215 </span>            :  * - add destination weight if needed.</a>
+<a name="216"><span class="lineNum">     216 </span>            :  */</a>
+<a name="217"><span class="lineNum">     217 </span>            : void BKE_defvert_copy_index(MDeformVert *dvert_dst,</a>
+<a name="218"><span class="lineNum">     218 </span>            :                             int defgroup_dst,</a>
+<a name="219"><span class="lineNum">     219 </span>            :                             const MDeformVert *dvert_src,</a>
+<a name="220"><span class="lineNum">     220 </span>            :                             int defgroup_src);</a>
+<a name="221"><span class="lineNum">     221 </span>            : /**</a>
+<a name="222"><span class="lineNum">     222 </span>            :  * Only sync over matching weights, don't add or remove groups</a>
+<a name="223"><span class="lineNum">     223 </span>            :  * warning, loop within loop.</a>
+<a name="224"><span class="lineNum">     224 </span>            :  */</a>
+<a name="225"><span class="lineNum">     225 </span>            : void BKE_defvert_sync(MDeformVert *dvert_dst, const MDeformVert *dvert_src, bool use_ensure);</a>
+<a name="226"><span class="lineNum">     226 </span>            : /**</a>
+<a name="227"><span class="lineNum">     227 </span>            :  * be sure all flip_map values are valid</a>
+<a name="228"><span class="lineNum">     228 </span>            :  */</a>
+<a name="229"><span class="lineNum">     229 </span>            : void BKE_defvert_sync_mapped(MDeformVert *dvert_dst,</a>
+<a name="230"><span class="lineNum">     230 </span>            :                              const MDeformVert *dvert_src,</a>
+<a name="231"><span class="lineNum">     231 </span>            :                              const int *flip_map,</a>
+<a name="232"><span class="lineNum">     232 </span>            :                              int flip_map_num,</a>
+<a name="233"><span class="lineNum">     233 </span>            :                              bool use_ensure);</a>
+<a name="234"><span class="lineNum">     234 </span>            : /**</a>
+<a name="235"><span class="lineNum">     235 </span>            :  * be sure all flip_map values are valid</a>
+<a name="236"><span class="lineNum">     236 </span>            :  */</a>
+<a name="237"><span class="lineNum">     237 </span>            : void BKE_defvert_remap(MDeformVert *dvert, const int *map, int map_len);</a>
+<a name="238"><span class="lineNum">     238 </span>            : void BKE_defvert_flip(MDeformVert *dvert, const int *flip_map, int flip_map_num);</a>
+<a name="239"><span class="lineNum">     239 </span>            : void BKE_defvert_flip_merged(MDeformVert *dvert, const int *flip_map, int flip_map_num);</a>
+<a name="240"><span class="lineNum">     240 </span>            : </a>
+<a name="241"><span class="lineNum">     241 </span>            : /**</a>
+<a name="242"><span class="lineNum">     242 </span>            :  * Normalize all the vertex group weights on a vertex.</a>
+<a name="243"><span class="lineNum">     243 </span>            :  *</a>
+<a name="244"><span class="lineNum">     244 </span>            :  * Note: this ignores whether groups are locked or not, and will therefore</a>
+<a name="245"><span class="lineNum">     245 </span>            :  * happily modify even locked groups.</a>
+<a name="246"><span class="lineNum">     246 </span>            :  *</a>
+<a name="247"><span class="lineNum">     247 </span>            :  * See #BKE_defvert_normalize_ex() for parameter documentation.</a>
+<a name="248"><span class="lineNum">     248 </span>            :  */</a>
+<a name="249"><span class="lineNum">     249 </span>            : void BKE_defvert_normalize(MDeformVert &amp;dvert);</a>
+<a name="250"><span class="lineNum">     250 </span>            : </a>
+<a name="251"><span class="lineNum">     251 </span>            : /**</a>
+<a name="252"><span class="lineNum">     252 </span>            :  * Normalize a subset of vertex group weights among themselves.</a>
+<a name="253"><span class="lineNum">     253 </span>            :  *</a>
+<a name="254"><span class="lineNum">     254 </span>            :  * Note: this ignores whether groups are locked or not, and will therefore</a>
+<a name="255"><span class="lineNum">     255 </span>            :  * happily modify even locked groups.</a>
+<a name="256"><span class="lineNum">     256 </span>            :  *</a>
+<a name="257"><span class="lineNum">     257 </span>            :  * See #BKE_defvert_normalize_ex() for parameter documentation.</a>
+<a name="258"><span class="lineNum">     258 </span>            :  */</a>
+<a name="259"><span class="lineNum">     259 </span>            : void BKE_defvert_normalize_subset(MDeformVert &amp;dvert, Span&lt;bool&gt; subset_flags);</a>
+<a name="260"><span class="lineNum">     260 </span>            : </a>
+<a name="261"><span class="lineNum">     261 </span>            : /**</a>
+<a name="262"><span class="lineNum">     262 </span>            :  * Normalize a subset of vertex group weights among themselves, but leaving</a>
+<a name="263"><span class="lineNum">     263 </span>            :  * locked groups unmodified.</a>
+<a name="264"><span class="lineNum">     264 </span>            :  *</a>
+<a name="265"><span class="lineNum">     265 </span>            :  * See #BKE_defvert_normalize_ex() for parameter documentation.</a>
+<a name="266"><span class="lineNum">     266 </span>            :  */</a>
+<a name="267"><span class="lineNum">     267 </span>            : void BKE_defvert_normalize_lock_map(MDeformVert &amp;dvert,</a>
+<a name="268"><span class="lineNum">     268 </span>            :                                     Span&lt;bool&gt; subset_flags,</a>
+<a name="269"><span class="lineNum">     269 </span>            :                                     Span&lt;bool&gt; lock_flags);</a>
+<a name="270"><span class="lineNum">     270 </span>            : </a>
+<a name="271"><span class="lineNum">     271 </span>            : /**</a>
+<a name="272"><span class="lineNum">     272 </span>            :  * Normalize the vertex groups of a vertex, with all the bells and whistles.</a>
+<a name="273"><span class="lineNum">     273 </span>            :  *</a>
+<a name="274"><span class="lineNum">     274 </span>            :  * \param dvert: the vertex weights to be normalized.</a>
+<a name="275"><span class="lineNum">     275 </span>            :  *</a>
+<a name="276"><span class="lineNum">     276 </span>            :  * \param subset_flags: span of bools indicating which vertex groups are</a>
+<a name="277"><span class="lineNum">     277 </span>            :  * included vs ignored in this function. True means included, false means</a>
+<a name="278"><span class="lineNum">     278 </span>            :  * ignored. Note that this is different than locking: locked groups are not</a>
+<a name="279"><span class="lineNum">     279 </span>            :  * *modified*, but their weights are still accounted for in the normalization</a>
+<a name="280"><span class="lineNum">     280 </span>            :  * process, whereas ignored groups aren't accounted for at all. May be empty,</a>
+<a name="281"><span class="lineNum">     281 </span>            :  * indicating all vertex groups are included. If not empty, its length must</a>
+<a name="282"><span class="lineNum">     282 </span>            :  * match the number of vertex groups in the source data (e.g. the mesh).</a>
+<a name="283"><span class="lineNum">     283 </span>            :  *</a>
+<a name="284"><span class="lineNum">     284 </span>            :  * \param lock_flags: span of bools with `true` indicating the vertex groups</a>
+<a name="285"><span class="lineNum">     285 </span>            :  * that are completely locked from modification, even if that prevents</a>
+<a name="286"><span class="lineNum">     286 </span>            :  * normalization. May be empty, indicating no locked groups. If not empty, its</a>
+<a name="287"><span class="lineNum">     287 </span>            :  * length must match the number of vertex groups in the source data (e.g. the</a>
+<a name="288"><span class="lineNum">     288 </span>            :  * mesh).</a>
+<a name="289"><span class="lineNum">     289 </span>            :  *</a>
+<a name="290"><span class="lineNum">     290 </span>            :  * \param soft_lock_flags: span of bools with `true` indicating a set of vertex</a>
+<a name="291"><span class="lineNum">     291 </span>            :  * groups that are &quot;soft locked&quot;. The intended use case for this is to &quot;protect&quot;</a>
+<a name="292"><span class="lineNum">     292 </span>            :  * weights that have just been set by a tool or operator during post-process</a>
+<a name="293"><span class="lineNum">     293 </span>            :  * normalization. When possible, only non-soft-locked weights will be modified</a>
+<a name="294"><span class="lineNum">     294 </span>            :  * to achieve normalization, but if necessary soft-locked will also be modified.</a>
+<a name="295"><span class="lineNum">     295 </span>            :  * NOTE: in theory this could be used for purposes other than &quot;just set&quot; groups,</a>
+<a name="296"><span class="lineNum">     296 </span>            :  * but corner cases are handled with that use case in mind. May be empty,</a>
+<a name="297"><span class="lineNum">     297 </span>            :  * indicating no &quot;soft locked&quot; groups. If not empty, its length must match the</a>
+<a name="298"><span class="lineNum">     298 </span>            :  * number of vertex groups in the source data (e.g. the mesh).</a>
+<a name="299"><span class="lineNum">     299 </span>            :  */</a>
+<a name="300"><span class="lineNum">     300 </span>            : void BKE_defvert_normalize_ex(MDeformVert &amp;dvert,</a>
+<a name="301"><span class="lineNum">     301 </span>            :                               Span&lt;bool&gt; subset_flags,</a>
+<a name="302"><span class="lineNum">     302 </span>            :                               Span&lt;bool&gt; lock_flags,</a>
+<a name="303"><span class="lineNum">     303 </span>            :                               Span&lt;bool&gt; soft_lock_flags);</a>
+<a name="304"><span class="lineNum">     304 </span>            : </a>
+<a name="305"><span class="lineNum">     305 </span>            : /* Utilities to 'extract' a given vgroup into a simple float array,</a>
+<a name="306"><span class="lineNum">     306 </span>            :  * for verts, but also edges/faces/loops. */</a>
+<a name="307"><span class="lineNum">     307 </span>            : </a>
+<a name="308"><span class="lineNum">     308 </span>            : void BKE_defvert_extract_vgroup_to_vertweights(</a>
+<a name="309"><span class="lineNum">     309 </span>            :     const MDeformVert *dvert, int defgroup, int verts_num, bool invert_vgroup, float *r_weights);</a>
+<a name="310"><span class="lineNum">     310 </span>            : </a>
+<a name="311"><span class="lineNum">     311 </span>            : /**</a>
+<a name="312"><span class="lineNum">     312 </span>            :  * The following three make basic interpolation,</a>
+<a name="313"><span class="lineNum">     313 </span>            :  * using temp vert_weights array to avoid looking up same weight several times.</a>
+<a name="314"><span class="lineNum">     314 </span>            :  */</a>
+<a name="315"><span class="lineNum">     315 </span>            : void BKE_defvert_extract_vgroup_to_edgeweights(const MDeformVert *dvert,</a>
+<a name="316"><span class="lineNum">     316 </span>            :                                                int defgroup,</a>
+<a name="317"><span class="lineNum">     317 </span>            :                                                int verts_num,</a>
+<a name="318"><span class="lineNum">     318 </span>            :                                                Span&lt;int2&gt; edges,</a>
+<a name="319"><span class="lineNum">     319 </span>            :                                                bool invert_vgroup,</a>
+<a name="320"><span class="lineNum">     320 </span>            :                                                float *r_weights);</a>
+<a name="321"><span class="lineNum">     321 </span>            : void BKE_defvert_extract_vgroup_to_loopweights(const MDeformVert *dvert,</a>
+<a name="322"><span class="lineNum">     322 </span>            :                                                int defgroup,</a>
+<a name="323"><span class="lineNum">     323 </span>            :                                                int verts_num,</a>
+<a name="324"><span class="lineNum">     324 </span>            :                                                Span&lt;int&gt; corner_verts,</a>
+<a name="325"><span class="lineNum">     325 </span>            :                                                bool invert_vgroup,</a>
+<a name="326"><span class="lineNum">     326 </span>            :                                                float *r_weights);</a>
+<a name="327"><span class="lineNum">     327 </span>            : </a>
+<a name="328"><span class="lineNum">     328 </span>            : void BKE_defvert_extract_vgroup_to_faceweights(const MDeformVert *dvert,</a>
+<a name="329"><span class="lineNum">     329 </span>            :                                                int defgroup,</a>
+<a name="330"><span class="lineNum">     330 </span>            :                                                int verts_num,</a>
+<a name="331"><span class="lineNum">     331 </span>            :                                                const Span&lt;int&gt; corner_verts,</a>
+<a name="332"><span class="lineNum">     332 </span>            :                                                OffsetIndices&lt;int&gt; faces,</a>
+<a name="333"><span class="lineNum">     333 </span>            :                                                bool invert_vgroup,</a>
+<a name="334"><span class="lineNum">     334 </span>            :                                                float *r_weights);</a>
+<a name="335"><span class="lineNum">     335 </span>            : </a>
+<a name="336"><span class="lineNum">     336 </span>            : void BKE_defvert_weight_to_rgb(float r_rgb[3], float weight);</a>
+<a name="337"><span class="lineNum">     337 </span>            : </a>
+<a name="338"><span class="lineNum">     338 </span>            : void BKE_defvert_blend_write(BlendWriter *writer, int count, const MDeformVert *dvlist);</a>
+<a name="339"><span class="lineNum">     339 </span>            : void BKE_defvert_blend_read(BlendDataReader *reader, int count, MDeformVert *mdverts);</a>
+<a name="340"><span class="lineNum">     340 </span>            : void BKE_defbase_blend_write(BlendWriter *writer, const ListBaseT&lt;bDeformGroup&gt; *defbase);</a>
+<a name="341"><span class="lineNum">     341 </span>            : </a>
+<a name="342"><span class="lineNum">     342 </span>            : namespace bke {</a>
+<a name="343"><span class="lineNum">     343 </span>            : </a>
+<a name="344"><span class="lineNum">     344 </span>            : VArray&lt;float&gt; varray_for_deform_verts(Span&lt;MDeformVert&gt; dverts, int defgroup_index);</a>
+<a name="345"><span class="lineNum">     345 </span>            : VMutableArray&lt;float&gt; varray_for_mutable_deform_verts(MutableSpan&lt;MDeformVert&gt; dverts,</a>
+<a name="346"><span class="lineNum">     346 </span>            :                                                      int defgroup_index);</a>
+<a name="347"><span class="lineNum">     347 </span>            : void remove_defgroup_index(MutableSpan&lt;MDeformVert&gt; dverts, int defgroup_index);</a>
+<a name="348"><span class="lineNum">     348 </span>            : </a>
+<a name="349"><span class="lineNum">     349 </span>            : void gather_deform_verts(Span&lt;MDeformVert&gt; src, Span&lt;int&gt; indices, MutableSpan&lt;MDeformVert&gt; dst);</a>
+<a name="350"><span class="lineNum">     350 </span>            : void gather_deform_verts(Span&lt;MDeformVert&gt; src,</a>
+<a name="351"><span class="lineNum">     351 </span>            :                          Span&lt;int&gt; indices,</a>
+<a name="352"><span class="lineNum">     352 </span>            :                          const IndexMask &amp;dst_mask,</a>
+<a name="353"><span class="lineNum">     353 </span>            :                          MutableSpan&lt;MDeformVert&gt; dst);</a>
+<a name="354"><span class="lineNum">     354 </span>            : void gather_deform_verts(Span&lt;MDeformVert&gt; src,</a>
+<a name="355"><span class="lineNum">     355 </span>            :                          const IndexMask &amp;indices,</a>
+<a name="356"><span class="lineNum">     356 </span>            :                          MutableSpan&lt;MDeformVert&gt; dst);</a>
+<a name="357"><span class="lineNum">     357 </span>            : </a>
+<a name="358"><span class="lineNum">     358 </span>            : struct WeightIndexGetter {</a>
+<a name="359"><span class="lineNum">     359 </span><span class="lineCov">    7387649 :   int operator()(const MDeformWeight &amp;value) const</span></a>
+<a name="360"><span class="lineNum">     360 </span>            :   {</a>
+<a name="361"><span class="lineNum">     361 </span><span class="lineCov">    7387649 :     return value.def_nr;</span></a>
+<a name="362"><span class="lineNum">     362 </span>            :   }</a>
+<a name="363"><span class="lineNum">     363 </span>            : };</a>
+<a name="364"><span class="lineNum">     364 </span>            : using MDeformWeightSet = CustomIDVectorSet&lt;MDeformWeight, WeightIndexGetter, 64&gt;;</a>
+<a name="365"><span class="lineNum">     365 </span>            : </a>
+<a name="366"><span class="lineNum">     366 </span>            : MDeformVert mix_deform_verts(const Span&lt;MDeformVert&gt; src,</a>
+<a name="367"><span class="lineNum">     367 </span>            :                              const Span&lt;int&gt; indices,</a>
+<a name="368"><span class="lineNum">     368 </span>            :                              const Span&lt;float&gt; weights,</a>
+<a name="369"><span class="lineNum">     369 </span>            :                              MDeformWeightSet &amp;dw_buffer);</a>
+<a name="370"><span class="lineNum">     370 </span>            : </a>
+<a name="371"><span class="lineNum">     371 </span>            : }  // namespace bke</a>
+<a name="372"><span class="lineNum">     372 </span>            : }  // namespace blender</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,1123 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - editors/interface/templates/interface_template_list.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">editors/interface/templates</a> - interface_template_list.cc<span style="font-size: 80%;"> (source / <a href="interface_template_list.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">401</td>
+            <td class="headerCovTableEntryLo">0.7 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">23</td>
+            <td class="headerCovTableEntryLo">4.3 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2023 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup edinterface</a>
+<a name="7"><span class="lineNum">       7 </span>            :  */</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &lt;cstdlib&gt;</a>
+<a name="10"><span class="lineNum">      10 </span>            : #include &lt;cstring&gt;</a>
+<a name="11"><span class="lineNum">      11 </span>            : </a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &quot;BLI_fnmatch.hh&quot;</a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;BLI_function_ref.hh&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;BLI_listbase.hh&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;BLI_math_base_c.hh&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &quot;BLI_string.hh&quot;</a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;BLI_string_ref.hh&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : #include &quot;BLI_string_utf8.hh&quot;</a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &quot;BLI_utildefines.hh&quot;</a>
+<a name="20"><span class="lineNum">      20 </span>            : #include &quot;BLI_vector.hh&quot;</a>
+<a name="21"><span class="lineNum">      21 </span>            : </a>
+<a name="22"><span class="lineNum">      22 </span>            : #include &quot;BKE_screen.hh&quot;</a>
+<a name="23"><span class="lineNum">      23 </span>            : </a>
+<a name="24"><span class="lineNum">      24 </span>            : #include &quot;BLT_translation.hh&quot;</a>
+<a name="25"><span class="lineNum">      25 </span>            : </a>
+<a name="26"><span class="lineNum">      26 </span>            : #include &quot;ED_screen.hh&quot;</a>
+<a name="27"><span class="lineNum">      27 </span>            : </a>
+<a name="28"><span class="lineNum">      28 </span>            : #include &quot;MEM_guardedalloc.h&quot;</a>
+<a name="29"><span class="lineNum">      29 </span>            : </a>
+<a name="30"><span class="lineNum">      30 </span>            : #include &quot;RNA_access.hh&quot;</a>
+<a name="31"><span class="lineNum">      31 </span>            : #include &quot;RNA_prototypes.hh&quot;</a>
+<a name="32"><span class="lineNum">      32 </span>            : </a>
+<a name="33"><span class="lineNum">      33 </span>            : #include &quot;UI_interface_layout.hh&quot;</a>
+<a name="34"><span class="lineNum">      34 </span>            : #include &quot;UI_view2d.hh&quot;</a>
+<a name="35"><span class="lineNum">      35 </span>            : </a>
+<a name="36"><span class="lineNum">      36 </span>            : #include &quot;WM_api.hh&quot;</a>
+<a name="37"><span class="lineNum">      37 </span>            : </a>
+<a name="38"><span class="lineNum">      38 </span>            : #include &quot;interface_intern.hh&quot;</a>
+<a name="39"><span class="lineNum">      39 </span>            : </a>
+<a name="40"><span class="lineNum">      40 </span>            : namespace blender::ui {</a>
+<a name="41"><span class="lineNum">      41 </span>            : </a>
+<a name="42"><span class="lineNum">      42 </span>            : /**</a>
+<a name="43"><span class="lineNum">      43 </span>            :  * The validated data that was passed to #template_uilist (typically through Python).</a>
+<a name="44"><span class="lineNum">      44 </span>            :  * Populated through #template_uilist_data_retrieve().</a>
+<a name="45"><span class="lineNum">      45 </span>            :  */</a>
+<a name="46"><span class="lineNum">      46 </span>            : struct TemplateListInputData {</a>
+<a name="47"><span class="lineNum">      47 </span>            :   PointerRNA dataptr;</a>
+<a name="48"><span class="lineNum">      48 </span>            :   PropertyRNA *prop;</a>
+<a name="49"><span class="lineNum">      49 </span>            :   PointerRNA active_dataptr;</a>
+<a name="50"><span class="lineNum">      50 </span>            :   PropertyRNA *activeprop;</a>
+<a name="51"><span class="lineNum">      51 </span>            :   const char *item_dyntip_propname;</a>
+<a name="52"><span class="lineNum">      52 </span>            : </a>
+<a name="53"><span class="lineNum">      53 </span>            :   /* Index as stored in the input property. I.e. the index before sorting. */</a>
+<a name="54"><span class="lineNum">      54 </span>            :   int active_item_idx;</a>
+<a name="55"><span class="lineNum">      55 </span>            : };</a>
+<a name="56"><span class="lineNum">      56 </span>            : </a>
+<a name="57"><span class="lineNum">      57 </span>            : /**</a>
+<a name="58"><span class="lineNum">      58 </span>            :  * Internal wrapper for a single item in the list (well, actually stored as a vector).</a>
+<a name="59"><span class="lineNum">      59 </span>            :  */</a>
+<a name="60"><span class="lineNum">      60 </span>            : struct _uilist_item {</a>
+<a name="61"><span class="lineNum">      61 </span>            :   PointerRNA item;</a>
+<a name="62"><span class="lineNum">      62 </span>            :   int org_idx;</a>
+<a name="63"><span class="lineNum">      63 </span>            :   int flt_flag;</a>
+<a name="64"><span class="lineNum">      64 </span>            : };</a>
+<a name="65"><span class="lineNum">      65 </span>            : </a>
+<a name="66"><span class="lineNum">      66 </span>            : /**</a>
+<a name="67"><span class="lineNum">      67 </span>            :  * Container for the item vector and additional info.</a>
+<a name="68"><span class="lineNum">      68 </span>            :  */</a>
+<a name="69"><span class="lineNum">      69 </span>            : struct TemplateListItems {</a>
+<a name="70"><span class="lineNum">      70 </span>            :   Vector&lt;_uilist_item&gt; item_vec = {};</a>
+<a name="71"><span class="lineNum">      71 </span>            :   /* Index of the active item following visual order. I.e. unlike</a>
+<a name="72"><span class="lineNum">      72 </span>            :    * TemplateListInputData.active_item_idx, this is the index after sorting. */</a>
+<a name="73"><span class="lineNum">      73 </span>            :   int active_item_idx = 0;</a>
+<a name="74"><span class="lineNum">      74 </span>            : };</a>
+<a name="75"><span class="lineNum">      75 </span>            : </a>
+<a name="76"><span class="lineNum">      76 </span>            : struct TemplateListLayoutDrawData {</a>
+<a name="77"><span class="lineNum">      77 </span>            :   uiListDrawItemFunc draw_item;</a>
+<a name="78"><span class="lineNum">      78 </span>            :   uiListDrawFilterFunc draw_filter;</a>
+<a name="79"><span class="lineNum">      79 </span>            : </a>
+<a name="80"><span class="lineNum">      80 </span>            :   int rows;</a>
+<a name="81"><span class="lineNum">      81 </span>            :   int maxrows;</a>
+<a name="82"><span class="lineNum">      82 </span>            : };</a>
+<a name="83"><span class="lineNum">      83 </span>            : </a>
+<a name="84"><span class="lineNum">      84 </span>            : struct TemplateListVisualInfo {</a>
+<a name="85"><span class="lineNum">      85 </span>            :   int visual_items; /* Visual number of items (i.e. number of items we have room to display). */</a>
+<a name="86"><span class="lineNum">      86 </span>            :   int start_idx;    /* Index of first item to display. */</a>
+<a name="87"><span class="lineNum">      87 </span>            :   int end_idx;      /* Index of last item to display + 1. */</a>
+<a name="88"><span class="lineNum">      88 </span>            : };</a>
+<a name="89"><span class="lineNum">      89 </span>            : </a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineNoCov">          0 : static void uilist_draw_item_default(uiList *ui_list,</span></a>
+<a name="91"><span class="lineNum">      91 </span>            :                                      const bContext * /*C*/,</a>
+<a name="92"><span class="lineNum">      92 </span>            :                                      Layout &amp;layout,</a>
+<a name="93"><span class="lineNum">      93 </span>            :                                      PointerRNA * /*dataptr*/,</a>
+<a name="94"><span class="lineNum">      94 </span>            :                                      PointerRNA *itemptr,</a>
+<a name="95"><span class="lineNum">      95 </span>            :                                      int icon,</a>
+<a name="96"><span class="lineNum">      96 </span>            :                                      PointerRNA * /*active_dataptr*/,</a>
+<a name="97"><span class="lineNum">      97 </span>            :                                      const char * /*active_propname*/,</a>
+<a name="98"><span class="lineNum">      98 </span>            :                                      int /*index*/,</a>
+<a name="99"><span class="lineNum">      99 </span>            :                                      int /*flt_flag*/)</a>
+<a name="100"><span class="lineNum">     100 </span>            : {</a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineNoCov">          0 :   PropertyRNA *nameprop = RNA_struct_name_property(itemptr-&gt;type);</span></a>
+<a name="102"><span class="lineNum">     102 </span>            : </a>
+<a name="103"><span class="lineNum">     103 </span>            :   /* Simplest one! */</a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineNoCov">          0 :   switch (ui_list-&gt;layout_type) {</span></a>
+<a name="105"><span class="lineNum">     105 </span>            :     case UILST_LAYOUT_DEFAULT:</a>
+<a name="106"><span class="lineNum">     106 </span>            :     case UILST_LAYOUT_COMPACT:</a>
+<a name="107"><span class="lineNum">     107 </span>            :     default:</a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineNoCov">          0 :       if (nameprop) {</span></a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineNoCov">          0 :         layout.prop(itemptr, nameprop, RNA_NO_INDEX, 0, ITEM_R_NO_BG, &quot;&quot;, icon);</span></a>
+<a name="110"><span class="lineNum">     110 </span>            :       }</a>
+<a name="111"><span class="lineNum">     111 </span>            :       else {</a>
+<a name="112"><span class="lineNum">     112 </span><span class="lineNoCov">          0 :         layout.label(&quot;&quot;, icon);</span></a>
+<a name="113"><span class="lineNum">     113 </span>            :       }</a>
+<a name="114"><span class="lineNum">     114 </span><span class="lineNoCov">          0 :       break;</span></a>
+<a name="115"><span class="lineNum">     115 </span>            :   }</a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="117"><span class="lineNum">     117 </span>            : </a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineNoCov">          0 : static void uilist_draw_filter_default(uiList *ui_list, const bContext * /*C*/, Layout &amp;layout)</span></a>
+<a name="119"><span class="lineNum">     119 </span>            : {</a>
+<a name="120"><span class="lineNum">     120 </span><span class="lineNoCov">          0 :   PointerRNA listptr = RNA_pointer_create_discrete(nullptr, RNA_UIList, ui_list);</span></a>
+<a name="121"><span class="lineNum">     121 </span>            : </a>
+<a name="122"><span class="lineNum">     122 </span><span class="lineNoCov">          0 :   Layout &amp;row = layout.row(false);</span></a>
+<a name="123"><span class="lineNum">     123 </span>            : </a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineNoCov">          0 :   Layout *subrow = &amp;row.row(true);</span></a>
+<a name="125"><span class="lineNum">     125 </span><span class="lineNoCov">          0 :   subrow-&gt;prop(&amp;listptr,</span></a>
+<a name="126"><span class="lineNum">     126 </span>            :                RNA_struct_find_property(&amp;listptr, &quot;filter_name&quot;),</a>
+<a name="127"><span class="lineNum">     127 </span>            :                -1,</a>
+<a name="128"><span class="lineNum">     128 </span>            :                0,</a>
+<a name="129"><span class="lineNum">     129 </span>            :                UI_ITEM_NONE,</a>
+<a name="130"><span class="lineNum">     130 </span>            :                &quot;&quot;,</a>
+<a name="131"><span class="lineNum">     131 </span>            :                ICON_VIEWZOOM,</a>
+<a name="132"><span class="lineNum">     132 </span><span class="lineNoCov">          0 :                IFACE_(&quot;Search&quot;));</span></a>
+<a name="133"><span class="lineNum">     133 </span><span class="lineNoCov">          0 :   subrow-&gt;prop(</span></a>
+<a name="134"><span class="lineNum">     134 </span>            :       &amp;listptr, &quot;use_filter_invert&quot;, ITEM_R_TOGGLE | ITEM_R_ICON_ONLY, &quot;&quot;, ICON_ARROW_LEFTRIGHT);</a>
+<a name="135"><span class="lineNum">     135 </span>            : </a>
+<a name="136"><span class="lineNum">     136 </span><span class="lineNoCov">          0 :   if ((ui_list-&gt;filter_sort_flag &amp; UILST_FLT_SORT_LOCK) == 0) {</span></a>
+<a name="137"><span class="lineNum">     137 </span><span class="lineNoCov">          0 :     subrow = &amp;row.row(true);</span></a>
+<a name="138"><span class="lineNum">     138 </span><span class="lineNoCov">          0 :     subrow-&gt;prop(</span></a>
+<a name="139"><span class="lineNum">     139 </span>            :         &amp;listptr, &quot;use_filter_sort_alpha&quot;, ITEM_R_TOGGLE | ITEM_R_ICON_ONLY, &quot;&quot;, ICON_NONE);</a>
+<a name="140"><span class="lineNum">     140 </span><span class="lineNoCov">          0 :     subrow-&gt;prop(&amp;listptr,</span></a>
+<a name="141"><span class="lineNum">     141 </span>            :                  &quot;use_filter_sort_reverse&quot;,</a>
+<a name="142"><span class="lineNum">     142 </span>            :                  ITEM_R_TOGGLE | ITEM_R_ICON_ONLY,</a>
+<a name="143"><span class="lineNum">     143 </span>            :                  &quot;&quot;,</a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineNoCov">          0 :                  (ui_list-&gt;filter_sort_flag &amp; UILST_FLT_SORT_REVERSE) ? ICON_SORT_DESC :</span></a>
+<a name="145"><span class="lineNum">     145 </span>            :                                                                         ICON_SORT_ASC);</a>
+<a name="146"><span class="lineNum">     146 </span>            :   }</a>
+<a name="147"><span class="lineNum">     147 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="148"><span class="lineNum">     148 </span>            : </a>
+<a name="149"><span class="lineNum">     149 </span><span class="lineNoCov">          0 : uiListNameFilter::uiListNameFilter(uiList &amp;list)</span></a>
+<a name="150"><span class="lineNum">     150 </span>            : {</a>
+<a name="151"><span class="lineNum">     151 </span><span class="lineNoCov">          0 :   const char *filter_raw = list.filter_byname;</span></a>
+<a name="152"><span class="lineNum">     152 </span>            : </a>
+<a name="153"><span class="lineNum">     153 </span><span class="lineNoCov">          0 :   if (filter_raw[0]) {</span></a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineNoCov">          0 :     const size_t slen = strlen(filter_raw);</span></a>
+<a name="155"><span class="lineNum">     155 </span>            : </a>
+<a name="156"><span class="lineNum">     156 </span>            :     /* Implicitly add heading/trailing wildcards if needed. */</a>
+<a name="157"><span class="lineNum">     157 </span><span class="lineNoCov">          0 :     if (slen + 3 &lt;= sizeof(storage_.filter_buff)) {</span></a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineNoCov">          0 :       filter_ = storage_.filter_buff;</span></a>
+<a name="159"><span class="lineNum">     159 </span>            :     }</a>
+<a name="160"><span class="lineNum">     160 </span>            :     else {</a>
+<a name="161"><span class="lineNum">     161 </span><span class="lineNoCov">          0 :       filter_ = storage_.filter_dyn = MEM_new_array_uninitialized&lt;char&gt;((slen + 3), &quot;filter_dyn&quot;);</span></a>
+<a name="162"><span class="lineNum">     162 </span>            :     }</a>
+<a name="163"><span class="lineNum">     163 </span><span class="lineNoCov">          0 :     BLI_strncpy_ensure_pad(filter_, filter_raw, '*', slen + 3);</span></a>
+<a name="164"><span class="lineNum">     164 </span>            :   }</a>
+<a name="165"><span class="lineNum">     165 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="166"><span class="lineNum">     166 </span>            : </a>
+<a name="167"><span class="lineNum">     167 </span><span class="lineNoCov">          0 : uiListNameFilter::~uiListNameFilter()</span></a>
+<a name="168"><span class="lineNum">     168 </span>            : {</a>
+<a name="169"><span class="lineNum">     169 </span><span class="lineNoCov">          0 :   MEM_SAFE_DELETE(storage_.filter_dyn);</span></a>
+<a name="170"><span class="lineNum">     170 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="171"><span class="lineNum">     171 </span>            : </a>
+<a name="172"><span class="lineNum">     172 </span><span class="lineNoCov">          0 : eUIListFilterResult uiListNameFilter::operator()(const PointerRNA &amp; /*itemptr*/,</span></a>
+<a name="173"><span class="lineNum">     173 </span>            :                                                  StringRefNull name,</a>
+<a name="174"><span class="lineNum">     174 </span>            :                                                  int /*index*/)</a>
+<a name="175"><span class="lineNum">     175 </span>            : {</a>
+<a name="176"><span class="lineNum">     176 </span><span class="lineNoCov">          0 :   if (!filter_) {</span></a>
+<a name="177"><span class="lineNum">     177 </span><span class="lineNoCov">          0 :     return UI_LIST_ITEM_FILTER_MATCHES;</span></a>
+<a name="178"><span class="lineNum">     178 </span>            :   }</a>
+<a name="179"><span class="lineNum">     179 </span>            : </a>
+<a name="180"><span class="lineNum">     180 </span>            :   /* Use `fnmatch` for shell-style globing.</a>
+<a name="181"><span class="lineNum">     181 </span>            :    * - Case-insensitive.</a>
+<a name="182"><span class="lineNum">     182 </span>            :    * - Don't handle escape characters as &quot;special&quot; characters are not expected in names.</a>
+<a name="183"><span class="lineNum">     183 </span>            :    *   Unlike shell input - `\` should be treated like any other character.</a>
+<a name="184"><span class="lineNum">     184 </span>            :    */</a>
+<a name="185"><span class="lineNum">     185 </span><span class="lineNoCov">          0 :   const int fn_flag = FNM_CASEFOLD | FNM_NOESCAPE;</span></a>
+<a name="186"><span class="lineNum">     186 </span><span class="lineNoCov">          0 :   if (fnmatch(filter_, name.c_str(), fn_flag) == 0) {</span></a>
+<a name="187"><span class="lineNum">     187 </span><span class="lineNoCov">          0 :     return UI_LIST_ITEM_FILTER_MATCHES;</span></a>
+<a name="188"><span class="lineNum">     188 </span>            :   }</a>
+<a name="189"><span class="lineNum">     189 </span><span class="lineNoCov">          0 :   return UI_LIST_ITEM_FILTER_MISMATCHES;</span></a>
+<a name="190"><span class="lineNum">     190 </span>            : }</a>
+<a name="191"><span class="lineNum">     191 </span>            : </a>
+<a name="192"><span class="lineNum">     192 </span>            : struct StringCmp {</a>
+<a name="193"><span class="lineNum">     193 </span>            :   char name[MAX_IDPROP_NAME];</a>
+<a name="194"><span class="lineNum">     194 </span>            :   int org_idx;</a>
+<a name="195"><span class="lineNum">     195 </span>            : };</a>
+<a name="196"><span class="lineNum">     196 </span>            : </a>
+<a name="197"><span class="lineNum">     197 </span><span class="lineNoCov">          0 : static int cmpstringp(const void *p1, const void *p2)</span></a>
+<a name="198"><span class="lineNum">     198 </span>            : {</a>
+<a name="199"><span class="lineNum">     199 </span>            :   /* Case-insensitive comparison. */</a>
+<a name="200"><span class="lineNum">     200 </span><span class="lineNoCov">          0 :   return BLI_strcasecmp(static_cast&lt;const StringCmp *&gt;(p1)-&gt;name,</span></a>
+<a name="201"><span class="lineNum">     201 </span><span class="lineNoCov">          0 :                         static_cast&lt;const StringCmp *&gt;(p2)-&gt;name);</span></a>
+<a name="202"><span class="lineNum">     202 </span>            : }</a>
+<a name="203"><span class="lineNum">     203 </span>            : </a>
+<a name="204"><span class="lineNum">     204 </span><span class="lineNoCov">          0 : void uilist_filter_and_sort_items(uiList *ui_list,</span></a>
+<a name="205"><span class="lineNum">     205 </span>            :                                   const bContext * /*C*/,</a>
+<a name="206"><span class="lineNum">     206 </span>            :                                   uiListItemFilterFn item_filter_fn,</a>
+<a name="207"><span class="lineNum">     207 </span>            :                                   PointerRNA *dataptr,</a>
+<a name="208"><span class="lineNum">     208 </span>            :                                   const char *propname,</a>
+<a name="209"><span class="lineNum">     209 </span>            :                                   uiListItemGetNameFn get_name_fn)</a>
+<a name="210"><span class="lineNum">     210 </span>            : {</a>
+<a name="211"><span class="lineNum">     211 </span><span class="lineNoCov">          0 :   uiListDyn *dyn_data = ui_list-&gt;dyn_data;</span></a>
+<a name="212"><span class="lineNum">     212 </span><span class="lineNoCov">          0 :   PropertyRNA *prop = RNA_struct_find_property(dataptr, propname);</span></a>
+<a name="213"><span class="lineNum">     213 </span>            : </a>
+<a name="214"><span class="lineNum">     214 </span><span class="lineNoCov">          0 :   const bool filter_exclude = (ui_list-&gt;filter_flag &amp; UILST_FLT_EXCLUDE) != 0;</span></a>
+<a name="215"><span class="lineNum">     215 </span><span class="lineNoCov">          0 :   const bool order_by_name = (ui_list-&gt;filter_sort_flag &amp; UILST_FLT_SORT_ALPHA) &amp;&amp;</span></a>
+<a name="216"><span class="lineNum">     216 </span><span class="lineNoCov">          0 :                              !(ui_list-&gt;filter_sort_flag &amp; UILST_FLT_SORT_LOCK);</span></a>
+<a name="217"><span class="lineNum">     217 </span><span class="lineNoCov">          0 :   const int len = RNA_property_collection_length(dataptr, prop);</span></a>
+<a name="218"><span class="lineNum">     218 </span>            : </a>
+<a name="219"><span class="lineNum">     219 </span><span class="lineNoCov">          0 :   dyn_data-&gt;items_shown = dyn_data-&gt;items_len = len;</span></a>
+<a name="220"><span class="lineNum">     220 </span>            : </a>
+<a name="221"><span class="lineNum">     221 </span><span class="lineNoCov">          0 :   if (len &amp;&amp; (order_by_name || item_filter_fn)) {</span></a>
+<a name="222"><span class="lineNum">     222 </span><span class="lineNoCov">          0 :     StringCmp *names = nullptr;</span></a>
+<a name="223"><span class="lineNum">     223 </span><span class="lineNoCov">          0 :     int order_idx = 0, i = 0;</span></a>
+<a name="224"><span class="lineNum">     224 </span>            : </a>
+<a name="225"><span class="lineNum">     225 </span><span class="lineNoCov">          0 :     if (order_by_name) {</span></a>
+<a name="226"><span class="lineNum">     226 </span><span class="lineNoCov">          0 :       names = MEM_new_array_zeroed&lt;StringCmp&gt;(len, &quot;StringCmp&quot;);</span></a>
+<a name="227"><span class="lineNum">     227 </span>            :     }</a>
+<a name="228"><span class="lineNum">     228 </span>            : </a>
+<a name="229"><span class="lineNum">     229 </span><span class="lineNoCov">          0 :     if (item_filter_fn) {</span></a>
+<a name="230"><span class="lineNum">     230 </span><span class="lineNoCov">          0 :       dyn_data-&gt;items_filter_flags = MEM_new_array_zeroed&lt;int&gt;(len, &quot;items_filter_flags&quot;);</span></a>
+<a name="231"><span class="lineNum">     231 </span><span class="lineNoCov">          0 :       dyn_data-&gt;items_shown = 0;</span></a>
+<a name="232"><span class="lineNum">     232 </span>            :     }</a>
+<a name="233"><span class="lineNum">     233 </span>            : </a>
+<a name="234"><span class="lineNum">     234 </span><span class="lineNoCov">          0 :     RNA_PROP_BEGIN (dataptr, itemptr, prop) {</span></a>
+<a name="235"><span class="lineNum">     235 </span><span class="lineNoCov">          0 :       bool do_order = false;</span></a>
+<a name="236"><span class="lineNum">     236 </span>            : </a>
+<a name="237"><span class="lineNum">     237 </span>            :       char *namebuf;</a>
+<a name="238"><span class="lineNum">     238 </span><span class="lineNoCov">          0 :       if (get_name_fn) {</span></a>
+<a name="239"><span class="lineNum">     239 </span><span class="lineNoCov">          0 :         namebuf = BLI_strdup(get_name_fn(itemptr, i).c_str());</span></a>
+<a name="240"><span class="lineNum">     240 </span>            :       }</a>
+<a name="241"><span class="lineNum">     241 </span>            :       else {</a>
+<a name="242"><span class="lineNum">     242 </span><span class="lineNoCov">          0 :         namebuf = RNA_struct_name_get_alloc(&amp;itemptr, nullptr, 0, nullptr);</span></a>
+<a name="243"><span class="lineNum">     243 </span>            :       }</a>
+<a name="244"><span class="lineNum">     244 </span>            : </a>
+<a name="245"><span class="lineNum">     245 </span><span class="lineNoCov">          0 :       const char *name = namebuf ? namebuf : &quot;&quot;;</span></a>
+<a name="246"><span class="lineNum">     246 </span>            : </a>
+<a name="247"><span class="lineNum">     247 </span><span class="lineNoCov">          0 :       if (item_filter_fn) {</span></a>
+<a name="248"><span class="lineNum">     248 </span><span class="lineNoCov">          0 :         const eUIListFilterResult filter_result = item_filter_fn(itemptr, name, i);</span></a>
+<a name="249"><span class="lineNum">     249 </span>            : </a>
+<a name="250"><span class="lineNum">     250 </span><span class="lineNoCov">          0 :         if (filter_result == UI_LIST_ITEM_NEVER_SHOW) {</span></a>
+<a name="251"><span class="lineNum">     251 </span><span class="lineNoCov">          0 :           dyn_data-&gt;items_filter_flags[i] = UILST_FLT_ITEM_NEVER_SHOW;</span></a>
+<a name="252"><span class="lineNum">     252 </span>            :         }</a>
+<a name="253"><span class="lineNum">     253 </span><span class="lineNoCov">          0 :         else if (filter_result == UI_LIST_ITEM_FILTER_MATCHES) {</span></a>
+<a name="254"><span class="lineNum">     254 </span><span class="lineNoCov">          0 :           if (!filter_exclude) {</span></a>
+<a name="255"><span class="lineNum">     255 </span><span class="lineNoCov">          0 :             dyn_data-&gt;items_filter_flags[i] = UILST_FLT_ITEM;</span></a>
+<a name="256"><span class="lineNum">     256 </span><span class="lineNoCov">          0 :             dyn_data-&gt;items_shown++;</span></a>
+<a name="257"><span class="lineNum">     257 </span><span class="lineNoCov">          0 :             do_order = order_by_name;</span></a>
+<a name="258"><span class="lineNum">     258 </span>            :           }</a>
+<a name="259"><span class="lineNum">     259 </span>            :           // printf(&quot;%s: '%s' matches '%s'\n&quot;, __func__, name, filter);</a>
+<a name="260"><span class="lineNum">     260 </span>            :         }</a>
+<a name="261"><span class="lineNum">     261 </span><span class="lineNoCov">          0 :         else if (filter_exclude) {</span></a>
+<a name="262"><span class="lineNum">     262 </span><span class="lineNoCov">          0 :           dyn_data-&gt;items_filter_flags[i] = UILST_FLT_ITEM;</span></a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineNoCov">          0 :           dyn_data-&gt;items_shown++;</span></a>
+<a name="264"><span class="lineNum">     264 </span><span class="lineNoCov">          0 :           do_order = order_by_name;</span></a>
+<a name="265"><span class="lineNum">     265 </span>            :         }</a>
+<a name="266"><span class="lineNum">     266 </span>            :       }</a>
+<a name="267"><span class="lineNum">     267 </span>            :       else {</a>
+<a name="268"><span class="lineNum">     268 </span><span class="lineNoCov">          0 :         do_order = order_by_name;</span></a>
+<a name="269"><span class="lineNum">     269 </span>            :       }</a>
+<a name="270"><span class="lineNum">     270 </span>            : </a>
+<a name="271"><span class="lineNum">     271 </span><span class="lineNoCov">          0 :       if (do_order) {</span></a>
+<a name="272"><span class="lineNum">     272 </span><span class="lineNoCov">          0 :         names[order_idx].org_idx = order_idx;</span></a>
+<a name="273"><span class="lineNum">     273 </span><span class="lineNoCov">          0 :         STRNCPY(names[order_idx++].name, name);</span></a>
+<a name="274"><span class="lineNum">     274 </span>            :       }</a>
+<a name="275"><span class="lineNum">     275 </span>            : </a>
+<a name="276"><span class="lineNum">     276 </span>            :       /* free name */</a>
+<a name="277"><span class="lineNum">     277 </span><span class="lineNoCov">          0 :       if (namebuf) {</span></a>
+<a name="278"><span class="lineNum">     278 </span><span class="lineNoCov">          0 :         MEM_delete(namebuf);</span></a>
+<a name="279"><span class="lineNum">     279 </span>            :       }</a>
+<a name="280"><span class="lineNum">     280 </span><span class="lineNoCov">          0 :       i++;</span></a>
+<a name="281"><span class="lineNum">     281 </span>            :     }</a>
+<a name="282"><span class="lineNum">     282 </span><span class="lineNoCov">          0 :     RNA_PROP_END;</span></a>
+<a name="283"><span class="lineNum">     283 </span>            : </a>
+<a name="284"><span class="lineNum">     284 </span><span class="lineNoCov">          0 :     if (order_by_name) {</span></a>
+<a name="285"><span class="lineNum">     285 </span>            :       int new_idx;</a>
+<a name="286"><span class="lineNum">     286 </span>            :       /* NOTE: order_idx equals either to ui_list-&gt;items_len if no filtering done,</a>
+<a name="287"><span class="lineNum">     287 </span>            :        *       or to ui_list-&gt;items_shown if filter is enabled,</a>
+<a name="288"><span class="lineNum">     288 </span>            :        *       or to (ui_list-&gt;items_len - ui_list-&gt;items_shown) if filtered items are excluded.</a>
+<a name="289"><span class="lineNum">     289 </span>            :        *       This way, we only sort items we actually intend to draw!</a>
+<a name="290"><span class="lineNum">     290 </span>            :        */</a>
+<a name="291"><span class="lineNum">     291 </span><span class="lineNoCov">          0 :       qsort(names, order_idx, sizeof(StringCmp), cmpstringp);</span></a>
+<a name="292"><span class="lineNum">     292 </span>            : </a>
+<a name="293"><span class="lineNum">     293 </span><span class="lineNoCov">          0 :       dyn_data-&gt;items_filter_neworder = MEM_new_array_uninitialized&lt;int&gt;(order_idx,</span></a>
+<a name="294"><span class="lineNum">     294 </span>            :                                                                          &quot;items_filter_neworder&quot;);</a>
+<a name="295"><span class="lineNum">     295 </span><span class="lineNoCov">          0 :       for (new_idx = 0; new_idx &lt; order_idx; new_idx++) {</span></a>
+<a name="296"><span class="lineNum">     296 </span><span class="lineNoCov">          0 :         dyn_data-&gt;items_filter_neworder[names[new_idx].org_idx] = new_idx;</span></a>
+<a name="297"><span class="lineNum">     297 </span>            :       }</a>
+<a name="298"><span class="lineNum">     298 </span>            :     }</a>
+<a name="299"><span class="lineNum">     299 </span>            : </a>
+<a name="300"><span class="lineNum">     300 </span><span class="lineNoCov">          0 :     if (names) {</span></a>
+<a name="301"><span class="lineNum">     301 </span><span class="lineNoCov">          0 :       MEM_delete(names);</span></a>
+<a name="302"><span class="lineNum">     302 </span>            :     }</a>
+<a name="303"><span class="lineNum">     303 </span>            :   }</a>
+<a name="304"><span class="lineNum">     304 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="305"><span class="lineNum">     305 </span>            : </a>
+<a name="306"><span class="lineNum">     306 </span><span class="lineNoCov">          0 : bool uilist_item_index_is_filtered_visible(const uiList *ui_list, const int item_idx)</span></a>
+<a name="307"><span class="lineNum">     307 </span>            : {</a>
+<a name="308"><span class="lineNum">     308 </span><span class="lineNoCov">          0 :   const uiListDyn *dyn_data = ui_list-&gt;dyn_data;</span></a>
+<a name="309"><span class="lineNum">     309 </span>            : </a>
+<a name="310"><span class="lineNum">     310 </span><span class="lineNoCov">          0 :   if (!dyn_data-&gt;items_filter_flags) {</span></a>
+<a name="311"><span class="lineNum">     311 </span>            :     /* If there are no filter flags to check, always consider all items visible. */</a>
+<a name="312"><span class="lineNum">     312 </span><span class="lineNoCov">          0 :     return true;</span></a>
+<a name="313"><span class="lineNum">     313 </span>            :   }</a>
+<a name="314"><span class="lineNum">     314 </span>            : </a>
+<a name="315"><span class="lineNum">     315 </span><span class="lineNoCov">          0 :   if (dyn_data-&gt;items_filter_flags[item_idx] &amp; UILST_FLT_ITEM_NEVER_SHOW) {</span></a>
+<a name="316"><span class="lineNum">     316 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="317"><span class="lineNum">     317 </span>            :   }</a>
+<a name="318"><span class="lineNum">     318 </span>            : </a>
+<a name="319"><span class="lineNum">     319 </span><span class="lineNoCov">          0 :   return (dyn_data-&gt;items_filter_flags[item_idx] &amp; UILST_FLT_ITEM);</span></a>
+<a name="320"><span class="lineNum">     320 </span>            : }</a>
+<a name="321"><span class="lineNum">     321 </span>            : </a>
+<a name="322"><span class="lineNum">     322 </span>            : /**</a>
+<a name="323"><span class="lineNum">     323 </span>            :  * Default UI List filtering: Filter by name.</a>
+<a name="324"><span class="lineNum">     324 </span>            :  */</a>
+<a name="325"><span class="lineNum">     325 </span><span class="lineNoCov">          0 : static void uilist_filter_items_default(uiList *ui_list,</span></a>
+<a name="326"><span class="lineNum">     326 </span>            :                                         const bContext *C,</a>
+<a name="327"><span class="lineNum">     327 </span>            :                                         PointerRNA *dataptr,</a>
+<a name="328"><span class="lineNum">     328 </span>            :                                         const char *propname)</a>
+<a name="329"><span class="lineNum">     329 </span>            : {</a>
+<a name="330"><span class="lineNum">     330 </span><span class="lineNoCov">          0 :   if (ui_list-&gt;filter_byname[0]) {</span></a>
+<a name="331"><span class="lineNum">     331 </span><span class="lineNoCov">          0 :     uiListNameFilter name_filter(*ui_list);</span></a>
+<a name="332"><span class="lineNum">     332 </span><span class="lineNoCov">          0 :     uilist_filter_and_sort_items(ui_list, C, name_filter, dataptr, propname);</span></a>
+<a name="333"><span class="lineNum">     333 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="334"><span class="lineNum">     334 </span>            :   /* Optimization: Skip filtering entirely when there is no filter string set. */</a>
+<a name="335"><span class="lineNum">     335 </span>            :   else {</a>
+<a name="336"><span class="lineNum">     336 </span><span class="lineNoCov">          0 :     uilist_filter_and_sort_items(ui_list, C, nullptr, dataptr, propname);</span></a>
+<a name="337"><span class="lineNum">     337 </span>            :   }</a>
+<a name="338"><span class="lineNum">     338 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="339"><span class="lineNum">     339 </span>            : </a>
+<a name="340"><span class="lineNum">     340 </span><span class="lineNoCov">          0 : static void uilist_free_dyn_data(uiList *ui_list)</span></a>
+<a name="341"><span class="lineNum">     341 </span>            : {</a>
+<a name="342"><span class="lineNum">     342 </span><span class="lineNoCov">          0 :   uiListDyn *dyn_data = ui_list-&gt;dyn_data;</span></a>
+<a name="343"><span class="lineNum">     343 </span><span class="lineNoCov">          0 :   if (!dyn_data) {</span></a>
+<a name="344"><span class="lineNum">     344 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="345"><span class="lineNum">     345 </span>            :   }</a>
+<a name="346"><span class="lineNum">     346 </span>            : </a>
+<a name="347"><span class="lineNum">     347 </span><span class="lineNoCov">          0 :   MEM_SAFE_DELETE(dyn_data-&gt;items_filter_flags);</span></a>
+<a name="348"><span class="lineNum">     348 </span><span class="lineNoCov">          0 :   MEM_SAFE_DELETE(dyn_data-&gt;items_filter_neworder);</span></a>
+<a name="349"><span class="lineNum">     349 </span>            : }</a>
+<a name="350"><span class="lineNum">     350 </span>            : </a>
+<a name="351"><span class="lineNum">     351 </span>            : /**</a>
+<a name="352"><span class="lineNum">     352 </span>            :  * Validate input parameters and initialize \a r_data from that. Plus find the list-type and return</a>
+<a name="353"><span class="lineNum">     353 </span>            :  * it in \a r_list_type.</a>
+<a name="354"><span class="lineNum">     354 </span>            :  *</a>
+<a name="355"><span class="lineNum">     355 </span>            :  * \return false if the input data isn't valid. Will also raise an RNA warning in that case.</a>
+<a name="356"><span class="lineNum">     356 </span>            :  */</a>
+<a name="357"><span class="lineNum">     357 </span><span class="lineNoCov">          0 : static bool template_uilist_data_retrieve(const StringRef listtype_name,</span></a>
+<a name="358"><span class="lineNum">     358 </span>            :                                           const char *list_id,</a>
+<a name="359"><span class="lineNum">     359 </span>            :                                           PointerRNA *dataptr,</a>
+<a name="360"><span class="lineNum">     360 </span>            :                                           const StringRefNull propname,</a>
+<a name="361"><span class="lineNum">     361 </span>            :                                           PointerRNA *active_dataptr,</a>
+<a name="362"><span class="lineNum">     362 </span>            :                                           const StringRefNull active_propname,</a>
+<a name="363"><span class="lineNum">     363 </span>            :                                           const char *item_dyntip_propname,</a>
+<a name="364"><span class="lineNum">     364 </span>            :                                           TemplateListInputData *r_input_data,</a>
+<a name="365"><span class="lineNum">     365 </span>            :                                           uiListType **r_list_type)</a>
+<a name="366"><span class="lineNum">     366 </span>            : {</a>
+<a name="367"><span class="lineNum">     367 </span><span class="lineNoCov">          0 :   *r_input_data = {};</span></a>
+<a name="368"><span class="lineNum">     368 </span>            : </a>
+<a name="369"><span class="lineNum">     369 </span>            :   /* Forbid default UI_UL_DEFAULT_CLASS_NAME list class without a custom list_id! */</a>
+<a name="370"><span class="lineNum">     370 </span><span class="lineNoCov">          0 :   if ((UI_UL_DEFAULT_CLASS_NAME == listtype_name) &amp;&amp; !(list_id &amp;&amp; list_id[0])) {</span></a>
+<a name="371"><span class="lineNum">     371 </span><span class="lineNoCov">          0 :     RNA_warning(&quot;template_list using default '%s' UIList class must provide a custom list_id&quot;,</span></a>
+<a name="372"><span class="lineNum">     372 </span>            :                 UI_UL_DEFAULT_CLASS_NAME);</a>
+<a name="373"><span class="lineNum">     373 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="374"><span class="lineNum">     374 </span>            :   }</a>
+<a name="375"><span class="lineNum">     375 </span>            : </a>
+<a name="376"><span class="lineNum">     376 </span><span class="lineNoCov">          0 :   if (!*active_dataptr) {</span></a>
+<a name="377"><span class="lineNum">     377 </span><span class="lineNoCov">          0 :     RNA_warning(&quot;No active data&quot;);</span></a>
+<a name="378"><span class="lineNum">     378 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="379"><span class="lineNum">     379 </span>            :   }</a>
+<a name="380"><span class="lineNum">     380 </span>            : </a>
+<a name="381"><span class="lineNum">     381 </span><span class="lineNoCov">          0 :   r_input_data-&gt;dataptr = *dataptr;</span></a>
+<a name="382"><span class="lineNum">     382 </span><span class="lineNoCov">          0 :   if (*dataptr) {</span></a>
+<a name="383"><span class="lineNum">     383 </span><span class="lineNoCov">          0 :     r_input_data-&gt;prop = RNA_struct_find_property(dataptr, propname.c_str());</span></a>
+<a name="384"><span class="lineNum">     384 </span><span class="lineNoCov">          0 :     if (!r_input_data-&gt;prop) {</span></a>
+<a name="385"><span class="lineNum">     385 </span><span class="lineNoCov">          0 :       RNA_warning(</span></a>
+<a name="386"><span class="lineNum">     386 </span>            :           &quot;Property not found: %s.%s&quot;, RNA_struct_identifier(dataptr-&gt;type), propname.c_str());</a>
+<a name="387"><span class="lineNum">     387 </span><span class="lineNoCov">          0 :       return false;</span></a>
+<a name="388"><span class="lineNum">     388 </span>            :     }</a>
+<a name="389"><span class="lineNum">     389 </span>            :   }</a>
+<a name="390"><span class="lineNum">     390 </span>            : </a>
+<a name="391"><span class="lineNum">     391 </span><span class="lineNoCov">          0 :   r_input_data-&gt;active_dataptr = *active_dataptr;</span></a>
+<a name="392"><span class="lineNum">     392 </span><span class="lineNoCov">          0 :   r_input_data-&gt;activeprop = RNA_struct_find_property(active_dataptr, active_propname.c_str());</span></a>
+<a name="393"><span class="lineNum">     393 </span><span class="lineNoCov">          0 :   if (!r_input_data-&gt;activeprop) {</span></a>
+<a name="394"><span class="lineNum">     394 </span><span class="lineNoCov">          0 :     RNA_warning(&quot;Property not found: %s.%s&quot;,</span></a>
+<a name="395"><span class="lineNum">     395 </span>            :                 RNA_struct_identifier(active_dataptr-&gt;type),</a>
+<a name="396"><span class="lineNum">     396 </span>            :                 active_propname.c_str());</a>
+<a name="397"><span class="lineNum">     397 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="398"><span class="lineNum">     398 </span>            :   }</a>
+<a name="399"><span class="lineNum">     399 </span>            : </a>
+<a name="400"><span class="lineNum">     400 </span><span class="lineNoCov">          0 :   if (r_input_data-&gt;prop) {</span></a>
+<a name="401"><span class="lineNum">     401 </span><span class="lineNoCov">          0 :     const PropertyType type = RNA_property_type(r_input_data-&gt;prop);</span></a>
+<a name="402"><span class="lineNum">     402 </span><span class="lineNoCov">          0 :     if (type != PROP_COLLECTION) {</span></a>
+<a name="403"><span class="lineNum">     403 </span><span class="lineNoCov">          0 :       RNA_warning(&quot;Expected a collection data property&quot;);</span></a>
+<a name="404"><span class="lineNum">     404 </span><span class="lineNoCov">          0 :       return false;</span></a>
+<a name="405"><span class="lineNum">     405 </span>            :     }</a>
+<a name="406"><span class="lineNum">     406 </span>            :   }</a>
+<a name="407"><span class="lineNum">     407 </span>            : </a>
+<a name="408"><span class="lineNum">     408 </span><span class="lineNoCov">          0 :   const PropertyType activetype = RNA_property_type(r_input_data-&gt;activeprop);</span></a>
+<a name="409"><span class="lineNum">     409 </span><span class="lineNoCov">          0 :   if (activetype != PROP_INT) {</span></a>
+<a name="410"><span class="lineNum">     410 </span><span class="lineNoCov">          0 :     RNA_warning(&quot;Expected an integer active data property&quot;);</span></a>
+<a name="411"><span class="lineNum">     411 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="412"><span class="lineNum">     412 </span>            :   }</a>
+<a name="413"><span class="lineNum">     413 </span>            : </a>
+<a name="414"><span class="lineNum">     414 </span>            :   /* Find the uiList type. */</a>
+<a name="415"><span class="lineNum">     415 </span><span class="lineNoCov">          0 :   if (!(*r_list_type = WM_uilisttype_find(listtype_name, false))) {</span></a>
+<a name="416"><span class="lineNum">     416 </span><span class="lineNoCov">          0 :     RNA_warning(&quot;List type %s not found&quot;, std::string(listtype_name).c_str());</span></a>
+<a name="417"><span class="lineNum">     417 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="418"><span class="lineNum">     418 </span>            :   }</a>
+<a name="419"><span class="lineNum">     419 </span>            : </a>
+<a name="420"><span class="lineNum">     420 </span><span class="lineNoCov">          0 :   r_input_data-&gt;active_item_idx = RNA_property_int_get(&amp;r_input_data-&gt;active_dataptr,</span></a>
+<a name="421"><span class="lineNum">     421 </span>            :                                                        r_input_data-&gt;activeprop);</a>
+<a name="422"><span class="lineNum">     422 </span><span class="lineNoCov">          0 :   r_input_data-&gt;item_dyntip_propname = item_dyntip_propname;</span></a>
+<a name="423"><span class="lineNum">     423 </span>            : </a>
+<a name="424"><span class="lineNum">     424 </span><span class="lineNoCov">          0 :   return true;</span></a>
+<a name="425"><span class="lineNum">     425 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="426"><span class="lineNum">     426 </span>            : </a>
+<a name="427"><span class="lineNum">     427 </span><span class="lineNoCov">          0 : static void template_uilist_collect_items(PointerRNA *list_ptr,</span></a>
+<a name="428"><span class="lineNum">     428 </span>            :                                           PropertyRNA *list_prop,</a>
+<a name="429"><span class="lineNum">     429 </span>            :                                           const uiList *ui_list,</a>
+<a name="430"><span class="lineNum">     430 </span>            :                                           int activei,</a>
+<a name="431"><span class="lineNum">     431 </span>            :                                           TemplateListItems *r_items)</a>
+<a name="432"><span class="lineNum">     432 </span>            : {</a>
+<a name="433"><span class="lineNum">     433 </span><span class="lineNoCov">          0 :   const uiListDyn *dyn_data = ui_list-&gt;dyn_data;</span></a>
+<a name="434"><span class="lineNum">     434 </span><span class="lineNoCov">          0 :   const bool order_reverse = (ui_list-&gt;filter_sort_flag &amp; UILST_FLT_SORT_REVERSE) != 0;</span></a>
+<a name="435"><span class="lineNum">     435 </span><span class="lineNoCov">          0 :   int i = 0;</span></a>
+<a name="436"><span class="lineNum">     436 </span><span class="lineNoCov">          0 :   int reorder_i = 0;</span></a>
+<a name="437"><span class="lineNum">     437 </span><span class="lineNoCov">          0 :   bool activei_mapping_pending = true;</span></a>
+<a name="438"><span class="lineNum">     438 </span>            : </a>
+<a name="439"><span class="lineNum">     439 </span><span class="lineNoCov">          0 :   RNA_PROP_BEGIN (list_ptr, itemptr, list_prop) {</span></a>
+<a name="440"><span class="lineNum">     440 </span><span class="lineNoCov">          0 :     if (uilist_item_index_is_filtered_visible(ui_list, i)) {</span></a>
+<a name="441"><span class="lineNum">     441 </span>            :       int new_order_idx;</a>
+<a name="442"><span class="lineNum">     442 </span><span class="lineNoCov">          0 :       if (dyn_data-&gt;items_filter_neworder) {</span></a>
+<a name="443"><span class="lineNum">     443 </span><span class="lineNoCov">          0 :         new_order_idx = dyn_data-&gt;items_filter_neworder[reorder_i++];</span></a>
+<a name="444"><span class="lineNum">     444 </span><span class="lineNoCov">          0 :         new_order_idx = order_reverse ? dyn_data-&gt;items_shown - new_order_idx - 1 : new_order_idx;</span></a>
+<a name="445"><span class="lineNum">     445 </span>            :       }</a>
+<a name="446"><span class="lineNum">     446 </span>            :       else {</a>
+<a name="447"><span class="lineNum">     447 </span><span class="lineNoCov">          0 :         new_order_idx = order_reverse ? dyn_data-&gt;items_shown - ++reorder_i : reorder_i++;</span></a>
+<a name="448"><span class="lineNum">     448 </span>            :       }</a>
+<a name="449"><span class="lineNum">     449 </span>            :       // printf(&quot;%s: ii: %d\n&quot;, __func__, ii);</a>
+<a name="450"><span class="lineNum">     450 </span><span class="lineNoCov">          0 :       r_items-&gt;item_vec[new_order_idx].item = itemptr;</span></a>
+<a name="451"><span class="lineNum">     451 </span><span class="lineNoCov">          0 :       r_items-&gt;item_vec[new_order_idx].org_idx = i;</span></a>
+<a name="452"><span class="lineNum">     452 </span><span class="lineNoCov">          0 :       r_items-&gt;item_vec[new_order_idx].flt_flag = dyn_data-&gt;items_filter_flags ?</span></a>
+<a name="453"><span class="lineNum">     453 </span><span class="lineNoCov">          0 :                                                       dyn_data-&gt;items_filter_flags[i] :</span></a>
+<a name="454"><span class="lineNum">     454 </span>            :                                                       0;</a>
+<a name="455"><span class="lineNum">     455 </span>            : </a>
+<a name="456"><span class="lineNum">     456 </span><span class="lineNoCov">          0 :       if (activei_mapping_pending &amp;&amp; activei == i) {</span></a>
+<a name="457"><span class="lineNum">     457 </span><span class="lineNoCov">          0 :         activei = new_order_idx;</span></a>
+<a name="458"><span class="lineNum">     458 </span>            :         /* So that we do not map again activei! */</a>
+<a name="459"><span class="lineNum">     459 </span><span class="lineNoCov">          0 :         activei_mapping_pending = false;</span></a>
+<a name="460"><span class="lineNum">     460 </span>            :       }</a>
+<a name="461"><span class="lineNum">     461 </span>            : #if 0 /* For now, do not alter active element, even if it will be hidden... */</a>
+<a name="462"><span class="lineNum">     462 </span>            :       else if (activei &lt; i) {</a>
+<a name="463"><span class="lineNum">     463 </span>            :         /* We do not want an active but invisible item!</a>
+<a name="464"><span class="lineNum">     464 </span>            :          * Only exception is when all items are filtered out...</a>
+<a name="465"><span class="lineNum">     465 </span>            :          */</a>
+<a name="466"><span class="lineNum">     466 </span>            :         if (prev_order_idx &gt;= 0) {</a>
+<a name="467"><span class="lineNum">     467 </span>            :           activei = prev_order_idx;</a>
+<a name="468"><span class="lineNum">     468 </span>            :           RNA_property_int_set(active_dataptr, activeprop, prev_i);</a>
+<a name="469"><span class="lineNum">     469 </span>            :         }</a>
+<a name="470"><span class="lineNum">     470 </span>            :         else {</a>
+<a name="471"><span class="lineNum">     471 </span>            :           activei = new_order_idx;</a>
+<a name="472"><span class="lineNum">     472 </span>            :           RNA_property_int_set(active_dataptr, activeprop, i);</a>
+<a name="473"><span class="lineNum">     473 </span>            :         }</a>
+<a name="474"><span class="lineNum">     474 </span>            :       }</a>
+<a name="475"><span class="lineNum">     475 </span>            :       prev_i = i;</a>
+<a name="476"><span class="lineNum">     476 </span>            :       prev_ii = new_order_idx;</a>
+<a name="477"><span class="lineNum">     477 </span>            : #endif</a>
+<a name="478"><span class="lineNum">     478 </span>            :     }</a>
+<a name="479"><span class="lineNum">     479 </span><span class="lineNoCov">          0 :     i++;</span></a>
+<a name="480"><span class="lineNum">     480 </span>            :   }</a>
+<a name="481"><span class="lineNum">     481 </span><span class="lineNoCov">          0 :   RNA_PROP_END;</span></a>
+<a name="482"><span class="lineNum">     482 </span>            : </a>
+<a name="483"><span class="lineNum">     483 </span>            :   /* If mapping is still pending, no active item was found. Mark as invalid (-1) */</a>
+<a name="484"><span class="lineNum">     484 </span><span class="lineNoCov">          0 :   r_items-&gt;active_item_idx = activei_mapping_pending ? -1 : activei;</span></a>
+<a name="485"><span class="lineNum">     485 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="486"><span class="lineNum">     486 </span>            : </a>
+<a name="487"><span class="lineNum">     487 </span>            : /**</a>
+<a name="488"><span class="lineNum">     488 </span>            :  * Create the UI-list representation of the list items, sorted and filtered if needed.</a>
+<a name="489"><span class="lineNum">     489 </span>            :  */</a>
+<a name="490"><span class="lineNum">     490 </span><span class="lineNoCov">          0 : static void template_uilist_collect_display_items(const bContext *C,</span></a>
+<a name="491"><span class="lineNum">     491 </span>            :                                                   uiList *ui_list,</a>
+<a name="492"><span class="lineNum">     492 </span>            :                                                   TemplateListInputData *input_data,</a>
+<a name="493"><span class="lineNum">     493 </span>            :                                                   const uiListFilterItemsFunc filter_items_fn,</a>
+<a name="494"><span class="lineNum">     494 </span>            :                                                   TemplateListItems *r_items)</a>
+<a name="495"><span class="lineNum">     495 </span>            : {</a>
+<a name="496"><span class="lineNum">     496 </span><span class="lineNoCov">          0 :   uiListDyn *dyn_data = ui_list-&gt;dyn_data;</span></a>
+<a name="497"><span class="lineNum">     497 </span>            : </a>
+<a name="498"><span class="lineNum">     498 </span>            :   /* Filter list items! (not for compact layout, though) */</a>
+<a name="499"><span class="lineNum">     499 </span><span class="lineNoCov">          0 :   if (input_data-&gt;dataptr &amp;&amp; input_data-&gt;prop) {</span></a>
+<a name="500"><span class="lineNum">     500 </span>            :     int items_shown;</a>
+<a name="501"><span class="lineNum">     501 </span>            : #if 0</a>
+<a name="502"><span class="lineNum">     502 </span>            :     int prev_ii = -1, prev_i;</a>
+<a name="503"><span class="lineNum">     503 </span>            : #endif</a>
+<a name="504"><span class="lineNum">     504 </span>            : </a>
+<a name="505"><span class="lineNum">     505 </span><span class="lineNoCov">          0 :     if (ui_list-&gt;layout_type == UILST_LAYOUT_COMPACT) {</span></a>
+<a name="506"><span class="lineNum">     506 </span><span class="lineNoCov">          0 :       dyn_data-&gt;items_len = dyn_data-&gt;items_shown = RNA_property_collection_length(</span></a>
+<a name="507"><span class="lineNum">     507 </span>            :           &amp;input_data-&gt;dataptr, input_data-&gt;prop);</a>
+<a name="508"><span class="lineNum">     508 </span>            :     }</a>
+<a name="509"><span class="lineNum">     509 </span>            :     else {</a>
+<a name="510"><span class="lineNum">     510 </span>            :       // printf(&quot;%s: filtering...\n&quot;, __func__);</a>
+<a name="511"><span class="lineNum">     511 </span><span class="lineNoCov">          0 :       filter_items_fn(ui_list, C, &amp;input_data-&gt;dataptr, RNA_property_identifier(input_data-&gt;prop));</span></a>
+<a name="512"><span class="lineNum">     512 </span>            :       // printf(&quot;%s: filtering done.\n&quot;, __func__);</a>
+<a name="513"><span class="lineNum">     513 </span>            :     }</a>
+<a name="514"><span class="lineNum">     514 </span>            : </a>
+<a name="515"><span class="lineNum">     515 </span><span class="lineNoCov">          0 :     items_shown = dyn_data-&gt;items_shown;</span></a>
+<a name="516"><span class="lineNum">     516 </span><span class="lineNoCov">          0 :     if (items_shown &gt;= 0) {</span></a>
+<a name="517"><span class="lineNum">     517 </span><span class="lineNoCov">          0 :       r_items-&gt;item_vec.resize(items_shown);</span></a>
+<a name="518"><span class="lineNum">     518 </span>            :       // printf(&quot;%s: items shown: %d.\n&quot;, __func__, items_shown);</a>
+<a name="519"><span class="lineNum">     519 </span>            : </a>
+<a name="520"><span class="lineNum">     520 </span><span class="lineNoCov">          0 :       template_uilist_collect_items(</span></a>
+<a name="521"><span class="lineNum">     521 </span>            :           &amp;input_data-&gt;dataptr, input_data-&gt;prop, ui_list, input_data-&gt;active_item_idx, r_items);</a>
+<a name="522"><span class="lineNum">     522 </span>            :     }</a>
+<a name="523"><span class="lineNum">     523 </span>            :   }</a>
+<a name="524"><span class="lineNum">     524 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="525"><span class="lineNum">     525 </span>            : </a>
+<a name="526"><span class="lineNum">     526 </span><span class="lineNoCov">          0 : static void uilist_prepare(uiList *ui_list,</span></a>
+<a name="527"><span class="lineNum">     527 </span>            :                            const TemplateListItems *items,</a>
+<a name="528"><span class="lineNum">     528 </span>            :                            const TemplateListLayoutDrawData *layout_data,</a>
+<a name="529"><span class="lineNum">     529 </span>            :                            TemplateListVisualInfo *r_visual_info)</a>
+<a name="530"><span class="lineNum">     530 </span>            : {</a>
+<a name="531"><span class="lineNum">     531 </span><span class="lineNoCov">          0 :   uiListDyn *dyn_data = ui_list-&gt;dyn_data;</span></a>
+<a name="532"><span class="lineNum">     532 </span><span class="lineNoCov">          0 :   const bool use_auto_size = (ui_list-&gt;list_grip &lt;</span></a>
+<a name="533"><span class="lineNum">     533 </span><span class="lineNoCov">          0 :                               (layout_data-&gt;rows - UI_LIST_AUTO_SIZE_THRESHOLD));</span></a>
+<a name="534"><span class="lineNum">     534 </span>            : </a>
+<a name="535"><span class="lineNum">     535 </span><span class="lineNoCov">          0 :   int actual_rows = layout_data-&gt;rows;</span></a>
+<a name="536"><span class="lineNum">     536 </span><span class="lineNoCov">          0 :   int actual_maxrows = layout_data-&gt;maxrows;</span></a>
+<a name="537"><span class="lineNum">     537 </span>            : </a>
+<a name="538"><span class="lineNum">     538 </span>            :   /* default rows */</a>
+<a name="539"><span class="lineNum">     539 </span><span class="lineNoCov">          0 :   if (actual_rows &lt;= 0) {</span></a>
+<a name="540"><span class="lineNum">     540 </span><span class="lineNoCov">          0 :     actual_rows = 5;</span></a>
+<a name="541"><span class="lineNum">     541 </span>            :   }</a>
+<a name="542"><span class="lineNum">     542 </span><span class="lineNoCov">          0 :   dyn_data-&gt;visual_height_min = actual_rows;</span></a>
+<a name="543"><span class="lineNum">     543 </span><span class="lineNoCov">          0 :   if (actual_maxrows &lt; actual_rows) {</span></a>
+<a name="544"><span class="lineNum">     544 </span><span class="lineNoCov">          0 :     actual_maxrows = max_ii(actual_rows, 5);</span></a>
+<a name="545"><span class="lineNum">     545 </span>            :   }</a>
+<a name="546"><span class="lineNum">     546 </span>            : </a>
+<a name="547"><span class="lineNum">     547 </span>            :   int activei_row;</a>
+<a name="548"><span class="lineNum">     548 </span><span class="lineNoCov">          0 :   dyn_data-&gt;height = items-&gt;item_vec.size();</span></a>
+<a name="549"><span class="lineNum">     549 </span><span class="lineNoCov">          0 :   activei_row = items-&gt;active_item_idx;</span></a>
+<a name="550"><span class="lineNum">     550 </span>            : </a>
+<a name="551"><span class="lineNum">     551 </span><span class="lineNoCov">          0 :   if (!use_auto_size) {</span></a>
+<a name="552"><span class="lineNum">     552 </span>            :     /* No auto-size, yet we clamp at min size! */</a>
+<a name="553"><span class="lineNum">     553 </span><span class="lineNoCov">          0 :     actual_rows = max_ii(ui_list-&gt;list_grip, actual_rows);</span></a>
+<a name="554"><span class="lineNum">     554 </span>            :   }</a>
+<a name="555"><span class="lineNum">     555 </span><span class="lineNoCov">          0 :   else if ((actual_rows != actual_maxrows) &amp;&amp; (dyn_data-&gt;height &gt; actual_rows)) {</span></a>
+<a name="556"><span class="lineNum">     556 </span>            :     /* Expand size if needed and possible. */</a>
+<a name="557"><span class="lineNum">     557 </span><span class="lineNoCov">          0 :     actual_rows = min_ii(dyn_data-&gt;height, actual_maxrows);</span></a>
+<a name="558"><span class="lineNum">     558 </span>            :   }</a>
+<a name="559"><span class="lineNum">     559 </span>            : </a>
+<a name="560"><span class="lineNum">     560 </span>            :   /* If list length changes or list is tagged to check this,</a>
+<a name="561"><span class="lineNum">     561 </span>            :    * and active is out of view, scroll to it. */</a>
+<a name="562"><span class="lineNum">     562 </span><span class="lineNoCov">          0 :   if ((ui_list-&gt;list_last_len != items-&gt;item_vec.size()) ||</span></a>
+<a name="563"><span class="lineNum">     563 </span><span class="lineNoCov">          0 :       (ui_list-&gt;flag &amp; UILST_SCROLL_TO_ACTIVE_ITEM))</span></a>
+<a name="564"><span class="lineNum">     564 </span>            :   {</a>
+<a name="565"><span class="lineNum">     565 </span><span class="lineNoCov">          0 :     if (activei_row &lt; ui_list-&gt;list_scroll) {</span></a>
+<a name="566"><span class="lineNum">     566 </span><span class="lineNoCov">          0 :       ui_list-&gt;list_scroll = activei_row;</span></a>
+<a name="567"><span class="lineNum">     567 </span>            :     }</a>
+<a name="568"><span class="lineNum">     568 </span><span class="lineNoCov">          0 :     else if (activei_row &gt;= ui_list-&gt;list_scroll + actual_rows) {</span></a>
+<a name="569"><span class="lineNum">     569 </span><span class="lineNoCov">          0 :       ui_list-&gt;list_scroll = activei_row - actual_rows + 1;</span></a>
+<a name="570"><span class="lineNum">     570 </span>            :     }</a>
+<a name="571"><span class="lineNum">     571 </span><span class="lineNoCov">          0 :     ui_list-&gt;flag &amp;= ~UILST_SCROLL_TO_ACTIVE_ITEM;</span></a>
+<a name="572"><span class="lineNum">     572 </span>            :   }</a>
+<a name="573"><span class="lineNum">     573 </span>            : </a>
+<a name="574"><span class="lineNum">     574 </span><span class="lineNoCov">          0 :   const int max_scroll = max_ii(0, dyn_data-&gt;height - actual_rows);</span></a>
+<a name="575"><span class="lineNum">     575 </span><span class="lineNoCov">          0 :   CLAMP(ui_list-&gt;list_scroll, 0, max_scroll);</span></a>
+<a name="576"><span class="lineNum">     576 </span><span class="lineNoCov">          0 :   ui_list-&gt;list_last_len = items-&gt;item_vec.size();</span></a>
+<a name="577"><span class="lineNum">     577 </span><span class="lineNoCov">          0 :   dyn_data-&gt;visual_height = actual_rows;</span></a>
+<a name="578"><span class="lineNum">     578 </span><span class="lineNoCov">          0 :   r_visual_info-&gt;visual_items = actual_rows;</span></a>
+<a name="579"><span class="lineNum">     579 </span><span class="lineNoCov">          0 :   r_visual_info-&gt;start_idx = ui_list-&gt;list_scroll;</span></a>
+<a name="580"><span class="lineNum">     580 </span><span class="lineNoCov">          0 :   r_visual_info-&gt;end_idx = min_ii(r_visual_info-&gt;start_idx + actual_rows, items-&gt;item_vec.size());</span></a>
+<a name="581"><span class="lineNum">     581 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="582"><span class="lineNum">     582 </span>            : </a>
+<a name="583"><span class="lineNum">     583 </span><span class="lineNoCov">          0 : static void uilist_resize_update(bContext *C, uiList *ui_list)</span></a>
+<a name="584"><span class="lineNum">     584 </span>            : {</a>
+<a name="585"><span class="lineNum">     585 </span><span class="lineNoCov">          0 :   uiListDyn *dyn_data = ui_list-&gt;dyn_data;</span></a>
+<a name="586"><span class="lineNum">     586 </span>            : </a>
+<a name="587"><span class="lineNum">     587 </span>            :   /* This way we get diff in number of additional items to show (positive) or hide (negative). */</a>
+<a name="588"><span class="lineNum">     588 </span><span class="lineNoCov">          0 :   const int diff = round_fl_to_int(float(dyn_data-&gt;resize - dyn_data-&gt;resize_prev) /</span></a>
+<a name="589"><span class="lineNum">     589 </span><span class="lineNoCov">          0 :                                    float(UI_UNIT_Y));</span></a>
+<a name="590"><span class="lineNum">     590 </span>            : </a>
+<a name="591"><span class="lineNum">     591 </span><span class="lineNoCov">          0 :   if (diff != 0) {</span></a>
+<a name="592"><span class="lineNum">     592 </span><span class="lineNoCov">          0 :     ui_list-&gt;list_grip += diff;</span></a>
+<a name="593"><span class="lineNum">     593 </span><span class="lineNoCov">          0 :     dyn_data-&gt;resize_prev += diff * UI_UNIT_Y;</span></a>
+<a name="594"><span class="lineNum">     594 </span><span class="lineNoCov">          0 :     ui_list-&gt;flag |= UILST_SCROLL_TO_ACTIVE_ITEM;</span></a>
+<a name="595"><span class="lineNum">     595 </span>            :   }</a>
+<a name="596"><span class="lineNum">     596 </span>            : </a>
+<a name="597"><span class="lineNum">     597 </span>            :   /* In case uilist is in popup, we need special refreshing */</a>
+<a name="598"><span class="lineNum">     598 </span><span class="lineNoCov">          0 :   ED_region_tag_refresh_ui(CTX_wm_region_popup(C));</span></a>
+<a name="599"><span class="lineNum">     599 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="600"><span class="lineNum">     600 </span>            : </a>
+<a name="601"><span class="lineNum">     601 </span><span class="lineNoCov">          0 : static void *uilist_item_use_dynamic_tooltip(PointerRNA *itemptr, const char *propname)</span></a>
+<a name="602"><span class="lineNum">     602 </span>            : {</a>
+<a name="603"><span class="lineNum">     603 </span><span class="lineNoCov">          0 :   if (propname &amp;&amp; propname[0] &amp;&amp; itemptr &amp;&amp; *itemptr) {</span></a>
+<a name="604"><span class="lineNum">     604 </span><span class="lineNoCov">          0 :     PropertyRNA *prop = RNA_struct_find_property(itemptr, propname);</span></a>
+<a name="605"><span class="lineNum">     605 </span>            : </a>
+<a name="606"><span class="lineNum">     606 </span><span class="lineNoCov">          0 :     if (prop &amp;&amp; (RNA_property_type(prop) == PROP_STRING)) {</span></a>
+<a name="607"><span class="lineNum">     607 </span><span class="lineNoCov">          0 :       return RNA_property_string_get_alloc(itemptr, prop, nullptr, 0, nullptr);</span></a>
+<a name="608"><span class="lineNum">     608 </span>            :     }</a>
+<a name="609"><span class="lineNum">     609 </span>            :   }</a>
+<a name="610"><span class="lineNum">     610 </span><span class="lineNoCov">          0 :   return nullptr;</span></a>
+<a name="611"><span class="lineNum">     611 </span>            : }</a>
+<a name="612"><span class="lineNum">     612 </span>            : </a>
+<a name="613"><span class="lineNum">     613 </span><span class="lineNoCov">          0 : static std::string uilist_item_tooltip_func(bContext * /*C*/, void *argN, const StringRef tip)</span></a>
+<a name="614"><span class="lineNum">     614 </span>            : {</a>
+<a name="615"><span class="lineNum">     615 </span><span class="lineNoCov">          0 :   char *dyn_tooltip = static_cast&lt;char *&gt;(argN);</span></a>
+<a name="616"><span class="lineNum">     616 </span><span class="lineNoCov">          0 :   std::string tooltip_string = dyn_tooltip;</span></a>
+<a name="617"><span class="lineNum">     617 </span><span class="lineNoCov">          0 :   if (!tip.is_empty()) {</span></a>
+<a name="618"><span class="lineNum">     618 </span><span class="lineNoCov">          0 :     tooltip_string += '\n';</span></a>
+<a name="619"><span class="lineNum">     619 </span><span class="lineNoCov">          0 :     tooltip_string += tip;</span></a>
+<a name="620"><span class="lineNum">     620 </span>            :   }</a>
+<a name="621"><span class="lineNum">     621 </span><span class="lineNoCov">          0 :   return tooltip_string;</span></a>
+<a name="622"><span class="lineNum">     622 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="623"><span class="lineNum">     623 </span>            : </a>
+<a name="624"><span class="lineNum">     624 </span>            : /**</a>
+<a name="625"><span class="lineNum">     625 </span>            :  * \note that \a layout_type may be null.</a>
+<a name="626"><span class="lineNum">     626 </span>            :  */</a>
+<a name="627"><span class="lineNum">     627 </span><span class="lineNoCov">          0 : static uiList *uilist_ensure(const bContext *C,</span></a>
+<a name="628"><span class="lineNum">     628 </span>            :                              uiListType *ui_list_type,</a>
+<a name="629"><span class="lineNum">     629 </span>            :                              const char *list_id,</a>
+<a name="630"><span class="lineNum">     630 </span>            :                              euiList_LayoutType layout_type,</a>
+<a name="631"><span class="lineNum">     631 </span>            :                              bool sort_reverse,</a>
+<a name="632"><span class="lineNum">     632 </span>            :                              bool sort_lock)</a>
+<a name="633"><span class="lineNum">     633 </span>            : {</a>
+<a name="634"><span class="lineNum">     634 </span>            :   /* Allows to work in popups. */</a>
+<a name="635"><span class="lineNum">     635 </span><span class="lineNoCov">          0 :   ARegion *region = CTX_wm_region_popup(C);</span></a>
+<a name="636"><span class="lineNum">     636 </span><span class="lineNoCov">          0 :   if (region == nullptr) {</span></a>
+<a name="637"><span class="lineNum">     637 </span><span class="lineNoCov">          0 :     region = CTX_wm_region(C);</span></a>
+<a name="638"><span class="lineNum">     638 </span>            :   }</a>
+<a name="639"><span class="lineNum">     639 </span>            : </a>
+<a name="640"><span class="lineNum">     640 </span>            :   /* Find or add the uiList to the current Region. */</a>
+<a name="641"><span class="lineNum">     641 </span>            : </a>
+<a name="642"><span class="lineNum">     642 </span>            :   char full_list_id[UI_MAX_NAME_STR];</a>
+<a name="643"><span class="lineNum">     643 </span><span class="lineNoCov">          0 :   WM_uilisttype_to_full_list_id(ui_list_type, list_id, full_list_id);</span></a>
+<a name="644"><span class="lineNum">     644 </span>            : </a>
+<a name="645"><span class="lineNum">     645 </span>            :   uiList *ui_list = static_cast&lt;uiList *&gt;(</a>
+<a name="646"><span class="lineNum">     646 </span><span class="lineNoCov">          0 :       BLI_findstring(&amp;region-&gt;ui_lists, full_list_id, offsetof(uiList, list_id)));</span></a>
+<a name="647"><span class="lineNum">     647 </span>            : </a>
+<a name="648"><span class="lineNum">     648 </span><span class="lineNoCov">          0 :   if (!ui_list) {</span></a>
+<a name="649"><span class="lineNum">     649 </span><span class="lineNoCov">          0 :     ui_list = MEM_new&lt;uiList&gt;(&quot;uiList&quot;);</span></a>
+<a name="650"><span class="lineNum">     650 </span><span class="lineNoCov">          0 :     STRNCPY_UTF8(ui_list-&gt;list_id, full_list_id);</span></a>
+<a name="651"><span class="lineNum">     651 </span><span class="lineNoCov">          0 :     BLI_addtail(&amp;region-&gt;ui_lists, ui_list);</span></a>
+<a name="652"><span class="lineNum">     652 </span><span class="lineNoCov">          0 :     ui_list-&gt;list_grip = -UI_LIST_AUTO_SIZE_THRESHOLD; /* Force auto size by default. */</span></a>
+<a name="653"><span class="lineNum">     653 </span><span class="lineNoCov">          0 :     if (sort_reverse) {</span></a>
+<a name="654"><span class="lineNum">     654 </span><span class="lineNoCov">          0 :       ui_list-&gt;filter_sort_flag |= UILST_FLT_SORT_REVERSE;</span></a>
+<a name="655"><span class="lineNum">     655 </span>            :     }</a>
+<a name="656"><span class="lineNum">     656 </span><span class="lineNoCov">          0 :     if (sort_lock) {</span></a>
+<a name="657"><span class="lineNum">     657 </span><span class="lineNoCov">          0 :       ui_list-&gt;filter_sort_flag |= UILST_FLT_SORT_LOCK;</span></a>
+<a name="658"><span class="lineNum">     658 </span>            :     }</a>
+<a name="659"><span class="lineNum">     659 </span>            :   }</a>
+<a name="660"><span class="lineNum">     660 </span>            : </a>
+<a name="661"><span class="lineNum">     661 </span><span class="lineNoCov">          0 :   if (!ui_list-&gt;dyn_data) {</span></a>
+<a name="662"><span class="lineNum">     662 </span><span class="lineNoCov">          0 :     ui_list-&gt;dyn_data = MEM_new&lt;uiListDyn&gt;(&quot;uiList.dyn_data&quot;);</span></a>
+<a name="663"><span class="lineNum">     663 </span>            :   }</a>
+<a name="664"><span class="lineNum">     664 </span><span class="lineNoCov">          0 :   uiListDyn *dyn_data = ui_list-&gt;dyn_data;</span></a>
+<a name="665"><span class="lineNum">     665 </span>            :   /* Note that this isn't a `uiListType` callback, it's stored in the runtime list data. Otherwise</a>
+<a name="666"><span class="lineNum">     666 </span>            :    * the runtime data could leak when the type is unregistered (e.g. on &quot;Reload Scripts&quot;). */</a>
+<a name="667"><span class="lineNum">     667 </span><span class="lineNoCov">          0 :   dyn_data-&gt;free_runtime_data_fn = uilist_free_dyn_data;</span></a>
+<a name="668"><span class="lineNum">     668 </span>            : </a>
+<a name="669"><span class="lineNum">     669 </span>            :   /* Because we can't actually pass type across save&amp;load... */</a>
+<a name="670"><span class="lineNum">     670 </span><span class="lineNoCov">          0 :   ui_list-&gt;type = ui_list_type;</span></a>
+<a name="671"><span class="lineNum">     671 </span><span class="lineNoCov">          0 :   ui_list-&gt;layout_type = layout_type;</span></a>
+<a name="672"><span class="lineNum">     672 </span>            : </a>
+<a name="673"><span class="lineNum">     673 </span>            :   /* Reset filtering data. */</a>
+<a name="674"><span class="lineNum">     674 </span><span class="lineNoCov">          0 :   MEM_SAFE_DELETE(dyn_data-&gt;items_filter_flags);</span></a>
+<a name="675"><span class="lineNum">     675 </span><span class="lineNoCov">          0 :   MEM_SAFE_DELETE(dyn_data-&gt;items_filter_neworder);</span></a>
+<a name="676"><span class="lineNum">     676 </span><span class="lineNoCov">          0 :   dyn_data-&gt;items_len = dyn_data-&gt;items_shown = -1;</span></a>
+<a name="677"><span class="lineNum">     677 </span>            : </a>
+<a name="678"><span class="lineNum">     678 </span><span class="lineNoCov">          0 :   return ui_list;</span></a>
+<a name="679"><span class="lineNum">     679 </span>            : }</a>
+<a name="680"><span class="lineNum">     680 </span>            : </a>
+<a name="681"><span class="lineNum">     681 </span><span class="lineNoCov">          0 : static void template_uilist_layout_draw(const bContext *C,</span></a>
+<a name="682"><span class="lineNum">     682 </span>            :                                         uiList *ui_list,</a>
+<a name="683"><span class="lineNum">     683 </span>            :                                         Layout &amp;layout,</a>
+<a name="684"><span class="lineNum">     684 </span>            :                                         TemplateListInputData *input_data,</a>
+<a name="685"><span class="lineNum">     685 </span>            :                                         TemplateListItems *items,</a>
+<a name="686"><span class="lineNum">     686 </span>            :                                         const TemplateListLayoutDrawData *layout_data,</a>
+<a name="687"><span class="lineNum">     687 </span>            :                                         const TemplateListFlags flags)</a>
+<a name="688"><span class="lineNum">     688 </span>            : {</a>
+<a name="689"><span class="lineNum">     689 </span><span class="lineNoCov">          0 :   uiListDyn *dyn_data = ui_list-&gt;dyn_data;</span></a>
+<a name="690"><span class="lineNum">     690 </span><span class="lineNoCov">          0 :   const char *active_propname = RNA_property_identifier(input_data-&gt;activeprop);</span></a>
+<a name="691"><span class="lineNum">     691 </span>            : </a>
+<a name="692"><span class="lineNum">     692 </span><span class="lineNoCov">          0 :   Layout *glob = nullptr, *box, *row, *col, *sub, *overlap;</span></a>
+<a name="693"><span class="lineNum">     693 </span>            :   char numstr[32];</a>
+<a name="694"><span class="lineNum">     694 </span><span class="lineNoCov">          0 :   int rnaicon = ICON_NONE, icon = ICON_NONE;</span></a>
+<a name="695"><span class="lineNum">     695 </span>            :   Button *but;</a>
+<a name="696"><span class="lineNum">     696 </span>            : </a>
+<a name="697"><span class="lineNum">     697 </span><span class="lineNoCov">          0 :   Block *block = layout.block();</span></a>
+<a name="698"><span class="lineNum">     698 </span>            : </a>
+<a name="699"><span class="lineNum">     699 </span>            :   /* get icon */</a>
+<a name="700"><span class="lineNum">     700 </span><span class="lineNoCov">          0 :   if (input_data-&gt;dataptr &amp;&amp; input_data-&gt;prop) {</span></a>
+<a name="701"><span class="lineNum">     701 </span><span class="lineNoCov">          0 :     StructRNA *ptype = RNA_property_pointer_type(&amp;input_data-&gt;dataptr, input_data-&gt;prop);</span></a>
+<a name="702"><span class="lineNum">     702 </span><span class="lineNoCov">          0 :     rnaicon = RNA_struct_ui_icon(ptype);</span></a>
+<a name="703"><span class="lineNum">     703 </span>            :   }</a>
+<a name="704"><span class="lineNum">     704 </span>            : </a>
+<a name="705"><span class="lineNum">     705 </span>            :   TemplateListVisualInfo visual_info;</a>
+<a name="706"><span class="lineNum">     706 </span><span class="lineNoCov">          0 :   switch (ui_list-&gt;layout_type) {</span></a>
+<a name="707"><span class="lineNum">     707 </span><span class="lineNoCov">          0 :     case UILST_LAYOUT_DEFAULT: {</span></a>
+<a name="708"><span class="lineNum">     708 </span>            :       /* layout */</a>
+<a name="709"><span class="lineNum">     709 </span><span class="lineNoCov">          0 :       box = &amp;layout.list_box(ui_list, &amp;input_data-&gt;active_dataptr, input_data-&gt;activeprop);</span></a>
+<a name="710"><span class="lineNum">     710 </span><span class="lineNoCov">          0 :       glob = &amp;box-&gt;column(true);</span></a>
+<a name="711"><span class="lineNum">     711 </span><span class="lineNoCov">          0 :       row = &amp;glob-&gt;row(false);</span></a>
+<a name="712"><span class="lineNum">     712 </span><span class="lineNoCov">          0 :       col = &amp;row-&gt;column(true);</span></a>
+<a name="713"><span class="lineNum">     713 </span>            : </a>
+<a name="714"><span class="lineNum">     714 </span><span class="lineNoCov">          0 :       TemplateListLayoutDrawData adjusted_layout_data = *layout_data;</span></a>
+<a name="715"><span class="lineNum">     715 </span>            :       /* init numbers */</a>
+<a name="716"><span class="lineNum">     716 </span><span class="lineNoCov">          0 :       uilist_prepare(ui_list, items, &amp;adjusted_layout_data, &amp;visual_info);</span></a>
+<a name="717"><span class="lineNum">     717 </span>            : </a>
+<a name="718"><span class="lineNum">     718 </span><span class="lineNoCov">          0 :       int i = 0;</span></a>
+<a name="719"><span class="lineNum">     719 </span><span class="lineNoCov">          0 :       if (input_data-&gt;dataptr &amp;&amp; input_data-&gt;prop) {</span></a>
+<a name="720"><span class="lineNum">     720 </span>            : </a>
+<a name="721"><span class="lineNum">     721 </span><span class="lineNoCov">          0 :         const bool editable = (RNA_property_flag(input_data-&gt;prop) &amp; PROP_EDITABLE);</span></a>
+<a name="722"><span class="lineNum">     722 </span>            : </a>
+<a name="723"><span class="lineNum">     723 </span>            :         /* create list items */</a>
+<a name="724"><span class="lineNum">     724 </span><span class="lineNoCov">          0 :         for (i = visual_info.start_idx; i &lt; visual_info.end_idx; i++) {</span></a>
+<a name="725"><span class="lineNum">     725 </span><span class="lineNoCov">          0 :           PointerRNA *itemptr = &amp;items-&gt;item_vec[i].item;</span></a>
+<a name="726"><span class="lineNum">     726 </span>            :           void *dyntip_data;</a>
+<a name="727"><span class="lineNum">     727 </span><span class="lineNoCov">          0 :           const int org_i = items-&gt;item_vec[i].org_idx;</span></a>
+<a name="728"><span class="lineNum">     728 </span><span class="lineNoCov">          0 :           const int flt_flag = items-&gt;item_vec[i].flt_flag;</span></a>
+<a name="729"><span class="lineNum">     729 </span><span class="lineNoCov">          0 :           Block *subblock = col-&gt;block();</span></a>
+<a name="730"><span class="lineNum">     730 </span>            : </a>
+<a name="731"><span class="lineNum">     731 </span><span class="lineNoCov">          0 :           overlap = &amp;col-&gt;overlap();</span></a>
+<a name="732"><span class="lineNum">     732 </span>            : </a>
+<a name="733"><span class="lineNum">     733 </span><span class="lineNoCov">          0 :           block_flag_enable(subblock, BLOCK_LIST_ITEM);</span></a>
+<a name="734"><span class="lineNum">     734 </span>            : </a>
+<a name="735"><span class="lineNum">     735 </span>            :           /* list item behind label &amp; other buttons */</a>
+<a name="736"><span class="lineNum">     736 </span><span class="lineNoCov">          0 :           overlap-&gt;row(false);</span></a>
+<a name="737"><span class="lineNum">     737 </span>            : </a>
+<a name="738"><span class="lineNum">     738 </span><span class="lineNoCov">          0 :           but = uiDefButR_prop(subblock,</span></a>
+<a name="739"><span class="lineNum">     739 </span>            :                                ButtonType::ListRow,</a>
+<a name="740"><span class="lineNum">     740 </span>            :                                &quot;&quot;,</a>
+<a name="741"><span class="lineNum">     741 </span>            :                                0,</a>
+<a name="742"><span class="lineNum">     742 </span>            :                                0,</a>
+<a name="743"><span class="lineNum">     743 </span><span class="lineNoCov">          0 :                                UI_UNIT_X * 10,</span></a>
+<a name="744"><span class="lineNum">     744 </span><span class="lineNoCov">          0 :                                UI_UNIT_Y,</span></a>
+<a name="745"><span class="lineNum">     745 </span>            :                                &amp;input_data-&gt;active_dataptr,</a>
+<a name="746"><span class="lineNum">     746 </span>            :                                input_data-&gt;activeprop,</a>
+<a name="747"><span class="lineNum">     747 </span>            :                                0,</a>
+<a name="748"><span class="lineNum">     748 </span>            :                                0,</a>
+<a name="749"><span class="lineNum">     749 </span>            :                                org_i,</a>
+<a name="750"><span class="lineNum">     750 </span><span class="lineNoCov">          0 :                                editable ? TIP_(&quot;Select List Item &quot;</span></a>
+<a name="751"><span class="lineNum">     751 </span>            :                                                &quot;(Double click to rename)&quot;) :</a>
+<a name="752"><span class="lineNum">     752 </span><span class="lineNoCov">          0 :                                           TIP_(&quot;Select List Item&quot;));</span></a>
+<a name="753"><span class="lineNum">     753 </span>            : </a>
+<a name="754"><span class="lineNum">     754 </span><span class="lineNoCov">          0 :           if ((dyntip_data = uilist_item_use_dynamic_tooltip(itemptr,</span></a>
+<a name="755"><span class="lineNum">     755 </span>            :                                                              input_data-&gt;item_dyntip_propname)))</a>
+<a name="756"><span class="lineNum">     756 </span>            :           {</a>
+<a name="757"><span class="lineNum">     757 </span><span class="lineNoCov">          0 :             button_func_tooltip_set(but, uilist_item_tooltip_func, dyntip_data, MEM_delete_void);</span></a>
+<a name="758"><span class="lineNum">     758 </span>            :           }</a>
+<a name="759"><span class="lineNum">     759 </span>            : </a>
+<a name="760"><span class="lineNum">     760 </span><span class="lineNoCov">          0 :           Layout &amp;item_row = overlap-&gt;row(true);</span></a>
+<a name="761"><span class="lineNum">     761 </span>            : </a>
+<a name="762"><span class="lineNum">     762 </span><span class="lineNoCov">          0 :           uiLayoutListItemAddPadding(&amp;item_row);</span></a>
+<a name="763"><span class="lineNum">     763 </span>            : </a>
+<a name="764"><span class="lineNum">     764 </span><span class="lineNoCov">          0 :           sub = &amp;item_row.row(false);</span></a>
+<a name="765"><span class="lineNum">     765 </span><span class="lineNoCov">          0 :           icon = icon_from_rnaptr(C, itemptr, rnaicon, false);</span></a>
+<a name="766"><span class="lineNum">     766 </span><span class="lineNoCov">          0 :           if (icon == ICON_DOT) {</span></a>
+<a name="767"><span class="lineNum">     767 </span><span class="lineNoCov">          0 :             icon = ICON_NONE;</span></a>
+<a name="768"><span class="lineNum">     768 </span>            :           }</a>
+<a name="769"><span class="lineNum">     769 </span><span class="lineNoCov">          0 :           layout_data-&gt;draw_item(ui_list,</span></a>
+<a name="770"><span class="lineNum">     770 </span>            :                                  C,</a>
+<a name="771"><span class="lineNum">     771 </span>            :                                  *sub,</a>
+<a name="772"><span class="lineNum">     772 </span>            :                                  &amp;input_data-&gt;dataptr,</a>
+<a name="773"><span class="lineNum">     773 </span>            :                                  itemptr,</a>
+<a name="774"><span class="lineNum">     774 </span>            :                                  icon,</a>
+<a name="775"><span class="lineNum">     775 </span>            :                                  &amp;input_data-&gt;active_dataptr,</a>
+<a name="776"><span class="lineNum">     776 </span>            :                                  active_propname,</a>
+<a name="777"><span class="lineNum">     777 </span>            :                                  org_i,</a>
+<a name="778"><span class="lineNum">     778 </span>            :                                  flt_flag);</a>
+<a name="779"><span class="lineNum">     779 </span>            : </a>
+<a name="780"><span class="lineNum">     780 </span>            :           /* Items should be able to set context pointers for the layout. But the list-row button</a>
+<a name="781"><span class="lineNum">     781 </span>            :            * swallows events, so it needs the context storage too for handlers to see it. */</a>
+<a name="782"><span class="lineNum">     782 </span><span class="lineNoCov">          0 :           but-&gt;context = sub-&gt;context_store();</span></a>
+<a name="783"><span class="lineNum">     783 </span>            : </a>
+<a name="784"><span class="lineNum">     784 </span>            :           /* If we are &quot;drawing&quot; active item, set all labels as active. */</a>
+<a name="785"><span class="lineNum">     785 </span><span class="lineNoCov">          0 :           if (i == items-&gt;active_item_idx) {</span></a>
+<a name="786"><span class="lineNum">     786 </span><span class="lineNoCov">          0 :             layout_list_set_labels_active(sub);</span></a>
+<a name="787"><span class="lineNum">     787 </span>            :           }</a>
+<a name="788"><span class="lineNum">     788 </span>            : </a>
+<a name="789"><span class="lineNum">     789 </span><span class="lineNoCov">          0 :           uiLayoutListItemAddPadding(&amp;item_row);</span></a>
+<a name="790"><span class="lineNum">     790 </span><span class="lineNoCov">          0 :           block_flag_disable(subblock, BLOCK_LIST_ITEM);</span></a>
+<a name="791"><span class="lineNum">     791 </span>            :         }</a>
+<a name="792"><span class="lineNum">     792 </span>            :       }</a>
+<a name="793"><span class="lineNum">     793 </span>            : </a>
+<a name="794"><span class="lineNum">     794 </span>            :       /* add dummy buttons to fill space */</a>
+<a name="795"><span class="lineNum">     795 </span><span class="lineNoCov">          0 :       for (; i &lt; visual_info.start_idx + visual_info.visual_items; i++) {</span></a>
+<a name="796"><span class="lineNum">     796 </span><span class="lineNoCov">          0 :         col-&gt;label(&quot;&quot;, ICON_NONE);</span></a>
+<a name="797"><span class="lineNum">     797 </span>            :       }</a>
+<a name="798"><span class="lineNum">     798 </span>            : </a>
+<a name="799"><span class="lineNum">     799 </span>            :       /* Add scroll-bar. */</a>
+<a name="800"><span class="lineNum">     800 </span><span class="lineNoCov">          0 :       if (items-&gt;item_vec.size() &gt; visual_info.visual_items) {</span></a>
+<a name="801"><span class="lineNum">     801 </span><span class="lineNoCov">          0 :         row-&gt;column(false);</span></a>
+<a name="802"><span class="lineNum">     802 </span><span class="lineNoCov">          0 :         but = uiDefButV(block,</span></a>
+<a name="803"><span class="lineNum">     803 </span>            :                         ButtonType::Scroll,</a>
+<a name="804"><span class="lineNum">     804 </span>            :                         &quot;&quot;,</a>
+<a name="805"><span class="lineNum">     805 </span>            :                         0,</a>
+<a name="806"><span class="lineNum">     806 </span>            :                         0,</a>
+<a name="807"><span class="lineNum">     807 </span><span class="lineNoCov">          0 :                         V2D_SCROLL_WIDTH,</span></a>
+<a name="808"><span class="lineNum">     808 </span><span class="lineNoCov">          0 :                         UI_UNIT_Y * dyn_data-&gt;visual_height,</span></a>
+<a name="809"><span class="lineNum">     809 </span>            :                         &amp;ui_list-&gt;list_scroll,</a>
+<a name="810"><span class="lineNum">     810 </span>            :                         0,</a>
+<a name="811"><span class="lineNum">     811 </span><span class="lineNoCov">          0 :                         dyn_data-&gt;height - dyn_data-&gt;visual_height,</span></a>
+<a name="812"><span class="lineNum">     812 </span>            :                         &quot;&quot;);</a>
+<a name="813"><span class="lineNum">     813 </span><span class="lineNoCov">          0 :         auto *but_scroll = reinterpret_cast&lt;ButtonScrollBar *&gt;(but);</span></a>
+<a name="814"><span class="lineNum">     814 </span><span class="lineNoCov">          0 :         but_scroll-&gt;visual_height = dyn_data-&gt;visual_height;</span></a>
+<a name="815"><span class="lineNum">     815 </span>            :       }</a>
+<a name="816"><span class="lineNum">     816 </span><span class="lineNoCov">          0 :       break;</span></a>
+<a name="817"><span class="lineNum">     817 </span>            :     }</a>
+<a name="818"><span class="lineNum">     818 </span><span class="lineNoCov">          0 :     case UILST_LAYOUT_COMPACT:</span></a>
+<a name="819"><span class="lineNum">     819 </span><span class="lineNoCov">          0 :       row = &amp;layout.row(true);</span></a>
+<a name="820"><span class="lineNum">     820 </span>            : </a>
+<a name="821"><span class="lineNum">     821 </span><span class="lineNoCov">          0 :       if ((input_data-&gt;dataptr &amp;&amp; input_data-&gt;prop) &amp;&amp; (dyn_data-&gt;items_shown &gt; 0) &amp;&amp;</span></a>
+<a name="822"><span class="lineNum">     822 </span><span class="lineNoCov">          0 :           (items-&gt;active_item_idx &gt;= 0) &amp;&amp; (items-&gt;active_item_idx &lt; dyn_data-&gt;items_shown))</span></a>
+<a name="823"><span class="lineNum">     823 </span>            :       {</a>
+<a name="824"><span class="lineNum">     824 </span><span class="lineNoCov">          0 :         PointerRNA *itemptr = &amp;items-&gt;item_vec[items-&gt;active_item_idx].item;</span></a>
+<a name="825"><span class="lineNum">     825 </span><span class="lineNoCov">          0 :         const int org_i = items-&gt;item_vec[items-&gt;active_item_idx].org_idx;</span></a>
+<a name="826"><span class="lineNum">     826 </span>            : </a>
+<a name="827"><span class="lineNum">     827 </span><span class="lineNoCov">          0 :         icon = icon_from_rnaptr(C, itemptr, rnaicon, false);</span></a>
+<a name="828"><span class="lineNum">     828 </span><span class="lineNoCov">          0 :         if (icon == ICON_DOT) {</span></a>
+<a name="829"><span class="lineNum">     829 </span><span class="lineNoCov">          0 :           icon = ICON_NONE;</span></a>
+<a name="830"><span class="lineNum">     830 </span>            :         }</a>
+<a name="831"><span class="lineNum">     831 </span><span class="lineNoCov">          0 :         layout_data-&gt;draw_item(ui_list,</span></a>
+<a name="832"><span class="lineNum">     832 </span>            :                                C,</a>
+<a name="833"><span class="lineNum">     833 </span>            :                                *row,</a>
+<a name="834"><span class="lineNum">     834 </span>            :                                &amp;input_data-&gt;dataptr,</a>
+<a name="835"><span class="lineNum">     835 </span>            :                                itemptr,</a>
+<a name="836"><span class="lineNum">     836 </span>            :                                icon,</a>
+<a name="837"><span class="lineNum">     837 </span>            :                                &amp;input_data-&gt;active_dataptr,</a>
+<a name="838"><span class="lineNum">     838 </span>            :                                active_propname,</a>
+<a name="839"><span class="lineNum">     839 </span>            :                                org_i,</a>
+<a name="840"><span class="lineNum">     840 </span>            :                                0);</a>
+<a name="841"><span class="lineNum">     841 </span>            :       }</a>
+<a name="842"><span class="lineNum">     842 </span>            :       /* if list is empty, add in dummy button */</a>
+<a name="843"><span class="lineNum">     843 </span>            :       else {</a>
+<a name="844"><span class="lineNum">     844 </span><span class="lineNoCov">          0 :         row-&gt;label(&quot;&quot;, ICON_NONE);</span></a>
+<a name="845"><span class="lineNum">     845 </span>            :       }</a>
+<a name="846"><span class="lineNum">     846 </span>            : </a>
+<a name="847"><span class="lineNum">     847 </span>            :       /* next/prev button */</a>
+<a name="848"><span class="lineNum">     848 </span><span class="lineNoCov">          0 :       SNPRINTF_UTF8(numstr, &quot;%d :&quot;, dyn_data-&gt;items_shown);</span></a>
+<a name="849"><span class="lineNum">     849 </span><span class="lineNoCov">          0 :       but = uiDefIconTextButR_prop(block,</span></a>
+<a name="850"><span class="lineNum">     850 </span>            :                                    ButtonType::Num,</a>
+<a name="851"><span class="lineNum">     851 </span>            :                                    ICON_NONE,</a>
+<a name="852"><span class="lineNum">     852 </span>            :                                    numstr,</a>
+<a name="853"><span class="lineNum">     853 </span>            :                                    0,</a>
+<a name="854"><span class="lineNum">     854 </span>            :                                    0,</a>
+<a name="855"><span class="lineNum">     855 </span><span class="lineNoCov">          0 :                                    UI_UNIT_X * 5,</span></a>
+<a name="856"><span class="lineNum">     856 </span><span class="lineNoCov">          0 :                                    UI_UNIT_Y,</span></a>
+<a name="857"><span class="lineNum">     857 </span>            :                                    &amp;input_data-&gt;active_dataptr,</a>
+<a name="858"><span class="lineNum">     858 </span>            :                                    input_data-&gt;activeprop,</a>
+<a name="859"><span class="lineNum">     859 </span>            :                                    0,</a>
+<a name="860"><span class="lineNum">     860 </span>            :                                    0,</a>
+<a name="861"><span class="lineNum">     861 </span>            :                                    0,</a>
+<a name="862"><span class="lineNum">     862 </span>            :                                    &quot;&quot;);</a>
+<a name="863"><span class="lineNum">     863 </span><span class="lineNoCov">          0 :       if (dyn_data-&gt;items_shown == 0) {</span></a>
+<a name="864"><span class="lineNum">     864 </span><span class="lineNoCov">          0 :         button_flag_enable(but, BUT_DISABLED);</span></a>
+<a name="865"><span class="lineNum">     865 </span>            :       }</a>
+<a name="866"><span class="lineNum">     866 </span><span class="lineNoCov">          0 :       break;</span></a>
+<a name="867"><span class="lineNum">     867 </span>            :   }</a>
+<a name="868"><span class="lineNum">     868 </span>            : </a>
+<a name="869"><span class="lineNum">     869 </span><span class="lineNoCov">          0 :   if (glob) {</span></a>
+<a name="870"><span class="lineNum">     870 </span><span class="lineNoCov">          0 :     const bool add_grip_but = (flags &amp; TEMPLATE_LIST_NO_GRIP) == 0;</span></a>
+<a name="871"><span class="lineNum">     871 </span>            : </a>
+<a name="872"><span class="lineNum">     872 </span>            :     /* About #ButtonType::Grip drag-resize:</a>
+<a name="873"><span class="lineNum">     873 </span>            :      * We can't directly use results from a grip button, since we have a</a>
+<a name="874"><span class="lineNum">     874 </span>            :      * rather complex behavior here (sizing by discrete steps and, overall, auto-size feature).</a>
+<a name="875"><span class="lineNum">     875 </span>            :      * Since we *never* know whether we are grip-resizing or not</a>
+<a name="876"><span class="lineNum">     876 </span>            :      * (because there is no callback for when a button enters/leaves its &quot;edit mode&quot;),</a>
+<a name="877"><span class="lineNum">     877 </span>            :      * we use the fact that grip-controlled value (dyn_data-&gt;resize) is completely handled</a>
+<a name="878"><span class="lineNum">     878 </span>            :      * by the grip during the grab resize, so settings its value here has no effect at all.</a>
+<a name="879"><span class="lineNum">     879 </span>            :      *</a>
+<a name="880"><span class="lineNum">     880 </span>            :      * It is only meaningful when we are not resizing,</a>
+<a name="881"><span class="lineNum">     881 </span>            :      * in which case this gives us the correct &quot;init drag&quot; value.</a>
+<a name="882"><span class="lineNum">     882 </span>            :      * Note we cannot affect `dyn_data-&gt;resize_prev here`,</a>
+<a name="883"><span class="lineNum">     883 </span>            :      * since this value is not controlled by the grip!</a>
+<a name="884"><span class="lineNum">     884 </span>            :      */</a>
+<a name="885"><span class="lineNum">     885 </span><span class="lineNoCov">          0 :     dyn_data-&gt;resize = dyn_data-&gt;resize_prev +</span></a>
+<a name="886"><span class="lineNum">     886 </span><span class="lineNoCov">          0 :                        (dyn_data-&gt;visual_height - ui_list-&gt;list_grip) * UI_UNIT_Y;</span></a>
+<a name="887"><span class="lineNum">     887 </span>            : </a>
+<a name="888"><span class="lineNum">     888 </span><span class="lineNoCov">          0 :     row = &amp;glob-&gt;row(true);</span></a>
+<a name="889"><span class="lineNum">     889 </span><span class="lineNoCov">          0 :     Block *subblock = row-&gt;block();</span></a>
+<a name="890"><span class="lineNum">     890 </span><span class="lineNoCov">          0 :     block_emboss_set(subblock, EmbossType::None);</span></a>
+<a name="891"><span class="lineNum">     891 </span>            : </a>
+<a name="892"><span class="lineNum">     892 </span><span class="lineNoCov">          0 :     if (ui_list-&gt;filter_flag &amp; UILST_FLT_SHOW) {</span></a>
+<a name="893"><span class="lineNum">     893 </span><span class="lineNoCov">          0 :       but = uiDefIconButBit(subblock,</span></a>
+<a name="894"><span class="lineNum">     894 </span>            :                             ButtonType::Toggle,</a>
+<a name="895"><span class="lineNum">     895 </span>            :                             UILST_FLT_SHOW,</a>
+<a name="896"><span class="lineNum">     896 </span>            :                             ICON_DISCLOSURE_TRI_DOWN,</a>
+<a name="897"><span class="lineNum">     897 </span>            :                             0,</a>
+<a name="898"><span class="lineNum">     898 </span>            :                             0,</a>
+<a name="899"><span class="lineNum">     899 </span><span class="lineNoCov">          0 :                             UI_UNIT_X,</span></a>
+<a name="900"><span class="lineNum">     900 </span><span class="lineNoCov">          0 :                             UI_UNIT_Y * 0.5f,</span></a>
+<a name="901"><span class="lineNum">     901 </span>            :                             &amp;ui_list-&gt;filter_flag,</a>
+<a name="902"><span class="lineNum">     902 </span>            :                             0,</a>
+<a name="903"><span class="lineNum">     903 </span>            :                             0,</a>
+<a name="904"><span class="lineNum">     904 </span><span class="lineNoCov">          0 :                             TIP_(&quot;Hide filtering options&quot;));</span></a>
+<a name="905"><span class="lineNum">     905 </span><span class="lineNoCov">          0 :       button_flag_disable(but, BUT_UNDO); /* skip undo on screen buttons */</span></a>
+<a name="906"><span class="lineNum">     906 </span>            : </a>
+<a name="907"><span class="lineNum">     907 </span><span class="lineNoCov">          0 :       if (add_grip_but) {</span></a>
+<a name="908"><span class="lineNum">     908 </span><span class="lineNoCov">          0 :         but = uiDefIconButV(subblock,</span></a>
+<a name="909"><span class="lineNum">     909 </span>            :                             ButtonType::Grip,</a>
+<a name="910"><span class="lineNum">     910 </span>            :                             ICON_GRIP,</a>
+<a name="911"><span class="lineNum">     911 </span>            :                             0,</a>
+<a name="912"><span class="lineNum">     912 </span>            :                             0,</a>
+<a name="913"><span class="lineNum">     913 </span><span class="lineNoCov">          0 :                             UI_UNIT_X * 10.0f,</span></a>
+<a name="914"><span class="lineNum">     914 </span><span class="lineNoCov">          0 :                             UI_UNIT_Y * 0.5f,</span></a>
+<a name="915"><span class="lineNum">     915 </span>            :                             &amp;dyn_data-&gt;resize,</a>
+<a name="916"><span class="lineNum">     916 </span>            :                             0.0,</a>
+<a name="917"><span class="lineNum">     917 </span>            :                             0.0,</a>
+<a name="918"><span class="lineNum">     918 </span>            :                             &quot;&quot;);</a>
+<a name="919"><span class="lineNum">     919 </span><span class="lineNoCov">          0 :         button_func_set(but, [ui_list](bContext &amp;C) { uilist_resize_update(&amp;C, ui_list); });</span></a>
+<a name="920"><span class="lineNum">     920 </span>            :       }</a>
+<a name="921"><span class="lineNum">     921 </span>            : </a>
+<a name="922"><span class="lineNum">     922 </span><span class="lineNoCov">          0 :       block_emboss_set(subblock, EmbossType::Emboss);</span></a>
+<a name="923"><span class="lineNum">     923 </span>            : </a>
+<a name="924"><span class="lineNum">     924 </span><span class="lineNoCov">          0 :       col = &amp;glob-&gt;column(false);</span></a>
+<a name="925"><span class="lineNum">     925 </span><span class="lineNoCov">          0 :       subblock = col-&gt;block();</span></a>
+<a name="926"><span class="lineNum">     926 </span><span class="lineNoCov">          0 :       uiDefBut(subblock,</span></a>
+<a name="927"><span class="lineNum">     927 </span>            :                ButtonType::Sepr,</a>
+<a name="928"><span class="lineNum">     928 </span>            :                &quot;&quot;,</a>
+<a name="929"><span class="lineNum">     929 </span>            :                0,</a>
+<a name="930"><span class="lineNum">     930 </span>            :                0,</a>
+<a name="931"><span class="lineNum">     931 </span><span class="lineNoCov">          0 :                UI_UNIT_X,</span></a>
+<a name="932"><span class="lineNum">     932 </span><span class="lineNoCov">          0 :                UI_UNIT_Y * 0.05f,</span></a>
+<a name="933"><span class="lineNum">     933 </span>            :                nullptr,</a>
+<a name="934"><span class="lineNum">     934 </span>            :                0.0,</a>
+<a name="935"><span class="lineNum">     935 </span>            :                0.0,</a>
+<a name="936"><span class="lineNum">     936 </span>            :                &quot;&quot;);</a>
+<a name="937"><span class="lineNum">     937 </span>            : </a>
+<a name="938"><span class="lineNum">     938 </span><span class="lineNoCov">          0 :       layout_data-&gt;draw_filter(ui_list, C, *col);</span></a>
+<a name="939"><span class="lineNum">     939 </span>            :     }</a>
+<a name="940"><span class="lineNum">     940 </span>            :     else {</a>
+<a name="941"><span class="lineNum">     941 </span><span class="lineNoCov">          0 :       but = uiDefIconButBit(subblock,</span></a>
+<a name="942"><span class="lineNum">     942 </span>            :                             ButtonType::Toggle,</a>
+<a name="943"><span class="lineNum">     943 </span>            :                             UILST_FLT_SHOW,</a>
+<a name="944"><span class="lineNum">     944 </span>            :                             ICON_DISCLOSURE_TRI_RIGHT,</a>
+<a name="945"><span class="lineNum">     945 </span>            :                             0,</a>
+<a name="946"><span class="lineNum">     946 </span>            :                             0,</a>
+<a name="947"><span class="lineNum">     947 </span><span class="lineNoCov">          0 :                             UI_UNIT_X,</span></a>
+<a name="948"><span class="lineNum">     948 </span><span class="lineNoCov">          0 :                             UI_UNIT_Y * 0.5f,</span></a>
+<a name="949"><span class="lineNum">     949 </span>            :                             &amp;ui_list-&gt;filter_flag,</a>
+<a name="950"><span class="lineNum">     950 </span>            :                             0,</a>
+<a name="951"><span class="lineNum">     951 </span>            :                             0,</a>
+<a name="952"><span class="lineNum">     952 </span><span class="lineNoCov">          0 :                             TIP_(&quot;Show filtering options&quot;));</span></a>
+<a name="953"><span class="lineNum">     953 </span><span class="lineNoCov">          0 :       button_flag_disable(but, BUT_UNDO); /* skip undo on screen buttons */</span></a>
+<a name="954"><span class="lineNum">     954 </span>            : </a>
+<a name="955"><span class="lineNum">     955 </span><span class="lineNoCov">          0 :       if (add_grip_but) {</span></a>
+<a name="956"><span class="lineNum">     956 </span><span class="lineNoCov">          0 :         but = uiDefIconButV(subblock,</span></a>
+<a name="957"><span class="lineNum">     957 </span>            :                             ButtonType::Grip,</a>
+<a name="958"><span class="lineNum">     958 </span>            :                             ICON_GRIP,</a>
+<a name="959"><span class="lineNum">     959 </span>            :                             0,</a>
+<a name="960"><span class="lineNum">     960 </span>            :                             0,</a>
+<a name="961"><span class="lineNum">     961 </span><span class="lineNoCov">          0 :                             UI_UNIT_X * 10.0f,</span></a>
+<a name="962"><span class="lineNum">     962 </span><span class="lineNoCov">          0 :                             UI_UNIT_Y * 0.5f,</span></a>
+<a name="963"><span class="lineNum">     963 </span>            :                             &amp;dyn_data-&gt;resize,</a>
+<a name="964"><span class="lineNum">     964 </span>            :                             0.0,</a>
+<a name="965"><span class="lineNum">     965 </span>            :                             0.0,</a>
+<a name="966"><span class="lineNum">     966 </span>            :                             &quot;&quot;);</a>
+<a name="967"><span class="lineNum">     967 </span><span class="lineNoCov">          0 :         button_func_set(but, [ui_list](bContext &amp;C) { uilist_resize_update(&amp;C, ui_list); });</span></a>
+<a name="968"><span class="lineNum">     968 </span>            :       }</a>
+<a name="969"><span class="lineNum">     969 </span>            : </a>
+<a name="970"><span class="lineNum">     970 </span><span class="lineNoCov">          0 :       block_emboss_set(subblock, EmbossType::Emboss);</span></a>
+<a name="971"><span class="lineNum">     971 </span>            :     }</a>
+<a name="972"><span class="lineNum">     972 </span>            :   }</a>
+<a name="973"><span class="lineNum">     973 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="974"><span class="lineNum">     974 </span>            : </a>
+<a name="975"><span class="lineNum">     975 </span><span class="lineNoCov">          0 : void template_uilist(Layout *layout,</span></a>
+<a name="976"><span class="lineNum">     976 </span>            :                      const bContext *C,</a>
+<a name="977"><span class="lineNum">     977 </span>            :                      const char *listtype_name,</a>
+<a name="978"><span class="lineNum">     978 </span>            :                      const char *list_id,</a>
+<a name="979"><span class="lineNum">     979 </span>            :                      PointerRNA *dataptr,</a>
+<a name="980"><span class="lineNum">     980 </span>            :                      const StringRefNull propname,</a>
+<a name="981"><span class="lineNum">     981 </span>            :                      PointerRNA *active_dataptr,</a>
+<a name="982"><span class="lineNum">     982 </span>            :                      const StringRefNull active_propname,</a>
+<a name="983"><span class="lineNum">     983 </span>            :                      const char *item_dyntip_propname,</a>
+<a name="984"><span class="lineNum">     984 </span>            :                      int rows,</a>
+<a name="985"><span class="lineNum">     985 </span>            :                      int maxrows,</a>
+<a name="986"><span class="lineNum">     986 </span>            :                      int layout_type,</a>
+<a name="987"><span class="lineNum">     987 </span>            :                      enum TemplateListFlags flags)</a>
+<a name="988"><span class="lineNum">     988 </span>            : {</a>
+<a name="989"><span class="lineNum">     989 </span><span class="lineNoCov">          0 :   TemplateListInputData input_data = {};</span></a>
+<a name="990"><span class="lineNum">     990 </span>            :   uiListType *ui_list_type;</a>
+<a name="991"><span class="lineNum">     991 </span><span class="lineNoCov">          0 :   if (!template_uilist_data_retrieve(listtype_name,</span></a>
+<a name="992"><span class="lineNum">     992 </span>            :                                      list_id,</a>
+<a name="993"><span class="lineNum">     993 </span>            :                                      dataptr,</a>
+<a name="994"><span class="lineNum">     994 </span>            :                                      propname,</a>
+<a name="995"><span class="lineNum">     995 </span>            :                                      active_dataptr,</a>
+<a name="996"><span class="lineNum">     996 </span>            :                                      active_propname,</a>
+<a name="997"><span class="lineNum">     997 </span>            :                                      item_dyntip_propname,</a>
+<a name="998"><span class="lineNum">     998 </span>            :                                      &amp;input_data,</a>
+<a name="999"><span class="lineNum">     999 </span>            :                                      &amp;ui_list_type))</a>
+<a name="1000"><span class="lineNum">    1000 </span>            :   {</a>
+<a name="1001"><span class="lineNum">    1001 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="1002"><span class="lineNum">    1002 </span>            :   }</a>
+<a name="1003"><span class="lineNum">    1003 </span>            : </a>
+<a name="1004"><span class="lineNum">    1004 </span><span class="lineNoCov">          0 :   uiListDrawItemFunc draw_item = ui_list_type-&gt;draw_item ? ui_list_type-&gt;draw_item :</span></a>
+<a name="1005"><span class="lineNum">    1005 </span>            :                                                            uilist_draw_item_default;</a>
+<a name="1006"><span class="lineNum">    1006 </span><span class="lineNoCov">          0 :   uiListDrawFilterFunc draw_filter = ui_list_type-&gt;draw_filter ? ui_list_type-&gt;draw_filter :</span></a>
+<a name="1007"><span class="lineNum">    1007 </span>            :                                                                  uilist_draw_filter_default;</a>
+<a name="1008"><span class="lineNum">    1008 </span><span class="lineNoCov">          0 :   uiListFilterItemsFunc filter_items = ui_list_type-&gt;filter_items ? ui_list_type-&gt;filter_items :</span></a>
+<a name="1009"><span class="lineNum">    1009 </span>            :                                                                     uilist_filter_items_default;</a>
+<a name="1010"><span class="lineNum">    1010 </span>            : </a>
+<a name="1011"><span class="lineNum">    1011 </span><span class="lineNoCov">          0 :   uiList *ui_list = uilist_ensure(C,</span></a>
+<a name="1012"><span class="lineNum">    1012 </span>            :                                   ui_list_type,</a>
+<a name="1013"><span class="lineNum">    1013 </span>            :                                   list_id,</a>
+<a name="1014"><span class="lineNum">    1014 </span>            :                                   euiList_LayoutType(layout_type),</a>
+<a name="1015"><span class="lineNum">    1015 </span><span class="lineNoCov">          0 :                                   flags &amp; TEMPLATE_LIST_SORT_REVERSE,</span></a>
+<a name="1016"><span class="lineNum">    1016 </span><span class="lineNoCov">          0 :                                   flags &amp; TEMPLATE_LIST_SORT_LOCK);</span></a>
+<a name="1017"><span class="lineNum">    1017 </span>            : </a>
+<a name="1018"><span class="lineNum">    1018 </span>            :   /* When active item changed since last draw, scroll to it. */</a>
+<a name="1019"><span class="lineNum">    1019 </span><span class="lineNoCov">          0 :   if (input_data.active_item_idx != ui_list-&gt;list_last_activei) {</span></a>
+<a name="1020"><span class="lineNum">    1020 </span><span class="lineNoCov">          0 :     ui_list-&gt;flag |= UILST_SCROLL_TO_ACTIVE_ITEM;</span></a>
+<a name="1021"><span class="lineNum">    1021 </span><span class="lineNoCov">          0 :     ui_list-&gt;list_last_activei = input_data.active_item_idx;</span></a>
+<a name="1022"><span class="lineNum">    1022 </span>            :   }</a>
+<a name="1023"><span class="lineNum">    1023 </span>            : </a>
+<a name="1024"><span class="lineNum">    1024 </span><span class="lineNoCov">          0 :   TemplateListItems items;</span></a>
+<a name="1025"><span class="lineNum">    1025 </span><span class="lineNoCov">          0 :   template_uilist_collect_display_items(C, ui_list, &amp;input_data, filter_items, &amp;items);</span></a>
+<a name="1026"><span class="lineNum">    1026 </span>            : </a>
+<a name="1027"><span class="lineNum">    1027 </span>            :   TemplateListLayoutDrawData layout_data;</a>
+<a name="1028"><span class="lineNum">    1028 </span><span class="lineNoCov">          0 :   layout_data.draw_item = draw_item;</span></a>
+<a name="1029"><span class="lineNum">    1029 </span><span class="lineNoCov">          0 :   layout_data.draw_filter = draw_filter;</span></a>
+<a name="1030"><span class="lineNum">    1030 </span><span class="lineNoCov">          0 :   layout_data.rows = rows;</span></a>
+<a name="1031"><span class="lineNum">    1031 </span><span class="lineNoCov">          0 :   layout_data.maxrows = maxrows;</span></a>
+<a name="1032"><span class="lineNum">    1032 </span>            : </a>
+<a name="1033"><span class="lineNum">    1033 </span><span class="lineNoCov">          0 :   template_uilist_layout_draw(C, ui_list, *layout, &amp;input_data, &amp;items, &amp;layout_data, flags);</span></a>
+<a name="1034"><span class="lineNum">    1034 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="1035"><span class="lineNum">    1035 </span>            : </a>
+<a name="1036"><span class="lineNum">    1036 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="1037"><span class="lineNum">    1037 </span>            : /** \name List-types Registration</a>
+<a name="1038"><span class="lineNum">    1038 </span>            :  * \{ */</a>
+<a name="1039"><span class="lineNum">    1039 </span>            : </a>
+<a name="1040"><span class="lineNum">    1040 </span><span class="lineCov">        785 : void uilisttypes_ui()</span></a>
+<a name="1041"><span class="lineNum">    1041 </span>            : {</a>
+<a name="1042"><span class="lineNum">    1042 </span><span class="lineCov">        785 :   WM_uilisttype_add(UI_UL_cache_file_layers());</span></a>
+<a name="1043"><span class="lineNum">    1043 </span><span class="lineCov">        785 : }</span></a>
+<a name="1044"><span class="lineNum">    1044 </span>            : </a>
+<a name="1045"><span class="lineNum">    1045 </span>            : /** \} */</a>
+<a name="1046"><span class="lineNum">    1046 </span>            : </a>
+<a name="1047"><span class="lineNum">    1047 </span>            : }  // namespace blender::ui</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

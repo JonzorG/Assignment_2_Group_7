@@ -1,0 +1,498 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - /home/dev/Blender_PA1483/blender/lib/linux_x64/opensubdiv/include/opensubdiv/vtr/fvarLevel.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../../../../../index.html">top level</a> - <a href="index.html">home/dev/Blender_PA1483/blender/lib/linux_x64/opensubdiv/include/opensubdiv/vtr</a> - fvarLevel.h<span style="font-size: 80%;"> (source / <a href="fvarLevel.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : //</a>
+<a name="2"><span class="lineNum">       2 </span>            : //   Copyright 2014 DreamWorks Animation LLC.</a>
+<a name="3"><span class="lineNum">       3 </span>            : //</a>
+<a name="4"><span class="lineNum">       4 </span>            : //   Licensed under the terms set forth in the LICENSE.txt file available at</a>
+<a name="5"><span class="lineNum">       5 </span>            : //   https://opensubdiv.org/license.</a>
+<a name="6"><span class="lineNum">       6 </span>            : //</a>
+<a name="7"><span class="lineNum">       7 </span>            : #ifndef OPENSUBDIV3_VTR_FVAR_LEVEL_H</a>
+<a name="8"><span class="lineNum">       8 </span>            : #define OPENSUBDIV3_VTR_FVAR_LEVEL_H</a>
+<a name="9"><span class="lineNum">       9 </span>            : </a>
+<a name="10"><span class="lineNum">      10 </span>            : #include &quot;../version.h&quot;</a>
+<a name="11"><span class="lineNum">      11 </span>            : </a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &quot;../sdc/types.h&quot;</a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;../sdc/crease.h&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;../sdc/options.h&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;../vtr/types.h&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &quot;../vtr/level.h&quot;</a>
+<a name="17"><span class="lineNum">      17 </span>            : </a>
+<a name="18"><span class="lineNum">      18 </span>            : #include &lt;vector&gt;</a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &lt;cassert&gt;</a>
+<a name="20"><span class="lineNum">      20 </span>            : #include &lt;cstring&gt;</a>
+<a name="21"><span class="lineNum">      21 </span>            : </a>
+<a name="22"><span class="lineNum">      22 </span>            : </a>
+<a name="23"><span class="lineNum">      23 </span>            : namespace OpenSubdiv {</a>
+<a name="24"><span class="lineNum">      24 </span>            : namespace OPENSUBDIV_VERSION {</a>
+<a name="25"><span class="lineNum">      25 </span>            : </a>
+<a name="26"><span class="lineNum">      26 </span>            : namespace Vtr {</a>
+<a name="27"><span class="lineNum">      27 </span>            : namespace internal {</a>
+<a name="28"><span class="lineNum">      28 </span>            : </a>
+<a name="29"><span class="lineNum">      29 </span>            : //</a>
+<a name="30"><span class="lineNum">      30 </span>            : //  FVarLevel:</a>
+<a name="31"><span class="lineNum">      31 </span>            : //      A &quot;face-varying channel&quot; includes the topology for a set of face-varying</a>
+<a name="32"><span class="lineNum">      32 </span>            : //  data, relative to the topology of the Level with which it is associated.</a>
+<a name="33"><span class="lineNum">      33 </span>            : //</a>
+<a name="34"><span class="lineNum">      34 </span>            : //  Analogous to a set of vertices and face-vertices that define the topology for</a>
+<a name="35"><span class="lineNum">      35 </span>            : //  the geometry, a channel requires a set of &quot;values&quot; and &quot;face-values&quot;.  The</a>
+<a name="36"><span class="lineNum">      36 </span>            : //  &quot;values&quot; are indices of entries in a set of face-varying data, just as vertices</a>
+<a name="37"><span class="lineNum">      37 </span>            : //  are indices into a set of vertex data.  The face-values identify a value for</a>
+<a name="38"><span class="lineNum">      38 </span>            : //  each vertex of the face, and so define topology for the values that may be</a>
+<a name="39"><span class="lineNum">      39 </span>            : //  unique to each channel.</a>
+<a name="40"><span class="lineNum">      40 </span>            : //</a>
+<a name="41"><span class="lineNum">      41 </span>            : //  In addition to the value size and the vector of face-values (which matches the</a>
+<a name="42"><span class="lineNum">      42 </span>            : //  size of the geometry's face-vertices), tags are associated with each component</a>
+<a name="43"><span class="lineNum">      43 </span>            : //  to identify deviations of the face-varying topology from the vertex topology.</a>
+<a name="44"><span class="lineNum">      44 </span>            : //  And since there may be a one-to-many mapping between vertices and face-varying</a>
+<a name="45"><span class="lineNum">      45 </span>            : //  values, that mapping is also allocated.</a>
+<a name="46"><span class="lineNum">      46 </span>            : //</a>
+<a name="47"><span class="lineNum">      47 </span>            : //  It turns out that the mapping used is able to completely encode the set of</a>
+<a name="48"><span class="lineNum">      48 </span>            : //  face-values and is more amenable to refinement.  Currently the face-values</a>
+<a name="49"><span class="lineNum">      49 </span>            : //  take up almost half the memory of this representation, so if memory does</a>
+<a name="50"><span class="lineNum">      50 </span>            : //  become a concern, we do not need to store them.  The only reason we do so now</a>
+<a name="51"><span class="lineNum">      51 </span>            : //  is that the face-value interface for specifying base topology and inspecting</a>
+<a name="52"><span class="lineNum">      52 </span>            : //  subsequent levels is very familiar to that of face-vertices for clients.  So</a>
+<a name="53"><span class="lineNum">      53 </span>            : //  having them available for such access is convenient.</a>
+<a name="54"><span class="lineNum">      54 </span>            : //</a>
+<a name="55"><span class="lineNum">      55 </span>            : //  Regarding scope and access...</a>
+<a name="56"><span class="lineNum">      56 </span>            : //      Unclear at this early state, but leaning towards nesting this class within</a>
+<a name="57"><span class="lineNum">      57 </span>            : //  Level, given the intimate dependency between the two.</a>
+<a name="58"><span class="lineNum">      58 </span>            : //      Everything is being declared public for now to facilitate access until it's</a>
+<a name="59"><span class="lineNum">      59 </span>            : //  clearer how this functionality will be provided.</a>
+<a name="60"><span class="lineNum">      60 </span>            : //</a>
+<a name="61"><span class="lineNum">      61 </span>            : class FVarLevel {</a>
+<a name="62"><span class="lineNum">      62 </span>            : public:</a>
+<a name="63"><span class="lineNum">      63 </span>            :     //</a>
+<a name="64"><span class="lineNum">      64 </span>            :     //  Component tags -- trying to minimize the types needed here:</a>
+<a name="65"><span class="lineNum">      65 </span>            :     //</a>
+<a name="66"><span class="lineNum">      66 </span>            :     //  Tag per Edge:</a>
+<a name="67"><span class="lineNum">      67 </span>            :     //      - facilitates topological analysis around each vertex</a>
+<a name="68"><span class="lineNum">      68 </span>            :     //      - required during refinement to spawn one or more edge-values</a>
+<a name="69"><span class="lineNum">      69 </span>            :     //</a>
+<a name="70"><span class="lineNum">      70 </span>            :     struct ETag {</a>
+<a name="71"><span class="lineNum">      71 </span>            :         ETag() { }</a>
+<a name="72"><span class="lineNum">      72 </span>            : </a>
+<a name="73"><span class="lineNum">      73 </span>            :         void clear() { std::memset(this, 0, sizeof(ETag)); }</a>
+<a name="74"><span class="lineNum">      74 </span>            : </a>
+<a name="75"><span class="lineNum">      75 </span>            :         typedef unsigned char ETagSize;</a>
+<a name="76"><span class="lineNum">      76 </span>            : </a>
+<a name="77"><span class="lineNum">      77 </span>            :         ETagSize _mismatch : 1;  // local FVar topology does not match</a>
+<a name="78"><span class="lineNum">      78 </span>            :         ETagSize _disctsV0 : 1;  // discontinuous at vertex 0</a>
+<a name="79"><span class="lineNum">      79 </span>            :         ETagSize _disctsV1 : 1;  // discontinuous at vertex 1</a>
+<a name="80"><span class="lineNum">      80 </span>            :         ETagSize _linear   : 1;  // linear boundary constraints</a>
+<a name="81"><span class="lineNum">      81 </span>            : </a>
+<a name="82"><span class="lineNum">      82 </span>            :         Level::ETag combineWithLevelETag(Level::ETag) const;</a>
+<a name="83"><span class="lineNum">      83 </span>            :     };</a>
+<a name="84"><span class="lineNum">      84 </span>            : </a>
+<a name="85"><span class="lineNum">      85 </span>            :     //</a>
+<a name="86"><span class="lineNum">      86 </span>            :     //  Tag per Value:</a>
+<a name="87"><span class="lineNum">      87 </span>            :     //      - informs both refinement and interpolation</a>
+<a name="88"><span class="lineNum">      88 </span>            :     //          - every value spawns a child value in refinement</a>
+<a name="89"><span class="lineNum">      89 </span>            :     //      - includes a subset of Level::VTag to be later combined with a VTag</a>
+<a name="90"><span class="lineNum">      90 </span>            :     //</a>
+<a name="91"><span class="lineNum">      91 </span>            :     struct ValueTag {</a>
+<a name="92"><span class="lineNum">      92 </span>            :         ValueTag() { }</a>
+<a name="93"><span class="lineNum">      93 </span>            : </a>
+<a name="94"><span class="lineNum">      94 </span>            :         void clear() { std::memset(this, 0, sizeof(ValueTag)); }</a>
+<a name="95"><span class="lineNum">      95 </span>            : </a>
+<a name="96"><span class="lineNum">      96 </span>            :         bool isMismatch() const    { return _mismatch; }</a>
+<a name="97"><span class="lineNum">      97 </span>            :         bool isCrease() const      { return _crease; }</a>
+<a name="98"><span class="lineNum">      98 </span><span class="lineNoCov">          0 :         bool isCorner() const      { return !_crease; }</span></a>
+<a name="99"><span class="lineNum">      99 </span><span class="lineNoCov">          0 :         bool isSemiSharp() const   { return _semiSharp; }</span></a>
+<a name="100"><span class="lineNum">     100 </span>            :         bool isInfSharp() const    { return !_semiSharp &amp;&amp; !_crease; }</a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineNoCov">          0 :         bool isDepSharp() const    { return _depSharp; }</span></a>
+<a name="102"><span class="lineNum">     102 </span>            :         bool hasCreaseEnds() const { return _crease || _semiSharp; }</a>
+<a name="103"><span class="lineNum">     103 </span>            : </a>
+<a name="104"><span class="lineNum">     104 </span>            :         bool hasInfSharpEdges() const   { return _infSharpEdges; }</a>
+<a name="105"><span class="lineNum">     105 </span>            :         bool hasInfIrregularity() const { return _infIrregular; }</a>
+<a name="106"><span class="lineNum">     106 </span>            : </a>
+<a name="107"><span class="lineNum">     107 </span>            :         typedef unsigned char ValueTagSize;</a>
+<a name="108"><span class="lineNum">     108 </span>            : </a>
+<a name="109"><span class="lineNum">     109 </span>            :         //  If there is no mismatch, no other members should be inspected</a>
+<a name="110"><span class="lineNum">     110 </span>            :         ValueTagSize _mismatch    : 1;  // local FVar topology does not match</a>
+<a name="111"><span class="lineNum">     111 </span>            :         ValueTagSize _xordinary   : 1;  // local FVar topology is extra-ordinary</a>
+<a name="112"><span class="lineNum">     112 </span>            :         ValueTagSize _nonManifold : 1;  // local FVar topology is non-manifold</a>
+<a name="113"><span class="lineNum">     113 </span>            :         ValueTagSize _crease      : 1;  // value is a crease, otherwise a corner</a>
+<a name="114"><span class="lineNum">     114 </span>            :         ValueTagSize _semiSharp   : 1;  // value is a corner decaying to crease</a>
+<a name="115"><span class="lineNum">     115 </span>            :         ValueTagSize _depSharp    : 1;  // value is a corner by dependency on another</a>
+<a name="116"><span class="lineNum">     116 </span>            : </a>
+<a name="117"><span class="lineNum">     117 </span>            :         ValueTagSize _infSharpEdges : 1;  // value is a corner by inf-sharp features</a>
+<a name="118"><span class="lineNum">     118 </span>            :         ValueTagSize _infIrregular  : 1;  // value span includes inf-sharp irregularity</a>
+<a name="119"><span class="lineNum">     119 </span>            : </a>
+<a name="120"><span class="lineNum">     120 </span>            :         Level::VTag combineWithLevelVTag(Level::VTag) const;</a>
+<a name="121"><span class="lineNum">     121 </span>            : </a>
+<a name="122"><span class="lineNum">     122 </span>            :         //  Alternate constructor and accessor for dealing with integer bits directly:</a>
+<a name="123"><span class="lineNum">     123 </span>            :         explicit ValueTag(ValueTagSize bits) {</a>
+<a name="124"><span class="lineNum">     124 </span>            :             std::memcpy(this, &amp;bits, sizeof(bits));</a>
+<a name="125"><span class="lineNum">     125 </span>            :         }</a>
+<a name="126"><span class="lineNum">     126 </span>            :         ValueTagSize getBits() const {</a>
+<a name="127"><span class="lineNum">     127 </span>            :             ValueTagSize bits;</a>
+<a name="128"><span class="lineNum">     128 </span>            :             std::memcpy(&amp;bits, this, sizeof(bits));</a>
+<a name="129"><span class="lineNum">     129 </span>            :             return bits;</a>
+<a name="130"><span class="lineNum">     130 </span>            :         }</a>
+<a name="131"><span class="lineNum">     131 </span>            :     };</a>
+<a name="132"><span class="lineNum">     132 </span>            : </a>
+<a name="133"><span class="lineNum">     133 </span>            :     typedef Vtr::ConstArray&lt;ValueTag&gt; ConstValueTagArray;</a>
+<a name="134"><span class="lineNum">     134 </span>            :     typedef Vtr::Array&lt;ValueTag&gt; ValueTagArray;</a>
+<a name="135"><span class="lineNum">     135 </span>            : </a>
+<a name="136"><span class="lineNum">     136 </span>            :     //</a>
+<a name="137"><span class="lineNum">     137 </span>            :     //  Simple struct containing the &quot;end faces&quot; of a crease, i.e. the faces which</a>
+<a name="138"><span class="lineNum">     138 </span>            :     //  contain the FVar values to be used when interpolating the crease.  (Prefer</a>
+<a name="139"><span class="lineNum">     139 </span>            :     //  the struct over std::pair for its member names)</a>
+<a name="140"><span class="lineNum">     140 </span>            :     //</a>
+<a name="141"><span class="lineNum">     141 </span>            :     struct CreaseEndPair {</a>
+<a name="142"><span class="lineNum">     142 </span>            :         LocalIndex _startFace;</a>
+<a name="143"><span class="lineNum">     143 </span>            :         LocalIndex _endFace;</a>
+<a name="144"><span class="lineNum">     144 </span>            :     };</a>
+<a name="145"><span class="lineNum">     145 </span>            : </a>
+<a name="146"><span class="lineNum">     146 </span>            :     typedef Vtr::ConstArray&lt;CreaseEndPair&gt; ConstCreaseEndPairArray;</a>
+<a name="147"><span class="lineNum">     147 </span>            :     typedef Vtr::Array&lt;CreaseEndPair&gt; CreaseEndPairArray;</a>
+<a name="148"><span class="lineNum">     148 </span>            : </a>
+<a name="149"><span class="lineNum">     149 </span>            :     typedef LocalIndex      Sibling;</a>
+<a name="150"><span class="lineNum">     150 </span>            : </a>
+<a name="151"><span class="lineNum">     151 </span>            :     typedef ConstLocalIndexArray ConstSiblingArray;</a>
+<a name="152"><span class="lineNum">     152 </span>            :     typedef LocalIndexArray SiblingArray;</a>
+<a name="153"><span class="lineNum">     153 </span>            : </a>
+<a name="154"><span class="lineNum">     154 </span>            : public:</a>
+<a name="155"><span class="lineNum">     155 </span>            :     FVarLevel(Level const&amp; level);</a>
+<a name="156"><span class="lineNum">     156 </span>            :     ~FVarLevel();</a>
+<a name="157"><span class="lineNum">     157 </span>            : </a>
+<a name="158"><span class="lineNum">     158 </span>            :     //  Queries for the entire channel:</a>
+<a name="159"><span class="lineNum">     159 </span>            :     Level const&amp; getLevel() const { return _level; }</a>
+<a name="160"><span class="lineNum">     160 </span>            : </a>
+<a name="161"><span class="lineNum">     161 </span>            :     int getNumValues() const          { return _valueCount; }</a>
+<a name="162"><span class="lineNum">     162 </span>            :     int getNumFaceValuesTotal() const { return (int) _faceVertValues.size(); }</a>
+<a name="163"><span class="lineNum">     163 </span>            : </a>
+<a name="164"><span class="lineNum">     164 </span><span class="lineNoCov">          0 :     bool isLinear() const            { return _isLinear; }</span></a>
+<a name="165"><span class="lineNum">     165 </span>            :     bool hasLinearBoundaries() const { return _hasLinearBoundaries; }</a>
+<a name="166"><span class="lineNum">     166 </span>            :     bool hasSmoothBoundaries() const { return ! _hasLinearBoundaries; }</a>
+<a name="167"><span class="lineNum">     167 </span>            :     bool hasCreaseEnds() const       { return hasSmoothBoundaries(); }</a>
+<a name="168"><span class="lineNum">     168 </span>            : </a>
+<a name="169"><span class="lineNum">     169 </span>            :     Sdc::Options getOptions() const { return _options; }</a>
+<a name="170"><span class="lineNum">     170 </span>            : </a>
+<a name="171"><span class="lineNum">     171 </span>            :     //  Queries per face:</a>
+<a name="172"><span class="lineNum">     172 </span>            :     ConstIndexArray  getFaceValues(Index fIndex) const;</a>
+<a name="173"><span class="lineNum">     173 </span>            :     IndexArray       getFaceValues(Index fIndex);</a>
+<a name="174"><span class="lineNum">     174 </span>            : </a>
+<a name="175"><span class="lineNum">     175 </span>            :     //  Queries per edge:</a>
+<a name="176"><span class="lineNum">     176 </span>            :     ETag getEdgeTag(Index eIndex) const          { return _edgeTags[eIndex]; }</a>
+<a name="177"><span class="lineNum">     177 </span>            :     bool edgeTopologyMatches(Index eIndex) const { return !getEdgeTag(eIndex)._mismatch; }</a>
+<a name="178"><span class="lineNum">     178 </span>            : </a>
+<a name="179"><span class="lineNum">     179 </span>            :     //  Queries per vertex (and its potential sibling values):</a>
+<a name="180"><span class="lineNum">     180 </span><span class="lineNoCov">          0 :     int   getNumVertexValues(Index v) const                  { return _vertSiblingCounts[v]; }</span></a>
+<a name="181"><span class="lineNum">     181 </span><span class="lineNoCov">          0 :     Index getVertexValueOffset(Index v, Sibling i = 0) const { return _vertSiblingOffsets[v] + i; }</span></a>
+<a name="182"><span class="lineNum">     182 </span>            : </a>
+<a name="183"><span class="lineNum">     183 </span>            :     Index getVertexValue(Index v, Sibling i = 0) const { return _vertValueIndices[getVertexValueOffset(v,i)]; }</a>
+<a name="184"><span class="lineNum">     184 </span>            : </a>
+<a name="185"><span class="lineNum">     185 </span>            :     Index findVertexValueIndex(Index vertexIndex, Index valueIndex) const;</a>
+<a name="186"><span class="lineNum">     186 </span>            : </a>
+<a name="187"><span class="lineNum">     187 </span>            :     //  Methods to access/modify array properties per vertex:</a>
+<a name="188"><span class="lineNum">     188 </span>            :     ConstIndexArray  getVertexValues(Index vIndex) const;</a>
+<a name="189"><span class="lineNum">     189 </span>            :     IndexArray       getVertexValues(Index vIndex);</a>
+<a name="190"><span class="lineNum">     190 </span>            : </a>
+<a name="191"><span class="lineNum">     191 </span>            :     ConstValueTagArray  getVertexValueTags(Index vIndex) const;</a>
+<a name="192"><span class="lineNum">     192 </span>            :     ValueTagArray       getVertexValueTags(Index vIndex);</a>
+<a name="193"><span class="lineNum">     193 </span>            : </a>
+<a name="194"><span class="lineNum">     194 </span>            :     ConstCreaseEndPairArray  getVertexValueCreaseEnds(Index vIndex) const;</a>
+<a name="195"><span class="lineNum">     195 </span>            :     CreaseEndPairArray       getVertexValueCreaseEnds(Index vIndex);</a>
+<a name="196"><span class="lineNum">     196 </span>            : </a>
+<a name="197"><span class="lineNum">     197 </span>            :     ConstSiblingArray  getVertexFaceSiblings(Index vIndex) const;</a>
+<a name="198"><span class="lineNum">     198 </span>            :     SiblingArray       getVertexFaceSiblings(Index vIndex);</a>
+<a name="199"><span class="lineNum">     199 </span>            : </a>
+<a name="200"><span class="lineNum">     200 </span>            :     //  Queries per value:</a>
+<a name="201"><span class="lineNum">     201 </span><span class="lineNoCov">          0 :     ValueTag getValueTag(Index valueIndex) const          { return _vertValueTags[valueIndex]; }</span></a>
+<a name="202"><span class="lineNum">     202 </span><span class="lineNoCov">          0 :     bool     valueTopologyMatches(Index valueIndex) const { return !getValueTag(valueIndex)._mismatch; }</span></a>
+<a name="203"><span class="lineNum">     203 </span>            : </a>
+<a name="204"><span class="lineNum">     204 </span>            :     CreaseEndPair getValueCreaseEndPair(Index valueIndex) const { return _vertValueCreaseEnds[valueIndex]; }</a>
+<a name="205"><span class="lineNum">     205 </span>            : </a>
+<a name="206"><span class="lineNum">     206 </span>            :     //  Tag queries related to faces (use Level methods for those returning Level::VTag/ETag)</a>
+<a name="207"><span class="lineNum">     207 </span>            :     void getFaceValueTags(Index faceIndex, ValueTag valueTags[]) const;</a>
+<a name="208"><span class="lineNum">     208 </span>            : </a>
+<a name="209"><span class="lineNum">     209 </span>            :     ValueTag getFaceCompositeValueTag(Index faceIndex) const;</a>
+<a name="210"><span class="lineNum">     210 </span>            : </a>
+<a name="211"><span class="lineNum">     211 </span>            :     //  Higher-level topological queries, i.e. values in a neighborhood:</a>
+<a name="212"><span class="lineNum">     212 </span>            :     void getEdgeFaceValues(Index eIndex, int fIncToEdge, Index valuesPerVert[2]) const;</a>
+<a name="213"><span class="lineNum">     213 </span>            :     void getVertexEdgeValues(Index vIndex, Index valuesPerEdge[]) const;</a>
+<a name="214"><span class="lineNum">     214 </span>            :     void getVertexCreaseEndValues(Index vIndex, Sibling sibling, Index endValues[2]) const;</a>
+<a name="215"><span class="lineNum">     215 </span>            : </a>
+<a name="216"><span class="lineNum">     216 </span>            :     //  Initialization and allocation helpers:</a>
+<a name="217"><span class="lineNum">     217 </span>            :     void setOptions(Sdc::Options const&amp; options);</a>
+<a name="218"><span class="lineNum">     218 </span>            :     void resizeVertexValues(int numVertexValues);</a>
+<a name="219"><span class="lineNum">     219 </span>            :     void resizeValues(int numValues);</a>
+<a name="220"><span class="lineNum">     220 </span>            :     void resizeComponents();</a>
+<a name="221"><span class="lineNum">     221 </span>            : </a>
+<a name="222"><span class="lineNum">     222 </span>            :     //  Topological analysis methods -- tagging and face-value population:</a>
+<a name="223"><span class="lineNum">     223 </span>            :     void completeTopologyFromFaceValues(int regBoundaryValence);</a>
+<a name="224"><span class="lineNum">     224 </span>            :     void initializeFaceValuesFromFaceVertices();</a>
+<a name="225"><span class="lineNum">     225 </span>            :     void initializeFaceValuesFromVertexFaceSiblings();</a>
+<a name="226"><span class="lineNum">     226 </span>            : </a>
+<a name="227"><span class="lineNum">     227 </span>            :     struct ValueSpan;</a>
+<a name="228"><span class="lineNum">     228 </span>            :     void gatherValueSpans(Index vIndex, ValueSpan * vValueSpans) const;</a>
+<a name="229"><span class="lineNum">     229 </span>            : </a>
+<a name="230"><span class="lineNum">     230 </span>            :     //  Debugging methods:</a>
+<a name="231"><span class="lineNum">     231 </span>            :     bool validate() const;</a>
+<a name="232"><span class="lineNum">     232 </span>            :     void print() const;</a>
+<a name="233"><span class="lineNum">     233 </span>            :     void buildFaceVertexSiblingsFromVertexFaceSiblings(std::vector&lt;Sibling&gt;&amp; fvSiblings) const;</a>
+<a name="234"><span class="lineNum">     234 </span>            : </a>
+<a name="235"><span class="lineNum">     235 </span>            : private:</a>
+<a name="236"><span class="lineNum">     236 </span>            :     //  Just as Refinements build Levels, FVarRefinements build FVarLevels...</a>
+<a name="237"><span class="lineNum">     237 </span>            :     friend class FVarRefinement;</a>
+<a name="238"><span class="lineNum">     238 </span>            : </a>
+<a name="239"><span class="lineNum">     239 </span>            :     Level const &amp; _level;</a>
+<a name="240"><span class="lineNum">     240 </span>            : </a>
+<a name="241"><span class="lineNum">     241 </span>            :     //  Linear interpolation options vary between channels:</a>
+<a name="242"><span class="lineNum">     242 </span>            :     Sdc::Options _options;</a>
+<a name="243"><span class="lineNum">     243 </span>            : </a>
+<a name="244"><span class="lineNum">     244 </span>            :     bool _isLinear;</a>
+<a name="245"><span class="lineNum">     245 </span>            :     bool _hasLinearBoundaries;</a>
+<a name="246"><span class="lineNum">     246 </span>            :     bool _hasDependentSharpness;</a>
+<a name="247"><span class="lineNum">     247 </span>            :     int  _valueCount;</a>
+<a name="248"><span class="lineNum">     248 </span>            : </a>
+<a name="249"><span class="lineNum">     249 </span>            :     //</a>
+<a name="250"><span class="lineNum">     250 </span>            :     //  Vectors recording face-varying topology including tags that help propagate</a>
+<a name="251"><span class="lineNum">     251 </span>            :     //  data through the refinement hierarchy.  Vectors are not sparse but most use</a>
+<a name="252"><span class="lineNum">     252 </span>            :     //  8-bit values relative to the local topology.</a>
+<a name="253"><span class="lineNum">     253 </span>            :     //</a>
+<a name="254"><span class="lineNum">     254 </span>            :     //  The vector of face-values is actually redundant here, but is constructed as</a>
+<a name="255"><span class="lineNum">     255 </span>            :     //  it is most convenient for clients.  It represents almost half the memory of</a>
+<a name="256"><span class="lineNum">     256 </span>            :     //  the topology (4 32-bit integers per face) and not surprisingly, populating</a>
+<a name="257"><span class="lineNum">     257 </span>            :     //  it takes a considerable amount of the refinement time (1/3).  We can reduce</a>
+<a name="258"><span class="lineNum">     258 </span>            :     //  both if we are willing to compute these on demand for clients.</a>
+<a name="259"><span class="lineNum">     259 </span>            :     //</a>
+<a name="260"><span class="lineNum">     260 </span>            :     //  Per-face (matches face-verts of corresponding level):</a>
+<a name="261"><span class="lineNum">     261 </span>            :     std::vector&lt;Index&gt; _faceVertValues;</a>
+<a name="262"><span class="lineNum">     262 </span>            : </a>
+<a name="263"><span class="lineNum">     263 </span>            :     //  Per-edge:</a>
+<a name="264"><span class="lineNum">     264 </span>            :     std::vector&lt;ETag&gt; _edgeTags;</a>
+<a name="265"><span class="lineNum">     265 </span>            : </a>
+<a name="266"><span class="lineNum">     266 </span>            :     //  Per-vertex:</a>
+<a name="267"><span class="lineNum">     267 </span>            :     std::vector&lt;Sibling&gt;  _vertSiblingCounts;</a>
+<a name="268"><span class="lineNum">     268 </span>            :     std::vector&lt;int&gt;      _vertSiblingOffsets;</a>
+<a name="269"><span class="lineNum">     269 </span>            :     std::vector&lt;Sibling&gt;  _vertFaceSiblings;</a>
+<a name="270"><span class="lineNum">     270 </span>            : </a>
+<a name="271"><span class="lineNum">     271 </span>            :     //  Per-value:</a>
+<a name="272"><span class="lineNum">     272 </span>            :     std::vector&lt;Index&gt;         _vertValueIndices;</a>
+<a name="273"><span class="lineNum">     273 </span>            :     std::vector&lt;ValueTag&gt;      _vertValueTags;</a>
+<a name="274"><span class="lineNum">     274 </span>            :     std::vector&lt;CreaseEndPair&gt; _vertValueCreaseEnds;</a>
+<a name="275"><span class="lineNum">     275 </span>            : };</a>
+<a name="276"><span class="lineNum">     276 </span>            : </a>
+<a name="277"><span class="lineNum">     277 </span>            : //</a>
+<a name="278"><span class="lineNum">     278 </span>            : //  Access/modify the values associated with each face:</a>
+<a name="279"><span class="lineNum">     279 </span>            : //</a>
+<a name="280"><span class="lineNum">     280 </span>            : inline ConstIndexArray</a>
+<a name="281"><span class="lineNum">     281 </span><span class="lineNoCov">          0 : FVarLevel::getFaceValues(Index fIndex) const {</span></a>
+<a name="282"><span class="lineNum">     282 </span>            : </a>
+<a name="283"><span class="lineNum">     283 </span><span class="lineNoCov">          0 :     int vCount  = _level.getNumFaceVertices(fIndex);</span></a>
+<a name="284"><span class="lineNum">     284 </span><span class="lineNoCov">          0 :     int vOffset = _level.getOffsetOfFaceVertices(fIndex);</span></a>
+<a name="285"><span class="lineNum">     285 </span><span class="lineNoCov">          0 :     return ConstIndexArray(&amp;_faceVertValues[vOffset], vCount);</span></a>
+<a name="286"><span class="lineNum">     286 </span>            : }</a>
+<a name="287"><span class="lineNum">     287 </span>            : inline IndexArray</a>
+<a name="288"><span class="lineNum">     288 </span>            : FVarLevel::getFaceValues(Index fIndex) {</a>
+<a name="289"><span class="lineNum">     289 </span>            : </a>
+<a name="290"><span class="lineNum">     290 </span>            :     int vCount  = _level.getNumFaceVertices(fIndex);</a>
+<a name="291"><span class="lineNum">     291 </span>            :     int vOffset = _level.getOffsetOfFaceVertices(fIndex);</a>
+<a name="292"><span class="lineNum">     292 </span>            :     return IndexArray(&amp;_faceVertValues[vOffset], vCount);</a>
+<a name="293"><span class="lineNum">     293 </span>            : }</a>
+<a name="294"><span class="lineNum">     294 </span>            : </a>
+<a name="295"><span class="lineNum">     295 </span>            : inline FVarLevel::ConstSiblingArray</a>
+<a name="296"><span class="lineNum">     296 </span>            : FVarLevel::getVertexFaceSiblings(Index vIndex) const {</a>
+<a name="297"><span class="lineNum">     297 </span>            : </a>
+<a name="298"><span class="lineNum">     298 </span>            :     int vCount  = _level.getNumVertexFaces(vIndex);</a>
+<a name="299"><span class="lineNum">     299 </span>            :     int vOffset = _level.getOffsetOfVertexFaces(vIndex);</a>
+<a name="300"><span class="lineNum">     300 </span>            :     return ConstSiblingArray(&amp;_vertFaceSiblings[vOffset], vCount);</a>
+<a name="301"><span class="lineNum">     301 </span>            : }</a>
+<a name="302"><span class="lineNum">     302 </span>            : inline FVarLevel::SiblingArray</a>
+<a name="303"><span class="lineNum">     303 </span>            : FVarLevel::getVertexFaceSiblings(Index vIndex) {</a>
+<a name="304"><span class="lineNum">     304 </span>            : </a>
+<a name="305"><span class="lineNum">     305 </span>            :     int vCount  = _level.getNumVertexFaces(vIndex);</a>
+<a name="306"><span class="lineNum">     306 </span>            :     int vOffset = _level.getOffsetOfVertexFaces(vIndex);</a>
+<a name="307"><span class="lineNum">     307 </span>            :     return SiblingArray(&amp;_vertFaceSiblings[vOffset], vCount);</a>
+<a name="308"><span class="lineNum">     308 </span>            : }</a>
+<a name="309"><span class="lineNum">     309 </span>            : </a>
+<a name="310"><span class="lineNum">     310 </span>            : inline ConstIndexArray</a>
+<a name="311"><span class="lineNum">     311 </span><span class="lineNoCov">          0 : FVarLevel::getVertexValues(Index vIndex) const</span></a>
+<a name="312"><span class="lineNum">     312 </span>            : {</a>
+<a name="313"><span class="lineNum">     313 </span><span class="lineNoCov">          0 :     int vCount  = getNumVertexValues(vIndex);</span></a>
+<a name="314"><span class="lineNum">     314 </span><span class="lineNoCov">          0 :     int vOffset = getVertexValueOffset(vIndex);</span></a>
+<a name="315"><span class="lineNum">     315 </span><span class="lineNoCov">          0 :     return ConstIndexArray(&amp;_vertValueIndices[vOffset], vCount);</span></a>
+<a name="316"><span class="lineNum">     316 </span>            : }</a>
+<a name="317"><span class="lineNum">     317 </span>            : inline IndexArray</a>
+<a name="318"><span class="lineNum">     318 </span>            : FVarLevel::getVertexValues(Index vIndex)</a>
+<a name="319"><span class="lineNum">     319 </span>            : {</a>
+<a name="320"><span class="lineNum">     320 </span>            :     int vCount  = getNumVertexValues(vIndex);</a>
+<a name="321"><span class="lineNum">     321 </span>            :     int vOffset = getVertexValueOffset(vIndex);</a>
+<a name="322"><span class="lineNum">     322 </span>            :     return IndexArray(&amp;_vertValueIndices[vOffset], vCount);</a>
+<a name="323"><span class="lineNum">     323 </span>            : }</a>
+<a name="324"><span class="lineNum">     324 </span>            : </a>
+<a name="325"><span class="lineNum">     325 </span>            : inline FVarLevel::ConstValueTagArray</a>
+<a name="326"><span class="lineNum">     326 </span><span class="lineNoCov">          0 : FVarLevel::getVertexValueTags(Index vIndex) const</span></a>
+<a name="327"><span class="lineNum">     327 </span>            : {</a>
+<a name="328"><span class="lineNum">     328 </span><span class="lineNoCov">          0 :     int vCount  = getNumVertexValues(vIndex);</span></a>
+<a name="329"><span class="lineNum">     329 </span><span class="lineNoCov">          0 :     int vOffset = getVertexValueOffset(vIndex);</span></a>
+<a name="330"><span class="lineNum">     330 </span><span class="lineNoCov">          0 :     return ConstValueTagArray(&amp;_vertValueTags[vOffset], vCount);</span></a>
+<a name="331"><span class="lineNum">     331 </span>            : }</a>
+<a name="332"><span class="lineNum">     332 </span>            : inline FVarLevel::ValueTagArray</a>
+<a name="333"><span class="lineNum">     333 </span>            : FVarLevel::getVertexValueTags(Index vIndex)</a>
+<a name="334"><span class="lineNum">     334 </span>            : {</a>
+<a name="335"><span class="lineNum">     335 </span>            :     int vCount  = getNumVertexValues(vIndex);</a>
+<a name="336"><span class="lineNum">     336 </span>            :     int vOffset = getVertexValueOffset(vIndex);</a>
+<a name="337"><span class="lineNum">     337 </span>            :     return ValueTagArray(&amp;_vertValueTags[vOffset], vCount);</a>
+<a name="338"><span class="lineNum">     338 </span>            : }</a>
+<a name="339"><span class="lineNum">     339 </span>            : </a>
+<a name="340"><span class="lineNum">     340 </span>            : inline FVarLevel::ConstCreaseEndPairArray</a>
+<a name="341"><span class="lineNum">     341 </span>            : FVarLevel::getVertexValueCreaseEnds(Index vIndex) const</a>
+<a name="342"><span class="lineNum">     342 </span>            : {</a>
+<a name="343"><span class="lineNum">     343 </span>            :     int vCount  = getNumVertexValues(vIndex);</a>
+<a name="344"><span class="lineNum">     344 </span>            :     int vOffset = getVertexValueOffset(vIndex);</a>
+<a name="345"><span class="lineNum">     345 </span>            :     return ConstCreaseEndPairArray(&amp;_vertValueCreaseEnds[vOffset], vCount);</a>
+<a name="346"><span class="lineNum">     346 </span>            : }</a>
+<a name="347"><span class="lineNum">     347 </span>            : inline FVarLevel::CreaseEndPairArray</a>
+<a name="348"><span class="lineNum">     348 </span>            : FVarLevel::getVertexValueCreaseEnds(Index vIndex)</a>
+<a name="349"><span class="lineNum">     349 </span>            : {</a>
+<a name="350"><span class="lineNum">     350 </span>            :     int vCount  = getNumVertexValues(vIndex);</a>
+<a name="351"><span class="lineNum">     351 </span>            :     int vOffset = getVertexValueOffset(vIndex);</a>
+<a name="352"><span class="lineNum">     352 </span>            :     return CreaseEndPairArray(&amp;_vertValueCreaseEnds[vOffset], vCount);</a>
+<a name="353"><span class="lineNum">     353 </span>            : }</a>
+<a name="354"><span class="lineNum">     354 </span>            : </a>
+<a name="355"><span class="lineNum">     355 </span>            : inline Index</a>
+<a name="356"><span class="lineNum">     356 </span>            : FVarLevel::findVertexValueIndex(Index vertexIndex, Index valueIndex) const {</a>
+<a name="357"><span class="lineNum">     357 </span>            : </a>
+<a name="358"><span class="lineNum">     358 </span>            :     if (_level.getDepth() &gt; 0) return valueIndex;</a>
+<a name="359"><span class="lineNum">     359 </span>            : </a>
+<a name="360"><span class="lineNum">     360 </span>            :     Index vvIndex = getVertexValueOffset(vertexIndex);</a>
+<a name="361"><span class="lineNum">     361 </span>            :     while (_vertValueIndices[vvIndex] != valueIndex) {</a>
+<a name="362"><span class="lineNum">     362 </span>            :         ++ vvIndex;</a>
+<a name="363"><span class="lineNum">     363 </span>            :     }</a>
+<a name="364"><span class="lineNum">     364 </span>            :     return vvIndex;</a>
+<a name="365"><span class="lineNum">     365 </span>            : }</a>
+<a name="366"><span class="lineNum">     366 </span>            : </a>
+<a name="367"><span class="lineNum">     367 </span>            : //</a>
+<a name="368"><span class="lineNum">     368 </span>            : //  Methods related to tagging:</a>
+<a name="369"><span class="lineNum">     369 </span>            : //</a>
+<a name="370"><span class="lineNum">     370 </span>            : inline Level::ETag</a>
+<a name="371"><span class="lineNum">     371 </span>            : FVarLevel::ETag::combineWithLevelETag(Level::ETag levelTag) const</a>
+<a name="372"><span class="lineNum">     372 </span>            : {</a>
+<a name="373"><span class="lineNum">     373 </span>            :     if (this-&gt;_mismatch) {</a>
+<a name="374"><span class="lineNum">     374 </span>            :         levelTag._boundary = true;</a>
+<a name="375"><span class="lineNum">     375 </span>            :         levelTag._infSharp = true;</a>
+<a name="376"><span class="lineNum">     376 </span>            :     }</a>
+<a name="377"><span class="lineNum">     377 </span>            :     return levelTag;</a>
+<a name="378"><span class="lineNum">     378 </span>            : }</a>
+<a name="379"><span class="lineNum">     379 </span>            : inline Level::VTag</a>
+<a name="380"><span class="lineNum">     380 </span>            : FVarLevel::ValueTag::combineWithLevelVTag(Level::VTag levelTag) const</a>
+<a name="381"><span class="lineNum">     381 </span>            : {</a>
+<a name="382"><span class="lineNum">     382 </span>            :     if (this-&gt;_mismatch) {</a>
+<a name="383"><span class="lineNum">     383 </span>            :         //</a>
+<a name="384"><span class="lineNum">     384 </span>            :         //  Semi-sharp FVar values are always tagged and treated as corners</a>
+<a name="385"><span class="lineNum">     385 </span>            :         //  (at least three sharp edges (two boundary edges and one interior</a>
+<a name="386"><span class="lineNum">     386 </span>            :         //  semi-sharp) and/or vertex is semi-sharp) until the sharpness has</a>
+<a name="387"><span class="lineNum">     387 </span>            :         //  decayed, but they ultimately lie on the inf-sharp crease of the</a>
+<a name="388"><span class="lineNum">     388 </span>            :         //  FVar boundary.  Consider this when tagging inf-sharp features.</a>
+<a name="389"><span class="lineNum">     389 </span>            :         //</a>
+<a name="390"><span class="lineNum">     390 </span>            :         if (this-&gt;isCorner()) {</a>
+<a name="391"><span class="lineNum">     391 </span>            :             levelTag._rule = (Level::VTag::VTagSize) Sdc::Crease::RULE_CORNER;</a>
+<a name="392"><span class="lineNum">     392 </span>            :         } else {</a>
+<a name="393"><span class="lineNum">     393 </span>            :             levelTag._rule = (Level::VTag::VTagSize) Sdc::Crease::RULE_CREASE;</a>
+<a name="394"><span class="lineNum">     394 </span>            :         }</a>
+<a name="395"><span class="lineNum">     395 </span>            :         if (this-&gt;isCrease() || this-&gt;isSemiSharp()) {</a>
+<a name="396"><span class="lineNum">     396 </span>            :             levelTag._infSharp = false;</a>
+<a name="397"><span class="lineNum">     397 </span>            :             levelTag._infSharpCrease = true;</a>
+<a name="398"><span class="lineNum">     398 </span>            :             levelTag._corner = false;</a>
+<a name="399"><span class="lineNum">     399 </span>            :         } else {</a>
+<a name="400"><span class="lineNum">     400 </span>            :             levelTag._infSharp = true;</a>
+<a name="401"><span class="lineNum">     401 </span>            :             levelTag._infSharpCrease = false;</a>
+<a name="402"><span class="lineNum">     402 </span>            :             levelTag._corner = !this-&gt;_infIrregular &amp;&amp; !this-&gt;_infSharpEdges;</a>
+<a name="403"><span class="lineNum">     403 </span>            :         }</a>
+<a name="404"><span class="lineNum">     404 </span>            :         levelTag._infSharpEdges = true;</a>
+<a name="405"><span class="lineNum">     405 </span>            :         levelTag._infIrregular = this-&gt;_infIrregular;</a>
+<a name="406"><span class="lineNum">     406 </span>            : </a>
+<a name="407"><span class="lineNum">     407 </span>            :         levelTag._boundary = true;</a>
+<a name="408"><span class="lineNum">     408 </span>            :         levelTag._xordinary = this-&gt;_xordinary;</a>
+<a name="409"><span class="lineNum">     409 </span>            : </a>
+<a name="410"><span class="lineNum">     410 </span>            :         levelTag._nonManifold |= this-&gt;_nonManifold;</a>
+<a name="411"><span class="lineNum">     411 </span>            :     }</a>
+<a name="412"><span class="lineNum">     412 </span>            :     return levelTag;</a>
+<a name="413"><span class="lineNum">     413 </span>            : }</a>
+<a name="414"><span class="lineNum">     414 </span>            : </a>
+<a name="415"><span class="lineNum">     415 </span>            : } // end namespace internal</a>
+<a name="416"><span class="lineNum">     416 </span>            : } // end namespace Vtr</a>
+<a name="417"><span class="lineNum">     417 </span>            : </a>
+<a name="418"><span class="lineNum">     418 </span>            : } // end namespace OPENSUBDIV_VERSION</a>
+<a name="419"><span class="lineNum">     419 </span>            : using namespace OPENSUBDIV_VERSION;</a>
+<a name="420"><span class="lineNum">     420 </span>            : } // end namespace OpenSubdiv</a>
+<a name="421"><span class="lineNum">     421 </span>            : </a>
+<a name="422"><span class="lineNum">     422 </span>            : #endif /* OPENSUBDIV3_VTR_FVAR_LEVEL_H */</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,1373 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - editors/grease_pencil/intern/grease_pencil_add.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">editors/grease_pencil/intern</a> - grease_pencil_add.cc<span style="font-size: 80%;"> (source / <a href="grease_pencil_add.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">98</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2023 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup edgreasepencil</a>
+<a name="7"><span class="lineNum">       7 </span>            :  */</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &lt;array&gt;</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &quot;BKE_attribute.hh&quot;</a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &quot;BKE_curves.hh&quot;</a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;BKE_grease_pencil.hh&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : </a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;BLI_math_color_c.hh&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : </a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;BLT_translation.hh&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : </a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &quot;DNA_material_types.h&quot;</a>
+<a name="20"><span class="lineNum">      20 </span>            : </a>
+<a name="21"><span class="lineNum">      21 </span>            : #include &quot;ED_grease_pencil.hh&quot;</a>
+<a name="22"><span class="lineNum">      22 </span>            : </a>
+<a name="23"><span class="lineNum">      23 </span>            : namespace blender::ed::greasepencil {</a>
+<a name="24"><span class="lineNum">      24 </span>            : </a>
+<a name="25"><span class="lineNum">      25 </span>            : struct ColorTemplate {</a>
+<a name="26"><span class="lineNum">      26 </span>            :   const char *name;</a>
+<a name="27"><span class="lineNum">      27 </span>            :   float line[4];</a>
+<a name="28"><span class="lineNum">      28 </span>            :   float fill[4];</a>
+<a name="29"><span class="lineNum">      29 </span>            : };</a>
+<a name="30"><span class="lineNum">      30 </span>            : </a>
+<a name="31"><span class="lineNum">      31 </span>            : static const ColorTemplate gp_stroke_material_black = {</a>
+<a name="32"><span class="lineNum">      32 </span>            :     N_(&quot;Black&quot;),</a>
+<a name="33"><span class="lineNum">      33 </span>            :     {0.0f, 0.0f, 0.0f, 1.0f},</a>
+<a name="34"><span class="lineNum">      34 </span>            :     {0.0f, 0.0f, 0.0f, 1.0f},</a>
+<a name="35"><span class="lineNum">      35 </span>            : };</a>
+<a name="36"><span class="lineNum">      36 </span>            : </a>
+<a name="37"><span class="lineNum">      37 </span>            : static const ColorTemplate gp_stroke_material_white = {</a>
+<a name="38"><span class="lineNum">      38 </span>            :     N_(&quot;White&quot;),</a>
+<a name="39"><span class="lineNum">      39 </span>            :     {1.0f, 1.0f, 1.0f, 1.0f},</a>
+<a name="40"><span class="lineNum">      40 </span>            :     {1.0f, 1.0f, 1.0f, 1.0f},</a>
+<a name="41"><span class="lineNum">      41 </span>            : };</a>
+<a name="42"><span class="lineNum">      42 </span>            : </a>
+<a name="43"><span class="lineNum">      43 </span>            : static const ColorTemplate gp_stroke_material_red = {</a>
+<a name="44"><span class="lineNum">      44 </span>            :     N_(&quot;Red&quot;),</a>
+<a name="45"><span class="lineNum">      45 </span>            :     {1.0f, 0.0f, 0.0f, 1.0f},</a>
+<a name="46"><span class="lineNum">      46 </span>            :     {1.0f, 0.0f, 0.0f, 1.0f},</a>
+<a name="47"><span class="lineNum">      47 </span>            : };</a>
+<a name="48"><span class="lineNum">      48 </span>            : </a>
+<a name="49"><span class="lineNum">      49 </span>            : static const ColorTemplate gp_stroke_material_green = {</a>
+<a name="50"><span class="lineNum">      50 </span>            :     N_(&quot;Green&quot;),</a>
+<a name="51"><span class="lineNum">      51 </span>            :     {0.0f, 1.0f, 0.0f, 1.0f},</a>
+<a name="52"><span class="lineNum">      52 </span>            :     {0.0f, 1.0f, 0.0f, 1.0f},</a>
+<a name="53"><span class="lineNum">      53 </span>            : };</a>
+<a name="54"><span class="lineNum">      54 </span>            : </a>
+<a name="55"><span class="lineNum">      55 </span>            : static const ColorTemplate gp_stroke_material_blue = {</a>
+<a name="56"><span class="lineNum">      56 </span>            :     N_(&quot;Blue&quot;),</a>
+<a name="57"><span class="lineNum">      57 </span>            :     {0.0f, 0.0f, 1.0f, 1.0f},</a>
+<a name="58"><span class="lineNum">      58 </span>            :     {0.0f, 0.0f, 1.0f, 1.0f},</a>
+<a name="59"><span class="lineNum">      59 </span>            : };</a>
+<a name="60"><span class="lineNum">      60 </span>            : </a>
+<a name="61"><span class="lineNum">      61 </span>            : static const ColorTemplate gp_fill_material_grey = {</a>
+<a name="62"><span class="lineNum">      62 </span>            :     N_(&quot;Grey&quot;),</a>
+<a name="63"><span class="lineNum">      63 </span>            :     {0.5f, 0.5f, 0.5f, 1.0f},</a>
+<a name="64"><span class="lineNum">      64 </span>            :     {0.5f, 0.5f, 0.5f, 1.0f},</a>
+<a name="65"><span class="lineNum">      65 </span>            : };</a>
+<a name="66"><span class="lineNum">      66 </span>            : </a>
+<a name="67"><span class="lineNum">      67 </span>            : static const ColorTemplate gp_monkey_material_black = {</a>
+<a name="68"><span class="lineNum">      68 </span>            :     N_(&quot;Black&quot;),</a>
+<a name="69"><span class="lineNum">      69 </span>            :     {0.0f, 0.0f, 0.0f, 1.0f},</a>
+<a name="70"><span class="lineNum">      70 </span>            :     {0.0f, 0.0f, 0.0f, 1.0f},</a>
+<a name="71"><span class="lineNum">      71 </span>            : };</a>
+<a name="72"><span class="lineNum">      72 </span>            : </a>
+<a name="73"><span class="lineNum">      73 </span>            : static const ColorTemplate gp_monkey_material_skin = {</a>
+<a name="74"><span class="lineNum">      74 </span>            :     N_(&quot;Skin&quot;),</a>
+<a name="75"><span class="lineNum">      75 </span>            :     {0.745f, 0.502f, 0.278f, 1.0f},</a>
+<a name="76"><span class="lineNum">      76 </span>            :     {0.745f, 0.502f, 0.278f, 1.0f},</a>
+<a name="77"><span class="lineNum">      77 </span>            : };</a>
+<a name="78"><span class="lineNum">      78 </span>            : </a>
+<a name="79"><span class="lineNum">      79 </span>            : static const ColorTemplate gp_monkey_material_skin_light = {</a>
+<a name="80"><span class="lineNum">      80 </span>            :     N_(&quot;Skin_light&quot;),</a>
+<a name="81"><span class="lineNum">      81 </span>            :     {0.914f, 0.827f, 0.635f, 1.0f},</a>
+<a name="82"><span class="lineNum">      82 </span>            :     {0.914f, 0.827f, 0.635f, 1.0f},</a>
+<a name="83"><span class="lineNum">      83 </span>            : };</a>
+<a name="84"><span class="lineNum">      84 </span>            : </a>
+<a name="85"><span class="lineNum">      85 </span>            : static const ColorTemplate gp_monkey_material_skin_shadow = {</a>
+<a name="86"><span class="lineNum">      86 </span>            :     N_(&quot;Skin_shadow&quot;),</a>
+<a name="87"><span class="lineNum">      87 </span>            :     {0.322f, 0.29f, 0.224f, 0.5f},</a>
+<a name="88"><span class="lineNum">      88 </span>            :     {0.322f, 0.29f, 0.224f, 0.5f},</a>
+<a name="89"><span class="lineNum">      89 </span>            : };</a>
+<a name="90"><span class="lineNum">      90 </span>            : </a>
+<a name="91"><span class="lineNum">      91 </span>            : static const ColorTemplate gp_monkey_material_eyes = {</a>
+<a name="92"><span class="lineNum">      92 </span>            :     N_(&quot;Eyes&quot;),</a>
+<a name="93"><span class="lineNum">      93 </span>            :     {0.847f, 0.723f, 0.599f, 1.0f},</a>
+<a name="94"><span class="lineNum">      94 </span>            :     {0.847f, 0.723f, 0.599f, 1.0f},</a>
+<a name="95"><span class="lineNum">      95 </span>            : };</a>
+<a name="96"><span class="lineNum">      96 </span>            : </a>
+<a name="97"><span class="lineNum">      97 </span>            : static std::array&lt;float3, 175&gt; stroke_positions({</a>
+<a name="98"><span class="lineNum">      98 </span>            :     float3(-1.281f, 0.0f, -0.315f), float3(-1.269f, 0.0f, -0.302f), float3(-1.261f, 0.0f, -0.293f),</a>
+<a name="99"><span class="lineNum">      99 </span>            :     float3(-1.251f, 0.0f, -0.282f), float3(-1.241f, 0.0f, -0.271f), float3(-1.23f, 0.0f, -0.259f),</a>
+<a name="100"><span class="lineNum">     100 </span>            :     float3(-1.219f, 0.0f, -0.247f), float3(-1.208f, 0.0f, -0.234f), float3(-1.196f, 0.0f, -0.221f),</a>
+<a name="101"><span class="lineNum">     101 </span>            :     float3(-1.184f, 0.0f, -0.208f), float3(-1.172f, 0.0f, -0.194f), float3(-1.159f, 0.0f, -0.18f),</a>
+<a name="102"><span class="lineNum">     102 </span>            :     float3(-1.147f, 0.0f, -0.165f), float3(-1.134f, 0.0f, -0.151f), float3(-1.121f, 0.0f, -0.136f),</a>
+<a name="103"><span class="lineNum">     103 </span>            :     float3(-1.108f, 0.0f, -0.121f), float3(-1.094f, 0.0f, -0.106f), float3(-1.08f, 0.0f, -0.091f),</a>
+<a name="104"><span class="lineNum">     104 </span>            :     float3(-1.066f, 0.0f, -0.076f), float3(-1.052f, 0.0f, -0.061f), float3(-1.037f, 0.0f, -0.047f),</a>
+<a name="105"><span class="lineNum">     105 </span>            :     float3(-1.022f, 0.0f, -0.032f), float3(-1.007f, 0.0f, -0.017f), float3(-0.991f, 0.0f, -0.003f),</a>
+<a name="106"><span class="lineNum">     106 </span>            :     float3(-0.975f, 0.0f, 0.012f),  float3(-0.959f, 0.0f, 0.027f),  float3(-0.942f, 0.0f, 0.041f),</a>
+<a name="107"><span class="lineNum">     107 </span>            :     float3(-0.926f, 0.0f, 0.056f),  float3(-0.909f, 0.0f, 0.071f),  float3(-0.893f, 0.0f, 0.086f),</a>
+<a name="108"><span class="lineNum">     108 </span>            :     float3(-0.876f, 0.0f, 0.1f),    float3(-0.859f, 0.0f, 0.115f),  float3(-0.842f, 0.0f, 0.129f),</a>
+<a name="109"><span class="lineNum">     109 </span>            :     float3(-0.824f, 0.0f, 0.144f),  float3(-0.807f, 0.0f, 0.158f),  float3(-0.79f, 0.0f, 0.172f),</a>
+<a name="110"><span class="lineNum">     110 </span>            :     float3(-0.773f, 0.0f, 0.186f),  float3(-0.755f, 0.0f, 0.199f),  float3(-0.738f, 0.0f, 0.212f),</a>
+<a name="111"><span class="lineNum">     111 </span>            :     float3(-0.721f, 0.0f, 0.224f),  float3(-0.703f, 0.0f, 0.236f),  float3(-0.686f, 0.0f, 0.248f),</a>
+<a name="112"><span class="lineNum">     112 </span>            :     float3(-0.67f, 0.0f, 0.26f),    float3(-0.653f, 0.0f, 0.27f),   float3(-0.637f, 0.0f, 0.28f),</a>
+<a name="113"><span class="lineNum">     113 </span>            :     float3(-0.621f, 0.0f, 0.29f),   float3(-0.605f, 0.0f, 0.298f),  float3(-0.589f, 0.0f, 0.306f),</a>
+<a name="114"><span class="lineNum">     114 </span>            :     float3(-0.574f, 0.0f, 0.313f),  float3(-0.559f, 0.0f, 0.319f),  float3(-0.544f, 0.0f, 0.325f),</a>
+<a name="115"><span class="lineNum">     115 </span>            :     float3(-0.53f, 0.0f, 0.331f),   float3(-0.516f, 0.0f, 0.336f),  float3(-0.503f, 0.0f, 0.34f),</a>
+<a name="116"><span class="lineNum">     116 </span>            :     float3(-0.489f, 0.0f, 0.344f),  float3(-0.477f, 0.0f, 0.347f),  float3(-0.464f, 0.0f, 0.35f),</a>
+<a name="117"><span class="lineNum">     117 </span>            :     float3(-0.452f, 0.0f, 0.352f),  float3(-0.44f, 0.0f, 0.354f),   float3(-0.429f, 0.0f, 0.355f),</a>
+<a name="118"><span class="lineNum">     118 </span>            :     float3(-0.418f, 0.0f, 0.355f),  float3(-0.407f, 0.0f, 0.355f),  float3(-0.397f, 0.0f, 0.354f),</a>
+<a name="119"><span class="lineNum">     119 </span>            :     float3(-0.387f, 0.0f, 0.353f),  float3(-0.378f, 0.0f, 0.351f),  float3(-0.368f, 0.0f, 0.348f),</a>
+<a name="120"><span class="lineNum">     120 </span>            :     float3(-0.36f, 0.0f, 0.344f),   float3(-0.351f, 0.0f, 0.34f),   float3(-0.344f, 0.0f, 0.336f),</a>
+<a name="121"><span class="lineNum">     121 </span>            :     float3(-0.336f, 0.0f, 0.33f),   float3(-0.329f, 0.0f, 0.324f),  float3(-0.322f, 0.0f, 0.318f),</a>
+<a name="122"><span class="lineNum">     122 </span>            :     float3(-0.316f, 0.0f, 0.31f),   float3(-0.311f, 0.0f, 0.303f),  float3(-0.306f, 0.0f, 0.294f),</a>
+<a name="123"><span class="lineNum">     123 </span>            :     float3(-0.301f, 0.0f, 0.285f),  float3(-0.297f, 0.0f, 0.275f),  float3(-0.293f, 0.0f, 0.264f),</a>
+<a name="124"><span class="lineNum">     124 </span>            :     float3(-0.29f, 0.0f, 0.253f),   float3(-0.288f, 0.0f, 0.241f),  float3(-0.286f, 0.0f, 0.229f),</a>
+<a name="125"><span class="lineNum">     125 </span>            :     float3(-0.285f, 0.0f, 0.216f),  float3(-0.284f, 0.0f, 0.202f),  float3(-0.283f, 0.0f, 0.188f),</a>
+<a name="126"><span class="lineNum">     126 </span>            :     float3(-0.283f, 0.0f, 0.173f),  float3(-0.284f, 0.0f, 0.158f),  float3(-0.285f, 0.0f, 0.142f),</a>
+<a name="127"><span class="lineNum">     127 </span>            :     float3(-0.286f, 0.0f, 0.125f),  float3(-0.288f, 0.0f, 0.108f),  float3(-0.29f, 0.0f, 0.091f),</a>
+<a name="128"><span class="lineNum">     128 </span>            :     float3(-0.293f, 0.0f, 0.073f),  float3(-0.295f, 0.0f, 0.054f),  float3(-0.298f, 0.0f, 0.035f),</a>
+<a name="129"><span class="lineNum">     129 </span>            :     float3(-0.302f, 0.0f, 0.016f),  float3(-0.305f, 0.0f, -0.004f), float3(-0.309f, 0.0f, -0.024f),</a>
+<a name="130"><span class="lineNum">     130 </span>            :     float3(-0.313f, 0.0f, -0.044f), float3(-0.317f, 0.0f, -0.065f), float3(-0.321f, 0.0f, -0.085f),</a>
+<a name="131"><span class="lineNum">     131 </span>            :     float3(-0.326f, 0.0f, -0.106f), float3(-0.33f, 0.0f, -0.127f),  float3(-0.335f, 0.0f, -0.148f),</a>
+<a name="132"><span class="lineNum">     132 </span>            :     float3(-0.339f, 0.0f, -0.168f), float3(-0.344f, 0.0f, -0.189f), float3(-0.348f, 0.0f, -0.21f),</a>
+<a name="133"><span class="lineNum">     133 </span>            :     float3(-0.353f, 0.0f, -0.23f),  float3(-0.357f, 0.0f, -0.25f),  float3(-0.361f, 0.0f, -0.27f),</a>
+<a name="134"><span class="lineNum">     134 </span>            :     float3(-0.365f, 0.0f, -0.29f),  float3(-0.369f, 0.0f, -0.309f), float3(-0.372f, 0.0f, -0.328f),</a>
+<a name="135"><span class="lineNum">     135 </span>            :     float3(-0.375f, 0.0f, -0.347f), float3(-0.377f, 0.0f, -0.365f), float3(-0.379f, 0.0f, -0.383f),</a>
+<a name="136"><span class="lineNum">     136 </span>            :     float3(-0.38f, 0.0f, -0.4f),    float3(-0.38f, 0.0f, -0.417f),  float3(-0.38f, 0.0f, -0.434f),</a>
+<a name="137"><span class="lineNum">     137 </span>            :     float3(-0.379f, 0.0f, -0.449f), float3(-0.377f, 0.0f, -0.464f), float3(-0.374f, 0.0f, -0.478f),</a>
+<a name="138"><span class="lineNum">     138 </span>            :     float3(-0.371f, 0.0f, -0.491f), float3(-0.366f, 0.0f, -0.503f), float3(-0.361f, 0.0f, -0.513f),</a>
+<a name="139"><span class="lineNum">     139 </span>            :     float3(-0.354f, 0.0f, -0.523f), float3(-0.347f, 0.0f, -0.531f), float3(-0.339f, 0.0f, -0.538f),</a>
+<a name="140"><span class="lineNum">     140 </span>            :     float3(-0.33f, 0.0f, -0.543f),  float3(-0.32f, 0.0f, -0.547f),  float3(-0.31f, 0.0f, -0.549f),</a>
+<a name="141"><span class="lineNum">     141 </span>            :     float3(-0.298f, 0.0f, -0.55f),  float3(-0.286f, 0.0f, -0.55f),  float3(-0.274f, 0.0f, -0.548f),</a>
+<a name="142"><span class="lineNum">     142 </span>            :     float3(-0.261f, 0.0f, -0.544f), float3(-0.247f, 0.0f, -0.539f), float3(-0.232f, 0.0f, -0.533f),</a>
+<a name="143"><span class="lineNum">     143 </span>            :     float3(-0.218f, 0.0f, -0.525f), float3(-0.202f, 0.0f, -0.515f), float3(-0.186f, 0.0f, -0.503f),</a>
+<a name="144"><span class="lineNum">     144 </span>            :     float3(-0.169f, 0.0f, -0.49f),  float3(-0.151f, 0.0f, -0.475f), float3(-0.132f, 0.0f, -0.458f),</a>
+<a name="145"><span class="lineNum">     145 </span>            :     float3(-0.112f, 0.0f, -0.44f),  float3(-0.091f, 0.0f, -0.42f),  float3(-0.069f, 0.0f, -0.398f),</a>
+<a name="146"><span class="lineNum">     146 </span>            :     float3(-0.045f, 0.0f, -0.375f), float3(-0.021f, 0.0f, -0.35f),  float3(0.005f, 0.0f, -0.324f),</a>
+<a name="147"><span class="lineNum">     147 </span>            :     float3(0.031f, 0.0f, -0.297f),  float3(0.06f, 0.0f, -0.268f),   float3(0.089f, 0.0f, -0.238f),</a>
+<a name="148"><span class="lineNum">     148 </span>            :     float3(0.12f, 0.0f, -0.207f),   float3(0.153f, 0.0f, -0.175f),  float3(0.187f, 0.0f, -0.14f),</a>
+<a name="149"><span class="lineNum">     149 </span>            :     float3(0.224f, 0.0f, -0.104f),  float3(0.262f, 0.0f, -0.067f),  float3(0.302f, 0.0f, -0.027f),</a>
+<a name="150"><span class="lineNum">     150 </span>            :     float3(0.344f, 0.0f, 0.014f),   float3(0.388f, 0.0f, 0.056f),   float3(0.434f, 0.0f, 0.1f),</a>
+<a name="151"><span class="lineNum">     151 </span>            :     float3(0.483f, 0.0f, 0.145f),   float3(0.533f, 0.0f, 0.191f),   float3(0.585f, 0.0f, 0.238f),</a>
+<a name="152"><span class="lineNum">     152 </span>            :     float3(0.637f, 0.0f, 0.284f),   float3(0.69f, 0.0f, 0.33f),     float3(0.746f, 0.0f, 0.376f),</a>
+<a name="153"><span class="lineNum">     153 </span>            :     float3(0.802f, 0.0f, 0.421f),   float3(0.859f, 0.0f, 0.464f),   float3(0.915f, 0.0f, 0.506f),</a>
+<a name="154"><span class="lineNum">     154 </span>            :     float3(0.97f, 0.0f, 0.545f),    float3(1.023f, 0.0f, 0.581f),   float3(1.075f, 0.0f, 0.614f),</a>
+<a name="155"><span class="lineNum">     155 </span>            :     float3(1.122f, 0.0f, 0.643f),   float3(1.169f, 0.0f, 0.671f),   float3(1.207f, 0.0f, 0.693f),</a>
+<a name="156"><span class="lineNum">     156 </span>            :     float3(1.264f, 0.0f, 0.725f),</a>
+<a name="157"><span class="lineNum">     157 </span>            : });</a>
+<a name="158"><span class="lineNum">     158 </span>            : </a>
+<a name="159"><span class="lineNum">     159 </span>            : static constexpr std::array&lt;float, 175&gt; stroke_radii({</a>
+<a name="160"><span class="lineNum">     160 </span>            :     0.00143, 0.00259, 0.00334, 0.00420, 0.00503, 0.00581, 0.00656, 0.00728, 0.00791, 0.00851,</a>
+<a name="161"><span class="lineNum">     161 </span>            :     0.00907, 0.00960, 0.01005, 0.01050, 0.01087, 0.01121, 0.01151, 0.01181, 0.01208, 0.01234,</a>
+<a name="162"><span class="lineNum">     162 </span>            :     0.01256, 0.01279, 0.01297, 0.01316, 0.01331, 0.01350, 0.01365, 0.01380, 0.01391, 0.01399,</a>
+<a name="163"><span class="lineNum">     163 </span>            :     0.01410, 0.01414, 0.01418, 0.01421, 0.01421, 0.01421, 0.01425, 0.01425, 0.01429, 0.01433,</a>
+<a name="164"><span class="lineNum">     164 </span>            :     0.01440, 0.01448, 0.01455, 0.01462, 0.01474, 0.01485, 0.01496, 0.01511, 0.01526, 0.01541,</a>
+<a name="165"><span class="lineNum">     165 </span>            :     0.01556, 0.01575, 0.01594, 0.01616, 0.01639, 0.01661, 0.01688, 0.01714, 0.01740, 0.01766,</a>
+<a name="166"><span class="lineNum">     166 </span>            :     0.01796, 0.01826, 0.01856, 0.01886, 0.01920, 0.01950, 0.01980, 0.02014, 0.02044, 0.02074,</a>
+<a name="167"><span class="lineNum">     167 </span>            :     0.02107, 0.02138, 0.02171, 0.02205, 0.02239, 0.02273, 0.02306, 0.02344, 0.02381, 0.02415,</a>
+<a name="168"><span class="lineNum">     168 </span>            :     0.02452, 0.02490, 0.02531, 0.02569, 0.02610, 0.02651, 0.02693, 0.02734, 0.02775, 0.02816,</a>
+<a name="169"><span class="lineNum">     169 </span>            :     0.02854, 0.02895, 0.02933, 0.02974, 0.03015, 0.03056, 0.03105, 0.03161, 0.03225, 0.03296,</a>
+<a name="170"><span class="lineNum">     170 </span>            :     0.03364, 0.03431, 0.03495, 0.03551, 0.03608, 0.03652, 0.03694, 0.03731, 0.03765, 0.03791,</a>
+<a name="171"><span class="lineNum">     171 </span>            :     0.03818, 0.03840, 0.03859, 0.03874, 0.03885, 0.03889, 0.03889, 0.03881, 0.03870, 0.03859,</a>
+<a name="172"><span class="lineNum">     172 </span>            :     0.03848, 0.03836, 0.03829, 0.03821, 0.03814, 0.03810, 0.03810, 0.03810, 0.03810, 0.03814,</a>
+<a name="173"><span class="lineNum">     173 </span>            :     0.03814, 0.03818, 0.03814, 0.03814, 0.03810, 0.03806, 0.03799, 0.03784, 0.03769, 0.03743,</a>
+<a name="174"><span class="lineNum">     174 </span>            :     0.03713, 0.03675, 0.03630, 0.03581, 0.03521, 0.03461, 0.03405, 0.03356, 0.03308, 0.03263,</a>
+<a name="175"><span class="lineNum">     175 </span>            :     0.03218, 0.03165, 0.03105, 0.03038, 0.02963, 0.02884, 0.02801, 0.02715, 0.02625, 0.02535,</a>
+<a name="176"><span class="lineNum">     176 </span>            :     0.02441, 0.02344, 0.02246, 0.02149, 0.02048, 0.01935, 0.01811, 0.01673, 0.01526, 0.01369,</a>
+<a name="177"><span class="lineNum">     177 </span>            :     0.01208, 0.01050, 0.00885, 0.00758, 0.00581,</a>
+<a name="178"><span class="lineNum">     178 </span>            : });</a>
+<a name="179"><span class="lineNum">     179 </span>            : </a>
+<a name="180"><span class="lineNum">     180 </span>            : static constexpr std::array&lt;float, 175&gt; stroke_opacities({</a>
+<a name="181"><span class="lineNum">     181 </span>            :     1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,</a>
+<a name="182"><span class="lineNum">     182 </span>            :     1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,</a>
+<a name="183"><span class="lineNum">     183 </span>            :     1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,</a>
+<a name="184"><span class="lineNum">     184 </span>            :     1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,</a>
+<a name="185"><span class="lineNum">     185 </span>            :     1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,</a>
+<a name="186"><span class="lineNum">     186 </span>            :     1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,</a>
+<a name="187"><span class="lineNum">     187 </span>            :     1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,</a>
+<a name="188"><span class="lineNum">     188 </span>            :     1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,</a>
+<a name="189"><span class="lineNum">     189 </span>            :     1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,</a>
+<a name="190"><span class="lineNum">     190 </span>            :     1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,</a>
+<a name="191"><span class="lineNum">     191 </span>            :     1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,</a>
+<a name="192"><span class="lineNum">     192 </span>            : });</a>
+<a name="193"><span class="lineNum">     193 </span>            : </a>
+<a name="194"><span class="lineNum">     194 </span>            : static std::array&lt;float3, 700&gt; monkey_fill_positions({</a>
+<a name="195"><span class="lineNum">     195 </span>            :     float3(-0.4911, 0.0000, -0.1781), float3(-0.5168, 0.0000, -0.1806),</a>
+<a name="196"><span class="lineNum">     196 </span>            :     float3(-0.5361, 0.0000, -0.1817), float3(-0.5618, 0.0000, -0.1829),</a>
+<a name="197"><span class="lineNum">     197 </span>            :     float3(-0.5892, 0.0000, -0.1827), float3(-0.6193, 0.0000, -0.1814),</a>
+<a name="198"><span class="lineNum">     198 </span>            :     float3(-0.6499, 0.0000, -0.1782), float3(-0.6808, 0.0000, -0.1729),</a>
+<a name="199"><span class="lineNum">     199 </span>            :     float3(-0.7107, 0.0000, -0.1651), float3(-0.7404, 0.0000, -0.1555),</a>
+<a name="200"><span class="lineNum">     200 </span>            :     float3(-0.7698, 0.0000, -0.1447), float3(-0.7993, 0.0000, -0.1332),</a>
+<a name="201"><span class="lineNum">     201 </span>            :     float3(-0.8289, 0.0000, -0.1209), float3(-0.8586, 0.0000, -0.1090),</a>
+<a name="202"><span class="lineNum">     202 </span>            :     float3(-0.8871, 0.0000, -0.0973), float3(-0.9125, 0.0000, -0.0838),</a>
+<a name="203"><span class="lineNum">     203 </span>            :     float3(-0.9353, 0.0000, -0.0688), float3(-0.9561, 0.0000, -0.0525),</a>
+<a name="204"><span class="lineNum">     204 </span>            :     float3(-0.9752, 0.0000, -0.0346), float3(-0.9944, 0.0000, -0.0160),</a>
+<a name="205"><span class="lineNum">     205 </span>            :     float3(-1.0148, 0.0000, 0.0028),  float3(-1.0348, 0.0000, 0.0215),</a>
+<a name="206"><span class="lineNum">     206 </span>            :     float3(-1.0500, 0.0000, 0.0407),  float3(-1.0639, 0.0000, 0.0613),</a>
+<a name="207"><span class="lineNum">     207 </span>            :     float3(-1.0752, 0.0000, 0.0838),  float3(-1.0848, 0.0000, 0.1082),</a>
+<a name="208"><span class="lineNum">     208 </span>            :     float3(-1.0936, 0.0000, 0.1346),  float3(-1.1024, 0.0000, 0.1639),</a>
+<a name="209"><span class="lineNum">     209 </span>            :     float3(-1.1102, 0.0000, 0.1953),  float3(-1.1128, 0.0000, 0.2277),</a>
+<a name="210"><span class="lineNum">     210 </span>            :     float3(-1.1091, 0.0000, 0.2579),  float3(-1.1023, 0.0000, 0.2849),</a>
+<a name="211"><span class="lineNum">     211 </span>            :     float3(-1.0934, 0.0000, 0.3086),  float3(-1.0831, 0.0000, 0.3285),</a>
+<a name="212"><span class="lineNum">     212 </span>            :     float3(-1.0724, 0.0000, 0.3451),  float3(-1.0607, 0.0000, 0.3594),</a>
+<a name="213"><span class="lineNum">     213 </span>            :     float3(-1.0474, 0.0000, 0.3713),  float3(-1.0310, 0.0000, 0.3804),</a>
+<a name="214"><span class="lineNum">     214 </span>            :     float3(-1.0108, 0.0000, 0.3874),  float3(-0.9862, 0.0000, 0.3922),</a>
+<a name="215"><span class="lineNum">     215 </span>            :     float3(-0.9568, 0.0000, 0.3941),  float3(-0.9243, 0.0000, 0.3934),</a>
+<a name="216"><span class="lineNum">     216 </span>            :     float3(-0.8897, 0.0000, 0.3861),  float3(-0.8556, 0.0000, 0.3754),</a>
+<a name="217"><span class="lineNum">     217 </span>            :     float3(-0.8237, 0.0000, 0.3608),  float3(-0.7982, 0.0000, 0.3440),</a>
+<a name="218"><span class="lineNum">     218 </span>            :     float3(-0.7786, 0.0000, 0.3290),  float3(-0.7633, 0.0000, 0.3183),</a>
+<a name="219"><span class="lineNum">     219 </span>            :     float3(-0.7498, 0.0000, 0.3135),  float3(-0.7374, 0.0000, 0.3134),</a>
+<a name="220"><span class="lineNum">     220 </span>            :     float3(-0.7261, 0.0000, 0.3179),  float3(-0.7146, 0.0000, 0.3262),</a>
+<a name="221"><span class="lineNum">     221 </span>            :     float3(-0.7030, 0.0000, 0.3395),  float3(-0.6920, 0.0000, 0.3576),</a>
+<a name="222"><span class="lineNum">     222 </span>            :     float3(-0.6831, 0.0000, 0.3806),  float3(-0.6748, 0.0000, 0.4052),</a>
+<a name="223"><span class="lineNum">     223 </span>            :     float3(-0.6648, 0.0000, 0.4305),  float3(-0.6527, 0.0000, 0.4549),</a>
+<a name="224"><span class="lineNum">     224 </span>            :     float3(-0.6375, 0.0000, 0.4783),  float3(-0.6195, 0.0000, 0.5021),</a>
+<a name="225"><span class="lineNum">     225 </span>            :     float3(-0.5985, 0.0000, 0.5256),  float3(-0.5775, 0.0000, 0.5488),</a>
+<a name="226"><span class="lineNum">     226 </span>            :     float3(-0.5560, 0.0000, 0.5715),  float3(-0.5339, 0.0000, 0.5930),</a>
+<a name="227"><span class="lineNum">     227 </span>            :     float3(-0.5119, 0.0000, 0.6130),  float3(-0.4905, 0.0000, 0.6312),</a>
+<a name="228"><span class="lineNum">     228 </span>            :     float3(-0.4697, 0.0000, 0.6474),  float3(-0.4499, 0.0000, 0.6613),</a>
+<a name="229"><span class="lineNum">     229 </span>            :     float3(-0.4306, 0.0000, 0.6734),  float3(-0.4116, 0.0000, 0.6845),</a>
+<a name="230"><span class="lineNum">     230 </span>            :     float3(-0.3918, 0.0000, 0.6954),  float3(-0.3709, 0.0000, 0.7059),</a>
+<a name="231"><span class="lineNum">     231 </span>            :     float3(-0.3486, 0.0000, 0.7157),  float3(-0.3251, 0.0000, 0.7249),</a>
+<a name="232"><span class="lineNum">     232 </span>            :     float3(-0.3006, 0.0000, 0.7333),  float3(-0.2755, 0.0000, 0.7414),</a>
+<a name="233"><span class="lineNum">     233 </span>            :     float3(-0.2500, 0.0000, 0.7489),  float3(-0.2242, 0.0000, 0.7562),</a>
+<a name="234"><span class="lineNum">     234 </span>            :     float3(-0.1979, 0.0000, 0.7631),  float3(-0.1710, 0.0000, 0.7695),</a>
+<a name="235"><span class="lineNum">     235 </span>            :     float3(-0.1434, 0.0000, 0.7752),  float3(-0.1151, 0.0000, 0.7801),</a>
+<a name="236"><span class="lineNum">     236 </span>            :     float3(-0.0861, 0.0000, 0.7841),  float3(-0.0563, 0.0000, 0.7869),</a>
+<a name="237"><span class="lineNum">     237 </span>            :     float3(-0.0260, 0.0000, 0.7889),  float3(0.0049, 0.0000, 0.7899),</a>
+<a name="238"><span class="lineNum">     238 </span>            :     float3(0.0362, 0.0000, 0.7898),   float3(0.0679, 0.0000, 0.7881),</a>
+<a name="239"><span class="lineNum">     239 </span>            :     float3(0.0996, 0.0000, 0.7853),   float3(0.1313, 0.0000, 0.7812),</a>
+<a name="240"><span class="lineNum">     240 </span>            :     float3(0.1632, 0.0000, 0.7756),   float3(0.1953, 0.0000, 0.7687),</a>
+<a name="241"><span class="lineNum">     241 </span>            :     float3(0.2277, 0.0000, 0.7608),   float3(0.2606, 0.0000, 0.7513),</a>
+<a name="242"><span class="lineNum">     242 </span>            :     float3(0.2934, 0.0000, 0.7404),   float3(0.3258, 0.0000, 0.7276),</a>
+<a name="243"><span class="lineNum">     243 </span>            :     float3(0.3570, 0.0000, 0.7135),   float3(0.3870, 0.0000, 0.6983),</a>
+<a name="244"><span class="lineNum">     244 </span>            :     float3(0.4157, 0.0000, 0.6819),   float3(0.4440, 0.0000, 0.6645),</a>
+<a name="245"><span class="lineNum">     245 </span>            :     float3(0.4719, 0.0000, 0.6459),   float3(0.4994, 0.0000, 0.6261),</a>
+<a name="246"><span class="lineNum">     246 </span>            :     float3(0.5260, 0.0000, 0.6046),   float3(0.5520, 0.0000, 0.5816),</a>
+<a name="247"><span class="lineNum">     247 </span>            :     float3(0.5770, 0.0000, 0.5575),   float3(0.6008, 0.0000, 0.5328),</a>
+<a name="248"><span class="lineNum">     248 </span>            :     float3(0.6231, 0.0000, 0.5077),   float3(0.6423, 0.0000, 0.4829),</a>
+<a name="249"><span class="lineNum">     249 </span>            :     float3(0.6580, 0.0000, 0.4617),   float3(0.6713, 0.0000, 0.4432),</a>
+<a name="250"><span class="lineNum">     250 </span>            :     float3(0.6828, 0.0000, 0.4266),   float3(0.6928, 0.0000, 0.4118),</a>
+<a name="251"><span class="lineNum">     251 </span>            :     float3(0.7016, 0.0000, 0.3987),   float3(0.7094, 0.0000, 0.3871),</a>
+<a name="252"><span class="lineNum">     252 </span>            :     float3(0.7165, 0.0000, 0.3769),   float3(0.7233, 0.0000, 0.3679),</a>
+<a name="253"><span class="lineNum">     253 </span>            :     float3(0.7301, 0.0000, 0.3598),   float3(0.7373, 0.0000, 0.3524),</a>
+<a name="254"><span class="lineNum">     254 </span>            :     float3(0.7454, 0.0000, 0.3458),   float3(0.7545, 0.0000, 0.3398),</a>
+<a name="255"><span class="lineNum">     255 </span>            :     float3(0.7651, 0.0000, 0.3351),   float3(0.7770, 0.0000, 0.3317),</a>
+<a name="256"><span class="lineNum">     256 </span>            :     float3(0.7909, 0.0000, 0.3311),   float3(0.8068, 0.0000, 0.3340),</a>
+<a name="257"><span class="lineNum">     257 </span>            :     float3(0.8246, 0.0000, 0.3398),   float3(0.8438, 0.0000, 0.3486),</a>
+<a name="258"><span class="lineNum">     258 </span>            :     float3(0.8651, 0.0000, 0.3575),   float3(0.8893, 0.0000, 0.3665),</a>
+<a name="259"><span class="lineNum">     259 </span>            :     float3(0.9166, 0.0000, 0.3740),   float3(0.9459, 0.0000, 0.3791),</a>
+<a name="260"><span class="lineNum">     260 </span>            :     float3(0.9751, 0.0000, 0.3811),   float3(1.0029, 0.0000, 0.3800),</a>
+<a name="261"><span class="lineNum">     261 </span>            :     float3(1.0288, 0.0000, 0.3754),   float3(1.0520, 0.0000, 0.3673),</a>
+<a name="262"><span class="lineNum">     262 </span>            :     float3(1.0722, 0.0000, 0.3556),   float3(1.0888, 0.0000, 0.3403),</a>
+<a name="263"><span class="lineNum">     263 </span>            :     float3(1.1027, 0.0000, 0.3220),   float3(1.1133, 0.0000, 0.3010),</a>
+<a name="264"><span class="lineNum">     264 </span>            :     float3(1.1215, 0.0000, 0.2780),   float3(1.1269, 0.0000, 0.2534),</a>
+<a name="265"><span class="lineNum">     265 </span>            :     float3(1.1296, 0.0000, 0.2284),   float3(1.1292, 0.0000, 0.2031),</a>
+<a name="266"><span class="lineNum">     266 </span>            :     float3(1.1254, 0.0000, 0.1778),   float3(1.1178, 0.0000, 0.1530),</a>
+<a name="267"><span class="lineNum">     267 </span>            :     float3(1.1076, 0.0000, 0.1299),   float3(1.0955, 0.0000, 0.1079),</a>
+<a name="268"><span class="lineNum">     268 </span>            :     float3(1.0817, 0.0000, 0.0870),   float3(1.0668, 0.0000, 0.0677),</a>
+<a name="269"><span class="lineNum">     269 </span>            :     float3(1.0508, 0.0000, 0.0491),   float3(1.0339, 0.0000, 0.0313),</a>
+<a name="270"><span class="lineNum">     270 </span>            :     float3(1.0157, 0.0000, 0.0144),   float3(0.9969, 0.0000, -0.0015),</a>
+<a name="271"><span class="lineNum">     271 </span>            :     float3(0.9784, 0.0000, -0.0170),  float3(0.9600, 0.0000, -0.0321),</a>
+<a name="272"><span class="lineNum">     272 </span>            :     float3(0.9413, 0.0000, -0.0468),  float3(0.9216, 0.0000, -0.0611),</a>
+<a name="273"><span class="lineNum">     273 </span>            :     float3(0.9009, 0.0000, -0.0751),  float3(0.8787, 0.0000, -0.0893),</a>
+<a name="274"><span class="lineNum">     274 </span>            :     float3(0.8556, 0.0000, -0.1027),  float3(0.8312, 0.0000, -0.1152),</a>
+<a name="275"><span class="lineNum">     275 </span>            :     float3(0.8058, 0.0000, -0.1268),  float3(0.7788, 0.0000, -0.1372),</a>
+<a name="276"><span class="lineNum">     276 </span>            :     float3(0.7505, 0.0000, -0.1467),  float3(0.7214, 0.0000, -0.1549),</a>
+<a name="277"><span class="lineNum">     277 </span>            :     float3(0.6929, 0.0000, -0.1617),  float3(0.6652, 0.0000, -0.1665),</a>
+<a name="278"><span class="lineNum">     278 </span>            :     float3(0.6388, 0.0000, -0.1691),  float3(0.6131, 0.0000, -0.1701),</a>
+<a name="279"><span class="lineNum">     279 </span>            :     float3(0.5883, 0.0000, -0.1699),  float3(0.5644, 0.0000, -0.1691),</a>
+<a name="280"><span class="lineNum">     280 </span>            :     float3(0.5416, 0.0000, -0.1683),  float3(0.5195, 0.0000, -0.1680),</a>
+<a name="281"><span class="lineNum">     281 </span>            :     float3(0.4975, 0.0000, -0.1687),  float3(0.4754, 0.0000, -0.1705),</a>
+<a name="282"><span class="lineNum">     282 </span>            :     float3(0.4527, 0.0000, -0.1741),  float3(0.4293, 0.0000, -0.1797),</a>
+<a name="283"><span class="lineNum">     283 </span>            :     float3(0.4054, 0.0000, -0.1881),  float3(0.3813, 0.0000, -0.1992),</a>
+<a name="284"><span class="lineNum">     284 </span>            :     float3(0.3585, 0.0000, -0.2120),  float3(0.3368, 0.0000, -0.2266),</a>
+<a name="285"><span class="lineNum">     285 </span>            :     float3(0.3174, 0.0000, -0.2426),  float3(0.2996, 0.0000, -0.2594),</a>
+<a name="286"><span class="lineNum">     286 </span>            :     float3(0.2840, 0.0000, -0.2768),  float3(0.2702, 0.0000, -0.2946),</a>
+<a name="287"><span class="lineNum">     287 </span>            :     float3(0.2585, 0.0000, -0.3127),  float3(0.2500, 0.0000, -0.3308),</a>
+<a name="288"><span class="lineNum">     288 </span>            :     float3(0.2447, 0.0000, -0.3489),  float3(0.2418, 0.0000, -0.3672),</a>
+<a name="289"><span class="lineNum">     289 </span>            :     float3(0.2412, 0.0000, -0.3860),  float3(0.2425, 0.0000, -0.4051),</a>
+<a name="290"><span class="lineNum">     290 </span>            :     float3(0.2456, 0.0000, -0.4246),  float3(0.2509, 0.0000, -0.4447),</a>
+<a name="291"><span class="lineNum">     291 </span>            :     float3(0.2576, 0.0000, -0.4652),  float3(0.2666, 0.0000, -0.4867),</a>
+<a name="292"><span class="lineNum">     292 </span>            :     float3(0.2766, 0.0000, -0.5091),  float3(0.2871, 0.0000, -0.5326),</a>
+<a name="293"><span class="lineNum">     293 </span>            :     float3(0.2973, 0.0000, -0.5569),  float3(0.3060, 0.0000, -0.5826),</a>
+<a name="294"><span class="lineNum">     294 </span>            :     float3(0.3131, 0.0000, -0.6100),  float3(0.3197, 0.0000, -0.6384),</a>
+<a name="295"><span class="lineNum">     295 </span>            :     float3(0.3260, 0.0000, -0.6681),  float3(0.3315, 0.0000, -0.6984),</a>
+<a name="296"><span class="lineNum">     296 </span>            :     float3(0.3360, 0.0000, -0.7291),  float3(0.3391, 0.0000, -0.7593),</a>
+<a name="297"><span class="lineNum">     297 </span>            :     float3(0.3399, 0.0000, -0.7884),  float3(0.3382, 0.0000, -0.8158),</a>
+<a name="298"><span class="lineNum">     298 </span>            :     float3(0.3340, 0.0000, -0.8417),  float3(0.3273, 0.0000, -0.8657),</a>
+<a name="299"><span class="lineNum">     299 </span>            :     float3(0.3185, 0.0000, -0.8881),  float3(0.3073, 0.0000, -0.9088),</a>
+<a name="300"><span class="lineNum">     300 </span>            :     float3(0.2941, 0.0000, -0.9278),  float3(0.2786, 0.0000, -0.9449),</a>
+<a name="301"><span class="lineNum">     301 </span>            :     float3(0.2610, 0.0000, -0.9600),  float3(0.2413, 0.0000, -0.9733),</a>
+<a name="302"><span class="lineNum">     302 </span>            :     float3(0.2193, 0.0000, -0.9845),  float3(0.1953, 0.0000, -0.9935),</a>
+<a name="303"><span class="lineNum">     303 </span>            :     float3(0.1693, 0.0000, -1.0004),  float3(0.1421, 0.0000, -1.0051),</a>
+<a name="304"><span class="lineNum">     304 </span>            :     float3(0.1136, 0.0000, -1.0072),  float3(0.0842, 0.0000, -1.0073),</a>
+<a name="305"><span class="lineNum">     305 </span>            :     float3(0.0548, 0.0000, -1.0059),  float3(0.0258, 0.0000, -1.0037),</a>
+<a name="306"><span class="lineNum">     306 </span>            :     float3(-0.0027, 0.0000, -1.0003), float3(-0.0309, 0.0000, -0.9959),</a>
+<a name="307"><span class="lineNum">     307 </span>            :     float3(-0.0584, 0.0000, -0.9904), float3(-0.0858, 0.0000, -0.9848),</a>
+<a name="308"><span class="lineNum">     308 </span>            :     float3(-0.1127, 0.0000, -0.9783), float3(-0.1386, 0.0000, -0.9703),</a>
+<a name="309"><span class="lineNum">     309 </span>            :     float3(-0.1649, 0.0000, -0.9604), float3(-0.1910, 0.0000, -0.9479),</a>
+<a name="310"><span class="lineNum">     310 </span>            :     float3(-0.2165, 0.0000, -0.9345), float3(-0.2414, 0.0000, -0.9205),</a>
+<a name="311"><span class="lineNum">     311 </span>            :     float3(-0.2654, 0.0000, -0.9055), float3(-0.2877, 0.0000, -0.8898),</a>
+<a name="312"><span class="lineNum">     312 </span>            :     float3(-0.3076, 0.0000, -0.8723), float3(-0.3240, 0.0000, -0.8532),</a>
+<a name="313"><span class="lineNum">     313 </span>            :     float3(-0.3367, 0.0000, -0.8316), float3(-0.3451, 0.0000, -0.8077),</a>
+<a name="314"><span class="lineNum">     314 </span>            :     float3(-0.3505, 0.0000, -0.7829), float3(-0.3531, 0.0000, -0.7584),</a>
+<a name="315"><span class="lineNum">     315 </span>            :     float3(-0.3528, 0.0000, -0.7349), float3(-0.3503, 0.0000, -0.7115),</a>
+<a name="316"><span class="lineNum">     316 </span>            :     float3(-0.3460, 0.0000, -0.6880), float3(-0.3411, 0.0000, -0.6643),</a>
+<a name="317"><span class="lineNum">     317 </span>            :     float3(-0.3361, 0.0000, -0.6403), float3(-0.3304, 0.0000, -0.6164),</a>
+<a name="318"><span class="lineNum">     318 </span>            :     float3(-0.3244, 0.0000, -0.5925), float3(-0.3180, 0.0000, -0.5687),</a>
+<a name="319"><span class="lineNum">     319 </span>            :     float3(-0.3124, 0.0000, -0.5441), float3(-0.3051, 0.0000, -0.5191),</a>
+<a name="320"><span class="lineNum">     320 </span>            :     float3(-0.2959, 0.0000, -0.4917), float3(-0.2882, 0.0000, -0.4639),</a>
+<a name="321"><span class="lineNum">     321 </span>            :     float3(-0.2814, 0.0000, -0.4363), float3(-0.2759, 0.0000, -0.4084),</a>
+<a name="322"><span class="lineNum">     322 </span>            :     float3(-0.2707, 0.0000, -0.3827), float3(-0.2703, 0.0000, -0.3586),</a>
+<a name="323"><span class="lineNum">     323 </span>            :     float3(-0.2772, 0.0000, -0.3375), float3(-0.2871, 0.0000, -0.3178),</a>
+<a name="324"><span class="lineNum">     324 </span>            :     float3(-0.2995, 0.0000, -0.2996), float3(-0.3145, 0.0000, -0.2830),</a>
+<a name="325"><span class="lineNum">     325 </span>            :     float3(-0.3320, 0.0000, -0.2672), float3(-0.3488, 0.0000, -0.2531),</a>
+<a name="326"><span class="lineNum">     326 </span>            :     float3(-0.3639, 0.0000, -0.2407), float3(-0.3778, 0.0000, -0.2292),</a>
+<a name="327"><span class="lineNum">     327 </span>            :     float3(-0.3909, 0.0000, -0.2191), float3(-0.4032, 0.0000, -0.2102),</a>
+<a name="328"><span class="lineNum">     328 </span>            :     float3(-0.4146, 0.0000, -0.2027), float3(-0.4260, 0.0000, -0.1968),</a>
+<a name="329"><span class="lineNum">     329 </span>            :     float3(-0.4348, 0.0000, -0.1931), float3(-0.4479, 0.0000, -0.1886),</a>
+<a name="330"><span class="lineNum">     330 </span>            :     float3(0.5292, 0.0000, 0.1742),   float3(0.5291, 0.0000, 0.1621),</a>
+<a name="331"><span class="lineNum">     331 </span>            :     float3(0.5274, 0.0000, 0.1386),   float3(0.5239, 0.0000, 0.1160),</a>
+<a name="332"><span class="lineNum">     332 </span>            :     float3(0.5185, 0.0000, 0.0945),   float3(0.5115, 0.0000, 0.0741),</a>
+<a name="333"><span class="lineNum">     333 </span>            :     float3(0.5030, 0.0000, 0.0548),   float3(0.4931, 0.0000, 0.0368),</a>
+<a name="334"><span class="lineNum">     334 </span>            :     float3(0.4820, 0.0000, 0.0200),   float3(0.4697, 0.0000, 0.0046),</a>
+<a name="335"><span class="lineNum">     335 </span>            :     float3(0.4565, 0.0000, -0.0094),  float3(0.4424, 0.0000, -0.0219),</a>
+<a name="336"><span class="lineNum">     336 </span>            :     float3(0.4275, 0.0000, -0.0330),  float3(0.4121, 0.0000, -0.0424),</a>
+<a name="337"><span class="lineNum">     337 </span>            :     float3(0.3961, 0.0000, -0.0501),  float3(0.3799, 0.0000, -0.0562),</a>
+<a name="338"><span class="lineNum">     338 </span>            :     float3(0.3634, 0.0000, -0.0605),  float3(0.3468, 0.0000, -0.0629),</a>
+<a name="339"><span class="lineNum">     339 </span>            :     float3(0.3303, 0.0000, -0.0634),  float3(0.3139, 0.0000, -0.0620),</a>
+<a name="340"><span class="lineNum">     340 </span>            :     float3(0.2979, 0.0000, -0.0585),  float3(0.2823, 0.0000, -0.0529),</a>
+<a name="341"><span class="lineNum">     341 </span>            :     float3(0.2672, 0.0000, -0.0452),  float3(0.2529, 0.0000, -0.0352),</a>
+<a name="342"><span class="lineNum">     342 </span>            :     float3(0.2393, 0.0000, -0.0230),  float3(0.2267, 0.0000, -0.0085),</a>
+<a name="343"><span class="lineNum">     343 </span>            :     float3(0.2153, 0.0000, 0.0085),   float3(0.2050, 0.0000, 0.0279),</a>
+<a name="344"><span class="lineNum">     344 </span>            :     float3(0.1960, 0.0000, 0.0499),   float3(0.1886, 0.0000, 0.0745),</a>
+<a name="345"><span class="lineNum">     345 </span>            :     float3(0.1827, 0.0000, 0.1017),   float3(0.1786, 0.0000, 0.1316),</a>
+<a name="346"><span class="lineNum">     346 </span>            :     float3(0.1763, 0.0000, 0.1643),   float3(-0.0844, 0.0000, -0.3010),</a>
+<a name="347"><span class="lineNum">     347 </span>            :     float3(-0.0825, 0.0000, -0.3034), float3(-0.0751, 0.0000, -0.3128),</a>
+<a name="348"><span class="lineNum">     348 </span>            :     float3(-0.0677, 0.0000, -0.3216), float3(-0.0600, 0.0000, -0.3298),</a>
+<a name="349"><span class="lineNum">     349 </span>            :     float3(-0.0522, 0.0000, -0.3372), float3(-0.0440, 0.0000, -0.3437),</a>
+<a name="350"><span class="lineNum">     350 </span>            :     float3(-0.0354, 0.0000, -0.3491), float3(-0.0264, 0.0000, -0.3535),</a>
+<a name="351"><span class="lineNum">     351 </span>            :     float3(-0.0168, 0.0000, -0.3566), float3(-0.0065, 0.0000, -0.3583),</a>
+<a name="352"><span class="lineNum">     352 </span>            :     float3(0.0045, 0.0000, -0.3585),  float3(0.0163, 0.0000, -0.3571),</a>
+<a name="353"><span class="lineNum">     353 </span>            :     float3(0.0290, 0.0000, -0.3540),  float3(0.0427, 0.0000, -0.3491),</a>
+<a name="354"><span class="lineNum">     354 </span>            :     float3(0.0574, 0.0000, -0.3421),  float3(0.0732, 0.0000, -0.3331),</a>
+<a name="355"><span class="lineNum">     355 </span>            :     float3(0.0816, 0.0000, -0.3278),  float3(-0.6551, 0.0000, 0.4448),</a>
+<a name="356"><span class="lineNum">     356 </span>            :     float3(-0.6353, 0.0000, 0.4689),  float3(-0.6211, 0.0000, 0.4845),</a>
+<a name="357"><span class="lineNum">     357 </span>            :     float3(-0.6033, 0.0000, 0.5034),  float3(-0.5856, 0.0000, 0.5211),</a>
+<a name="358"><span class="lineNum">     358 </span>            :     float3(-0.5672, 0.0000, 0.5387),  float3(-0.5485, 0.0000, 0.5555),</a>
+<a name="359"><span class="lineNum">     359 </span>            :     float3(-0.5295, 0.0000, 0.5718),  float3(-0.5103, 0.0000, 0.5875),</a>
+<a name="360"><span class="lineNum">     360 </span>            :     float3(-0.4909, 0.0000, 0.6028),  float3(-0.4712, 0.0000, 0.6174),</a>
+<a name="361"><span class="lineNum">     361 </span>            :     float3(-0.4512, 0.0000, 0.6313),  float3(-0.4307, 0.0000, 0.6444),</a>
+<a name="362"><span class="lineNum">     362 </span>            :     float3(-0.4099, 0.0000, 0.6568),  float3(-0.3884, 0.0000, 0.6684),</a>
+<a name="363"><span class="lineNum">     363 </span>            :     float3(-0.3665, 0.0000, 0.6793),  float3(-0.3439, 0.0000, 0.6893),</a>
+<a name="364"><span class="lineNum">     364 </span>            :     float3(-0.3207, 0.0000, 0.6984),  float3(-0.2971, 0.0000, 0.7069),</a>
+<a name="365"><span class="lineNum">     365 </span>            :     float3(-0.2731, 0.0000, 0.7148),  float3(-0.2490, 0.0000, 0.7222),</a>
+<a name="366"><span class="lineNum">     366 </span>            :     float3(-0.2247, 0.0000, 0.7292),  float3(-0.2003, 0.0000, 0.7356),</a>
+<a name="367"><span class="lineNum">     367 </span>            :     float3(-0.1759, 0.0000, 0.7416),  float3(-0.1515, 0.0000, 0.7471),</a>
+<a name="368"><span class="lineNum">     368 </span>            :     float3(-0.1272, 0.0000, 0.7518),  float3(-0.1028, 0.0000, 0.7556),</a>
+<a name="369"><span class="lineNum">     369 </span>            :     float3(-0.0785, 0.0000, 0.7586),  float3(-0.0543, 0.0000, 0.7607),</a>
+<a name="370"><span class="lineNum">     370 </span>            :     float3(-0.0302, 0.0000, 0.7621),  float3(-0.0062, 0.0000, 0.7627),</a>
+<a name="371"><span class="lineNum">     371 </span>            :     float3(0.0177, 0.0000, 0.7625),   float3(0.0415, 0.0000, 0.7616),</a>
+<a name="372"><span class="lineNum">     372 </span>            :     float3(0.0652, 0.0000, 0.7602),   float3(0.0887, 0.0000, 0.7583),</a>
+<a name="373"><span class="lineNum">     373 </span>            :     float3(0.1122, 0.0000, 0.7559),   float3(0.1355, 0.0000, 0.7529),</a>
+<a name="374"><span class="lineNum">     374 </span>            :     float3(0.1585, 0.0000, 0.7493),   float3(0.1814, 0.0000, 0.7451),</a>
+<a name="375"><span class="lineNum">     375 </span>            :     float3(0.2041, 0.0000, 0.7404),   float3(0.2266, 0.0000, 0.7352),</a>
+<a name="376"><span class="lineNum">     376 </span>            :     float3(0.2488, 0.0000, 0.7290),   float3(0.2706, 0.0000, 0.7216),</a>
+<a name="377"><span class="lineNum">     377 </span>            :     float3(0.2921, 0.0000, 0.7131),   float3(0.3135, 0.0000, 0.7041),</a>
+<a name="378"><span class="lineNum">     378 </span>            :     float3(0.3348, 0.0000, 0.6945),   float3(0.3559, 0.0000, 0.6845),</a>
+<a name="379"><span class="lineNum">     379 </span>            :     float3(0.3769, 0.0000, 0.6739),   float3(0.3978, 0.0000, 0.6628),</a>
+<a name="380"><span class="lineNum">     380 </span>            :     float3(0.4185, 0.0000, 0.6510),   float3(0.4390, 0.0000, 0.6383),</a>
+<a name="381"><span class="lineNum">     381 </span>            :     float3(0.4594, 0.0000, 0.6249),   float3(0.4795, 0.0000, 0.6106),</a>
+<a name="382"><span class="lineNum">     382 </span>            :     float3(0.4995, 0.0000, 0.5956),   float3(0.5193, 0.0000, 0.5801),</a>
+<a name="383"><span class="lineNum">     383 </span>            :     float3(0.5390, 0.0000, 0.5642),   float3(0.5586, 0.0000, 0.5479),</a>
+<a name="384"><span class="lineNum">     384 </span>            :     float3(0.5780, 0.0000, 0.5312),   float3(0.5970, 0.0000, 0.5141),</a>
+<a name="385"><span class="lineNum">     385 </span>            :     float3(0.6153, 0.0000, 0.4966),   float3(0.6324, 0.0000, 0.4797),</a>
+<a name="386"><span class="lineNum">     386 </span>            :     float3(0.6498, 0.0000, 0.4620),   float3(0.6638, 0.0000, 0.4477),</a>
+<a name="387"><span class="lineNum">     387 </span>            :     float3(0.6843, 0.0000, 0.4263),   float3(-0.7765, 0.0000, 0.3255),</a>
+<a name="388"><span class="lineNum">     388 </span>            :     float3(-0.7908, 0.0000, 0.3335),  float3(-0.8048, 0.0000, 0.3402),</a>
+<a name="389"><span class="lineNum">     389 </span>            :     float3(-0.8225, 0.0000, 0.3467),  float3(-0.8426, 0.0000, 0.3529),</a>
+<a name="390"><span class="lineNum">     390 </span>            :     float3(-0.8651, 0.0000, 0.3587),  float3(-0.8878, 0.0000, 0.3633),</a>
+<a name="391"><span class="lineNum">     391 </span>            :     float3(-0.9105, 0.0000, 0.3670),  float3(-0.9323, 0.0000, 0.3693),</a>
+<a name="392"><span class="lineNum">     392 </span>            :     float3(-0.9529, 0.0000, 0.3701),  float3(-0.9720, 0.0000, 0.3695),</a>
+<a name="393"><span class="lineNum">     393 </span>            :     float3(-0.9896, 0.0000, 0.3675),  float3(-1.0057, 0.0000, 0.3640),</a>
+<a name="394"><span class="lineNum">     394 </span>            :     float3(-1.0203, 0.0000, 0.3592),  float3(-1.0333, 0.0000, 0.3528),</a>
+<a name="395"><span class="lineNum">     395 </span>            :     float3(-1.0447, 0.0000, 0.3452),  float3(-1.0546, 0.0000, 0.3362),</a>
+<a name="396"><span class="lineNum">     396 </span>            :     float3(-1.0633, 0.0000, 0.3261),  float3(-1.0708, 0.0000, 0.3150),</a>
+<a name="397"><span class="lineNum">     397 </span>            :     float3(-1.0767, 0.0000, 0.3027),  float3(-1.0818, 0.0000, 0.2894),</a>
+<a name="398"><span class="lineNum">     398 </span>            :     float3(-1.0861, 0.0000, 0.2752),  float3(-1.0897, 0.0000, 0.2604),</a>
+<a name="399"><span class="lineNum">     399 </span>            :     float3(-1.0922, 0.0000, 0.2446),  float3(-1.0938, 0.0000, 0.2277),</a>
+<a name="400"><span class="lineNum">     400 </span>            :     float3(-1.0944, 0.0000, 0.2098),  float3(-1.0939, 0.0000, 0.1910),</a>
+<a name="401"><span class="lineNum">     401 </span>            :     float3(-1.0924, 0.0000, 0.1714),  float3(-1.0897, 0.0000, 0.1511),</a>
+<a name="402"><span class="lineNum">     402 </span>            :     float3(-1.0855, 0.0000, 0.1303),  float3(-1.0798, 0.0000, 0.1095),</a>
+<a name="403"><span class="lineNum">     403 </span>            :     float3(-1.0723, 0.0000, 0.0890),  float3(-1.0642, 0.0000, 0.0702),</a>
+<a name="404"><span class="lineNum">     404 </span>            :     float3(0.8135, 0.0000, 0.3341),   float3(0.8191, 0.0000, 0.3376),</a>
+<a name="405"><span class="lineNum">     405 </span>            :     float3(0.8246, 0.0000, 0.3408),   float3(0.8304, 0.0000, 0.3438),</a>
+<a name="406"><span class="lineNum">     406 </span>            :     float3(0.8368, 0.0000, 0.3465),   float3(0.8430, 0.0000, 0.3491),</a>
+<a name="407"><span class="lineNum">     407 </span>            :     float3(0.8494, 0.0000, 0.3515),   float3(0.8558, 0.0000, 0.3536),</a>
+<a name="408"><span class="lineNum">     408 </span>            :     float3(0.8623, 0.0000, 0.3557),   float3(0.8688, 0.0000, 0.3575),</a>
+<a name="409"><span class="lineNum">     409 </span>            :     float3(0.8752, 0.0000, 0.3593),   float3(0.8813, 0.0000, 0.3609),</a>
+<a name="410"><span class="lineNum">     410 </span>            :     float3(0.8872, 0.0000, 0.3625),   float3(0.8929, 0.0000, 0.3640),</a>
+<a name="411"><span class="lineNum">     411 </span>            :     float3(0.8984, 0.0000, 0.3653),   float3(0.9039, 0.0000, 0.3665),</a>
+<a name="412"><span class="lineNum">     412 </span>            :     float3(0.9093, 0.0000, 0.3675),   float3(0.9146, 0.0000, 0.3684),</a>
+<a name="413"><span class="lineNum">     413 </span>            :     float3(0.9199, 0.0000, 0.3692),   float3(0.9253, 0.0000, 0.3698),</a>
+<a name="414"><span class="lineNum">     414 </span>            :     float3(0.9305, 0.0000, 0.3703),   float3(0.9358, 0.0000, 0.3706),</a>
+<a name="415"><span class="lineNum">     415 </span>            :     float3(0.9410, 0.0000, 0.3709),   float3(0.9462, 0.0000, 0.3710),</a>
+<a name="416"><span class="lineNum">     416 </span>            :     float3(0.9514, 0.0000, 0.3710),   float3(0.9566, 0.0000, 0.3708),</a>
+<a name="417"><span class="lineNum">     417 </span>            :     float3(0.9617, 0.0000, 0.3706),   float3(0.9668, 0.0000, 0.3702),</a>
+<a name="418"><span class="lineNum">     418 </span>            :     float3(0.9718, 0.0000, 0.3697),   float3(0.9768, 0.0000, 0.3692),</a>
+<a name="419"><span class="lineNum">     419 </span>            :     float3(0.9818, 0.0000, 0.3685),   float3(0.9867, 0.0000, 0.3677),</a>
+<a name="420"><span class="lineNum">     420 </span>            :     float3(0.9916, 0.0000, 0.3667),   float3(0.9964, 0.0000, 0.3657),</a>
+<a name="421"><span class="lineNum">     421 </span>            :     float3(1.0012, 0.0000, 0.3646),   float3(1.0060, 0.0000, 0.3634),</a>
+<a name="422"><span class="lineNum">     422 </span>            :     float3(1.0107, 0.0000, 0.3621),   float3(1.0154, 0.0000, 0.3607),</a>
+<a name="423"><span class="lineNum">     423 </span>            :     float3(1.0200, 0.0000, 0.3593),   float3(1.0245, 0.0000, 0.3577),</a>
+<a name="424"><span class="lineNum">     424 </span>            :     float3(1.0290, 0.0000, 0.3561),   float3(1.0335, 0.0000, 0.3543),</a>
+<a name="425"><span class="lineNum">     425 </span>            :     float3(1.0379, 0.0000, 0.3525),   float3(1.0422, 0.0000, 0.3507),</a>
+<a name="426"><span class="lineNum">     426 </span>            :     float3(1.0465, 0.0000, 0.3487),   float3(1.0507, 0.0000, 0.3468),</a>
+<a name="427"><span class="lineNum">     427 </span>            :     float3(1.0549, 0.0000, 0.3447),   float3(1.0591, 0.0000, 0.3427),</a>
+<a name="428"><span class="lineNum">     428 </span>            :     float3(1.0633, 0.0000, 0.3404),   float3(1.0675, 0.0000, 0.3380),</a>
+<a name="429"><span class="lineNum">     429 </span>            :     float3(1.0717, 0.0000, 0.3351),   float3(1.0761, 0.0000, 0.3318),</a>
+<a name="430"><span class="lineNum">     430 </span>            :     float3(1.0805, 0.0000, 0.3279),   float3(1.0849, 0.0000, 0.3235),</a>
+<a name="431"><span class="lineNum">     431 </span>            :     float3(1.0893, 0.0000, 0.3186),   float3(1.0936, 0.0000, 0.3134),</a>
+<a name="432"><span class="lineNum">     432 </span>            :     float3(1.0979, 0.0000, 0.3076),   float3(1.1020, 0.0000, 0.3017),</a>
+<a name="433"><span class="lineNum">     433 </span>            :     float3(1.1060, 0.0000, 0.2953),   float3(1.1097, 0.0000, 0.2890),</a>
+<a name="434"><span class="lineNum">     434 </span>            :     float3(1.1132, 0.0000, 0.2826),   float3(1.1164, 0.0000, 0.2766),</a>
+<a name="435"><span class="lineNum">     435 </span>            :     float3(1.1193, 0.0000, 0.2708),   float3(1.1221, 0.0000, 0.2652),</a>
+<a name="436"><span class="lineNum">     436 </span>            :     float3(-0.2677, 0.0000, -0.3496), float3(-0.2658, 0.0000, -0.3919),</a>
+<a name="437"><span class="lineNum">     437 </span>            :     float3(-0.2657, 0.0000, -0.4295), float3(-0.2691, 0.0000, -0.4621),</a>
+<a name="438"><span class="lineNum">     438 </span>            :     float3(-0.2750, 0.0000, -0.4949), float3(-0.2828, 0.0000, -0.5270),</a>
+<a name="439"><span class="lineNum">     439 </span>            :     float3(-0.2911, 0.0000, -0.5578), float3(-0.2971, 0.0000, -0.5884),</a>
+<a name="440"><span class="lineNum">     440 </span>            :     float3(-0.3030, 0.0000, -0.6181), float3(-0.3089, 0.0000, -0.6467),</a>
+<a name="441"><span class="lineNum">     441 </span>            :     float3(-0.3148, 0.0000, -0.6738), float3(-0.3196, 0.0000, -0.7000),</a>
+<a name="442"><span class="lineNum">     442 </span>            :     float3(-0.3230, 0.0000, -0.7253), float3(-0.3234, 0.0000, -0.7496),</a>
+<a name="443"><span class="lineNum">     443 </span>            :     float3(-0.3219, 0.0000, -0.7728), float3(-0.3184, 0.0000, -0.7949),</a>
+<a name="444"><span class="lineNum">     444 </span>            :     float3(-0.3103, 0.0000, -0.8138), float3(-0.3004, 0.0000, -0.8307),</a>
+<a name="445"><span class="lineNum">     445 </span>            :     float3(-0.2892, 0.0000, -0.8464), float3(-0.2766, 0.0000, -0.8611),</a>
+<a name="446"><span class="lineNum">     446 </span>            :     float3(-0.2618, 0.0000, -0.8735), float3(-0.2469, 0.0000, -0.8853),</a>
+<a name="447"><span class="lineNum">     447 </span>            :     float3(-0.2315, 0.0000, -0.8964), float3(-0.2158, 0.0000, -0.9068),</a>
+<a name="448"><span class="lineNum">     448 </span>            :     float3(-0.1997, 0.0000, -0.9167), float3(-0.1833, 0.0000, -0.9262),</a>
+<a name="449"><span class="lineNum">     449 </span>            :     float3(-0.1663, 0.0000, -0.9355), float3(-0.1481, 0.0000, -0.9445),</a>
+<a name="450"><span class="lineNum">     450 </span>            :     float3(-0.1282, 0.0000, -0.9534), float3(-0.1077, 0.0000, -0.9625),</a>
+<a name="451"><span class="lineNum">     451 </span>            :     float3(-0.0854, 0.0000, -0.9718), float3(-0.0616, 0.0000, -0.9813),</a>
+<a name="452"><span class="lineNum">     452 </span>            :     float3(-0.0248, 0.0000, -0.9920), float3(-0.0618, 0.0000, -0.1922),</a>
+<a name="453"><span class="lineNum">     453 </span>            :     float3(-0.0703, 0.0000, -0.2021), float3(-0.0758, 0.0000, -0.2103),</a>
+<a name="454"><span class="lineNum">     454 </span>            :     float3(-0.0803, 0.0000, -0.2206), float3(-0.0830, 0.0000, -0.2307),</a>
+<a name="455"><span class="lineNum">     455 </span>            :     float3(-0.0851, 0.0000, -0.2405), float3(-0.0865, 0.0000, -0.2499),</a>
+<a name="456"><span class="lineNum">     456 </span>            :     float3(-0.0872, 0.0000, -0.2588), float3(-0.0869, 0.0000, -0.2673),</a>
+<a name="457"><span class="lineNum">     457 </span>            :     float3(-0.0858, 0.0000, -0.2754), float3(-0.0831, 0.0000, -0.2829),</a>
+<a name="458"><span class="lineNum">     458 </span>            :     float3(-0.0791, 0.0000, -0.2898), float3(-0.0740, 0.0000, -0.2966),</a>
+<a name="459"><span class="lineNum">     459 </span>            :     float3(-0.0674, 0.0000, -0.3030), float3(-0.0591, 0.0000, -0.3084),</a>
+<a name="460"><span class="lineNum">     460 </span>            :     float3(-0.0465, 0.0000, -0.3134), float3(-0.0331, 0.0000, -0.3165),</a>
+<a name="461"><span class="lineNum">     461 </span>            :     float3(-0.0150, 0.0000, -0.3180), float3(0.5311, 0.0000, 0.1661),</a>
+<a name="462"><span class="lineNum">     462 </span>            :     float3(0.5307, 0.0000, 0.1794),   float3(0.5277, 0.0000, 0.2057),</a>
+<a name="463"><span class="lineNum">     463 </span>            :     float3(0.5218, 0.0000, 0.2314),   float3(0.5130, 0.0000, 0.2560),</a>
+<a name="464"><span class="lineNum">     464 </span>            :     float3(0.5014, 0.0000, 0.2790),   float3(0.4874, 0.0000, 0.3001),</a>
+<a name="465"><span class="lineNum">     465 </span>            :     float3(0.4711, 0.0000, 0.3189),   float3(0.4529, 0.0000, 0.3351),</a>
+<a name="466"><span class="lineNum">     466 </span>            :     float3(0.4329, 0.0000, 0.3483),   float3(0.4117, 0.0000, 0.3585),</a>
+<a name="467"><span class="lineNum">     467 </span>            :     float3(0.3894, 0.0000, 0.3654),   float3(0.3666, 0.0000, 0.3689),</a>
+<a name="468"><span class="lineNum">     468 </span>            :     float3(0.3435, 0.0000, 0.3689),   float3(0.3207, 0.0000, 0.3654),</a>
+<a name="469"><span class="lineNum">     469 </span>            :     float3(0.2985, 0.0000, 0.3585),   float3(0.2772, 0.0000, 0.3483),</a>
+<a name="470"><span class="lineNum">     470 </span>            :     float3(0.2573, 0.0000, 0.3351),   float3(0.2390, 0.0000, 0.3189),</a>
+<a name="471"><span class="lineNum">     471 </span>            :     float3(0.2227, 0.0000, 0.3001),   float3(0.2087, 0.0000, 0.2790),</a>
+<a name="472"><span class="lineNum">     472 </span>            :     float3(0.1972, 0.0000, 0.2560),   float3(0.1884, 0.0000, 0.2314),</a>
+<a name="473"><span class="lineNum">     473 </span>            :     float3(0.1824, 0.0000, 0.2057),   float3(0.1794, 0.0000, 0.1794),</a>
+<a name="474"><span class="lineNum">     474 </span>            :     float3(0.1794, 0.0000, 0.1528),   float3(0.1824, 0.0000, 0.1264),</a>
+<a name="475"><span class="lineNum">     475 </span>            :     float3(0.1884, 0.0000, 0.1007),   float3(0.1972, 0.0000, 0.0762),</a>
+<a name="476"><span class="lineNum">     476 </span>            :     float3(0.2087, 0.0000, 0.0531),   float3(0.2227, 0.0000, 0.0320),</a>
+<a name="477"><span class="lineNum">     477 </span>            :     float3(0.2390, 0.0000, 0.0132),   float3(0.2573, 0.0000, -0.0029),</a>
+<a name="478"><span class="lineNum">     478 </span>            :     float3(0.2772, 0.0000, -0.0162),  float3(0.2985, 0.0000, -0.0264),</a>
+<a name="479"><span class="lineNum">     479 </span>            :     float3(0.3207, 0.0000, -0.0333),  float3(0.3435, 0.0000, -0.0368),</a>
+<a name="480"><span class="lineNum">     480 </span>            :     float3(0.3666, 0.0000, -0.0368),  float3(0.3894, 0.0000, -0.0333),</a>
+<a name="481"><span class="lineNum">     481 </span>            :     float3(0.4117, 0.0000, -0.0264),  float3(0.4329, 0.0000, -0.0162),</a>
+<a name="482"><span class="lineNum">     482 </span>            :     float3(0.4529, 0.0000, -0.0029),  float3(0.4711, 0.0000, 0.0132),</a>
+<a name="483"><span class="lineNum">     483 </span>            :     float3(0.4874, 0.0000, 0.0320),   float3(0.5014, 0.0000, 0.0531),</a>
+<a name="484"><span class="lineNum">     484 </span>            :     float3(0.5130, 0.0000, 0.0762),   float3(0.5218, 0.0000, 0.1007),</a>
+<a name="485"><span class="lineNum">     485 </span>            :     float3(0.5277, 0.0000, 0.1264),   float3(0.5307, 0.0000, 0.1528),</a>
+<a name="486"><span class="lineNum">     486 </span>            :     float3(-0.5271, 0.0000, 0.1742),  float3(-0.5270, 0.0000, 0.1621),</a>
+<a name="487"><span class="lineNum">     487 </span>            :     float3(-0.5253, 0.0000, 0.1386),  float3(-0.5217, 0.0000, 0.1160),</a>
+<a name="488"><span class="lineNum">     488 </span>            :     float3(-0.5164, 0.0000, 0.0945),  float3(-0.5094, 0.0000, 0.0741),</a>
+<a name="489"><span class="lineNum">     489 </span>            :     float3(-0.5009, 0.0000, 0.0548),  float3(-0.4910, 0.0000, 0.0368),</a>
+<a name="490"><span class="lineNum">     490 </span>            :     float3(-0.4799, 0.0000, 0.0200),  float3(-0.4676, 0.0000, 0.0046),</a>
+<a name="491"><span class="lineNum">     491 </span>            :     float3(-0.4544, 0.0000, -0.0094), float3(-0.4402, 0.0000, -0.0219),</a>
+<a name="492"><span class="lineNum">     492 </span>            :     float3(-0.4254, 0.0000, -0.0330), float3(-0.4099, 0.0000, -0.0424),</a>
+<a name="493"><span class="lineNum">     493 </span>            :     float3(-0.3940, 0.0000, -0.0501), float3(-0.3777, 0.0000, -0.0562),</a>
+<a name="494"><span class="lineNum">     494 </span>            :     float3(-0.3612, 0.0000, -0.0605), float3(-0.3447, 0.0000, -0.0629),</a>
+<a name="495"><span class="lineNum">     495 </span>            :     float3(-0.3281, 0.0000, -0.0634), float3(-0.3118, 0.0000, -0.0620),</a>
+<a name="496"><span class="lineNum">     496 </span>            :     float3(-0.2957, 0.0000, -0.0585), float3(-0.2801, 0.0000, -0.0529),</a>
+<a name="497"><span class="lineNum">     497 </span>            :     float3(-0.2651, 0.0000, -0.0452), float3(-0.2507, 0.0000, -0.0352),</a>
+<a name="498"><span class="lineNum">     498 </span>            :     float3(-0.2372, 0.0000, -0.0230), float3(-0.2246, 0.0000, -0.0085),</a>
+<a name="499"><span class="lineNum">     499 </span>            :     float3(-0.2131, 0.0000, 0.0085),  float3(-0.2028, 0.0000, 0.0279),</a>
+<a name="500"><span class="lineNum">     500 </span>            :     float3(-0.1939, 0.0000, 0.0499),  float3(-0.1864, 0.0000, 0.0745),</a>
+<a name="501"><span class="lineNum">     501 </span>            :     float3(-0.1806, 0.0000, 0.1017),  float3(-0.1765, 0.0000, 0.1316),</a>
+<a name="502"><span class="lineNum">     502 </span>            :     float3(-0.1742, 0.0000, 0.1643),  float3(-0.1740, 0.0000, 0.1661),</a>
+<a name="503"><span class="lineNum">     503 </span>            :     float3(-0.1744, 0.0000, 0.1794),  float3(-0.1774, 0.0000, 0.2057),</a>
+<a name="504"><span class="lineNum">     504 </span>            :     float3(-0.1833, 0.0000, 0.2314),  float3(-0.1922, 0.0000, 0.2560),</a>
+<a name="505"><span class="lineNum">     505 </span>            :     float3(-0.2037, 0.0000, 0.2790),  float3(-0.2177, 0.0000, 0.3001),</a>
+<a name="506"><span class="lineNum">     506 </span>            :     float3(-0.2340, 0.0000, 0.3189),  float3(-0.2522, 0.0000, 0.3351),</a>
+<a name="507"><span class="lineNum">     507 </span>            :     float3(-0.2722, 0.0000, 0.3483),  float3(-0.2935, 0.0000, 0.3585),</a>
+<a name="508"><span class="lineNum">     508 </span>            :     float3(-0.3157, 0.0000, 0.3654),  float3(-0.3385, 0.0000, 0.3689),</a>
+<a name="509"><span class="lineNum">     509 </span>            :     float3(-0.3616, 0.0000, 0.3689),  float3(-0.3844, 0.0000, 0.3654),</a>
+<a name="510"><span class="lineNum">     510 </span>            :     float3(-0.4066, 0.0000, 0.3585),  float3(-0.4279, 0.0000, 0.3483),</a>
+<a name="511"><span class="lineNum">     511 </span>            :     float3(-0.4479, 0.0000, 0.3351),  float3(-0.4661, 0.0000, 0.3189),</a>
+<a name="512"><span class="lineNum">     512 </span>            :     float3(-0.4824, 0.0000, 0.3001),  float3(-0.4964, 0.0000, 0.2790),</a>
+<a name="513"><span class="lineNum">     513 </span>            :     float3(-0.5080, 0.0000, 0.2560),  float3(-0.5168, 0.0000, 0.2314),</a>
+<a name="514"><span class="lineNum">     514 </span>            :     float3(-0.5227, 0.0000, 0.2057),  float3(-0.5257, 0.0000, 0.1794),</a>
+<a name="515"><span class="lineNum">     515 </span>            :     float3(-0.5257, 0.0000, 0.1528),  float3(-0.5227, 0.0000, 0.1264),</a>
+<a name="516"><span class="lineNum">     516 </span>            :     float3(-0.5168, 0.0000, 0.1007),  float3(-0.5080, 0.0000, 0.0762),</a>
+<a name="517"><span class="lineNum">     517 </span>            :     float3(-0.4964, 0.0000, 0.0531),  float3(-0.4824, 0.0000, 0.0320),</a>
+<a name="518"><span class="lineNum">     518 </span>            :     float3(-0.4661, 0.0000, 0.0132),  float3(-0.4479, 0.0000, -0.0029),</a>
+<a name="519"><span class="lineNum">     519 </span>            :     float3(-0.4279, 0.0000, -0.0162), float3(-0.4066, 0.0000, -0.0264),</a>
+<a name="520"><span class="lineNum">     520 </span>            :     float3(-0.3844, 0.0000, -0.0333), float3(-0.3616, 0.0000, -0.0368),</a>
+<a name="521"><span class="lineNum">     521 </span>            :     float3(-0.3385, 0.0000, -0.0368), float3(-0.3157, 0.0000, -0.0333),</a>
+<a name="522"><span class="lineNum">     522 </span>            :     float3(-0.2935, 0.0000, -0.0264), float3(-0.2722, 0.0000, -0.0162),</a>
+<a name="523"><span class="lineNum">     523 </span>            :     float3(-0.2522, 0.0000, -0.0029), float3(-0.2340, 0.0000, 0.0132),</a>
+<a name="524"><span class="lineNum">     524 </span>            :     float3(-0.2177, 0.0000, 0.0320),  float3(-0.2037, 0.0000, 0.0531),</a>
+<a name="525"><span class="lineNum">     525 </span>            :     float3(-0.1922, 0.0000, 0.0762),  float3(-0.1833, 0.0000, 0.1007),</a>
+<a name="526"><span class="lineNum">     526 </span>            :     float3(-0.1774, 0.0000, 0.1264),  float3(-0.1744, 0.0000, 0.1528),</a>
+<a name="527"><span class="lineNum">     527 </span>            :     float3(0.9630, 0.0000, 0.1753),   float3(0.9555, 0.0000, 0.1761),</a>
+<a name="528"><span class="lineNum">     528 </span>            :     float3(0.9367, 0.0000, 0.1758),   float3(0.9202, 0.0000, 0.1741),</a>
+<a name="529"><span class="lineNum">     529 </span>            :     float3(0.9036, 0.0000, 0.1714),   float3(0.8885, 0.0000, 0.1668),</a>
+<a name="530"><span class="lineNum">     530 </span>            :     float3(0.8746, 0.0000, 0.1607),   float3(0.8621, 0.0000, 0.1531),</a>
+<a name="531"><span class="lineNum">     531 </span>            :     float3(0.8503, 0.0000, 0.1447),   float3(0.8389, 0.0000, 0.1352),</a>
+<a name="532"><span class="lineNum">     532 </span>            :     float3(0.8279, 0.0000, 0.1244),   float3(0.8174, 0.0000, 0.1125),</a>
+<a name="533"><span class="lineNum">     533 </span>            :     float3(0.8079, 0.0000, 0.0990),   float3(0.7999, 0.0000, 0.0839),</a>
+<a name="534"><span class="lineNum">     534 </span>            :     float3(0.7935, 0.0000, 0.0669),   float3(0.7892, 0.0000, 0.0488),</a>
+<a name="535"><span class="lineNum">     535 </span>            :     float3(0.7870, 0.0000, 0.0305),   float3(0.7847, 0.0000, 0.0139),</a>
+<a name="536"><span class="lineNum">     536 </span>            :     float3(-1.0227, 0.0000, 0.1753),  float3(-1.0153, 0.0000, 0.1761),</a>
+<a name="537"><span class="lineNum">     537 </span>            :     float3(-0.9964, 0.0000, 0.1758),  float3(-0.9799, 0.0000, 0.1741),</a>
+<a name="538"><span class="lineNum">     538 </span>            :     float3(-0.9634, 0.0000, 0.1714),  float3(-0.9483, 0.0000, 0.1668),</a>
+<a name="539"><span class="lineNum">     539 </span>            :     float3(-0.9344, 0.0000, 0.1607),  float3(-0.9219, 0.0000, 0.1531),</a>
+<a name="540"><span class="lineNum">     540 </span>            :     float3(-0.9101, 0.0000, 0.1447),  float3(-0.8986, 0.0000, 0.1352),</a>
+<a name="541"><span class="lineNum">     541 </span>            :     float3(-0.8876, 0.0000, 0.1244),  float3(-0.8772, 0.0000, 0.1125),</a>
+<a name="542"><span class="lineNum">     542 </span>            :     float3(-0.8677, 0.0000, 0.0990),  float3(-0.8597, 0.0000, 0.0839),</a>
+<a name="543"><span class="lineNum">     543 </span>            :     float3(-0.8533, 0.0000, 0.0669),  float3(-0.8490, 0.0000, 0.0488),</a>
+<a name="544"><span class="lineNum">     544 </span>            :     float3(-0.8467, 0.0000, 0.0305),  float3(-0.8444, 0.0000, 0.0139),</a>
+<a name="545"><span class="lineNum">     545 </span>            : });</a>
+<a name="546"><span class="lineNum">     546 </span>            : </a>
+<a name="547"><span class="lineNum">     547 </span>            : static constexpr std::array&lt;float, 700&gt; monkey_fill_opacities({</a>
+<a name="548"><span class="lineNum">     548 </span>            :     0.3620, 0.4070, 0.4390, 0.4580, 0.5000, 0.5160, 0.5190, 0.5300, 0.5330, 0.5340, 0.5350, 0.5350,</a>
+<a name="549"><span class="lineNum">     549 </span>            :     0.5370, 0.5370, 0.5370, 0.5350, 0.5340, 0.5340, 0.5340, 0.5340, 0.5320, 0.5310, 0.5310, 0.5320,</a>
+<a name="550"><span class="lineNum">     550 </span>            :     0.5350, 0.5400, 0.5420, 0.5430, 0.5430, 0.5460, 0.5490, 0.5490, 0.5490, 0.5490, 0.5510, 0.5530,</a>
+<a name="551"><span class="lineNum">     551 </span>            :     0.5540, 0.5540, 0.5550, 0.5560, 0.5570, 0.5570, 0.5570, 0.5570, 0.5570, 0.5580, 0.5590, 0.5590,</a>
+<a name="552"><span class="lineNum">     552 </span>            :     0.5590, 0.5480, 0.5460, 0.5470, 0.5470, 0.5480, 0.5480, 0.5490, 0.5480, 0.5490, 0.5490, 0.5580,</a>
+<a name="553"><span class="lineNum">     553 </span>            :     0.5870, 0.5950, 0.5980, 0.6030, 0.6060, 0.6070, 0.6070, 0.6110, 0.6150, 0.6210, 0.6230, 0.6260,</a>
+<a name="554"><span class="lineNum">     554 </span>            :     0.6300, 0.6320, 0.6440, 0.6570, 0.6610, 0.6640, 0.6680, 0.6710, 0.6740, 0.6780, 0.6800, 0.6800,</a>
+<a name="555"><span class="lineNum">     555 </span>            :     0.6800, 0.6810, 0.6810, 0.6830, 0.6830, 0.6850, 0.6860, 0.6940, 0.6970, 0.7000, 0.7040, 0.7100,</a>
+<a name="556"><span class="lineNum">     556 </span>            :     0.7110, 0.7130, 0.7140, 0.7140, 0.7150, 0.7160, 0.7160, 0.7170, 0.7170, 0.7180, 0.7180, 0.7180,</a>
+<a name="557"><span class="lineNum">     557 </span>            :     0.7190, 0.7190, 0.7190, 0.7190, 0.7170, 0.7170, 0.7170, 0.7180, 0.7190, 0.7190, 0.7090, 0.7040,</a>
+<a name="558"><span class="lineNum">     558 </span>            :     0.7050, 0.7130, 0.8130, 0.8150, 0.8150, 0.8160, 0.8160, 0.8160, 0.8170, 0.8170, 0.8150, 0.8070,</a>
+<a name="559"><span class="lineNum">     559 </span>            :     0.8010, 0.8000, 0.7810, 0.7800, 0.7780, 0.7770, 0.7770, 0.7770, 0.7780, 0.7760, 0.7760, 0.7740,</a>
+<a name="560"><span class="lineNum">     560 </span>            :     0.7720, 0.7730, 0.7730, 0.7720, 0.7720, 0.7660, 0.7650, 0.7650, 0.7660, 0.7650, 0.7650, 0.7610,</a>
+<a name="561"><span class="lineNum">     561 </span>            :     0.7510, 0.7440, 0.7380, 0.7310, 0.7270, 0.7230, 0.7170, 0.7080, 0.7060, 0.7050, 0.7040, 0.6980,</a>
+<a name="562"><span class="lineNum">     562 </span>            :     0.6910, 0.6850, 0.6830, 0.6760, 0.6700, 0.6630, 0.6600, 0.6590, 0.6590, 0.6570, 0.6590, 0.6590,</a>
+<a name="563"><span class="lineNum">     563 </span>            :     0.6590, 0.6570, 0.6580, 0.6570, 0.6560, 0.6420, 0.6090, 0.6080, 0.6070, 0.6060, 0.6040, 0.6060,</a>
+<a name="564"><span class="lineNum">     564 </span>            :     0.6070, 0.6070, 0.6070, 0.6060, 0.6020, 0.5850, 0.5760, 0.5640, 0.5490, 0.5430, 0.5410, 0.5380,</a>
+<a name="565"><span class="lineNum">     565 </span>            :     0.5280, 0.5280, 0.5290, 0.5280, 0.5150, 0.5140, 0.5070, 0.4940, 0.4900, 0.4910, 0.4890, 0.4910,</a>
+<a name="566"><span class="lineNum">     566 </span>            :     0.4920, 0.4920, 0.4920, 0.4920, 0.4940, 0.4940, 0.4930, 0.4920, 0.4920, 0.4910, 0.4900, 0.4900,</a>
+<a name="567"><span class="lineNum">     567 </span>            :     0.4890, 0.4890, 0.4900, 0.4890, 0.4890, 0.4900, 0.4890, 0.4890, 0.4890, 0.4880, 0.4900, 0.4970,</a>
+<a name="568"><span class="lineNum">     568 </span>            :     0.5040, 0.5100, 0.5150, 0.5220, 0.5280, 0.5320, 0.5350, 0.5400, 0.5450, 0.5490, 0.5490, 0.5520,</a>
+<a name="569"><span class="lineNum">     569 </span>            :     0.5520, 0.5530, 0.5530, 0.5530, 0.5540, 0.5550, 0.5550, 0.5570, 0.5570, 0.5580, 0.5580, 0.5580,</a>
+<a name="570"><span class="lineNum">     570 </span>            :     0.5590, 0.5580, 0.5590, 0.5580, 0.5580, 0.5590, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="571"><span class="lineNum">     571 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="572"><span class="lineNum">     572 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="573"><span class="lineNum">     573 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="574"><span class="lineNum">     574 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="575"><span class="lineNum">     575 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="576"><span class="lineNum">     576 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="577"><span class="lineNum">     577 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="578"><span class="lineNum">     578 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="579"><span class="lineNum">     579 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="580"><span class="lineNum">     580 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="581"><span class="lineNum">     581 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="582"><span class="lineNum">     582 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="583"><span class="lineNum">     583 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="584"><span class="lineNum">     584 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="585"><span class="lineNum">     585 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="586"><span class="lineNum">     586 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="587"><span class="lineNum">     587 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="588"><span class="lineNum">     588 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="589"><span class="lineNum">     589 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="590"><span class="lineNum">     590 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="591"><span class="lineNum">     591 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="592"><span class="lineNum">     592 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="593"><span class="lineNum">     593 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="594"><span class="lineNum">     594 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="595"><span class="lineNum">     595 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="596"><span class="lineNum">     596 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="597"><span class="lineNum">     597 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="598"><span class="lineNum">     598 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="599"><span class="lineNum">     599 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="600"><span class="lineNum">     600 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="601"><span class="lineNum">     601 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="602"><span class="lineNum">     602 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="603"><span class="lineNum">     603 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="604"><span class="lineNum">     604 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="605"><span class="lineNum">     605 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="606"><span class="lineNum">     606 </span>            :     1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="607"><span class="lineNum">     607 </span>            : });</a>
+<a name="608"><span class="lineNum">     608 </span>            : </a>
+<a name="609"><span class="lineNum">     609 </span>            : static constexpr std::array&lt;float, 700&gt; monkey_fill_radii({</a>
+<a name="610"><span class="lineNum">     610 </span>            :     0.01001, 0.01163, 0.01425, 0.01624, 0.01766, 0.01860, 0.01916, 0.01954, 0.01976, 0.01991,</a>
+<a name="611"><span class="lineNum">     611 </span>            :     0.02002, 0.02006, 0.02010, 0.02010, 0.02010, 0.02006, 0.02002, 0.02002, 0.01999, 0.01999,</a>
+<a name="612"><span class="lineNum">     612 </span>            :     0.01995, 0.01991, 0.01991, 0.01995, 0.02006, 0.02025, 0.02033, 0.02036, 0.02036, 0.02048,</a>
+<a name="613"><span class="lineNum">     613 </span>            :     0.02059, 0.02059, 0.02059, 0.02059, 0.02066, 0.02074, 0.02078, 0.02078, 0.02081, 0.02085,</a>
+<a name="614"><span class="lineNum">     614 </span>            :     0.02089, 0.02089, 0.02089, 0.02089, 0.02093, 0.02093, 0.02089, 0.02085, 0.02078, 0.02070,</a>
+<a name="615"><span class="lineNum">     615 </span>            :     0.02066, 0.02063, 0.02059, 0.02059, 0.02059, 0.02063, 0.02070, 0.02085, 0.02111, 0.02145,</a>
+<a name="616"><span class="lineNum">     616 </span>            :     0.02183, 0.02216, 0.02239, 0.02258, 0.02269, 0.02276, 0.02284, 0.02295, 0.02310, 0.02321,</a>
+<a name="617"><span class="lineNum">     617 </span>            :     0.02336, 0.02348, 0.02363, 0.02389, 0.02423, 0.02452, 0.02471, 0.02490, 0.02501, 0.02516,</a>
+<a name="618"><span class="lineNum">     618 </span>            :     0.02528, 0.02539, 0.02543, 0.02550, 0.02550, 0.02554, 0.02558, 0.02561, 0.02569, 0.02576,</a>
+<a name="619"><span class="lineNum">     619 </span>            :     0.02588, 0.02599, 0.02614, 0.02625, 0.02640, 0.02651, 0.02659, 0.02666, 0.02670, 0.02678,</a>
+<a name="620"><span class="lineNum">     620 </span>            :     0.02681, 0.02681, 0.02685, 0.02689, 0.02693, 0.02693, 0.02693, 0.02696, 0.02696, 0.02696,</a>
+<a name="621"><span class="lineNum">     621 </span>            :     0.02696, 0.02696, 0.02693, 0.02689, 0.02689, 0.02693, 0.02689, 0.02681, 0.02674, 0.02693,</a>
+<a name="622"><span class="lineNum">     622 </span>            :     0.02745, 0.02824, 0.02903, 0.02966, 0.03008, 0.03034, 0.03045, 0.03053, 0.03053, 0.03045,</a>
+<a name="623"><span class="lineNum">     623 </span>            :     0.03038, 0.03023, 0.03000, 0.02978, 0.02955, 0.02936, 0.02929, 0.02921, 0.02918, 0.02914,</a>
+<a name="624"><span class="lineNum">     624 </span>            :     0.02914, 0.02910, 0.02906, 0.02903, 0.02903, 0.02899, 0.02895, 0.02891, 0.02888, 0.02880,</a>
+<a name="625"><span class="lineNum">     625 </span>            :     0.02876, 0.02873, 0.02869, 0.02865, 0.02854, 0.02835, 0.02816, 0.02794, 0.02771, 0.02749,</a>
+<a name="626"><span class="lineNum">     626 </span>            :     0.02730, 0.02711, 0.02693, 0.02674, 0.02659, 0.02640, 0.02625, 0.02606, 0.02591, 0.02573,</a>
+<a name="627"><span class="lineNum">     627 </span>            :     0.02554, 0.02535, 0.02516, 0.02498, 0.02486, 0.02479, 0.02475, 0.02471, 0.02468, 0.02468,</a>
+<a name="628"><span class="lineNum">     628 </span>            :     0.02468, 0.02464, 0.02460, 0.02449, 0.02423, 0.02389, 0.02355, 0.02325, 0.02303, 0.02288,</a>
+<a name="629"><span class="lineNum">     629 </span>            :     0.02280, 0.02276, 0.02273, 0.02269, 0.02261, 0.02242, 0.02216, 0.02186, 0.02153, 0.02115,</a>
+<a name="630"><span class="lineNum">     630 </span>            :     0.02081, 0.02051, 0.02029, 0.02010, 0.01995, 0.01984, 0.01969, 0.01954, 0.01935, 0.01912,</a>
+<a name="631"><span class="lineNum">     631 </span>            :     0.01894, 0.01871, 0.01856, 0.01849, 0.01841, 0.01841, 0.01841, 0.01845, 0.01845, 0.01845,</a>
+<a name="632"><span class="lineNum">     632 </span>            :     0.01849, 0.01849, 0.01849, 0.01845, 0.01841, 0.01841, 0.01838, 0.01838, 0.01834, 0.01834,</a>
+<a name="633"><span class="lineNum">     633 </span>            :     0.01834, 0.01834, 0.01834, 0.01838, 0.01838, 0.01841, 0.01845, 0.01853, 0.01864, 0.01879,</a>
+<a name="634"><span class="lineNum">     634 </span>            :     0.01894, 0.01912, 0.01931, 0.01950, 0.01969, 0.01987, 0.02006, 0.02021, 0.02033, 0.02048,</a>
+<a name="635"><span class="lineNum">     635 </span>            :     0.02055, 0.02063, 0.02066, 0.02070, 0.02074, 0.02078, 0.02078, 0.02081, 0.02085, 0.02085,</a>
+<a name="636"><span class="lineNum">     636 </span>            :     0.02089, 0.02093, 0.02093, 0.02093, 0.02096, 0.02096, 0.02096, 0.02093, 0.02093, 0.02081,</a>
+<a name="637"><span class="lineNum">     637 </span>            :     0.00300, 0.00660, 0.01384, 0.01806, 0.02094, 0.02307, 0.02471, 0.02598, 0.02701, 0.02782,</a>
+<a name="638"><span class="lineNum">     638 </span>            :     0.02845, 0.02896, 0.02934, 0.02963, 0.02983, 0.02995, 0.02999, 0.02997, 0.02989, 0.02974,</a>
+<a name="639"><span class="lineNum">     639 </span>            :     0.02950, 0.02917, 0.02873, 0.02815, 0.02743, 0.02652, 0.02538, 0.02394, 0.02208, 0.01962,</a>
+<a name="640"><span class="lineNum">     640 </span>            :     0.01619, 0.01080, 0.00300, 0.00300, 0.00660, 0.01806, 0.02307, 0.02598, 0.02782, 0.02896,</a>
+<a name="641"><span class="lineNum">     641 </span>            :     0.02963, 0.02995, 0.02997, 0.02974, 0.02917, 0.02815, 0.02652, 0.02394, 0.01962, 0.01080,</a>
+<a name="642"><span class="lineNum">     642 </span>            :     0.00300, 0.00300, 0.00660, 0.01080, 0.01384, 0.01619, 0.01806, 0.01962, 0.02094, 0.02208,</a>
+<a name="643"><span class="lineNum">     643 </span>            :     0.02307, 0.02394, 0.02471, 0.02538, 0.02598, 0.02652, 0.02701, 0.02743, 0.02782, 0.02815,</a>
+<a name="644"><span class="lineNum">     644 </span>            :     0.02845, 0.02873, 0.02896, 0.02917, 0.02934, 0.02950, 0.02963, 0.02974, 0.02983, 0.02989,</a>
+<a name="645"><span class="lineNum">     645 </span>            :     0.02995, 0.02997, 0.02999, 0.02999, 0.02997, 0.02995, 0.02989, 0.02983, 0.02974, 0.02963,</a>
+<a name="646"><span class="lineNum">     646 </span>            :     0.02950, 0.02934, 0.02917, 0.02896, 0.02873, 0.02845, 0.02815, 0.02782, 0.02743, 0.02701,</a>
+<a name="647"><span class="lineNum">     647 </span>            :     0.02652, 0.02598, 0.02538, 0.02471, 0.02394, 0.02307, 0.02208, 0.02094, 0.01962, 0.01806,</a>
+<a name="648"><span class="lineNum">     648 </span>            :     0.01619, 0.01384, 0.01080, 0.00660, 0.00300, 0.00300, 0.00660, 0.01384, 0.01806, 0.02094,</a>
+<a name="649"><span class="lineNum">     649 </span>            :     0.02307, 0.02471, 0.02598, 0.02701, 0.02782, 0.02845, 0.02896, 0.02934, 0.02963, 0.02983,</a>
+<a name="650"><span class="lineNum">     650 </span>            :     0.02995, 0.02999, 0.02997, 0.02989, 0.02974, 0.02950, 0.02917, 0.02873, 0.02815, 0.02743,</a>
+<a name="651"><span class="lineNum">     651 </span>            :     0.02652, 0.02538, 0.02394, 0.02208, 0.01962, 0.01619, 0.01080, 0.00300, 0.00300, 0.00660,</a>
+<a name="652"><span class="lineNum">     652 </span>            :     0.01080, 0.01384, 0.01619, 0.01806, 0.01962, 0.02094, 0.02208, 0.02307, 0.02394, 0.02471,</a>
+<a name="653"><span class="lineNum">     653 </span>            :     0.02538, 0.02598, 0.02652, 0.02701, 0.02743, 0.02782, 0.02815, 0.02845, 0.02873, 0.02896,</a>
+<a name="654"><span class="lineNum">     654 </span>            :     0.02917, 0.02934, 0.02950, 0.02963, 0.02974, 0.02983, 0.02989, 0.02995, 0.02997, 0.02999,</a>
+<a name="655"><span class="lineNum">     655 </span>            :     0.02999, 0.02997, 0.02995, 0.02989, 0.02983, 0.02974, 0.02963, 0.02950, 0.02934, 0.02917,</a>
+<a name="656"><span class="lineNum">     656 </span>            :     0.02896, 0.02873, 0.02845, 0.02815, 0.02782, 0.02743, 0.02701, 0.02652, 0.02598, 0.02538,</a>
+<a name="657"><span class="lineNum">     657 </span>            :     0.02471, 0.02394, 0.02307, 0.02208, 0.02094, 0.01962, 0.01806, 0.01619, 0.01384, 0.01080,</a>
+<a name="658"><span class="lineNum">     658 </span>            :     0.00660, 0.00300, 0.00300, 0.00660, 0.01384, 0.01806, 0.02094, 0.02307, 0.02471, 0.02598,</a>
+<a name="659"><span class="lineNum">     659 </span>            :     0.02701, 0.02782, 0.02845, 0.02896, 0.02934, 0.02963, 0.02983, 0.02995, 0.02999, 0.02997,</a>
+<a name="660"><span class="lineNum">     660 </span>            :     0.02989, 0.02974, 0.02950, 0.02917, 0.02873, 0.02815, 0.02743, 0.02652, 0.02538, 0.02394,</a>
+<a name="661"><span class="lineNum">     661 </span>            :     0.02208, 0.01962, 0.01619, 0.01080, 0.00300, 0.00200, 0.00440, 0.01204, 0.01538, 0.01732,</a>
+<a name="662"><span class="lineNum">     662 </span>            :     0.01854, 0.01931, 0.01975, 0.01997, 0.01998, 0.01982, 0.01945, 0.01877, 0.01768, 0.01596,</a>
+<a name="663"><span class="lineNum">     663 </span>            :     0.01308, 0.00720, 0.00200, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000,</a>
+<a name="664"><span class="lineNum">     664 </span>            :     0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000,</a>
+<a name="665"><span class="lineNum">     665 </span>            :     0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000,</a>
+<a name="666"><span class="lineNum">     666 </span>            :     0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000,</a>
+<a name="667"><span class="lineNum">     667 </span>            :     0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000,</a>
+<a name="668"><span class="lineNum">     668 </span>            :     0.03000, 0.03000, 0.00300, 0.00660, 0.01384, 0.01806, 0.02094, 0.02307, 0.02471, 0.02598,</a>
+<a name="669"><span class="lineNum">     669 </span>            :     0.02701, 0.02782, 0.02845, 0.02896, 0.02934, 0.02963, 0.02983, 0.02995, 0.02999, 0.02997,</a>
+<a name="670"><span class="lineNum">     670 </span>            :     0.02989, 0.02974, 0.02950, 0.02917, 0.02873, 0.02815, 0.02743, 0.02652, 0.02538, 0.02394,</a>
+<a name="671"><span class="lineNum">     671 </span>            :     0.02208, 0.01962, 0.01619, 0.01080, 0.00300, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000,</a>
+<a name="672"><span class="lineNum">     672 </span>            :     0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000,</a>
+<a name="673"><span class="lineNum">     673 </span>            :     0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000,</a>
+<a name="674"><span class="lineNum">     674 </span>            :     0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000,</a>
+<a name="675"><span class="lineNum">     675 </span>            :     0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000,</a>
+<a name="676"><span class="lineNum">     676 </span>            :     0.03000, 0.03000, 0.03000, 0.03000, 0.00200, 0.00440, 0.01204, 0.01538, 0.01732, 0.01854,</a>
+<a name="677"><span class="lineNum">     677 </span>            :     0.01931, 0.01975, 0.01997, 0.01998, 0.01982, 0.01945, 0.01877, 0.01768, 0.01596, 0.01308,</a>
+<a name="678"><span class="lineNum">     678 </span>            :     0.00720, 0.00200, 0.00200, 0.00440, 0.01204, 0.01538, 0.01732, 0.01854, 0.01931, 0.01975,</a>
+<a name="679"><span class="lineNum">     679 </span>            :     0.01997, 0.01998, 0.01982, 0.01945, 0.01877, 0.01768, 0.01596, 0.01308, 0.00720, 0.00200,</a>
+<a name="680"><span class="lineNum">     680 </span>            : });</a>
+<a name="681"><span class="lineNum">     681 </span>            : </a>
+<a name="682"><span class="lineNum">     682 </span>            : static constexpr std::array&lt;int, 14&gt; monkey_fill_offsets({</a>
+<a name="683"><span class="lineNum">     683 </span>            :     0,</a>
+<a name="684"><span class="lineNum">     684 </span>            :     270,</a>
+<a name="685"><span class="lineNum">     685 </span>            :     303,</a>
+<a name="686"><span class="lineNum">     686 </span>            :     321,</a>
+<a name="687"><span class="lineNum">     687 </span>            :     385,</a>
+<a name="688"><span class="lineNum">     688 </span>            :     418,</a>
+<a name="689"><span class="lineNum">     689 </span>            :     482,</a>
+<a name="690"><span class="lineNum">     690 </span>            :     515,</a>
+<a name="691"><span class="lineNum">     691 </span>            :     533,</a>
+<a name="692"><span class="lineNum">     692 </span>            :     582,</a>
+<a name="693"><span class="lineNum">     693 </span>            :     615,</a>
+<a name="694"><span class="lineNum">     694 </span>            :     664,</a>
+<a name="695"><span class="lineNum">     695 </span>            :     682,</a>
+<a name="696"><span class="lineNum">     696 </span>            :     700,</a>
+<a name="697"><span class="lineNum">     697 </span>            : });</a>
+<a name="698"><span class="lineNum">     698 </span>            : </a>
+<a name="699"><span class="lineNum">     699 </span>            : static std::array&lt;float3, 516&gt; monkey_line_positions({</a>
+<a name="700"><span class="lineNum">     700 </span>            :     float3(-0.6794, 0.0000, 0.3908),  float3(-0.6711, 0.0000, 0.4112),</a>
+<a name="701"><span class="lineNum">     701 </span>            :     float3(-0.6513, 0.0000, 0.4509),  float3(-0.6276, 0.0000, 0.4890),</a>
+<a name="702"><span class="lineNum">     702 </span>            :     float3(-0.6001, 0.0000, 0.5253),  float3(-0.5692, 0.0000, 0.5598),</a>
+<a name="703"><span class="lineNum">     703 </span>            :     float3(-0.5350, 0.0000, 0.5924),  float3(-0.4979, 0.0000, 0.6228),</a>
+<a name="704"><span class="lineNum">     704 </span>            :     float3(-0.4579, 0.0000, 0.6510),  float3(-0.4155, 0.0000, 0.6770),</a>
+<a name="705"><span class="lineNum">     705 </span>            :     float3(-0.3707, 0.0000, 0.7005),  float3(-0.3239, 0.0000, 0.7215),</a>
+<a name="706"><span class="lineNum">     706 </span>            :     float3(-0.2753, 0.0000, 0.7399),  float3(-0.2251, 0.0000, 0.7555),</a>
+<a name="707"><span class="lineNum">     707 </span>            :     float3(-0.1736, 0.0000, 0.7683),  float3(-0.1210, 0.0000, 0.7780),</a>
+<a name="708"><span class="lineNum">     708 </span>            :     float3(-0.0675, 0.0000, 0.7847),  float3(-0.0134, 0.0000, 0.7882),</a>
+<a name="709"><span class="lineNum">     709 </span>            :     float3(0.0411, 0.0000, 0.7884),   float3(0.0957, 0.0000, 0.7851),</a>
+<a name="710"><span class="lineNum">     710 </span>            :     float3(0.1503, 0.0000, 0.7783),   float3(0.2045, 0.0000, 0.7678),</a>
+<a name="711"><span class="lineNum">     711 </span>            :     float3(0.2581, 0.0000, 0.7536),   float3(0.3110, 0.0000, 0.7355),</a>
+<a name="712"><span class="lineNum">     712 </span>            :     float3(0.3628, 0.0000, 0.7134),   float3(0.4133, 0.0000, 0.6873),</a>
+<a name="713"><span class="lineNum">     713 </span>            :     float3(0.4622, 0.0000, 0.6569),   float3(0.5095, 0.0000, 0.6221),</a>
+<a name="714"><span class="lineNum">     714 </span>            :     float3(0.5547, 0.0000, 0.5830),   float3(0.5977, 0.0000, 0.5393),</a>
+<a name="715"><span class="lineNum">     715 </span>            :     float3(0.6382, 0.0000, 0.4909),   float3(0.6760, 0.0000, 0.4377),</a>
+<a name="716"><span class="lineNum">     716 </span>            :     float3(0.7109, 0.0000, 0.3797),   float3(-0.7544, 0.0000, 0.1799),</a>
+<a name="717"><span class="lineNum">     717 </span>            :     float3(-0.7495, 0.0000, 0.1620),  float3(-0.7392, 0.0000, 0.1283),</a>
+<a name="718"><span class="lineNum">     718 </span>            :     float3(-0.7281, 0.0000, 0.0975),  float3(-0.7161, 0.0000, 0.0693),</a>
+<a name="719"><span class="lineNum">     719 </span>            :     float3(-0.7033, 0.0000, 0.0435),  float3(-0.6898, 0.0000, 0.0200),</a>
+<a name="720"><span class="lineNum">     720 </span>            :     float3(-0.6757, 0.0000, -0.0014), float3(-0.6609, 0.0000, -0.0208),</a>
+<a name="721"><span class="lineNum">     721 </span>            :     float3(-0.6455, 0.0000, -0.0386), float3(-0.6297, 0.0000, -0.0547),</a>
+<a name="722"><span class="lineNum">     722 </span>            :     float3(-0.6133, 0.0000, -0.0695), float3(-0.5966, 0.0000, -0.0830),</a>
+<a name="723"><span class="lineNum">     723 </span>            :     float3(-0.5795, 0.0000, -0.0955), float3(-0.5621, 0.0000, -0.1071),</a>
+<a name="724"><span class="lineNum">     724 </span>            :     float3(-0.5444, 0.0000, -0.1180), float3(-0.5265, 0.0000, -0.1284),</a>
+<a name="725"><span class="lineNum">     725 </span>            :     float3(-0.5084, 0.0000, -0.1384), float3(-0.4902, 0.0000, -0.1483),</a>
+<a name="726"><span class="lineNum">     726 </span>            :     float3(-0.4719, 0.0000, -0.1582), float3(-0.4537, 0.0000, -0.1682),</a>
+<a name="727"><span class="lineNum">     727 </span>            :     float3(-0.4355, 0.0000, -0.1787), float3(-0.4173, 0.0000, -0.1896),</a>
+<a name="728"><span class="lineNum">     728 </span>            :     float3(-0.3993, 0.0000, -0.2013), float3(-0.3815, 0.0000, -0.2138),</a>
+<a name="729"><span class="lineNum">     729 </span>            :     float3(-0.3640, 0.0000, -0.2274), float3(-0.3467, 0.0000, -0.2422),</a>
+<a name="730"><span class="lineNum">     730 </span>            :     float3(-0.3298, 0.0000, -0.2584), float3(-0.3133, 0.0000, -0.2762),</a>
+<a name="731"><span class="lineNum">     731 </span>            :     float3(-0.2972, 0.0000, -0.2958), float3(-0.2816, 0.0000, -0.3173),</a>
+<a name="732"><span class="lineNum">     732 </span>            :     float3(-0.2665, 0.0000, -0.3409), float3(-0.2521, 0.0000, -0.3668),</a>
+<a name="733"><span class="lineNum">     733 </span>            :     float3(-0.2854, 0.0000, -0.4528), float3(-0.2866, 0.0000, -0.4623),</a>
+<a name="734"><span class="lineNum">     734 </span>            :     float3(-0.2899, 0.0000, -0.4814), float3(-0.2943, 0.0000, -0.5008),</a>
+<a name="735"><span class="lineNum">     735 </span>            :     float3(-0.2995, 0.0000, -0.5203), float3(-0.3054, 0.0000, -0.5400),</a>
+<a name="736"><span class="lineNum">     736 </span>            :     float3(-0.3117, 0.0000, -0.5598), float3(-0.3182, 0.0000, -0.5797),</a>
+<a name="737"><span class="lineNum">     737 </span>            :     float3(-0.3249, 0.0000, -0.5996), float3(-0.3314, 0.0000, -0.6196),</a>
+<a name="738"><span class="lineNum">     738 </span>            :     float3(-0.3376, 0.0000, -0.6395), float3(-0.3432, 0.0000, -0.6594),</a>
+<a name="739"><span class="lineNum">     739 </span>            :     float3(-0.3482, 0.0000, -0.6792), float3(-0.3523, 0.0000, -0.6989),</a>
+<a name="740"><span class="lineNum">     740 </span>            :     float3(-0.3552, 0.0000, -0.7185), float3(-0.3569, 0.0000, -0.7379),</a>
+<a name="741"><span class="lineNum">     741 </span>            :     float3(-0.3570, 0.0000, -0.7571), float3(-0.3555, 0.0000, -0.7761),</a>
+<a name="742"><span class="lineNum">     742 </span>            :     float3(-0.3522, 0.0000, -0.7948), float3(-0.3467, 0.0000, -0.8132),</a>
+<a name="743"><span class="lineNum">     743 </span>            :     float3(-0.3390, 0.0000, -0.8313), float3(-0.3289, 0.0000, -0.8490),</a>
+<a name="744"><span class="lineNum">     744 </span>            :     float3(-0.3160, 0.0000, -0.8663), float3(-0.3004, 0.0000, -0.8831),</a>
+<a name="745"><span class="lineNum">     745 </span>            :     float3(-0.2817, 0.0000, -0.8996), float3(-0.2598, 0.0000, -0.9155),</a>
+<a name="746"><span class="lineNum">     746 </span>            :     float3(-0.2344, 0.0000, -0.9309), float3(-0.2051, 0.0000, -0.9457),</a>
+<a name="747"><span class="lineNum">     747 </span>            :     float3(-0.1716, 0.0000, -0.9599), float3(-0.1341, 0.0000, -0.9733),</a>
+<a name="748"><span class="lineNum">     748 </span>            :     float3(-0.0928, 0.0000, -0.9857), float3(-0.0500, 0.0000, -0.9962),</a>
+<a name="749"><span class="lineNum">     749 </span>            :     float3(-0.0087, 0.0000, -1.0041), float3(0.0287, 0.0000, -1.0087),</a>
+<a name="750"><span class="lineNum">     750 </span>            :     float3(0.0620, 0.0000, -1.0104),  float3(0.0924, 0.0000, -1.0102),</a>
+<a name="751"><span class="lineNum">     751 </span>            :     float3(0.1205, 0.0000, -1.0086),  float3(0.1465, 0.0000, -1.0057),</a>
+<a name="752"><span class="lineNum">     752 </span>            :     float3(0.1706, 0.0000, -1.0017),  float3(0.1928, 0.0000, -0.9964),</a>
+<a name="753"><span class="lineNum">     753 </span>            :     float3(0.2132, 0.0000, -0.9900),  float3(0.2318, 0.0000, -0.9824),</a>
+<a name="754"><span class="lineNum">     754 </span>            :     float3(0.2487, 0.0000, -0.9738),  float3(0.2641, 0.0000, -0.9641),</a>
+<a name="755"><span class="lineNum">     755 </span>            :     float3(0.2778, 0.0000, -0.9533),  float3(0.2901, 0.0000, -0.9415),</a>
+<a name="756"><span class="lineNum">     756 </span>            :     float3(0.3009, 0.0000, -0.9287),  float3(0.3103, 0.0000, -0.9148),</a>
+<a name="757"><span class="lineNum">     757 </span>            :     float3(0.3183, 0.0000, -0.8999),  float3(0.3250, 0.0000, -0.8841),</a>
+<a name="758"><span class="lineNum">     758 </span>            :     float3(0.3304, 0.0000, -0.8672),  float3(0.3345, 0.0000, -0.8493),</a>
+<a name="759"><span class="lineNum">     759 </span>            :     float3(0.3374, 0.0000, -0.8305),  float3(0.3391, 0.0000, -0.8107),</a>
+<a name="760"><span class="lineNum">     760 </span>            :     float3(0.3397, 0.0000, -0.7899),  float3(0.3392, 0.0000, -0.7682),</a>
+<a name="761"><span class="lineNum">     761 </span>            :     float3(0.3377, 0.0000, -0.7456),  float3(0.3352, 0.0000, -0.7221),</a>
+<a name="762"><span class="lineNum">     762 </span>            :     float3(0.3317, 0.0000, -0.6976),  float3(0.3273, 0.0000, -0.6722),</a>
+<a name="763"><span class="lineNum">     763 </span>            :     float3(0.3220, 0.0000, -0.6460),  float3(0.3160, 0.0000, -0.6188),</a>
+<a name="764"><span class="lineNum">     764 </span>            :     float3(0.3091, 0.0000, -0.5908),  float3(0.3015, 0.0000, -0.5619),</a>
+<a name="765"><span class="lineNum">     765 </span>            :     float3(0.2974, 0.0000, -0.5472),  float3(-0.4408, 0.0000, 0.5073),</a>
+<a name="766"><span class="lineNum">     766 </span>            :     float3(-0.4312, 0.0000, 0.5132),  float3(-0.3945, 0.0000, 0.5319),</a>
+<a name="767"><span class="lineNum">     767 </span>            :     float3(-0.3605, 0.0000, 0.5438),  float3(-0.3288, 0.0000, 0.5496),</a>
+<a name="768"><span class="lineNum">     768 </span>            :     float3(-0.2992, 0.0000, 0.5501),  float3(-0.2712, 0.0000, 0.5460),</a>
+<a name="769"><span class="lineNum">     769 </span>            :     float3(-0.2446, 0.0000, 0.5381),  float3(-0.2191, 0.0000, 0.5272),</a>
+<a name="770"><span class="lineNum">     770 </span>            :     float3(-0.1943, 0.0000, 0.5139),  float3(-0.1699, 0.0000, 0.4992),</a>
+<a name="771"><span class="lineNum">     771 </span>            :     float3(-0.1456, 0.0000, 0.4837),  float3(-0.1211, 0.0000, 0.4682),</a>
+<a name="772"><span class="lineNum">     772 </span>            :     float3(-0.0960, 0.0000, 0.4535),  float3(-0.0700, 0.0000, 0.4404),</a>
+<a name="773"><span class="lineNum">     773 </span>            :     float3(-0.0428, 0.0000, 0.4301),  float3(-0.0160, 0.0000, 0.4235),</a>
+<a name="774"><span class="lineNum">     774 </span>            :     float3(0.0076, 0.0000, 0.4216),   float3(0.0283, 0.0000, 0.4237),</a>
+<a name="775"><span class="lineNum">     775 </span>            :     float3(0.0477, 0.0000, 0.4291),   float3(0.0670, 0.0000, 0.4369),</a>
+<a name="776"><span class="lineNum">     776 </span>            :     float3(0.0866, 0.0000, 0.4465),   float3(0.1068, 0.0000, 0.4576),</a>
+<a name="777"><span class="lineNum">     777 </span>            :     float3(0.1278, 0.0000, 0.4695),   float3(0.1498, 0.0000, 0.4819),</a>
+<a name="778"><span class="lineNum">     778 </span>            :     float3(0.1730, 0.0000, 0.4941),   float3(0.1977, 0.0000, 0.5056),</a>
+<a name="779"><span class="lineNum">     779 </span>            :     float3(0.2241, 0.0000, 0.5159),   float3(0.2523, 0.0000, 0.5244),</a>
+<a name="780"><span class="lineNum">     780 </span>            :     float3(0.2825, 0.0000, 0.5307),   float3(0.3150, 0.0000, 0.5342),</a>
+<a name="781"><span class="lineNum">     781 </span>            :     float3(0.3499, 0.0000, 0.5345),   float3(0.3875, 0.0000, 0.5311),</a>
+<a name="782"><span class="lineNum">     782 </span>            :     float3(0.3973, 0.0000, 0.5295),   float3(0.7240, 0.0000, 0.1799),</a>
+<a name="783"><span class="lineNum">     783 </span>            :     float3(0.7192, 0.0000, 0.1620),   float3(0.7089, 0.0000, 0.1283),</a>
+<a name="784"><span class="lineNum">     784 </span>            :     float3(0.6977, 0.0000, 0.0975),   float3(0.6858, 0.0000, 0.0693),</a>
+<a name="785"><span class="lineNum">     785 </span>            :     float3(0.6730, 0.0000, 0.0435),   float3(0.6595, 0.0000, 0.0200),</a>
+<a name="786"><span class="lineNum">     786 </span>            :     float3(0.6453, 0.0000, -0.0014),  float3(0.6306, 0.0000, -0.0208),</a>
+<a name="787"><span class="lineNum">     787 </span>            :     float3(0.6152, 0.0000, -0.0386),  float3(0.5994, 0.0000, -0.0547),</a>
+<a name="788"><span class="lineNum">     788 </span>            :     float3(0.5830, 0.0000, -0.0695),  float3(0.5663, 0.0000, -0.0830),</a>
+<a name="789"><span class="lineNum">     789 </span>            :     float3(0.5492, 0.0000, -0.0955),  float3(0.5317, 0.0000, -0.1071),</a>
+<a name="790"><span class="lineNum">     790 </span>            :     float3(0.5140, 0.0000, -0.1180),  float3(0.4961, 0.0000, -0.1284),</a>
+<a name="791"><span class="lineNum">     791 </span>            :     float3(0.4781, 0.0000, -0.1384),  float3(0.4599, 0.0000, -0.1483),</a>
+<a name="792"><span class="lineNum">     792 </span>            :     float3(0.4416, 0.0000, -0.1582),  float3(0.4234, 0.0000, -0.1682),</a>
+<a name="793"><span class="lineNum">     793 </span>            :     float3(0.4051, 0.0000, -0.1787),  float3(0.3870, 0.0000, -0.1896),</a>
+<a name="794"><span class="lineNum">     794 </span>            :     float3(0.3690, 0.0000, -0.2013),  float3(0.3512, 0.0000, -0.2138),</a>
+<a name="795"><span class="lineNum">     795 </span>            :     float3(0.3337, 0.0000, -0.2274),  float3(0.3164, 0.0000, -0.2422),</a>
+<a name="796"><span class="lineNum">     796 </span>            :     float3(0.2995, 0.0000, -0.2584),  float3(0.2829, 0.0000, -0.2762),</a>
+<a name="797"><span class="lineNum">     797 </span>            :     float3(0.2669, 0.0000, -0.2958),  float3(0.2513, 0.0000, -0.3173),</a>
+<a name="798"><span class="lineNum">     798 </span>            :     float3(0.2362, 0.0000, -0.3409),  float3(0.2218, 0.0000, -0.3668),</a>
+<a name="799"><span class="lineNum">     799 </span>            :     float3(-0.1119, 0.0000, -0.7868), float3(-0.1087, 0.0000, -0.7905),</a>
+<a name="800"><span class="lineNum">     800 </span>            :     float3(-0.1022, 0.0000, -0.7974), float3(-0.0955, 0.0000, -0.8038),</a>
+<a name="801"><span class="lineNum">     801 </span>            :     float3(-0.0886, 0.0000, -0.8097), float3(-0.0816, 0.0000, -0.8152),</a>
+<a name="802"><span class="lineNum">     802 </span>            :     float3(-0.0744, 0.0000, -0.8201), float3(-0.0671, 0.0000, -0.8246),</a>
+<a name="803"><span class="lineNum">     803 </span>            :     float3(-0.0597, 0.0000, -0.8286), float3(-0.0522, 0.0000, -0.8321),</a>
+<a name="804"><span class="lineNum">     804 </span>            :     float3(-0.0446, 0.0000, -0.8351), float3(-0.0369, 0.0000, -0.8376),</a>
+<a name="805"><span class="lineNum">     805 </span>            :     float3(-0.0292, 0.0000, -0.8397), float3(-0.0214, 0.0000, -0.8413),</a>
+<a name="806"><span class="lineNum">     806 </span>            :     float3(-0.0136, 0.0000, -0.8424), float3(-0.0057, 0.0000, -0.8430),</a>
+<a name="807"><span class="lineNum">     807 </span>            :     float3(0.0022, 0.0000, -0.8431),  float3(0.0100, 0.0000, -0.8428),</a>
+<a name="808"><span class="lineNum">     808 </span>            :     float3(0.0178, 0.0000, -0.8419),  float3(0.0257, 0.0000, -0.8407),</a>
+<a name="809"><span class="lineNum">     809 </span>            :     float3(0.0334, 0.0000, -0.8389),  float3(0.0411, 0.0000, -0.8366),</a>
+<a name="810"><span class="lineNum">     810 </span>            :     float3(0.0488, 0.0000, -0.8339),  float3(0.0564, 0.0000, -0.8308),</a>
+<a name="811"><span class="lineNum">     811 </span>            :     float3(0.0638, 0.0000, -0.8271),  float3(0.0712, 0.0000, -0.8230),</a>
+<a name="812"><span class="lineNum">     812 </span>            :     float3(0.0785, 0.0000, -0.8184),  float3(0.0856, 0.0000, -0.8134),</a>
+<a name="813"><span class="lineNum">     813 </span>            :     float3(0.0925, 0.0000, -0.8079),  float3(0.0994, 0.0000, -0.8019),</a>
+<a name="814"><span class="lineNum">     814 </span>            :     float3(0.1060, 0.0000, -0.7954),  float3(0.1125, 0.0000, -0.7885),</a>
+<a name="815"><span class="lineNum">     815 </span>            :     float3(0.1187, 0.0000, -0.7812),  float3(-0.1119, 0.0000, -0.2655),</a>
+<a name="816"><span class="lineNum">     816 </span>            :     float3(-0.1101, 0.0000, -0.2605), float3(-0.1032, 0.0000, -0.2424),</a>
+<a name="817"><span class="lineNum">     817 </span>            :     float3(-0.0965, 0.0000, -0.2276), float3(-0.0901, 0.0000, -0.2158),</a>
+<a name="818"><span class="lineNum">     818 </span>            :     float3(-0.0837, 0.0000, -0.2069), float3(-0.0775, 0.0000, -0.2006),</a>
+<a name="819"><span class="lineNum">     819 </span>            :     float3(-0.0712, 0.0000, -0.1967), float3(-0.0650, 0.0000, -0.1949),</a>
+<a name="820"><span class="lineNum">     820 </span>            :     float3(-0.0587, 0.0000, -0.1950), float3(-0.0522, 0.0000, -0.1968),</a>
+<a name="821"><span class="lineNum">     821 </span>            :     float3(-0.0455, 0.0000, -0.2001), float3(-0.0386, 0.0000, -0.2046),</a>
+<a name="822"><span class="lineNum">     822 </span>            :     float3(-0.0315, 0.0000, -0.2100), float3(-0.0239, 0.0000, -0.2163),</a>
+<a name="823"><span class="lineNum">     823 </span>            :     float3(-0.0160, 0.0000, -0.2230), float3(-0.0075, 0.0000, -0.2301),</a>
+<a name="824"><span class="lineNum">     824 </span>            :     float3(-0.0002, 0.0000, -0.2342), float3(0.0054, 0.0000, -0.2340),</a>
+<a name="825"><span class="lineNum">     825 </span>            :     float3(0.0106, 0.0000, -0.2324),  float3(0.0155, 0.0000, -0.2297),</a>
+<a name="826"><span class="lineNum">     826 </span>            :     float3(0.0202, 0.0000, -0.2261),  float3(0.0249, 0.0000, -0.2219),</a>
+<a name="827"><span class="lineNum">     827 </span>            :     float3(0.0296, 0.0000, -0.2174),  float3(0.0344, 0.0000, -0.2128),</a>
+<a name="828"><span class="lineNum">     828 </span>            :     float3(0.0394, 0.0000, -0.2084),  float3(0.0448, 0.0000, -0.2044),</a>
+<a name="829"><span class="lineNum">     829 </span>            :     float3(0.0506, 0.0000, -0.2012),  float3(0.0570, 0.0000, -0.1988),</a>
+<a name="830"><span class="lineNum">     830 </span>            :     float3(0.0640, 0.0000, -0.1977),  float3(0.0717, 0.0000, -0.1980),</a>
+<a name="831"><span class="lineNum">     831 </span>            :     float3(0.0804, 0.0000, -0.2001),  float3(0.0899, 0.0000, -0.2042),</a>
+<a name="832"><span class="lineNum">     832 </span>            :     float3(0.0925, 0.0000, -0.2055),  float3(0.7993, 0.0000, 0.3242),</a>
+<a name="833"><span class="lineNum">     833 </span>            :     float3(0.8169, 0.0000, 0.3354),   float3(0.8512, 0.0000, 0.3542),</a>
+<a name="834"><span class="lineNum">     834 </span>            :     float3(0.8840, 0.0000, 0.3686),   float3(0.9153, 0.0000, 0.3787),</a>
+<a name="835"><span class="lineNum">     835 </span>            :     float3(0.9450, 0.0000, 0.3848),   float3(0.9729, 0.0000, 0.3871),</a>
+<a name="836"><span class="lineNum">     836 </span>            :     float3(0.9989, 0.0000, 0.3857),   float3(1.0229, 0.0000, 0.3811),</a>
+<a name="837"><span class="lineNum">     837 </span>            :     float3(1.0447, 0.0000, 0.3732),   float3(1.0643, 0.0000, 0.3624),</a>
+<a name="838"><span class="lineNum">     838 </span>            :     float3(1.0814, 0.0000, 0.3490),   float3(1.0960, 0.0000, 0.3330),</a>
+<a name="839"><span class="lineNum">     839 </span>            :     float3(1.1080, 0.0000, 0.3147),   float3(1.1172, 0.0000, 0.2944),</a>
+<a name="840"><span class="lineNum">     840 </span>            :     float3(1.1235, 0.0000, 0.2723),   float3(1.1267, 0.0000, 0.2485),</a>
+<a name="841"><span class="lineNum">     841 </span>            :     float3(1.1269, 0.0000, 0.2233),   float3(1.1237, 0.0000, 0.1970),</a>
+<a name="842"><span class="lineNum">     842 </span>            :     float3(1.1172, 0.0000, 0.1697),   float3(1.1071, 0.0000, 0.1417),</a>
+<a name="843"><span class="lineNum">     843 </span>            :     float3(1.0934, 0.0000, 0.1131),   float3(1.0759, 0.0000, 0.0842),</a>
+<a name="844"><span class="lineNum">     844 </span>            :     float3(1.0545, 0.0000, 0.0553),   float3(1.0291, 0.0000, 0.0265),</a>
+<a name="845"><span class="lineNum">     845 </span>            :     float3(0.9995, 0.0000, -0.0019),  float3(0.9657, 0.0000, -0.0298),</a>
+<a name="846"><span class="lineNum">     846 </span>            :     float3(0.9275, 0.0000, -0.0569),  float3(0.8847, 0.0000, -0.0829),</a>
+<a name="847"><span class="lineNum">     847 </span>            :     float3(0.8373, 0.0000, -0.1077),  float3(0.7852, 0.0000, -0.1311),</a>
+<a name="848"><span class="lineNum">     848 </span>            :     float3(0.7281, 0.0000, -0.1528),  float3(0.6661, 0.0000, -0.1725),</a>
+<a name="849"><span class="lineNum">     849 </span>            :     float3(-0.7428, 0.0000, 0.2977),  float3(-0.7608, 0.0000, 0.3138),</a>
+<a name="850"><span class="lineNum">     850 </span>            :     float3(-0.7786, 0.0000, 0.3284),  float3(-0.7962, 0.0000, 0.3414),</a>
+<a name="851"><span class="lineNum">     851 </span>            :     float3(-0.8135, 0.0000, 0.3531),  float3(-0.8306, 0.0000, 0.3633),</a>
+<a name="852"><span class="lineNum">     852 </span>            :     float3(-0.8473, 0.0000, 0.3722),  float3(-0.8637, 0.0000, 0.3798),</a>
+<a name="853"><span class="lineNum">     853 </span>            :     float3(-0.8798, 0.0000, 0.3860),  float3(-0.8956, 0.0000, 0.3911),</a>
+<a name="854"><span class="lineNum">     854 </span>            :     float3(-0.9109, 0.0000, 0.3949),  float3(-0.9259, 0.0000, 0.3975),</a>
+<a name="855"><span class="lineNum">     855 </span>            :     float3(-0.9405, 0.0000, 0.3989),  float3(-0.9546, 0.0000, 0.3993),</a>
+<a name="856"><span class="lineNum">     856 </span>            :     float3(-0.9682, 0.0000, 0.3986),  float3(-0.9814, 0.0000, 0.3969),</a>
+<a name="857"><span class="lineNum">     857 </span>            :     float3(-0.9940, 0.0000, 0.3941),  float3(-1.0062, 0.0000, 0.3904),</a>
+<a name="858"><span class="lineNum">     858 </span>            :     float3(-1.0178, 0.0000, 0.3858),  float3(-1.0288, 0.0000, 0.3803),</a>
+<a name="859"><span class="lineNum">     859 </span>            :     float3(-1.0393, 0.0000, 0.3739),  float3(-1.0492, 0.0000, 0.3668),</a>
+<a name="860"><span class="lineNum">     860 </span>            :     float3(-1.0584, 0.0000, 0.3588),  float3(-1.0670, 0.0000, 0.3501),</a>
+<a name="861"><span class="lineNum">     861 </span>            :     float3(-1.0750, 0.0000, 0.3407),  float3(-1.0822, 0.0000, 0.3307),</a>
+<a name="862"><span class="lineNum">     862 </span>            :     float3(-1.0888, 0.0000, 0.3200),  float3(-1.0946, 0.0000, 0.3087),</a>
+<a name="863"><span class="lineNum">     863 </span>            :     float3(-1.0997, 0.0000, 0.2969),  float3(-1.1040, 0.0000, 0.2845),</a>
+<a name="864"><span class="lineNum">     864 </span>            :     float3(-1.1075, 0.0000, 0.2717),  float3(-1.1103, 0.0000, 0.2584),</a>
+<a name="865"><span class="lineNum">     865 </span>            :     float3(-1.1122, 0.0000, 0.2447),  float3(-1.1132, 0.0000, 0.2306),</a>
+<a name="866"><span class="lineNum">     866 </span>            :     float3(-1.1134, 0.0000, 0.2162),  float3(-1.1128, 0.0000, 0.2015),</a>
+<a name="867"><span class="lineNum">     867 </span>            :     float3(-1.1112, 0.0000, 0.1865),  float3(-1.1086, 0.0000, 0.1713),</a>
+<a name="868"><span class="lineNum">     868 </span>            :     float3(-1.1052, 0.0000, 0.1559),  float3(-1.1007, 0.0000, 0.1404),</a>
+<a name="869"><span class="lineNum">     869 </span>            :     float3(-1.0953, 0.0000, 0.1247),  float3(-1.0889, 0.0000, 0.1090),</a>
+<a name="870"><span class="lineNum">     870 </span>            :     float3(-1.0814, 0.0000, 0.0932),  float3(-1.0729, 0.0000, 0.0774),</a>
+<a name="871"><span class="lineNum">     871 </span>            :     float3(-1.0633, 0.0000, 0.0617),  float3(-1.0527, 0.0000, 0.0460),</a>
+<a name="872"><span class="lineNum">     872 </span>            :     float3(-1.0409, 0.0000, 0.0304),  float3(-1.0280, 0.0000, 0.0150),</a>
+<a name="873"><span class="lineNum">     873 </span>            :     float3(-1.0139, 0.0000, -0.0003), float3(-0.9987, 0.0000, -0.0154),</a>
+<a name="874"><span class="lineNum">     874 </span>            :     float3(-0.9823, 0.0000, -0.0302), float3(-0.9646, 0.0000, -0.0447),</a>
+<a name="875"><span class="lineNum">     875 </span>            :     float3(-0.9458, 0.0000, -0.0589), float3(-0.9257, 0.0000, -0.0727),</a>
+<a name="876"><span class="lineNum">     876 </span>            :     float3(-0.9043, 0.0000, -0.0862), float3(-0.8816, 0.0000, -0.0992),</a>
+<a name="877"><span class="lineNum">     877 </span>            :     float3(-0.8576, 0.0000, -0.1117), float3(-0.8323, 0.0000, -0.1237),</a>
+<a name="878"><span class="lineNum">     878 </span>            :     float3(-0.8056, 0.0000, -0.1352), float3(-0.7775, 0.0000, -0.1461),</a>
+<a name="879"><span class="lineNum">     879 </span>            :     float3(-0.7481, 0.0000, -0.1564), float3(-0.7172, 0.0000, -0.1660),</a>
+<a name="880"><span class="lineNum">     880 </span>            :     float3(-0.6849, 0.0000, -0.1750), float3(-0.6512, 0.0000, -0.1832),</a>
+<a name="881"><span class="lineNum">     881 </span>            :     float3(0.2721, 0.0000, 0.2084),   float3(0.2721, 0.0000, 0.2112),</a>
+<a name="882"><span class="lineNum">     882 </span>            :     float3(0.2739, 0.0000, 0.2223),   float3(0.2778, 0.0000, 0.2324),</a>
+<a name="883"><span class="lineNum">     883 </span>            :     float3(0.2836, 0.0000, 0.2409),   float3(0.2910, 0.0000, 0.2471),</a>
+<a name="884"><span class="lineNum">     884 </span>            :     float3(0.2994, 0.0000, 0.2507),   float3(0.3082, 0.0000, 0.2515),</a>
+<a name="885"><span class="lineNum">     885 </span>            :     float3(0.3169, 0.0000, 0.2493),   float3(0.3248, 0.0000, 0.2443),</a>
+<a name="886"><span class="lineNum">     886 </span>            :     float3(0.3315, 0.0000, 0.2369),   float3(0.3364, 0.0000, 0.2275),</a>
+<a name="887"><span class="lineNum">     887 </span>            :     float3(0.3392, 0.0000, 0.2168),   float3(0.3398, 0.0000, 0.2056),</a>
+<a name="888"><span class="lineNum">     888 </span>            :     float3(0.3381, 0.0000, 0.1945),   float3(0.3342, 0.0000, 0.1844),</a>
+<a name="889"><span class="lineNum">     889 </span>            :     float3(0.3283, 0.0000, 0.1760),   float3(0.3210, 0.0000, 0.1697),</a>
+<a name="890"><span class="lineNum">     890 </span>            :     float3(0.3126, 0.0000, 0.1661),   float3(0.3038, 0.0000, 0.1653),</a>
+<a name="891"><span class="lineNum">     891 </span>            :     float3(0.2951, 0.0000, 0.1675),   float3(0.2871, 0.0000, 0.1725),</a>
+<a name="892"><span class="lineNum">     892 </span>            :     float3(0.2805, 0.0000, 0.1799),   float3(0.2756, 0.0000, 0.1893),</a>
+<a name="893"><span class="lineNum">     893 </span>            :     float3(0.2727, 0.0000, 0.2000),   float3(0.2721, 0.0000, 0.2056),</a>
+<a name="894"><span class="lineNum">     894 </span>            :     float3(-0.3545, 0.0000, 0.2084),  float3(-0.3544, 0.0000, 0.2112),</a>
+<a name="895"><span class="lineNum">     895 </span>            :     float3(-0.3527, 0.0000, 0.2223),  float3(-0.3488, 0.0000, 0.2324),</a>
+<a name="896"><span class="lineNum">     896 </span>            :     float3(-0.3430, 0.0000, 0.2409),  float3(-0.3356, 0.0000, 0.2471),</a>
+<a name="897"><span class="lineNum">     897 </span>            :     float3(-0.3272, 0.0000, 0.2507),  float3(-0.3184, 0.0000, 0.2515),</a>
+<a name="898"><span class="lineNum">     898 </span>            :     float3(-0.3097, 0.0000, 0.2493),  float3(-0.3018, 0.0000, 0.2443),</a>
+<a name="899"><span class="lineNum">     899 </span>            :     float3(-0.2951, 0.0000, 0.2369),  float3(-0.2902, 0.0000, 0.2275),</a>
+<a name="900"><span class="lineNum">     900 </span>            :     float3(-0.2874, 0.0000, 0.2168),  float3(-0.2868, 0.0000, 0.2056),</a>
+<a name="901"><span class="lineNum">     901 </span>            :     float3(-0.2885, 0.0000, 0.1945),  float3(-0.2924, 0.0000, 0.1844),</a>
+<a name="902"><span class="lineNum">     902 </span>            :     float3(-0.2983, 0.0000, 0.1760),  float3(-0.3056, 0.0000, 0.1697),</a>
+<a name="903"><span class="lineNum">     903 </span>            :     float3(-0.3140, 0.0000, 0.1661),  float3(-0.3228, 0.0000, 0.1653),</a>
+<a name="904"><span class="lineNum">     904 </span>            :     float3(-0.3315, 0.0000, 0.1675),  float3(-0.3394, 0.0000, 0.1725),</a>
+<a name="905"><span class="lineNum">     905 </span>            :     float3(-0.3461, 0.0000, 0.1799),  float3(-0.3510, 0.0000, 0.1893),</a>
+<a name="906"><span class="lineNum">     906 </span>            :     float3(-0.3539, 0.0000, 0.2000),  float3(-0.3544, 0.0000, 0.2056),</a>
+<a name="907"><span class="lineNum">     907 </span>            :     float3(0.1904, 0.0000, 0.0983),   float3(0.1997, 0.0000, 0.0774),</a>
+<a name="908"><span class="lineNum">     908 </span>            :     float3(0.2234, 0.0000, 0.0407),   float3(0.2477, 0.0000, 0.0158),</a>
+<a name="909"><span class="lineNum">     909 </span>            :     float3(0.2767, 0.0000, -0.0047),  float3(0.3061, 0.0000, -0.0179),</a>
+<a name="910"><span class="lineNum">     910 </span>            :     float3(0.3346, 0.0000, -0.0247),  float3(0.3620, 0.0000, -0.0262),</a>
+<a name="911"><span class="lineNum">     911 </span>            :     float3(0.3881, 0.0000, -0.0231),  float3(0.4128, 0.0000, -0.0159),</a>
+<a name="912"><span class="lineNum">     912 </span>            :     float3(0.4360, 0.0000, -0.0049),  float3(0.4577, 0.0000, 0.0099),</a>
+<a name="913"><span class="lineNum">     913 </span>            :     float3(0.4778, 0.0000, 0.0289),   float3(0.4959, 0.0000, 0.0524),</a>
+<a name="914"><span class="lineNum">     914 </span>            :     float3(0.5114, 0.0000, 0.0806),   float3(0.5229, 0.0000, 0.1134),</a>
+<a name="915"><span class="lineNum">     915 </span>            :     float3(0.5291, 0.0000, 0.1498),   float3(0.5289, 0.0000, 0.1884),</a>
+<a name="916"><span class="lineNum">     916 </span>            :     float3(0.5219, 0.0000, 0.2267),   float3(0.5087, 0.0000, 0.2616),</a>
+<a name="917"><span class="lineNum">     917 </span>            :     float3(0.4907, 0.0000, 0.2916),   float3(0.4697, 0.0000, 0.3159),</a>
+<a name="918"><span class="lineNum">     918 </span>            :     float3(0.4465, 0.0000, 0.3349),   float3(0.4220, 0.0000, 0.3489),</a>
+<a name="919"><span class="lineNum">     919 </span>            :     float3(0.3964, 0.0000, 0.3582),   float3(0.3705, 0.0000, 0.3628),</a>
+<a name="920"><span class="lineNum">     920 </span>            :     float3(0.3436, 0.0000, 0.3630),   float3(0.3166, 0.0000, 0.3586),</a>
+<a name="921"><span class="lineNum">     921 </span>            :     float3(0.2897, 0.0000, 0.3491),   float3(0.2635, 0.0000, 0.3344),</a>
+<a name="922"><span class="lineNum">     922 </span>            :     float3(0.2382, 0.0000, 0.3137),   float3(0.2162, 0.0000, 0.2882),</a>
+<a name="923"><span class="lineNum">     923 </span>            :     float3(0.1949, 0.0000, 0.2516),   float3(-1.0361, 0.0000, 0.1745),</a>
+<a name="924"><span class="lineNum">     924 </span>            :     float3(-1.0319, 0.0000, 0.1770),  float3(-1.0153, 0.0000, 0.1852),</a>
+<a name="925"><span class="lineNum">     925 </span>            :     float3(-0.9990, 0.0000, 0.1907),  float3(-0.9830, 0.0000, 0.1936),</a>
+<a name="926"><span class="lineNum">     926 </span>            :     float3(-0.9673, 0.0000, 0.1941),  float3(-0.9522, 0.0000, 0.1923),</a>
+<a name="927"><span class="lineNum">     927 </span>            :     float3(-0.9376, 0.0000, 0.1885),  float3(-0.9236, 0.0000, 0.1827),</a>
+<a name="928"><span class="lineNum">     928 </span>            :     float3(-0.9103, 0.0000, 0.1752),  float3(-0.8978, 0.0000, 0.1662),</a>
+<a name="929"><span class="lineNum">     929 </span>            :     float3(-0.8862, 0.0000, 0.1558),  float3(-0.8756, 0.0000, 0.1441),</a>
+<a name="930"><span class="lineNum">     930 </span>            :     float3(-0.8660, 0.0000, 0.1314),  float3(-0.8575, 0.0000, 0.1179),</a>
+<a name="931"><span class="lineNum">     931 </span>            :     float3(-0.8501, 0.0000, 0.1036),  float3(-0.8441, 0.0000, 0.0889),</a>
+<a name="932"><span class="lineNum">     932 </span>            :     float3(-0.8416, 0.0000, 0.0813),  float3(0.9747, 0.0000, 0.1745),</a>
+<a name="933"><span class="lineNum">     933 </span>            :     float3(0.9706, 0.0000, 0.1770),   float3(0.9540, 0.0000, 0.1852),</a>
+<a name="934"><span class="lineNum">     934 </span>            :     float3(0.9377, 0.0000, 0.1907),   float3(0.9216, 0.0000, 0.1936),</a>
+<a name="935"><span class="lineNum">     935 </span>            :     float3(0.9060, 0.0000, 0.1941),   float3(0.8908, 0.0000, 0.1923),</a>
+<a name="936"><span class="lineNum">     936 </span>            :     float3(0.8762, 0.0000, 0.1885),   float3(0.8622, 0.0000, 0.1827),</a>
+<a name="937"><span class="lineNum">     937 </span>            :     float3(0.8490, 0.0000, 0.1752),   float3(0.8365, 0.0000, 0.1662),</a>
+<a name="938"><span class="lineNum">     938 </span>            :     float3(0.8249, 0.0000, 0.1558),   float3(0.8143, 0.0000, 0.1441),</a>
+<a name="939"><span class="lineNum">     939 </span>            :     float3(0.8046, 0.0000, 0.1314),   float3(0.7961, 0.0000, 0.1179),</a>
+<a name="940"><span class="lineNum">     940 </span>            :     float3(0.7888, 0.0000, 0.1036),   float3(0.7828, 0.0000, 0.0889),</a>
+<a name="941"><span class="lineNum">     941 </span>            :     float3(0.7802, 0.0000, 0.0813),   float3(-0.1860, 0.0000, 0.0983),</a>
+<a name="942"><span class="lineNum">     942 </span>            :     float3(-0.1954, 0.0000, 0.0774),  float3(-0.2191, 0.0000, 0.0407),</a>
+<a name="943"><span class="lineNum">     943 </span>            :     float3(-0.2434, 0.0000, 0.0158),  float3(-0.2723, 0.0000, -0.0047),</a>
+<a name="944"><span class="lineNum">     944 </span>            :     float3(-0.3017, 0.0000, -0.0179), float3(-0.3302, 0.0000, -0.0247),</a>
+<a name="945"><span class="lineNum">     945 </span>            :     float3(-0.3576, 0.0000, -0.0262), float3(-0.3837, 0.0000, -0.0231),</a>
+<a name="946"><span class="lineNum">     946 </span>            :     float3(-0.4085, 0.0000, -0.0159), float3(-0.4317, 0.0000, -0.0049),</a>
+<a name="947"><span class="lineNum">     947 </span>            :     float3(-0.4533, 0.0000, 0.0099),  float3(-0.4734, 0.0000, 0.0289),</a>
+<a name="948"><span class="lineNum">     948 </span>            :     float3(-0.4916, 0.0000, 0.0524),  float3(-0.5070, 0.0000, 0.0806),</a>
+<a name="949"><span class="lineNum">     949 </span>            :     float3(-0.5185, 0.0000, 0.1134),  float3(-0.5247, 0.0000, 0.1498),</a>
+<a name="950"><span class="lineNum">     950 </span>            :     float3(-0.5246, 0.0000, 0.1884),  float3(-0.5175, 0.0000, 0.2267),</a>
+<a name="951"><span class="lineNum">     951 </span>            :     float3(-0.5043, 0.0000, 0.2616),  float3(-0.4864, 0.0000, 0.2916),</a>
+<a name="952"><span class="lineNum">     952 </span>            :     float3(-0.4653, 0.0000, 0.3159),  float3(-0.4422, 0.0000, 0.3349),</a>
+<a name="953"><span class="lineNum">     953 </span>            :     float3(-0.4177, 0.0000, 0.3489),  float3(-0.3921, 0.0000, 0.3582),</a>
+<a name="954"><span class="lineNum">     954 </span>            :     float3(-0.3661, 0.0000, 0.3628),  float3(-0.3392, 0.0000, 0.3630),</a>
+<a name="955"><span class="lineNum">     955 </span>            :     float3(-0.3123, 0.0000, 0.3586),  float3(-0.2853, 0.0000, 0.3491),</a>
+<a name="956"><span class="lineNum">     956 </span>            :     float3(-0.2591, 0.0000, 0.3344),  float3(-0.2339, 0.0000, 0.3137),</a>
+<a name="957"><span class="lineNum">     957 </span>            :     float3(-0.2118, 0.0000, 0.2882),  float3(-0.1906, 0.0000, 0.2516),</a>
+<a name="958"><span class="lineNum">     958 </span>            : });</a>
+<a name="959"><span class="lineNum">     959 </span>            : </a>
+<a name="960"><span class="lineNum">     960 </span>            : static constexpr std::array&lt;float, 516&gt; monkey_line_opacities({</a>
+<a name="961"><span class="lineNum">     961 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="962"><span class="lineNum">     962 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="963"><span class="lineNum">     963 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="964"><span class="lineNum">     964 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="965"><span class="lineNum">     965 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="966"><span class="lineNum">     966 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="967"><span class="lineNum">     967 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="968"><span class="lineNum">     968 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="969"><span class="lineNum">     969 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="970"><span class="lineNum">     970 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="971"><span class="lineNum">     971 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="972"><span class="lineNum">     972 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="973"><span class="lineNum">     973 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="974"><span class="lineNum">     974 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="975"><span class="lineNum">     975 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="976"><span class="lineNum">     976 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="977"><span class="lineNum">     977 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="978"><span class="lineNum">     978 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="979"><span class="lineNum">     979 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="980"><span class="lineNum">     980 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="981"><span class="lineNum">     981 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="982"><span class="lineNum">     982 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="983"><span class="lineNum">     983 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="984"><span class="lineNum">     984 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="985"><span class="lineNum">     985 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="986"><span class="lineNum">     986 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="987"><span class="lineNum">     987 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="988"><span class="lineNum">     988 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="989"><span class="lineNum">     989 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="990"><span class="lineNum">     990 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="991"><span class="lineNum">     991 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="992"><span class="lineNum">     992 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="993"><span class="lineNum">     993 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="994"><span class="lineNum">     994 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="995"><span class="lineNum">     995 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="996"><span class="lineNum">     996 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="997"><span class="lineNum">     997 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="998"><span class="lineNum">     998 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="999"><span class="lineNum">     999 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="1000"><span class="lineNum">    1000 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="1001"><span class="lineNum">    1001 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="1002"><span class="lineNum">    1002 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="1003"><span class="lineNum">    1003 </span>            :     1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,</a>
+<a name="1004"><span class="lineNum">    1004 </span>            : });</a>
+<a name="1005"><span class="lineNum">    1005 </span>            : </a>
+<a name="1006"><span class="lineNum">    1006 </span>            : static constexpr std::array&lt;float, 516&gt; monkey_line_radii({</a>
+<a name="1007"><span class="lineNum">    1007 </span>            :     0.00300, 0.00660, 0.01384, 0.01806, 0.02094, 0.02307, 0.02471, 0.02598, 0.02701, 0.02782,</a>
+<a name="1008"><span class="lineNum">    1008 </span>            :     0.02845, 0.02896, 0.02934, 0.02963, 0.02983, 0.02995, 0.02999, 0.02997, 0.02989, 0.02974,</a>
+<a name="1009"><span class="lineNum">    1009 </span>            :     0.02950, 0.02917, 0.02873, 0.02815, 0.02743, 0.02652, 0.02538, 0.02394, 0.02208, 0.01962,</a>
+<a name="1010"><span class="lineNum">    1010 </span>            :     0.01619, 0.01080, 0.00300, 0.00300, 0.00660, 0.01384, 0.01806, 0.02094, 0.02307, 0.02471,</a>
+<a name="1011"><span class="lineNum">    1011 </span>            :     0.02598, 0.02701, 0.02782, 0.02845, 0.02896, 0.02934, 0.02963, 0.02983, 0.02995, 0.02999,</a>
+<a name="1012"><span class="lineNum">    1012 </span>            :     0.02997, 0.02989, 0.02974, 0.02950, 0.02917, 0.02873, 0.02815, 0.02743, 0.02652, 0.02538,</a>
+<a name="1013"><span class="lineNum">    1013 </span>            :     0.02394, 0.02208, 0.01962, 0.01619, 0.01080, 0.00300, 0.00300, 0.00386, 0.00889, 0.01244,</a>
+<a name="1014"><span class="lineNum">    1014 </span>            :     0.01508, 0.01717, 0.01887, 0.02030, 0.02153, 0.02259, 0.02351, 0.02433, 0.02505, 0.02569,</a>
+<a name="1015"><span class="lineNum">    1015 </span>            :     0.02627, 0.02677, 0.02722, 0.02763, 0.02799, 0.02832, 0.02859, 0.02885, 0.02906, 0.02926,</a>
+<a name="1016"><span class="lineNum">    1016 </span>            :     0.02942, 0.02957, 0.02968, 0.02979, 0.02986, 0.02992, 0.02996, 0.02998, 0.03000, 0.02998,</a>
+<a name="1017"><span class="lineNum">    1017 </span>            :     0.02996, 0.02992, 0.02986, 0.02979, 0.02968, 0.02957, 0.02942, 0.02926, 0.02906, 0.02885,</a>
+<a name="1018"><span class="lineNum">    1018 </span>            :     0.02859, 0.02832, 0.02799, 0.02763, 0.02722, 0.02677, 0.02627, 0.02569, 0.02505, 0.02433,</a>
+<a name="1019"><span class="lineNum">    1019 </span>            :     0.02351, 0.02259, 0.02153, 0.02030, 0.01887, 0.01717, 0.01508, 0.01244, 0.00889, 0.00386,</a>
+<a name="1020"><span class="lineNum">    1020 </span>            :     0.00300, 0.00300, 0.00386, 0.01244, 0.01717, 0.02030, 0.02259, 0.02433, 0.02569, 0.02677,</a>
+<a name="1021"><span class="lineNum">    1021 </span>            :     0.02763, 0.02832, 0.02885, 0.02926, 0.02957, 0.02979, 0.02992, 0.02998, 0.02998, 0.02992,</a>
+<a name="1022"><span class="lineNum">    1022 </span>            :     0.02979, 0.02957, 0.02926, 0.02885, 0.02832, 0.02763, 0.02677, 0.02569, 0.02433, 0.02259,</a>
+<a name="1023"><span class="lineNum">    1023 </span>            :     0.02030, 0.01717, 0.01244, 0.00386, 0.00300, 0.00300, 0.00660, 0.01384, 0.01806, 0.02094,</a>
+<a name="1024"><span class="lineNum">    1024 </span>            :     0.02307, 0.02471, 0.02598, 0.02701, 0.02782, 0.02845, 0.02896, 0.02934, 0.02963, 0.02983,</a>
+<a name="1025"><span class="lineNum">    1025 </span>            :     0.02995, 0.02999, 0.02997, 0.02989, 0.02974, 0.02950, 0.02917, 0.02873, 0.02815, 0.02743,</a>
+<a name="1026"><span class="lineNum">    1026 </span>            :     0.02652, 0.02538, 0.02394, 0.02208, 0.01962, 0.01619, 0.01080, 0.00300, 0.00200, 0.00440,</a>
+<a name="1027"><span class="lineNum">    1027 </span>            :     0.00923, 0.01204, 0.01396, 0.01538, 0.01647, 0.01732, 0.01801, 0.01854, 0.01897, 0.01931,</a>
+<a name="1028"><span class="lineNum">    1028 </span>            :     0.01956, 0.01975, 0.01988, 0.01997, 0.01999, 0.01998, 0.01993, 0.01982, 0.01967, 0.01945,</a>
+<a name="1029"><span class="lineNum">    1029 </span>            :     0.01915, 0.01877, 0.01829, 0.01768, 0.01692, 0.01596, 0.01472, 0.01308, 0.01079, 0.00720,</a>
+<a name="1030"><span class="lineNum">    1030 </span>            :     0.00200, 0.00200, 0.00258, 0.00829, 0.01145, 0.01354, 0.01506, 0.01622, 0.01713, 0.01784,</a>
+<a name="1031"><span class="lineNum">    1031 </span>            :     0.01842, 0.01888, 0.01923, 0.01951, 0.01972, 0.01986, 0.01995, 0.01999, 0.01999, 0.01995,</a>
+<a name="1032"><span class="lineNum">    1032 </span>            :     0.01986, 0.01972, 0.01951, 0.01923, 0.01888, 0.01842, 0.01784, 0.01713, 0.01622, 0.01506,</a>
+<a name="1033"><span class="lineNum">    1033 </span>            :     0.01354, 0.01145, 0.00829, 0.00258, 0.00200, 0.00300, 0.00660, 0.01384, 0.01806, 0.02094,</a>
+<a name="1034"><span class="lineNum">    1034 </span>            :     0.02307, 0.02471, 0.02598, 0.02701, 0.02782, 0.02845, 0.02896, 0.02934, 0.02963, 0.02983,</a>
+<a name="1035"><span class="lineNum">    1035 </span>            :     0.02995, 0.02999, 0.02997, 0.02989, 0.02974, 0.02950, 0.02917, 0.02873, 0.02815, 0.02743,</a>
+<a name="1036"><span class="lineNum">    1036 </span>            :     0.02652, 0.02538, 0.02394, 0.02208, 0.01962, 0.01619, 0.01080, 0.00300, 0.00300, 0.00660,</a>
+<a name="1037"><span class="lineNum">    1037 </span>            :     0.01080, 0.01384, 0.01619, 0.01806, 0.01962, 0.02094, 0.02208, 0.02307, 0.02394, 0.02471,</a>
+<a name="1038"><span class="lineNum">    1038 </span>            :     0.02538, 0.02598, 0.02652, 0.02701, 0.02743, 0.02782, 0.02815, 0.02845, 0.02873, 0.02896,</a>
+<a name="1039"><span class="lineNum">    1039 </span>            :     0.02917, 0.02934, 0.02950, 0.02963, 0.02974, 0.02983, 0.02989, 0.02995, 0.02997, 0.02999,</a>
+<a name="1040"><span class="lineNum">    1040 </span>            :     0.02999, 0.02997, 0.02995, 0.02989, 0.02983, 0.02974, 0.02963, 0.02950, 0.02934, 0.02917,</a>
+<a name="1041"><span class="lineNum">    1041 </span>            :     0.02896, 0.02873, 0.02845, 0.02815, 0.02782, 0.02743, 0.02701, 0.02652, 0.02598, 0.02538,</a>
+<a name="1042"><span class="lineNum">    1042 </span>            :     0.02471, 0.02394, 0.02307, 0.02208, 0.02094, 0.01962, 0.01806, 0.01619, 0.01384, 0.01080,</a>
+<a name="1043"><span class="lineNum">    1043 </span>            :     0.00660, 0.00300, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000,</a>
+<a name="1044"><span class="lineNum">    1044 </span>            :     0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000,</a>
+<a name="1045"><span class="lineNum">    1045 </span>            :     0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000,</a>
+<a name="1046"><span class="lineNum">    1046 </span>            :     0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000,</a>
+<a name="1047"><span class="lineNum">    1047 </span>            :     0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000, 0.03000,</a>
+<a name="1048"><span class="lineNum">    1048 </span>            :     0.03000, 0.03000, 0.03000, 0.03000, 0.00300, 0.00660, 0.01384, 0.01806, 0.02094, 0.02307,</a>
+<a name="1049"><span class="lineNum">    1049 </span>            :     0.02471, 0.02598, 0.02701, 0.02782, 0.02845, 0.02896, 0.02934, 0.02963, 0.02983, 0.02995,</a>
+<a name="1050"><span class="lineNum">    1050 </span>            :     0.02999, 0.02997, 0.02989, 0.02974, 0.02950, 0.02917, 0.02873, 0.02815, 0.02743, 0.02652,</a>
+<a name="1051"><span class="lineNum">    1051 </span>            :     0.02538, 0.02394, 0.02208, 0.01962, 0.01619, 0.01080, 0.00300, 0.00200, 0.00440, 0.01204,</a>
+<a name="1052"><span class="lineNum">    1052 </span>            :     0.01538, 0.01732, 0.01854, 0.01931, 0.01975, 0.01997, 0.01998, 0.01982, 0.01945, 0.01877,</a>
+<a name="1053"><span class="lineNum">    1053 </span>            :     0.01768, 0.01596, 0.01308, 0.00720, 0.00200, 0.00200, 0.00440, 0.01204, 0.01538, 0.01732,</a>
+<a name="1054"><span class="lineNum">    1054 </span>            :     0.01854, 0.01931, 0.01975, 0.01997, 0.01998, 0.01982, 0.01945, 0.01877, 0.01768, 0.01596,</a>
+<a name="1055"><span class="lineNum">    1055 </span>            :     0.01308, 0.00720, 0.00200, 0.00300, 0.00660, 0.01384, 0.01806, 0.02094, 0.02307, 0.02471,</a>
+<a name="1056"><span class="lineNum">    1056 </span>            :     0.02598, 0.02701, 0.02782, 0.02845, 0.02896, 0.02934, 0.02963, 0.02983, 0.02995, 0.02999,</a>
+<a name="1057"><span class="lineNum">    1057 </span>            :     0.02997, 0.02989, 0.02974, 0.02950, 0.02917, 0.02873, 0.02815, 0.02743, 0.02652, 0.02538,</a>
+<a name="1058"><span class="lineNum">    1058 </span>            :     0.02394, 0.02208, 0.01962, 0.01619, 0.01080, 0.00300,</a>
+<a name="1059"><span class="lineNum">    1059 </span>            : });</a>
+<a name="1060"><span class="lineNum">    1060 </span>            : </a>
+<a name="1061"><span class="lineNum">    1061 </span>            : static constexpr std::array&lt;int, 16&gt; monkey_line_offsets({</a>
+<a name="1062"><span class="lineNum">    1062 </span>            :     0,</a>
+<a name="1063"><span class="lineNum">    1063 </span>            :     33,</a>
+<a name="1064"><span class="lineNum">    1064 </span>            :     66,</a>
+<a name="1065"><span class="lineNum">    1065 </span>            :     131,</a>
+<a name="1066"><span class="lineNum">    1066 </span>            :     165,</a>
+<a name="1067"><span class="lineNum">    1067 </span>            :     198,</a>
+<a name="1068"><span class="lineNum">    1068 </span>            :     231,</a>
+<a name="1069"><span class="lineNum">    1069 </span>            :     265,</a>
+<a name="1070"><span class="lineNum">    1070 </span>            :     298,</a>
+<a name="1071"><span class="lineNum">    1071 </span>            :     362,</a>
+<a name="1072"><span class="lineNum">    1072 </span>            :     388,</a>
+<a name="1073"><span class="lineNum">    1073 </span>            :     414,</a>
+<a name="1074"><span class="lineNum">    1074 </span>            :     447,</a>
+<a name="1075"><span class="lineNum">    1075 </span>            :     465,</a>
+<a name="1076"><span class="lineNum">    1076 </span>            :     483,</a>
+<a name="1077"><span class="lineNum">    1077 </span>            :     516,</a>
+<a name="1078"><span class="lineNum">    1078 </span>            : });</a>
+<a name="1079"><span class="lineNum">    1079 </span>            : </a>
+<a name="1080"><span class="lineNum">    1080 </span><span class="lineNoCov">          0 : static int add_material_from_template(Main &amp;bmain, Object &amp;ob, const ColorTemplate &amp;pct)</span></a>
+<a name="1081"><span class="lineNum">    1081 </span>            : {</a>
+<a name="1082"><span class="lineNum">    1082 </span>            :   int index;</a>
+<a name="1083"><span class="lineNum">    1083 </span><span class="lineNoCov">          0 :   Material *ma = BKE_grease_pencil_object_material_ensure_by_name(</span></a>
+<a name="1084"><span class="lineNum">    1084 </span><span class="lineNoCov">          0 :       &amp;bmain, &amp;ob, DATA_(pct.name), &amp;index);</span></a>
+<a name="1085"><span class="lineNum">    1085 </span>            : </a>
+<a name="1086"><span class="lineNum">    1086 </span><span class="lineNoCov">          0 :   copy_v4_v4(ma-&gt;gp_style-&gt;stroke_rgba, pct.line);</span></a>
+<a name="1087"><span class="lineNum">    1087 </span><span class="lineNoCov">          0 :   srgb_to_linearrgb_v4(ma-&gt;gp_style-&gt;stroke_rgba, ma-&gt;gp_style-&gt;stroke_rgba);</span></a>
+<a name="1088"><span class="lineNum">    1088 </span>            : </a>
+<a name="1089"><span class="lineNum">    1089 </span><span class="lineNoCov">          0 :   copy_v4_v4(ma-&gt;gp_style-&gt;fill_rgba, pct.fill);</span></a>
+<a name="1090"><span class="lineNum">    1090 </span><span class="lineNoCov">          0 :   srgb_to_linearrgb_v4(ma-&gt;gp_style-&gt;fill_rgba, ma-&gt;gp_style-&gt;fill_rgba);</span></a>
+<a name="1091"><span class="lineNum">    1091 </span>            : </a>
+<a name="1092"><span class="lineNum">    1092 </span><span class="lineNoCov">          0 :   return index;</span></a>
+<a name="1093"><span class="lineNum">    1093 </span>            : }</a>
+<a name="1094"><span class="lineNum">    1094 </span>            : </a>
+<a name="1095"><span class="lineNum">    1095 </span><span class="lineNoCov">          0 : static bke::CurvesGeometry create_drawing_data(const Span&lt;float3&gt; positions,</span></a>
+<a name="1096"><span class="lineNum">    1096 </span>            :                                                const Span&lt;float&gt; radii,</a>
+<a name="1097"><span class="lineNum">    1097 </span>            :                                                const Span&lt;float&gt; opacities,</a>
+<a name="1098"><span class="lineNum">    1098 </span>            :                                                const Span&lt;int&gt; offsets,</a>
+<a name="1099"><span class="lineNum">    1099 </span>            :                                                const Span&lt;int&gt; materials,</a>
+<a name="1100"><span class="lineNum">    1100 </span>            :                                                const Span&lt;bool&gt; hide_strokes,</a>
+<a name="1101"><span class="lineNum">    1101 </span>            :                                                const Span&lt;int&gt; fill_ids,</a>
+<a name="1102"><span class="lineNum">    1102 </span>            :                                                const float4x4 &amp;matrix)</a>
+<a name="1103"><span class="lineNum">    1103 </span>            : {</a>
+<a name="1104"><span class="lineNum">    1104 </span>            :   using namespace bke;</a>
+<a name="1105"><span class="lineNum">    1105 </span><span class="lineNoCov">          0 :   bke::CurvesGeometry curves(offsets.last(), offsets.size() - 1);</span></a>
+<a name="1106"><span class="lineNum">    1106 </span><span class="lineNoCov">          0 :   curves.offsets_for_write().copy_from(offsets);</span></a>
+<a name="1107"><span class="lineNum">    1107 </span>            : </a>
+<a name="1108"><span class="lineNum">    1108 </span><span class="lineNoCov">          0 :   curves.fill_curve_types(CURVE_TYPE_POLY);</span></a>
+<a name="1109"><span class="lineNum">    1109 </span>            : </a>
+<a name="1110"><span class="lineNum">    1110 </span><span class="lineNoCov">          0 :   MutableAttributeAccessor attributes = curves.attributes_for_write();</span></a>
+<a name="1111"><span class="lineNum">    1111 </span><span class="lineNoCov">          0 :   MutableSpan&lt;float3&gt; point_positions = curves.positions_for_write();</span></a>
+<a name="1112"><span class="lineNum">    1112 </span><span class="lineNoCov">          0 :   point_positions.copy_from(positions);</span></a>
+<a name="1113"><span class="lineNum">    1113 </span>            : </a>
+<a name="1114"><span class="lineNum">    1114 </span><span class="lineNoCov">          0 :   curves.transform(matrix);</span></a>
+<a name="1115"><span class="lineNum">    1115 </span>            : </a>
+<a name="1116"><span class="lineNum">    1116 </span>            :   /* Note: We expect this function to run on a newly created drawing. Otherwise these</a>
+<a name="1117"><span class="lineNum">    1117 </span>            :    * `lookup_or_add_for_write_span` function calls could fail. */</a>
+<a name="1118"><span class="lineNum">    1118 </span><span class="lineNoCov">          0 :   SpanAttributeWriter&lt;float&gt; point_radii = attributes.lookup_or_add_for_write_only_span&lt;float&gt;(</span></a>
+<a name="1119"><span class="lineNum">    1119 </span><span class="lineNoCov">          0 :       &quot;radius&quot;, AttrDomain::Point);</span></a>
+<a name="1120"><span class="lineNum">    1120 </span><span class="lineNoCov">          0 :   point_radii.span.copy_from(radii);</span></a>
+<a name="1121"><span class="lineNum">    1121 </span>            : </a>
+<a name="1122"><span class="lineNum">    1122 </span><span class="lineNoCov">          0 :   SpanAttributeWriter&lt;float&gt; point_opacities = attributes.lookup_or_add_for_write_span&lt;float&gt;(</span></a>
+<a name="1123"><span class="lineNum">    1123 </span><span class="lineNoCov">          0 :       &quot;opacity&quot;, AttrDomain::Point);</span></a>
+<a name="1124"><span class="lineNum">    1124 </span><span class="lineNoCov">          0 :   point_opacities.span.copy_from(opacities);</span></a>
+<a name="1125"><span class="lineNum">    1125 </span>            : </a>
+<a name="1126"><span class="lineNum">    1126 </span><span class="lineNoCov">          0 :   SpanAttributeWriter&lt;bool&gt; stroke_cyclic = attributes.lookup_or_add_for_write_span&lt;bool&gt;(</span></a>
+<a name="1127"><span class="lineNum">    1127 </span><span class="lineNoCov">          0 :       &quot;cyclic&quot;, AttrDomain::Curve);</span></a>
+<a name="1128"><span class="lineNum">    1128 </span><span class="lineNoCov">          0 :   stroke_cyclic.span.fill(false);</span></a>
+<a name="1129"><span class="lineNum">    1129 </span>            : </a>
+<a name="1130"><span class="lineNum">    1130 </span><span class="lineNoCov">          0 :   SpanAttributeWriter&lt;int&gt; stroke_materials = attributes.lookup_or_add_for_write_span&lt;int&gt;(</span></a>
+<a name="1131"><span class="lineNum">    1131 </span><span class="lineNoCov">          0 :       &quot;material_index&quot;, AttrDomain::Curve);</span></a>
+<a name="1132"><span class="lineNum">    1132 </span><span class="lineNoCov">          0 :   stroke_materials.span.copy_from(materials);</span></a>
+<a name="1133"><span class="lineNum">    1133 </span>            : </a>
+<a name="1134"><span class="lineNum">    1134 </span><span class="lineNoCov">          0 :   if (!hide_strokes.is_empty()) {</span></a>
+<a name="1135"><span class="lineNum">    1135 </span><span class="lineNoCov">          0 :     SpanAttributeWriter&lt;bool&gt; hide_stroke = attributes.lookup_or_add_for_write_span&lt;bool&gt;(</span></a>
+<a name="1136"><span class="lineNum">    1136 </span><span class="lineNoCov">          0 :         &quot;hide_stroke&quot;, AttrDomain::Curve);</span></a>
+<a name="1137"><span class="lineNum">    1137 </span><span class="lineNoCov">          0 :     hide_stroke.span.copy_from(hide_strokes);</span></a>
+<a name="1138"><span class="lineNum">    1138 </span><span class="lineNoCov">          0 :     hide_stroke.finish();</span></a>
+<a name="1139"><span class="lineNum">    1139 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="1140"><span class="lineNum">    1140 </span>            : </a>
+<a name="1141"><span class="lineNum">    1141 </span><span class="lineNoCov">          0 :   if (!fill_ids.is_empty()) {</span></a>
+<a name="1142"><span class="lineNum">    1142 </span><span class="lineNoCov">          0 :     SpanAttributeWriter&lt;int&gt; fill_id = attributes.lookup_or_add_for_write_span&lt;int&gt;(</span></a>
+<a name="1143"><span class="lineNum">    1143 </span><span class="lineNoCov">          0 :         &quot;fill_id&quot;, AttrDomain::Curve);</span></a>
+<a name="1144"><span class="lineNum">    1144 </span><span class="lineNoCov">          0 :     fill_id.span.copy_from(fill_ids);</span></a>
+<a name="1145"><span class="lineNum">    1145 </span><span class="lineNoCov">          0 :     fill_id.finish();</span></a>
+<a name="1146"><span class="lineNum">    1146 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="1147"><span class="lineNum">    1147 </span>            : </a>
+<a name="1148"><span class="lineNum">    1148 </span><span class="lineNoCov">          0 :   point_radii.finish();</span></a>
+<a name="1149"><span class="lineNum">    1149 </span><span class="lineNoCov">          0 :   point_opacities.finish();</span></a>
+<a name="1150"><span class="lineNum">    1150 </span>            : </a>
+<a name="1151"><span class="lineNum">    1151 </span><span class="lineNoCov">          0 :   stroke_cyclic.finish();</span></a>
+<a name="1152"><span class="lineNum">    1152 </span><span class="lineNoCov">          0 :   stroke_materials.finish();</span></a>
+<a name="1153"><span class="lineNum">    1153 </span>            : </a>
+<a name="1154"><span class="lineNum">    1154 </span><span class="lineNoCov">          0 :   return curves;</span></a>
+<a name="1155"><span class="lineNum">    1155 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="1156"><span class="lineNum">    1156 </span>            : </a>
+<a name="1157"><span class="lineNum">    1157 </span><span class="lineNoCov">          0 : void create_blank(Main &amp;bmain, Object &amp;object, const int frame_number)</span></a>
+<a name="1158"><span class="lineNum">    1158 </span>            : {</a>
+<a name="1159"><span class="lineNum">    1159 </span>            :   using namespace blender::bke::greasepencil;</a>
+<a name="1160"><span class="lineNum">    1160 </span><span class="lineNoCov">          0 :   GreasePencil &amp;grease_pencil = *id_cast&lt;GreasePencil *&gt;(object.data);</span></a>
+<a name="1161"><span class="lineNum">    1161 </span>            : </a>
+<a name="1162"><span class="lineNum">    1162 </span><span class="lineNoCov">          0 :   int material_index = add_material_from_template(bmain, object, gp_stroke_material_black);</span></a>
+<a name="1163"><span class="lineNum">    1163 </span><span class="lineNoCov">          0 :   object.actcol = material_index + 1;</span></a>
+<a name="1164"><span class="lineNum">    1164 </span>            : </a>
+<a name="1165"><span class="lineNum">    1165 </span><span class="lineNoCov">          0 :   Layer &amp;new_layer = grease_pencil.add_layer(DATA_(&quot;Layer&quot;));</span></a>
+<a name="1166"><span class="lineNum">    1166 </span><span class="lineNoCov">          0 :   grease_pencil.set_active_layer(&amp;new_layer);</span></a>
+<a name="1167"><span class="lineNum">    1167 </span><span class="lineNoCov">          0 :   grease_pencil.insert_frame(new_layer, frame_number);</span></a>
+<a name="1168"><span class="lineNum">    1168 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="1169"><span class="lineNum">    1169 </span>            : </a>
+<a name="1170"><span class="lineNum">    1170 </span><span class="lineNoCov">          0 : void create_stroke(Main &amp;bmain, Object &amp;object, const float4x4 &amp;matrix, const int frame_number)</span></a>
+<a name="1171"><span class="lineNum">    1171 </span>            : {</a>
+<a name="1172"><span class="lineNum">    1172 </span>            :   using namespace blender::bke::greasepencil;</a>
+<a name="1173"><span class="lineNum">    1173 </span><span class="lineNoCov">          0 :   GreasePencil &amp;grease_pencil = *id_cast&lt;GreasePencil *&gt;(object.data);</span></a>
+<a name="1174"><span class="lineNum">    1174 </span>            : </a>
+<a name="1175"><span class="lineNum">    1175 </span><span class="lineNoCov">          0 :   int material_index = add_material_from_template(bmain, object, gp_stroke_material_black);</span></a>
+<a name="1176"><span class="lineNum">    1176 </span><span class="lineNoCov">          0 :   add_material_from_template(bmain, object, gp_stroke_material_white);</span></a>
+<a name="1177"><span class="lineNum">    1177 </span><span class="lineNoCov">          0 :   add_material_from_template(bmain, object, gp_stroke_material_red);</span></a>
+<a name="1178"><span class="lineNum">    1178 </span><span class="lineNoCov">          0 :   add_material_from_template(bmain, object, gp_stroke_material_green);</span></a>
+<a name="1179"><span class="lineNum">    1179 </span><span class="lineNoCov">          0 :   add_material_from_template(bmain, object, gp_stroke_material_blue);</span></a>
+<a name="1180"><span class="lineNum">    1180 </span><span class="lineNoCov">          0 :   add_material_from_template(bmain, object, gp_fill_material_grey);</span></a>
+<a name="1181"><span class="lineNum">    1181 </span><span class="lineNoCov">          0 :   object.actcol = material_index + 1;</span></a>
+<a name="1182"><span class="lineNum">    1182 </span>            : </a>
+<a name="1183"><span class="lineNum">    1183 </span><span class="lineNoCov">          0 :   Layer &amp;layer_color = grease_pencil.add_layer(DATA_(&quot;Color&quot;));</span></a>
+<a name="1184"><span class="lineNum">    1184 </span><span class="lineNoCov">          0 :   Layer &amp;layer_lines = grease_pencil.add_layer(DATA_(&quot;Lines&quot;));</span></a>
+<a name="1185"><span class="lineNum">    1185 </span><span class="lineNoCov">          0 :   grease_pencil.set_active_layer(&amp;layer_lines);</span></a>
+<a name="1186"><span class="lineNum">    1186 </span>            : </a>
+<a name="1187"><span class="lineNum">    1187 </span>            :   /* NOTE: We assume that this keyframe insertion can't fail. */</a>
+<a name="1188"><span class="lineNum">    1188 </span><span class="lineNoCov">          0 :   Drawing &amp;drawing_lines = *grease_pencil.insert_frame(layer_lines, frame_number);</span></a>
+<a name="1189"><span class="lineNum">    1189 </span><span class="lineNoCov">          0 :   grease_pencil.insert_frame(layer_color, frame_number);</span></a>
+<a name="1190"><span class="lineNum">    1190 </span>            : </a>
+<a name="1191"><span class="lineNum">    1191 </span><span class="lineNoCov">          0 :   drawing_lines.strokes_for_write() = create_drawing_data(stroke_positions,</span></a>
+<a name="1192"><span class="lineNum">    1192 </span>            :                                                           stroke_radii,</a>
+<a name="1193"><span class="lineNum">    1193 </span>            :                                                           stroke_opacities,</a>
+<a name="1194"><span class="lineNum">    1194 </span>            :                                                           {0, 175},</a>
+<a name="1195"><span class="lineNum">    1195 </span>            :                                                           {material_index},</a>
+<a name="1196"><span class="lineNum">    1196 </span>            :                                                           {},</a>
+<a name="1197"><span class="lineNum">    1197 </span>            :                                                           {},</a>
+<a name="1198"><span class="lineNum">    1198 </span><span class="lineNoCov">          0 :                                                           matrix);</span></a>
+<a name="1199"><span class="lineNum">    1199 </span><span class="lineNoCov">          0 :   drawing_lines.tag_topology_changed();</span></a>
+<a name="1200"><span class="lineNum">    1200 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="1201"><span class="lineNum">    1201 </span>            : </a>
+<a name="1202"><span class="lineNum">    1202 </span><span class="lineNoCov">          0 : void create_suzanne(Main &amp;bmain, Object &amp;object, const float4x4 &amp;matrix, const int frame_number)</span></a>
+<a name="1203"><span class="lineNum">    1203 </span>            : {</a>
+<a name="1204"><span class="lineNum">    1204 </span>            :   /* Original model created by Matias Mendiola. */</a>
+<a name="1205"><span class="lineNum">    1205 </span>            :   using namespace blender::bke::greasepencil;</a>
+<a name="1206"><span class="lineNum">    1206 </span><span class="lineNoCov">          0 :   GreasePencil &amp;grease_pencil = *id_cast&lt;GreasePencil *&gt;(object.data);</span></a>
+<a name="1207"><span class="lineNum">    1207 </span>            : </a>
+<a name="1208"><span class="lineNum">    1208 </span><span class="lineNoCov">          0 :   int color_black = add_material_from_template(bmain, object, gp_monkey_material_black);</span></a>
+<a name="1209"><span class="lineNum">    1209 </span><span class="lineNoCov">          0 :   int color_eyes = add_material_from_template(bmain, object, gp_monkey_material_eyes);</span></a>
+<a name="1210"><span class="lineNum">    1210 </span><span class="lineNoCov">          0 :   int color_skin = add_material_from_template(bmain, object, gp_monkey_material_skin);</span></a>
+<a name="1211"><span class="lineNum">    1211 </span><span class="lineNoCov">          0 :   int color_skin_light = add_material_from_template(bmain, object, gp_monkey_material_skin_light);</span></a>
+<a name="1212"><span class="lineNum">    1212 </span><span class="lineNoCov">          0 :   int color_skin_shadow = add_material_from_template(</span></a>
+<a name="1213"><span class="lineNum">    1213 </span>            :       bmain, object, gp_monkey_material_skin_shadow);</a>
+<a name="1214"><span class="lineNum">    1214 </span><span class="lineNoCov">          0 :   object.actcol = color_black + 1;</span></a>
+<a name="1215"><span class="lineNum">    1215 </span>            : </a>
+<a name="1216"><span class="lineNum">    1216 </span>            :   const std::array&lt;int, 15&gt; monkey_line_materials({</a>
+<a name="1217"><span class="lineNum">    1217 </span>            :       color_black,</a>
+<a name="1218"><span class="lineNum">    1218 </span>            :       color_black,</a>
+<a name="1219"><span class="lineNum">    1219 </span>            :       color_black,</a>
+<a name="1220"><span class="lineNum">    1220 </span>            :       color_black,</a>
+<a name="1221"><span class="lineNum">    1221 </span>            :       color_black,</a>
+<a name="1222"><span class="lineNum">    1222 </span>            :       color_black,</a>
+<a name="1223"><span class="lineNum">    1223 </span>            :       color_black,</a>
+<a name="1224"><span class="lineNum">    1224 </span>            :       color_black,</a>
+<a name="1225"><span class="lineNum">    1225 </span>            :       color_black,</a>
+<a name="1226"><span class="lineNum">    1226 </span>            :       color_black,</a>
+<a name="1227"><span class="lineNum">    1227 </span>            :       color_black,</a>
+<a name="1228"><span class="lineNum">    1228 </span>            :       color_black,</a>
+<a name="1229"><span class="lineNum">    1229 </span>            :       color_black,</a>
+<a name="1230"><span class="lineNum">    1230 </span>            :       color_black,</a>
+<a name="1231"><span class="lineNum">    1231 </span>            :       color_black,</a>
+<a name="1232"><span class="lineNum">    1232 </span><span class="lineNoCov">          0 :   });</span></a>
+<a name="1233"><span class="lineNum">    1233 </span>            :   const std::array&lt;int, 13&gt; monkey_fill_materials({</a>
+<a name="1234"><span class="lineNum">    1234 </span>            :       color_skin,</a>
+<a name="1235"><span class="lineNum">    1235 </span>            :       color_skin_shadow,</a>
+<a name="1236"><span class="lineNum">    1236 </span>            :       color_skin_shadow,</a>
+<a name="1237"><span class="lineNum">    1237 </span>            :       color_skin_light,</a>
+<a name="1238"><span class="lineNum">    1238 </span>            :       color_skin_light,</a>
+<a name="1239"><span class="lineNum">    1239 </span>            :       color_skin_light,</a>
+<a name="1240"><span class="lineNum">    1240 </span>            :       color_skin_light,</a>
+<a name="1241"><span class="lineNum">    1241 </span>            :       color_skin_light,</a>
+<a name="1242"><span class="lineNum">    1242 </span>            :       color_eyes,</a>
+<a name="1243"><span class="lineNum">    1243 </span>            :       color_skin_shadow,</a>
+<a name="1244"><span class="lineNum">    1244 </span>            :       color_eyes,</a>
+<a name="1245"><span class="lineNum">    1245 </span>            :       color_skin_shadow,</a>
+<a name="1246"><span class="lineNum">    1246 </span>            :       color_skin_shadow,</a>
+<a name="1247"><span class="lineNum">    1247 </span><span class="lineNoCov">          0 :   });</span></a>
+<a name="1248"><span class="lineNum">    1248 </span>            : </a>
+<a name="1249"><span class="lineNum">    1249 </span><span class="lineNoCov">          0 :   const std::array&lt;bool, 15&gt; monkey_line_hide_strokes({false,</span></a>
+<a name="1250"><span class="lineNum">    1250 </span>            :                                                        false,</a>
+<a name="1251"><span class="lineNum">    1251 </span>            :                                                        false,</a>
+<a name="1252"><span class="lineNum">    1252 </span>            :                                                        false,</a>
+<a name="1253"><span class="lineNum">    1253 </span>            :                                                        false,</a>
+<a name="1254"><span class="lineNum">    1254 </span>            :                                                        false,</a>
+<a name="1255"><span class="lineNum">    1255 </span>            :                                                        false,</a>
+<a name="1256"><span class="lineNum">    1256 </span>            :                                                        false,</a>
+<a name="1257"><span class="lineNum">    1257 </span>            :                                                        false,</a>
+<a name="1258"><span class="lineNum">    1258 </span>            :                                                        true,</a>
+<a name="1259"><span class="lineNum">    1259 </span>            :                                                        true,</a>
+<a name="1260"><span class="lineNum">    1260 </span>            :                                                        false,</a>
+<a name="1261"><span class="lineNum">    1261 </span>            :                                                        false,</a>
+<a name="1262"><span class="lineNum">    1262 </span>            :                                                        false,</a>
+<a name="1263"><span class="lineNum">    1263 </span>            :                                                        false});</a>
+<a name="1264"><span class="lineNum">    1264 </span><span class="lineNoCov">          0 :   const std::array&lt;int, 15&gt; monkey_line_fill_ids({0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 0, 0, 0});</span></a>
+<a name="1265"><span class="lineNum">    1265 </span>            : </a>
+<a name="1266"><span class="lineNum">    1266 </span><span class="lineNoCov">          0 :   const std::array&lt;bool, 13&gt; monkey_fill_hide_strokes(</span></a>
+<a name="1267"><span class="lineNum">    1267 </span>            :       {true, false, false, false, false, false, false, false, true, false, true, false, false});</a>
+<a name="1268"><span class="lineNum">    1268 </span><span class="lineNoCov">          0 :   const std::array&lt;int, 13&gt; monkey_fill_fill_ids({1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 3, 0, 0});</span></a>
+<a name="1269"><span class="lineNum">    1269 </span>            : </a>
+<a name="1270"><span class="lineNum">    1270 </span><span class="lineNoCov">          0 :   Layer &amp;layer_fills = grease_pencil.add_layer(DATA_(&quot;Fills&quot;));</span></a>
+<a name="1271"><span class="lineNum">    1271 </span><span class="lineNoCov">          0 :   Layer &amp;layer_lines = grease_pencil.add_layer(DATA_(&quot;Lines&quot;));</span></a>
+<a name="1272"><span class="lineNum">    1272 </span><span class="lineNoCov">          0 :   grease_pencil.set_active_layer(&amp;layer_lines);</span></a>
+<a name="1273"><span class="lineNum">    1273 </span>            : </a>
+<a name="1274"><span class="lineNum">    1274 </span><span class="lineNoCov">          0 :   Drawing &amp;drawing_lines = *grease_pencil.insert_frame(layer_lines, frame_number);</span></a>
+<a name="1275"><span class="lineNum">    1275 </span><span class="lineNoCov">          0 :   Drawing &amp;drawing_fills = *grease_pencil.insert_frame(layer_fills, frame_number);</span></a>
+<a name="1276"><span class="lineNum">    1276 </span>            : </a>
+<a name="1277"><span class="lineNum">    1277 </span><span class="lineNoCov">          0 :   drawing_lines.strokes_for_write() = create_drawing_data(monkey_line_positions,</span></a>
+<a name="1278"><span class="lineNum">    1278 </span>            :                                                           monkey_line_radii,</a>
+<a name="1279"><span class="lineNum">    1279 </span>            :                                                           monkey_line_opacities,</a>
+<a name="1280"><span class="lineNum">    1280 </span>            :                                                           monkey_line_offsets,</a>
+<a name="1281"><span class="lineNum">    1281 </span>            :                                                           monkey_line_materials,</a>
+<a name="1282"><span class="lineNum">    1282 </span>            :                                                           monkey_line_hide_strokes,</a>
+<a name="1283"><span class="lineNum">    1283 </span>            :                                                           monkey_line_fill_ids,</a>
+<a name="1284"><span class="lineNum">    1284 </span><span class="lineNoCov">          0 :                                                           matrix);</span></a>
+<a name="1285"><span class="lineNum">    1285 </span><span class="lineNoCov">          0 :   drawing_fills.strokes_for_write() = create_drawing_data(monkey_fill_positions,</span></a>
+<a name="1286"><span class="lineNum">    1286 </span>            :                                                           monkey_fill_radii,</a>
+<a name="1287"><span class="lineNum">    1287 </span>            :                                                           monkey_fill_opacities,</a>
+<a name="1288"><span class="lineNum">    1288 </span>            :                                                           monkey_fill_offsets,</a>
+<a name="1289"><span class="lineNum">    1289 </span>            :                                                           monkey_fill_materials,</a>
+<a name="1290"><span class="lineNum">    1290 </span>            :                                                           monkey_fill_hide_strokes,</a>
+<a name="1291"><span class="lineNum">    1291 </span>            :                                                           monkey_fill_fill_ids,</a>
+<a name="1292"><span class="lineNum">    1292 </span><span class="lineNoCov">          0 :                                                           matrix);</span></a>
+<a name="1293"><span class="lineNum">    1293 </span><span class="lineNoCov">          0 :   drawing_lines.tag_topology_changed();</span></a>
+<a name="1294"><span class="lineNum">    1294 </span><span class="lineNoCov">          0 :   drawing_fills.tag_topology_changed();</span></a>
+<a name="1295"><span class="lineNum">    1295 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="1296"><span class="lineNum">    1296 </span>            : </a>
+<a name="1297"><span class="lineNum">    1297 </span>            : }  // namespace blender::ed::greasepencil</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

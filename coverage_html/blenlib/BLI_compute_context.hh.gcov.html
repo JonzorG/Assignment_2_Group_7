@@ -1,0 +1,250 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - blenlib/BLI_compute_context.hh</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">blenlib</a> - BLI_compute_context.hh<span style="font-size: 80%;"> (source / <a href="BLI_compute_context.hh.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">23</td>
+            <td class="headerCovTableEntry">23</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">52</td>
+            <td class="headerCovTableEntry">53</td>
+            <td class="headerCovTableEntryHi">98.1 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2023 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : #pragma once</a>
+<a name="6"><span class="lineNum">       6 </span>            : </a>
+<a name="7"><span class="lineNum">       7 </span>            : /** \file</a>
+<a name="8"><span class="lineNum">       8 </span>            :  * \ingroup bli</a>
+<a name="9"><span class="lineNum">       9 </span>            :  *</a>
+<a name="10"><span class="lineNum">      10 </span>            :  * When logging computed values, we generally want to know where the value was computed. For</a>
+<a name="11"><span class="lineNum">      11 </span>            :  * example, geometry nodes logs socket values so that they can be displayed in the ui. For that we</a>
+<a name="12"><span class="lineNum">      12 </span>            :  * can combine the logged value with a `ComputeContext`, which identifies the place where the value</a>
+<a name="13"><span class="lineNum">      13 </span>            :  * was computed.</a>
+<a name="14"><span class="lineNum">      14 </span>            :  *</a>
+<a name="15"><span class="lineNum">      15 </span>            :  * This is not a trivial problem because e.g. just storing a pointer to the socket a value</a>
+<a name="16"><span class="lineNum">      16 </span>            :  * belongs to is not enough. That's because the same socket may correspond to many different values</a>
+<a name="17"><span class="lineNum">      17 </span>            :  * when the socket is used in a node group that is used multiple times. In this case, not only does</a>
+<a name="18"><span class="lineNum">      18 </span>            :  * the socket have to be stored but also the entire nested node group path that led to the</a>
+<a name="19"><span class="lineNum">      19 </span>            :  * evaluation of the socket.</a>
+<a name="20"><span class="lineNum">      20 </span>            :  *</a>
+<a name="21"><span class="lineNum">      21 </span>            :  * Storing the entire &quot;context path&quot; for every logged value is not feasible, because that path can</a>
+<a name="22"><span class="lineNum">      22 </span>            :  * become quite long. So that would need much more memory, more compute overhead and makes it</a>
+<a name="23"><span class="lineNum">      23 </span>            :  * complicated to compare if two contexts are the same. If the identifier for a compute context</a>
+<a name="24"><span class="lineNum">      24 </span>            :  * would have a variable size, it would also be much harder to create a map from context to values.</a>
+<a name="25"><span class="lineNum">      25 </span>            :  *</a>
+<a name="26"><span class="lineNum">      26 </span>            :  * The solution implemented below uses the following key ideas:</a>
+<a name="27"><span class="lineNum">      27 </span>            :  * - Every compute context can be hashed to a unique fixed size value (`ComputeContextHash`). While</a>
+<a name="28"><span class="lineNum">      28 </span>            :  *   technically there could be hash collisions, the hashing algorithm has to be chosen to make</a>
+<a name="29"><span class="lineNum">      29 </span>            :  *   that practically impossible. This way an entire context path, possibly consisting of many</a>
+<a name="30"><span class="lineNum">      30 </span>            :  *   nested contexts, is represented by a single value that can be stored easily.</a>
+<a name="31"><span class="lineNum">      31 </span>            :  * - A nested compute context is build as singly linked list, where every compute context has a</a>
+<a name="32"><span class="lineNum">      32 </span>            :  *   pointer to the parent compute context. Note that a link in the other direction is not possible</a>
+<a name="33"><span class="lineNum">      33 </span>            :  *   because the same parent compute context may be used by many different children which possibly</a>
+<a name="34"><span class="lineNum">      34 </span>            :  *   run on different threads.</a>
+<a name="35"><span class="lineNum">      35 </span>            :  */</a>
+<a name="36"><span class="lineNum">      36 </span>            : </a>
+<a name="37"><span class="lineNum">      37 </span>            : #include &quot;BLI_cache_mutex.hh&quot;</a>
+<a name="38"><span class="lineNum">      38 </span>            : #include &quot;BLI_string_ref.hh&quot;</a>
+<a name="39"><span class="lineNum">      39 </span>            : #include &quot;BLI_unique_hash.hh&quot;</a>
+<a name="40"><span class="lineNum">      40 </span>            : </a>
+<a name="41"><span class="lineNum">      41 </span>            : namespace blender {</a>
+<a name="42"><span class="lineNum">      42 </span>            : </a>
+<a name="43"><span class="lineNum">      43 </span>            : class ComputeContext;</a>
+<a name="44"><span class="lineNum">      44 </span>            : </a>
+<a name="45"><span class="lineNum">      45 </span>            : /**</a>
+<a name="46"><span class="lineNum">      46 </span>            :  * A hash that uniquely identifies a specific (non-fixed-size) compute context.</a>
+<a name="47"><span class="lineNum">      47 </span>            :  */</a>
+<a name="48"><span class="lineNum">      48 </span>            : struct ComputeContextHash : public UniqueHash {</a>
+<a name="49"><span class="lineNum">      49 </span>            :   /**</a>
+<a name="50"><span class="lineNum">      50 </span>            :    * Standard way to create a compute context hash.</a>
+<a name="51"><span class="lineNum">      51 </span>            :    * \param parent: The optional parent context.</a>
+<a name="52"><span class="lineNum">      52 </span>            :    * \param type_str: A string literal that identifies the context type. This is used to avoid hash</a>
+<a name="53"><span class="lineNum">      53 </span>            :    * collisions between different context types.</a>
+<a name="54"><span class="lineNum">      54 </span>            :    * \param args: Additional arguments that affect the hash. Note that only the shallow bytes of</a>
+<a name="55"><span class="lineNum">      55 </span>            :    * these types are used. So they generally should not contain any padding.</a>
+<a name="56"><span class="lineNum">      56 </span>            :    */</a>
+<a name="57"><span class="lineNum">      57 </span>            :   template&lt;size_t N, typename... Args&gt;</a>
+<a name="58"><span class="lineNum">      58 </span>            :   static ComputeContextHash from(const ComputeContext *parent,</a>
+<a name="59"><span class="lineNum">      59 </span>            :                                  const char (&amp;type_str)[N],</a>
+<a name="60"><span class="lineNum">      60 </span>            :                                  Args &amp;&amp;...args);</a>
+<a name="61"><span class="lineNum">      61 </span>            : </a>
+<a name="62"><span class="lineNum">      62 </span>            :   friend std::ostream &amp;operator&lt;&lt;(std::ostream &amp;stream, const ComputeContextHash &amp;hash);</a>
+<a name="63"><span class="lineNum">      63 </span>            : </a>
+<a name="64"><span class="lineNum">      64 </span>            :   /**</a>
+<a name="65"><span class="lineNum">      65 </span>            :    * Compute a context hash by packing all the arguments into a contiguous buffer and hashing</a>
+<a name="66"><span class="lineNum">      66 </span>            :    * that.</a>
+<a name="67"><span class="lineNum">      67 </span>            :    */</a>
+<a name="68"><span class="lineNum">      68 </span>            :   template&lt;typename... Args&gt; static ComputeContextHash from_shallow_bytes(Args &amp;&amp;...args);</a>
+<a name="69"><span class="lineNum">      69 </span>            : </a>
+<a name="70"><span class="lineNum">      70 </span>            :   /** Compute a context hash from a contiguous buffer. */</a>
+<a name="71"><span class="lineNum">      71 </span>            :   static ComputeContextHash from_bytes(const void *data, int64_t len);</a>
+<a name="72"><span class="lineNum">      72 </span>            : };</a>
+<a name="73"><span class="lineNum">      73 </span>            : </a>
+<a name="74"><span class="lineNum">      74 </span>            : /**</a>
+<a name="75"><span class="lineNum">      75 </span>            :  * Identifies the context in which a computation happens. This context can be used to identify</a>
+<a name="76"><span class="lineNum">      76 </span>            :  * values logged during the computation. For more details, see the comment at the top of the file.</a>
+<a name="77"><span class="lineNum">      77 </span>            :  *</a>
+<a name="78"><span class="lineNum">      78 </span>            :  * This class should be subclassed to implement specific contexts.</a>
+<a name="79"><span class="lineNum">      79 </span>            :  */</a>
+<a name="80"><span class="lineNum">      80 </span>            : class ComputeContext {</a>
+<a name="81"><span class="lineNum">      81 </span>            :  protected:</a>
+<a name="82"><span class="lineNum">      82 </span>            :   /**</a>
+<a name="83"><span class="lineNum">      83 </span>            :    * Pointer to the context that this context is child of. That allows nesting compute</a>
+<a name="84"><span class="lineNum">      84 </span>            :    * contexts.</a>
+<a name="85"><span class="lineNum">      85 </span>            :    */</a>
+<a name="86"><span class="lineNum">      86 </span>            :   const ComputeContext *parent_ = nullptr;</a>
+<a name="87"><span class="lineNum">      87 </span>            : </a>
+<a name="88"><span class="lineNum">      88 </span>            :   /**</a>
+<a name="89"><span class="lineNum">      89 </span>            :    * The hash that uniquely identifies this context. It's a combined hash of this context as well</a>
+<a name="90"><span class="lineNum">      90 </span>            :    * as all the parent contexts. It's computed lazily to keep initial construction of compute</a>
+<a name="91"><span class="lineNum">      91 </span>            :    * contexts very cheap.</a>
+<a name="92"><span class="lineNum">      92 </span>            :    */</a>
+<a name="93"><span class="lineNum">      93 </span>            :   mutable ComputeContextHash hash_;</a>
+<a name="94"><span class="lineNum">      94 </span>            : </a>
+<a name="95"><span class="lineNum">      95 </span>            :  private:</a>
+<a name="96"><span class="lineNum">      96 </span>            :   mutable CacheMutex hash_mutex_;</a>
+<a name="97"><span class="lineNum">      97 </span>            : </a>
+<a name="98"><span class="lineNum">      98 </span>            :   /**</a>
+<a name="99"><span class="lineNum">      99 </span>            :    * Number of parent contexts. This can be used to limit the maximum depth to prevent</a>
+<a name="100"><span class="lineNum">     100 </span>            :    * stack-overflows.</a>
+<a name="101"><span class="lineNum">     101 </span>            :    */</a>
+<a name="102"><span class="lineNum">     102 </span>            :   int parents_num_ = 0;</a>
+<a name="103"><span class="lineNum">     103 </span>            : </a>
+<a name="104"><span class="lineNum">     104 </span>            :  public:</a>
+<a name="105"><span class="lineNum">     105 </span><span class="lineCov">     335183 :   ComputeContext(const ComputeContext *parent)</span></a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineCov">     335183 :       : parent_(parent), parents_num_(parent ? parent-&gt;parents_num_ + 1 : 0)</span></a>
+<a name="107"><span class="lineNum">     107 </span>            :   {</a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineCov">     335319 :   }</span></a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineCov">     334960 :   virtual ~ComputeContext() = default;</span></a>
+<a name="110"><span class="lineNum">     110 </span>            : </a>
+<a name="111"><span class="lineNum">     111 </span><span class="lineCov">    1292516 :   const ComputeContextHash &amp;hash() const</span></a>
+<a name="112"><span class="lineNum">     112 </span>            :   {</a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineCov">    1421887 :     hash_mutex_.ensure([&amp;]() { hash_ = this-&gt;compute_hash(); });</span></a>
+<a name="114"><span class="lineNum">     114 </span><span class="lineCov">    1292622 :     return hash_;</span></a>
+<a name="115"><span class="lineNum">     115 </span>            :   }</a>
+<a name="116"><span class="lineNum">     116 </span>            : </a>
+<a name="117"><span class="lineNum">     117 </span><span class="lineCov">      56942 :   const ComputeContext *parent() const</span></a>
+<a name="118"><span class="lineNum">     118 </span>            :   {</a>
+<a name="119"><span class="lineNum">     119 </span><span class="lineCov">      56942 :     return parent_;</span></a>
+<a name="120"><span class="lineNum">     120 </span>            :   }</a>
+<a name="121"><span class="lineNum">     121 </span>            : </a>
+<a name="122"><span class="lineNum">     122 </span><span class="lineCov">      34154 :   int parents_num() const</span></a>
+<a name="123"><span class="lineNum">     123 </span>            :   {</a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineCov">      34154 :     return parents_num_;</span></a>
+<a name="125"><span class="lineNum">     125 </span>            :   }</a>
+<a name="126"><span class="lineNum">     126 </span>            : </a>
+<a name="127"><span class="lineNum">     127 </span>            :   /**</a>
+<a name="128"><span class="lineNum">     128 </span>            :    * Print the entire nested context stack.</a>
+<a name="129"><span class="lineNum">     129 </span>            :    */</a>
+<a name="130"><span class="lineNum">     130 </span>            :   void print_stack(std::ostream &amp;stream, StringRef name) const;</a>
+<a name="131"><span class="lineNum">     131 </span>            : </a>
+<a name="132"><span class="lineNum">     132 </span>            :   /**</a>
+<a name="133"><span class="lineNum">     133 </span>            :    * Print information about this specific context. This has to be implemented by each subclass.</a>
+<a name="134"><span class="lineNum">     134 </span>            :    */</a>
+<a name="135"><span class="lineNum">     135 </span>            :   virtual void print_current_in_line(std::ostream &amp;stream) const = 0;</a>
+<a name="136"><span class="lineNum">     136 </span>            : </a>
+<a name="137"><span class="lineNum">     137 </span>            :   friend std::ostream &amp;operator&lt;&lt;(std::ostream &amp;stream, const ComputeContext &amp;compute_context);</a>
+<a name="138"><span class="lineNum">     138 </span>            : </a>
+<a name="139"><span class="lineNum">     139 </span>            :  private:</a>
+<a name="140"><span class="lineNum">     140 </span>            :   /** Compute the hash of this context, usually using #ComputeContextHash::from. */</a>
+<a name="141"><span class="lineNum">     141 </span>            :   virtual ComputeContextHash compute_hash() const = 0;</a>
+<a name="142"><span class="lineNum">     142 </span>            : };</a>
+<a name="143"><span class="lineNum">     143 </span>            : </a>
+<a name="144"><span class="lineNum">     144 </span>            : template&lt;size_t N, typename... Args&gt;</a>
+<a name="145"><span class="lineNum">     145 </span><span class="lineCov">     129289 : inline ComputeContextHash ComputeContextHash::from(const ComputeContext *parent,</span></a>
+<a name="146"><span class="lineNum">     146 </span>            :                                                    const char (&amp;type_str)[N],</a>
+<a name="147"><span class="lineNum">     147 </span>            :                                                    Args &amp;&amp;...args)</a>
+<a name="148"><span class="lineNum">     148 </span>            : {</a>
+<a name="149"><span class="lineNum">     149 </span><span class="lineCov">     129412 :   return ComputeContextHash::from_shallow_bytes(</span></a>
+<a name="150"><span class="lineNum">     150 </span><span class="lineCov">     258866 :       parent ? parent-&gt;hash() : ComputeContextHash{0, 0}, type_str, args...);</span></a>
+<a name="151"><span class="lineNum">     151 </span>            : }</a>
+<a name="152"><span class="lineNum">     152 </span>            : </a>
+<a name="153"><span class="lineNum">     153 </span>            : template&lt;typename... Args&gt;</a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineCov">     129285 : inline ComputeContextHash ComputeContextHash::from_shallow_bytes(Args &amp;&amp;...args)</span></a>
+<a name="155"><span class="lineNum">     155 </span>            : {</a>
+<a name="156"><span class="lineNum">     156 </span>            :   /* Copy all values into a contiguous buffer. Intentionally don't use std::tuple to avoid any</a>
+<a name="157"><span class="lineNum">     157 </span>            :    * potential padding. */</a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineCov">     129285 :   constexpr int64_t size_sum = (sizeof(args) + ...);</span></a>
+<a name="159"><span class="lineNum">     159 </span>            :   char buffer[size_sum];</a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineCov">     129285 :   int64_t offset = 0;</span></a>
+<a name="161"><span class="lineNum">     161 </span>            :   (</a>
+<a name="162"><span class="lineNum">     162 </span><span class="lineCov">    1044493 :       [&amp;] {</span></a>
+<a name="163"><span class="lineNum">     163 </span>            :         using Arg = std::remove_reference_t&lt;std::remove_cv_t&lt;Args&gt;&gt;;</a>
+<a name="164"><span class="lineNum">     164 </span>            :         static_assert(std::has_unique_object_representations_v&lt;Arg&gt;);</a>
+<a name="165"><span class="lineNum">     165 </span><span class="lineCov">     457545 :         const Arg &amp;arg = args;</span></a>
+<a name="166"><span class="lineNum">     166 </span><span class="lineCov">     457545 :         memcpy(buffer + offset, &amp;arg, sizeof(Arg));</span></a>
+<a name="167"><span class="lineNum">     167 </span><span class="lineCov">     457545 :         offset += sizeof(Arg);</span></a>
+<a name="168"><span class="lineNum">     168 </span><span class="lineCov">     129285 :       }(),</span></a>
+<a name="169"><span class="lineNum">     169 </span>            :       ...);</a>
+<a name="170"><span class="lineNum">     170 </span>            :   /* Compute the hash of that buffer. */</a>
+<a name="171"><span class="lineNum">     171 </span><span class="lineCov">     259031 :   return ComputeContextHash::from_bytes(buffer, offset);</span></a>
+<a name="172"><span class="lineNum">     172 </span>            : }</a>
+<a name="173"><span class="lineNum">     173 </span>            : </a>
+<a name="174"><span class="lineNum">     174 </span>            : }  // namespace blender</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,578 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - /home/dev/Blender_PA1483/blender/intern/cycles/kernel/integrator/subsurface_random_walk.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../../../index.html">top level</a> - <a href="index.html">home/dev/Blender_PA1483/blender/intern/cycles/kernel/integrator</a> - subsurface_random_walk.h<span style="font-size: 80%;"> (source / <a href="subsurface_random_walk.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">169</td>
+            <td class="headerCovTableEntry">186</td>
+            <td class="headerCovTableEntryHi">90.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2011-2022 Blender Foundation</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: Apache-2.0 */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : #include &quot;kernel/bvh/bvh.h&quot;</a>
+<a name="6"><span class="lineNum">       6 </span>            : </a>
+<a name="7"><span class="lineNum">       7 </span>            : #include &quot;kernel/closure/volume.h&quot;</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &quot;kernel/integrator/guiding.h&quot;</a>
+<a name="10"><span class="lineNum">      10 </span>            : #include &quot;kernel/integrator/path_state.h&quot;</a>
+<a name="11"><span class="lineNum">      11 </span>            : </a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &quot;util/color.h&quot;</a>
+<a name="13"><span class="lineNum">      13 </span>            : </a>
+<a name="14"><span class="lineNum">      14 </span>            : CCL_NAMESPACE_BEGIN</a>
+<a name="15"><span class="lineNum">      15 </span>            : </a>
+<a name="16"><span class="lineNum">      16 </span>            : #ifdef __SUBSURFACE__</a>
+<a name="17"><span class="lineNum">      17 </span>            : </a>
+<a name="18"><span class="lineNum">      18 </span>            : /* Random walk subsurface scattering.</a>
+<a name="19"><span class="lineNum">      19 </span>            :  *</a>
+<a name="20"><span class="lineNum">      20 </span>            :  * &quot;Practical and Controllable Subsurface Scattering for Production Path</a>
+<a name="21"><span class="lineNum">      21 </span>            :  *  Tracing&quot;. Matt Jen-Yuan Chiang, Peter Kutz, Brent Burley. SIGGRAPH 2016. */</a>
+<a name="22"><span class="lineNum">      22 </span>            : </a>
+<a name="23"><span class="lineNum">      23 </span>            : /* Support for anisotropy from:</a>
+<a name="24"><span class="lineNum">      24 </span>            :  * &quot;Path Traced Subsurface Scattering using Anisotropic Phase Functions</a>
+<a name="25"><span class="lineNum">      25 </span>            :  * and Non-Exponential Free Flights&quot;.</a>
+<a name="26"><span class="lineNum">      26 </span>            :  * Magnus Wrenninge, Ryusuke Villemin, Christophe Hery.</a>
+<a name="27"><span class="lineNum">      27 </span>            :  * https://graphics.pixar.com/library/PathTracedSubsurface/ */</a>
+<a name="28"><span class="lineNum">      28 </span>            : </a>
+<a name="29"><span class="lineNum">      29 </span><span class="lineCov">   10703450 : ccl_device void subsurface_random_walk_remap(const float albedo,</span></a>
+<a name="30"><span class="lineNum">      30 </span>            :                                              const float d,</a>
+<a name="31"><span class="lineNum">      31 </span>            :                                              const float g,</a>
+<a name="32"><span class="lineNum">      32 </span>            :                                              ccl_private float *sigma_t,</a>
+<a name="33"><span class="lineNum">      33 </span>            :                                              ccl_private float *alpha)</a>
+<a name="34"><span class="lineNum">      34 </span>            : {</a>
+<a name="35"><span class="lineNum">      35 </span>            :   /* Compute attenuation and scattering coefficients from albedo. */</a>
+<a name="36"><span class="lineNum">      36 </span><span class="lineCov">   10703450 :   const float g2 = g * g;</span></a>
+<a name="37"><span class="lineNum">      37 </span><span class="lineCov">   10703450 :   const float g3 = g2 * g;</span></a>
+<a name="38"><span class="lineNum">      38 </span><span class="lineCov">   10703450 :   const float g4 = g3 * g;</span></a>
+<a name="39"><span class="lineNum">      39 </span><span class="lineCov">   10703450 :   const float g5 = g4 * g;</span></a>
+<a name="40"><span class="lineNum">      40 </span><span class="lineCov">   10703450 :   const float g6 = g5 * g;</span></a>
+<a name="41"><span class="lineNum">      41 </span><span class="lineCov">   10703450 :   const float g7 = g6 * g;</span></a>
+<a name="42"><span class="lineNum">      42 </span>            : </a>
+<a name="43"><span class="lineNum">      43 </span><span class="lineCov">   10703450 :   const float A = 1.8260523782f + -1.28451056436f * g + -1.79904629312f * g2 +</span></a>
+<a name="44"><span class="lineNum">      44 </span><span class="lineNoCov">          0 :                   9.19393289202f * g3 + -22.8215585862f * g4 + 32.0234874259f * g5 +</span></a>
+<a name="45"><span class="lineNum">      45 </span><span class="lineNoCov">          0 :                   -23.6264803333f * g6 + 7.21067002658f * g7;</span></a>
+<a name="46"><span class="lineNum">      46 </span><span class="lineCov">   10707110 :   const float B = 4.98511194385f +</span></a>
+<a name="47"><span class="lineNum">      47 </span><span class="lineNoCov">          0 :                   0.127355959438f *</span></a>
+<a name="48"><span class="lineNum">      48 </span><span class="lineCov">   21459214 :                       expf(31.1491581433f * g + -201.847017512f * g2 + 841.576016723f * g3 +</span></a>
+<a name="49"><span class="lineNum">      49 </span><span class="lineNoCov">          0 :                            -2018.09288505f * g4 + 2731.71560286f * g5 + -1935.41424244f * g6 +</span></a>
+<a name="50"><span class="lineNum">      50 </span><span class="lineNoCov">          0 :                            559.009054474f * g7);</span></a>
+<a name="51"><span class="lineNum">      51 </span><span class="lineCov">   10782681 :   const float C = 1.09686102424f + -0.394704063468f * g + 1.05258115941f * g2 +</span></a>
+<a name="52"><span class="lineNum">      52 </span><span class="lineNoCov">          0 :                   -8.83963712726f * g3 + 28.8643230661f * g4 + -46.8802913581f * g5 +</span></a>
+<a name="53"><span class="lineNum">      53 </span><span class="lineNoCov">          0 :                   38.5402837518f * g6 + -12.7181042538f * g7;</span></a>
+<a name="54"><span class="lineNum">      54 </span><span class="lineCov">   10775168 :   const float D = 0.496310210422f + 0.360146581622f * g + -2.15139309747f * g2 +</span></a>
+<a name="55"><span class="lineNum">      55 </span><span class="lineNoCov">          0 :                   17.8896899217f * g3 + -55.2984010333f * g4 + 82.065982243f * g5 +</span></a>
+<a name="56"><span class="lineNum">      56 </span><span class="lineNoCov">          0 :                   -58.5106008578f * g6 + 15.8478295021f * g7;</span></a>
+<a name="57"><span class="lineNum">      57 </span><span class="lineCov">   10778284 :   const float E = 4.23190299701f +</span></a>
+<a name="58"><span class="lineNum">      58 </span><span class="lineNoCov">          0 :                   0.00310603949088f *</span></a>
+<a name="59"><span class="lineNum">      59 </span><span class="lineCov">   21589917 :                       expf(76.7316253952f * g + -594.356773233f * g2 + 2448.8834203f * g3 +</span></a>
+<a name="60"><span class="lineNum">      60 </span><span class="lineNoCov">          0 :                            -5576.68528998f * g4 + 7116.60171912f * g5 + -4763.54467887f * g6 +</span></a>
+<a name="61"><span class="lineNum">      61 </span><span class="lineNoCov">          0 :                            1303.5318055f * g7);</span></a>
+<a name="62"><span class="lineNum">      62 </span><span class="lineCov">   10820709 :   const float F = 2.40602999408f + -2.51814844609f * g + 9.18494908356f * g2 +</span></a>
+<a name="63"><span class="lineNum">      63 </span><span class="lineNoCov">          0 :                   -79.2191708682f * g3 + 259.082868209f * g4 + -403.613804597f * g5 +</span></a>
+<a name="64"><span class="lineNum">      64 </span><span class="lineNoCov">          0 :                   302.85712436f * g6 + -87.4370473567f * g7;</span></a>
+<a name="65"><span class="lineNum">      65 </span>            : </a>
+<a name="66"><span class="lineNum">      66 </span><span class="lineCov">   10810803 :   const float blend = powf(albedo, 0.25f);</span></a>
+<a name="67"><span class="lineNum">      67 </span>            : </a>
+<a name="68"><span class="lineNum">      68 </span><span class="lineCov">   21690950 :   *alpha = (1.0f - blend) * A * powf(atanf(B * albedo), C) +</span></a>
+<a name="69"><span class="lineNum">      69 </span><span class="lineCov">   10810803 :            blend * D * powf(atanf(E * albedo), F);</span></a>
+<a name="70"><span class="lineNum">      70 </span><span class="lineCov">   10880147 :   *alpha = clamp(*alpha, 0.0f, 0.999999f);  // because of numerical precision</span></a>
+<a name="71"><span class="lineNum">      71 </span>            : </a>
+<a name="72"><span class="lineNum">      72 </span><span class="lineCov">   10880147 :   const float sigma_t_prime = 1.0f / fmaxf(d, 1e-16f);</span></a>
+<a name="73"><span class="lineNum">      73 </span><span class="lineCov">   10880147 :   *sigma_t = sigma_t_prime / (1.0f - g);</span></a>
+<a name="74"><span class="lineNum">      74 </span><span class="lineCov">   10880147 : }</span></a>
+<a name="75"><span class="lineNum">      75 </span>            : </a>
+<a name="76"><span class="lineNum">      76 </span>            : /* Mapping from subsurface color and anisotropy to single scatter albedo, taken from</a>
+<a name="77"><span class="lineNum">      77 </span>            :  * &quot;A Hitchhiker's Guide to Multiple Scattering&quot; by Eugene d'Eon, v0.3.2 Eq (53.7),</a>
+<a name="78"><span class="lineNum">      78 </span>            :  * https://eugenedeon.com/hitchhikers</a>
+<a name="79"><span class="lineNum">      79 </span>            :  */</a>
+<a name="80"><span class="lineNum">      80 </span><span class="lineCov">     628527 : ccl_device void subsurface_random_walk_remap(const Spectrum color,</span></a>
+<a name="81"><span class="lineNum">      81 </span>            :                                              const Spectrum radius,</a>
+<a name="82"><span class="lineNum">      82 </span>            :                                              const float g,</a>
+<a name="83"><span class="lineNum">      83 </span>            :                                              ccl_private Spectrum *sigma_t,</a>
+<a name="84"><span class="lineNum">      84 </span>            :                                              ccl_private Spectrum *alpha)</a>
+<a name="85"><span class="lineNum">      85 </span>            : {</a>
+<a name="86"><span class="lineNum">      86 </span><span class="lineCov">    3142635 :   const Spectrum s_sq = sqr(4.20863f * color -</span></a>
+<a name="87"><span class="lineNum">      87 </span>            :                             sqrt(9.59217f + 41.6808f * color + 17.7126f * sqr(color)) + 4.09712f);</a>
+<a name="88"><span class="lineNum">      88 </span><span class="lineCov">    2514108 :   *alpha = safe_divide(1.0f - s_sq, 1.0f - g * s_sq);</span></a>
+<a name="89"><span class="lineNum">      89 </span>            : </a>
+<a name="90"><span class="lineNum">      90 </span>            :   /* Clamp to avoid numerical issues. */</a>
+<a name="91"><span class="lineNum">      91 </span><span class="lineCov">    1257054 :   *alpha = clamp(*alpha, zero_spectrum(), make_spectrum(0.999999f));</span></a>
+<a name="92"><span class="lineNum">      92 </span>            : </a>
+<a name="93"><span class="lineNum">      93 </span><span class="lineCov">     628527 :   *sigma_t = reciprocal(max(radius, make_spectrum(1e-16f)));</span></a>
+<a name="94"><span class="lineNum">      94 </span><span class="lineCov">     628527 : }</span></a>
+<a name="95"><span class="lineNum">      95 </span>            : </a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineCov">    4202273 : ccl_device void subsurface_random_walk_coefficients(const Spectrum albedo,</span></a>
+<a name="97"><span class="lineNum">      97 </span>            :                                                     const Spectrum radius,</a>
+<a name="98"><span class="lineNum">      98 </span>            :                                                     const float anisotropy,</a>
+<a name="99"><span class="lineNum">      99 </span>            :                                                     const bool van_de_hulst,</a>
+<a name="100"><span class="lineNum">     100 </span>            :                                                     ccl_private Spectrum *sigma_t,</a>
+<a name="101"><span class="lineNum">     101 </span>            :                                                     ccl_private Spectrum *alpha,</a>
+<a name="102"><span class="lineNum">     102 </span>            :                                                     ccl_private Spectrum *throughput)</a>
+<a name="103"><span class="lineNum">     103 </span>            : {</a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineCov">    4202273 :   if (van_de_hulst) {</span></a>
+<a name="105"><span class="lineNum">     105 </span><span class="lineCov">     629732 :     subsurface_random_walk_remap(albedo, radius, anisotropy, sigma_t, alpha);</span></a>
+<a name="106"><span class="lineNum">     106 </span>            :   }</a>
+<a name="107"><span class="lineNum">     107 </span>            :   else {</a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineCov">   14384636 :     FOREACH_SPECTRUM_CHANNEL (i) {</span></a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineCov">   10724510 :       subsurface_random_walk_remap(GET_SPECTRUM_CHANNEL(albedo, i),</span></a>
+<a name="110"><span class="lineNum">     110 </span><span class="lineCov">   10724510 :                                    GET_SPECTRUM_CHANNEL(radius, i),</span></a>
+<a name="111"><span class="lineNum">     111 </span>            :                                    anisotropy,</a>
+<a name="112"><span class="lineNum">     112 </span><span class="lineCov">   10724510 :                                    &amp;GET_SPECTRUM_CHANNEL(*sigma_t, i),</span></a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineCov">   10724510 :                                    &amp;GET_SPECTRUM_CHANNEL(*alpha, i));</span></a>
+<a name="114"><span class="lineNum">     114 </span>            :     }</a>
+<a name="115"><span class="lineNum">     115 </span>            :   }</a>
+<a name="116"><span class="lineNum">     116 </span>            : </a>
+<a name="117"><span class="lineNum">     117 </span>            :   /* Throughput already contains closure weight at this point, which includes the</a>
+<a name="118"><span class="lineNum">     118 </span>            :    * albedo, as well as closure mixing and Fresnel weights. Divide out the albedo</a>
+<a name="119"><span class="lineNum">     119 </span>            :    * which will be added through scattering. */</a>
+<a name="120"><span class="lineNum">     120 </span><span class="lineCov">    4255624 :   *throughput = safe_divide_color(*throughput, albedo);</span></a>
+<a name="121"><span class="lineNum">     121 </span>            : </a>
+<a name="122"><span class="lineNum">     122 </span>            :   /* With low albedo values (like 0.025) we get diffusion_length 1.0 and</a>
+<a name="123"><span class="lineNum">     123 </span>            :    * infinite phase functions. To avoid a sharp discontinuity as we go from</a>
+<a name="124"><span class="lineNum">     124 </span>            :    * such values to 0.0, increase alpha and reduce the throughput to compensate. */</a>
+<a name="125"><span class="lineNum">     125 </span><span class="lineCov">    4255624 :   const float min_alpha = 0.2f;</span></a>
+<a name="126"><span class="lineNum">     126 </span><span class="lineCov">   17060967 :   FOREACH_SPECTRUM_CHANNEL (i) {</span></a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineCov">   12805343 :     if (GET_SPECTRUM_CHANNEL(*alpha, i) &lt; min_alpha) {</span></a>
+<a name="128"><span class="lineNum">     128 </span><span class="lineCov">     842031 :       GET_SPECTRUM_CHANNEL(*throughput, i) *= GET_SPECTRUM_CHANNEL(*alpha, i) / min_alpha;</span></a>
+<a name="129"><span class="lineNum">     129 </span><span class="lineCov">     842031 :       GET_SPECTRUM_CHANNEL(*alpha, i) = min_alpha;</span></a>
+<a name="130"><span class="lineNum">     130 </span>            :     }</a>
+<a name="131"><span class="lineNum">     131 </span>            :   }</a>
+<a name="132"><span class="lineNum">     132 </span><span class="lineCov">    4255624 : }</span></a>
+<a name="133"><span class="lineNum">     133 </span>            : </a>
+<a name="134"><span class="lineNum">     134 </span>            : /* References for Dwivedi sampling:</a>
+<a name="135"><span class="lineNum">     135 </span>            :  *</a>
+<a name="136"><span class="lineNum">     136 </span>            :  * [1] &quot;A Zero-variance-based Sampling Scheme for Monte Carlo Subsurface Scattering&quot;</a>
+<a name="137"><span class="lineNum">     137 </span>            :  * by Jaroslav Křivánek and Eugene d'Eon (SIGGRAPH 2014)</a>
+<a name="138"><span class="lineNum">     138 </span>            :  * https://cgg.mff.cuni.cz/~jaroslav/papers/2014-zerovar/</a>
+<a name="139"><span class="lineNum">     139 </span>            :  *</a>
+<a name="140"><span class="lineNum">     140 </span>            :  * [2] &quot;Improving the Dwivedi Sampling Scheme&quot;</a>
+<a name="141"><span class="lineNum">     141 </span>            :  * by Johannes Meng, Johannes Hanika, and Carsten Dachsbacher (EGSR 2016)</a>
+<a name="142"><span class="lineNum">     142 </span>            :  * https://cg.ivd.kit.edu/1951.php</a>
+<a name="143"><span class="lineNum">     143 </span>            :  *</a>
+<a name="144"><span class="lineNum">     144 </span>            :  * [3] &quot;Zero-Variance Theory for Efficient Subsurface Scattering&quot;</a>
+<a name="145"><span class="lineNum">     145 </span>            :  * by Eugene d'Eon and Jaroslav Křivánek (SIGGRAPH 2020)</a>
+<a name="146"><span class="lineNum">     146 </span>            :  * https://iliyan.com/publications/RenderingCourse2020</a>
+<a name="147"><span class="lineNum">     147 </span>            :  */</a>
+<a name="148"><span class="lineNum">     148 </span>            : </a>
+<a name="149"><span class="lineNum">     149 </span>            : ccl_device_forceinline float eval_phase_dwivedi(const float v,</a>
+<a name="150"><span class="lineNum">     150 </span>            :                                                 const float phase_log,</a>
+<a name="151"><span class="lineNum">     151 </span>            :                                                 const float cos_theta)</a>
+<a name="152"><span class="lineNum">     152 </span>            : {</a>
+<a name="153"><span class="lineNum">     153 </span>            :   /* Eq. 9 from [2] using precomputed log((v + 1) / (v - 1)) */</a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineCov">   41648641 :   return 1.0f / ((v - cos_theta) * phase_log);</span></a>
+<a name="155"><span class="lineNum">     155 </span>            : }</a>
+<a name="156"><span class="lineNum">     156 </span>            : </a>
+<a name="157"><span class="lineNum">     157 </span>            : ccl_device_forceinline float sample_phase_dwivedi(const float v,</a>
+<a name="158"><span class="lineNum">     158 </span>            :                                                   const float phase_log,</a>
+<a name="159"><span class="lineNum">     159 </span>            :                                                   const float rand)</a>
+<a name="160"><span class="lineNum">     160 </span>            : {</a>
+<a name="161"><span class="lineNum">     161 </span>            :   /* Based on Eq. 10 from [2]: `v - (v + 1) * pow((v - 1) / (v + 1), rand)`</a>
+<a name="162"><span class="lineNum">     162 </span>            :    * Since we're already pre-computing `phase_log = log((v + 1) / (v - 1))` for the evaluation,</a>
+<a name="163"><span class="lineNum">     163 </span>            :    * we can implement the power function like this. */</a>
+<a name="164"><span class="lineNum">     164 </span><span class="lineCov">   24438880 :   return v - (v + 1.0f) * expf(-rand * phase_log);</span></a>
+<a name="165"><span class="lineNum">     165 </span>            : }</a>
+<a name="166"><span class="lineNum">     166 </span>            : </a>
+<a name="167"><span class="lineNum">     167 </span>            : ccl_device_forceinline float diffusion_length_dwivedi(const float alpha)</a>
+<a name="168"><span class="lineNum">     168 </span>            : {</a>
+<a name="169"><span class="lineNum">     169 </span>            :   /* Eq. 67 from [3] */</a>
+<a name="170"><span class="lineNum">     170 </span><span class="lineCov">    4247858 :   return 1.0f / sqrtf(1.0f - powf(alpha, 2.44294f - 0.0215813f * alpha + 0.578637f / alpha));</span></a>
+<a name="171"><span class="lineNum">     171 </span>            : }</a>
+<a name="172"><span class="lineNum">     172 </span>            : </a>
+<a name="173"><span class="lineNum">     173 </span>            : ccl_device_forceinline float3 direction_from_cosine(const float3 D,</a>
+<a name="174"><span class="lineNum">     174 </span>            :                                                     const float cos_theta,</a>
+<a name="175"><span class="lineNum">     175 </span>            :                                                     const float randv)</a>
+<a name="176"><span class="lineNum">     176 </span>            : {</a>
+<a name="177"><span class="lineNum">     177 </span><span class="lineCov">   24438880 :   const float phi = M_2PI_F * randv;</span></a>
+<a name="178"><span class="lineNum">     178 </span><span class="lineCov">   24438880 :   const float3 dir = spherical_cos_to_direction(cos_theta, phi);</span></a>
+<a name="179"><span class="lineNum">     179 </span>            : </a>
+<a name="180"><span class="lineNum">     180 </span>            :   float3 T;</a>
+<a name="181"><span class="lineNum">     181 </span>            :   float3 B;</a>
+<a name="182"><span class="lineNum">     182 </span><span class="lineCov">   24733608 :   make_orthonormals(D, &amp;T, &amp;B);</span></a>
+<a name="183"><span class="lineNum">     183 </span><span class="lineCov">   49467216 :   return to_global(dir, T, B, D);</span></a>
+<a name="184"><span class="lineNum">     184 </span>            : }</a>
+<a name="185"><span class="lineNum">     185 </span>            : </a>
+<a name="186"><span class="lineNum">     186 </span>            : ccl_device_forceinline Spectrum subsurface_random_walk_pdf(Spectrum sigma_t,</a>
+<a name="187"><span class="lineNum">     187 </span>            :                                                            const float t,</a>
+<a name="188"><span class="lineNum">     188 </span>            :                                                            bool hit,</a>
+<a name="189"><span class="lineNum">     189 </span>            :                                                            ccl_private Spectrum *transmittance)</a>
+<a name="190"><span class="lineNum">     190 </span>            : {</a>
+<a name="191"><span class="lineNum">     191 </span><span class="lineCov">   97300607 :   const Spectrum T = volume_color_transmittance(sigma_t, t);</span></a>
+<a name="192"><span class="lineNum">     192 </span><span class="lineCov">   92846411 :   if (transmittance) {</span></a>
+<a name="193"><span class="lineNum">     193 </span>            :     *transmittance = T;</a>
+<a name="194"><span class="lineNum">     194 </span>            :   }</a>
+<a name="195"><span class="lineNum">     195 </span><span class="lineCov">  269174627 :   return hit ? T : sigma_t * T;</span></a>
+<a name="196"><span class="lineNum">     196 </span>            : }</a>
+<a name="197"><span class="lineNum">     197 </span>            : </a>
+<a name="198"><span class="lineNum">     198 </span>            : /* Define the below variable to get the similarity code active,</a>
+<a name="199"><span class="lineNum">     199 </span>            :  * and the value represents the cutoff level */</a>
+<a name="200"><span class="lineNum">     200 </span>            : #  define SUBSURFACE_RANDOM_WALK_SIMILARITY_LEVEL 9</a>
+<a name="201"><span class="lineNum">     201 </span>            : </a>
+<a name="202"><span class="lineNum">     202 </span>            : ccl_device_inline bool subsurface_random_walk(KernelGlobals kg,</a>
+<a name="203"><span class="lineNum">     203 </span>            :                                               IntegratorState state,</a>
+<a name="204"><span class="lineNum">     204 </span>            :                                               RNGState rng_state,</a>
+<a name="205"><span class="lineNum">     205 </span>            :                                               ccl_private Ray &amp;ray,</a>
+<a name="206"><span class="lineNum">     206 </span>            :                                               ccl_private LocalIntersection &amp;ss_isect)</a>
+<a name="207"><span class="lineNum">     207 </span>            : {</a>
+<a name="208"><span class="lineNum">     208 </span><span class="lineCov">    4183559 :   const float3 P = INTEGRATOR_STATE(state, ray, P);</span></a>
+<a name="209"><span class="lineNum">     209 </span><span class="lineCov">    4183559 :   const float3 D = INTEGRATOR_STATE(state, ray, D);</span></a>
+<a name="210"><span class="lineNum">     210 </span><span class="lineCov">    4183559 :   const float ray_dP = INTEGRATOR_STATE(state, ray, dP);</span></a>
+<a name="211"><span class="lineNum">     211 </span><span class="lineCov">    4183559 :   const float time = INTEGRATOR_STATE(state, ray, time);</span></a>
+<a name="212"><span class="lineNum">     212 </span><span class="lineCov">    4183559 :   const float3 N = INTEGRATOR_STATE(state, subsurface, N);</span></a>
+<a name="213"><span class="lineNum">     213 </span><span class="lineCov">    4183559 :   const int object = INTEGRATOR_STATE(state, isect, object);</span></a>
+<a name="214"><span class="lineNum">     214 </span><span class="lineCov">    4183559 :   const int prim = INTEGRATOR_STATE(state, isect, prim);</span></a>
+<a name="215"><span class="lineNum">     215 </span>            : </a>
+<a name="216"><span class="lineNum">     216 </span>            :   /* Setup ray. */</a>
+<a name="217"><span class="lineNum">     217 </span><span class="lineCov">    4183559 :   ray.P = P;</span></a>
+<a name="218"><span class="lineNum">     218 </span><span class="lineCov">    4183559 :   ray.D = D;</span></a>
+<a name="219"><span class="lineNum">     219 </span><span class="lineCov">    4183559 :   ray.tmin = 0.0f;</span></a>
+<a name="220"><span class="lineNum">     220 </span><span class="lineCov">    4183559 :   ray.tmax = FLT_MAX;</span></a>
+<a name="221"><span class="lineNum">     221 </span><span class="lineCov">    4183559 :   ray.time = time;</span></a>
+<a name="222"><span class="lineNum">     222 </span><span class="lineCov">    4183559 :   ray.dP = ray_dP;</span></a>
+<a name="223"><span class="lineNum">     223 </span><span class="lineCov">    4183559 :   ray.dD = differential_zero_compact();</span></a>
+<a name="224"><span class="lineNum">     224 </span><span class="lineCov">    4183559 :   ray.self.object = object;</span></a>
+<a name="225"><span class="lineNum">     225 </span><span class="lineCov">    4183559 :   ray.self.prim = prim;</span></a>
+<a name="226"><span class="lineNum">     226 </span><span class="lineCov">    4183559 :   ray.self.light_object = OBJECT_NONE;</span></a>
+<a name="227"><span class="lineNum">     227 </span><span class="lineCov">    4183559 :   ray.self.light_prim = PRIM_NONE;</span></a>
+<a name="228"><span class="lineNum">     228 </span>            : </a>
+<a name="229"><span class="lineNum">     229 </span>            :   /* Convert subsurface to volume coefficients.</a>
+<a name="230"><span class="lineNum">     230 </span>            :    * The single-scattering albedo is named alpha to avoid confusion with the surface albedo. */</a>
+<a name="231"><span class="lineNum">     231 </span><span class="lineCov">    4183559 :   const Spectrum albedo = INTEGRATOR_STATE(state, subsurface, albedo);</span></a>
+<a name="232"><span class="lineNum">     232 </span><span class="lineCov">    4183559 :   const Spectrum radius = INTEGRATOR_STATE(state, subsurface, radius);</span></a>
+<a name="233"><span class="lineNum">     233 </span><span class="lineCov">    4183559 :   float anisotropy = INTEGRATOR_STATE(state, subsurface, anisotropy);</span></a>
+<a name="234"><span class="lineNum">     234 </span>            : </a>
+<a name="235"><span class="lineNum">     235 </span>            :   bool van_de_hulst;</a>
+<a name="236"><span class="lineNum">     236 </span><span class="lineCov">    4183559 :   if (anisotropy &gt;= 1.0f) {</span></a>
+<a name="237"><span class="lineNum">     237 </span>            :     /* Legacy random walk was mapped from (-1, 1) to (1, 3) when stored in integrator state.</a>
+<a name="238"><span class="lineNum">     238 </span>            :      * Remap to the original value. */</a>
+<a name="239"><span class="lineNum">     239 </span><span class="lineCov">    3585376 :     anisotropy -= 2.0f;</span></a>
+<a name="240"><span class="lineNum">     240 </span>            :     /* Legacy mapping doesn't support negative range, use Van de Hulst instead. */</a>
+<a name="241"><span class="lineNum">     241 </span><span class="lineCov">    3585376 :     van_de_hulst = anisotropy &lt; 0.0f;</span></a>
+<a name="242"><span class="lineNum">     242 </span>            :   }</a>
+<a name="243"><span class="lineNum">     243 </span>            :   else {</a>
+<a name="244"><span class="lineNum">     244 </span>            :     /* Use Van de Hulst mapping for the new random walk model. */</a>
+<a name="245"><span class="lineNum">     245 </span><span class="lineCov">     598183 :     van_de_hulst = true;</span></a>
+<a name="246"><span class="lineNum">     246 </span>            :   }</a>
+<a name="247"><span class="lineNum">     247 </span>            : </a>
+<a name="248"><span class="lineNum">     248 </span>            :   Spectrum sigma_t;</a>
+<a name="249"><span class="lineNum">     249 </span>            :   Spectrum alpha;</a>
+<a name="250"><span class="lineNum">     250 </span><span class="lineCov">    4183559 :   Spectrum throughput = INTEGRATOR_STATE(state, path, throughput);</span></a>
+<a name="251"><span class="lineNum">     251 </span><span class="lineCov">    4183559 :   subsurface_random_walk_coefficients(</span></a>
+<a name="252"><span class="lineNum">     252 </span>            :       albedo, radius, anisotropy, van_de_hulst, &amp;sigma_t, &amp;alpha, &amp;throughput);</a>
+<a name="253"><span class="lineNum">     253 </span><span class="lineCov">    4247858 :   const Spectrum sigma_s = sigma_t * alpha;</span></a>
+<a name="254"><span class="lineNum">     254 </span>            : </a>
+<a name="255"><span class="lineNum">     255 </span>            :   /* Theoretically it should be better to use the exact alpha for the channel we're sampling at</a>
+<a name="256"><span class="lineNum">     256 </span>            :    * each bounce, but in practice there doesn't seem to be a noticeable difference in exchange</a>
+<a name="257"><span class="lineNum">     257 </span>            :    * for making the code significantly more complex and slower (if direction sampling depends on</a>
+<a name="258"><span class="lineNum">     258 </span>            :    * the sampled channel, we need to compute its PDF per-channel and consider it for MIS later on).</a>
+<a name="259"><span class="lineNum">     259 </span>            :    *</a>
+<a name="260"><span class="lineNum">     260 </span>            :    * Since the strength of the guided sampling increases as alpha gets lower, using a value that</a>
+<a name="261"><span class="lineNum">     261 </span>            :    * is too low results in fireflies while one that's too high just gives a bit more noise.</a>
+<a name="262"><span class="lineNum">     262 </span>            :    * Therefore, the code here uses the highest of the three albedos to be safe. */</a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineCov">    4247858 :   const float diffusion_length = diffusion_length_dwivedi(reduce_max(alpha));</span></a>
+<a name="264"><span class="lineNum">     264 </span>            : </a>
+<a name="265"><span class="lineNum">     265 </span><span class="lineCov">    4247858 :   if (diffusion_length == 1.0f) {</span></a>
+<a name="266"><span class="lineNum">     266 </span>            :     /* With specific values of alpha the length might become 1, which in asymptotic makes phase to</a>
+<a name="267"><span class="lineNum">     267 </span>            :      * be infinite. After first bounce it will cause throughput to be 0. Do early output, avoiding</a>
+<a name="268"><span class="lineNum">     268 </span>            :      * numerical issues and extra unneeded work. */</a>
+<a name="269"><span class="lineNum">     269 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="270"><span class="lineNum">     270 </span>            :   }</a>
+<a name="271"><span class="lineNum">     271 </span>            : </a>
+<a name="272"><span class="lineNum">     272 </span>            :   /* Precompute term for phase sampling. */</a>
+<a name="273"><span class="lineNum">     273 </span><span class="lineCov">    4247858 :   const float phase_log = logf((diffusion_length + 1.0f) / (diffusion_length - 1.0f));</span></a>
+<a name="274"><span class="lineNum">     274 </span>            : </a>
+<a name="275"><span class="lineNum">     275 </span>            :   /* Modify state for RNGs, decorrelated from other paths. */</a>
+<a name="276"><span class="lineNum">     276 </span>            :   path_state_rng_scramble(&amp;rng_state, 0xdeadbeef);</a>
+<a name="277"><span class="lineNum">     277 </span>            : </a>
+<a name="278"><span class="lineNum">     278 </span>            :   /* Random walk until we hit the surface again. */</a>
+<a name="279"><span class="lineNum">     279 </span><span class="lineCov">    4247858 :   bool hit = false;</span></a>
+<a name="280"><span class="lineNum">     280 </span><span class="lineCov">    4247858 :   bool have_opposite_interface = false;</span></a>
+<a name="281"><span class="lineNum">     281 </span><span class="lineCov">    4247858 :   float opposite_distance = 0.0f;</span></a>
+<a name="282"><span class="lineNum">     282 </span>            : </a>
+<a name="283"><span class="lineNum">     283 </span>            :   /* TODO: Disable for `alpha &gt; 0.999` or so? */</a>
+<a name="284"><span class="lineNum">     284 </span>            :   /* Our heuristic, a compromise between guiding and classic. */</a>
+<a name="285"><span class="lineNum">     285 </span><span class="lineCov">    4247858 :   const float guided_fraction = 1.0f - fmaxf(0.5f, powf(fabsf(anisotropy), 0.125f));</span></a>
+<a name="286"><span class="lineNum">     286 </span>            : </a>
+<a name="287"><span class="lineNum">     287 </span>            : #  ifdef SUBSURFACE_RANDOM_WALK_SIMILARITY_LEVEL</a>
+<a name="288"><span class="lineNum">     288 </span><span class="lineCov">    8495716 :   const Spectrum sigma_s_star = sigma_s * (1.0f - anisotropy);</span></a>
+<a name="289"><span class="lineNum">     289 </span><span class="lineCov">    4247858 :   const Spectrum sigma_t_star = sigma_t - sigma_s + sigma_s_star;</span></a>
+<a name="290"><span class="lineNum">     290 </span><span class="lineCov">    4247858 :   const Spectrum sigma_t_org = sigma_t;</span></a>
+<a name="291"><span class="lineNum">     291 </span><span class="lineCov">    4247858 :   const Spectrum sigma_s_org = sigma_s;</span></a>
+<a name="292"><span class="lineNum">     292 </span><span class="lineCov">    4247858 :   const float anisotropy_org = anisotropy;</span></a>
+<a name="293"><span class="lineNum">     293 </span><span class="lineCov">    4247858 :   const float guided_fraction_org = guided_fraction;</span></a>
+<a name="294"><span class="lineNum">     294 </span>            : #  endif</a>
+<a name="295"><span class="lineNum">     295 </span>            : </a>
+<a name="296"><span class="lineNum">     296 </span><span class="lineCov">   41226387 :   for (int bounce = 0; bounce &lt; BSSRDF_MAX_BOUNCES; bounce++) {</span></a>
+<a name="297"><span class="lineNum">     297 </span>            :     /* Advance random number offset. */</a>
+<a name="298"><span class="lineNum">     298 </span><span class="lineCov">   45755343 :     rng_state.rng_offset += PRNG_BOUNCE_NUM;</span></a>
+<a name="299"><span class="lineNum">     299 </span>            : </a>
+<a name="300"><span class="lineNum">     300 </span>            : #  ifdef SUBSURFACE_RANDOM_WALK_SIMILARITY_LEVEL</a>
+<a name="301"><span class="lineNum">     301 </span>            :     // shadow with local variables according to depth</a>
+<a name="302"><span class="lineNum">     302 </span>            :     float anisotropy;</a>
+<a name="303"><span class="lineNum">     303 </span>            :     float guided_fraction;</a>
+<a name="304"><span class="lineNum">     304 </span>            :     Spectrum sigma_s;</a>
+<a name="305"><span class="lineNum">     305 </span>            :     Spectrum sigma_t;</a>
+<a name="306"><span class="lineNum">     306 </span><span class="lineCov">   45755343 :     if (bounce &lt;= SUBSURFACE_RANDOM_WALK_SIMILARITY_LEVEL) {</span></a>
+<a name="307"><span class="lineNum">     307 </span><span class="lineCov">   22330320 :       anisotropy = anisotropy_org;</span></a>
+<a name="308"><span class="lineNum">     308 </span><span class="lineCov">   22330320 :       guided_fraction = guided_fraction_org;</span></a>
+<a name="309"><span class="lineNum">     309 </span>            :       sigma_t = sigma_t_org;</a>
+<a name="310"><span class="lineNum">     310 </span>            :       sigma_s = sigma_s_org;</a>
+<a name="311"><span class="lineNum">     311 </span>            :     }</a>
+<a name="312"><span class="lineNum">     312 </span>            :     else {</a>
+<a name="313"><span class="lineNum">     313 </span><span class="lineCov">   23425023 :       anisotropy = 0.0f;</span></a>
+<a name="314"><span class="lineNum">     314 </span><span class="lineCov">   23425023 :       guided_fraction = 0.75f;  // back to isotropic heuristic from Blender</span></a>
+<a name="315"><span class="lineNum">     315 </span>            :       sigma_t = sigma_t_star;</a>
+<a name="316"><span class="lineNum">     316 </span>            :       sigma_s = sigma_s_star;</a>
+<a name="317"><span class="lineNum">     317 </span>            :     }</a>
+<a name="318"><span class="lineNum">     318 </span>            : #  endif</a>
+<a name="319"><span class="lineNum">     319 </span>            : </a>
+<a name="320"><span class="lineNum">     320 </span>            :     /* Sample color channel, use MIS with balance heuristic. */</a>
+<a name="321"><span class="lineNum">     321 </span><span class="lineCov">   31372389 :     float rchannel = path_state_rng_1D(kg, &amp;rng_state, PRNG_SUBSURFACE_COLOR_CHANNEL);</span></a>
+<a name="322"><span class="lineNum">     322 </span>            :     Spectrum channel_pdf;</a>
+<a name="323"><span class="lineNum">     323 </span><span class="lineCov">   31372389 :     const int channel = volume_sample_channel(alpha, throughput, &amp;rchannel, &amp;channel_pdf);</span></a>
+<a name="324"><span class="lineNum">     324 </span><span class="lineCov">   41244486 :     float sample_sigma_t = volume_channel_get(sigma_t, channel);</span></a>
+<a name="325"><span class="lineNum">     325 </span><span class="lineCov">   30676172 :     const float randt = path_state_rng_1D(kg, &amp;rng_state, PRNG_SUBSURFACE_SCATTER_DISTANCE);</span></a>
+<a name="326"><span class="lineNum">     326 </span>            : </a>
+<a name="327"><span class="lineNum">     327 </span>            :     /* We need the result of the ray-cast to compute the full guided PDF, so just remember the</a>
+<a name="328"><span class="lineNum">     328 </span>            :      * relevant terms to avoid recomputing them later. */</a>
+<a name="329"><span class="lineNum">     329 </span><span class="lineCov">   30676172 :     float backward_fraction = 0.0f;</span></a>
+<a name="330"><span class="lineNum">     330 </span><span class="lineCov">   30676172 :     float forward_pdf_factor = 0.0f;</span></a>
+<a name="331"><span class="lineNum">     331 </span><span class="lineCov">   30676172 :     float forward_stretching = 1.0f;</span></a>
+<a name="332"><span class="lineNum">     332 </span><span class="lineCov">   30676172 :     float backward_pdf_factor = 0.0f;</span></a>
+<a name="333"><span class="lineNum">     333 </span><span class="lineCov">   30676172 :     float backward_stretching = 1.0f;</span></a>
+<a name="334"><span class="lineNum">     334 </span>            : </a>
+<a name="335"><span class="lineNum">     335 </span>            :     /* For the initial ray, we already know the direction, so just do classic distance sampling. */</a>
+<a name="336"><span class="lineNum">     336 </span><span class="lineCov">   30676172 :     if (bounce &gt; 0) {</span></a>
+<a name="337"><span class="lineNum">     337 </span>            :       /* Decide whether we should use guided or classic sampling. */</a>
+<a name="338"><span class="lineNum">     338 </span><span class="lineCov">   28715639 :       const bool guided = (path_state_rng_1D(kg, &amp;rng_state, PRNG_SUBSURFACE_GUIDE_STRATEGY) &lt;</span></a>
+<a name="339"><span class="lineNum">     339 </span><span class="lineCov">   28715639 :                            guided_fraction);</span></a>
+<a name="340"><span class="lineNum">     340 </span>            : </a>
+<a name="341"><span class="lineNum">     341 </span>            :       /* Determine if we want to sample away from the incoming interface.</a>
+<a name="342"><span class="lineNum">     342 </span>            :        * This only happens if we found a nearby opposite interface, and the probability for it</a>
+<a name="343"><span class="lineNum">     343 </span>            :        * depends on how close we are to it already.</a>
+<a name="344"><span class="lineNum">     344 </span>            :        * This probability term comes from the recorded presentation of [3]. */</a>
+<a name="345"><span class="lineNum">     345 </span><span class="lineCov">   28715639 :       bool guide_backward = false;</span></a>
+<a name="346"><span class="lineNum">     346 </span><span class="lineCov">   28715639 :       if (have_opposite_interface) {</span></a>
+<a name="347"><span class="lineNum">     347 </span>            :         /* Compute distance of the random walk between the tangent plane at the starting point</a>
+<a name="348"><span class="lineNum">     348 </span>            :          * and the assumed opposite interface (the parallel plane that contains the point we</a>
+<a name="349"><span class="lineNum">     349 </span>            :          * found in our ray query for the opposite side). */</a>
+<a name="350"><span class="lineNum">     350 </span><span class="lineCov">   17611130 :         const float x = clamp(dot(ray.P - P, -N), 0.0f, opposite_distance);</span></a>
+<a name="351"><span class="lineNum">     351 </span><span class="lineCov">    8805565 :         backward_fraction = 1.0f /</span></a>
+<a name="352"><span class="lineNum">     352 </span><span class="lineCov">    8805565 :                             (1.0f + expf((opposite_distance - 2.0f * x) / diffusion_length));</span></a>
+<a name="353"><span class="lineNum">     353 </span><span class="lineCov">    8794783 :         guide_backward = path_state_rng_1D(kg, &amp;rng_state, PRNG_SUBSURFACE_GUIDE_DIRECTION) &lt;</span></a>
+<a name="354"><span class="lineNum">     354 </span>            :                          backward_fraction;</a>
+<a name="355"><span class="lineNum">     355 </span>            :       }</a>
+<a name="356"><span class="lineNum">     356 </span>            : </a>
+<a name="357"><span class="lineNum">     357 </span>            :       /* Sample scattering direction. */</a>
+<a name="358"><span class="lineNum">     358 </span><span class="lineCov">   39640606 :       const float2 rand_scatter = path_state_rng_2D(kg, &amp;rng_state, PRNG_SUBSURFACE_BSDF);</span></a>
+<a name="359"><span class="lineNum">     359 </span>            :       float cos_theta;</a>
+<a name="360"><span class="lineNum">     360 </span>            :       float hg_pdf;</a>
+<a name="361"><span class="lineNum">     361 </span><span class="lineCov">   39640606 :       if (guided) {</span></a>
+<a name="362"><span class="lineNum">     362 </span><span class="lineCov">   24438880 :         cos_theta = sample_phase_dwivedi(diffusion_length, phase_log, rand_scatter.x);</span></a>
+<a name="363"><span class="lineNum">     363 </span>            :         /* The backwards guiding distribution is just mirrored along `sd-&gt;N`, so swapping the</a>
+<a name="364"><span class="lineNum">     364 </span>            :          * sign here is enough to sample from that instead. */</a>
+<a name="365"><span class="lineNum">     365 </span><span class="lineCov">   24438880 :         if (guide_backward) {</span></a>
+<a name="366"><span class="lineNum">     366 </span><span class="lineCov">    2969327 :           cos_theta = -cos_theta;</span></a>
+<a name="367"><span class="lineNum">     367 </span>            :         }</a>
+<a name="368"><span class="lineNum">     368 </span><span class="lineCov">   49172488 :         const float3 newD = direction_from_cosine(N, cos_theta, rand_scatter.y);</span></a>
+<a name="369"><span class="lineNum">     369 </span><span class="lineCov">   24733608 :         hg_pdf = phase_henyey_greenstein(dot(ray.D, newD), anisotropy);</span></a>
+<a name="370"><span class="lineNum">     370 </span><span class="lineCov">   24462687 :         ray.D = newD;</span></a>
+<a name="371"><span class="lineNum">     371 </span>            :       }</a>
+<a name="372"><span class="lineNum">     372 </span>            :       else {</a>
+<a name="373"><span class="lineNum">     373 </span><span class="lineCov">   15201726 :         const float3 newD = phase_henyey_greenstein_sample(</span></a>
+<a name="374"><span class="lineNum">     374 </span>            :             ray.D, anisotropy, rand_scatter, &amp;hg_pdf);</a>
+<a name="375"><span class="lineNum">     375 </span><span class="lineCov">   17185954 :         cos_theta = dot(newD, N);</span></a>
+<a name="376"><span class="lineNum">     376 </span><span class="lineCov">   17185954 :         ray.D = newD;</span></a>
+<a name="377"><span class="lineNum">     377 </span>            :       }</a>
+<a name="378"><span class="lineNum">     378 </span>            : </a>
+<a name="379"><span class="lineNum">     379 </span>            :       /* Compute PDF factor caused by phase sampling (as the ratio of guided / classic).</a>
+<a name="380"><span class="lineNum">     380 </span>            :        * Since phase sampling is channel-independent, we can get away with applying a factor</a>
+<a name="381"><span class="lineNum">     381 </span>            :        * to the guided PDF, which implicitly means pulling out the classic PDF term and letting</a>
+<a name="382"><span class="lineNum">     382 </span>            :        * it cancel with an equivalent term in the numerator of the full estimator.</a>
+<a name="383"><span class="lineNum">     383 </span>            :        * For the backward PDF, we again reuse the same probability distribution with a sign swap.</a>
+<a name="384"><span class="lineNum">     384 </span>            :        */</a>
+<a name="385"><span class="lineNum">     385 </span><span class="lineCov">   41648641 :       forward_pdf_factor = M_1_2PI_F * eval_phase_dwivedi(diffusion_length, phase_log, cos_theta) /</span></a>
+<a name="386"><span class="lineNum">     386 </span>            :                            hg_pdf;</a>
+<a name="387"><span class="lineNum">     387 </span><span class="lineCov">   41648641 :       backward_pdf_factor = M_1_2PI_F *</span></a>
+<a name="388"><span class="lineNum">     388 </span><span class="lineCov">   41648641 :                             eval_phase_dwivedi(diffusion_length, phase_log, -cos_theta) / hg_pdf;</span></a>
+<a name="389"><span class="lineNum">     389 </span>            : </a>
+<a name="390"><span class="lineNum">     390 </span>            :       /* Prepare distance sampling.</a>
+<a name="391"><span class="lineNum">     391 </span>            :        * For the backwards case, this also needs the sign swapped since now directions against</a>
+<a name="392"><span class="lineNum">     392 </span>            :        * `sd-&gt;N` (and therefore with negative cos_theta) are preferred. */</a>
+<a name="393"><span class="lineNum">     393 </span><span class="lineCov">   41648641 :       forward_stretching = (1.0f - cos_theta / diffusion_length);</span></a>
+<a name="394"><span class="lineNum">     394 </span><span class="lineCov">   41648641 :       backward_stretching = (1.0f + cos_theta / diffusion_length);</span></a>
+<a name="395"><span class="lineNum">     395 </span><span class="lineCov">   41648641 :       if (guided) {</span></a>
+<a name="396"><span class="lineNum">     396 </span><span class="lineCov">   24457876 :         sample_sigma_t *= guide_backward ? backward_stretching : forward_stretching;</span></a>
+<a name="397"><span class="lineNum">     397 </span>            :       }</a>
+<a name="398"><span class="lineNum">     398 </span>            :     }</a>
+<a name="399"><span class="lineNum">     399 </span>            : </a>
+<a name="400"><span class="lineNum">     400 </span>            :     /* Sample distance along ray. */</a>
+<a name="401"><span class="lineNum">     401 </span><span class="lineCov">   43834831 :     float t = -logf(1.0f - randt) / sample_sigma_t;</span></a>
+<a name="402"><span class="lineNum">     402 </span>            : </a>
+<a name="403"><span class="lineNum">     403 </span>            :     /* On the first bounce, we use the ray-cast to check if the opposite side is nearby.</a>
+<a name="404"><span class="lineNum">     404 </span>            :      * If yes, we will later use backwards guided sampling in order to have a decent</a>
+<a name="405"><span class="lineNum">     405 </span>            :      * chance of connecting to it.</a>
+<a name="406"><span class="lineNum">     406 </span>            :      * TODO: Maybe use less than 10 times the mean free path? */</a>
+<a name="407"><span class="lineNum">     407 </span><span class="lineCov">   43834831 :     if (bounce == 0) {</span></a>
+<a name="408"><span class="lineNum">     408 </span><span class="lineCov">    8106910 :       ray.tmax = max(t, 10.0f / (reduce_min(sigma_t)));</span></a>
+<a name="409"><span class="lineNum">     409 </span>            :     }</a>
+<a name="410"><span class="lineNum">     410 </span>            :     else {</a>
+<a name="411"><span class="lineNum">     411 </span><span class="lineCov">   39781376 :       ray.tmax = t;</span></a>
+<a name="412"><span class="lineNum">     412 </span>            :       /* After the first bounce the object can intersect the same surface again */</a>
+<a name="413"><span class="lineNum">     413 </span><span class="lineCov">   39781376 :       ray.self.object = OBJECT_NONE;</span></a>
+<a name="414"><span class="lineNum">     414 </span><span class="lineCov">   39781376 :       ray.self.prim = PRIM_NONE;</span></a>
+<a name="415"><span class="lineNum">     415 </span>            :     }</a>
+<a name="416"><span class="lineNum">     416 </span>            :     scene_intersect_local&lt;true&gt;(kg, &amp;ray, &amp;ss_isect, object, nullptr, 1);</a>
+<a name="417"><span class="lineNum">     417 </span><span class="lineCov">   45673281 :     hit = (ss_isect.num_hits &gt; 0);</span></a>
+<a name="418"><span class="lineNum">     418 </span>            : </a>
+<a name="419"><span class="lineNum">     419 </span><span class="lineCov">   45673281 :     if (hit) {</span></a>
+<a name="420"><span class="lineNum">     420 </span><span class="lineCov">    5473326 :       ray.tmax = ss_isect.hits[0].t;</span></a>
+<a name="421"><span class="lineNum">     421 </span>            :     }</a>
+<a name="422"><span class="lineNum">     422 </span>            : </a>
+<a name="423"><span class="lineNum">     423 </span><span class="lineCov">   45673281 :     if (bounce == 0) {</span></a>
+<a name="424"><span class="lineNum">     424 </span>            :       /* Check if we hit the opposite side. */</a>
+<a name="425"><span class="lineNum">     425 </span><span class="lineCov">    4216424 :       if (hit) {</span></a>
+<a name="426"><span class="lineNum">     426 </span><span class="lineCov">    1647913 :         have_opposite_interface = true;</span></a>
+<a name="427"><span class="lineNum">     427 </span><span class="lineCov">    6591652 :         opposite_distance = dot(ray.P + ray.tmax * ray.D - P, -N);</span></a>
+<a name="428"><span class="lineNum">     428 </span>            :       }</a>
+<a name="429"><span class="lineNum">     429 </span>            :       /* Apart from the opposite side check, we were supposed to only trace up to distance t,</a>
+<a name="430"><span class="lineNum">     430 </span>            :        * so check if there would have been a hit in that case. */</a>
+<a name="431"><span class="lineNum">     431 </span><span class="lineCov">    4216424 :       hit = ray.tmax &lt; t;</span></a>
+<a name="432"><span class="lineNum">     432 </span>            :     }</a>
+<a name="433"><span class="lineNum">     433 </span>            : </a>
+<a name="434"><span class="lineNum">     434 </span>            :     /* Use the distance to the exit point for the throughput update if we found one. */</a>
+<a name="435"><span class="lineNum">     435 </span><span class="lineCov">   45673281 :     if (hit) {</span></a>
+<a name="436"><span class="lineNum">     436 </span><span class="lineCov">    4180815 :       t = ray.tmax;</span></a>
+<a name="437"><span class="lineNum">     437 </span>            :     }</a>
+<a name="438"><span class="lineNum">     438 </span>            : </a>
+<a name="439"><span class="lineNum">     439 </span>            :     /* Advance to new scatter location. */</a>
+<a name="440"><span class="lineNum">     440 </span><span class="lineCov">   45673281 :     ray.P += t * ray.D;</span></a>
+<a name="441"><span class="lineNum">     441 </span>            : </a>
+<a name="442"><span class="lineNum">     442 </span>            :     Spectrum transmittance;</a>
+<a name="443"><span class="lineNum">     443 </span><span class="lineCov">   45673281 :     Spectrum pdf = subsurface_random_walk_pdf(sigma_t, t, hit, &amp;transmittance);</span></a>
+<a name="444"><span class="lineNum">     444 </span><span class="lineCov">   43567024 :     if (bounce &gt; 0) {</span></a>
+<a name="445"><span class="lineNum">     445 </span>            :       /* Compute PDF just like we do for classic sampling, but with the stretched sigma_t. */</a>
+<a name="446"><span class="lineNum">     446 </span><span class="lineCov">   83298478 :       Spectrum guided_pdf = subsurface_random_walk_pdf(</span></a>
+<a name="447"><span class="lineNum">     447 </span>            :           forward_stretching * sigma_t, t, hit, nullptr);</a>
+<a name="448"><span class="lineNum">     448 </span>            : </a>
+<a name="449"><span class="lineNum">     449 </span><span class="lineCov">   39425816 :       if (have_opposite_interface) {</span></a>
+<a name="450"><span class="lineNum">     450 </span>            :         /* First step of MIS: Depending on geometry we might have two methods for guided</a>
+<a name="451"><span class="lineNum">     451 </span>            :          * sampling, so perform MIS between them. */</a>
+<a name="452"><span class="lineNum">     452 </span><span class="lineCov">   29809745 :         const Spectrum back_pdf = subsurface_random_walk_pdf(</span></a>
+<a name="453"><span class="lineNum">     453 </span>            :             backward_stretching * sigma_t, t, hit, nullptr);</a>
+<a name="454"><span class="lineNum">     454 </span><span class="lineCov">   29560713 :         guided_pdf = mix(</span></a>
+<a name="455"><span class="lineNum">     455 </span>            :             guided_pdf * forward_pdf_factor, back_pdf * backward_pdf_factor, backward_fraction);</a>
+<a name="456"><span class="lineNum">     456 </span>            :       }</a>
+<a name="457"><span class="lineNum">     457 </span>            :       else {</a>
+<a name="458"><span class="lineNum">     458 </span>            :         /* Just include phase sampling factor otherwise. */</a>
+<a name="459"><span class="lineNum">     459 </span>            :         guided_pdf *= forward_pdf_factor;</a>
+<a name="460"><span class="lineNum">     460 </span>            :       }</a>
+<a name="461"><span class="lineNum">     461 </span>            : </a>
+<a name="462"><span class="lineNum">     462 </span>            :       /* Now we apply the MIS balance heuristic between the classic and guided sampling. */</a>
+<a name="463"><span class="lineNum">     463 </span><span class="lineCov">   78602600 :       pdf = mix(pdf, guided_pdf, guided_fraction);</span></a>
+<a name="464"><span class="lineNum">     464 </span>            :     }</a>
+<a name="465"><span class="lineNum">     465 </span>            : </a>
+<a name="466"><span class="lineNum">     466 </span>            :     /* Finally, we're applying MIS again to combine the three color channels.</a>
+<a name="467"><span class="lineNum">     467 </span>            :      * Altogether, the MIS computation combines up to nine different estimators:</a>
+<a name="468"><span class="lineNum">     468 </span>            :      * {classic, guided, backward_guided} x {r, g, b} */</a>
+<a name="469"><span class="lineNum">     469 </span><span class="lineCov">   78240548 :     throughput *= (hit ? transmittance : sigma_s * transmittance) / dot(channel_pdf, pdf);</span></a>
+<a name="470"><span class="lineNum">     470 </span>            : </a>
+<a name="471"><span class="lineNum">     471 </span><span class="lineCov">   41219085 :     if (hit) {</span></a>
+<a name="472"><span class="lineNum">     472 </span>            :       /* If we hit the surface, we are done. */</a>
+<a name="473"><span class="lineNum">     473 </span><span class="lineCov">    4240556 :       break;</span></a>
+<a name="474"><span class="lineNum">     474 </span>            :     }</a>
+<a name="475"><span class="lineNum">     475 </span><span class="lineCov">   37021365 :     if (reduce_max(throughput) &lt; VOLUME_THROUGHPUT_EPSILON) {</span></a>
+<a name="476"><span class="lineNum">     476 </span>            :       /* Avoid unnecessary work and precision issue when throughput gets really small. */</a>
+<a name="477"><span class="lineNum">     477 </span><span class="lineCov">      42836 :       break;</span></a>
+<a name="478"><span class="lineNum">     478 </span>            :     }</a>
+<a name="479"><span class="lineNum">     479 </span>            :   }</a>
+<a name="480"><span class="lineNum">     480 </span>            : </a>
+<a name="481"><span class="lineNum">     481 </span><span class="lineNoCov">          0 :   if (hit) {</span></a>
+<a name="482"><span class="lineNum">     482 </span><span class="lineCov">    4206064 :     kernel_assert(isfinite_safe(throughput));</span></a>
+<a name="483"><span class="lineNum">     483 </span>            : </a>
+<a name="484"><span class="lineNum">     484 </span>            :     /* TODO(lukas): Which PDF should we report here? Entry bounce? The random walk? Just 1.0? */</a>
+<a name="485"><span class="lineNum">     485 </span><span class="lineCov">    8412128 :     guiding_record_bssrdf_bounce(</span></a>
+<a name="486"><span class="lineNum">     486 </span>            :         kg,</a>
+<a name="487"><span class="lineNum">     487 </span>            :         state,</a>
+<a name="488"><span class="lineNum">     488 </span>            :         1.0f,</a>
+<a name="489"><span class="lineNum">     489 </span>            :         N,</a>
+<a name="490"><span class="lineNum">     490 </span>            :         D,</a>
+<a name="491"><span class="lineNum">     491 </span>            :         safe_divide_color(throughput, INTEGRATOR_STATE(state, path, throughput)),</a>
+<a name="492"><span class="lineNum">     492 </span>            :         albedo);</a>
+<a name="493"><span class="lineNum">     493 </span>            : </a>
+<a name="494"><span class="lineNum">     494 </span><span class="lineCov">    4215821 :     INTEGRATOR_STATE_WRITE(state, path, throughput) = throughput;</span></a>
+<a name="495"><span class="lineNum">     495 </span>            :   }</a>
+<a name="496"><span class="lineNum">     496 </span>            : </a>
+<a name="497"><span class="lineNum">     497 </span><span class="lineNoCov">          0 :   return hit;</span></a>
+<a name="498"><span class="lineNum">     498 </span>            : }</a>
+<a name="499"><span class="lineNum">     499 </span>            : </a>
+<a name="500"><span class="lineNum">     500 </span>            : #endif /* __SUBSURFACE__ */</a>
+<a name="501"><span class="lineNum">     501 </span>            : </a>
+<a name="502"><span class="lineNum">     502 </span>            : CCL_NAMESPACE_END</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

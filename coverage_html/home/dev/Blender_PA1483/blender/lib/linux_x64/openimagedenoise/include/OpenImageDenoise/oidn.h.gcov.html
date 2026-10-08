@@ -1,0 +1,674 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - /home/dev/Blender_PA1483/blender/lib/linux_x64/openimagedenoise/include/OpenImageDenoise/oidn.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../../../../index.html">top level</a> - <a href="index.html">home/dev/Blender_PA1483/blender/lib/linux_x64/openimagedenoise/include/OpenImageDenoise</a> - oidn.h<span style="font-size: 80%;"> (source / <a href="oidn.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright 2018 Intel Corporation</a>
+<a name="2"><span class="lineNum">       2 </span>            : // SPDX-License-Identifier: Apache-2.0</a>
+<a name="3"><span class="lineNum">       3 </span>            : </a>
+<a name="4"><span class="lineNum">       4 </span>            : #pragma once</a>
+<a name="5"><span class="lineNum">       5 </span>            : </a>
+<a name="6"><span class="lineNum">       6 </span>            : #include &lt;stddef.h&gt;</a>
+<a name="7"><span class="lineNum">       7 </span>            : #include &lt;stdbool.h&gt;</a>
+<a name="8"><span class="lineNum">       8 </span>            : #include &lt;stdint.h&gt;</a>
+<a name="9"><span class="lineNum">       9 </span>            : </a>
+<a name="10"><span class="lineNum">      10 </span>            : #include &quot;config.h&quot;</a>
+<a name="11"><span class="lineNum">      11 </span>            : </a>
+<a name="12"><span class="lineNum">      12 </span>            : #if defined(__cplusplus)</a>
+<a name="13"><span class="lineNum">      13 </span>            :   #if defined(SYCL_LANGUAGE_VERSION)</a>
+<a name="14"><span class="lineNum">      14 </span>            :     #include &lt;sycl/sycl.hpp&gt;</a>
+<a name="15"><span class="lineNum">      15 </span>            :     #define OIDN_SYCL_HPP</a>
+<a name="16"><span class="lineNum">      16 </span>            :   #elif defined(SYCL_FEATURE_SET_FULL) || defined(SYCL_FEATURE_SET_REDUCED)</a>
+<a name="17"><span class="lineNum">      17 </span>            :     #define OIDN_SYCL_HPP // not using a SYCL compiler but SYCL headers are included</a>
+<a name="18"><span class="lineNum">      18 </span>            :   #else</a>
+<a name="19"><span class="lineNum">      19 </span>            :     namespace sycl</a>
+<a name="20"><span class="lineNum">      20 </span>            :     {</a>
+<a name="21"><span class="lineNum">      21 </span>            :       class device;</a>
+<a name="22"><span class="lineNum">      22 </span>            :       class queue;</a>
+<a name="23"><span class="lineNum">      23 </span>            :       class event;</a>
+<a name="24"><span class="lineNum">      24 </span>            :     }</a>
+<a name="25"><span class="lineNum">      25 </span>            :   #endif</a>
+<a name="26"><span class="lineNum">      26 </span>            : #endif</a>
+<a name="27"><span class="lineNum">      27 </span>            : </a>
+<a name="28"><span class="lineNum">      28 </span>            : typedef struct CUstream_st* cudaStream_t;</a>
+<a name="29"><span class="lineNum">      29 </span>            : typedef struct ihipStream_t* hipStream_t;</a>
+<a name="30"><span class="lineNum">      30 </span>            : </a>
+<a name="31"><span class="lineNum">      31 </span>            : #if defined(__OBJC__)</a>
+<a name="32"><span class="lineNum">      32 </span>            :   @protocol MTLDevice;</a>
+<a name="33"><span class="lineNum">      33 </span>            :   @protocol MTLCommandQueue;</a>
+<a name="34"><span class="lineNum">      34 </span>            :   @protocol MTLBuffer;</a>
+<a name="35"><span class="lineNum">      35 </span>            : </a>
+<a name="36"><span class="lineNum">      36 </span>            :   typedef id&lt;MTLDevice&gt; MTLDevice_id;</a>
+<a name="37"><span class="lineNum">      37 </span>            :   typedef id&lt;MTLCommandQueue&gt; MTLCommandQueue_id;</a>
+<a name="38"><span class="lineNum">      38 </span>            :   typedef id&lt;MTLBuffer&gt; MTLBuffer_id;</a>
+<a name="39"><span class="lineNum">      39 </span>            : #else</a>
+<a name="40"><span class="lineNum">      40 </span>            :   typedef void* MTLDevice_id;</a>
+<a name="41"><span class="lineNum">      41 </span>            :   typedef void* MTLCommandQueue_id;</a>
+<a name="42"><span class="lineNum">      42 </span>            :   typedef void* MTLBuffer_id;</a>
+<a name="43"><span class="lineNum">      43 </span>            : #endif</a>
+<a name="44"><span class="lineNum">      44 </span>            : </a>
+<a name="45"><span class="lineNum">      45 </span>            : OIDN_API_NAMESPACE_BEGIN</a>
+<a name="46"><span class="lineNum">      46 </span>            : </a>
+<a name="47"><span class="lineNum">      47 </span>            : typedef unsigned int OIDNFlags;</a>
+<a name="48"><span class="lineNum">      48 </span>            : </a>
+<a name="49"><span class="lineNum">      49 </span>            : // -------------------------------------------------------------------------------------------------</a>
+<a name="50"><span class="lineNum">      50 </span>            : // Physical Device</a>
+<a name="51"><span class="lineNum">      51 </span>            : // -------------------------------------------------------------------------------------------------</a>
+<a name="52"><span class="lineNum">      52 </span>            : </a>
+<a name="53"><span class="lineNum">      53 </span>            : #define OIDN_UUID_SIZE 16u // size of a universally unique identifier (UUID) of a physical device</a>
+<a name="54"><span class="lineNum">      54 </span>            : #define OIDN_LUID_SIZE 8u  // size of a locally unique identifier (LUID) of a physical device</a>
+<a name="55"><span class="lineNum">      55 </span>            : </a>
+<a name="56"><span class="lineNum">      56 </span>            : // Returns the number of supported physical devices.</a>
+<a name="57"><span class="lineNum">      57 </span>            : OIDN_API int oidnGetNumPhysicalDevices();</a>
+<a name="58"><span class="lineNum">      58 </span>            : </a>
+<a name="59"><span class="lineNum">      59 </span>            : // Gets a boolean parameter of the physical device.</a>
+<a name="60"><span class="lineNum">      60 </span>            : OIDN_API bool oidnGetPhysicalDeviceBool(int physicalDeviceID, const char* name);</a>
+<a name="61"><span class="lineNum">      61 </span>            : </a>
+<a name="62"><span class="lineNum">      62 </span>            : // Gets an integer parameter of the physical device.</a>
+<a name="63"><span class="lineNum">      63 </span>            : OIDN_API int oidnGetPhysicalDeviceInt(int physicalDeviceID, const char* name);</a>
+<a name="64"><span class="lineNum">      64 </span>            : </a>
+<a name="65"><span class="lineNum">      65 </span>            : // Gets an unsigned integer parameter of the physical device.</a>
+<a name="66"><span class="lineNum">      66 </span><span class="lineNoCov">          0 : inline unsigned int oidnGetPhysicalDeviceUInt(int physicalDeviceID, const char* name)</span></a>
+<a name="67"><span class="lineNum">      67 </span>            : {</a>
+<a name="68"><span class="lineNum">      68 </span><span class="lineNoCov">          0 :   return (unsigned int)oidnGetPhysicalDeviceInt(physicalDeviceID, name);</span></a>
+<a name="69"><span class="lineNum">      69 </span>            : }</a>
+<a name="70"><span class="lineNum">      70 </span>            : </a>
+<a name="71"><span class="lineNum">      71 </span>            : // Gets a string parameter of the physical device.</a>
+<a name="72"><span class="lineNum">      72 </span>            : OIDN_API const char* oidnGetPhysicalDeviceString(int physicalDeviceID, const char* name);</a>
+<a name="73"><span class="lineNum">      73 </span>            : </a>
+<a name="74"><span class="lineNum">      74 </span>            : // Gets an opaque data parameter of the physical device.</a>
+<a name="75"><span class="lineNum">      75 </span>            : OIDN_API const void* oidnGetPhysicalDeviceData(int physicalDeviceID, const char* name,</a>
+<a name="76"><span class="lineNum">      76 </span>            :                                                size_t* byteSize);</a>
+<a name="77"><span class="lineNum">      77 </span>            : </a>
+<a name="78"><span class="lineNum">      78 </span>            : // -------------------------------------------------------------------------------------------------</a>
+<a name="79"><span class="lineNum">      79 </span>            : // Device</a>
+<a name="80"><span class="lineNum">      80 </span>            : // -------------------------------------------------------------------------------------------------</a>
+<a name="81"><span class="lineNum">      81 </span>            : </a>
+<a name="82"><span class="lineNum">      82 </span>            : // Device types</a>
+<a name="83"><span class="lineNum">      83 </span>            : typedef enum</a>
+<a name="84"><span class="lineNum">      84 </span>            : {</a>
+<a name="85"><span class="lineNum">      85 </span>            :   OIDN_DEVICE_TYPE_DEFAULT = 0, // select device automatically</a>
+<a name="86"><span class="lineNum">      86 </span>            : </a>
+<a name="87"><span class="lineNum">      87 </span>            :   OIDN_DEVICE_TYPE_CPU   = 1, // CPU device</a>
+<a name="88"><span class="lineNum">      88 </span>            :   OIDN_DEVICE_TYPE_SYCL  = 2, // SYCL device</a>
+<a name="89"><span class="lineNum">      89 </span>            :   OIDN_DEVICE_TYPE_CUDA  = 3, // CUDA device</a>
+<a name="90"><span class="lineNum">      90 </span>            :   OIDN_DEVICE_TYPE_HIP   = 4, // HIP device</a>
+<a name="91"><span class="lineNum">      91 </span>            :   OIDN_DEVICE_TYPE_METAL = 5, // Metal device</a>
+<a name="92"><span class="lineNum">      92 </span>            : } OIDNDeviceType;</a>
+<a name="93"><span class="lineNum">      93 </span>            : </a>
+<a name="94"><span class="lineNum">      94 </span>            : // Error codes</a>
+<a name="95"><span class="lineNum">      95 </span>            : typedef enum</a>
+<a name="96"><span class="lineNum">      96 </span>            : {</a>
+<a name="97"><span class="lineNum">      97 </span>            :   OIDN_ERROR_NONE                 = 0, // no error occurred</a>
+<a name="98"><span class="lineNum">      98 </span>            :   OIDN_ERROR_UNKNOWN              = 1, // an unknown error occurred</a>
+<a name="99"><span class="lineNum">      99 </span>            :   OIDN_ERROR_INVALID_ARGUMENT     = 2, // an invalid argument was specified</a>
+<a name="100"><span class="lineNum">     100 </span>            :   OIDN_ERROR_INVALID_OPERATION    = 3, // the operation is not allowed</a>
+<a name="101"><span class="lineNum">     101 </span>            :   OIDN_ERROR_OUT_OF_MEMORY        = 4, // not enough memory to execute the operation</a>
+<a name="102"><span class="lineNum">     102 </span>            :   OIDN_ERROR_UNSUPPORTED_HARDWARE = 5, // the hardware (e.g. CPU) is not supported</a>
+<a name="103"><span class="lineNum">     103 </span>            :   OIDN_ERROR_CANCELLED            = 6, // the operation was cancelled by the user</a>
+<a name="104"><span class="lineNum">     104 </span>            : } OIDNError;</a>
+<a name="105"><span class="lineNum">     105 </span>            : </a>
+<a name="106"><span class="lineNum">     106 </span>            : // Error callback function</a>
+<a name="107"><span class="lineNum">     107 </span>            : typedef void (*OIDNErrorFunction)(void* userPtr, OIDNError code, const char* message);</a>
+<a name="108"><span class="lineNum">     108 </span>            : </a>
+<a name="109"><span class="lineNum">     109 </span>            : // Device handle</a>
+<a name="110"><span class="lineNum">     110 </span>            : typedef struct OIDNDeviceImpl* OIDNDevice;</a>
+<a name="111"><span class="lineNum">     111 </span>            : </a>
+<a name="112"><span class="lineNum">     112 </span>            : // Returns whether the CPU device is supported.</a>
+<a name="113"><span class="lineNum">     113 </span>            : OIDN_API bool oidnIsCPUDeviceSupported();</a>
+<a name="114"><span class="lineNum">     114 </span>            : </a>
+<a name="115"><span class="lineNum">     115 </span>            : #if defined(__cplusplus)</a>
+<a name="116"><span class="lineNum">     116 </span>            : // Returns whether the specified SYCL device is supported.</a>
+<a name="117"><span class="lineNum">     117 </span>            : OIDN_API bool oidnIsSYCLDeviceSupported(const sycl::device* device);</a>
+<a name="118"><span class="lineNum">     118 </span>            : #endif</a>
+<a name="119"><span class="lineNum">     119 </span>            : </a>
+<a name="120"><span class="lineNum">     120 </span>            : // Returns whether the specified CUDA device is supported.</a>
+<a name="121"><span class="lineNum">     121 </span>            : OIDN_API bool oidnIsCUDADeviceSupported(int deviceID);</a>
+<a name="122"><span class="lineNum">     122 </span>            : </a>
+<a name="123"><span class="lineNum">     123 </span>            : // Returns whether the specified HIP device is supported.</a>
+<a name="124"><span class="lineNum">     124 </span>            : OIDN_API bool oidnIsHIPDeviceSupported(int deviceID);</a>
+<a name="125"><span class="lineNum">     125 </span>            : </a>
+<a name="126"><span class="lineNum">     126 </span>            : // Returns whether the specified Metal device is supported.</a>
+<a name="127"><span class="lineNum">     127 </span>            : OIDN_API bool oidnIsMetalDeviceSupported(MTLDevice_id device);</a>
+<a name="128"><span class="lineNum">     128 </span>            : </a>
+<a name="129"><span class="lineNum">     129 </span>            : // Creates a device of the specified type.</a>
+<a name="130"><span class="lineNum">     130 </span>            : OIDN_API OIDNDevice oidnNewDevice(OIDNDeviceType type);</a>
+<a name="131"><span class="lineNum">     131 </span>            : </a>
+<a name="132"><span class="lineNum">     132 </span>            : // Creates a device from a physical device specified by its ID (0 to oidnGetNumPhysicalDevices()-1).</a>
+<a name="133"><span class="lineNum">     133 </span>            : OIDN_API OIDNDevice oidnNewDeviceByID(int physicalDeviceID);</a>
+<a name="134"><span class="lineNum">     134 </span>            : </a>
+<a name="135"><span class="lineNum">     135 </span>            : // Creates a device from a physical device specified by its UUID.</a>
+<a name="136"><span class="lineNum">     136 </span>            : OIDN_API OIDNDevice oidnNewDeviceByUUID(const void* uuid);</a>
+<a name="137"><span class="lineNum">     137 </span>            : </a>
+<a name="138"><span class="lineNum">     138 </span>            : // Creates a device from a physical device specified by its LUID.</a>
+<a name="139"><span class="lineNum">     139 </span>            : OIDN_API OIDNDevice oidnNewDeviceByLUID(const void* luid);</a>
+<a name="140"><span class="lineNum">     140 </span>            : </a>
+<a name="141"><span class="lineNum">     141 </span>            : // Creates a device from a physical device specified by its PCI address.</a>
+<a name="142"><span class="lineNum">     142 </span>            : OIDN_API OIDNDevice oidnNewDeviceByPCIAddress(int pciDomain, int pciBus, int pciDevice,</a>
+<a name="143"><span class="lineNum">     143 </span>            :                                               int pciFunction);</a>
+<a name="144"><span class="lineNum">     144 </span>            : </a>
+<a name="145"><span class="lineNum">     145 </span>            : #if defined(__cplusplus)</a>
+<a name="146"><span class="lineNum">     146 </span>            : // Creates a device from the specified list of SYCL queues.</a>
+<a name="147"><span class="lineNum">     147 </span>            : // The queues should belong to different SYCL sub-devices (Xe Stack/Tile) of the same SYCL</a>
+<a name="148"><span class="lineNum">     148 </span>            : // root-device (GPU).</a>
+<a name="149"><span class="lineNum">     149 </span>            : OIDN_API OIDNDevice oidnNewSYCLDevice(const sycl::queue* queues, int numQueues);</a>
+<a name="150"><span class="lineNum">     150 </span>            : #endif</a>
+<a name="151"><span class="lineNum">     151 </span>            : </a>
+<a name="152"><span class="lineNum">     152 </span>            : // Creates a device from the specified pairs of CUDA device IDs and streams (null stream</a>
+<a name="153"><span class="lineNum">     153 </span>            : // corresponds to the default stream). Currently only one device ID/stream is supported.</a>
+<a name="154"><span class="lineNum">     154 </span>            : OIDN_API OIDNDevice oidnNewCUDADevice(const int* deviceIDs, const cudaStream_t* streams,</a>
+<a name="155"><span class="lineNum">     155 </span>            :                                       int numPairs);</a>
+<a name="156"><span class="lineNum">     156 </span>            : </a>
+<a name="157"><span class="lineNum">     157 </span>            : // Creates a device from the specified pairs of HIP device IDs and streams (null stream</a>
+<a name="158"><span class="lineNum">     158 </span>            : // corresponds to the default stream). Currently only one device ID/stream is supported.</a>
+<a name="159"><span class="lineNum">     159 </span>            : OIDN_API OIDNDevice oidnNewHIPDevice(const int* deviceIDs, const hipStream_t* streams,</a>
+<a name="160"><span class="lineNum">     160 </span>            :                                      int numPairs);</a>
+<a name="161"><span class="lineNum">     161 </span>            : </a>
+<a name="162"><span class="lineNum">     162 </span>            : // Creates a device from the specified list of Metal command queues.</a>
+<a name="163"><span class="lineNum">     163 </span>            : // Currently only one queue is supported.</a>
+<a name="164"><span class="lineNum">     164 </span>            : OIDN_API OIDNDevice oidnNewMetalDevice(const MTLCommandQueue_id* commandQueues, int numQueues);</a>
+<a name="165"><span class="lineNum">     165 </span>            : </a>
+<a name="166"><span class="lineNum">     166 </span>            : // Retains the device (increments the reference count).</a>
+<a name="167"><span class="lineNum">     167 </span>            : OIDN_API void oidnRetainDevice(OIDNDevice device);</a>
+<a name="168"><span class="lineNum">     168 </span>            : </a>
+<a name="169"><span class="lineNum">     169 </span>            : // Releases the device (decrements the reference count).</a>
+<a name="170"><span class="lineNum">     170 </span>            : OIDN_API void oidnReleaseDevice(OIDNDevice device);</a>
+<a name="171"><span class="lineNum">     171 </span>            : </a>
+<a name="172"><span class="lineNum">     172 </span>            : // Sets a boolean parameter of the device.</a>
+<a name="173"><span class="lineNum">     173 </span>            : OIDN_API void oidnSetDeviceBool(OIDNDevice device, const char* name, bool value);</a>
+<a name="174"><span class="lineNum">     174 </span>            : </a>
+<a name="175"><span class="lineNum">     175 </span>            : OIDN_DEPRECATED(&quot;oidnSetDevice1b is deprecated. Use oidnSetDeviceBool instead.&quot;)</a>
+<a name="176"><span class="lineNum">     176 </span>            : inline void oidnSetDevice1b(OIDNDevice device, const char* name, bool value)</a>
+<a name="177"><span class="lineNum">     177 </span>            : {</a>
+<a name="178"><span class="lineNum">     178 </span>            :   oidnSetDeviceBool(device, name, value);</a>
+<a name="179"><span class="lineNum">     179 </span>            : }</a>
+<a name="180"><span class="lineNum">     180 </span>            : </a>
+<a name="181"><span class="lineNum">     181 </span>            : // Sets an integer parameter of the device.</a>
+<a name="182"><span class="lineNum">     182 </span>            : OIDN_API void oidnSetDeviceInt(OIDNDevice device, const char* name, int value);</a>
+<a name="183"><span class="lineNum">     183 </span>            : </a>
+<a name="184"><span class="lineNum">     184 </span>            : OIDN_DEPRECATED(&quot;oidnSetDevice1i is deprecated. Use oidnSetDeviceInt instead.&quot;)</a>
+<a name="185"><span class="lineNum">     185 </span>            : inline void oidnSetDevice1i(OIDNDevice device, const char* name, int value)</a>
+<a name="186"><span class="lineNum">     186 </span>            : {</a>
+<a name="187"><span class="lineNum">     187 </span>            :   oidnSetDeviceInt(device, name, value);</a>
+<a name="188"><span class="lineNum">     188 </span>            : }</a>
+<a name="189"><span class="lineNum">     189 </span>            : </a>
+<a name="190"><span class="lineNum">     190 </span>            : // Sets an unsigned integer parameter of the device.</a>
+<a name="191"><span class="lineNum">     191 </span>            : inline void oidnSetDeviceUInt(OIDNDevice device, const char* name, unsigned int value)</a>
+<a name="192"><span class="lineNum">     192 </span>            : {</a>
+<a name="193"><span class="lineNum">     193 </span>            :   oidnSetDeviceInt(device, name, (int)value);</a>
+<a name="194"><span class="lineNum">     194 </span>            : }</a>
+<a name="195"><span class="lineNum">     195 </span>            : </a>
+<a name="196"><span class="lineNum">     196 </span>            : // Gets a boolean parameter of the device.</a>
+<a name="197"><span class="lineNum">     197 </span>            : OIDN_API bool oidnGetDeviceBool(OIDNDevice device, const char* name);</a>
+<a name="198"><span class="lineNum">     198 </span>            : </a>
+<a name="199"><span class="lineNum">     199 </span>            : OIDN_DEPRECATED(&quot;oidnGetDevice1b is deprecated. Use oidnGetDeviceBool instead.&quot;)</a>
+<a name="200"><span class="lineNum">     200 </span>            : inline bool oidnGetDevice1b(OIDNDevice device, const char* name)</a>
+<a name="201"><span class="lineNum">     201 </span>            : {</a>
+<a name="202"><span class="lineNum">     202 </span>            :   return oidnGetDeviceBool(device, name);</a>
+<a name="203"><span class="lineNum">     203 </span>            : }</a>
+<a name="204"><span class="lineNum">     204 </span>            : </a>
+<a name="205"><span class="lineNum">     205 </span>            : // Gets an integer parameter of the device.</a>
+<a name="206"><span class="lineNum">     206 </span>            : OIDN_API int oidnGetDeviceInt(OIDNDevice device, const char* name);</a>
+<a name="207"><span class="lineNum">     207 </span>            : </a>
+<a name="208"><span class="lineNum">     208 </span>            : // Gets an unsigned integer parameter of the device.</a>
+<a name="209"><span class="lineNum">     209 </span>            : inline unsigned int oidnGetDeviceUInt(OIDNDevice device, const char* name)</a>
+<a name="210"><span class="lineNum">     210 </span>            : {</a>
+<a name="211"><span class="lineNum">     211 </span>            :   return (unsigned int)oidnGetDeviceInt(device, name);</a>
+<a name="212"><span class="lineNum">     212 </span>            : }</a>
+<a name="213"><span class="lineNum">     213 </span>            : </a>
+<a name="214"><span class="lineNum">     214 </span>            : OIDN_DEPRECATED(&quot;oidnGetDevice1i is deprecated. Use oidnGetDeviceInt instead.&quot;)</a>
+<a name="215"><span class="lineNum">     215 </span>            : inline int oidnGetDevice1i(OIDNDevice device, const char* name)</a>
+<a name="216"><span class="lineNum">     216 </span>            : {</a>
+<a name="217"><span class="lineNum">     217 </span>            :   return oidnGetDeviceInt(device, name);</a>
+<a name="218"><span class="lineNum">     218 </span>            : }</a>
+<a name="219"><span class="lineNum">     219 </span>            : </a>
+<a name="220"><span class="lineNum">     220 </span>            : // Sets the error callback function of the device.</a>
+<a name="221"><span class="lineNum">     221 </span>            : OIDN_API void oidnSetDeviceErrorFunction(OIDNDevice device, OIDNErrorFunction func, void* userPtr);</a>
+<a name="222"><span class="lineNum">     222 </span>            : </a>
+<a name="223"><span class="lineNum">     223 </span>            : // Returns the first unqueried error code stored in the device for the current thread, optionally</a>
+<a name="224"><span class="lineNum">     224 </span>            : // also returning a string message (if not null), and clears the stored error. Can be called with</a>
+<a name="225"><span class="lineNum">     225 </span>            : // a null device as well to check for per-thread global errors (e.g. why a device creation or</a>
+<a name="226"><span class="lineNum">     226 </span>            : // physical device query has failed).</a>
+<a name="227"><span class="lineNum">     227 </span>            : OIDN_API OIDNError oidnGetDeviceError(OIDNDevice device, const char** outMessage);</a>
+<a name="228"><span class="lineNum">     228 </span>            : </a>
+<a name="229"><span class="lineNum">     229 </span>            : // Commits all previous changes to the device.</a>
+<a name="230"><span class="lineNum">     230 </span>            : // Must be called before first using the device (e.g. creating filters).</a>
+<a name="231"><span class="lineNum">     231 </span>            : OIDN_API void oidnCommitDevice(OIDNDevice device);</a>
+<a name="232"><span class="lineNum">     232 </span>            : </a>
+<a name="233"><span class="lineNum">     233 </span>            : // Waits for all asynchronous operations running on the device to complete.</a>
+<a name="234"><span class="lineNum">     234 </span>            : OIDN_API void oidnSyncDevice(OIDNDevice device);</a>
+<a name="235"><span class="lineNum">     235 </span>            : </a>
+<a name="236"><span class="lineNum">     236 </span>            : // -------------------------------------------------------------------------------------------------</a>
+<a name="237"><span class="lineNum">     237 </span>            : // Buffer</a>
+<a name="238"><span class="lineNum">     238 </span>            : // -------------------------------------------------------------------------------------------------</a>
+<a name="239"><span class="lineNum">     239 </span>            : </a>
+<a name="240"><span class="lineNum">     240 </span>            : // Formats for images and other data stored in buffers</a>
+<a name="241"><span class="lineNum">     241 </span>            : typedef enum</a>
+<a name="242"><span class="lineNum">     242 </span>            : {</a>
+<a name="243"><span class="lineNum">     243 </span>            :   OIDN_FORMAT_UNDEFINED = 0,</a>
+<a name="244"><span class="lineNum">     244 </span>            : </a>
+<a name="245"><span class="lineNum">     245 </span>            :   // 32-bit single-precision floating-point scalar and vector formats</a>
+<a name="246"><span class="lineNum">     246 </span>            :   OIDN_FORMAT_FLOAT  = 1,</a>
+<a name="247"><span class="lineNum">     247 </span>            :   OIDN_FORMAT_FLOAT2,</a>
+<a name="248"><span class="lineNum">     248 </span>            :   OIDN_FORMAT_FLOAT3,</a>
+<a name="249"><span class="lineNum">     249 </span>            :   OIDN_FORMAT_FLOAT4,</a>
+<a name="250"><span class="lineNum">     250 </span>            : </a>
+<a name="251"><span class="lineNum">     251 </span>            :   // 16-bit half-precision floating-point scalar and vector formats</a>
+<a name="252"><span class="lineNum">     252 </span>            :   OIDN_FORMAT_HALF  = 257,</a>
+<a name="253"><span class="lineNum">     253 </span>            :   OIDN_FORMAT_HALF2,</a>
+<a name="254"><span class="lineNum">     254 </span>            :   OIDN_FORMAT_HALF3,</a>
+<a name="255"><span class="lineNum">     255 </span>            :   OIDN_FORMAT_HALF4,</a>
+<a name="256"><span class="lineNum">     256 </span>            : } OIDNFormat;</a>
+<a name="257"><span class="lineNum">     257 </span>            : </a>
+<a name="258"><span class="lineNum">     258 </span>            : // Storage modes for buffers</a>
+<a name="259"><span class="lineNum">     259 </span>            : typedef enum</a>
+<a name="260"><span class="lineNum">     260 </span>            : {</a>
+<a name="261"><span class="lineNum">     261 </span>            :   OIDN_STORAGE_UNDEFINED = 0,</a>
+<a name="262"><span class="lineNum">     262 </span>            : </a>
+<a name="263"><span class="lineNum">     263 </span>            :   // stored on the host, accessible by both host and device</a>
+<a name="264"><span class="lineNum">     264 </span>            :   OIDN_STORAGE_HOST      = 1,</a>
+<a name="265"><span class="lineNum">     265 </span>            : </a>
+<a name="266"><span class="lineNum">     266 </span>            :   // stored on the device, *not* accessible by the host</a>
+<a name="267"><span class="lineNum">     267 </span>            :   OIDN_STORAGE_DEVICE    = 2,</a>
+<a name="268"><span class="lineNum">     268 </span>            : </a>
+<a name="269"><span class="lineNum">     269 </span>            :   // automatically migrated between host and device, accessible by both</a>
+<a name="270"><span class="lineNum">     270 </span>            :   // *not* supported by all devices, &quot;managedMemorySupported&quot; device parameter should be checked</a>
+<a name="271"><span class="lineNum">     271 </span>            :   OIDN_STORAGE_MANAGED   = 3,</a>
+<a name="272"><span class="lineNum">     272 </span>            : } OIDNStorage;</a>
+<a name="273"><span class="lineNum">     273 </span>            : </a>
+<a name="274"><span class="lineNum">     274 </span>            : // External memory type flags</a>
+<a name="275"><span class="lineNum">     275 </span>            : typedef enum</a>
+<a name="276"><span class="lineNum">     276 </span>            : {</a>
+<a name="277"><span class="lineNum">     277 </span>            :   OIDN_EXTERNAL_MEMORY_TYPE_FLAG_NONE = 0,</a>
+<a name="278"><span class="lineNum">     278 </span>            : </a>
+<a name="279"><span class="lineNum">     279 </span>            :   // opaque POSIX file descriptor handle</a>
+<a name="280"><span class="lineNum">     280 </span>            :   OIDN_EXTERNAL_MEMORY_TYPE_FLAG_OPAQUE_FD = 1 &lt;&lt; 0,</a>
+<a name="281"><span class="lineNum">     281 </span>            : </a>
+<a name="282"><span class="lineNum">     282 </span>            :   // file descriptor handle for a Linux dma_buf</a>
+<a name="283"><span class="lineNum">     283 </span>            :   OIDN_EXTERNAL_MEMORY_TYPE_FLAG_DMA_BUF = 1 &lt;&lt; 1,</a>
+<a name="284"><span class="lineNum">     284 </span>            : </a>
+<a name="285"><span class="lineNum">     285 </span>            :   // opaque NT handle</a>
+<a name="286"><span class="lineNum">     286 </span>            :   OIDN_EXTERNAL_MEMORY_TYPE_FLAG_OPAQUE_WIN32 = 1 &lt;&lt; 2,</a>
+<a name="287"><span class="lineNum">     287 </span>            : </a>
+<a name="288"><span class="lineNum">     288 </span>            :   // opaque global share (KMT) handle</a>
+<a name="289"><span class="lineNum">     289 </span>            :   OIDN_EXTERNAL_MEMORY_TYPE_FLAG_OPAQUE_WIN32_KMT = 1 &lt;&lt; 3,</a>
+<a name="290"><span class="lineNum">     290 </span>            : </a>
+<a name="291"><span class="lineNum">     291 </span>            :   // NT handle returned by IDXGIResource1::CreateSharedHandle referring to a Direct3D 11 texture</a>
+<a name="292"><span class="lineNum">     292 </span>            :   // resource</a>
+<a name="293"><span class="lineNum">     293 </span>            :   OIDN_EXTERNAL_MEMORY_TYPE_FLAG_D3D11_TEXTURE = 1 &lt;&lt; 4,</a>
+<a name="294"><span class="lineNum">     294 </span>            : </a>
+<a name="295"><span class="lineNum">     295 </span>            :   // global share (KMT) handle returned by IDXGIResource::GetSharedHandle referring to a Direct3D 11</a>
+<a name="296"><span class="lineNum">     296 </span>            :   // texture resource</a>
+<a name="297"><span class="lineNum">     297 </span>            :   OIDN_EXTERNAL_MEMORY_TYPE_FLAG_D3D11_TEXTURE_KMT = 1 &lt;&lt; 5,</a>
+<a name="298"><span class="lineNum">     298 </span>            : </a>
+<a name="299"><span class="lineNum">     299 </span>            :   // NT handle returned by IDXGIResource1::CreateSharedHandle referring to a Direct3D 11 resource</a>
+<a name="300"><span class="lineNum">     300 </span>            :   OIDN_EXTERNAL_MEMORY_TYPE_FLAG_D3D11_RESOURCE = 1 &lt;&lt; 6,</a>
+<a name="301"><span class="lineNum">     301 </span>            : </a>
+<a name="302"><span class="lineNum">     302 </span>            :   // global share (KMT) handle returned by IDXGIResource::GetSharedHandle referring to a Direct3D 11</a>
+<a name="303"><span class="lineNum">     303 </span>            :   // resource</a>
+<a name="304"><span class="lineNum">     304 </span>            :   OIDN_EXTERNAL_MEMORY_TYPE_FLAG_D3D11_RESOURCE_KMT = 1 &lt;&lt; 7,</a>
+<a name="305"><span class="lineNum">     305 </span>            : </a>
+<a name="306"><span class="lineNum">     306 </span>            :   // NT handle returned by ID3D12Device::CreateSharedHandle referring to a Direct3D 12 heap</a>
+<a name="307"><span class="lineNum">     307 </span>            :   // resource</a>
+<a name="308"><span class="lineNum">     308 </span>            :   OIDN_EXTERNAL_MEMORY_TYPE_FLAG_D3D12_HEAP = 1 &lt;&lt; 8,</a>
+<a name="309"><span class="lineNum">     309 </span>            : </a>
+<a name="310"><span class="lineNum">     310 </span>            :   // NT handle returned by ID3D12Device::CreateSharedHandle referring to a Direct3D 12 committed</a>
+<a name="311"><span class="lineNum">     311 </span>            :   // resource</a>
+<a name="312"><span class="lineNum">     312 </span>            :   OIDN_EXTERNAL_MEMORY_TYPE_FLAG_D3D12_RESOURCE = 1 &lt;&lt; 9,</a>
+<a name="313"><span class="lineNum">     313 </span>            : </a>
+<a name="314"><span class="lineNum">     314 </span>            :   // modifier flag indicating that the external memory has dedicated allocation</a>
+<a name="315"><span class="lineNum">     315 </span>            :   // used only in combination with one of handle type flags above</a>
+<a name="316"><span class="lineNum">     316 </span>            :   OIDN_EXTERNAL_MEMORY_TYPE_FLAG_DEDICATED = 1 &lt;&lt; 30,</a>
+<a name="317"><span class="lineNum">     317 </span>            : } OIDNExternalMemoryTypeFlag;</a>
+<a name="318"><span class="lineNum">     318 </span>            : </a>
+<a name="319"><span class="lineNum">     319 </span>            : typedef OIDNFlags OIDNExternalMemoryTypeFlags;</a>
+<a name="320"><span class="lineNum">     320 </span>            : </a>
+<a name="321"><span class="lineNum">     321 </span>            : // Buffer handle</a>
+<a name="322"><span class="lineNum">     322 </span>            : typedef struct OIDNBufferImpl* OIDNBuffer;</a>
+<a name="323"><span class="lineNum">     323 </span>            : </a>
+<a name="324"><span class="lineNum">     324 </span>            : // Creates a buffer accessible to both the host and device.</a>
+<a name="325"><span class="lineNum">     325 </span>            : OIDN_API OIDNBuffer oidnNewBuffer(OIDNDevice device, size_t byteSize);</a>
+<a name="326"><span class="lineNum">     326 </span>            : </a>
+<a name="327"><span class="lineNum">     327 </span>            : // Creates a buffer with the specified storage mode.</a>
+<a name="328"><span class="lineNum">     328 </span>            : OIDN_API OIDNBuffer oidnNewBufferWithStorage(OIDNDevice device, size_t byteSize, OIDNStorage storage);</a>
+<a name="329"><span class="lineNum">     329 </span>            : </a>
+<a name="330"><span class="lineNum">     330 </span>            : // Creates a shared buffer from memory allocated and owned by the user and accessible to the device.</a>
+<a name="331"><span class="lineNum">     331 </span>            : OIDN_API OIDNBuffer oidnNewSharedBuffer(OIDNDevice device, void* devPtr, size_t byteSize);</a>
+<a name="332"><span class="lineNum">     332 </span>            : </a>
+<a name="333"><span class="lineNum">     333 </span>            : // Creates a shared buffer by importing external memory from a POSIX file descriptor.</a>
+<a name="334"><span class="lineNum">     334 </span>            : OIDN_API OIDNBuffer oidnNewSharedBufferFromFD(OIDNDevice device,</a>
+<a name="335"><span class="lineNum">     335 </span>            :                                               OIDNExternalMemoryTypeFlags fdType,</a>
+<a name="336"><span class="lineNum">     336 </span>            :                                               int fd, size_t byteSize);</a>
+<a name="337"><span class="lineNum">     337 </span>            : </a>
+<a name="338"><span class="lineNum">     338 </span>            : // Creates a shared buffer by importing external memory from a Win32 handle.</a>
+<a name="339"><span class="lineNum">     339 </span>            : OIDN_API OIDNBuffer oidnNewSharedBufferFromWin32Handle(OIDNDevice device,</a>
+<a name="340"><span class="lineNum">     340 </span>            :                                                        OIDNExternalMemoryTypeFlags handleType,</a>
+<a name="341"><span class="lineNum">     341 </span>            :                                                        void* handle, const void* name, size_t byteSize);</a>
+<a name="342"><span class="lineNum">     342 </span>            : </a>
+<a name="343"><span class="lineNum">     343 </span>            : // Creates a shared buffer from a Metal buffer.</a>
+<a name="344"><span class="lineNum">     344 </span>            : // Only buffers with shared or private storage and hazard tracking are supported.</a>
+<a name="345"><span class="lineNum">     345 </span>            : OIDN_API OIDNBuffer oidnNewSharedBufferFromMetal(OIDNDevice device, MTLBuffer_id buffer);</a>
+<a name="346"><span class="lineNum">     346 </span>            : </a>
+<a name="347"><span class="lineNum">     347 </span>            : // Gets the size of the buffer in bytes.</a>
+<a name="348"><span class="lineNum">     348 </span>            : OIDN_API size_t oidnGetBufferSize(OIDNBuffer buffer);</a>
+<a name="349"><span class="lineNum">     349 </span>            : </a>
+<a name="350"><span class="lineNum">     350 </span>            : // Gets the storage mode of the buffer.</a>
+<a name="351"><span class="lineNum">     351 </span>            : OIDN_API OIDNStorage oidnGetBufferStorage(OIDNBuffer buffer);</a>
+<a name="352"><span class="lineNum">     352 </span>            : </a>
+<a name="353"><span class="lineNum">     353 </span>            : // Gets a pointer to the buffer data, which is accessible to the device but not necessarily to</a>
+<a name="354"><span class="lineNum">     354 </span>            : // the host as well, depending on the storage mode. Null pointer may be returned if the buffer</a>
+<a name="355"><span class="lineNum">     355 </span>            : // is empty or getting a pointer to data with device storage is not supported by the device.</a>
+<a name="356"><span class="lineNum">     356 </span>            : OIDN_API void* oidnGetBufferData(OIDNBuffer buffer);</a>
+<a name="357"><span class="lineNum">     357 </span>            : </a>
+<a name="358"><span class="lineNum">     358 </span>            : // Copies data from a region of the buffer to host memory.</a>
+<a name="359"><span class="lineNum">     359 </span>            : OIDN_API void oidnReadBuffer(OIDNBuffer buffer, size_t byteOffset, size_t byteSize, void* dstHostPtr);</a>
+<a name="360"><span class="lineNum">     360 </span>            : </a>
+<a name="361"><span class="lineNum">     361 </span>            : // Copies data from a region of the buffer to host memory asynchronously.</a>
+<a name="362"><span class="lineNum">     362 </span>            : OIDN_API void oidnReadBufferAsync(OIDNBuffer buffer,</a>
+<a name="363"><span class="lineNum">     363 </span>            :                                   size_t byteOffset, size_t byteSize, void* dstHostPtr);</a>
+<a name="364"><span class="lineNum">     364 </span>            : </a>
+<a name="365"><span class="lineNum">     365 </span>            : // Copies data to a region of the buffer from host memory.</a>
+<a name="366"><span class="lineNum">     366 </span>            : OIDN_API void oidnWriteBuffer(OIDNBuffer buffer,</a>
+<a name="367"><span class="lineNum">     367 </span>            :                               size_t byteOffset, size_t byteSize, const void* srcHostPtr);</a>
+<a name="368"><span class="lineNum">     368 </span>            : </a>
+<a name="369"><span class="lineNum">     369 </span>            : // Copies data to a region of the buffer from host memory asynchronously.</a>
+<a name="370"><span class="lineNum">     370 </span>            : OIDN_API void oidnWriteBufferAsync(OIDNBuffer buffer,</a>
+<a name="371"><span class="lineNum">     371 </span>            :                                    size_t byteOffset, size_t byteSize, const void* srcHostPtr);</a>
+<a name="372"><span class="lineNum">     372 </span>            : </a>
+<a name="373"><span class="lineNum">     373 </span>            : // Retains the buffer (increments the reference count).</a>
+<a name="374"><span class="lineNum">     374 </span>            : OIDN_API void oidnRetainBuffer(OIDNBuffer buffer);</a>
+<a name="375"><span class="lineNum">     375 </span>            : </a>
+<a name="376"><span class="lineNum">     376 </span>            : // Releases the buffer (decrements the reference count).</a>
+<a name="377"><span class="lineNum">     377 </span>            : OIDN_API void oidnReleaseBuffer(OIDNBuffer buffer);</a>
+<a name="378"><span class="lineNum">     378 </span>            : </a>
+<a name="379"><span class="lineNum">     379 </span>            : // -------------------------------------------------------------------------------------------------</a>
+<a name="380"><span class="lineNum">     380 </span>            : // Semaphore</a>
+<a name="381"><span class="lineNum">     381 </span>            : // -------------------------------------------------------------------------------------------------</a>
+<a name="382"><span class="lineNum">     382 </span>            : </a>
+<a name="383"><span class="lineNum">     383 </span>            : // External semaphore type flags</a>
+<a name="384"><span class="lineNum">     384 </span>            : typedef enum</a>
+<a name="385"><span class="lineNum">     385 </span>            : {</a>
+<a name="386"><span class="lineNum">     386 </span>            :   OIDN_EXTERNAL_SEMAPHORE_TYPE_FLAG_NONE = 0,</a>
+<a name="387"><span class="lineNum">     387 </span>            : </a>
+<a name="388"><span class="lineNum">     388 </span>            :   // opaque POSIX file descriptor handle</a>
+<a name="389"><span class="lineNum">     389 </span>            :   OIDN_EXTERNAL_SEMAPHORE_TYPE_FLAG_OPAQUE_FD = 1 &lt;&lt; 0,</a>
+<a name="390"><span class="lineNum">     390 </span>            : </a>
+<a name="391"><span class="lineNum">     391 </span>            :   // opaque NT handle</a>
+<a name="392"><span class="lineNum">     392 </span>            :   OIDN_EXTERNAL_SEMAPHORE_TYPE_FLAG_OPAQUE_WIN32 = 1 &lt;&lt; 1,</a>
+<a name="393"><span class="lineNum">     393 </span>            : </a>
+<a name="394"><span class="lineNum">     394 </span>            :   // opaque global share (KMT) handle</a>
+<a name="395"><span class="lineNum">     395 </span>            :   OIDN_EXTERNAL_SEMAPHORE_TYPE_FLAG_OPAQUE_WIN32_KMT = 1 &lt;&lt; 2,</a>
+<a name="396"><span class="lineNum">     396 </span>            : </a>
+<a name="397"><span class="lineNum">     397 </span>            :   // NT handle referencing a Direct3D 11 fence object</a>
+<a name="398"><span class="lineNum">     398 </span>            :   OIDN_EXTERNAL_SEMAPHORE_TYPE_FLAG_D3D11_FENCE = 1 &lt;&lt; 3,</a>
+<a name="399"><span class="lineNum">     399 </span>            : </a>
+<a name="400"><span class="lineNum">     400 </span>            :   // NT handle referencing a Direct3D 12 fence object</a>
+<a name="401"><span class="lineNum">     401 </span>            :   OIDN_EXTERNAL_SEMAPHORE_TYPE_FLAG_D3D12_FENCE = 1 &lt;&lt; 4,</a>
+<a name="402"><span class="lineNum">     402 </span>            : </a>
+<a name="403"><span class="lineNum">     403 </span>            :   // NT handle referencing a Direct3D 11 keyed mutex object</a>
+<a name="404"><span class="lineNum">     404 </span>            :   OIDN_EXTERNAL_SEMAPHORE_TYPE_FLAG_KEYED_MUTEX = 1 &lt;&lt; 5,</a>
+<a name="405"><span class="lineNum">     405 </span>            : </a>
+<a name="406"><span class="lineNum">     406 </span>            :   // global share (KMT) handle referencing a Direct3D 11 keyed mutex object</a>
+<a name="407"><span class="lineNum">     407 </span>            :   OIDN_EXTERNAL_SEMAPHORE_TYPE_FLAG_KEYED_MUTEX_KMT = 1 &lt;&lt; 6,</a>
+<a name="408"><span class="lineNum">     408 </span>            : </a>
+<a name="409"><span class="lineNum">     409 </span>            :   // POSIX file descriptor referencing a timeline semaphore</a>
+<a name="410"><span class="lineNum">     410 </span>            :   OIDN_EXTERNAL_SEMAPHORE_TYPE_FLAG_TIMELINE_SEMAPHORE_FD = 1 &lt;&lt; 7,</a>
+<a name="411"><span class="lineNum">     411 </span>            : </a>
+<a name="412"><span class="lineNum">     412 </span>            :   // NT handle referencing a timeline semaphore</a>
+<a name="413"><span class="lineNum">     413 </span>            :   OIDN_EXTERNAL_SEMAPHORE_TYPE_FLAG_TIMELINE_SEMAPHORE_WIN32 = 1 &lt;&lt; 8,</a>
+<a name="414"><span class="lineNum">     414 </span>            : } OIDNExternalSemaphoreTypeFlag;</a>
+<a name="415"><span class="lineNum">     415 </span>            : </a>
+<a name="416"><span class="lineNum">     416 </span>            : typedef OIDNFlags OIDNExternalSemaphoreTypeFlags;</a>
+<a name="417"><span class="lineNum">     417 </span>            : </a>
+<a name="418"><span class="lineNum">     418 </span>            : // Semaphore handle</a>
+<a name="419"><span class="lineNum">     419 </span>            : typedef struct OIDNSemaphoreImpl* OIDNSemaphore;</a>
+<a name="420"><span class="lineNum">     420 </span>            : </a>
+<a name="421"><span class="lineNum">     421 </span>            : // Creates a shared semaphore by importing an external semaphore from a POSIX file descriptor.</a>
+<a name="422"><span class="lineNum">     422 </span>            : OIDN_API OIDNSemaphore oidnNewSharedSemaphoreFromFD(OIDNDevice device,</a>
+<a name="423"><span class="lineNum">     423 </span>            :                                                     OIDNExternalSemaphoreTypeFlags fdType,</a>
+<a name="424"><span class="lineNum">     424 </span>            :                                                     int fd);</a>
+<a name="425"><span class="lineNum">     425 </span>            : </a>
+<a name="426"><span class="lineNum">     426 </span>            : // Creates a shared semaphore by importing an external semaphore from a Win32 handle.</a>
+<a name="427"><span class="lineNum">     427 </span>            : OIDN_API OIDNSemaphore oidnNewSharedSemaphoreFromWin32Handle(OIDNDevice device,</a>
+<a name="428"><span class="lineNum">     428 </span>            :                                                              OIDNExternalSemaphoreTypeFlags handleType,</a>
+<a name="429"><span class="lineNum">     429 </span>            :                                                              void* handle, const void* name);</a>
+<a name="430"><span class="lineNum">     430 </span>            : </a>
+<a name="431"><span class="lineNum">     431 </span>            : // Signals semaphores using optionally specified values/keys (required only for certain semaphore</a>
+<a name="432"><span class="lineNum">     432 </span>            : // types, otherwise may be null) asynchronously.</a>
+<a name="433"><span class="lineNum">     433 </span>            : OIDN_API void oidnSignalSemaphoresAsync(OIDNDevice device,</a>
+<a name="434"><span class="lineNum">     434 </span>            :                                         const OIDNSemaphore* semaphores,</a>
+<a name="435"><span class="lineNum">     435 </span>            :                                         const uint64_t* values,</a>
+<a name="436"><span class="lineNum">     436 </span>            :                                         int numSemaphores);</a>
+<a name="437"><span class="lineNum">     437 </span>            : </a>
+<a name="438"><span class="lineNum">     438 </span>            : // Waits on semaphores using optionally specified values/keys and timeouts in milliseconds (required</a>
+<a name="439"><span class="lineNum">     439 </span>            : // only for certain semaphore types, otherwise may be null) asynchronously.</a>
+<a name="440"><span class="lineNum">     440 </span>            : OIDN_API void oidnWaitSemaphoresAsync(OIDNDevice device,</a>
+<a name="441"><span class="lineNum">     441 </span>            :                                       const OIDNSemaphore* semaphores,</a>
+<a name="442"><span class="lineNum">     442 </span>            :                                       const uint64_t* values,</a>
+<a name="443"><span class="lineNum">     443 </span>            :                                       const uint32_t* timeoutsMs,</a>
+<a name="444"><span class="lineNum">     444 </span>            :                                       int numSemaphores);</a>
+<a name="445"><span class="lineNum">     445 </span>            : </a>
+<a name="446"><span class="lineNum">     446 </span>            : // Retains the semaphore (increments the reference count).</a>
+<a name="447"><span class="lineNum">     447 </span>            : OIDN_API void oidnRetainSemaphore(OIDNSemaphore semaphore);</a>
+<a name="448"><span class="lineNum">     448 </span>            : </a>
+<a name="449"><span class="lineNum">     449 </span>            : // Releases the semaphore (decrements the reference count).</a>
+<a name="450"><span class="lineNum">     450 </span>            : OIDN_API void oidnReleaseSemaphore(OIDNSemaphore semaphore);</a>
+<a name="451"><span class="lineNum">     451 </span>            : </a>
+<a name="452"><span class="lineNum">     452 </span>            : // -------------------------------------------------------------------------------------------------</a>
+<a name="453"><span class="lineNum">     453 </span>            : // Filter</a>
+<a name="454"><span class="lineNum">     454 </span>            : // -------------------------------------------------------------------------------------------------</a>
+<a name="455"><span class="lineNum">     455 </span>            : </a>
+<a name="456"><span class="lineNum">     456 </span>            : // Filter quality/performance modes</a>
+<a name="457"><span class="lineNum">     457 </span>            : typedef enum</a>
+<a name="458"><span class="lineNum">     458 </span>            : {</a>
+<a name="459"><span class="lineNum">     459 </span>            :   OIDN_QUALITY_DEFAULT  = 0, // default quality</a>
+<a name="460"><span class="lineNum">     460 </span>            : </a>
+<a name="461"><span class="lineNum">     461 </span>            :   OIDN_QUALITY_FAST     = 4, // high performance (for interactive/real-time preview rendering)</a>
+<a name="462"><span class="lineNum">     462 </span>            :   OIDN_QUALITY_BALANCED = 5, // balanced quality/performance (for interactive/real-time rendering)</a>
+<a name="463"><span class="lineNum">     463 </span>            :   OIDN_QUALITY_HIGH     = 6, // high quality (for final-frame rendering)</a>
+<a name="464"><span class="lineNum">     464 </span>            : } OIDNQuality;</a>
+<a name="465"><span class="lineNum">     465 </span>            : </a>
+<a name="466"><span class="lineNum">     466 </span>            : // Progress monitor callback function</a>
+<a name="467"><span class="lineNum">     467 </span>            : typedef bool (*OIDNProgressMonitorFunction)(void* userPtr, double n);</a>
+<a name="468"><span class="lineNum">     468 </span>            : </a>
+<a name="469"><span class="lineNum">     469 </span>            : // Filter handle</a>
+<a name="470"><span class="lineNum">     470 </span>            : typedef struct OIDNFilterImpl* OIDNFilter;</a>
+<a name="471"><span class="lineNum">     471 </span>            : </a>
+<a name="472"><span class="lineNum">     472 </span>            : // Creates a filter of the specified type (e.g. &quot;RT&quot;).</a>
+<a name="473"><span class="lineNum">     473 </span>            : OIDN_API OIDNFilter oidnNewFilter(OIDNDevice device, const char* type);</a>
+<a name="474"><span class="lineNum">     474 </span>            : </a>
+<a name="475"><span class="lineNum">     475 </span>            : // Retains the filter (increments the reference count).</a>
+<a name="476"><span class="lineNum">     476 </span>            : OIDN_API void oidnRetainFilter(OIDNFilter filter);</a>
+<a name="477"><span class="lineNum">     477 </span>            : </a>
+<a name="478"><span class="lineNum">     478 </span>            : // Releases the filter (decrements the reference count).</a>
+<a name="479"><span class="lineNum">     479 </span>            : OIDN_API void oidnReleaseFilter(OIDNFilter filter);</a>
+<a name="480"><span class="lineNum">     480 </span>            : </a>
+<a name="481"><span class="lineNum">     481 </span>            : // Sets an image parameter of the filter with data stored in a buffer.</a>
+<a name="482"><span class="lineNum">     482 </span>            : // If pixelByteStride and/or rowByteStride are zero, these will be computed automatically.</a>
+<a name="483"><span class="lineNum">     483 </span>            : OIDN_API void oidnSetFilterImage(OIDNFilter filter, const char* name,</a>
+<a name="484"><span class="lineNum">     484 </span>            :                                  OIDNBuffer buffer, OIDNFormat format,</a>
+<a name="485"><span class="lineNum">     485 </span>            :                                  size_t width, size_t height,</a>
+<a name="486"><span class="lineNum">     486 </span>            :                                  size_t byteOffset,</a>
+<a name="487"><span class="lineNum">     487 </span>            :                                  size_t pixelByteStride, size_t rowByteStride);</a>
+<a name="488"><span class="lineNum">     488 </span>            : </a>
+<a name="489"><span class="lineNum">     489 </span>            : // Sets an image parameter of the filter with data owned by the user and accessible to the device.</a>
+<a name="490"><span class="lineNum">     490 </span>            : // If pixelByteStride and/or rowByteStride are zero, these will be computed automatically.</a>
+<a name="491"><span class="lineNum">     491 </span>            : OIDN_API void oidnSetSharedFilterImage(OIDNFilter filter, const char* name,</a>
+<a name="492"><span class="lineNum">     492 </span>            :                                        void* devPtr, OIDNFormat format,</a>
+<a name="493"><span class="lineNum">     493 </span>            :                                        size_t width, size_t height,</a>
+<a name="494"><span class="lineNum">     494 </span>            :                                        size_t byteOffset,</a>
+<a name="495"><span class="lineNum">     495 </span>            :                                        size_t pixelByteStride, size_t rowByteStride);</a>
+<a name="496"><span class="lineNum">     496 </span>            : </a>
+<a name="497"><span class="lineNum">     497 </span>            : // Unsets an image parameter of the filter that was previously set.</a>
+<a name="498"><span class="lineNum">     498 </span>            : OIDN_API void oidnUnsetFilterImage(OIDNFilter filter, const char* name);</a>
+<a name="499"><span class="lineNum">     499 </span>            : </a>
+<a name="500"><span class="lineNum">     500 </span>            : OIDN_DEPRECATED(&quot;oidnRemoveFilterImage is deprecated. Use oidnUnsetFilterImage instead.&quot;)</a>
+<a name="501"><span class="lineNum">     501 </span>            : inline void oidnRemoveFilterImage(OIDNFilter filter, const char* name)</a>
+<a name="502"><span class="lineNum">     502 </span>            : {</a>
+<a name="503"><span class="lineNum">     503 </span>            :   oidnUnsetFilterImage(filter, name);</a>
+<a name="504"><span class="lineNum">     504 </span>            : }</a>
+<a name="505"><span class="lineNum">     505 </span>            : </a>
+<a name="506"><span class="lineNum">     506 </span>            : // Sets an opaque data parameter of the filter owned by the user and accessible to the host.</a>
+<a name="507"><span class="lineNum">     507 </span>            : OIDN_API void oidnSetSharedFilterData(OIDNFilter filter, const char* name,</a>
+<a name="508"><span class="lineNum">     508 </span>            :                                       void* hostPtr, size_t byteSize);</a>
+<a name="509"><span class="lineNum">     509 </span>            : </a>
+<a name="510"><span class="lineNum">     510 </span>            : // Notifies the filter that the contents of an opaque data parameter has been changed.</a>
+<a name="511"><span class="lineNum">     511 </span>            : OIDN_API void oidnUpdateFilterData(OIDNFilter filter, const char* name);</a>
+<a name="512"><span class="lineNum">     512 </span>            : </a>
+<a name="513"><span class="lineNum">     513 </span>            : // Unsets an opaque data parameter of the filter that was previously set.</a>
+<a name="514"><span class="lineNum">     514 </span>            : OIDN_API void oidnUnsetFilterData(OIDNFilter filter, const char* name);</a>
+<a name="515"><span class="lineNum">     515 </span>            : </a>
+<a name="516"><span class="lineNum">     516 </span>            : OIDN_DEPRECATED(&quot;oidnRemoveFilterData is deprecated. Use oidnUnsetFilterData instead.&quot;)</a>
+<a name="517"><span class="lineNum">     517 </span>            : inline void oidnRemoveFilterData(OIDNFilter filter, const char* name)</a>
+<a name="518"><span class="lineNum">     518 </span>            : {</a>
+<a name="519"><span class="lineNum">     519 </span>            :   oidnUnsetFilterData(filter, name);</a>
+<a name="520"><span class="lineNum">     520 </span>            : }</a>
+<a name="521"><span class="lineNum">     521 </span>            : </a>
+<a name="522"><span class="lineNum">     522 </span>            : // Sets a boolean parameter of the filter.</a>
+<a name="523"><span class="lineNum">     523 </span>            : OIDN_API void oidnSetFilterBool(OIDNFilter filter, const char* name, bool value);</a>
+<a name="524"><span class="lineNum">     524 </span>            : </a>
+<a name="525"><span class="lineNum">     525 </span>            : OIDN_DEPRECATED(&quot;oidnSetFilter1b is deprecated. Use oidnSetFilterBool instead.&quot;)</a>
+<a name="526"><span class="lineNum">     526 </span>            : inline void oidnSetFilter1b(OIDNFilter filter, const char* name, bool value)</a>
+<a name="527"><span class="lineNum">     527 </span>            : {</a>
+<a name="528"><span class="lineNum">     528 </span>            :   oidnSetFilterBool(filter, name, value);</a>
+<a name="529"><span class="lineNum">     529 </span>            : }</a>
+<a name="530"><span class="lineNum">     530 </span>            : </a>
+<a name="531"><span class="lineNum">     531 </span>            : // Gets a boolean parameter of the filter.</a>
+<a name="532"><span class="lineNum">     532 </span>            : OIDN_API bool oidnGetFilterBool(OIDNFilter filter, const char* name);</a>
+<a name="533"><span class="lineNum">     533 </span>            : </a>
+<a name="534"><span class="lineNum">     534 </span>            : OIDN_DEPRECATED(&quot;oidnGetFilter1b is deprecated. Use oidnGetFilterBool instead.&quot;)</a>
+<a name="535"><span class="lineNum">     535 </span>            : inline bool oidnGetFilter1b(OIDNFilter filter, const char* name)</a>
+<a name="536"><span class="lineNum">     536 </span>            : {</a>
+<a name="537"><span class="lineNum">     537 </span>            :   return oidnGetFilterBool(filter, name);</a>
+<a name="538"><span class="lineNum">     538 </span>            : }</a>
+<a name="539"><span class="lineNum">     539 </span>            : </a>
+<a name="540"><span class="lineNum">     540 </span>            : // Sets an integer parameter of the filter.</a>
+<a name="541"><span class="lineNum">     541 </span>            : OIDN_API void oidnSetFilterInt(OIDNFilter filter, const char* name, int value);</a>
+<a name="542"><span class="lineNum">     542 </span>            : </a>
+<a name="543"><span class="lineNum">     543 </span>            : OIDN_DEPRECATED(&quot;oidnSetFilter1i is deprecated. Use oidnSetFilterInt instead.&quot;)</a>
+<a name="544"><span class="lineNum">     544 </span>            : inline void oidnSetFilter1i(OIDNFilter filter, const char* name, int value)</a>
+<a name="545"><span class="lineNum">     545 </span>            : {</a>
+<a name="546"><span class="lineNum">     546 </span>            :   oidnSetFilterInt(filter, name, value);</a>
+<a name="547"><span class="lineNum">     547 </span>            : }</a>
+<a name="548"><span class="lineNum">     548 </span>            : </a>
+<a name="549"><span class="lineNum">     549 </span>            : // Gets an integer parameter of the filter.</a>
+<a name="550"><span class="lineNum">     550 </span>            : OIDN_API int oidnGetFilterInt(OIDNFilter filter, const char* name);</a>
+<a name="551"><span class="lineNum">     551 </span>            : </a>
+<a name="552"><span class="lineNum">     552 </span>            : OIDN_DEPRECATED(&quot;oidnGetFilter1i is deprecated. Use oidnGetFilterInt instead.&quot;)</a>
+<a name="553"><span class="lineNum">     553 </span>            : inline int oidnGetFilter1i(OIDNFilter filter, const char* name)</a>
+<a name="554"><span class="lineNum">     554 </span>            : {</a>
+<a name="555"><span class="lineNum">     555 </span>            :   return oidnGetFilterInt(filter, name);</a>
+<a name="556"><span class="lineNum">     556 </span>            : }</a>
+<a name="557"><span class="lineNum">     557 </span>            : </a>
+<a name="558"><span class="lineNum">     558 </span>            : // Sets a float parameter of the filter.</a>
+<a name="559"><span class="lineNum">     559 </span>            : OIDN_API void oidnSetFilterFloat(OIDNFilter filter, const char* name, float value);</a>
+<a name="560"><span class="lineNum">     560 </span>            : </a>
+<a name="561"><span class="lineNum">     561 </span>            : OIDN_DEPRECATED(&quot;oidnSetFilter1f is deprecated. Use oidnSetFilterFloat instead.&quot;)</a>
+<a name="562"><span class="lineNum">     562 </span>            : inline void oidnSetFilter1f(OIDNFilter filter, const char* name, float value)</a>
+<a name="563"><span class="lineNum">     563 </span>            : {</a>
+<a name="564"><span class="lineNum">     564 </span>            :   oidnSetFilterFloat(filter, name, value);</a>
+<a name="565"><span class="lineNum">     565 </span>            : }</a>
+<a name="566"><span class="lineNum">     566 </span>            : </a>
+<a name="567"><span class="lineNum">     567 </span>            : // Gets a float parameter of the filter.</a>
+<a name="568"><span class="lineNum">     568 </span>            : OIDN_API float oidnGetFilterFloat(OIDNFilter filter, const char* name);</a>
+<a name="569"><span class="lineNum">     569 </span>            : </a>
+<a name="570"><span class="lineNum">     570 </span>            : OIDN_DEPRECATED(&quot;oidnGetFilter1f is deprecated. Use oidnGetFilterFloat instead.&quot;)</a>
+<a name="571"><span class="lineNum">     571 </span>            : inline float oidnGetFilter1f(OIDNFilter filter, const char* name)</a>
+<a name="572"><span class="lineNum">     572 </span>            : {</a>
+<a name="573"><span class="lineNum">     573 </span>            :   return oidnGetFilterFloat(filter, name);</a>
+<a name="574"><span class="lineNum">     574 </span>            : }</a>
+<a name="575"><span class="lineNum">     575 </span>            : </a>
+<a name="576"><span class="lineNum">     576 </span>            : // Sets the progress monitor callback function of the filter.</a>
+<a name="577"><span class="lineNum">     577 </span>            : OIDN_API void oidnSetFilterProgressMonitorFunction(OIDNFilter filter,</a>
+<a name="578"><span class="lineNum">     578 </span>            :                                                    OIDNProgressMonitorFunction func, void* userPtr);</a>
+<a name="579"><span class="lineNum">     579 </span>            : </a>
+<a name="580"><span class="lineNum">     580 </span>            : // Commits all previous changes to the filter.</a>
+<a name="581"><span class="lineNum">     581 </span>            : // Must be called before first executing the filter.</a>
+<a name="582"><span class="lineNum">     582 </span>            : OIDN_API void oidnCommitFilter(OIDNFilter filter);</a>
+<a name="583"><span class="lineNum">     583 </span>            : </a>
+<a name="584"><span class="lineNum">     584 </span>            : // Executes the filter.</a>
+<a name="585"><span class="lineNum">     585 </span>            : OIDN_API void oidnExecuteFilter(OIDNFilter filter);</a>
+<a name="586"><span class="lineNum">     586 </span>            : </a>
+<a name="587"><span class="lineNum">     587 </span>            : // Executes the filter asynchronously.</a>
+<a name="588"><span class="lineNum">     588 </span>            : OIDN_API void oidnExecuteFilterAsync(OIDNFilter filter);</a>
+<a name="589"><span class="lineNum">     589 </span>            : </a>
+<a name="590"><span class="lineNum">     590 </span>            : #if defined(__cplusplus)</a>
+<a name="591"><span class="lineNum">     591 </span>            : // Executes the filter of a SYCL device using the specified dependent events asynchronously, and</a>
+<a name="592"><span class="lineNum">     592 </span>            : // optionally returns an event for completion.</a>
+<a name="593"><span class="lineNum">     593 </span>            : OIDN_API void oidnExecuteSYCLFilterAsync(OIDNFilter filter,</a>
+<a name="594"><span class="lineNum">     594 </span>            :                                          const sycl::event* depEvents, int numDepEvents,</a>
+<a name="595"><span class="lineNum">     595 </span>            :                                          sycl::event* doneEvent);</a>
+<a name="596"><span class="lineNum">     596 </span>            : #endif</a>
+<a name="597"><span class="lineNum">     597 </span>            : </a>
+<a name="598"><span class="lineNum">     598 </span>            : OIDN_API_NAMESPACE_END</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

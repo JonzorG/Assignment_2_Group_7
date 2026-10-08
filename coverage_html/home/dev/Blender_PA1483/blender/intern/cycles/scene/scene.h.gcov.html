@@ -1,0 +1,405 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - /home/dev/Blender_PA1483/blender/intern/cycles/scene/scene.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../../index.html">top level</a> - <a href="index.html">home/dev/Blender_PA1483/blender/intern/cycles/scene</a> - scene.h<span style="font-size: 80%;"> (source / <a href="scene.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">32</td>
+            <td class="headerCovTableEntry">32</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2011-2022 Blender Foundation</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: Apache-2.0 */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : #pragma once</a>
+<a name="6"><span class="lineNum">       6 </span>            : </a>
+<a name="7"><span class="lineNum">       7 </span>            : #include &quot;bvh/params.h&quot;</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &quot;scene/devicescene.h&quot;</a>
+<a name="10"><span class="lineNum">      10 </span>            : #include &quot;scene/film.h&quot;</a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &quot;scene/image.h&quot;</a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &quot;scene/scene_attributes.h&quot;</a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;scene/shader.h&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : </a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;util/param.h&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &quot;util/string.h&quot;</a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;util/thread.h&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : #include &quot;util/unique_ptr.h&quot;</a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &quot;util/unique_ptr_vector.h&quot;</a>
+<a name="20"><span class="lineNum">      20 </span>            : </a>
+<a name="21"><span class="lineNum">      21 </span>            : CCL_NAMESPACE_BEGIN</a>
+<a name="22"><span class="lineNum">      22 </span>            : </a>
+<a name="23"><span class="lineNum">      23 </span>            : class AttributeRequestSet;</a>
+<a name="24"><span class="lineNum">      24 </span>            : class Background;</a>
+<a name="25"><span class="lineNum">      25 </span>            : class BVH;</a>
+<a name="26"><span class="lineNum">      26 </span>            : class Camera;</a>
+<a name="27"><span class="lineNum">      27 </span>            : class Device;</a>
+<a name="28"><span class="lineNum">      28 </span>            : class DeviceInfo;</a>
+<a name="29"><span class="lineNum">      29 </span>            : class Film;</a>
+<a name="30"><span class="lineNum">      30 </span>            : class Integrator;</a>
+<a name="31"><span class="lineNum">      31 </span>            : class SceneAttributes;</a>
+<a name="32"><span class="lineNum">      32 </span>            : class PointLight;</a>
+<a name="33"><span class="lineNum">      33 </span>            : class SpotLight;</a>
+<a name="34"><span class="lineNum">      34 </span>            : class AreaLight;</a>
+<a name="35"><span class="lineNum">      35 </span>            : class SunLight;</a>
+<a name="36"><span class="lineNum">      36 </span>            : class BackgroundLight;</a>
+<a name="37"><span class="lineNum">      37 </span>            : class Light;</a>
+<a name="38"><span class="lineNum">      38 </span>            : class LightManager;</a>
+<a name="39"><span class="lineNum">      39 </span>            : class LookupTables;</a>
+<a name="40"><span class="lineNum">      40 </span>            : class Geometry;</a>
+<a name="41"><span class="lineNum">      41 </span>            : class GeometryManager;</a>
+<a name="42"><span class="lineNum">      42 </span>            : class Object;</a>
+<a name="43"><span class="lineNum">      43 </span>            : class ObjectManager;</a>
+<a name="44"><span class="lineNum">      44 </span>            : class OSLManager;</a>
+<a name="45"><span class="lineNum">      45 </span>            : class ParticleSystemManager;</a>
+<a name="46"><span class="lineNum">      46 </span>            : class ParticleSystem;</a>
+<a name="47"><span class="lineNum">      47 </span>            : class PointCloud;</a>
+<a name="48"><span class="lineNum">      48 </span>            : class Procedural;</a>
+<a name="49"><span class="lineNum">      49 </span>            : class ProceduralManager;</a>
+<a name="50"><span class="lineNum">      50 </span>            : class CurveSystemManager;</a>
+<a name="51"><span class="lineNum">      51 </span>            : class Shader;</a>
+<a name="52"><span class="lineNum">      52 </span>            : class ShaderManager;</a>
+<a name="53"><span class="lineNum">      53 </span>            : class Progress;</a>
+<a name="54"><span class="lineNum">      54 </span>            : class BakeManager;</a>
+<a name="55"><span class="lineNum">      55 </span>            : class BakeData;</a>
+<a name="56"><span class="lineNum">      56 </span>            : class RenderStats;</a>
+<a name="57"><span class="lineNum">      57 </span>            : class SceneUpdateStats;</a>
+<a name="58"><span class="lineNum">      58 </span>            : class Volume;</a>
+<a name="59"><span class="lineNum">      59 </span>            : class VolumeManager;</a>
+<a name="60"><span class="lineNum">      60 </span>            : </a>
+<a name="61"><span class="lineNum">      61 </span>            : /* Scene Parameters */</a>
+<a name="62"><span class="lineNum">      62 </span>            : </a>
+<a name="63"><span class="lineNum">      63 </span>            : class SceneParams {</a>
+<a name="64"><span class="lineNum">      64 </span>            :  public:</a>
+<a name="65"><span class="lineNum">      65 </span>            :   ShadingSystem shadingsystem;</a>
+<a name="66"><span class="lineNum">      66 </span>            : </a>
+<a name="67"><span class="lineNum">      67 </span>            :   /* Requested BVH layout.</a>
+<a name="68"><span class="lineNum">      68 </span>            :    *</a>
+<a name="69"><span class="lineNum">      69 </span>            :    * If it's not supported by the device, the widest one from supported ones</a>
+<a name="70"><span class="lineNum">      70 </span>            :    * will be used, but BVH wider than this one will never be used.</a>
+<a name="71"><span class="lineNum">      71 </span>            :    */</a>
+<a name="72"><span class="lineNum">      72 </span>            :   BVHLayout bvh_layout;</a>
+<a name="73"><span class="lineNum">      73 </span>            : </a>
+<a name="74"><span class="lineNum">      74 </span>            :   BVHType bvh_type;</a>
+<a name="75"><span class="lineNum">      75 </span>            :   bool use_bvh_spatial_split;</a>
+<a name="76"><span class="lineNum">      76 </span>            :   bool use_bvh_compact_structure;</a>
+<a name="77"><span class="lineNum">      77 </span>            :   bool use_bvh_unaligned_nodes;</a>
+<a name="78"><span class="lineNum">      78 </span>            :   int num_bvh_time_steps;</a>
+<a name="79"><span class="lineNum">      79 </span>            :   int hair_subdivisions;</a>
+<a name="80"><span class="lineNum">      80 </span>            :   CurveShapeType hair_shape;</a>
+<a name="81"><span class="lineNum">      81 </span>            :   float texture_resolution;</a>
+<a name="82"><span class="lineNum">      82 </span>            :   int texture_limit;</a>
+<a name="83"><span class="lineNum">      83 </span>            : </a>
+<a name="84"><span class="lineNum">      84 </span>            :   /* Use tx files if they exist. */</a>
+<a name="85"><span class="lineNum">      85 </span>            :   bool use_texture_cache = true;</a>
+<a name="86"><span class="lineNum">      86 </span>            :   /* Auto generate tx files. */</a>
+<a name="87"><span class="lineNum">      87 </span>            :   bool auto_texture_cache = false;</a>
+<a name="88"><span class="lineNum">      88 </span>            :   /* Relative (to the image file) or absolute directory for auto generating tx files. */</a>
+<a name="89"><span class="lineNum">      89 </span>            :   std::string texture_cache_path;</a>
+<a name="90"><span class="lineNum">      90 </span>            : </a>
+<a name="91"><span class="lineNum">      91 </span>            :   bool background;</a>
+<a name="92"><span class="lineNum">      92 </span>            : </a>
+<a name="93"><span class="lineNum">      93 </span><span class="lineCov">       1836 :   SceneParams()</span></a>
+<a name="94"><span class="lineNum">      94 </span><span class="lineCov">       1836 :   {</span></a>
+<a name="95"><span class="lineNum">      95 </span><span class="lineCov">       1836 :     shadingsystem = SHADINGSYSTEM_SVM;</span></a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineCov">       1836 :     bvh_layout = BVH_LAYOUT_AUTO;</span></a>
+<a name="97"><span class="lineNum">      97 </span><span class="lineCov">       1836 :     bvh_type = BVH_TYPE_DYNAMIC;</span></a>
+<a name="98"><span class="lineNum">      98 </span><span class="lineCov">       1836 :     use_bvh_spatial_split = false;</span></a>
+<a name="99"><span class="lineNum">      99 </span><span class="lineCov">       1836 :     use_bvh_compact_structure = true;</span></a>
+<a name="100"><span class="lineNum">     100 </span><span class="lineCov">       1836 :     use_bvh_unaligned_nodes = true;</span></a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineCov">       1836 :     num_bvh_time_steps = 0;</span></a>
+<a name="102"><span class="lineNum">     102 </span><span class="lineCov">       1836 :     hair_subdivisions = 3;</span></a>
+<a name="103"><span class="lineNum">     103 </span><span class="lineCov">       1836 :     hair_shape = CURVE_RIBBON;</span></a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineCov">       1836 :     texture_resolution = 1.0f;</span></a>
+<a name="105"><span class="lineNum">     105 </span><span class="lineCov">       1836 :     texture_limit = 0;</span></a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineCov">       1836 :     background = true;</span></a>
+<a name="107"><span class="lineNum">     107 </span><span class="lineCov">       1836 :   }</span></a>
+<a name="108"><span class="lineNum">     108 </span>            : </a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineCov">        920 :   bool modified(const SceneParams &amp;params) const</span></a>
+<a name="110"><span class="lineNum">     110 </span>            :   {</a>
+<a name="111"><span class="lineNum">     111 </span><span class="lineCov">        920 :     return !(</span></a>
+<a name="112"><span class="lineNum">     112 </span><span class="lineCov">        920 :         shadingsystem == params.shadingsystem &amp;&amp; bvh_layout == params.bvh_layout &amp;&amp;</span></a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineCov">        920 :         bvh_type == params.bvh_type &amp;&amp; use_bvh_spatial_split == params.use_bvh_spatial_split &amp;&amp;</span></a>
+<a name="114"><span class="lineNum">     114 </span><span class="lineCov">        920 :         use_bvh_compact_structure == params.use_bvh_compact_structure &amp;&amp;</span></a>
+<a name="115"><span class="lineNum">     115 </span><span class="lineCov">        920 :         use_bvh_unaligned_nodes == params.use_bvh_unaligned_nodes &amp;&amp;</span></a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineCov">        920 :         num_bvh_time_steps == params.num_bvh_time_steps &amp;&amp;</span></a>
+<a name="117"><span class="lineNum">     117 </span><span class="lineCov">        920 :         hair_subdivisions == params.hair_subdivisions &amp;&amp; hair_shape == params.hair_shape &amp;&amp;</span></a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineCov">        920 :         texture_resolution == params.texture_resolution &amp;&amp; texture_limit == params.texture_limit &amp;&amp;</span></a>
+<a name="119"><span class="lineNum">     119 </span><span class="lineCov">        920 :         use_texture_cache == params.use_texture_cache &amp;&amp;</span></a>
+<a name="120"><span class="lineNum">     120 </span><span class="lineCov">        920 :         auto_texture_cache == params.auto_texture_cache &amp;&amp;</span></a>
+<a name="121"><span class="lineNum">     121 </span><span class="lineCov">       1840 :         texture_cache_path == params.texture_cache_path);</span></a>
+<a name="122"><span class="lineNum">     122 </span>            :   }</a>
+<a name="123"><span class="lineNum">     123 </span>            : </a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineCov">       2029 :   int curve_subdivisions()</span></a>
+<a name="125"><span class="lineNum">     125 </span>            :   {</a>
+<a name="126"><span class="lineNum">     126 </span>            :     /* Matching the tessellation rate limit in Embree. */</a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineCov">       4058 :     return clamp(1 &lt;&lt; hair_subdivisions, 1, 16);</span></a>
+<a name="128"><span class="lineNum">     128 </span>            :   }</a>
+<a name="129"><span class="lineNum">     129 </span>            : };</a>
+<a name="130"><span class="lineNum">     130 </span>            : </a>
+<a name="131"><span class="lineNum">     131 </span>            : /* Scene */</a>
+<a name="132"><span class="lineNum">     132 </span>            : </a>
+<a name="133"><span class="lineNum">     133 </span>            : class Scene : public NodeOwner {</a>
+<a name="134"><span class="lineNum">     134 </span>            :  public:</a>
+<a name="135"><span class="lineNum">     135 </span>            :   /* Optional name. Is used for logging and reporting. */</a>
+<a name="136"><span class="lineNum">     136 </span>            :   string name;</a>
+<a name="137"><span class="lineNum">     137 </span>            : </a>
+<a name="138"><span class="lineNum">     138 </span>            :   /* Maps from Light group names to their pass ID. */</a>
+<a name="139"><span class="lineNum">     139 </span>            :   map&lt;ustring, int&gt; lightgroups;</a>
+<a name="140"><span class="lineNum">     140 </span>            : </a>
+<a name="141"><span class="lineNum">     141 </span>            :   /* data */</a>
+<a name="142"><span class="lineNum">     142 </span>            :   unique_ptr&lt;BVH&gt; bvh;</a>
+<a name="143"><span class="lineNum">     143 </span>            :   unique_ptr&lt;LookupTables&gt; lookup_tables;</a>
+<a name="144"><span class="lineNum">     144 </span>            : </a>
+<a name="145"><span class="lineNum">     145 </span>            :   Camera *camera;</a>
+<a name="146"><span class="lineNum">     146 </span>            :   Camera *dicing_camera;</a>
+<a name="147"><span class="lineNum">     147 </span>            :   Film *film;</a>
+<a name="148"><span class="lineNum">     148 </span>            :   Background *background;</a>
+<a name="149"><span class="lineNum">     149 </span>            :   Integrator *integrator;</a>
+<a name="150"><span class="lineNum">     150 </span>            :   SceneAttributes *scene_attribute;</a>
+<a name="151"><span class="lineNum">     151 </span>            : </a>
+<a name="152"><span class="lineNum">     152 </span>            :   /* data lists */</a>
+<a name="153"><span class="lineNum">     153 </span>            :   unique_ptr_vector&lt;Background&gt; backgrounds;</a>
+<a name="154"><span class="lineNum">     154 </span>            :   unique_ptr_vector&lt;Film&gt; films;</a>
+<a name="155"><span class="lineNum">     155 </span>            :   unique_ptr_vector&lt;Integrator&gt; integrators;</a>
+<a name="156"><span class="lineNum">     156 </span>            :   unique_ptr_vector&lt;SceneAttributes&gt; scene_attributes;</a>
+<a name="157"><span class="lineNum">     157 </span>            :   unique_ptr_vector&lt;Camera&gt; cameras;</a>
+<a name="158"><span class="lineNum">     158 </span>            :   unique_ptr_vector&lt;Shader&gt; shaders;</a>
+<a name="159"><span class="lineNum">     159 </span>            :   unique_ptr_vector&lt;Pass&gt; passes;</a>
+<a name="160"><span class="lineNum">     160 </span>            :   unique_ptr_vector&lt;ParticleSystem&gt; particle_systems;</a>
+<a name="161"><span class="lineNum">     161 </span>            :   unique_ptr_vector&lt;Geometry&gt; geometry;</a>
+<a name="162"><span class="lineNum">     162 </span>            :   unique_ptr_vector&lt;Object&gt; objects;</a>
+<a name="163"><span class="lineNum">     163 </span>            :   unique_ptr_vector&lt;Procedural&gt; procedurals;</a>
+<a name="164"><span class="lineNum">     164 </span>            : </a>
+<a name="165"><span class="lineNum">     165 </span>            :   /* data managers */</a>
+<a name="166"><span class="lineNum">     166 </span>            :   unique_ptr&lt;ImageManager&gt; image_manager;</a>
+<a name="167"><span class="lineNum">     167 </span>            :   unique_ptr&lt;LightManager&gt; light_manager;</a>
+<a name="168"><span class="lineNum">     168 </span>            :   unique_ptr&lt;OSLManager&gt; osl_manager;</a>
+<a name="169"><span class="lineNum">     169 </span>            :   unique_ptr&lt;ShaderManager&gt; shader_manager;</a>
+<a name="170"><span class="lineNum">     170 </span>            :   unique_ptr&lt;GeometryManager&gt; geometry_manager;</a>
+<a name="171"><span class="lineNum">     171 </span>            :   unique_ptr&lt;ObjectManager&gt; object_manager;</a>
+<a name="172"><span class="lineNum">     172 </span>            :   unique_ptr&lt;ParticleSystemManager&gt; particle_system_manager;</a>
+<a name="173"><span class="lineNum">     173 </span>            :   unique_ptr&lt;BakeManager&gt; bake_manager;</a>
+<a name="174"><span class="lineNum">     174 </span>            :   unique_ptr&lt;ProceduralManager&gt; procedural_manager;</a>
+<a name="175"><span class="lineNum">     175 </span>            :   unique_ptr&lt;VolumeManager&gt; volume_manager;</a>
+<a name="176"><span class="lineNum">     176 </span>            : </a>
+<a name="177"><span class="lineNum">     177 </span>            :   /* default shaders */</a>
+<a name="178"><span class="lineNum">     178 </span>            :   Shader *default_surface;</a>
+<a name="179"><span class="lineNum">     179 </span>            :   Shader *default_volume;</a>
+<a name="180"><span class="lineNum">     180 </span>            :   Shader *default_light;</a>
+<a name="181"><span class="lineNum">     181 </span>            :   Shader *default_background;</a>
+<a name="182"><span class="lineNum">     182 </span>            :   Shader *default_empty;</a>
+<a name="183"><span class="lineNum">     183 </span>            :   Shader *default_gsplat;</a>
+<a name="184"><span class="lineNum">     184 </span>            : </a>
+<a name="185"><span class="lineNum">     185 </span>            :   /* device */</a>
+<a name="186"><span class="lineNum">     186 </span>            :   Device *device;</a>
+<a name="187"><span class="lineNum">     187 </span>            :   DeviceScene dscene;</a>
+<a name="188"><span class="lineNum">     188 </span>            : </a>
+<a name="189"><span class="lineNum">     189 </span>            :   /* parameters */</a>
+<a name="190"><span class="lineNum">     190 </span>            :   SceneParams params;</a>
+<a name="191"><span class="lineNum">     191 </span>            : </a>
+<a name="192"><span class="lineNum">     192 </span>            :   /* mutex must be locked manually by callers */</a>
+<a name="193"><span class="lineNum">     193 </span>            :   thread_mutex mutex;</a>
+<a name="194"><span class="lineNum">     194 </span>            :   bool scene_updated_while_loading_kernels = false;</a>
+<a name="195"><span class="lineNum">     195 </span>            : </a>
+<a name="196"><span class="lineNum">     196 </span>            :   /* scene update statistics */</a>
+<a name="197"><span class="lineNum">     197 </span>            :   unique_ptr&lt;SceneUpdateStats&gt; update_stats;</a>
+<a name="198"><span class="lineNum">     198 </span>            : </a>
+<a name="199"><span class="lineNum">     199 </span>            :   Scene(const SceneParams &amp;params, Device *device);</a>
+<a name="200"><span class="lineNum">     200 </span>            :   ~Scene() override;</a>
+<a name="201"><span class="lineNum">     201 </span>            : </a>
+<a name="202"><span class="lineNum">     202 </span>            :   void device_update(Device *device, Progress &amp;progress);</a>
+<a name="203"><span class="lineNum">     203 </span>            : </a>
+<a name="204"><span class="lineNum">     204 </span>            :   bool need_global_attribute(AttributeStandard std) const;</a>
+<a name="205"><span class="lineNum">     205 </span>            :   void need_global_attributes(AttributeRequestSet &amp;attributes);</a>
+<a name="206"><span class="lineNum">     206 </span>            : </a>
+<a name="207"><span class="lineNum">     207 </span>            :   enum MotionType { MOTION_NONE = 0, MOTION_PASS, MOTION_BLUR, MOTION_PASS_INTERACTIVE };</a>
+<a name="208"><span class="lineNum">     208 </span>            :   MotionType need_motion() const;</a>
+<a name="209"><span class="lineNum">     209 </span>            :   float motion_shutter_time();</a>
+<a name="210"><span class="lineNum">     210 </span>            : </a>
+<a name="211"><span class="lineNum">     211 </span>            :   bool need_update();</a>
+<a name="212"><span class="lineNum">     212 </span>            :   bool need_reset(const bool check_camera = true);</a>
+<a name="213"><span class="lineNum">     213 </span>            : </a>
+<a name="214"><span class="lineNum">     214 </span>            :   void reset();</a>
+<a name="215"><span class="lineNum">     215 </span>            :   void device_free();</a>
+<a name="216"><span class="lineNum">     216 </span>            : </a>
+<a name="217"><span class="lineNum">     217 </span>            :   void collect_statistics(RenderStats *stats);</a>
+<a name="218"><span class="lineNum">     218 </span>            : </a>
+<a name="219"><span class="lineNum">     219 </span>            :   void enable_update_stats();</a>
+<a name="220"><span class="lineNum">     220 </span>            : </a>
+<a name="221"><span class="lineNum">     221 </span>            :   bool update(Progress &amp;progress);</a>
+<a name="222"><span class="lineNum">     222 </span>            :   bool update_camera_resolution(Progress &amp;progress, int width, int height);</a>
+<a name="223"><span class="lineNum">     223 </span>            : </a>
+<a name="224"><span class="lineNum">     224 </span>            :   bool has_shadow_catcher();</a>
+<a name="225"><span class="lineNum">     225 </span>            :   void tag_shadow_catcher_modified();</a>
+<a name="226"><span class="lineNum">     226 </span>            :   bool has_volume();</a>
+<a name="227"><span class="lineNum">     227 </span>            :   bool has_volume_modified() const;</a>
+<a name="228"><span class="lineNum">     228 </span>            :   void tag_has_volume_modified();</a>
+<a name="229"><span class="lineNum">     229 </span>            :   /* Check if we use multiple importance sampling for any light in the scene. */</a>
+<a name="230"><span class="lineNum">     230 </span>            :   bool use_light_mis() const;</a>
+<a name="231"><span class="lineNum">     231 </span>            : </a>
+<a name="232"><span class="lineNum">     232 </span>            :   /* This function is used to create a node of a specified type instead of</a>
+<a name="233"><span class="lineNum">     233 </span>            :    * calling 'new', and sets the scene as the owner of the node.</a>
+<a name="234"><span class="lineNum">     234 </span>            :    * The function has overloads that will also add the created node to the right</a>
+<a name="235"><span class="lineNum">     235 </span>            :    * node array (e.g. Scene::geometry for Geometry nodes) and tag the appropriate</a>
+<a name="236"><span class="lineNum">     236 </span>            :    * manager for an update.</a>
+<a name="237"><span class="lineNum">     237 </span>            :    */</a>
+<a name="238"><span class="lineNum">     238 </span>            :   template&lt;typename T, typename... Args&gt; T *create_node(Args &amp;&amp;.../*args*/) = delete;</a>
+<a name="239"><span class="lineNum">     239 </span>            : </a>
+<a name="240"><span class="lineNum">     240 </span>            :   /* This function is used to delete a node from the scene instead of calling 'delete'</a>
+<a name="241"><span class="lineNum">     241 </span>            :    * and manually removing the node from the data array. It also tags the</a>
+<a name="242"><span class="lineNum">     242 </span>            :    * appropriate manager for an update, if any, and checks that the scene is indeed</a>
+<a name="243"><span class="lineNum">     243 </span>            :    * the owner of the node. Calling this function on a node not owned by the scene</a>
+<a name="244"><span class="lineNum">     244 </span>            :    * will likely cause a crash which we want in order to detect such cases.</a>
+<a name="245"><span class="lineNum">     245 </span>            :    */</a>
+<a name="246"><span class="lineNum">     246 </span>            :   template&lt;typename T&gt; void delete_node(T *node) = delete;</a>
+<a name="247"><span class="lineNum">     247 </span>            : </a>
+<a name="248"><span class="lineNum">     248 </span>            :   /* Remove all nodes in the set from the appropriate data arrays, and tag the</a>
+<a name="249"><span class="lineNum">     249 </span>            :    * specific managers for an update. This assumes that the scene owns the nodes.</a>
+<a name="250"><span class="lineNum">     250 </span>            :    */</a>
+<a name="251"><span class="lineNum">     251 </span><span class="lineCov">       5502 :   template&lt;typename T&gt; void delete_nodes(const set&lt;T *&gt; &amp;nodes)</span></a>
+<a name="252"><span class="lineNum">     252 </span>            :   {</a>
+<a name="253"><span class="lineNum">     253 </span><span class="lineCov">       5502 :     delete_nodes(nodes, this);</span></a>
+<a name="254"><span class="lineNum">     254 </span><span class="lineCov">       5502 :   }</span></a>
+<a name="255"><span class="lineNum">     255 </span>            : </a>
+<a name="256"><span class="lineNum">     256 </span>            :   /* Same as above, but specify the actual owner of all the nodes in the set.</a>
+<a name="257"><span class="lineNum">     257 </span>            :    */</a>
+<a name="258"><span class="lineNum">     258 </span>            :   template&lt;typename T&gt; void delete_nodes(const set&lt;T *&gt; &amp;nodes, const NodeOwner *owner);</a>
+<a name="259"><span class="lineNum">     259 </span>            : </a>
+<a name="260"><span class="lineNum">     260 </span>            :   template&lt;class T&gt; T *create_light_node();</a>
+<a name="261"><span class="lineNum">     261 </span>            : </a>
+<a name="262"><span class="lineNum">     262 </span>            :  protected:</a>
+<a name="263"><span class="lineNum">     263 </span>            :   /* Check if some heavy data worth logging was updated.</a>
+<a name="264"><span class="lineNum">     264 </span>            :    * Mainly used to suppress extra annoying logging.</a>
+<a name="265"><span class="lineNum">     265 </span>            :    */</a>
+<a name="266"><span class="lineNum">     266 </span>            :   bool need_data_update();</a>
+<a name="267"><span class="lineNum">     267 </span>            : </a>
+<a name="268"><span class="lineNum">     268 </span>            :   void free_memory(bool final);</a>
+<a name="269"><span class="lineNum">     269 </span>            : </a>
+<a name="270"><span class="lineNum">     270 </span>            :   bool kernels_loaded;</a>
+<a name="271"><span class="lineNum">     271 </span>            :   uint64_t loaded_kernel_features;</a>
+<a name="272"><span class="lineNum">     272 </span>            : </a>
+<a name="273"><span class="lineNum">     273 </span>            :   void update_kernel_features();</a>
+<a name="274"><span class="lineNum">     274 </span>            : </a>
+<a name="275"><span class="lineNum">     275 </span>            :   bool has_shadow_catcher_ = false;</a>
+<a name="276"><span class="lineNum">     276 </span>            :   bool shadow_catcher_modified_ = true;</a>
+<a name="277"><span class="lineNum">     277 </span>            :   bool has_volume_modified_ = true;</a>
+<a name="278"><span class="lineNum">     278 </span>            : </a>
+<a name="279"><span class="lineNum">     279 </span>            :   /* Maximum number of closure during session lifetime. */</a>
+<a name="280"><span class="lineNum">     280 </span>            :   int max_closure_global;</a>
+<a name="281"><span class="lineNum">     281 </span>            : </a>
+<a name="282"><span class="lineNum">     282 </span>            :   /* Get maximum number of closures to be used in kernel. */</a>
+<a name="283"><span class="lineNum">     283 </span>            :   int get_max_closure_count();</a>
+<a name="284"><span class="lineNum">     284 </span>            : </a>
+<a name="285"><span class="lineNum">     285 </span>            :   /* Get size of a volume stack needed to render this scene. */</a>
+<a name="286"><span class="lineNum">     286 </span>            :   int get_volume_stack_size() const;</a>
+<a name="287"><span class="lineNum">     287 </span>            : </a>
+<a name="288"><span class="lineNum">     288 </span>            :   bool load_kernels(Progress &amp;progress);</a>
+<a name="289"><span class="lineNum">     289 </span>            : };</a>
+<a name="290"><span class="lineNum">     290 </span>            : </a>
+<a name="291"><span class="lineNum">     291 </span>            : template&lt;&gt; PointLight *Scene::create_node&lt;PointLight&gt;();</a>
+<a name="292"><span class="lineNum">     292 </span>            : template&lt;&gt; SpotLight *Scene::create_node&lt;SpotLight&gt;();</a>
+<a name="293"><span class="lineNum">     293 </span>            : template&lt;&gt; AreaLight *Scene::create_node&lt;AreaLight&gt;();</a>
+<a name="294"><span class="lineNum">     294 </span>            : template&lt;&gt; SunLight *Scene::create_node&lt;SunLight&gt;();</a>
+<a name="295"><span class="lineNum">     295 </span>            : template&lt;&gt; BackgroundLight *Scene::create_node&lt;BackgroundLight&gt;();</a>
+<a name="296"><span class="lineNum">     296 </span>            : template&lt;&gt; Mesh *Scene::create_node&lt;Mesh&gt;();</a>
+<a name="297"><span class="lineNum">     297 </span>            : template&lt;&gt; Object *Scene::create_node&lt;Object&gt;();</a>
+<a name="298"><span class="lineNum">     298 </span>            : template&lt;&gt; Hair *Scene::create_node&lt;Hair&gt;();</a>
+<a name="299"><span class="lineNum">     299 </span>            : template&lt;&gt; Volume *Scene::create_node&lt;Volume&gt;();</a>
+<a name="300"><span class="lineNum">     300 </span>            : template&lt;&gt; PointCloud *Scene::create_node&lt;PointCloud&gt;();</a>
+<a name="301"><span class="lineNum">     301 </span>            : template&lt;&gt; ParticleSystem *Scene::create_node&lt;ParticleSystem&gt;();</a>
+<a name="302"><span class="lineNum">     302 </span>            : template&lt;&gt; Shader *Scene::create_node&lt;Shader&gt;();</a>
+<a name="303"><span class="lineNum">     303 </span>            : template&lt;&gt; Pass *Scene::create_node&lt;Pass&gt;();</a>
+<a name="304"><span class="lineNum">     304 </span>            : template&lt;&gt; Camera *Scene::create_node&lt;Camera&gt;();</a>
+<a name="305"><span class="lineNum">     305 </span>            : template&lt;&gt; Background *Scene::create_node&lt;Background&gt;();</a>
+<a name="306"><span class="lineNum">     306 </span>            : template&lt;&gt; Film *Scene::create_node&lt;Film&gt;();</a>
+<a name="307"><span class="lineNum">     307 </span>            : template&lt;&gt; Integrator *Scene::create_node&lt;Integrator&gt;();</a>
+<a name="308"><span class="lineNum">     308 </span>            : template&lt;&gt; SceneAttributes *Scene::create_node&lt;SceneAttributes&gt;();</a>
+<a name="309"><span class="lineNum">     309 </span>            : </a>
+<a name="310"><span class="lineNum">     310 </span>            : template&lt;&gt; void Scene::delete_node(Light *node);</a>
+<a name="311"><span class="lineNum">     311 </span>            : template&lt;&gt; void Scene::delete_node(Mesh *node);</a>
+<a name="312"><span class="lineNum">     312 </span>            : template&lt;&gt; void Scene::delete_node(Volume *node);</a>
+<a name="313"><span class="lineNum">     313 </span>            : template&lt;&gt; void Scene::delete_node(PointCloud *node);</a>
+<a name="314"><span class="lineNum">     314 </span>            : template&lt;&gt; void Scene::delete_node(Hair *node);</a>
+<a name="315"><span class="lineNum">     315 </span>            : template&lt;&gt; void Scene::delete_node(Geometry *node);</a>
+<a name="316"><span class="lineNum">     316 </span>            : template&lt;&gt; void Scene::delete_node(Object *node);</a>
+<a name="317"><span class="lineNum">     317 </span>            : template&lt;&gt; void Scene::delete_node(ParticleSystem *node);</a>
+<a name="318"><span class="lineNum">     318 </span>            : template&lt;&gt; void Scene::delete_node(Shader *node);</a>
+<a name="319"><span class="lineNum">     319 </span>            : template&lt;&gt; void Scene::delete_node(Procedural *node);</a>
+<a name="320"><span class="lineNum">     320 </span>            : template&lt;&gt; void Scene::delete_node(Pass *node);</a>
+<a name="321"><span class="lineNum">     321 </span>            : </a>
+<a name="322"><span class="lineNum">     322 </span>            : template&lt;&gt; void Scene::delete_nodes(const set&lt;Geometry *&gt; &amp;nodes, const NodeOwner *owner);</a>
+<a name="323"><span class="lineNum">     323 </span>            : template&lt;&gt; void Scene::delete_nodes(const set&lt;Object *&gt; &amp;nodes, const NodeOwner *owner);</a>
+<a name="324"><span class="lineNum">     324 </span>            : template&lt;&gt; void Scene::delete_nodes(const set&lt;ParticleSystem *&gt; &amp;nodes, const NodeOwner *owner);</a>
+<a name="325"><span class="lineNum">     325 </span>            : template&lt;&gt; void Scene::delete_nodes(const set&lt;Shader *&gt; &amp;nodes, const NodeOwner *owner);</a>
+<a name="326"><span class="lineNum">     326 </span>            : template&lt;&gt; void Scene::delete_nodes(const set&lt;Procedural *&gt; &amp;nodes, const NodeOwner *owner);</a>
+<a name="327"><span class="lineNum">     327 </span>            : template&lt;&gt; void Scene::delete_nodes(const set&lt;Pass *&gt; &amp;nodes, const NodeOwner *owner);</a>
+<a name="328"><span class="lineNum">     328 </span>            : </a>
+<a name="329"><span class="lineNum">     329 </span>            : CCL_NAMESPACE_END</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

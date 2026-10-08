@@ -1,0 +1,665 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - /home/dev/Blender_PA1483/blender/lib/linux_x64/openimageio/include/OpenImageIO/filesystem.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../../../../index.html">top level</a> - <a href="index.html">home/dev/Blender_PA1483/blender/lib/linux_x64/openimageio/include/OpenImageIO</a> - filesystem.h<span style="font-size: 80%;"> (source / <a href="filesystem.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntryLo">52.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryLo">45.5 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright Contributors to the OpenImageIO project.</a>
+<a name="2"><span class="lineNum">       2 </span>            : // SPDX-License-Identifier: Apache-2.0</a>
+<a name="3"><span class="lineNum">       3 </span>            : // https://github.com/AcademySoftwareFoundation/OpenImageIO</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : // clang-format off</a>
+<a name="6"><span class="lineNum">       6 </span>            : </a>
+<a name="7"><span class="lineNum">       7 </span>            : /// @file  filesystem.h</a>
+<a name="8"><span class="lineNum">       8 </span>            : ///</a>
+<a name="9"><span class="lineNum">       9 </span>            : /// @brief Utilities for dealing with file names and files portably.</a>
+<a name="10"><span class="lineNum">      10 </span>            : ///</a>
+<a name="11"><span class="lineNum">      11 </span>            : /// Some helpful nomenclature:</a>
+<a name="12"><span class="lineNum">      12 </span>            : ///  -  &quot;filename&quot; - a file or directory name, relative or absolute</a>
+<a name="13"><span class="lineNum">      13 </span>            : ///  -  &quot;searchpath&quot; - a list of directories separated by ':' or ';'.</a>
+<a name="14"><span class="lineNum">      14 </span>            : ///</a>
+<a name="15"><span class="lineNum">      15 </span>            : </a>
+<a name="16"><span class="lineNum">      16 </span>            : </a>
+<a name="17"><span class="lineNum">      17 </span>            : #pragma once</a>
+<a name="18"><span class="lineNum">      18 </span>            : </a>
+<a name="19"><span class="lineNum">      19 </span>            : #define OIIO_FILESYSTEM_H</a>
+<a name="20"><span class="lineNum">      20 </span>            : </a>
+<a name="21"><span class="lineNum">      21 </span>            : #include &lt;cstdint&gt;</a>
+<a name="22"><span class="lineNum">      22 </span>            : #include &lt;cstdio&gt;</a>
+<a name="23"><span class="lineNum">      23 </span>            : #include &lt;ctime&gt;</a>
+<a name="24"><span class="lineNum">      24 </span>            : #include &lt;fstream&gt;</a>
+<a name="25"><span class="lineNum">      25 </span>            : #include &lt;mutex&gt;</a>
+<a name="26"><span class="lineNum">      26 </span>            : #include &lt;string&gt;</a>
+<a name="27"><span class="lineNum">      27 </span>            : #include &lt;vector&gt;</a>
+<a name="28"><span class="lineNum">      28 </span>            : </a>
+<a name="29"><span class="lineNum">      29 </span>            : #include &lt;OpenImageIO/export.h&gt;</a>
+<a name="30"><span class="lineNum">      30 </span>            : #include &lt;OpenImageIO/oiioversion.h&gt;</a>
+<a name="31"><span class="lineNum">      31 </span>            : #include &lt;OpenImageIO/span.h&gt;</a>
+<a name="32"><span class="lineNum">      32 </span>            : #include &lt;OpenImageIO/strutil.h&gt;</a>
+<a name="33"><span class="lineNum">      33 </span>            : #include &lt;OpenImageIO/string_view.h&gt;</a>
+<a name="34"><span class="lineNum">      34 </span>            : </a>
+<a name="35"><span class="lineNum">      35 </span>            : #if defined(_WIN32) &amp;&amp; defined(__GLIBCXX__)</a>
+<a name="36"><span class="lineNum">      36 </span>            : #    define OIIO_FILESYSTEM_USE_STDIO_FILEBUF 1</a>
+<a name="37"><span class="lineNum">      37 </span>            : #    include &lt;OpenImageIO/fstream_mingw.h&gt;</a>
+<a name="38"><span class="lineNum">      38 </span>            : #endif</a>
+<a name="39"><span class="lineNum">      39 </span>            : </a>
+<a name="40"><span class="lineNum">      40 </span>            : </a>
+<a name="41"><span class="lineNum">      41 </span>            : // Define symbols that let client applications determine if newly added</a>
+<a name="42"><span class="lineNum">      42 </span>            : // features are supported.</a>
+<a name="43"><span class="lineNum">      43 </span>            : #define OIIO_FILESYSTEM_SUPPORTS_IOPROXY 1</a>
+<a name="44"><span class="lineNum">      44 </span>            : </a>
+<a name="45"><span class="lineNum">      45 </span>            : </a>
+<a name="46"><span class="lineNum">      46 </span>            : </a>
+<a name="47"><span class="lineNum">      47 </span>            : OIIO_NAMESPACE_3_1_BEGIN</a>
+<a name="48"><span class="lineNum">      48 </span>            : </a>
+<a name="49"><span class="lineNum">      49 </span>            : #if OIIO_FILESYSTEM_USE_STDIO_FILEBUF</a>
+<a name="50"><span class="lineNum">      50 </span>            : // MingW uses GCC to build, but does not support having a wchar_t* passed as argument</a>
+<a name="51"><span class="lineNum">      51 </span>            : // of ifstream::open or ofstream::open. To properly support UTF-8 encoding on MingW we must</a>
+<a name="52"><span class="lineNum">      52 </span>            : // use the __gnu_cxx::stdio_filebuf GNU extension that can be used with _wfsopen and returned</a>
+<a name="53"><span class="lineNum">      53 </span>            : // into a istream which share the same API as ifsteam. The same reasoning holds for ofstream.</a>
+<a name="54"><span class="lineNum">      54 </span>            : using ifstream = basic_ifstream&lt;char&gt;;</a>
+<a name="55"><span class="lineNum">      55 </span>            : using ofstream = basic_ofstream&lt;char&gt;;</a>
+<a name="56"><span class="lineNum">      56 </span>            : #else</a>
+<a name="57"><span class="lineNum">      57 </span>            : using ifstream = std::ifstream;</a>
+<a name="58"><span class="lineNum">      58 </span>            : using ofstream = std::ofstream;</a>
+<a name="59"><span class="lineNum">      59 </span>            : #endif</a>
+<a name="60"><span class="lineNum">      60 </span>            : </a>
+<a name="61"><span class="lineNum">      61 </span>            : </a>
+<a name="62"><span class="lineNum">      62 </span>            : </a>
+<a name="63"><span class="lineNum">      63 </span>            : /// @namespace Filesystem</a>
+<a name="64"><span class="lineNum">      64 </span>            : ///</a>
+<a name="65"><span class="lineNum">      65 </span>            : /// @brief Platform-independent utilities for manipulating file names,</a>
+<a name="66"><span class="lineNum">      66 </span>            : /// files, directories, and other file system miscellany.</a>
+<a name="67"><span class="lineNum">      67 </span>            : </a>
+<a name="68"><span class="lineNum">      68 </span>            : namespace Filesystem {</a>
+<a name="69"><span class="lineNum">      69 </span>            : </a>
+<a name="70"><span class="lineNum">      70 </span>            : /// Return the filename (excluding any directories, but including the</a>
+<a name="71"><span class="lineNum">      71 </span>            : /// file extension, if any) of a UTF-8 encoded filepath.</a>
+<a name="72"><span class="lineNum">      72 </span>            : OIIO_UTIL_API std::string filename (string_view filepath) noexcept;</a>
+<a name="73"><span class="lineNum">      73 </span>            : </a>
+<a name="74"><span class="lineNum">      74 </span>            : /// Return the file extension (including the last '.' if</a>
+<a name="75"><span class="lineNum">      75 </span>            : /// include_dot=true) of a UTF-8 encoded filename or filepath.</a>
+<a name="76"><span class="lineNum">      76 </span>            : OIIO_UTIL_API std::string extension (string_view filepath,</a>
+<a name="77"><span class="lineNum">      77 </span>            :                                 bool include_dot=true) noexcept;</a>
+<a name="78"><span class="lineNum">      78 </span>            : </a>
+<a name="79"><span class="lineNum">      79 </span>            : /// Return all but the last part of the UTF-8 encoded path, for example,</a>
+<a name="80"><span class="lineNum">      80 </span>            : /// parent_path(&quot;foo/bar&quot;) returns &quot;foo&quot;, and parent_path(&quot;foo&quot;)</a>
+<a name="81"><span class="lineNum">      81 </span>            : /// returns &quot;&quot;.</a>
+<a name="82"><span class="lineNum">      82 </span>            : OIIO_UTIL_API std::string parent_path (string_view filepath) noexcept;</a>
+<a name="83"><span class="lineNum">      83 </span>            : </a>
+<a name="84"><span class="lineNum">      84 </span>            : /// Replace the file extension of a UTF-8 encoded filename or filepath. Does</a>
+<a name="85"><span class="lineNum">      85 </span>            : /// not alter filepath, just returns a new string.  Note that the</a>
+<a name="86"><span class="lineNum">      86 </span>            : /// new_extension should contain a leading '.' dot.</a>
+<a name="87"><span class="lineNum">      87 </span>            : OIIO_UTIL_API std::string replace_extension (const std::string &amp;filepath, </a>
+<a name="88"><span class="lineNum">      88 </span>            :                                         const std::string &amp;new_extension) noexcept;</a>
+<a name="89"><span class="lineNum">      89 </span>            : </a>
+<a name="90"><span class="lineNum">      90 </span>            : /// Return the filepath in generic format, not any OS-specific conventions.</a>
+<a name="91"><span class="lineNum">      91 </span>            : /// Input and output are both UTF-8 encoded.</a>
+<a name="92"><span class="lineNum">      92 </span>            : OIIO_UTIL_API std::string generic_filepath (string_view filepath) noexcept;</a>
+<a name="93"><span class="lineNum">      93 </span>            : </a>
+<a name="94"><span class="lineNum">      94 </span>            : /// Turn a searchpath (multiple UTF-8 encoded directory paths separated by ':'</a>
+<a name="95"><span class="lineNum">      95 </span>            : /// or ';') into a vector&lt;string&gt; containing the name of each individual</a>
+<a name="96"><span class="lineNum">      96 </span>            : /// directory.  If validonly is true, only existing and readable directories</a>
+<a name="97"><span class="lineNum">      97 </span>            : /// will end up in the list.  N.B., the directory names will not have trailing</a>
+<a name="98"><span class="lineNum">      98 </span>            : /// slashes.</a>
+<a name="99"><span class="lineNum">      99 </span>            : OIIO_UTIL_API std::vector&lt;std::string&gt;</a>
+<a name="100"><span class="lineNum">     100 </span>            : searchpath_split(string_view searchpath, bool validonly = false);</a>
+<a name="101"><span class="lineNum">     101 </span>            : </a>
+<a name="102"><span class="lineNum">     102 </span>            : inline void searchpath_split (string_view searchpath,</a>
+<a name="103"><span class="lineNum">     103 </span>            :                               std::vector&lt;std::string&gt; &amp;dirs,</a>
+<a name="104"><span class="lineNum">     104 </span>            :                               bool validonly = false)</a>
+<a name="105"><span class="lineNum">     105 </span>            : {</a>
+<a name="106"><span class="lineNum">     106 </span>            :     dirs = searchpath_split(searchpath, validonly);</a>
+<a name="107"><span class="lineNum">     107 </span>            : }</a>
+<a name="108"><span class="lineNum">     108 </span>            : </a>
+<a name="109"><span class="lineNum">     109 </span>            : /// Find the first instance of a filename existing in a vector of</a>
+<a name="110"><span class="lineNum">     110 </span>            : /// directories, returning the full path as a string.  If the file is</a>
+<a name="111"><span class="lineNum">     111 </span>            : /// not found in any of the listed directories, return an empty string.</a>
+<a name="112"><span class="lineNum">     112 </span>            : /// If the filename is absolute, the directory list will not be used.</a>
+<a name="113"><span class="lineNum">     113 </span>            : /// If testcwd is true, &quot;.&quot; will be tested before the searchpath;</a>
+<a name="114"><span class="lineNum">     114 </span>            : /// otherwise, &quot;.&quot; will only be tested if it's explicitly in dirs.  If</a>
+<a name="115"><span class="lineNum">     115 </span>            : /// recursive is true, the directories will be searched recursively,</a>
+<a name="116"><span class="lineNum">     116 </span>            : /// finding a matching file in any subdirectory of the directories</a>
+<a name="117"><span class="lineNum">     117 </span>            : /// listed in dirs; otherwise. All file and directory names are presumed</a>
+<a name="118"><span class="lineNum">     118 </span>            : /// to be UTF-8 encoded.</a>
+<a name="119"><span class="lineNum">     119 </span>            : OIIO_UTIL_API std::string searchpath_find (const std::string &amp;filename,</a>
+<a name="120"><span class="lineNum">     120 </span>            :                                       const std::vector&lt;std::string&gt; &amp;dirs,</a>
+<a name="121"><span class="lineNum">     121 </span>            :                                       bool testcwd = true,</a>
+<a name="122"><span class="lineNum">     122 </span>            :                                       bool recursive = false);</a>
+<a name="123"><span class="lineNum">     123 </span>            : </a>
+<a name="124"><span class="lineNum">     124 </span>            : /// Find the given program in the `$PATH` searchpath and return its full path.</a>
+<a name="125"><span class="lineNum">     125 </span>            : /// If the program is not found, return an empty string.</a>
+<a name="126"><span class="lineNum">     126 </span>            : OIIO_UTIL_API std::string find_program(string_view program);</a>
+<a name="127"><span class="lineNum">     127 </span>            : </a>
+<a name="128"><span class="lineNum">     128 </span>            : /// Fill a vector-of-strings with the names of all files contained by</a>
+<a name="129"><span class="lineNum">     129 </span>            : /// directory dirname.  If recursive is true, it will return all files below</a>
+<a name="130"><span class="lineNum">     130 </span>            : /// the directory (even in subdirectories). If filter_regex is supplied and</a>
+<a name="131"><span class="lineNum">     131 </span>            : /// non-empty, only filenames matching the regular expression will be</a>
+<a name="132"><span class="lineNum">     132 </span>            : /// returned.  Return true if ok, false if there was an error (such as</a>
+<a name="133"><span class="lineNum">     133 </span>            : /// dirname not being found or not actually being a directory). All file</a>
+<a name="134"><span class="lineNum">     134 </span>            : /// and directory names are presumed to be UTF-8 encoded.</a>
+<a name="135"><span class="lineNum">     135 </span>            : OIIO_UTIL_API bool get_directory_entries (const std::string &amp;dirname,</a>
+<a name="136"><span class="lineNum">     136 </span>            :                                std::vector&lt;std::string&gt; &amp;filenames,</a>
+<a name="137"><span class="lineNum">     137 </span>            :                                bool recursive = false,</a>
+<a name="138"><span class="lineNum">     138 </span>            :                                const std::string &amp;filter_regex=std::string());</a>
+<a name="139"><span class="lineNum">     139 </span>            : </a>
+<a name="140"><span class="lineNum">     140 </span>            : /// Return true if the UTF-8 encoded path is an &quot;absolute&quot; (not relative)</a>
+<a name="141"><span class="lineNum">     141 </span>            : /// path. If 'dot_is_absolute' is true, consider &quot;./foo&quot; absolute.</a>
+<a name="142"><span class="lineNum">     142 </span>            : OIIO_UTIL_API bool path_is_absolute (string_view path,</a>
+<a name="143"><span class="lineNum">     143 </span>            :                                      bool dot_is_absolute=false);</a>
+<a name="144"><span class="lineNum">     144 </span>            : </a>
+<a name="145"><span class="lineNum">     145 </span>            : /// Return true if the UTF-8 encoded path exists.</a>
+<a name="146"><span class="lineNum">     146 </span>            : ///</a>
+<a name="147"><span class="lineNum">     147 </span>            : OIIO_UTIL_API bool exists (string_view path) noexcept;</a>
+<a name="148"><span class="lineNum">     148 </span>            : </a>
+<a name="149"><span class="lineNum">     149 </span>            : </a>
+<a name="150"><span class="lineNum">     150 </span>            : /// Return true if the UTF-8 encoded path exists and is a directory.</a>
+<a name="151"><span class="lineNum">     151 </span>            : ///</a>
+<a name="152"><span class="lineNum">     152 </span>            : OIIO_UTIL_API bool is_directory (string_view path) noexcept;</a>
+<a name="153"><span class="lineNum">     153 </span>            : </a>
+<a name="154"><span class="lineNum">     154 </span>            : /// Return true if the UTF-8 encoded path exists and is a regular file.</a>
+<a name="155"><span class="lineNum">     155 </span>            : ///</a>
+<a name="156"><span class="lineNum">     156 </span>            : OIIO_UTIL_API bool is_regular (string_view path) noexcept;</a>
+<a name="157"><span class="lineNum">     157 </span>            : </a>
+<a name="158"><span class="lineNum">     158 </span>            : /// Return true if the UTF-8 encoded path is an executable file (by any of</a>
+<a name="159"><span class="lineNum">     159 </span>            : /// user, group, or owner).</a>
+<a name="160"><span class="lineNum">     160 </span>            : OIIO_UTIL_API bool is_executable(string_view path) noexcept;</a>
+<a name="161"><span class="lineNum">     161 </span>            : </a>
+<a name="162"><span class="lineNum">     162 </span>            : /// Create the directory, whose name is UTF-8 encoded. Return true for</a>
+<a name="163"><span class="lineNum">     163 </span>            : /// success, false for failure and place an error message in err.</a>
+<a name="164"><span class="lineNum">     164 </span>            : OIIO_UTIL_API bool create_directory (string_view path, std::string &amp;err);</a>
+<a name="165"><span class="lineNum">     165 </span>            : inline bool create_directory (string_view path) {</a>
+<a name="166"><span class="lineNum">     166 </span>            :     std::string err;</a>
+<a name="167"><span class="lineNum">     167 </span>            :     return create_directory (path, err);</a>
+<a name="168"><span class="lineNum">     168 </span>            : }</a>
+<a name="169"><span class="lineNum">     169 </span>            : </a>
+<a name="170"><span class="lineNum">     170 </span>            : /// Create directory for every element in `path` that does not already exist.</a>
+<a name="171"><span class="lineNum">     171 </span>            : /// Return true for success, false for failure and place an error message in err.</a>
+<a name="172"><span class="lineNum">     172 </span>            : OIIO_UTIL_API bool create_directories(string_view path, std::string&amp; err) noexcept;</a>
+<a name="173"><span class="lineNum">     173 </span>            : </a>
+<a name="174"><span class="lineNum">     174 </span>            : /// Copy a file, directory, or link. It is an error if 'to' already exists.</a>
+<a name="175"><span class="lineNum">     175 </span>            : /// The file names are all UTF-8 encoded. Return true upon success, false upon</a>
+<a name="176"><span class="lineNum">     176 </span>            : /// failure and place an error message in err.</a>
+<a name="177"><span class="lineNum">     177 </span>            : OIIO_UTIL_API bool copy (string_view from, string_view to, std::string &amp;err);</a>
+<a name="178"><span class="lineNum">     178 </span>            : inline bool copy (string_view from, string_view to) {</a>
+<a name="179"><span class="lineNum">     179 </span>            :     std::string err;</a>
+<a name="180"><span class="lineNum">     180 </span>            :     return copy (from, to, err);</a>
+<a name="181"><span class="lineNum">     181 </span>            : }</a>
+<a name="182"><span class="lineNum">     182 </span>            : </a>
+<a name="183"><span class="lineNum">     183 </span>            : /// Rename (or move) a file, directory, or link. The file names are all UTF-8</a>
+<a name="184"><span class="lineNum">     184 </span>            : /// encoded. Return true upon success, false upon failure and place an error</a>
+<a name="185"><span class="lineNum">     185 </span>            : /// message in err.</a>
+<a name="186"><span class="lineNum">     186 </span>            : OIIO_UTIL_API bool rename (string_view from, string_view to, std::string &amp;err);</a>
+<a name="187"><span class="lineNum">     187 </span>            : inline bool rename (string_view from, string_view to) {</a>
+<a name="188"><span class="lineNum">     188 </span>            :     std::string err;</a>
+<a name="189"><span class="lineNum">     189 </span>            :     return rename (from, to, err);</a>
+<a name="190"><span class="lineNum">     190 </span>            : }</a>
+<a name="191"><span class="lineNum">     191 </span>            : </a>
+<a name="192"><span class="lineNum">     192 </span>            : /// Remove the file or directory. The file names are all UTF-8 encoded. Return</a>
+<a name="193"><span class="lineNum">     193 </span>            : /// true for success, false for failure and place an error message in err.</a>
+<a name="194"><span class="lineNum">     194 </span>            : OIIO_UTIL_API bool remove (string_view path, std::string &amp;err);</a>
+<a name="195"><span class="lineNum">     195 </span><span class="lineNoCov">          0 : inline bool remove (string_view path) {</span></a>
+<a name="196"><span class="lineNum">     196 </span><span class="lineNoCov">          0 :     std::string err;</span></a>
+<a name="197"><span class="lineNum">     197 </span><span class="lineNoCov">          0 :     return remove (path, err);</span></a>
+<a name="198"><span class="lineNum">     198 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="199"><span class="lineNum">     199 </span>            : </a>
+<a name="200"><span class="lineNum">     200 </span>            : /// Remove the file or directory, including any children (recursively). The</a>
+<a name="201"><span class="lineNum">     201 </span>            : /// file names are all UTF-8 encoded. Return the number of files removed.</a>
+<a name="202"><span class="lineNum">     202 </span>            : /// Place an error message (if applicable in err.</a>
+<a name="203"><span class="lineNum">     203 </span>            : OIIO_UTIL_API unsigned long long remove_all (string_view path, std::string &amp;err);</a>
+<a name="204"><span class="lineNum">     204 </span>            : inline unsigned long long remove_all (string_view path) {</a>
+<a name="205"><span class="lineNum">     205 </span>            :     std::string err;</a>
+<a name="206"><span class="lineNum">     206 </span>            :     return remove_all (path, err);</a>
+<a name="207"><span class="lineNum">     207 </span>            : }</a>
+<a name="208"><span class="lineNum">     208 </span>            : </a>
+<a name="209"><span class="lineNum">     209 </span>            : /// Return a directory path (UTF-8 encoded) where temporary files can be made.</a>
+<a name="210"><span class="lineNum">     210 </span>            : ///</a>
+<a name="211"><span class="lineNum">     211 </span>            : OIIO_UTIL_API std::string temp_directory_path ();</a>
+<a name="212"><span class="lineNum">     212 </span>            : </a>
+<a name="213"><span class="lineNum">     213 </span>            : /// Return a unique filename suitable for making a temporary file or</a>
+<a name="214"><span class="lineNum">     214 </span>            : /// directory.  The file names are all UTF-8 encoded.</a>
+<a name="215"><span class="lineNum">     215 </span>            : /// NOTE: this function is not recommended, because it's a known security</a>
+<a name="216"><span class="lineNum">     216 </span>            : /// and stability issue, since another process *could* create a file of the</a>
+<a name="217"><span class="lineNum">     217 </span>            : /// same name after the path is retrieved but before it is created. So in</a>
+<a name="218"><span class="lineNum">     218 </span>            : /// the long run, we want to wean ourselves off this. But in practice, it's</a>
+<a name="219"><span class="lineNum">     219 </span>            : /// not an emergency. We'll replace this with something else eventually.</a>
+<a name="220"><span class="lineNum">     220 </span>            : OIIO_UTIL_API std::string unique_path (string_view model=&quot;%%%%-%%%%-%%%%-%%%%&quot;);</a>
+<a name="221"><span class="lineNum">     221 </span>            : </a>
+<a name="222"><span class="lineNum">     222 </span>            : /// Version of fopen that can handle UTF-8 paths even on Windows.</a>
+<a name="223"><span class="lineNum">     223 </span>            : OIIO_UTIL_API FILE *fopen (string_view path, string_view mode);</a>
+<a name="224"><span class="lineNum">     224 </span>            : </a>
+<a name="225"><span class="lineNum">     225 </span>            : /// Version of fseek that works with 64 bit offsets on all systems.</a>
+<a name="226"><span class="lineNum">     226 </span>            : /// Like std::fseek, returns zero on success, nonzero on failure.</a>
+<a name="227"><span class="lineNum">     227 </span>            : OIIO_UTIL_API int fseek (FILE *file, int64_t offset, int whence);</a>
+<a name="228"><span class="lineNum">     228 </span>            : </a>
+<a name="229"><span class="lineNum">     229 </span>            : /// Version of ftell that works with 64 bit offsets on all systems.</a>
+<a name="230"><span class="lineNum">     230 </span>            : OIIO_UTIL_API int64_t ftell (FILE *file);</a>
+<a name="231"><span class="lineNum">     231 </span>            : </a>
+<a name="232"><span class="lineNum">     232 </span>            : /// Read one line of text from an open text file file until the hitting a</a>
+<a name="233"><span class="lineNum">     233 </span>            : /// newline, reaching `maxlen` characters without encountering a newline, or</a>
+<a name="234"><span class="lineNum">     234 </span>            : /// reaching the end of the file, and return the characters read as a</a>
+<a name="235"><span class="lineNum">     235 </span>            : /// std::string. The newline will be included in the returned string, unless</a>
+<a name="236"><span class="lineNum">     236 </span>            : /// the line was too long, in which case the string returned will be the</a>
+<a name="237"><span class="lineNum">     237 </span>            : /// partial result with no newline at the end. If an error occurs or if the</a>
+<a name="238"><span class="lineNum">     238 </span>            : /// end of the file is encountered before either a newline is reached or</a>
+<a name="239"><span class="lineNum">     239 </span>            : /// maxlen characters are read, an empty string will be returned.</a>
+<a name="240"><span class="lineNum">     240 </span>            : OIIO_UTIL_API std::string getline(FILE* file, size_t maxlen = 4096);</a>
+<a name="241"><span class="lineNum">     241 </span>            : </a>
+<a name="242"><span class="lineNum">     242 </span>            : /// Return the current (&quot;.&quot;) directory path.</a>
+<a name="243"><span class="lineNum">     243 </span>            : ///</a>
+<a name="244"><span class="lineNum">     244 </span>            : OIIO_UTIL_API std::string current_path ();</a>
+<a name="245"><span class="lineNum">     245 </span>            : </a>
+<a name="246"><span class="lineNum">     246 </span>            : /// Version of std::ifstream.open that can handle UTF-8 paths</a>
+<a name="247"><span class="lineNum">     247 </span>            : ///</a>
+<a name="248"><span class="lineNum">     248 </span>            : OIIO_UTIL_API void open (ifstream &amp;stream, string_view path,</a>
+<a name="249"><span class="lineNum">     249 </span>            :                     std::ios_base::openmode mode = std::ios_base::in);</a>
+<a name="250"><span class="lineNum">     250 </span>            : </a>
+<a name="251"><span class="lineNum">     251 </span>            : /// Version of std::ofstream.open that can handle UTF-8 paths</a>
+<a name="252"><span class="lineNum">     252 </span>            : ///</a>
+<a name="253"><span class="lineNum">     253 </span>            : OIIO_UTIL_API void open (ofstream &amp;stream, string_view path,</a>
+<a name="254"><span class="lineNum">     254 </span>            :                     std::ios_base::openmode mode = std::ios_base::out);</a>
+<a name="255"><span class="lineNum">     255 </span>            : </a>
+<a name="256"><span class="lineNum">     256 </span>            : /// Version of C open() that can handle UTF-8 paths, returning an integer</a>
+<a name="257"><span class="lineNum">     257 </span>            : /// file descriptor. Note that the flags are passed to underlying calls to</a>
+<a name="258"><span class="lineNum">     258 </span>            : /// open()/_open() and therefore may be OS specific -- use with caution! If</a>
+<a name="259"><span class="lineNum">     259 </span>            : /// you want more OS-agnostic file opening, prefer the FILE or stream</a>
+<a name="260"><span class="lineNum">     260 </span>            : /// methods of IO. (N.B.: use of this function requires the caller to</a>
+<a name="261"><span class="lineNum">     261 </span>            : /// `#include &lt;fcntl.h&gt;` in order to get the definitions of the flags.)</a>
+<a name="262"><span class="lineNum">     262 </span>            : OIIO_UTIL_API int open (string_view path, int flags);</a>
+<a name="263"><span class="lineNum">     263 </span>            : </a>
+<a name="264"><span class="lineNum">     264 </span>            : /// Read the entire contents of the named text file (as a UTF-8 encoded</a>
+<a name="265"><span class="lineNum">     265 </span>            : /// filename) and place it in str, returning true on success, false on</a>
+<a name="266"><span class="lineNum">     266 </span>            : /// failure.  The optional size parameter gives the maximum amount to read</a>
+<a name="267"><span class="lineNum">     267 </span>            : /// (for memory safety) and defaults to 16MB. Set size to 0 for no limit</a>
+<a name="268"><span class="lineNum">     268 </span>            : /// (use at your own risk).</a>
+<a name="269"><span class="lineNum">     269 </span>            : OIIO_UTIL_API bool read_text_file(string_view filename, std::string &amp;str,</a>
+<a name="270"><span class="lineNum">     270 </span>            :                                   size_t size = (1UL &lt;&lt; 24));</a>
+<a name="271"><span class="lineNum">     271 </span>            : </a>
+<a name="272"><span class="lineNum">     272 </span>            : /// Run a command line process and capture its console output in `str`,</a>
+<a name="273"><span class="lineNum">     273 </span>            : /// returning true on success, false on failure.  The optional size parameter</a>
+<a name="274"><span class="lineNum">     274 </span>            : /// gives the maximum amount to read (for memory safety) and defaults to 16MB.</a>
+<a name="275"><span class="lineNum">     275 </span>            : /// Set size to 0 for no limit (use at your own risk).</a>
+<a name="276"><span class="lineNum">     276 </span>            : OIIO_UTIL_API bool read_text_from_command(string_view command,</a>
+<a name="277"><span class="lineNum">     277 </span>            :                                           std::string &amp;str,</a>
+<a name="278"><span class="lineNum">     278 </span>            :                                           size_t size = (1UL &lt;&lt; 24));</a>
+<a name="279"><span class="lineNum">     279 </span>            : </a>
+<a name="280"><span class="lineNum">     280 </span>            : /// Write the entire contents of the string `str` to the named file (UTF-8</a>
+<a name="281"><span class="lineNum">     281 </span>            : /// encoded), overwriting any prior contents of the file (if it existed),</a>
+<a name="282"><span class="lineNum">     282 </span>            : /// returning true on success, false on failure.</a>
+<a name="283"><span class="lineNum">     283 </span>            : OIIO_UTIL_API bool write_text_file (string_view filename, string_view str);</a>
+<a name="284"><span class="lineNum">     284 </span>            : </a>
+<a name="285"><span class="lineNum">     285 </span>            : /// Write the entire contents of the span `data` to the file (UTF-8 encoded)</a>
+<a name="286"><span class="lineNum">     286 </span>            : /// as a binary blob, overwriting any prior contents of the file (if it</a>
+<a name="287"><span class="lineNum">     287 </span>            : /// existed), returning true on success, false on failure.</a>
+<a name="288"><span class="lineNum">     288 </span>            : template&lt;typename T&gt;</a>
+<a name="289"><span class="lineNum">     289 </span>            : bool write_binary_file (string_view filename, cspan&lt;T&gt; data)</a>
+<a name="290"><span class="lineNum">     290 </span>            : {</a>
+<a name="291"><span class="lineNum">     291 </span>            :     ofstream out;</a>
+<a name="292"><span class="lineNum">     292 </span>            :     Filesystem::open(out, filename, std::ios::out | std::ios::binary);</a>
+<a name="293"><span class="lineNum">     293 </span>            :     out.write((const char*)data.data(), data.size() * sizeof(T));</a>
+<a name="294"><span class="lineNum">     294 </span>            :     return out.good();</a>
+<a name="295"><span class="lineNum">     295 </span>            : }</a>
+<a name="296"><span class="lineNum">     296 </span>            : </a>
+<a name="297"><span class="lineNum">     297 </span>            : template&lt;typename T&gt;</a>
+<a name="298"><span class="lineNum">     298 </span>            : bool write_binary_file (string_view filename, const std::vector&lt;T&gt;&amp; data)</a>
+<a name="299"><span class="lineNum">     299 </span>            : {</a>
+<a name="300"><span class="lineNum">     300 </span>            :     return write_binary_file(filename, cspan&lt;T&gt;(data));</a>
+<a name="301"><span class="lineNum">     301 </span>            : }</a>
+<a name="302"><span class="lineNum">     302 </span>            : </a>
+<a name="303"><span class="lineNum">     303 </span>            : /// Read a maximum of n bytes from the named file, starting at position pos</a>
+<a name="304"><span class="lineNum">     304 </span>            : /// (which defaults to the start of the file), storing results in</a>
+<a name="305"><span class="lineNum">     305 </span>            : /// buffer[0..n-1]. Return the number of bytes read, which will be n for</a>
+<a name="306"><span class="lineNum">     306 </span>            : /// full success, less than n if the file was fewer than n+pos bytes long,</a>
+<a name="307"><span class="lineNum">     307 </span>            : /// or 0 if the file did not exist or could not be read.</a>
+<a name="308"><span class="lineNum">     308 </span>            : OIIO_UTIL_API size_t read_bytes (string_view path, void *buffer, size_t n,</a>
+<a name="309"><span class="lineNum">     309 </span>            :                                  size_t pos=0);</a>
+<a name="310"><span class="lineNum">     310 </span>            : </a>
+<a name="311"><span class="lineNum">     311 </span>            : /// Get last modified time of the file named by `path` (UTF-8 encoded).</a>
+<a name="312"><span class="lineNum">     312 </span>            : ///</a>
+<a name="313"><span class="lineNum">     313 </span>            : OIIO_UTIL_API std::time_t last_write_time (string_view path) noexcept;</a>
+<a name="314"><span class="lineNum">     314 </span>            : </a>
+<a name="315"><span class="lineNum">     315 </span>            : /// Set last modified time on the file named by `path` (UTF-8 encoded).</a>
+<a name="316"><span class="lineNum">     316 </span>            : ///</a>
+<a name="317"><span class="lineNum">     317 </span>            : OIIO_UTIL_API void last_write_time (string_view path, std::time_t time) noexcept;</a>
+<a name="318"><span class="lineNum">     318 </span>            : </a>
+<a name="319"><span class="lineNum">     319 </span>            : /// Return the size of the file (in bytes), or uint64_t(-1) if there is any</a>
+<a name="320"><span class="lineNum">     320 </span>            : /// error. The file name is UTF-8 encoded.</a>
+<a name="321"><span class="lineNum">     321 </span>            : OIIO_UTIL_API uint64_t file_size (string_view path) noexcept;</a>
+<a name="322"><span class="lineNum">     322 </span>            : </a>
+<a name="323"><span class="lineNum">     323 </span>            : /// Ensure command line arguments are UTF-8 everywhere.</a>
+<a name="324"><span class="lineNum">     324 </span>            : OIIO_UTIL_API void convert_native_arguments (int argc, const char *argv[]);</a>
+<a name="325"><span class="lineNum">     325 </span>            : </a>
+<a name="326"><span class="lineNum">     326 </span>            : /// Turn a sequence description string into a vector of integers.</a>
+<a name="327"><span class="lineNum">     327 </span>            : /// The sequence description can be any of the following</a>
+<a name="328"><span class="lineNum">     328 </span>            : ///  * A value (e.g., &quot;3&quot;)</a>
+<a name="329"><span class="lineNum">     329 </span>            : ///  * A value range (&quot;1-10&quot;, &quot;10-1&quot;, &quot;1-10x3&quot;, &quot;1-10y3&quot;):</a>
+<a name="330"><span class="lineNum">     330 </span>            : ///     START-FINISH        A range, inclusive of start &amp; finish</a>
+<a name="331"><span class="lineNum">     331 </span>            : ///     START-FINISHxSTEP   A range with step size</a>
+<a name="332"><span class="lineNum">     332 </span>            : ///     START-FINISHySTEP   The complement of a stepped range, that is,</a>
+<a name="333"><span class="lineNum">     333 </span>            : ///                           all numbers within the range that would</a>
+<a name="334"><span class="lineNum">     334 </span>            : ///                           NOT have been selected by 'x'.</a>
+<a name="335"><span class="lineNum">     335 </span>            : ///     Note that START may be &gt; FINISH, or STEP may be negative.</a>
+<a name="336"><span class="lineNum">     336 </span>            : ///  * Multiple values or ranges, separated by a comma (e.g., &quot;3,4,10-20x2&quot;)</a>
+<a name="337"><span class="lineNum">     337 </span>            : /// Return true upon success, false if the description was too malformed</a>
+<a name="338"><span class="lineNum">     338 </span>            : /// to generate a sequence.</a>
+<a name="339"><span class="lineNum">     339 </span>            : OIIO_UTIL_API bool enumerate_sequence (string_view desc,</a>
+<a name="340"><span class="lineNum">     340 </span>            :                                        std::vector&lt;int&gt; &amp;numbers);</a>
+<a name="341"><span class="lineNum">     341 </span>            : </a>
+<a name="342"><span class="lineNum">     342 </span>            : /// Given a pattern (such as &quot;foo.#.tif&quot; or &quot;bar.1-10#.exr&quot;), return a</a>
+<a name="343"><span class="lineNum">     343 </span>            : /// normalized pattern in printf format (such as &quot;foo.%04d.tif&quot;) and a</a>
+<a name="344"><span class="lineNum">     344 </span>            : /// framespec (such as &quot;1-10&quot;).</a>
+<a name="345"><span class="lineNum">     345 </span>            : ///</a>
+<a name="346"><span class="lineNum">     346 </span>            : /// If framepadding_override is &gt; 0, it overrides any specific padding amount</a>
+<a name="347"><span class="lineNum">     347 </span>            : /// in the original pattern.</a>
+<a name="348"><span class="lineNum">     348 </span>            : ///</a>
+<a name="349"><span class="lineNum">     349 </span>            : /// Return true upon success, false if the description was too malformed</a>
+<a name="350"><span class="lineNum">     350 </span>            : /// to generate a sequence.</a>
+<a name="351"><span class="lineNum">     351 </span>            : OIIO_UTIL_API bool parse_pattern (const char *pattern,</a>
+<a name="352"><span class="lineNum">     352 </span>            :                                   int framepadding_override,</a>
+<a name="353"><span class="lineNum">     353 </span>            :                                   std::string &amp;normalized_pattern,</a>
+<a name="354"><span class="lineNum">     354 </span>            :                                   std::string &amp;framespec);</a>
+<a name="355"><span class="lineNum">     355 </span>            : </a>
+<a name="356"><span class="lineNum">     356 </span>            : </a>
+<a name="357"><span class="lineNum">     357 </span>            : /// Given a normalized pattern (such as &quot;foo.%04d.tif&quot;) and a list of frame</a>
+<a name="358"><span class="lineNum">     358 </span>            : /// numbers, generate a list of filenames. All the filename strings will be</a>
+<a name="359"><span class="lineNum">     359 </span>            : /// presumed to be UTF-8 encoded.</a>
+<a name="360"><span class="lineNum">     360 </span>            : ///</a>
+<a name="361"><span class="lineNum">     361 </span>            : /// Return true upon success, false if the description was too malformed</a>
+<a name="362"><span class="lineNum">     362 </span>            : /// to generate a sequence.</a>
+<a name="363"><span class="lineNum">     363 </span>            : OIIO_UTIL_API bool enumerate_file_sequence (const std::string &amp;pattern,</a>
+<a name="364"><span class="lineNum">     364 </span>            :                                        const std::vector&lt;int&gt; &amp;numbers,</a>
+<a name="365"><span class="lineNum">     365 </span>            :                                        std::vector&lt;std::string&gt; &amp;filenames);</a>
+<a name="366"><span class="lineNum">     366 </span>            : </a>
+<a name="367"><span class="lineNum">     367 </span>            : /// Given a normalized pattern (such as &quot;foo_%V.%04d.tif&quot;) and a list of frame</a>
+<a name="368"><span class="lineNum">     368 </span>            : /// numbers, generate a list of filenames. &quot;views&quot; is list of per-frame views,</a>
+<a name="369"><span class="lineNum">     369 </span>            : /// or empty. In each frame filename, &quot;%V&quot; is replaced with the view, and &quot;%v&quot;</a>
+<a name="370"><span class="lineNum">     370 </span>            : /// is replaced with the first character of the view. All the filename strings</a>
+<a name="371"><span class="lineNum">     371 </span>            : /// will be presumed to be UTF-8 encoded.</a>
+<a name="372"><span class="lineNum">     372 </span>            : ///</a>
+<a name="373"><span class="lineNum">     373 </span>            : /// Return true upon success, false if the description was too malformed to</a>
+<a name="374"><span class="lineNum">     374 </span>            : /// generate a sequence.</a>
+<a name="375"><span class="lineNum">     375 </span>            : OIIO_UTIL_API bool enumerate_file_sequence (const std::string &amp;pattern,</a>
+<a name="376"><span class="lineNum">     376 </span>            :                                        const std::vector&lt;int&gt; &amp;numbers,</a>
+<a name="377"><span class="lineNum">     377 </span>            :                                        const std::vector&lt;string_view&gt; &amp;views,</a>
+<a name="378"><span class="lineNum">     378 </span>            :                                        std::vector&lt;std::string&gt; &amp;filenames);</a>
+<a name="379"><span class="lineNum">     379 </span>            : </a>
+<a name="380"><span class="lineNum">     380 </span>            : /// Given a normalized pattern (such as &quot;/path/to/foo.%04d.tif&quot;) scan the</a>
+<a name="381"><span class="lineNum">     381 </span>            : /// containing directory (/path/to) for matching frame numbers, views and</a>
+<a name="382"><span class="lineNum">     382 </span>            : /// files. &quot;%V&quot; in the pattern matches views, while &quot;%v&quot; matches the first</a>
+<a name="383"><span class="lineNum">     383 </span>            : /// character of each entry in views. All the filename strings will be</a>
+<a name="384"><span class="lineNum">     384 </span>            : /// presumed to be UTF-8 encoded.</a>
+<a name="385"><span class="lineNum">     385 </span>            : ///</a>
+<a name="386"><span class="lineNum">     386 </span>            : /// Return true upon success, false if the directory doesn't exist or the</a>
+<a name="387"><span class="lineNum">     387 </span>            : /// pattern can't be parsed.</a>
+<a name="388"><span class="lineNum">     388 </span>            : OIIO_UTIL_API bool scan_for_matching_filenames (const std::string &amp;pattern,</a>
+<a name="389"><span class="lineNum">     389 </span>            :                                            const std::vector&lt;string_view&gt; &amp;views,</a>
+<a name="390"><span class="lineNum">     390 </span>            :                                            std::vector&lt;int&gt; &amp;frame_numbers,</a>
+<a name="391"><span class="lineNum">     391 </span>            :                                            std::vector&lt;string_view&gt; &amp;frame_views,</a>
+<a name="392"><span class="lineNum">     392 </span>            :                                            std::vector&lt;std::string&gt; &amp;filenames);</a>
+<a name="393"><span class="lineNum">     393 </span>            : </a>
+<a name="394"><span class="lineNum">     394 </span>            : /// Given a normalized pattern (such as &quot;/path/to/foo.%04d.tif&quot;) scan the</a>
+<a name="395"><span class="lineNum">     395 </span>            : /// containing directory (/path/to) for matching frame numbers and files. All</a>
+<a name="396"><span class="lineNum">     396 </span>            : /// the filename strings will be presumed to be UTF-8 encoded.</a>
+<a name="397"><span class="lineNum">     397 </span>            : ///</a>
+<a name="398"><span class="lineNum">     398 </span>            : /// Return true upon success, false if the directory doesn't exist or the</a>
+<a name="399"><span class="lineNum">     399 </span>            : /// pattern can't be parsed.</a>
+<a name="400"><span class="lineNum">     400 </span>            : OIIO_UTIL_API bool scan_for_matching_filenames (const std::string &amp;pattern,</a>
+<a name="401"><span class="lineNum">     401 </span>            :                                            std::vector&lt;int&gt; &amp;numbers,</a>
+<a name="402"><span class="lineNum">     402 </span>            :                                            std::vector&lt;std::string&gt; &amp;filenames);</a>
+<a name="403"><span class="lineNum">     403 </span>            : </a>
+<a name="404"><span class="lineNum">     404 </span>            : /// Convert a UTF-8 encoded filename into a regex-safe pattern -- any special</a>
+<a name="405"><span class="lineNum">     405 </span>            : /// regex characters `.`, `(`, `)`, `[`, `]`, `{`, `}` are backslashed. If</a>
+<a name="406"><span class="lineNum">     406 </span>            : /// `simple_glob` is also true, then replace `?` with `.?` and `*` with `.*`.</a>
+<a name="407"><span class="lineNum">     407 </span>            : /// This doesn't support full Unix command line glob syntax (no char sets</a>
+<a name="408"><span class="lineNum">     408 </span>            : /// `[abc]` or string sets `{ab,cd,ef}`), but it does handle simple globbing</a>
+<a name="409"><span class="lineNum">     409 </span>            : /// of `?` to mean any single character and `*` to mean any sequence of 0 or</a>
+<a name="410"><span class="lineNum">     410 </span>            : /// more characters.</a>
+<a name="411"><span class="lineNum">     411 </span>            : OIIO_UTIL_API std::string filename_to_regex(string_view pattern,</a>
+<a name="412"><span class="lineNum">     412 </span>            :                                             bool simple_glob = true);</a>
+<a name="413"><span class="lineNum">     413 </span>            : </a>
+<a name="414"><span class="lineNum">     414 </span>            : </a>
+<a name="415"><span class="lineNum">     415 </span>            : </a>
+<a name="416"><span class="lineNum">     416 </span>            : /// Proxy class for I/O. This provides a simplified interface for file I/O</a>
+<a name="417"><span class="lineNum">     417 </span>            : /// that can have custom overrides. All char-based filenames are assumed to be</a>
+<a name="418"><span class="lineNum">     418 </span>            : /// UTF-8 encoded.</a>
+<a name="419"><span class="lineNum">     419 </span>            : class OIIO_UTIL_API IOProxy {</a>
+<a name="420"><span class="lineNum">     420 </span>            : public:</a>
+<a name="421"><span class="lineNum">     421 </span>            :     enum Mode { Closed = 0, Read = 'r', Write = 'w' };</a>
+<a name="422"><span class="lineNum">     422 </span>            :     IOProxy () {}</a>
+<a name="423"><span class="lineNum">     423 </span><span class="lineCov">       6389 :     IOProxy (string_view filename, Mode mode)</span></a>
+<a name="424"><span class="lineNum">     424 </span><span class="lineCov">      19167 :         : m_filename(filename), m_mode(mode) {}</span></a>
+<a name="425"><span class="lineNum">     425 </span>            :     IOProxy(const std::wstring&amp; filename, Mode mode)</a>
+<a name="426"><span class="lineNum">     426 </span>            :         : IOProxy(Strutil::utf16_to_utf8(filename), mode) {}</a>
+<a name="427"><span class="lineNum">     427 </span><span class="lineCov">       6389 :     virtual ~IOProxy () { }</span></a>
+<a name="428"><span class="lineNum">     428 </span>            :     virtual const char* proxytype () const = 0;</a>
+<a name="429"><span class="lineNum">     429 </span><span class="lineNoCov">          0 :     virtual void close () { }</span></a>
+<a name="430"><span class="lineNum">     430 </span><span class="lineNoCov">          0 :     virtual bool opened () const { return mode() != Closed; }</span></a>
+<a name="431"><span class="lineNum">     431 </span><span class="lineCov">         22 :     virtual int64_t tell() const { return m_pos; }</span></a>
+<a name="432"><span class="lineNum">     432 </span>            :     // Seek to the position, returning true on success, false on failure.</a>
+<a name="433"><span class="lineNum">     433 </span>            :     // Note the difference between this and std::fseek() which returns 0 on</a>
+<a name="434"><span class="lineNum">     434 </span>            :     // success, and -1 on failure.</a>
+<a name="435"><span class="lineNum">     435 </span><span class="lineCov">         61 :     virtual bool seek (int64_t offset) { m_pos = offset; return true; }</span></a>
+<a name="436"><span class="lineNum">     436 </span>            :     // Read `size` bytes at the current position into `buf[]`, returning the</a>
+<a name="437"><span class="lineNum">     437 </span>            :     // number of bytes successfully read.</a>
+<a name="438"><span class="lineNum">     438 </span>            :     virtual size_t read (void *buf, size_t size);</a>
+<a name="439"><span class="lineNum">     439 </span>            :     // Write `size` bytes from `buf[]` at the current position, returning the</a>
+<a name="440"><span class="lineNum">     440 </span>            :     // number of bytes successfully written.</a>
+<a name="441"><span class="lineNum">     441 </span>            :     virtual size_t write (const void *buf, size_t size);</a>
+<a name="442"><span class="lineNum">     442 </span>            : </a>
+<a name="443"><span class="lineNum">     443 </span>            :     /// Read `size` bytes starting at the `offset` position into `buf[]`,</a>
+<a name="444"><span class="lineNum">     444 </span>            :     /// returning the number of bytes successfully read. This function does</a>
+<a name="445"><span class="lineNum">     445 </span>            :     /// not alter the current file position. This function is thread-safe against</a>
+<a name="446"><span class="lineNum">     446 </span>            :     /// all other concurrent calls to pread() and pwrite(), but not against any</a>
+<a name="447"><span class="lineNum">     447 </span>            :     /// other function of IOProxy.</a>
+<a name="448"><span class="lineNum">     448 </span>            :     virtual size_t pread (void *buf, size_t size, int64_t offset);</a>
+<a name="449"><span class="lineNum">     449 </span>            : </a>
+<a name="450"><span class="lineNum">     450 </span>            :     /// Write `size` bytes from `buf[]` to file starting at the `offset` position,</a>
+<a name="451"><span class="lineNum">     451 </span>            :     /// returning the number of bytes successfully written. This function does</a>
+<a name="452"><span class="lineNum">     452 </span>            :     /// not alter the current file position. This function is thread-safe against</a>
+<a name="453"><span class="lineNum">     453 </span>            :     /// all other concurrent calls to pread() and pwrite(), but not against any</a>
+<a name="454"><span class="lineNum">     454 </span>            :     /// other function of IOProxy.</a>
+<a name="455"><span class="lineNum">     455 </span>            :     virtual size_t pwrite (const void *buf, size_t size, int64_t offset);</a>
+<a name="456"><span class="lineNum">     456 </span>            : </a>
+<a name="457"><span class="lineNum">     457 </span>            :     // Return the total size of the proxy data, in bytes.</a>
+<a name="458"><span class="lineNum">     458 </span>            :     virtual size_t size () const { return 0; }</a>
+<a name="459"><span class="lineNum">     459 </span><span class="lineNoCov">          0 :     virtual void flush() { }</span></a>
+<a name="460"><span class="lineNum">     460 </span>            : </a>
+<a name="461"><span class="lineNum">     461 </span><span class="lineNoCov">          0 :     Mode mode () const { return m_mode; }</span></a>
+<a name="462"><span class="lineNum">     462 </span>            :     const std::string&amp; filename () const { return m_filename; }</a>
+<a name="463"><span class="lineNum">     463 </span>            :     template&lt;class T&gt; size_t read (span&lt;T&gt; buf) {</a>
+<a name="464"><span class="lineNum">     464 </span>            :         return read (buf.data(), buf.size()*sizeof(T));</a>
+<a name="465"><span class="lineNum">     465 </span>            :     }</a>
+<a name="466"><span class="lineNum">     466 </span>            :     template&lt;class T&gt; size_t write (span&lt;T&gt; buf) {</a>
+<a name="467"><span class="lineNum">     467 </span>            :         return write (buf.data(), buf.size()*sizeof(T));</a>
+<a name="468"><span class="lineNum">     468 </span>            :     }</a>
+<a name="469"><span class="lineNum">     469 </span>            :     size_t write (string_view buf) {</a>
+<a name="470"><span class="lineNum">     470 </span>            :         return write (buf.data(), buf.size());</a>
+<a name="471"><span class="lineNum">     471 </span>            :     }</a>
+<a name="472"><span class="lineNum">     472 </span>            :     bool seek (int64_t offset, int origin) {</a>
+<a name="473"><span class="lineNum">     473 </span>            :         return seek ((origin == SEEK_SET ? offset : 0) +</a>
+<a name="474"><span class="lineNum">     474 </span>            :                      (origin == SEEK_CUR ? offset+tell() : 0) +</a>
+<a name="475"><span class="lineNum">     475 </span>            :                      (origin == SEEK_END ? offset+int64_t(size()) : 0));</a>
+<a name="476"><span class="lineNum">     476 </span>            :     }</a>
+<a name="477"><span class="lineNum">     477 </span>            : </a>
+<a name="478"><span class="lineNum">     478 </span>            :     #define OIIO_IOPROXY_HAS_ERROR 1</a>
+<a name="479"><span class="lineNum">     479 </span>            :     std::string error() const;</a>
+<a name="480"><span class="lineNum">     480 </span>            :     void error(string_view e);</a>
+<a name="481"><span class="lineNum">     481 </span>            : </a>
+<a name="482"><span class="lineNum">     482 </span>            : protected:</a>
+<a name="483"><span class="lineNum">     483 </span>            :     std::string m_filename;</a>
+<a name="484"><span class="lineNum">     484 </span>            :     int64_t m_pos = 0;</a>
+<a name="485"><span class="lineNum">     485 </span>            :     Mode m_mode   = Closed;</a>
+<a name="486"><span class="lineNum">     486 </span>            :     std::string m_error;</a>
+<a name="487"><span class="lineNum">     487 </span>            : };</a>
+<a name="488"><span class="lineNum">     488 </span>            : </a>
+<a name="489"><span class="lineNum">     489 </span>            : </a>
+<a name="490"><span class="lineNum">     490 </span>            : /// IOProxy subclass for reading or writing (plus re-reading) that wraps C</a>
+<a name="491"><span class="lineNum">     491 </span>            : /// stdio 'FILE'.</a>
+<a name="492"><span class="lineNum">     492 </span>            : class OIIO_UTIL_API IOFile : public IOProxy {</a>
+<a name="493"><span class="lineNum">     493 </span>            : public:</a>
+<a name="494"><span class="lineNum">     494 </span>            :     // Construct from a filename, open, own the FILE*.</a>
+<a name="495"><span class="lineNum">     495 </span>            :     IOFile(string_view filename, Mode mode);</a>
+<a name="496"><span class="lineNum">     496 </span>            :     IOFile(const std::wstring&amp; filename, Mode mode)</a>
+<a name="497"><span class="lineNum">     497 </span>            :         : IOFile(Strutil::utf16_to_utf8(filename), mode) {}</a>
+<a name="498"><span class="lineNum">     498 </span>            :     // Construct from an already-open FILE* that is owned by the caller.</a>
+<a name="499"><span class="lineNum">     499 </span>            :     // Caller is responsible for closing the FILE* after the proxy is gone.</a>
+<a name="500"><span class="lineNum">     500 </span>            :     IOFile(FILE* file, Mode mode);</a>
+<a name="501"><span class="lineNum">     501 </span>            :     ~IOFile() override;</a>
+<a name="502"><span class="lineNum">     502 </span>            :     const char* proxytype() const override { return &quot;file&quot;; }</a>
+<a name="503"><span class="lineNum">     503 </span>            :     void close() override;</a>
+<a name="504"><span class="lineNum">     504 </span>            :     bool seek(int64_t offset) override;</a>
+<a name="505"><span class="lineNum">     505 </span>            :     size_t read(void* buf, size_t size) override;</a>
+<a name="506"><span class="lineNum">     506 </span>            :     size_t write(const void* buf, size_t size) override;</a>
+<a name="507"><span class="lineNum">     507 </span>            :     size_t pread(void* buf, size_t size, int64_t offset) override;</a>
+<a name="508"><span class="lineNum">     508 </span>            :     size_t pwrite(const void* buf, size_t size, int64_t offset) override;</a>
+<a name="509"><span class="lineNum">     509 </span>            :     size_t size() const override;</a>
+<a name="510"><span class="lineNum">     510 </span>            :     void flush() override;</a>
+<a name="511"><span class="lineNum">     511 </span>            : </a>
+<a name="512"><span class="lineNum">     512 </span>            :     // Access the FILE*</a>
+<a name="513"><span class="lineNum">     513 </span>            :     FILE* handle() const { return m_file; }</a>
+<a name="514"><span class="lineNum">     514 </span>            : </a>
+<a name="515"><span class="lineNum">     515 </span>            : protected:</a>
+<a name="516"><span class="lineNum">     516 </span>            :     FILE* m_file      = nullptr;</a>
+<a name="517"><span class="lineNum">     517 </span>            :     size_t m_size     = 0;</a>
+<a name="518"><span class="lineNum">     518 </span>            :     bool m_auto_close = false;</a>
+<a name="519"><span class="lineNum">     519 </span>            :     std::mutex m_mutex;</a>
+<a name="520"><span class="lineNum">     520 </span>            : };</a>
+<a name="521"><span class="lineNum">     521 </span>            : </a>
+<a name="522"><span class="lineNum">     522 </span>            : </a>
+<a name="523"><span class="lineNum">     523 </span>            : /// IOProxy subclass for writing that wraps a std::vector&lt;char&gt; that will</a>
+<a name="524"><span class="lineNum">     524 </span>            : /// grow as we write.</a>
+<a name="525"><span class="lineNum">     525 </span>            : class OIIO_UTIL_API IOVecOutput : public IOProxy {</a>
+<a name="526"><span class="lineNum">     526 </span>            : public:</a>
+<a name="527"><span class="lineNum">     527 </span>            :     // Construct, IOVecOutput owns its own vector.</a>
+<a name="528"><span class="lineNum">     528 </span>            :     IOVecOutput()</a>
+<a name="529"><span class="lineNum">     529 </span>            :         : IOProxy(&quot;&quot;, IOProxy::Write)</a>
+<a name="530"><span class="lineNum">     530 </span>            :         , m_buf(m_local_buf)</a>
+<a name="531"><span class="lineNum">     531 </span>            :     {</a>
+<a name="532"><span class="lineNum">     532 </span>            :     }</a>
+<a name="533"><span class="lineNum">     533 </span>            :     // Construct to wrap an existing vector.</a>
+<a name="534"><span class="lineNum">     534 </span>            :     IOVecOutput(std::vector&lt;unsigned char&gt;&amp; buf)</a>
+<a name="535"><span class="lineNum">     535 </span>            :         : IOProxy(&quot;&quot;, Write)</a>
+<a name="536"><span class="lineNum">     536 </span>            :         , m_buf(buf)</a>
+<a name="537"><span class="lineNum">     537 </span>            :     {</a>
+<a name="538"><span class="lineNum">     538 </span>            :     }</a>
+<a name="539"><span class="lineNum">     539 </span>            :     const char* proxytype() const override { return &quot;vecoutput&quot;; }</a>
+<a name="540"><span class="lineNum">     540 </span>            :     size_t read(void* buf, size_t size) override;</a>
+<a name="541"><span class="lineNum">     541 </span>            :     size_t write(const void* buf, size_t size) override;</a>
+<a name="542"><span class="lineNum">     542 </span>            :     size_t pread(void* buf, size_t size, int64_t offset) override;</a>
+<a name="543"><span class="lineNum">     543 </span>            :     size_t pwrite(const void* buf, size_t size, int64_t offset) override;</a>
+<a name="544"><span class="lineNum">     544 </span>            :     size_t size() const override { return m_buf.size(); }</a>
+<a name="545"><span class="lineNum">     545 </span>            : </a>
+<a name="546"><span class="lineNum">     546 </span>            :     // Access the buffer</a>
+<a name="547"><span class="lineNum">     547 </span>            :     std::vector&lt;unsigned char&gt;&amp; buffer() const { return m_buf; }</a>
+<a name="548"><span class="lineNum">     548 </span>            : </a>
+<a name="549"><span class="lineNum">     549 </span>            : protected:</a>
+<a name="550"><span class="lineNum">     550 </span>            :     std::vector&lt;unsigned char&gt;&amp; m_buf;       // reference to buffer</a>
+<a name="551"><span class="lineNum">     551 </span>            :     std::vector&lt;unsigned char&gt; m_local_buf;  // our own buffer</a>
+<a name="552"><span class="lineNum">     552 </span>            :     std::mutex m_mutex;                      // protect the buffer</a>
+<a name="553"><span class="lineNum">     553 </span>            : };</a>
+<a name="554"><span class="lineNum">     554 </span>            : </a>
+<a name="555"><span class="lineNum">     555 </span>            : </a>
+<a name="556"><span class="lineNum">     556 </span>            : </a>
+<a name="557"><span class="lineNum">     557 </span>            : /// IOProxy subclass for reading that wraps an cspan&lt;char&gt;.</a>
+<a name="558"><span class="lineNum">     558 </span>            : class OIIO_UTIL_API IOMemReader : public IOProxy {</a>
+<a name="559"><span class="lineNum">     559 </span>            : public:</a>
+<a name="560"><span class="lineNum">     560 </span>            :     IOMemReader(const void* buf, size_t size)</a>
+<a name="561"><span class="lineNum">     561 </span>            :         : IOProxy(&quot;&quot;, Read)</a>
+<a name="562"><span class="lineNum">     562 </span>            :         , m_buf((const unsigned char*)buf, size)</a>
+<a name="563"><span class="lineNum">     563 </span>            :     {</a>
+<a name="564"><span class="lineNum">     564 </span>            :     }</a>
+<a name="565"><span class="lineNum">     565 </span><span class="lineCov">       6373 :     IOMemReader(cspan&lt;unsigned char&gt; buf)</span></a>
+<a name="566"><span class="lineNum">     566 </span><span class="lineCov">       6373 :         : IOProxy(&quot;&quot;, Read)</span></a>
+<a name="567"><span class="lineNum">     567 </span><span class="lineCov">       6373 :         , m_buf(buf.data(), buf.size())</span></a>
+<a name="568"><span class="lineNum">     568 </span>            :     {</a>
+<a name="569"><span class="lineNum">     569 </span><span class="lineCov">       6373 :     }</span></a>
+<a name="570"><span class="lineNum">     570 </span>            :     const char* proxytype() const override { return &quot;memreader&quot;; }</a>
+<a name="571"><span class="lineNum">     571 </span>            :     bool seek(int64_t offset) override</a>
+<a name="572"><span class="lineNum">     572 </span>            :     {</a>
+<a name="573"><span class="lineNum">     573 </span>            :         m_pos = offset;</a>
+<a name="574"><span class="lineNum">     574 </span>            :         return true;</a>
+<a name="575"><span class="lineNum">     575 </span>            :     }</a>
+<a name="576"><span class="lineNum">     576 </span>            :     size_t read(void* buf, size_t size) override;</a>
+<a name="577"><span class="lineNum">     577 </span>            :     size_t pread(void* buf, size_t size, int64_t offset) override;</a>
+<a name="578"><span class="lineNum">     578 </span>            :     size_t size() const override { return m_buf.size(); }</a>
+<a name="579"><span class="lineNum">     579 </span>            : </a>
+<a name="580"><span class="lineNum">     580 </span>            :     // Access the buffer (caveat emptor)</a>
+<a name="581"><span class="lineNum">     581 </span>            :     cspan&lt;unsigned char&gt; buffer() const noexcept { return m_buf; }</a>
+<a name="582"><span class="lineNum">     582 </span>            : </a>
+<a name="583"><span class="lineNum">     583 </span>            : protected:</a>
+<a name="584"><span class="lineNum">     584 </span>            :     cspan&lt;unsigned char&gt; m_buf;</a>
+<a name="585"><span class="lineNum">     585 </span>            : };</a>
+<a name="586"><span class="lineNum">     586 </span>            : </a>
+<a name="587"><span class="lineNum">     587 </span>            : };  // namespace Filesystem</a>
+<a name="588"><span class="lineNum">     588 </span>            : </a>
+<a name="589"><span class="lineNum">     589 </span>            : OIIO_NAMESPACE_3_1_END</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

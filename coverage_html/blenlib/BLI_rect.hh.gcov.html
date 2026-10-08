@@ -1,0 +1,296 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - blenlib/BLI_rect.hh</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">blenlib</a> - BLI_rect.hh<span style="font-size: 80%;"> (source / <a href="BLI_rect.hh.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryLo">60.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2001-2002 NaN Holding BV. All rights reserved.</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : #pragma once</a>
+<a name="6"><span class="lineNum">       6 </span>            : </a>
+<a name="7"><span class="lineNum">       7 </span>            : /** \file</a>
+<a name="8"><span class="lineNum">       8 </span>            :  * \ingroup bli</a>
+<a name="9"><span class="lineNum">       9 </span>            :  */</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &quot;BLI_compiler_compat.hh&quot;</a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &quot;BLI_sys_types.hh&quot; /* bool */</a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;DNA_vec_types.h&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : </a>
+<a name="15"><span class="lineNum">      15 </span>            : namespace blender {</a>
+<a name="16"><span class="lineNum">      16 </span>            : </a>
+<a name="17"><span class="lineNum">      17 </span>            : struct rctf;</a>
+<a name="18"><span class="lineNum">      18 </span>            : struct rcti;</a>
+<a name="19"><span class="lineNum">      19 </span>            : </a>
+<a name="20"><span class="lineNum">      20 </span>            : /**</a>
+<a name="21"><span class="lineNum">      21 </span>            :  * Determine if a `rect` is empty.</a>
+<a name="22"><span class="lineNum">      22 </span>            :  * An empty `rect` is one with a zero (or negative) width or height.</a>
+<a name="23"><span class="lineNum">      23 </span>            :  *</a>
+<a name="24"><span class="lineNum">      24 </span>            :  * \return True if \a rect is empty.</a>
+<a name="25"><span class="lineNum">      25 </span>            :  */</a>
+<a name="26"><span class="lineNum">      26 </span>            : bool BLI_rcti_is_empty(const struct rcti *rect);</a>
+<a name="27"><span class="lineNum">      27 </span>            : bool BLI_rctf_is_empty(const struct rctf *rect);</a>
+<a name="28"><span class="lineNum">      28 </span>            : void BLI_rctf_init(struct rctf *rect, float xmin, float xmax, float ymin, float ymax);</a>
+<a name="29"><span class="lineNum">      29 </span>            : void BLI_rcti_init(struct rcti *rect, int xmin, int xmax, int ymin, int ymax);</a>
+<a name="30"><span class="lineNum">      30 </span>            : /**</a>
+<a name="31"><span class="lineNum">      31 </span>            :  * Check if X-min and Y-min are less than or equal to X-max and Y-max, respectively.</a>
+<a name="32"><span class="lineNum">      32 </span>            :  * If this returns false, #BLI_rctf_sanitize() can be called to address this.</a>
+<a name="33"><span class="lineNum">      33 </span>            :  *</a>
+<a name="34"><span class="lineNum">      34 </span>            :  * This is not a hard constraint or invariant for rectangles, in some cases it may be useful to</a>
+<a name="35"><span class="lineNum">      35 </span>            :  * have max &lt; min. Usually this is what you'd want though.</a>
+<a name="36"><span class="lineNum">      36 </span>            :  */</a>
+<a name="37"><span class="lineNum">      37 </span>            : bool BLI_rctf_is_valid(const struct rctf *rect);</a>
+<a name="38"><span class="lineNum">      38 </span>            : bool BLI_rcti_is_valid(const struct rcti *rect);</a>
+<a name="39"><span class="lineNum">      39 </span>            : /**</a>
+<a name="40"><span class="lineNum">      40 </span>            :  * Ensure X-min and Y-min are less than or equal to X-max and Y-max, respectively.</a>
+<a name="41"><span class="lineNum">      41 </span>            :  */</a>
+<a name="42"><span class="lineNum">      42 </span>            : void BLI_rctf_sanitize(struct rctf *rect);</a>
+<a name="43"><span class="lineNum">      43 </span>            : void BLI_rcti_sanitize(struct rcti *rect);</a>
+<a name="44"><span class="lineNum">      44 </span>            : void BLI_rctf_init_pt_radius(struct rctf *rect, const float xy[2], float size);</a>
+<a name="45"><span class="lineNum">      45 </span>            : void BLI_rcti_init_pt_radius(struct rcti *rect, const int xy[2], int size);</a>
+<a name="46"><span class="lineNum">      46 </span>            : void BLI_rcti_init_minmax(struct rcti *rect);</a>
+<a name="47"><span class="lineNum">      47 </span>            : void BLI_rctf_init_minmax(struct rctf *rect);</a>
+<a name="48"><span class="lineNum">      48 </span>            : void BLI_rcti_do_minmax_v(struct rcti *rect, const int xy[2]);</a>
+<a name="49"><span class="lineNum">      49 </span>            : void BLI_rctf_do_minmax_v(struct rctf *rect, const float xy[2]);</a>
+<a name="50"><span class="lineNum">      50 </span>            : void BLI_rcti_do_minmax_rcti(struct rcti *rect, const struct rcti *other);</a>
+<a name="51"><span class="lineNum">      51 </span>            : </a>
+<a name="52"><span class="lineNum">      52 </span>            : /**</a>
+<a name="53"><span class="lineNum">      53 </span>            :  * Given 2 rectangles, transform a point from one to another.</a>
+<a name="54"><span class="lineNum">      54 </span>            :  */</a>
+<a name="55"><span class="lineNum">      55 </span>            : void BLI_rctf_transform_pt_v(const rctf *dst,</a>
+<a name="56"><span class="lineNum">      56 </span>            :                              const rctf *src,</a>
+<a name="57"><span class="lineNum">      57 </span>            :                              float xy_dst[2],</a>
+<a name="58"><span class="lineNum">      58 </span>            :                              const float xy_src[2]);</a>
+<a name="59"><span class="lineNum">      59 </span>            : /**</a>
+<a name="60"><span class="lineNum">      60 </span>            :  * Calculate a 4x4 matrix representing the transformation between two rectangles.</a>
+<a name="61"><span class="lineNum">      61 </span>            :  *</a>
+<a name="62"><span class="lineNum">      62 </span>            :  * \note Multiplying a vector by this matrix does *not*</a>
+<a name="63"><span class="lineNum">      63 </span>            :  * give the same value as #BLI_rctf_transform_pt_v.</a>
+<a name="64"><span class="lineNum">      64 </span>            :  */</a>
+<a name="65"><span class="lineNum">      65 </span>            : void BLI_rctf_transform_calc_m4_pivot_min_ex(</a>
+<a name="66"><span class="lineNum">      66 </span>            :     const rctf *dst, const rctf *src, float matrix[4][4], uint x, uint y);</a>
+<a name="67"><span class="lineNum">      67 </span>            : void BLI_rctf_transform_calc_m4_pivot_min(const rctf *dst, const rctf *src, float matrix[4][4]);</a>
+<a name="68"><span class="lineNum">      68 </span>            : void BLI_rctf_transform_calc_m3_pivot_min(const rctf *dst, const rctf *src, float matrix[3][3]);</a>
+<a name="69"><span class="lineNum">      69 </span>            : </a>
+<a name="70"><span class="lineNum">      70 </span>            : void BLI_rctf_translate(struct rctf *rect, float x, float y);</a>
+<a name="71"><span class="lineNum">      71 </span>            : void BLI_rcti_translate(struct rcti *rect, int x, int y);</a>
+<a name="72"><span class="lineNum">      72 </span>            : void BLI_rctf_mul(struct rctf *rect, float factor);</a>
+<a name="73"><span class="lineNum">      73 </span>            : void BLI_rcti_mul(struct rcti *rect, int factor);</a>
+<a name="74"><span class="lineNum">      74 </span>            : void BLI_rcti_recenter(struct rcti *rect, int x, int y);</a>
+<a name="75"><span class="lineNum">      75 </span>            : void BLI_rctf_recenter(struct rctf *rect, float x, float y);</a>
+<a name="76"><span class="lineNum">      76 </span>            : void BLI_rcti_resize(struct rcti *rect, int x, int y);</a>
+<a name="77"><span class="lineNum">      77 </span>            : /**</a>
+<a name="78"><span class="lineNum">      78 </span>            :  * Change width &amp; height around the central X location.</a>
+<a name="79"><span class="lineNum">      79 </span>            :  */</a>
+<a name="80"><span class="lineNum">      80 </span>            : void BLI_rcti_resize_x(struct rcti *rect, int x);</a>
+<a name="81"><span class="lineNum">      81 </span>            : /**</a>
+<a name="82"><span class="lineNum">      82 </span>            :  * Change width &amp; height around the central Y location.</a>
+<a name="83"><span class="lineNum">      83 </span>            :  */</a>
+<a name="84"><span class="lineNum">      84 </span>            : void BLI_rcti_resize_y(struct rcti *rect, int y);</a>
+<a name="85"><span class="lineNum">      85 </span>            : void BLI_rcti_pad(struct rcti *rect, int pad_x, int pad_y);</a>
+<a name="86"><span class="lineNum">      86 </span>            : void BLI_rctf_pad(struct rctf *rect, float pad_x, float pad_y);</a>
+<a name="87"><span class="lineNum">      87 </span>            : void BLI_rctf_resize(struct rctf *rect, float x, float y);</a>
+<a name="88"><span class="lineNum">      88 </span>            : void BLI_rctf_resize_x(struct rctf *rect, float x);</a>
+<a name="89"><span class="lineNum">      89 </span>            : void BLI_rctf_resize_y(struct rctf *rect, float y);</a>
+<a name="90"><span class="lineNum">      90 </span>            : void BLI_rcti_scale(rcti *rect, float scale);</a>
+<a name="91"><span class="lineNum">      91 </span>            : void BLI_rctf_scale(rctf *rect, float scale);</a>
+<a name="92"><span class="lineNum">      92 </span>            : void BLI_rctf_pad_y(struct rctf *rect, float boundary_size, float pad_min, float pad_max);</a>
+<a name="93"><span class="lineNum">      93 </span>            : void BLI_rctf_interp(struct rctf *rect,</a>
+<a name="94"><span class="lineNum">      94 </span>            :                      const struct rctf *rect_a,</a>
+<a name="95"><span class="lineNum">      95 </span>            :                      const struct rctf *rect_b,</a>
+<a name="96"><span class="lineNum">      96 </span>            :                      float fac);</a>
+<a name="97"><span class="lineNum">      97 </span>            : // void BLI_rcti_interp(struct rctf *rect, struct rctf *rect_a, struct rctf *rect_b, float fac);</a>
+<a name="98"><span class="lineNum">      98 </span>            : bool BLI_rctf_clamp_pt_v(const struct rctf *rect, float xy[2]);</a>
+<a name="99"><span class="lineNum">      99 </span>            : bool BLI_rcti_clamp_pt_v(const struct rcti *rect, int xy[2]);</a>
+<a name="100"><span class="lineNum">     100 </span>            : /**</a>
+<a name="101"><span class="lineNum">     101 </span>            :  * Clamp \a rect within \a rect_bounds, setting \a r_xy to the offset.</a>
+<a name="102"><span class="lineNum">     102 </span>            :  *</a>
+<a name="103"><span class="lineNum">     103 </span>            :  * Keeps the top left corner within the bounds, which for user interface</a>
+<a name="104"><span class="lineNum">     104 </span>            :  * elements is typically where the most important information is.</a>
+<a name="105"><span class="lineNum">     105 </span>            :  *</a>
+<a name="106"><span class="lineNum">     106 </span>            :  * \return true if a change is made.</a>
+<a name="107"><span class="lineNum">     107 </span>            :  */</a>
+<a name="108"><span class="lineNum">     108 </span>            : bool BLI_rctf_clamp(struct rctf *rect, const struct rctf *rect_bounds, float r_xy[2]);</a>
+<a name="109"><span class="lineNum">     109 </span>            : bool BLI_rcti_clamp(struct rcti *rect, const struct rcti *rect_bounds, int r_xy[2]);</a>
+<a name="110"><span class="lineNum">     110 </span>            : bool BLI_rctf_compare(const struct rctf *rect_a, const struct rctf *rect_b, float limit);</a>
+<a name="111"><span class="lineNum">     111 </span>            : bool BLI_rcti_compare(const struct rcti *rect_a, const struct rcti *rect_b);</a>
+<a name="112"><span class="lineNum">     112 </span>            : bool BLI_rctf_isect(const struct rctf *src1, const struct rctf *src2, struct rctf *dest);</a>
+<a name="113"><span class="lineNum">     113 </span>            : bool BLI_rcti_isect(const struct rcti *src1, const struct rcti *src2, struct rcti *dest);</a>
+<a name="114"><span class="lineNum">     114 </span>            : bool BLI_rctf_isect_rect_x(const struct rctf *src1, const struct rctf *src2, float range_x[2]);</a>
+<a name="115"><span class="lineNum">     115 </span>            : bool BLI_rctf_isect_rect_y(const struct rctf *src1, const struct rctf *src2, float range_y[2]);</a>
+<a name="116"><span class="lineNum">     116 </span>            : bool BLI_rcti_isect_rect_x(const struct rcti *src1, const struct rcti *src2, int range_x[2]);</a>
+<a name="117"><span class="lineNum">     117 </span>            : bool BLI_rcti_isect_rect_y(const struct rcti *src1, const struct rcti *src2, int range_y[2]);</a>
+<a name="118"><span class="lineNum">     118 </span>            : bool BLI_rcti_isect_x(const rcti *rect, int x);</a>
+<a name="119"><span class="lineNum">     119 </span>            : bool BLI_rcti_isect_y(const rcti *rect, int y);</a>
+<a name="120"><span class="lineNum">     120 </span>            : bool BLI_rcti_isect_pt(const struct rcti *rect, int x, int y);</a>
+<a name="121"><span class="lineNum">     121 </span>            : bool BLI_rcti_isect_pt_v(const struct rcti *rect, const int xy[2]);</a>
+<a name="122"><span class="lineNum">     122 </span>            : bool BLI_rctf_isect_x(const rctf *rect, float x);</a>
+<a name="123"><span class="lineNum">     123 </span>            : bool BLI_rctf_isect_y(const rctf *rect, float y);</a>
+<a name="124"><span class="lineNum">     124 </span>            : bool BLI_rctf_isect_pt(const struct rctf *rect, float x, float y);</a>
+<a name="125"><span class="lineNum">     125 </span>            : bool BLI_rctf_isect_pt_v(const struct rctf *rect, const float xy[2]);</a>
+<a name="126"><span class="lineNum">     126 </span>            : /**</a>
+<a name="127"><span class="lineNum">     127 </span>            :  * \returns shortest distance from \a rect to x (0 if inside)</a>
+<a name="128"><span class="lineNum">     128 </span>            :  */</a>
+<a name="129"><span class="lineNum">     129 </span>            : int BLI_rcti_length_x(const rcti *rect, int x);</a>
+<a name="130"><span class="lineNum">     130 </span>            : /**</a>
+<a name="131"><span class="lineNum">     131 </span>            :  * \returns shortest distance from \a rect to y (0 if inside)</a>
+<a name="132"><span class="lineNum">     132 </span>            :  */</a>
+<a name="133"><span class="lineNum">     133 </span>            : int BLI_rcti_length_y(const rcti *rect, int y);</a>
+<a name="134"><span class="lineNum">     134 </span>            : float BLI_rctf_length_x(const rctf *rect, float x);</a>
+<a name="135"><span class="lineNum">     135 </span>            : float BLI_rctf_length_y(const rctf *rect, float y);</a>
+<a name="136"><span class="lineNum">     136 </span>            : bool BLI_rcti_isect_segment(const struct rcti *rect, const int s1[2], const int s2[2]);</a>
+<a name="137"><span class="lineNum">     137 </span>            : bool BLI_rctf_isect_segment(const struct rctf *rect, const float s1[2], const float s2[2]);</a>
+<a name="138"><span class="lineNum">     138 </span>            : bool BLI_rcti_isect_circle(const struct rcti *rect, const float xy[2], float radius);</a>
+<a name="139"><span class="lineNum">     139 </span>            : bool BLI_rctf_isect_circle(const struct rctf *rect, const float xy[2], float radius);</a>
+<a name="140"><span class="lineNum">     140 </span>            : bool BLI_rcti_inside_rcti(const rcti *rct_a, const rcti *rct_b);</a>
+<a name="141"><span class="lineNum">     141 </span>            : /**</a>
+<a name="142"><span class="lineNum">     142 </span>            :  * is \a rct_b inside \a rct_a</a>
+<a name="143"><span class="lineNum">     143 </span>            :  */</a>
+<a name="144"><span class="lineNum">     144 </span>            : bool BLI_rctf_inside_rctf(const rctf *rct_a, const rctf *rct_b);</a>
+<a name="145"><span class="lineNum">     145 </span>            : void BLI_rcti_union(struct rcti *rct_a, const struct rcti *rct_b);</a>
+<a name="146"><span class="lineNum">     146 </span>            : void BLI_rctf_union(struct rctf *rct_a, const struct rctf *rct_b);</a>
+<a name="147"><span class="lineNum">     147 </span>            : void BLI_rctf_union_x(struct rctf *rct, float x);</a>
+<a name="148"><span class="lineNum">     148 </span>            : void BLI_rctf_union_y(struct rctf *rct, float y);</a>
+<a name="149"><span class="lineNum">     149 </span>            : void BLI_rcti_rctf_copy(struct rcti *dst, const struct rctf *src);</a>
+<a name="150"><span class="lineNum">     150 </span>            : void BLI_rctf_rcti_copy(struct rctf *dst, const struct rcti *src);</a>
+<a name="151"><span class="lineNum">     151 </span>            : void BLI_rcti_rctf_copy_floor(struct rcti *dst, const struct rctf *src);</a>
+<a name="152"><span class="lineNum">     152 </span>            : void BLI_rcti_rctf_copy_round(struct rcti *dst, const struct rctf *src);</a>
+<a name="153"><span class="lineNum">     153 </span>            : </a>
+<a name="154"><span class="lineNum">     154 </span>            : /**</a>
+<a name="155"><span class="lineNum">     155 </span>            :  * Clamps the given segment to be within the rectangle.</a>
+<a name="156"><span class="lineNum">     156 </span>            :  *</a>
+<a name="157"><span class="lineNum">     157 </span>            :  * \return False when no part of the segment is within the rectangle, in which case the s1 and s2</a>
+<a name="158"><span class="lineNum">     158 </span>            :  * values should be ignored.</a>
+<a name="159"><span class="lineNum">     159 </span>            :  */</a>
+<a name="160"><span class="lineNum">     160 </span>            : bool BLI_rctf_clamp_segment(const struct rctf *rect, float s1[2], float s2[2]);</a>
+<a name="161"><span class="lineNum">     161 </span>            : </a>
+<a name="162"><span class="lineNum">     162 </span>            : /**</a>
+<a name="163"><span class="lineNum">     163 </span>            :  * Expand the rectangle to fit a rotated \a src.</a>
+<a name="164"><span class="lineNum">     164 </span>            :  */</a>
+<a name="165"><span class="lineNum">     165 </span>            : void BLI_rctf_rotate_expand(rctf *dst, const rctf *src, float angle);</a>
+<a name="166"><span class="lineNum">     166 </span>            : </a>
+<a name="167"><span class="lineNum">     167 </span>            : /**</a>
+<a name="168"><span class="lineNum">     168 </span>            :  * Rotate \a src around \a pivot and expand the rectangle to fit the result.</a>
+<a name="169"><span class="lineNum">     169 </span>            :  */</a>
+<a name="170"><span class="lineNum">     170 </span>            : void BLI_rctf_rotate_expand_around(rctf *dst, const rctf *src, const float pivot[2], float angle);</a>
+<a name="171"><span class="lineNum">     171 </span>            : </a>
+<a name="172"><span class="lineNum">     172 </span>            : void print_rctf(const char *str, const struct rctf *rect);</a>
+<a name="173"><span class="lineNum">     173 </span>            : void print_rcti(const char *str, const struct rcti *rect);</a>
+<a name="174"><span class="lineNum">     174 </span>            : </a>
+<a name="175"><span class="lineNum">     175 </span>            : #define print_rctf_id(rect) print_rctf(STRINGIFY(rect), rect)</a>
+<a name="176"><span class="lineNum">     176 </span>            : #define print_rcti_id(rect) print_rcti(STRINGIFY(rect), rect)</a>
+<a name="177"><span class="lineNum">     177 </span>            : </a>
+<a name="178"><span class="lineNum">     178 </span>            : BLI_INLINE float BLI_rcti_cent_x_fl(const struct rcti *rct)</a>
+<a name="179"><span class="lineNum">     179 </span>            : {</a>
+<a name="180"><span class="lineNum">     180 </span><span class="lineNoCov">          0 :   return float(rct-&gt;xmin + rct-&gt;xmax) / 2.0f;</span></a>
+<a name="181"><span class="lineNum">     181 </span>            : }</a>
+<a name="182"><span class="lineNum">     182 </span>            : BLI_INLINE float BLI_rcti_cent_y_fl(const struct rcti *rct)</a>
+<a name="183"><span class="lineNum">     183 </span>            : {</a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineNoCov">          0 :   return float(rct-&gt;ymin + rct-&gt;ymax) / 2.0f;</span></a>
+<a name="185"><span class="lineNum">     185 </span>            : }</a>
+<a name="186"><span class="lineNum">     186 </span>            : BLI_INLINE int BLI_rcti_cent_x(const struct rcti *rct)</a>
+<a name="187"><span class="lineNum">     187 </span>            : {</a>
+<a name="188"><span class="lineNum">     188 </span><span class="lineNoCov">          0 :   return (rct-&gt;xmin + rct-&gt;xmax) / 2;</span></a>
+<a name="189"><span class="lineNum">     189 </span>            : }</a>
+<a name="190"><span class="lineNum">     190 </span>            : BLI_INLINE int BLI_rcti_cent_y(const struct rcti *rct)</a>
+<a name="191"><span class="lineNum">     191 </span>            : {</a>
+<a name="192"><span class="lineNum">     192 </span><span class="lineNoCov">          0 :   return (rct-&gt;ymin + rct-&gt;ymax) / 2;</span></a>
+<a name="193"><span class="lineNum">     193 </span>            : }</a>
+<a name="194"><span class="lineNum">     194 </span>            : BLI_INLINE float BLI_rctf_cent_x(const struct rctf *rct)</a>
+<a name="195"><span class="lineNum">     195 </span>            : {</a>
+<a name="196"><span class="lineNum">     196 </span><span class="lineCov">      27968 :   return (rct-&gt;xmin + rct-&gt;xmax) / 2.0f;</span></a>
+<a name="197"><span class="lineNum">     197 </span>            : }</a>
+<a name="198"><span class="lineNum">     198 </span>            : BLI_INLINE float BLI_rctf_cent_y(const struct rctf *rct)</a>
+<a name="199"><span class="lineNum">     199 </span>            : {</a>
+<a name="200"><span class="lineNum">     200 </span><span class="lineCov">      27872 :   return (rct-&gt;ymin + rct-&gt;ymax) / 2.0f;</span></a>
+<a name="201"><span class="lineNum">     201 </span>            : }</a>
+<a name="202"><span class="lineNum">     202 </span>            : </a>
+<a name="203"><span class="lineNum">     203 </span>            : BLI_INLINE int BLI_rcti_size_x(const struct rcti *rct)</a>
+<a name="204"><span class="lineNum">     204 </span>            : {</a>
+<a name="205"><span class="lineNum">     205 </span><span class="lineCov">     384317 :   return (rct-&gt;xmax - rct-&gt;xmin);</span></a>
+<a name="206"><span class="lineNum">     206 </span>            : }</a>
+<a name="207"><span class="lineNum">     207 </span>            : BLI_INLINE int BLI_rcti_size_y(const struct rcti *rct)</a>
+<a name="208"><span class="lineNum">     208 </span>            : {</a>
+<a name="209"><span class="lineNum">     209 </span><span class="lineCov">      81604 :   return (rct-&gt;ymax - rct-&gt;ymin);</span></a>
+<a name="210"><span class="lineNum">     210 </span>            : }</a>
+<a name="211"><span class="lineNum">     211 </span>            : BLI_INLINE float BLI_rctf_size_x(const struct rctf *rct)</a>
+<a name="212"><span class="lineNum">     212 </span>            : {</a>
+<a name="213"><span class="lineNum">     213 </span><span class="lineCov">     644150 :   return (rct-&gt;xmax - rct-&gt;xmin);</span></a>
+<a name="214"><span class="lineNum">     214 </span>            : }</a>
+<a name="215"><span class="lineNum">     215 </span>            : BLI_INLINE float BLI_rctf_size_y(const struct rctf *rct)</a>
+<a name="216"><span class="lineNum">     216 </span>            : {</a>
+<a name="217"><span class="lineNum">     217 </span><span class="lineCov">     444302 :   return (rct-&gt;ymax - rct-&gt;ymin);</span></a>
+<a name="218"><span class="lineNum">     218 </span>            : }</a>
+<a name="219"><span class="lineNum">     219 </span>            : </a>
+<a name="220"><span class="lineNum">     220 </span>            : }  // namespace blender</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

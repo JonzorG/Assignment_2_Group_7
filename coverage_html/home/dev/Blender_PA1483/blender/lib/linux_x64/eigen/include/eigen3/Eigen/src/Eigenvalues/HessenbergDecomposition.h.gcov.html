@@ -1,0 +1,432 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - /home/dev/Blender_PA1483/blender/lib/linux_x64/eigen/include/eigen3/Eigen/src/Eigenvalues/HessenbergDecomposition.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../../../../../../../index.html">top level</a> - <a href="index.html">home/dev/Blender_PA1483/blender/lib/linux_x64/eigen/include/eigen3/Eigen/src/Eigenvalues</a> - HessenbergDecomposition.h<span style="font-size: 80%;"> (source / <a href="HessenbergDecomposition.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">44</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // This file is part of Eigen, a lightweight C++ template library</a>
+<a name="2"><span class="lineNum">       2 </span>            : // for linear algebra.</a>
+<a name="3"><span class="lineNum">       3 </span>            : //</a>
+<a name="4"><span class="lineNum">       4 </span>            : // Copyright (C) 2008-2009 Gael Guennebaud &lt;gael.guennebaud@inria.fr&gt;</a>
+<a name="5"><span class="lineNum">       5 </span>            : // Copyright (C) 2010 Jitse Niesen &lt;jitse@maths.leeds.ac.uk&gt;</a>
+<a name="6"><span class="lineNum">       6 </span>            : //</a>
+<a name="7"><span class="lineNum">       7 </span>            : // This Source Code Form is subject to the terms of the Mozilla</a>
+<a name="8"><span class="lineNum">       8 </span>            : // Public License v. 2.0. If a copy of the MPL was not distributed</a>
+<a name="9"><span class="lineNum">       9 </span>            : // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : #ifndef EIGEN_HESSENBERGDECOMPOSITION_H</a>
+<a name="12"><span class="lineNum">      12 </span>            : #define EIGEN_HESSENBERGDECOMPOSITION_H</a>
+<a name="13"><span class="lineNum">      13 </span>            : </a>
+<a name="14"><span class="lineNum">      14 </span>            : // IWYU pragma: private</a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;./InternalHeaderCheck.h&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : </a>
+<a name="17"><span class="lineNum">      17 </span>            : namespace Eigen {</a>
+<a name="18"><span class="lineNum">      18 </span>            : </a>
+<a name="19"><span class="lineNum">      19 </span>            : namespace internal {</a>
+<a name="20"><span class="lineNum">      20 </span>            : </a>
+<a name="21"><span class="lineNum">      21 </span>            : template &lt;typename MatrixType&gt;</a>
+<a name="22"><span class="lineNum">      22 </span>            : struct HessenbergDecompositionMatrixHReturnType;</a>
+<a name="23"><span class="lineNum">      23 </span>            : template &lt;typename MatrixType&gt;</a>
+<a name="24"><span class="lineNum">      24 </span>            : struct traits&lt;HessenbergDecompositionMatrixHReturnType&lt;MatrixType&gt;&gt; {</a>
+<a name="25"><span class="lineNum">      25 </span>            :   typedef MatrixType ReturnType;</a>
+<a name="26"><span class="lineNum">      26 </span>            : };</a>
+<a name="27"><span class="lineNum">      27 </span>            : </a>
+<a name="28"><span class="lineNum">      28 </span>            : }  // namespace internal</a>
+<a name="29"><span class="lineNum">      29 </span>            : </a>
+<a name="30"><span class="lineNum">      30 </span>            : /** \eigenvalues_module \ingroup Eigenvalues_Module</a>
+<a name="31"><span class="lineNum">      31 </span>            :  *</a>
+<a name="32"><span class="lineNum">      32 </span>            :  *</a>
+<a name="33"><span class="lineNum">      33 </span>            :  * \class HessenbergDecomposition</a>
+<a name="34"><span class="lineNum">      34 </span>            :  *</a>
+<a name="35"><span class="lineNum">      35 </span>            :  * \brief Reduces a square matrix to Hessenberg form by an orthogonal similarity transformation</a>
+<a name="36"><span class="lineNum">      36 </span>            :  *</a>
+<a name="37"><span class="lineNum">      37 </span>            :  * \tparam MatrixType_ the type of the matrix of which we are computing the Hessenberg decomposition</a>
+<a name="38"><span class="lineNum">      38 </span>            :  *</a>
+<a name="39"><span class="lineNum">      39 </span>            :  * This class performs an Hessenberg decomposition of a matrix \f$ A \f$. In</a>
+<a name="40"><span class="lineNum">      40 </span>            :  * the real case, the Hessenberg decomposition consists of an orthogonal</a>
+<a name="41"><span class="lineNum">      41 </span>            :  * matrix \f$ Q \f$ and a Hessenberg matrix \f$ H \f$ such that \f$ A = Q H</a>
+<a name="42"><span class="lineNum">      42 </span>            :  * Q^T \f$. An orthogonal matrix is a matrix whose inverse equals its</a>
+<a name="43"><span class="lineNum">      43 </span>            :  * transpose (\f$ Q^{-1} = Q^T \f$). A Hessenberg matrix has zeros below the</a>
+<a name="44"><span class="lineNum">      44 </span>            :  * subdiagonal, so it is almost upper triangular. The Hessenberg decomposition</a>
+<a name="45"><span class="lineNum">      45 </span>            :  * of a complex matrix is \f$ A = Q H Q^* \f$ with \f$ Q \f$ unitary (that is,</a>
+<a name="46"><span class="lineNum">      46 </span>            :  * \f$ Q^{-1} = Q^* \f$).</a>
+<a name="47"><span class="lineNum">      47 </span>            :  *</a>
+<a name="48"><span class="lineNum">      48 </span>            :  * Call the function compute() to compute the Hessenberg decomposition of a</a>
+<a name="49"><span class="lineNum">      49 </span>            :  * given matrix. Alternatively, you can use the</a>
+<a name="50"><span class="lineNum">      50 </span>            :  * HessenbergDecomposition(const MatrixType&amp;) constructor which computes the</a>
+<a name="51"><span class="lineNum">      51 </span>            :  * Hessenberg decomposition at construction time. Once the decomposition is</a>
+<a name="52"><span class="lineNum">      52 </span>            :  * computed, you can use the matrixH() and matrixQ() functions to construct</a>
+<a name="53"><span class="lineNum">      53 </span>            :  * the matrices H and Q in the decomposition.</a>
+<a name="54"><span class="lineNum">      54 </span>            :  *</a>
+<a name="55"><span class="lineNum">      55 </span>            :  * The documentation for matrixH() contains an example of the typical use of</a>
+<a name="56"><span class="lineNum">      56 </span>            :  * this class.</a>
+<a name="57"><span class="lineNum">      57 </span>            :  *</a>
+<a name="58"><span class="lineNum">      58 </span>            :  * \sa class ComplexSchur, class Tridiagonalization, \ref QR_Module &quot;QR Module&quot;</a>
+<a name="59"><span class="lineNum">      59 </span>            :  */</a>
+<a name="60"><span class="lineNum">      60 </span>            : template &lt;typename MatrixType_&gt;</a>
+<a name="61"><span class="lineNum">      61 </span>            : class HessenbergDecomposition {</a>
+<a name="62"><span class="lineNum">      62 </span>            :  public:</a>
+<a name="63"><span class="lineNum">      63 </span>            :   /** \brief Synonym for the template parameter \p MatrixType_. */</a>
+<a name="64"><span class="lineNum">      64 </span>            :   typedef MatrixType_ MatrixType;</a>
+<a name="65"><span class="lineNum">      65 </span>            : </a>
+<a name="66"><span class="lineNum">      66 </span>            :   enum {</a>
+<a name="67"><span class="lineNum">      67 </span>            :     Size = MatrixType::RowsAtCompileTime,</a>
+<a name="68"><span class="lineNum">      68 </span>            :     SizeMinusOne = Size == Dynamic ? Dynamic : Size - 1,</a>
+<a name="69"><span class="lineNum">      69 </span>            :     Options = internal::traits&lt;MatrixType&gt;::Options,</a>
+<a name="70"><span class="lineNum">      70 </span>            :     MaxSize = MatrixType::MaxRowsAtCompileTime,</a>
+<a name="71"><span class="lineNum">      71 </span>            :     MaxSizeMinusOne = MaxSize == Dynamic ? Dynamic : MaxSize - 1</a>
+<a name="72"><span class="lineNum">      72 </span>            :   };</a>
+<a name="73"><span class="lineNum">      73 </span>            : </a>
+<a name="74"><span class="lineNum">      74 </span>            :   /** \brief Scalar type for matrices of type #MatrixType. */</a>
+<a name="75"><span class="lineNum">      75 </span>            :   typedef typename MatrixType::Scalar Scalar;</a>
+<a name="76"><span class="lineNum">      76 </span>            :   typedef Eigen::Index Index;  ///&lt; \deprecated since Eigen 3.3</a>
+<a name="77"><span class="lineNum">      77 </span>            : </a>
+<a name="78"><span class="lineNum">      78 </span>            :   /** \brief Type for vector of Householder coefficients.</a>
+<a name="79"><span class="lineNum">      79 </span>            :    *</a>
+<a name="80"><span class="lineNum">      80 </span>            :    * This is column vector with entries of type #Scalar. The length of the</a>
+<a name="81"><span class="lineNum">      81 </span>            :    * vector is one less than the size of #MatrixType, if it is a fixed-side</a>
+<a name="82"><span class="lineNum">      82 </span>            :    * type.</a>
+<a name="83"><span class="lineNum">      83 </span>            :    */</a>
+<a name="84"><span class="lineNum">      84 </span>            :   typedef Matrix&lt;Scalar, SizeMinusOne, 1, Options &amp; ~RowMajor, MaxSizeMinusOne, 1&gt; CoeffVectorType;</a>
+<a name="85"><span class="lineNum">      85 </span>            : </a>
+<a name="86"><span class="lineNum">      86 </span>            :   /** \brief Return type of matrixQ() */</a>
+<a name="87"><span class="lineNum">      87 </span>            :   typedef HouseholderSequence&lt;MatrixType, internal::remove_all_t&lt;typename CoeffVectorType::ConjugateReturnType&gt;&gt;</a>
+<a name="88"><span class="lineNum">      88 </span>            :       HouseholderSequenceType;</a>
+<a name="89"><span class="lineNum">      89 </span>            : </a>
+<a name="90"><span class="lineNum">      90 </span>            :   typedef internal::HessenbergDecompositionMatrixHReturnType&lt;MatrixType&gt; MatrixHReturnType;</a>
+<a name="91"><span class="lineNum">      91 </span>            : </a>
+<a name="92"><span class="lineNum">      92 </span>            :   /** \brief Default constructor; the decomposition will be computed later.</a>
+<a name="93"><span class="lineNum">      93 </span>            :    *</a>
+<a name="94"><span class="lineNum">      94 </span>            :    * \param [in] size  The size of the matrix whose Hessenberg decomposition will be computed.</a>
+<a name="95"><span class="lineNum">      95 </span>            :    *</a>
+<a name="96"><span class="lineNum">      96 </span>            :    * The default constructor is useful in cases in which the user intends to</a>
+<a name="97"><span class="lineNum">      97 </span>            :    * perform decompositions via compute().  The \p size parameter is only</a>
+<a name="98"><span class="lineNum">      98 </span>            :    * used as a hint. It is not an error to give a wrong \p size, but it may</a>
+<a name="99"><span class="lineNum">      99 </span>            :    * impair performance.</a>
+<a name="100"><span class="lineNum">     100 </span>            :    *</a>
+<a name="101"><span class="lineNum">     101 </span>            :    * \sa compute() for an example.</a>
+<a name="102"><span class="lineNum">     102 </span>            :    */</a>
+<a name="103"><span class="lineNum">     103 </span><span class="lineNoCov">          0 :   explicit HessenbergDecomposition(Index size = Size == Dynamic ? 2 : Size)</span></a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineNoCov">          0 :       : m_matrix(size, size), m_temp(size), m_isInitialized(false) {</span></a>
+<a name="105"><span class="lineNum">     105 </span><span class="lineNoCov">          0 :     if (size &gt; 1) m_hCoeffs.resize(size - 1);</span></a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="107"><span class="lineNum">     107 </span>            : </a>
+<a name="108"><span class="lineNum">     108 </span>            :   /** \brief Constructor; computes Hessenberg decomposition of given matrix.</a>
+<a name="109"><span class="lineNum">     109 </span>            :    *</a>
+<a name="110"><span class="lineNum">     110 </span>            :    * \param[in]  matrix  Square matrix whose Hessenberg decomposition is to be computed.</a>
+<a name="111"><span class="lineNum">     111 </span>            :    *</a>
+<a name="112"><span class="lineNum">     112 </span>            :    * This constructor calls compute() to compute the Hessenberg</a>
+<a name="113"><span class="lineNum">     113 </span>            :    * decomposition.</a>
+<a name="114"><span class="lineNum">     114 </span>            :    *</a>
+<a name="115"><span class="lineNum">     115 </span>            :    * \sa matrixH() for an example.</a>
+<a name="116"><span class="lineNum">     116 </span>            :    */</a>
+<a name="117"><span class="lineNum">     117 </span>            :   template &lt;typename InputType&gt;</a>
+<a name="118"><span class="lineNum">     118 </span>            :   explicit HessenbergDecomposition(const EigenBase&lt;InputType&gt;&amp; matrix)</a>
+<a name="119"><span class="lineNum">     119 </span>            :       : m_matrix(matrix.derived()), m_temp(matrix.rows()), m_isInitialized(false) {</a>
+<a name="120"><span class="lineNum">     120 </span>            :     if (matrix.rows() &lt; 2) {</a>
+<a name="121"><span class="lineNum">     121 </span>            :       m_isInitialized = true;</a>
+<a name="122"><span class="lineNum">     122 </span>            :       return;</a>
+<a name="123"><span class="lineNum">     123 </span>            :     }</a>
+<a name="124"><span class="lineNum">     124 </span>            :     m_hCoeffs.resize(matrix.rows() - 1, 1);</a>
+<a name="125"><span class="lineNum">     125 </span>            :     _compute(m_matrix, m_hCoeffs, m_temp);</a>
+<a name="126"><span class="lineNum">     126 </span>            :     m_isInitialized = true;</a>
+<a name="127"><span class="lineNum">     127 </span>            :   }</a>
+<a name="128"><span class="lineNum">     128 </span>            : </a>
+<a name="129"><span class="lineNum">     129 </span>            :   /** \brief Computes Hessenberg decomposition of given matrix.</a>
+<a name="130"><span class="lineNum">     130 </span>            :    *</a>
+<a name="131"><span class="lineNum">     131 </span>            :    * \param[in]  matrix  Square matrix whose Hessenberg decomposition is to be computed.</a>
+<a name="132"><span class="lineNum">     132 </span>            :    * \returns    Reference to \c *this</a>
+<a name="133"><span class="lineNum">     133 </span>            :    *</a>
+<a name="134"><span class="lineNum">     134 </span>            :    * The Hessenberg decomposition is computed by bringing the columns of the</a>
+<a name="135"><span class="lineNum">     135 </span>            :    * matrix successively in the required form using Householder reflections</a>
+<a name="136"><span class="lineNum">     136 </span>            :    * (see, e.g., Algorithm 7.4.2 in Golub \&amp; Van Loan, &lt;i&gt;%Matrix</a>
+<a name="137"><span class="lineNum">     137 </span>            :    * Computations&lt;/i&gt;). The cost is \f$ 10n^3/3 \f$ flops, where \f$ n \f$</a>
+<a name="138"><span class="lineNum">     138 </span>            :    * denotes the size of the given matrix.</a>
+<a name="139"><span class="lineNum">     139 </span>            :    *</a>
+<a name="140"><span class="lineNum">     140 </span>            :    * This method reuses of the allocated data in the HessenbergDecomposition</a>
+<a name="141"><span class="lineNum">     141 </span>            :    * object.</a>
+<a name="142"><span class="lineNum">     142 </span>            :    *</a>
+<a name="143"><span class="lineNum">     143 </span>            :    * Example: \include HessenbergDecomposition_compute.cpp</a>
+<a name="144"><span class="lineNum">     144 </span>            :    * Output: \verbinclude HessenbergDecomposition_compute.out</a>
+<a name="145"><span class="lineNum">     145 </span>            :    */</a>
+<a name="146"><span class="lineNum">     146 </span>            :   template &lt;typename InputType&gt;</a>
+<a name="147"><span class="lineNum">     147 </span><span class="lineNoCov">          0 :   HessenbergDecomposition&amp; compute(const EigenBase&lt;InputType&gt;&amp; matrix) {</span></a>
+<a name="148"><span class="lineNum">     148 </span><span class="lineNoCov">          0 :     m_matrix = matrix.derived();</span></a>
+<a name="149"><span class="lineNum">     149 </span><span class="lineNoCov">          0 :     if (matrix.rows() &lt; 2) {</span></a>
+<a name="150"><span class="lineNum">     150 </span><span class="lineNoCov">          0 :       m_isInitialized = true;</span></a>
+<a name="151"><span class="lineNum">     151 </span><span class="lineNoCov">          0 :       return *this;</span></a>
+<a name="152"><span class="lineNum">     152 </span>            :     }</a>
+<a name="153"><span class="lineNum">     153 </span><span class="lineNoCov">          0 :     m_hCoeffs.resize(matrix.rows() - 1, 1);</span></a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineNoCov">          0 :     _compute(m_matrix, m_hCoeffs, m_temp);</span></a>
+<a name="155"><span class="lineNum">     155 </span><span class="lineNoCov">          0 :     m_isInitialized = true;</span></a>
+<a name="156"><span class="lineNum">     156 </span><span class="lineNoCov">          0 :     return *this;</span></a>
+<a name="157"><span class="lineNum">     157 </span>            :   }</a>
+<a name="158"><span class="lineNum">     158 </span>            : </a>
+<a name="159"><span class="lineNum">     159 </span>            :   /** \brief Returns the Householder coefficients.</a>
+<a name="160"><span class="lineNum">     160 </span>            :    *</a>
+<a name="161"><span class="lineNum">     161 </span>            :    * \returns a const reference to the vector of Householder coefficients</a>
+<a name="162"><span class="lineNum">     162 </span>            :    *</a>
+<a name="163"><span class="lineNum">     163 </span>            :    * \pre Either the constructor HessenbergDecomposition(const MatrixType&amp;)</a>
+<a name="164"><span class="lineNum">     164 </span>            :    * or the member function compute(const MatrixType&amp;) has been called</a>
+<a name="165"><span class="lineNum">     165 </span>            :    * before to compute the Hessenberg decomposition of a matrix.</a>
+<a name="166"><span class="lineNum">     166 </span>            :    *</a>
+<a name="167"><span class="lineNum">     167 </span>            :    * The Householder coefficients allow the reconstruction of the matrix</a>
+<a name="168"><span class="lineNum">     168 </span>            :    * \f$ Q \f$ in the Hessenberg decomposition from the packed data.</a>
+<a name="169"><span class="lineNum">     169 </span>            :    *</a>
+<a name="170"><span class="lineNum">     170 </span>            :    * \sa packedMatrix(), \ref Householder_Module &quot;Householder module&quot;</a>
+<a name="171"><span class="lineNum">     171 </span>            :    */</a>
+<a name="172"><span class="lineNum">     172 </span>            :   const CoeffVectorType&amp; householderCoefficients() const {</a>
+<a name="173"><span class="lineNum">     173 </span>            :     eigen_assert(m_isInitialized &amp;&amp; &quot;HessenbergDecomposition is not initialized.&quot;);</a>
+<a name="174"><span class="lineNum">     174 </span>            :     return m_hCoeffs;</a>
+<a name="175"><span class="lineNum">     175 </span>            :   }</a>
+<a name="176"><span class="lineNum">     176 </span>            : </a>
+<a name="177"><span class="lineNum">     177 </span>            :   /** \brief Returns the internal representation of the decomposition</a>
+<a name="178"><span class="lineNum">     178 </span>            :    *</a>
+<a name="179"><span class="lineNum">     179 </span>            :    *    \returns a const reference to a matrix with the internal representation</a>
+<a name="180"><span class="lineNum">     180 </span>            :    *             of the decomposition.</a>
+<a name="181"><span class="lineNum">     181 </span>            :    *</a>
+<a name="182"><span class="lineNum">     182 </span>            :    * \pre Either the constructor HessenbergDecomposition(const MatrixType&amp;)</a>
+<a name="183"><span class="lineNum">     183 </span>            :    * or the member function compute(const MatrixType&amp;) has been called</a>
+<a name="184"><span class="lineNum">     184 </span>            :    * before to compute the Hessenberg decomposition of a matrix.</a>
+<a name="185"><span class="lineNum">     185 </span>            :    *</a>
+<a name="186"><span class="lineNum">     186 </span>            :    * The returned matrix contains the following information:</a>
+<a name="187"><span class="lineNum">     187 </span>            :    *  - the upper part and lower sub-diagonal represent the Hessenberg matrix H</a>
+<a name="188"><span class="lineNum">     188 </span>            :    *  - the rest of the lower part contains the Householder vectors that, combined with</a>
+<a name="189"><span class="lineNum">     189 </span>            :    *    Householder coefficients returned by householderCoefficients(),</a>
+<a name="190"><span class="lineNum">     190 </span>            :    *    allows to reconstruct the matrix Q as</a>
+<a name="191"><span class="lineNum">     191 </span>            :    *       \f$ Q = H_{N-1} \ldots H_1 H_0 \f$.</a>
+<a name="192"><span class="lineNum">     192 </span>            :    *    Here, the matrices \f$ H_i \f$ are the Householder transformations</a>
+<a name="193"><span class="lineNum">     193 </span>            :    *       \f$ H_i = (I - h_i v_i v_i^T) \f$</a>
+<a name="194"><span class="lineNum">     194 </span>            :    *    where \f$ h_i \f$ is the \f$ i \f$th Householder coefficient and</a>
+<a name="195"><span class="lineNum">     195 </span>            :    *    \f$ v_i \f$ is the Householder vector defined by</a>
+<a name="196"><span class="lineNum">     196 </span>            :    *       \f$ v_i = [ 0, \ldots, 0, 1, M(i+2,i), \ldots, M(N-1,i) ]^T \f$</a>
+<a name="197"><span class="lineNum">     197 </span>            :    *    with M the matrix returned by this function.</a>
+<a name="198"><span class="lineNum">     198 </span>            :    *</a>
+<a name="199"><span class="lineNum">     199 </span>            :    * See LAPACK for further details on this packed storage.</a>
+<a name="200"><span class="lineNum">     200 </span>            :    *</a>
+<a name="201"><span class="lineNum">     201 </span>            :    * Example: \include HessenbergDecomposition_packedMatrix.cpp</a>
+<a name="202"><span class="lineNum">     202 </span>            :    * Output: \verbinclude HessenbergDecomposition_packedMatrix.out</a>
+<a name="203"><span class="lineNum">     203 </span>            :    *</a>
+<a name="204"><span class="lineNum">     204 </span>            :    * \sa householderCoefficients()</a>
+<a name="205"><span class="lineNum">     205 </span>            :    */</a>
+<a name="206"><span class="lineNum">     206 </span><span class="lineNoCov">          0 :   const MatrixType&amp; packedMatrix() const {</span></a>
+<a name="207"><span class="lineNum">     207 </span><span class="lineNoCov">          0 :     eigen_assert(m_isInitialized &amp;&amp; &quot;HessenbergDecomposition is not initialized.&quot;);</span></a>
+<a name="208"><span class="lineNum">     208 </span><span class="lineNoCov">          0 :     return m_matrix;</span></a>
+<a name="209"><span class="lineNum">     209 </span>            :   }</a>
+<a name="210"><span class="lineNum">     210 </span>            : </a>
+<a name="211"><span class="lineNum">     211 </span>            :   /** \brief Reconstructs the orthogonal matrix Q in the decomposition</a>
+<a name="212"><span class="lineNum">     212 </span>            :    *</a>
+<a name="213"><span class="lineNum">     213 </span>            :    * \returns object representing the matrix Q</a>
+<a name="214"><span class="lineNum">     214 </span>            :    *</a>
+<a name="215"><span class="lineNum">     215 </span>            :    * \pre Either the constructor HessenbergDecomposition(const MatrixType&amp;)</a>
+<a name="216"><span class="lineNum">     216 </span>            :    * or the member function compute(const MatrixType&amp;) has been called</a>
+<a name="217"><span class="lineNum">     217 </span>            :    * before to compute the Hessenberg decomposition of a matrix.</a>
+<a name="218"><span class="lineNum">     218 </span>            :    *</a>
+<a name="219"><span class="lineNum">     219 </span>            :    * This function returns a light-weight object of template class</a>
+<a name="220"><span class="lineNum">     220 </span>            :    * HouseholderSequence. You can either apply it directly to a matrix or</a>
+<a name="221"><span class="lineNum">     221 </span>            :    * you can convert it to a matrix of type #MatrixType.</a>
+<a name="222"><span class="lineNum">     222 </span>            :    *</a>
+<a name="223"><span class="lineNum">     223 </span>            :    * \sa matrixH() for an example, class HouseholderSequence</a>
+<a name="224"><span class="lineNum">     224 </span>            :    */</a>
+<a name="225"><span class="lineNum">     225 </span><span class="lineNoCov">          0 :   HouseholderSequenceType matrixQ() const {</span></a>
+<a name="226"><span class="lineNum">     226 </span><span class="lineNoCov">          0 :     eigen_assert(m_isInitialized &amp;&amp; &quot;HessenbergDecomposition is not initialized.&quot;);</span></a>
+<a name="227"><span class="lineNum">     227 </span><span class="lineNoCov">          0 :     return HouseholderSequenceType(m_matrix, m_hCoeffs.conjugate()).setLength(m_matrix.rows() - 1).setShift(1);</span></a>
+<a name="228"><span class="lineNum">     228 </span>            :   }</a>
+<a name="229"><span class="lineNum">     229 </span>            : </a>
+<a name="230"><span class="lineNum">     230 </span>            :   /** \brief Constructs the Hessenberg matrix H in the decomposition</a>
+<a name="231"><span class="lineNum">     231 </span>            :    *</a>
+<a name="232"><span class="lineNum">     232 </span>            :    * \returns expression object representing the matrix H</a>
+<a name="233"><span class="lineNum">     233 </span>            :    *</a>
+<a name="234"><span class="lineNum">     234 </span>            :    * \pre Either the constructor HessenbergDecomposition(const MatrixType&amp;)</a>
+<a name="235"><span class="lineNum">     235 </span>            :    * or the member function compute(const MatrixType&amp;) has been called</a>
+<a name="236"><span class="lineNum">     236 </span>            :    * before to compute the Hessenberg decomposition of a matrix.</a>
+<a name="237"><span class="lineNum">     237 </span>            :    *</a>
+<a name="238"><span class="lineNum">     238 </span>            :    * The object returned by this function constructs the Hessenberg matrix H</a>
+<a name="239"><span class="lineNum">     239 </span>            :    * when it is assigned to a matrix or otherwise evaluated. The matrix H is</a>
+<a name="240"><span class="lineNum">     240 </span>            :    * constructed from the packed matrix as returned by packedMatrix(): The</a>
+<a name="241"><span class="lineNum">     241 </span>            :    * upper part (including the subdiagonal) of the packed matrix contains</a>
+<a name="242"><span class="lineNum">     242 </span>            :    * the matrix H. It may sometimes be better to directly use the packed</a>
+<a name="243"><span class="lineNum">     243 </span>            :    * matrix instead of constructing the matrix H.</a>
+<a name="244"><span class="lineNum">     244 </span>            :    *</a>
+<a name="245"><span class="lineNum">     245 </span>            :    * Example: \include HessenbergDecomposition_matrixH.cpp</a>
+<a name="246"><span class="lineNum">     246 </span>            :    * Output: \verbinclude HessenbergDecomposition_matrixH.out</a>
+<a name="247"><span class="lineNum">     247 </span>            :    *</a>
+<a name="248"><span class="lineNum">     248 </span>            :    * \sa matrixQ(), packedMatrix()</a>
+<a name="249"><span class="lineNum">     249 </span>            :    */</a>
+<a name="250"><span class="lineNum">     250 </span><span class="lineNoCov">          0 :   MatrixHReturnType matrixH() const {</span></a>
+<a name="251"><span class="lineNum">     251 </span><span class="lineNoCov">          0 :     eigen_assert(m_isInitialized &amp;&amp; &quot;HessenbergDecomposition is not initialized.&quot;);</span></a>
+<a name="252"><span class="lineNum">     252 </span><span class="lineNoCov">          0 :     return MatrixHReturnType(*this);</span></a>
+<a name="253"><span class="lineNum">     253 </span>            :   }</a>
+<a name="254"><span class="lineNum">     254 </span>            : </a>
+<a name="255"><span class="lineNum">     255 </span>            :  private:</a>
+<a name="256"><span class="lineNum">     256 </span>            :   typedef Matrix&lt;Scalar, 1, Size, int(Options) | int(RowMajor), 1, MaxSize&gt; VectorType;</a>
+<a name="257"><span class="lineNum">     257 </span>            :   typedef typename NumTraits&lt;Scalar&gt;::Real RealScalar;</a>
+<a name="258"><span class="lineNum">     258 </span>            :   static void _compute(MatrixType&amp; matA, CoeffVectorType&amp; hCoeffs, VectorType&amp; temp);</a>
+<a name="259"><span class="lineNum">     259 </span>            : </a>
+<a name="260"><span class="lineNum">     260 </span>            :  protected:</a>
+<a name="261"><span class="lineNum">     261 </span>            :   MatrixType m_matrix;</a>
+<a name="262"><span class="lineNum">     262 </span>            :   CoeffVectorType m_hCoeffs;</a>
+<a name="263"><span class="lineNum">     263 </span>            :   VectorType m_temp;</a>
+<a name="264"><span class="lineNum">     264 </span>            :   bool m_isInitialized;</a>
+<a name="265"><span class="lineNum">     265 </span>            : };</a>
+<a name="266"><span class="lineNum">     266 </span>            : </a>
+<a name="267"><span class="lineNum">     267 </span>            : /** \internal</a>
+<a name="268"><span class="lineNum">     268 </span>            :  * Performs a tridiagonal decomposition of \a matA in place.</a>
+<a name="269"><span class="lineNum">     269 </span>            :  *</a>
+<a name="270"><span class="lineNum">     270 </span>            :  * \param matA the input selfadjoint matrix</a>
+<a name="271"><span class="lineNum">     271 </span>            :  * \param hCoeffs returned Householder coefficients</a>
+<a name="272"><span class="lineNum">     272 </span>            :  *</a>
+<a name="273"><span class="lineNum">     273 </span>            :  * The result is written in the lower triangular part of \a matA.</a>
+<a name="274"><span class="lineNum">     274 </span>            :  *</a>
+<a name="275"><span class="lineNum">     275 </span>            :  * Implemented from Golub's &quot;%Matrix Computations&quot;, algorithm 8.3.1.</a>
+<a name="276"><span class="lineNum">     276 </span>            :  *</a>
+<a name="277"><span class="lineNum">     277 </span>            :  * \sa packedMatrix()</a>
+<a name="278"><span class="lineNum">     278 </span>            :  */</a>
+<a name="279"><span class="lineNum">     279 </span>            : template &lt;typename MatrixType&gt;</a>
+<a name="280"><span class="lineNum">     280 </span><span class="lineNoCov">          0 : void HessenbergDecomposition&lt;MatrixType&gt;::_compute(MatrixType&amp; matA, CoeffVectorType&amp; hCoeffs, VectorType&amp; temp) {</span></a>
+<a name="281"><span class="lineNum">     281 </span><span class="lineNoCov">          0 :   eigen_assert(matA.rows() == matA.cols());</span></a>
+<a name="282"><span class="lineNum">     282 </span><span class="lineNoCov">          0 :   Index n = matA.rows();</span></a>
+<a name="283"><span class="lineNum">     283 </span><span class="lineNoCov">          0 :   temp.resize(n);</span></a>
+<a name="284"><span class="lineNum">     284 </span><span class="lineNoCov">          0 :   for (Index i = 0; i &lt; n - 1; ++i) {</span></a>
+<a name="285"><span class="lineNum">     285 </span>            :     // let's consider the vector v = i-th column starting at position i+1</a>
+<a name="286"><span class="lineNum">     286 </span><span class="lineNoCov">          0 :     Index remainingSize = n - i - 1;</span></a>
+<a name="287"><span class="lineNum">     287 </span>            :     RealScalar beta;</a>
+<a name="288"><span class="lineNum">     288 </span>            :     Scalar h;</a>
+<a name="289"><span class="lineNum">     289 </span><span class="lineNoCov">          0 :     matA.col(i).tail(remainingSize).makeHouseholderInPlace(h, beta);</span></a>
+<a name="290"><span class="lineNum">     290 </span><span class="lineNoCov">          0 :     matA.col(i).coeffRef(i + 1) = beta;</span></a>
+<a name="291"><span class="lineNum">     291 </span><span class="lineNoCov">          0 :     hCoeffs.coeffRef(i) = h;</span></a>
+<a name="292"><span class="lineNum">     292 </span>            : </a>
+<a name="293"><span class="lineNum">     293 </span>            :     // Apply similarity transformation to remaining columns,</a>
+<a name="294"><span class="lineNum">     294 </span>            :     // i.e., compute A = H A H'</a>
+<a name="295"><span class="lineNum">     295 </span>            : </a>
+<a name="296"><span class="lineNum">     296 </span>            :     // A = H A</a>
+<a name="297"><span class="lineNum">     297 </span><span class="lineNoCov">          0 :     matA.bottomRightCorner(remainingSize, remainingSize)</span></a>
+<a name="298"><span class="lineNum">     298 </span><span class="lineNoCov">          0 :         .applyHouseholderOnTheLeft(matA.col(i).tail(remainingSize - 1), h, &amp;temp.coeffRef(0));</span></a>
+<a name="299"><span class="lineNum">     299 </span>            : </a>
+<a name="300"><span class="lineNum">     300 </span>            :     // A = A H'</a>
+<a name="301"><span class="lineNum">     301 </span><span class="lineNoCov">          0 :     matA.rightCols(remainingSize)</span></a>
+<a name="302"><span class="lineNum">     302 </span><span class="lineNoCov">          0 :         .applyHouseholderOnTheRight(matA.col(i).tail(remainingSize - 1), numext::conj(h), &amp;temp.coeffRef(0));</span></a>
+<a name="303"><span class="lineNum">     303 </span>            :   }</a>
+<a name="304"><span class="lineNum">     304 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="305"><span class="lineNum">     305 </span>            : </a>
+<a name="306"><span class="lineNum">     306 </span>            : namespace internal {</a>
+<a name="307"><span class="lineNum">     307 </span>            : </a>
+<a name="308"><span class="lineNum">     308 </span>            : /** \eigenvalues_module \ingroup Eigenvalues_Module</a>
+<a name="309"><span class="lineNum">     309 </span>            :  *</a>
+<a name="310"><span class="lineNum">     310 </span>            :  *</a>
+<a name="311"><span class="lineNum">     311 </span>            :  * \brief Expression type for return value of HessenbergDecomposition::matrixH()</a>
+<a name="312"><span class="lineNum">     312 </span>            :  *</a>
+<a name="313"><span class="lineNum">     313 </span>            :  * \tparam MatrixType type of matrix in the Hessenberg decomposition</a>
+<a name="314"><span class="lineNum">     314 </span>            :  *</a>
+<a name="315"><span class="lineNum">     315 </span>            :  * Objects of this type represent the Hessenberg matrix in the Hessenberg</a>
+<a name="316"><span class="lineNum">     316 </span>            :  * decomposition of some matrix. The object holds a reference to the</a>
+<a name="317"><span class="lineNum">     317 </span>            :  * HessenbergDecomposition class until the it is assigned or evaluated for</a>
+<a name="318"><span class="lineNum">     318 </span>            :  * some other reason (the reference should remain valid during the life time</a>
+<a name="319"><span class="lineNum">     319 </span>            :  * of this object). This class is the return type of</a>
+<a name="320"><span class="lineNum">     320 </span>            :  * HessenbergDecomposition::matrixH(); there is probably no other use for this</a>
+<a name="321"><span class="lineNum">     321 </span>            :  * class.</a>
+<a name="322"><span class="lineNum">     322 </span>            :  */</a>
+<a name="323"><span class="lineNum">     323 </span>            : template &lt;typename MatrixType&gt;</a>
+<a name="324"><span class="lineNum">     324 </span>            : struct HessenbergDecompositionMatrixHReturnType</a>
+<a name="325"><span class="lineNum">     325 </span>            :     : public ReturnByValue&lt;HessenbergDecompositionMatrixHReturnType&lt;MatrixType&gt;&gt; {</a>
+<a name="326"><span class="lineNum">     326 </span>            :  public:</a>
+<a name="327"><span class="lineNum">     327 </span>            :   /** \brief Constructor.</a>
+<a name="328"><span class="lineNum">     328 </span>            :    *</a>
+<a name="329"><span class="lineNum">     329 </span>            :    * \param[in] hess  Hessenberg decomposition</a>
+<a name="330"><span class="lineNum">     330 </span>            :    */</a>
+<a name="331"><span class="lineNum">     331 </span><span class="lineNoCov">          0 :   HessenbergDecompositionMatrixHReturnType(const HessenbergDecomposition&lt;MatrixType&gt;&amp; hess) : m_hess(hess) {}</span></a>
+<a name="332"><span class="lineNum">     332 </span>            : </a>
+<a name="333"><span class="lineNum">     333 </span>            :   /** \brief Hessenberg matrix in decomposition.</a>
+<a name="334"><span class="lineNum">     334 </span>            :    *</a>
+<a name="335"><span class="lineNum">     335 </span>            :    * \param[out] result  Hessenberg matrix in decomposition \p hess which</a>
+<a name="336"><span class="lineNum">     336 </span>            :    *                     was passed to the constructor</a>
+<a name="337"><span class="lineNum">     337 </span>            :    */</a>
+<a name="338"><span class="lineNum">     338 </span>            :   template &lt;typename ResultType&gt;</a>
+<a name="339"><span class="lineNum">     339 </span><span class="lineNoCov">          0 :   inline void evalTo(ResultType&amp; result) const {</span></a>
+<a name="340"><span class="lineNum">     340 </span><span class="lineNoCov">          0 :     result = m_hess.packedMatrix();</span></a>
+<a name="341"><span class="lineNum">     341 </span><span class="lineNoCov">          0 :     Index n = result.rows();</span></a>
+<a name="342"><span class="lineNum">     342 </span><span class="lineNoCov">          0 :     if (n &gt; 2) result.bottomLeftCorner(n - 2, n - 2).template triangularView&lt;Lower&gt;().setZero();</span></a>
+<a name="343"><span class="lineNum">     343 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="344"><span class="lineNum">     344 </span>            : </a>
+<a name="345"><span class="lineNum">     345 </span><span class="lineNoCov">          0 :   Index rows() const { return m_hess.packedMatrix().rows(); }</span></a>
+<a name="346"><span class="lineNum">     346 </span><span class="lineNoCov">          0 :   Index cols() const { return m_hess.packedMatrix().cols(); }</span></a>
+<a name="347"><span class="lineNum">     347 </span>            : </a>
+<a name="348"><span class="lineNum">     348 </span>            :  protected:</a>
+<a name="349"><span class="lineNum">     349 </span>            :   const HessenbergDecomposition&lt;MatrixType&gt;&amp; m_hess;</a>
+<a name="350"><span class="lineNum">     350 </span>            : };</a>
+<a name="351"><span class="lineNum">     351 </span>            : </a>
+<a name="352"><span class="lineNum">     352 </span>            : }  // end namespace internal</a>
+<a name="353"><span class="lineNum">     353 </span>            : </a>
+<a name="354"><span class="lineNum">     354 </span>            : }  // end namespace Eigen</a>
+<a name="355"><span class="lineNum">     355 </span>            : </a>
+<a name="356"><span class="lineNum">     356 </span>            : #endif  // EIGEN_HESSENBERGDECOMPOSITION_H</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

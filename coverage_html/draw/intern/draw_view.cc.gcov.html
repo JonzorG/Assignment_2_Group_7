@@ -1,0 +1,440 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - draw/intern/draw_view.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">draw/intern</a> - draw_view.cc<span style="font-size: 80%;"> (source / <a href="draw_view.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">193</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2022 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup draw</a>
+<a name="7"><span class="lineNum">       7 </span>            :  */</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &quot;BLI_math_geom_c.hh&quot;</a>
+<a name="10"><span class="lineNum">      10 </span>            : #include &quot;BLI_math_matrix.hh&quot;</a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &quot;BLI_math_matrix_c.hh&quot;</a>
+<a name="12"><span class="lineNum">      12 </span>            : </a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;DRW_render.hh&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;GPU_compute.hh&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;GPU_debug.hh&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : </a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;draw_context_private.hh&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : #include &quot;draw_shader.hh&quot;</a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &quot;draw_view.hh&quot;</a>
+<a name="20"><span class="lineNum">      20 </span>            : </a>
+<a name="21"><span class="lineNum">      21 </span>            : #include &quot;draw_debug.hh&quot;</a>
+<a name="22"><span class="lineNum">      22 </span>            : </a>
+<a name="23"><span class="lineNum">      23 </span>            : namespace blender::draw {</a>
+<a name="24"><span class="lineNum">      24 </span>            : </a>
+<a name="25"><span class="lineNum">      25 </span>            : std::atomic&lt;uint32_t&gt; View::global_sync_counter_ = 1;</a>
+<a name="26"><span class="lineNum">      26 </span>            : </a>
+<a name="27"><span class="lineNum">      27 </span><span class="lineNoCov">          0 : void View::sync(const float4x4 &amp;view_mat, const float4x4 &amp;win_mat, int view_id)</span></a>
+<a name="28"><span class="lineNum">      28 </span>            : {</a>
+<a name="29"><span class="lineNum">      29 </span><span class="lineNoCov">          0 :   data_[view_id].viewmat = view_mat;</span></a>
+<a name="30"><span class="lineNum">      30 </span><span class="lineNoCov">          0 :   data_[view_id].viewinv = math::invert(view_mat);</span></a>
+<a name="31"><span class="lineNum">      31 </span><span class="lineNoCov">          0 :   data_[view_id].winmat = win_mat;</span></a>
+<a name="32"><span class="lineNum">      32 </span><span class="lineNoCov">          0 :   data_[view_id].wininv = math::invert(win_mat);</span></a>
+<a name="33"><span class="lineNum">      33 </span>            : </a>
+<a name="34"><span class="lineNum">      34 </span><span class="lineNoCov">          0 :   is_inverted_ = (is_negative_m4(view_mat.ptr()) == is_negative_m4(win_mat.ptr()));</span></a>
+<a name="35"><span class="lineNum">      35 </span>            : </a>
+<a name="36"><span class="lineNum">      36 </span><span class="lineNoCov">          0 :   frustum_boundbox_calc(view_id);</span></a>
+<a name="37"><span class="lineNum">      37 </span><span class="lineNoCov">          0 :   frustum_culling_planes_calc(view_id);</span></a>
+<a name="38"><span class="lineNum">      38 </span><span class="lineNoCov">          0 :   frustum_culling_sphere_calc(view_id);</span></a>
+<a name="39"><span class="lineNum">      39 </span>            : </a>
+<a name="40"><span class="lineNum">      40 </span><span class="lineNoCov">          0 :   dirty_ = true;</span></a>
+<a name="41"><span class="lineNum">      41 </span><span class="lineNoCov">          0 :   manager_fingerprint_ = 0;</span></a>
+<a name="42"><span class="lineNum">      42 </span>            :   /* Add 2 to always have a non-null number even in case of overflow. */</a>
+<a name="43"><span class="lineNum">      43 </span><span class="lineNoCov">          0 :   sync_counter_ = (global_sync_counter_ += 2);</span></a>
+<a name="44"><span class="lineNum">      44 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="45"><span class="lineNum">      45 </span>            : </a>
+<a name="46"><span class="lineNum">      46 </span><span class="lineNoCov">          0 : void View::frustum_boundbox_calc(int view_id)</span></a>
+<a name="47"><span class="lineNum">      47 </span>            : {</a>
+<a name="48"><span class="lineNum">      48 </span>            :   /* Extract the 8 corners from a Projection Matrix. */</a>
+<a name="49"><span class="lineNum">      49 </span>            : #if 0 /* Equivalent to this but it has accuracy problems. */</a>
+<a name="50"><span class="lineNum">      50 </span>            :   std::array&lt;float3, 8&gt; box = bounds::corners(Bounds&lt;float3&gt;(float3 (-1), float3 (1)));</a>
+<a name="51"><span class="lineNum">      51 </span>            :   for (int i = 0; i &lt; 8; i++) {</a>
+<a name="52"><span class="lineNum">      52 </span>            :     mul_project_m4_v3(data_.wininv.ptr(), box[i]);</a>
+<a name="53"><span class="lineNum">      53 </span>            :   }</a>
+<a name="54"><span class="lineNum">      54 </span>            : #endif</a>
+<a name="55"><span class="lineNum">      55 </span>            : </a>
+<a name="56"><span class="lineNum">      56 </span><span class="lineNoCov">          0 :   MutableSpan&lt;float4&gt; corners = {culling_[view_id].frustum_corners.corners,</span></a>
+<a name="57"><span class="lineNum">      57 </span><span class="lineNoCov">          0 :                                  int64_t(ARRAY_SIZE(culling_[view_id].frustum_corners.corners))};</span></a>
+<a name="58"><span class="lineNum">      58 </span>            : </a>
+<a name="59"><span class="lineNum">      59 </span>            :   float left, right, bottom, top, near, far;</a>
+<a name="60"><span class="lineNum">      60 </span><span class="lineNoCov">          0 :   bool is_persp = data_[view_id].winmat[3][3] == 0.0f;</span></a>
+<a name="61"><span class="lineNum">      61 </span>            : </a>
+<a name="62"><span class="lineNum">      62 </span><span class="lineNoCov">          0 :   projmat_dimensions(data_[view_id].winmat.ptr(), &amp;left, &amp;right, &amp;bottom, &amp;top, &amp;near, &amp;far);</span></a>
+<a name="63"><span class="lineNum">      63 </span>            : </a>
+<a name="64"><span class="lineNum">      64 </span><span class="lineNoCov">          0 :   corners[0][2] = corners[3][2] = corners[7][2] = corners[4][2] = -near;</span></a>
+<a name="65"><span class="lineNum">      65 </span><span class="lineNoCov">          0 :   corners[0][0] = corners[3][0] = left;</span></a>
+<a name="66"><span class="lineNum">      66 </span><span class="lineNoCov">          0 :   corners[4][0] = corners[7][0] = right;</span></a>
+<a name="67"><span class="lineNum">      67 </span><span class="lineNoCov">          0 :   corners[0][1] = corners[4][1] = bottom;</span></a>
+<a name="68"><span class="lineNum">      68 </span><span class="lineNoCov">          0 :   corners[7][1] = corners[3][1] = top;</span></a>
+<a name="69"><span class="lineNum">      69 </span>            : </a>
+<a name="70"><span class="lineNum">      70 </span>            :   /* Get the coordinates of the far plane. */</a>
+<a name="71"><span class="lineNum">      71 </span><span class="lineNoCov">          0 :   if (is_persp) {</span></a>
+<a name="72"><span class="lineNum">      72 </span><span class="lineNoCov">          0 :     float sca_far = far / near;</span></a>
+<a name="73"><span class="lineNum">      73 </span><span class="lineNoCov">          0 :     left *= sca_far;</span></a>
+<a name="74"><span class="lineNum">      74 </span><span class="lineNoCov">          0 :     right *= sca_far;</span></a>
+<a name="75"><span class="lineNum">      75 </span><span class="lineNoCov">          0 :     bottom *= sca_far;</span></a>
+<a name="76"><span class="lineNum">      76 </span><span class="lineNoCov">          0 :     top *= sca_far;</span></a>
+<a name="77"><span class="lineNum">      77 </span>            :   }</a>
+<a name="78"><span class="lineNum">      78 </span>            : </a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineNoCov">          0 :   corners[1][2] = corners[2][2] = corners[6][2] = corners[5][2] = -far;</span></a>
+<a name="80"><span class="lineNum">      80 </span><span class="lineNoCov">          0 :   corners[1][0] = corners[2][0] = left;</span></a>
+<a name="81"><span class="lineNum">      81 </span><span class="lineNoCov">          0 :   corners[6][0] = corners[5][0] = right;</span></a>
+<a name="82"><span class="lineNum">      82 </span><span class="lineNoCov">          0 :   corners[1][1] = corners[5][1] = bottom;</span></a>
+<a name="83"><span class="lineNum">      83 </span><span class="lineNoCov">          0 :   corners[2][1] = corners[6][1] = top;</span></a>
+<a name="84"><span class="lineNum">      84 </span>            : </a>
+<a name="85"><span class="lineNum">      85 </span><span class="lineNoCov">          0 :   const float4x4 &amp;view_inv = data_[view_id].viewinv;</span></a>
+<a name="86"><span class="lineNum">      86 </span>            :   /* Transform into world space. */</a>
+<a name="87"><span class="lineNum">      87 </span><span class="lineNoCov">          0 :   for (float4 &amp;corner : corners) {</span></a>
+<a name="88"><span class="lineNum">      88 </span><span class="lineNoCov">          0 :     corner = float4(math::transform_point(view_inv, float3(corner)), 1.0);</span></a>
+<a name="89"><span class="lineNum">      89 </span>            :   }</a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="91"><span class="lineNum">      91 </span>            : </a>
+<a name="92"><span class="lineNum">      92 </span><span class="lineNoCov">          0 : void View::frustum_culling_planes_calc(int view_id)</span></a>
+<a name="93"><span class="lineNum">      93 </span>            : {</a>
+<a name="94"><span class="lineNum">      94 </span><span class="lineNoCov">          0 :   float4x4 persmat = data_[view_id].winmat * data_[view_id].viewmat;</span></a>
+<a name="95"><span class="lineNum">      95 </span><span class="lineNoCov">          0 :   planes_from_projmat(persmat.ptr(),</span></a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineNoCov">          0 :                       culling_[view_id].frustum_planes.planes[0],</span></a>
+<a name="97"><span class="lineNum">      97 </span><span class="lineNoCov">          0 :                       culling_[view_id].frustum_planes.planes[5],</span></a>
+<a name="98"><span class="lineNum">      98 </span><span class="lineNoCov">          0 :                       culling_[view_id].frustum_planes.planes[1],</span></a>
+<a name="99"><span class="lineNum">      99 </span><span class="lineNoCov">          0 :                       culling_[view_id].frustum_planes.planes[3],</span></a>
+<a name="100"><span class="lineNum">     100 </span><span class="lineNoCov">          0 :                       culling_[view_id].frustum_planes.planes[4],</span></a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineNoCov">          0 :                       culling_[view_id].frustum_planes.planes[2]);</span></a>
+<a name="102"><span class="lineNum">     102 </span>            :   /* Normalize. */</a>
+<a name="103"><span class="lineNum">     103 </span><span class="lineNoCov">          0 :   for (float4 &amp;plane : culling_[view_id].frustum_planes.planes) {</span></a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineNoCov">          0 :     float len = math::length(plane.xyz());</span></a>
+<a name="105"><span class="lineNum">     105 </span><span class="lineNoCov">          0 :     if (len != 0.0f) {</span></a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineNoCov">          0 :       plane /= len;</span></a>
+<a name="107"><span class="lineNum">     107 </span>            :     }</a>
+<a name="108"><span class="lineNum">     108 </span>            :   }</a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="110"><span class="lineNum">     110 </span>            : </a>
+<a name="111"><span class="lineNum">     111 </span><span class="lineNoCov">          0 : void View::frustum_culling_sphere_calc(int view_id)</span></a>
+<a name="112"><span class="lineNum">     112 </span>            : {</a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineNoCov">          0 :   BoundSphere &amp;bsphere = *reinterpret_cast&lt;BoundSphere *&gt;(&amp;culling_[view_id].bound_sphere);</span></a>
+<a name="114"><span class="lineNum">     114 </span><span class="lineNoCov">          0 :   Span&lt;float4&gt; corners = {culling_[view_id].frustum_corners.corners,</span></a>
+<a name="115"><span class="lineNum">     115 </span><span class="lineNoCov">          0 :                           int64_t(ARRAY_SIZE(culling_[view_id].frustum_corners.corners))};</span></a>
+<a name="116"><span class="lineNum">     116 </span>            : </a>
+<a name="117"><span class="lineNum">     117 </span>            :   /* Extract Bounding Sphere */</a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineNoCov">          0 :   if (data_[view_id].winmat[3][3] != 0.0f) {</span></a>
+<a name="119"><span class="lineNum">     119 </span>            :     /* Orthographic */</a>
+<a name="120"><span class="lineNum">     120 </span>            :     /* The most extreme points on the near and far plane. (normalized device coords). */</a>
+<a name="121"><span class="lineNum">     121 </span><span class="lineNoCov">          0 :     const float *nearpoint = corners[0];</span></a>
+<a name="122"><span class="lineNum">     122 </span><span class="lineNoCov">          0 :     const float *farpoint = corners[6];</span></a>
+<a name="123"><span class="lineNum">     123 </span>            : </a>
+<a name="124"><span class="lineNum">     124 </span>            :     /* just use median point */</a>
+<a name="125"><span class="lineNum">     125 </span><span class="lineNoCov">          0 :     mid_v3_v3v3(bsphere.center, farpoint, nearpoint);</span></a>
+<a name="126"><span class="lineNum">     126 </span><span class="lineNoCov">          0 :     bsphere.radius = len_v3v3(bsphere.center, farpoint);</span></a>
+<a name="127"><span class="lineNum">     127 </span>            :   }</a>
+<a name="128"><span class="lineNum">     128 </span><span class="lineNoCov">          0 :   else if (data_[view_id].winmat[2][0] == 0.0f &amp;&amp; data_[view_id].winmat[2][1] == 0.0f) {</span></a>
+<a name="129"><span class="lineNum">     129 </span>            :     /* Perspective with symmetrical frustum. */</a>
+<a name="130"><span class="lineNum">     130 </span>            : </a>
+<a name="131"><span class="lineNum">     131 </span>            :     /* We obtain the center and radius of the circumscribed circle of the</a>
+<a name="132"><span class="lineNum">     132 </span>            :      * isosceles trapezoid composed by the diagonals of the near and far clipping plane */</a>
+<a name="133"><span class="lineNum">     133 </span>            : </a>
+<a name="134"><span class="lineNum">     134 </span>            :     /* center of each clipping plane */</a>
+<a name="135"><span class="lineNum">     135 </span>            :     float mid_min[3], mid_max[3];</a>
+<a name="136"><span class="lineNum">     136 </span><span class="lineNoCov">          0 :     mid_v3_v3v3(mid_min, corners[3], corners[4]);</span></a>
+<a name="137"><span class="lineNum">     137 </span><span class="lineNoCov">          0 :     mid_v3_v3v3(mid_max, corners[2], corners[5]);</span></a>
+<a name="138"><span class="lineNum">     138 </span>            : </a>
+<a name="139"><span class="lineNum">     139 </span>            :     /* square length of the diagonals of each clipping plane */</a>
+<a name="140"><span class="lineNum">     140 </span><span class="lineNoCov">          0 :     float a_sq = len_squared_v3v3(corners[3], corners[4]);</span></a>
+<a name="141"><span class="lineNum">     141 </span><span class="lineNoCov">          0 :     float b_sq = len_squared_v3v3(corners[2], corners[5]);</span></a>
+<a name="142"><span class="lineNum">     142 </span>            : </a>
+<a name="143"><span class="lineNum">     143 </span>            :     /* distance squared between clipping planes */</a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineNoCov">          0 :     float h_sq = len_squared_v3v3(mid_min, mid_max);</span></a>
+<a name="145"><span class="lineNum">     145 </span>            : </a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineNoCov">          0 :     float fac = (4 * h_sq + b_sq - a_sq) / (8 * h_sq);</span></a>
+<a name="147"><span class="lineNum">     147 </span>            : </a>
+<a name="148"><span class="lineNum">     148 </span>            :     /* The goal is to get the smallest sphere,</a>
+<a name="149"><span class="lineNum">     149 </span>            :      * not the sphere that passes through each corner */</a>
+<a name="150"><span class="lineNum">     150 </span><span class="lineNoCov">          0 :     CLAMP(fac, 0.0f, 1.0f);</span></a>
+<a name="151"><span class="lineNum">     151 </span>            : </a>
+<a name="152"><span class="lineNum">     152 </span><span class="lineNoCov">          0 :     interp_v3_v3v3(bsphere.center, mid_min, mid_max, fac);</span></a>
+<a name="153"><span class="lineNum">     153 </span>            : </a>
+<a name="154"><span class="lineNum">     154 </span>            :     /* distance from the center to one of the points of the far plane (1, 2, 5, 6) */</a>
+<a name="155"><span class="lineNum">     155 </span><span class="lineNoCov">          0 :     bsphere.radius = len_v3v3(bsphere.center, corners[1]);</span></a>
+<a name="156"><span class="lineNum">     156 </span>            :   }</a>
+<a name="157"><span class="lineNum">     157 </span>            :   else {</a>
+<a name="158"><span class="lineNum">     158 </span>            :     /* Perspective with asymmetrical frustum. */</a>
+<a name="159"><span class="lineNum">     159 </span>            : </a>
+<a name="160"><span class="lineNum">     160 </span>            :     /* We put the sphere center on the line that goes from origin</a>
+<a name="161"><span class="lineNum">     161 </span>            :      * to the center of the far clipping plane. */</a>
+<a name="162"><span class="lineNum">     162 </span>            : </a>
+<a name="163"><span class="lineNum">     163 </span>            :     /* Detect which of the corner of the far clipping plane is the farthest to the origin */</a>
+<a name="164"><span class="lineNum">     164 </span>            :     float nfar[4];               /* most extreme far point in NDC space */</a>
+<a name="165"><span class="lineNum">     165 </span>            :     float farxy[2];              /* far-point projection onto the near plane */</a>
+<a name="166"><span class="lineNum">     166 </span><span class="lineNoCov">          0 :     float farpoint[3] = {0.0f};  /* most extreme far point in camera coordinate */</span></a>
+<a name="167"><span class="lineNum">     167 </span>            :     float nearpoint[3];          /* most extreme near point in camera coordinate */</a>
+<a name="168"><span class="lineNum">     168 </span><span class="lineNoCov">          0 :     float farcenter[3] = {0.0f}; /* center of far clipping plane in camera coordinate */</span></a>
+<a name="169"><span class="lineNum">     169 </span><span class="lineNoCov">          0 :     float F = -1.0f, N;          /* square distance of far and near point to origin */</span></a>
+<a name="170"><span class="lineNum">     170 </span>            :     float f, n; /* distance of far and near point to z axis. f is always &gt; 0 but n can be &lt; 0 */</a>
+<a name="171"><span class="lineNum">     171 </span>            :     float e, s; /* far and near clipping distance (&lt;0) */</a>
+<a name="172"><span class="lineNum">     172 </span>            :     float c;    /* slope of center line = distance of far clipping center</a>
+<a name="173"><span class="lineNum">     173 </span>            :                  * to z axis / far clipping distance. */</a>
+<a name="174"><span class="lineNum">     174 </span>            :     float z;    /* projection of sphere center on z axis (&lt;0) */</a>
+<a name="175"><span class="lineNum">     175 </span>            : </a>
+<a name="176"><span class="lineNum">     176 </span>            :     /* Find farthest corner and center of far clip plane. */</a>
+<a name="177"><span class="lineNum">     177 </span><span class="lineNoCov">          0 :     float corner[3] = {1.0f, 1.0f, 1.0f}; /* in clip space */</span></a>
+<a name="178"><span class="lineNum">     178 </span><span class="lineNoCov">          0 :     for (int i = 0; i &lt; 4; i++) {</span></a>
+<a name="179"><span class="lineNum">     179 </span>            :       float point[3];</a>
+<a name="180"><span class="lineNum">     180 </span><span class="lineNoCov">          0 :       mul_v3_project_m4_v3(point, data_[view_id].wininv.ptr(), corner);</span></a>
+<a name="181"><span class="lineNum">     181 </span><span class="lineNoCov">          0 :       float len = len_squared_v3(point);</span></a>
+<a name="182"><span class="lineNum">     182 </span><span class="lineNoCov">          0 :       if (len &gt; F) {</span></a>
+<a name="183"><span class="lineNum">     183 </span><span class="lineNoCov">          0 :         copy_v3_v3(nfar, corner);</span></a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineNoCov">          0 :         copy_v3_v3(farpoint, point);</span></a>
+<a name="185"><span class="lineNum">     185 </span><span class="lineNoCov">          0 :         F = len;</span></a>
+<a name="186"><span class="lineNum">     186 </span>            :       }</a>
+<a name="187"><span class="lineNum">     187 </span><span class="lineNoCov">          0 :       add_v3_v3(farcenter, point);</span></a>
+<a name="188"><span class="lineNum">     188 </span>            :       /* rotate by 90 degree to walk through the 4 points of the far clip plane */</a>
+<a name="189"><span class="lineNum">     189 </span><span class="lineNoCov">          0 :       float tmp = corner[0];</span></a>
+<a name="190"><span class="lineNum">     190 </span><span class="lineNoCov">          0 :       corner[0] = -corner[1];</span></a>
+<a name="191"><span class="lineNum">     191 </span><span class="lineNoCov">          0 :       corner[1] = tmp;</span></a>
+<a name="192"><span class="lineNum">     192 </span>            :     }</a>
+<a name="193"><span class="lineNum">     193 </span>            : </a>
+<a name="194"><span class="lineNum">     194 </span>            :     /* the far center is the average of the far clipping points */</a>
+<a name="195"><span class="lineNum">     195 </span><span class="lineNoCov">          0 :     mul_v3_fl(farcenter, 0.25f);</span></a>
+<a name="196"><span class="lineNum">     196 </span>            :     /* the extreme near point is the opposite point on the near clipping plane */</a>
+<a name="197"><span class="lineNum">     197 </span><span class="lineNoCov">          0 :     copy_v3_fl3(nfar, -nfar[0], -nfar[1], -1.0f);</span></a>
+<a name="198"><span class="lineNum">     198 </span><span class="lineNoCov">          0 :     mul_v3_project_m4_v3(nearpoint, data_[view_id].wininv.ptr(), nfar);</span></a>
+<a name="199"><span class="lineNum">     199 </span>            :     /* this is a frustum projection */</a>
+<a name="200"><span class="lineNum">     200 </span><span class="lineNoCov">          0 :     N = len_squared_v3(nearpoint);</span></a>
+<a name="201"><span class="lineNum">     201 </span><span class="lineNoCov">          0 :     e = farpoint[2];</span></a>
+<a name="202"><span class="lineNum">     202 </span><span class="lineNoCov">          0 :     s = nearpoint[2];</span></a>
+<a name="203"><span class="lineNum">     203 </span>            :     /* distance to view Z axis */</a>
+<a name="204"><span class="lineNum">     204 </span><span class="lineNoCov">          0 :     f = len_v2(farpoint);</span></a>
+<a name="205"><span class="lineNum">     205 </span>            :     /* get corresponding point on the near plane */</a>
+<a name="206"><span class="lineNum">     206 </span><span class="lineNoCov">          0 :     mul_v2_v2fl(farxy, farpoint, s / e);</span></a>
+<a name="207"><span class="lineNum">     207 </span>            :     /* this formula preserve the sign of n */</a>
+<a name="208"><span class="lineNum">     208 </span><span class="lineNoCov">          0 :     sub_v2_v2(nearpoint, farxy);</span></a>
+<a name="209"><span class="lineNum">     209 </span><span class="lineNoCov">          0 :     n = f * s / e - len_v2(nearpoint);</span></a>
+<a name="210"><span class="lineNum">     210 </span><span class="lineNoCov">          0 :     c = len_v2(farcenter) / e;</span></a>
+<a name="211"><span class="lineNum">     211 </span>            :     /* the big formula, it simplifies to (F-N)/(2(e-s)) for the symmetric case */</a>
+<a name="212"><span class="lineNum">     212 </span><span class="lineNoCov">          0 :     z = (F - N) / (2.0f * (e - s + c * (f - n)));</span></a>
+<a name="213"><span class="lineNum">     213 </span>            : </a>
+<a name="214"><span class="lineNum">     214 </span><span class="lineNoCov">          0 :     bsphere.center[0] = farcenter[0] * z / e;</span></a>
+<a name="215"><span class="lineNum">     215 </span><span class="lineNoCov">          0 :     bsphere.center[1] = farcenter[1] * z / e;</span></a>
+<a name="216"><span class="lineNum">     216 </span><span class="lineNoCov">          0 :     bsphere.center[2] = z;</span></a>
+<a name="217"><span class="lineNum">     217 </span>            : </a>
+<a name="218"><span class="lineNum">     218 </span>            :     /* For XR, the view matrix may contain a scale factor. Then, transforming only the center</a>
+<a name="219"><span class="lineNum">     219 </span>            :      * into world space after calculating the radius will result in incorrect behavior. */</a>
+<a name="220"><span class="lineNum">     220 </span><span class="lineNoCov">          0 :     mul_m4_v3(data_[view_id].viewinv.ptr(), bsphere.center); /* Transform to world space. */</span></a>
+<a name="221"><span class="lineNum">     221 </span><span class="lineNoCov">          0 :     mul_m4_v3(data_[view_id].viewinv.ptr(), farpoint);</span></a>
+<a name="222"><span class="lineNum">     222 </span><span class="lineNoCov">          0 :     bsphere.radius = len_v3v3(bsphere.center, farpoint);</span></a>
+<a name="223"><span class="lineNum">     223 </span>            :   }</a>
+<a name="224"><span class="lineNum">     224 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="225"><span class="lineNum">     225 </span>            : </a>
+<a name="226"><span class="lineNum">     226 </span><span class="lineNoCov">          0 : void View::bind()</span></a>
+<a name="227"><span class="lineNum">     227 </span>            : {</a>
+<a name="228"><span class="lineNum">     228 </span><span class="lineNoCov">          0 :   if (dirty_ &amp;&amp; !procedural_) {</span></a>
+<a name="229"><span class="lineNum">     229 </span><span class="lineNoCov">          0 :     dirty_ = false;</span></a>
+<a name="230"><span class="lineNum">     230 </span><span class="lineNoCov">          0 :     data_.push_update();</span></a>
+<a name="231"><span class="lineNum">     231 </span><span class="lineNoCov">          0 :     culling_.push_update();</span></a>
+<a name="232"><span class="lineNum">     232 </span>            :   }</a>
+<a name="233"><span class="lineNum">     233 </span>            : </a>
+<a name="234"><span class="lineNum">     234 </span><span class="lineNoCov">          0 :   GPU_uniformbuf_bind(data_, DRW_VIEW_UBO_SLOT);</span></a>
+<a name="235"><span class="lineNum">     235 </span><span class="lineNoCov">          0 :   GPU_uniformbuf_bind(culling_, DRW_VIEW_CULLING_UBO_SLOT);</span></a>
+<a name="236"><span class="lineNum">     236 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="237"><span class="lineNum">     237 </span>            : </a>
+<a name="238"><span class="lineNum">     238 </span><span class="lineNoCov">          0 : void View::compute_procedural_bounds()</span></a>
+<a name="239"><span class="lineNum">     239 </span>            : {</a>
+<a name="240"><span class="lineNum">     240 </span>            :   /* Sync happens on the GPU. This is called after each sync. */</a>
+<a name="241"><span class="lineNum">     241 </span><span class="lineNoCov">          0 :   manager_fingerprint_ = 0;</span></a>
+<a name="242"><span class="lineNum">     242 </span>            :   /* Add 2 to always have a non-null number even in case of overflow. */</a>
+<a name="243"><span class="lineNum">     243 </span><span class="lineNoCov">          0 :   sync_counter_ = (global_sync_counter_ += 2);</span></a>
+<a name="244"><span class="lineNum">     244 </span>            : </a>
+<a name="245"><span class="lineNum">     245 </span><span class="lineNoCov">          0 :   GPU_debug_group_begin(&quot;View.compute_procedural_bounds&quot;);</span></a>
+<a name="246"><span class="lineNum">     246 </span>            : </a>
+<a name="247"><span class="lineNum">     247 </span><span class="lineNoCov">          0 :   gpu::Shader *shader = DRW_shader_draw_view_finalize_get();</span></a>
+<a name="248"><span class="lineNum">     248 </span><span class="lineNoCov">          0 :   GPU_shader_bind(shader);</span></a>
+<a name="249"><span class="lineNum">     249 </span><span class="lineNoCov">          0 :   GPU_uniformbuf_bind_as_ssbo(culling_, GPU_shader_get_ssbo_binding(shader, &quot;view_culling_buf&quot;));</span></a>
+<a name="250"><span class="lineNum">     250 </span><span class="lineNoCov">          0 :   GPU_uniformbuf_bind(data_, DRW_VIEW_UBO_SLOT);</span></a>
+<a name="251"><span class="lineNum">     251 </span><span class="lineNoCov">          0 :   GPU_compute_dispatch(shader, 1, 1, 1);</span></a>
+<a name="252"><span class="lineNum">     252 </span><span class="lineNoCov">          0 :   GPU_memory_barrier(GPU_BARRIER_UNIFORM);</span></a>
+<a name="253"><span class="lineNum">     253 </span>            : </a>
+<a name="254"><span class="lineNum">     254 </span><span class="lineNoCov">          0 :   GPU_debug_group_end();</span></a>
+<a name="255"><span class="lineNum">     255 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="256"><span class="lineNum">     256 </span>            : </a>
+<a name="257"><span class="lineNum">     257 </span><span class="lineNoCov">          0 : void View::compute_visibility(ObjectBoundsBuf &amp;bounds,</span></a>
+<a name="258"><span class="lineNum">     258 </span>            :                               ObjectInfosBuf &amp; /*infos*/,</a>
+<a name="259"><span class="lineNum">     259 </span>            :                               uint resource_len,</a>
+<a name="260"><span class="lineNum">     260 </span>            :                               bool debug_freeze)</a>
+<a name="261"><span class="lineNum">     261 </span>            : {</a>
+<a name="262"><span class="lineNum">     262 </span><span class="lineNoCov">          0 :   if (debug_freeze &amp;&amp; frozen_ == false) {</span></a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineNoCov">          0 :     data_freeze_[0] = static_cast&lt;ViewMatrices&gt;(data_[0]);</span></a>
+<a name="264"><span class="lineNum">     264 </span><span class="lineNoCov">          0 :     data_freeze_.push_update();</span></a>
+<a name="265"><span class="lineNum">     265 </span><span class="lineNoCov">          0 :     culling_freeze_[0] = static_cast&lt;ViewCullingData&gt;(culling_[0]);</span></a>
+<a name="266"><span class="lineNum">     266 </span><span class="lineNoCov">          0 :     culling_freeze_.push_update();</span></a>
+<a name="267"><span class="lineNum">     267 </span>            :   }</a>
+<a name="268"><span class="lineNum">     268 </span><span class="lineNoCov">          0 :   if (debug_freeze) {</span></a>
+<a name="269"><span class="lineNum">     269 </span><span class="lineNoCov">          0 :     float4x4 persmat = data_freeze_[0].winmat * data_freeze_[0].viewmat;</span></a>
+<a name="270"><span class="lineNum">     270 </span><span class="lineNoCov">          0 :     drw_debug_matrix_as_bbox(math::invert(persmat), float4(0, 1, 0, 1));</span></a>
+<a name="271"><span class="lineNum">     271 </span>            :   }</a>
+<a name="272"><span class="lineNum">     272 </span><span class="lineNoCov">          0 :   frozen_ = debug_freeze;</span></a>
+<a name="273"><span class="lineNum">     273 </span>            : </a>
+<a name="274"><span class="lineNum">     274 </span><span class="lineNoCov">          0 :   GPU_debug_group_begin(&quot;View.compute_visibility&quot;);</span></a>
+<a name="275"><span class="lineNum">     275 </span>            : </a>
+<a name="276"><span class="lineNum">     276 </span>            :   /* TODO(fclem): Early out if visibility hasn't changed. */</a>
+<a name="277"><span class="lineNum">     277 </span>            : </a>
+<a name="278"><span class="lineNum">     278 </span><span class="lineNoCov">          0 :   uint word_per_draw = this-&gt;visibility_word_per_draw();</span></a>
+<a name="279"><span class="lineNum">     279 </span>            :   /* Switch between tightly packed and set of whole word per instance. */</a>
+<a name="280"><span class="lineNum">     280 </span><span class="lineNoCov">          0 :   uint words_len = (view_len_ == 1) ? divide_ceil_u(resource_len, 32) :</span></a>
+<a name="281"><span class="lineNum">     281 </span><span class="lineNoCov">          0 :                                       resource_len * word_per_draw;</span></a>
+<a name="282"><span class="lineNum">     282 </span><span class="lineNoCov">          0 :   words_len = ceil_to_multiple_u(max_ii(1, words_len), 4);</span></a>
+<a name="283"><span class="lineNum">     283 </span>            :   /* TODO(fclem): Resize to nearest pow2 to reduce fragmentation. */</a>
+<a name="284"><span class="lineNum">     284 </span><span class="lineNoCov">          0 :   visibility_buf_.resize(words_len);</span></a>
+<a name="285"><span class="lineNum">     285 </span>            : </a>
+<a name="286"><span class="lineNum">     286 </span><span class="lineNoCov">          0 :   const uint32_t data = 0xFFFFFFFFu;</span></a>
+<a name="287"><span class="lineNum">     287 </span><span class="lineNoCov">          0 :   GPU_storagebuf_clear(visibility_buf_, data);</span></a>
+<a name="288"><span class="lineNum">     288 </span>            : </a>
+<a name="289"><span class="lineNum">     289 </span><span class="lineNoCov">          0 :   if (do_visibility_) {</span></a>
+<a name="290"><span class="lineNum">     290 </span><span class="lineNoCov">          0 :     gpu::Shader *shader = DRW_shader_draw_visibility_compute_get();</span></a>
+<a name="291"><span class="lineNum">     291 </span><span class="lineNoCov">          0 :     GPU_shader_bind(shader);</span></a>
+<a name="292"><span class="lineNum">     292 </span><span class="lineNoCov">          0 :     GPU_shader_uniform_1i(shader, &quot;resource_len&quot;, resource_len);</span></a>
+<a name="293"><span class="lineNum">     293 </span><span class="lineNoCov">          0 :     GPU_shader_uniform_1i(shader, &quot;view_len&quot;, view_len_);</span></a>
+<a name="294"><span class="lineNum">     294 </span><span class="lineNoCov">          0 :     GPU_shader_uniform_1i(shader, &quot;visibility_word_per_draw&quot;, word_per_draw);</span></a>
+<a name="295"><span class="lineNum">     295 </span><span class="lineNoCov">          0 :     GPU_storagebuf_bind(bounds, GPU_shader_get_ssbo_binding(shader, &quot;bounds_buf&quot;));</span></a>
+<a name="296"><span class="lineNum">     296 </span><span class="lineNoCov">          0 :     GPU_storagebuf_bind(visibility_buf_, GPU_shader_get_ssbo_binding(shader, &quot;visibility_buf&quot;));</span></a>
+<a name="297"><span class="lineNum">     297 </span><span class="lineNoCov">          0 :     GPU_uniformbuf_bind(frozen_ ? data_freeze_ : data_, DRW_VIEW_UBO_SLOT);</span></a>
+<a name="298"><span class="lineNum">     298 </span><span class="lineNoCov">          0 :     GPU_uniformbuf_bind(frozen_ ? culling_freeze_ : culling_, DRW_VIEW_CULLING_UBO_SLOT);</span></a>
+<a name="299"><span class="lineNum">     299 </span><span class="lineNoCov">          0 :     GPU_compute_dispatch(shader, divide_ceil_u(resource_len, DRW_VISIBILITY_GROUP_SIZE), 1, 1);</span></a>
+<a name="300"><span class="lineNum">     300 </span><span class="lineNoCov">          0 :     GPU_memory_barrier(GPU_BARRIER_SHADER_STORAGE);</span></a>
+<a name="301"><span class="lineNum">     301 </span>            :   }</a>
+<a name="302"><span class="lineNum">     302 </span>            : </a>
+<a name="303"><span class="lineNum">     303 </span><span class="lineNoCov">          0 :   if (frozen_) {</span></a>
+<a name="304"><span class="lineNum">     304 </span>            :     /* Bind back the non frozen data. */</a>
+<a name="305"><span class="lineNum">     305 </span><span class="lineNoCov">          0 :     GPU_uniformbuf_bind(data_, DRW_VIEW_UBO_SLOT);</span></a>
+<a name="306"><span class="lineNum">     306 </span><span class="lineNoCov">          0 :     GPU_uniformbuf_bind(culling_, DRW_VIEW_CULLING_UBO_SLOT);</span></a>
+<a name="307"><span class="lineNum">     307 </span>            :   }</a>
+<a name="308"><span class="lineNum">     308 </span>            : </a>
+<a name="309"><span class="lineNum">     309 </span><span class="lineNoCov">          0 :   GPU_debug_group_end();</span></a>
+<a name="310"><span class="lineNum">     310 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="311"><span class="lineNum">     311 </span>            : </a>
+<a name="312"><span class="lineNum">     312 </span><span class="lineNoCov">          0 : VisibilityBuf &amp;View::get_visibility_buffer()</span></a>
+<a name="313"><span class="lineNum">     313 </span>            : {</a>
+<a name="314"><span class="lineNum">     314 </span><span class="lineNoCov">          0 :   return visibility_buf_;</span></a>
+<a name="315"><span class="lineNum">     315 </span>            : }</a>
+<a name="316"><span class="lineNum">     316 </span>            : </a>
+<a name="317"><span class="lineNum">     317 </span><span class="lineNoCov">          0 : draw::View &amp;View::default_get()</span></a>
+<a name="318"><span class="lineNum">     318 </span>            : {</a>
+<a name="319"><span class="lineNum">     319 </span><span class="lineNoCov">          0 :   return *drw_get().data-&gt;default_view;</span></a>
+<a name="320"><span class="lineNum">     320 </span>            : }</a>
+<a name="321"><span class="lineNum">     321 </span>            : </a>
+<a name="322"><span class="lineNum">     322 </span><span class="lineNoCov">          0 : void View::default_set(const float4x4 &amp;view_mat, const float4x4 &amp;win_mat)</span></a>
+<a name="323"><span class="lineNum">     323 </span>            : {</a>
+<a name="324"><span class="lineNum">     324 </span><span class="lineNoCov">          0 :   drw_get().data-&gt;default_view-&gt;sync(view_mat, win_mat);</span></a>
+<a name="325"><span class="lineNum">     325 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="326"><span class="lineNum">     326 </span>            : </a>
+<a name="327"><span class="lineNum">     327 </span><span class="lineNoCov">          0 : std::array&lt;float4, 6&gt; View::frustum_planes_get(int view_id) const</span></a>
+<a name="328"><span class="lineNum">     328 </span>            : {</a>
+<a name="329"><span class="lineNum">     329 </span><span class="lineNoCov">          0 :   return {culling_[view_id].frustum_planes.planes[0],</span></a>
+<a name="330"><span class="lineNum">     330 </span><span class="lineNoCov">          0 :           culling_[view_id].frustum_planes.planes[1],</span></a>
+<a name="331"><span class="lineNum">     331 </span><span class="lineNoCov">          0 :           culling_[view_id].frustum_planes.planes[2],</span></a>
+<a name="332"><span class="lineNum">     332 </span><span class="lineNoCov">          0 :           culling_[view_id].frustum_planes.planes[3],</span></a>
+<a name="333"><span class="lineNum">     333 </span><span class="lineNoCov">          0 :           culling_[view_id].frustum_planes.planes[4],</span></a>
+<a name="334"><span class="lineNum">     334 </span><span class="lineNoCov">          0 :           culling_[view_id].frustum_planes.planes[5]};</span></a>
+<a name="335"><span class="lineNum">     335 </span>            : }</a>
+<a name="336"><span class="lineNum">     336 </span>            : </a>
+<a name="337"><span class="lineNum">     337 </span><span class="lineNoCov">          0 : std::array&lt;float3, 8&gt; View::frustum_corners_get(int view_id) const</span></a>
+<a name="338"><span class="lineNum">     338 </span>            : {</a>
+<a name="339"><span class="lineNum">     339 </span><span class="lineNoCov">          0 :   return {culling_[view_id].frustum_corners.corners[0].xyz(),</span></a>
+<a name="340"><span class="lineNum">     340 </span><span class="lineNoCov">          0 :           culling_[view_id].frustum_corners.corners[1].xyz(),</span></a>
+<a name="341"><span class="lineNum">     341 </span><span class="lineNoCov">          0 :           culling_[view_id].frustum_corners.corners[2].xyz(),</span></a>
+<a name="342"><span class="lineNum">     342 </span><span class="lineNoCov">          0 :           culling_[view_id].frustum_corners.corners[3].xyz(),</span></a>
+<a name="343"><span class="lineNum">     343 </span><span class="lineNoCov">          0 :           culling_[view_id].frustum_corners.corners[4].xyz(),</span></a>
+<a name="344"><span class="lineNum">     344 </span><span class="lineNoCov">          0 :           culling_[view_id].frustum_corners.corners[5].xyz(),</span></a>
+<a name="345"><span class="lineNum">     345 </span><span class="lineNoCov">          0 :           culling_[view_id].frustum_corners.corners[6].xyz(),</span></a>
+<a name="346"><span class="lineNum">     346 </span><span class="lineNoCov">          0 :           culling_[view_id].frustum_corners.corners[7].xyz()};</span></a>
+<a name="347"><span class="lineNum">     347 </span>            : }</a>
+<a name="348"><span class="lineNum">     348 </span>            : </a>
+<a name="349"><span class="lineNum">     349 </span><span class="lineNoCov">          0 : float View::screen_pixel_radius(const float4x4 &amp;wininv, bool is_perspective, const int2 &amp;extent)</span></a>
+<a name="350"><span class="lineNum">     350 </span>            : {</a>
+<a name="351"><span class="lineNum">     351 </span><span class="lineNoCov">          0 :   float min_dim = float(min_ii(extent.x, extent.y));</span></a>
+<a name="352"><span class="lineNum">     352 </span><span class="lineNoCov">          0 :   float3 p0 = float3(-1.0f, -1.0f, 0.0f);</span></a>
+<a name="353"><span class="lineNum">     353 </span><span class="lineNoCov">          0 :   float3 p1 = float3(float2(min_dim / extent) * 2.0f - 1.0f, 0.0f);</span></a>
+<a name="354"><span class="lineNum">     354 </span><span class="lineNoCov">          0 :   p0 = math::project_point(wininv, p0);</span></a>
+<a name="355"><span class="lineNum">     355 </span><span class="lineNoCov">          0 :   p1 = math::project_point(wininv, p1);</span></a>
+<a name="356"><span class="lineNum">     356 </span>            :   /* Compute radius at unit plane from the camera. This is NOT the perspective division. */</a>
+<a name="357"><span class="lineNum">     357 </span><span class="lineNoCov">          0 :   if (is_perspective) {</span></a>
+<a name="358"><span class="lineNum">     358 </span><span class="lineNoCov">          0 :     p0 = p0 / p0.z;</span></a>
+<a name="359"><span class="lineNum">     359 </span><span class="lineNoCov">          0 :     p1 = p1 / p1.z;</span></a>
+<a name="360"><span class="lineNum">     360 </span>            :   }</a>
+<a name="361"><span class="lineNum">     361 </span><span class="lineNoCov">          0 :   return math::distance(p0, p1) / min_dim;</span></a>
+<a name="362"><span class="lineNum">     362 </span>            : }</a>
+<a name="363"><span class="lineNum">     363 </span>            : </a>
+<a name="364"><span class="lineNum">     364 </span>            : }  // namespace blender::draw</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

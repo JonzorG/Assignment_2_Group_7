@@ -1,0 +1,431 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - blenkernel/BKE_lib_remap.hh</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">blenkernel</a> - BKE_lib_remap.hh<span style="font-size: 80%;"> (source / <a href="BKE_lib_remap.hh.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">19</td>
+            <td class="headerCovTableEntry">19</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2023 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : #pragma once</a>
+<a name="5"><span class="lineNum">       5 </span>            : </a>
+<a name="6"><span class="lineNum">       6 </span>            : /** \file</a>
+<a name="7"><span class="lineNum">       7 </span>            :  * \ingroup bke</a>
+<a name="8"><span class="lineNum">       8 </span>            :  *</a>
+<a name="9"><span class="lineNum">       9 </span>            :  * API to perform remapping from one data-block pointer to another.</a>
+<a name="10"><span class="lineNum">      10 </span>            :  *</a>
+<a name="11"><span class="lineNum">      11 </span>            :  * \note `BKE_lib_` files are for operations over data-blocks themselves, although they might</a>
+<a name="12"><span class="lineNum">      12 </span>            :  * alter Main as well (when creating/renaming/deleting an ID e.g.).</a>
+<a name="13"><span class="lineNum">      13 </span>            :  *</a>
+<a name="14"><span class="lineNum">      14 </span>            :  * \section Function Names</a>
+<a name="15"><span class="lineNum">      15 </span>            :  *</a>
+<a name="16"><span class="lineNum">      16 </span>            :  * \warning Descriptions below is ideal goal, current status of naming does not yet fully follow it</a>
+<a name="17"><span class="lineNum">      17 </span>            :  * (this is WIP).</a>
+<a name="18"><span class="lineNum">      18 </span>            :  *</a>
+<a name="19"><span class="lineNum">      19 </span>            :  * - `BKE_lib_remap_libblock_` should be used for functions performing remapping.</a>
+<a name="20"><span class="lineNum">      20 </span>            :  * - `BKE_lib_remap_callback_` should be used for functions managing remapping callbacks.</a>
+<a name="21"><span class="lineNum">      21 </span>            :  */</a>
+<a name="22"><span class="lineNum">      22 </span>            : </a>
+<a name="23"><span class="lineNum">      23 </span>            : #include &quot;BLI_compiler_attrs.hh&quot;</a>
+<a name="24"><span class="lineNum">      24 </span>            : #include &quot;BLI_enum_flags.hh&quot;</a>
+<a name="25"><span class="lineNum">      25 </span>            : #include &quot;BLI_function_ref.hh&quot;</a>
+<a name="26"><span class="lineNum">      26 </span>            : #include &quot;BLI_map.hh&quot;</a>
+<a name="27"><span class="lineNum">      27 </span>            : #include &quot;BLI_set.hh&quot;</a>
+<a name="28"><span class="lineNum">      28 </span>            : #include &quot;BLI_span.hh&quot;</a>
+<a name="29"><span class="lineNum">      29 </span>            : </a>
+<a name="30"><span class="lineNum">      30 </span>            : namespace blender {</a>
+<a name="31"><span class="lineNum">      31 </span>            : </a>
+<a name="32"><span class="lineNum">      32 </span>            : struct ID;</a>
+<a name="33"><span class="lineNum">      33 </span>            : struct Main;</a>
+<a name="34"><span class="lineNum">      34 </span>            : </a>
+<a name="35"><span class="lineNum">      35 </span>            : namespace bke::id {</a>
+<a name="36"><span class="lineNum">      36 </span>            : class IDRemapper;</a>
+<a name="37"><span class="lineNum">      37 </span>            : }</a>
+<a name="38"><span class="lineNum">      38 </span>            : </a>
+<a name="39"><span class="lineNum">      39 </span>            : /* BKE_libblock_free, delete are declared in BKE_lib_id.hh for convenience. */</a>
+<a name="40"><span class="lineNum">      40 </span>            : </a>
+<a name="41"><span class="lineNum">      41 </span>            : /* Also IDRemap-&gt;flag. */</a>
+<a name="42"><span class="lineNum">      42 </span>            : enum {</a>
+<a name="43"><span class="lineNum">      43 </span>            :   /** Do not remap indirect usages of IDs (that is, when user is some linked data). */</a>
+<a name="44"><span class="lineNum">      44 </span>            :   ID_REMAP_SKIP_INDIRECT_USAGE = 1 &lt;&lt; 0,</a>
+<a name="45"><span class="lineNum">      45 </span>            :   /**</a>
+<a name="46"><span class="lineNum">      46 </span>            :    * This flag should always be set, *except for 'unlink' scenarios*</a>
+<a name="47"><span class="lineNum">      47 </span>            :    * (only relevant when new_id == NULL).</a>
+<a name="48"><span class="lineNum">      48 </span>            :    * Basically, when unset, NEVER_NULL ID usages will keep pointing to old_id, but (if needed)</a>
+<a name="49"><span class="lineNum">      49 </span>            :    * old_id user count will still be decremented.</a>
+<a name="50"><span class="lineNum">      50 </span>            :    * This is mandatory for 'delete ID' case,</a>
+<a name="51"><span class="lineNum">      51 </span>            :    * but in all other situation this would lead to invalid user counts!</a>
+<a name="52"><span class="lineNum">      52 </span>            :    */</a>
+<a name="53"><span class="lineNum">      53 </span>            :   ID_REMAP_SKIP_NEVER_NULL_USAGE = 1 &lt;&lt; 1,</a>
+<a name="54"><span class="lineNum">      54 </span>            :   /**</a>
+<a name="55"><span class="lineNum">      55 </span>            :    * Store in the #IDRemapper all IDs using target one with a 'never NULL' pointer (like e.g.</a>
+<a name="56"><span class="lineNum">      56 </span>            :    * #Object.data), when such ID usage has (or should have) been remapped to `nullptr`. See also</a>
+<a name="57"><span class="lineNum">      57 </span>            :    * #ID_REMAP_FORCE_NEVER_NULL_USAGE and #ID_REMAP_SKIP_NEVER_NULL_USAGE.</a>
+<a name="58"><span class="lineNum">      58 </span>            :    */</a>
+<a name="59"><span class="lineNum">      59 </span>            :   ID_REMAP_STORE_NEVER_NULL_USAGE = 1 &lt;&lt; 2,</a>
+<a name="60"><span class="lineNum">      60 </span>            :   /**</a>
+<a name="61"><span class="lineNum">      61 </span>            :    * This tells the callback function to force setting IDs</a>
+<a name="62"><span class="lineNum">      62 </span>            :    * using target one with a 'never NULL' pointer to NULL.</a>
+<a name="63"><span class="lineNum">      63 </span>            :    * \warning Use with extreme care, this will leave database in broken state</a>
+<a name="64"><span class="lineNum">      64 </span>            :    * and can cause crashes very easily!</a>
+<a name="65"><span class="lineNum">      65 </span>            :    */</a>
+<a name="66"><span class="lineNum">      66 </span>            :   ID_REMAP_FORCE_NEVER_NULL_USAGE = 1 &lt;&lt; 3,</a>
+<a name="67"><span class="lineNum">      67 </span>            :   /** Do not remap library override pointers. */</a>
+<a name="68"><span class="lineNum">      68 </span>            :   ID_REMAP_SKIP_OVERRIDE_LIBRARY = 1 &lt;&lt; 4,</a>
+<a name="69"><span class="lineNum">      69 </span>            :   /**</a>
+<a name="70"><span class="lineNum">      70 </span>            :    * Force internal ID runtime pointers (like `ID.newid`, `ID.orig_id` etc.) to also be processed.</a>
+<a name="71"><span class="lineNum">      71 </span>            :    * This should only be needed in some very specific cases, typically only BKE ID management code</a>
+<a name="72"><span class="lineNum">      72 </span>            :    * should need it (e.g. required from `id_delete` to ensure no runtime pointer remains using</a>
+<a name="73"><span class="lineNum">      73 </span>            :    * freed ones).</a>
+<a name="74"><span class="lineNum">      74 </span>            :    */</a>
+<a name="75"><span class="lineNum">      75 </span>            :   ID_REMAP_FORCE_INTERNAL_RUNTIME_POINTERS = 1 &lt;&lt; 5,</a>
+<a name="76"><span class="lineNum">      76 </span>            :   /** Force remapping of 'UI-like' ID usages (ID pointers stored in editors data etc.). */</a>
+<a name="77"><span class="lineNum">      77 </span>            :   ID_REMAP_FORCE_UI_POINTERS = 1 &lt;&lt; 6,</a>
+<a name="78"><span class="lineNum">      78 </span>            :   /**</a>
+<a name="79"><span class="lineNum">      79 </span>            :    * Force obdata pointers to also be processed, even when object (`id_owner`) is in Edit mode.</a>
+<a name="80"><span class="lineNum">      80 </span>            :    * This is required by some tools creating/deleting IDs while operating in Edit mode, like e.g.</a>
+<a name="81"><span class="lineNum">      81 </span>            :    * the 'separate' mesh operator.</a>
+<a name="82"><span class="lineNum">      82 </span>            :    */</a>
+<a name="83"><span class="lineNum">      83 </span>            :   ID_REMAP_FORCE_OBDATA_IN_EDITMODE = 1 &lt;&lt; 7,</a>
+<a name="84"><span class="lineNum">      84 </span>            :   /**</a>
+<a name="85"><span class="lineNum">      85 </span>            :    * Do remapping of `lib` Library pointers of IDs (by default these are completely ignored).</a>
+<a name="86"><span class="lineNum">      86 </span>            :    *</a>
+<a name="87"><span class="lineNum">      87 </span>            :    * WARNING: Use with caution. This is currently a 'raw' remapping, with no further processing. In</a>
+<a name="88"><span class="lineNum">      88 </span>            :    * particular, DO NOT use this to make IDs local (i.e. remap a library pointer to NULL), unless</a>
+<a name="89"><span class="lineNum">      89 </span>            :    * the calling code takes care of the rest of the required changes</a>
+<a name="90"><span class="lineNum">      90 </span>            :    * (ID tags &amp; flags updates, etc.).</a>
+<a name="91"><span class="lineNum">      91 </span>            :    */</a>
+<a name="92"><span class="lineNum">      92 </span>            :   ID_REMAP_DO_LIBRARY_POINTERS = 1 &lt;&lt; 8,</a>
+<a name="93"><span class="lineNum">      93 </span>            : </a>
+<a name="94"><span class="lineNum">      94 </span>            :   /**</a>
+<a name="95"><span class="lineNum">      95 </span>            :    * Allow remapping of an ID pointer of a certain to another one of a different type.</a>
+<a name="96"><span class="lineNum">      96 </span>            :    *</a>
+<a name="97"><span class="lineNum">      97 </span>            :    * WARNING: Use with caution. Should only be needed in a very small amount of cases, e.g. when</a>
+<a name="98"><span class="lineNum">      98 </span>            :    * converting an ID type to another.</a>
+<a name="99"><span class="lineNum">      99 </span>            :    */</a>
+<a name="100"><span class="lineNum">     100 </span>            :   ID_REMAP_ALLOW_IDTYPE_MISMATCH = 1 &lt;&lt; 9,</a>
+<a name="101"><span class="lineNum">     101 </span>            : </a>
+<a name="102"><span class="lineNum">     102 </span>            :   /**</a>
+<a name="103"><span class="lineNum">     103 </span>            :    * Don't touch the special user counts (use when the 'old' remapped ID remains in use):</a>
+<a name="104"><span class="lineNum">     104 </span>            :    * - Do not transfer 'fake user' status from old to new ID.</a>
+<a name="105"><span class="lineNum">     105 </span>            :    * - Do not clear 'extra user' from old ID.</a>
+<a name="106"><span class="lineNum">     106 </span>            :    */</a>
+<a name="107"><span class="lineNum">     107 </span>            :   ID_REMAP_SKIP_USER_CLEAR = 1 &lt;&lt; 16,</a>
+<a name="108"><span class="lineNum">     108 </span>            :   /**</a>
+<a name="109"><span class="lineNum">     109 </span>            :    * Force handling user count even for IDs that are outside of Main (used in some cases when</a>
+<a name="110"><span class="lineNum">     110 </span>            :    * dealing with IDs temporarily out of Main, but which will be put in it ultimately).</a>
+<a name="111"><span class="lineNum">     111 </span>            :    */</a>
+<a name="112"><span class="lineNum">     112 </span>            :   ID_REMAP_FORCE_USER_REFCOUNT = 1 &lt;&lt; 17,</a>
+<a name="113"><span class="lineNum">     113 </span>            :   /**</a>
+<a name="114"><span class="lineNum">     114 </span>            :    * Do NOT handle user count for IDs (used in some cases when dealing with IDs from different</a>
+<a name="115"><span class="lineNum">     115 </span>            :    * BMains, if user-count will be recomputed anyway afterwards, like e.g.</a>
+<a name="116"><span class="lineNum">     116 </span>            :    * in memfile reading during undo step decoding).</a>
+<a name="117"><span class="lineNum">     117 </span>            :    */</a>
+<a name="118"><span class="lineNum">     118 </span>            :   ID_REMAP_SKIP_USER_REFCOUNT = 1 &lt;&lt; 18,</a>
+<a name="119"><span class="lineNum">     119 </span>            :   /**</a>
+<a name="120"><span class="lineNum">     120 </span>            :    * Do NOT tag IDs which had some of their ID pointers updated for update in the depsgraph, or ID</a>
+<a name="121"><span class="lineNum">     121 </span>            :    * type specific updates, like e.g. with node trees.</a>
+<a name="122"><span class="lineNum">     122 </span>            :    */</a>
+<a name="123"><span class="lineNum">     123 </span>            :   ID_REMAP_SKIP_UPDATE_TAGGING = 1 &lt;&lt; 19,</a>
+<a name="124"><span class="lineNum">     124 </span>            :   /**</a>
+<a name="125"><span class="lineNum">     125 </span>            :    * Do not attempt to access original ID pointers (triggers usages of</a>
+<a name="126"><span class="lineNum">     126 </span>            :    * `IDWALK_NO_ORIG_POINTERS_ACCESS` too).</a>
+<a name="127"><span class="lineNum">     127 </span>            :    *</a>
+<a name="128"><span class="lineNum">     128 </span>            :    * Use when original ID pointers values are (probably) not valid, e.g. during read-file process.</a>
+<a name="129"><span class="lineNum">     129 </span>            :    */</a>
+<a name="130"><span class="lineNum">     130 </span>            :   ID_REMAP_NO_ORIG_POINTERS_ACCESS = 1 &lt;&lt; 20,</a>
+<a name="131"><span class="lineNum">     131 </span>            : };</a>
+<a name="132"><span class="lineNum">     132 </span>            : </a>
+<a name="133"><span class="lineNum">     133 </span>            : enum eIDRemapType {</a>
+<a name="134"><span class="lineNum">     134 </span>            :   /** Remap an ID reference to a new reference. The new reference can also be null. */</a>
+<a name="135"><span class="lineNum">     135 </span>            :   ID_REMAP_TYPE_REMAP = 0,</a>
+<a name="136"><span class="lineNum">     136 </span>            : </a>
+<a name="137"><span class="lineNum">     137 </span>            :   /** Cleanup all IDs used by a specific one. */</a>
+<a name="138"><span class="lineNum">     138 </span>            :   ID_REMAP_TYPE_CLEANUP = 1,</a>
+<a name="139"><span class="lineNum">     139 </span>            : };</a>
+<a name="140"><span class="lineNum">     140 </span>            : </a>
+<a name="141"><span class="lineNum">     141 </span>            : /**</a>
+<a name="142"><span class="lineNum">     142 </span>            :  * Replace all references in given Main using the given \a mappings</a>
+<a name="143"><span class="lineNum">     143 </span>            :  *</a>
+<a name="144"><span class="lineNum">     144 </span>            :  * \note Is preferred over BKE_libblock_remap_locked due to performance.</a>
+<a name="145"><span class="lineNum">     145 </span>            :  */</a>
+<a name="146"><span class="lineNum">     146 </span>            : void BKE_libblock_remap_multiple_locked(Main *bmain,</a>
+<a name="147"><span class="lineNum">     147 </span>            :                                         bke::id::IDRemapper &amp;mappings,</a>
+<a name="148"><span class="lineNum">     148 </span>            :                                         const int remap_flags);</a>
+<a name="149"><span class="lineNum">     149 </span>            : </a>
+<a name="150"><span class="lineNum">     150 </span>            : void BKE_libblock_remap_multiple(Main *bmain,</a>
+<a name="151"><span class="lineNum">     151 </span>            :                                  bke::id::IDRemapper &amp;mappings,</a>
+<a name="152"><span class="lineNum">     152 </span>            :                                  const int remap_flags);</a>
+<a name="153"><span class="lineNum">     153 </span>            : </a>
+<a name="154"><span class="lineNum">     154 </span>            : /**</a>
+<a name="155"><span class="lineNum">     155 </span>            :  * Bare raw remapping of IDs, with no other processing than actually updating the ID pointers.</a>
+<a name="156"><span class="lineNum">     156 </span>            :  * No user-count, direct vs indirect linked status update, depsgraph tagging, etc.</a>
+<a name="157"><span class="lineNum">     157 </span>            :  *</a>
+<a name="158"><span class="lineNum">     158 </span>            :  * This is way more efficient than regular remapping from #BKE_libblock_remap_multiple &amp; co, but it</a>
+<a name="159"><span class="lineNum">     159 </span>            :  * implies that calling code handles all the other aspects described above. This is typically the</a>
+<a name="160"><span class="lineNum">     160 </span>            :  * case e.g. in read-file process.</a>
+<a name="161"><span class="lineNum">     161 </span>            :  *</a>
+<a name="162"><span class="lineNum">     162 </span>            :  * WARNING: This call will likely leave the given BMain in invalid state in many aspects.</a>
+<a name="163"><span class="lineNum">     163 </span>            :  */</a>
+<a name="164"><span class="lineNum">     164 </span>            : void BKE_libblock_remap_multiple_raw(Main *bmain,</a>
+<a name="165"><span class="lineNum">     165 </span>            :                                      bke::id::IDRemapper &amp;mappings,</a>
+<a name="166"><span class="lineNum">     166 </span>            :                                      const int remap_flags);</a>
+<a name="167"><span class="lineNum">     167 </span>            : /**</a>
+<a name="168"><span class="lineNum">     168 </span>            :  * Replace all references in given Main to \a old_id by \a new_id</a>
+<a name="169"><span class="lineNum">     169 </span>            :  * (if \a new_id is NULL, it unlinks \a old_id).</a>
+<a name="170"><span class="lineNum">     170 </span>            :  *</a>
+<a name="171"><span class="lineNum">     171 </span>            :  * \note Requiring new_id to be non-null, this *may* not be the case ultimately,</a>
+<a name="172"><span class="lineNum">     172 </span>            :  * but makes things simpler for now.</a>
+<a name="173"><span class="lineNum">     173 </span>            :  */</a>
+<a name="174"><span class="lineNum">     174 </span>            : void BKE_libblock_remap_locked(Main *bmain, void *old_idv, void *new_idv, int remap_flags)</a>
+<a name="175"><span class="lineNum">     175 </span>            :     ATTR_NONNULL(1, 2);</a>
+<a name="176"><span class="lineNum">     176 </span>            : void BKE_libblock_remap(Main *bmain, void *old_idv, void *new_idv, int remap_flags)</a>
+<a name="177"><span class="lineNum">     177 </span>            :     ATTR_NONNULL(1, 2);</a>
+<a name="178"><span class="lineNum">     178 </span>            : </a>
+<a name="179"><span class="lineNum">     179 </span>            : /**</a>
+<a name="180"><span class="lineNum">     180 </span>            :  * Unlink given \a id from given \a bmain</a>
+<a name="181"><span class="lineNum">     181 </span>            :  * (does not touch to indirect, i.e. library, usages of the ID).</a>
+<a name="182"><span class="lineNum">     182 </span>            :  */</a>
+<a name="183"><span class="lineNum">     183 </span>            : void BKE_libblock_unlink(Main *bmain, void *idv, bool do_skip_indirect) ATTR_NONNULL();</a>
+<a name="184"><span class="lineNum">     184 </span>            : </a>
+<a name="185"><span class="lineNum">     185 </span>            : /**</a>
+<a name="186"><span class="lineNum">     186 </span>            :  * Similar to libblock_remap, but only affects IDs used by given \a idv ID.</a>
+<a name="187"><span class="lineNum">     187 </span>            :  *</a>
+<a name="188"><span class="lineNum">     188 </span>            :  * \param bmain: May be NULL, in which case there won't be depsgraph updates nor post-processing on</a>
+<a name="189"><span class="lineNum">     189 </span>            :  * some ID types (like collections or objects) to ensure their runtime data is valid.</a>
+<a name="190"><span class="lineNum">     190 </span>            :  *</a>
+<a name="191"><span class="lineNum">     191 </span>            :  * \param old_idv: Unlike BKE_libblock_remap, can be NULL,</a>
+<a name="192"><span class="lineNum">     192 </span>            :  * in which case all ID usages by given \a idv will be cleared.</a>
+<a name="193"><span class="lineNum">     193 </span>            :  */</a>
+<a name="194"><span class="lineNum">     194 </span>            : void BKE_libblock_relink_ex(Main *bmain, void *idv, void *old_idv, void *new_idv, int remap_flags)</a>
+<a name="195"><span class="lineNum">     195 </span>            :     ATTR_NONNULL(2);</a>
+<a name="196"><span class="lineNum">     196 </span>            : /**</a>
+<a name="197"><span class="lineNum">     197 </span>            :  * Same as #BKE_libblock_relink_ex, but applies all rules defined in \a id_remapper to \a ids (or</a>
+<a name="198"><span class="lineNum">     198 </span>            :  * does cleanup if `ID_REMAP_TYPE_CLEANUP` is specified as \a remap_type).</a>
+<a name="199"><span class="lineNum">     199 </span>            :  */</a>
+<a name="200"><span class="lineNum">     200 </span>            : void BKE_libblock_relink_multiple(Main *bmain,</a>
+<a name="201"><span class="lineNum">     201 </span>            :                                   const Span&lt;ID *&gt; ids,</a>
+<a name="202"><span class="lineNum">     202 </span>            :                                   eIDRemapType remap_type,</a>
+<a name="203"><span class="lineNum">     203 </span>            :                                   bke::id::IDRemapper &amp;id_remapper,</a>
+<a name="204"><span class="lineNum">     204 </span>            :                                   int remap_flags);</a>
+<a name="205"><span class="lineNum">     205 </span>            : </a>
+<a name="206"><span class="lineNum">     206 </span>            : /**</a>
+<a name="207"><span class="lineNum">     207 </span>            :  * Remaps ID usages of given ID to their `id-&gt;newid` pointer if not None, and proceeds recursively</a>
+<a name="208"><span class="lineNum">     208 </span>            :  * in the dependency tree of IDs for all data-blocks tagged with `ID_TAG_NEW`.</a>
+<a name="209"><span class="lineNum">     209 </span>            :  *</a>
+<a name="210"><span class="lineNum">     210 </span>            :  * \note `ID_TAG_NEW` is cleared.</a>
+<a name="211"><span class="lineNum">     211 </span>            :  *</a>
+<a name="212"><span class="lineNum">     212 </span>            :  * Very specific usage, not sure we'll keep it on the long run,</a>
+<a name="213"><span class="lineNum">     213 </span>            :  * currently only used in Scene/Object/Collection duplication code.</a>
+<a name="214"><span class="lineNum">     214 </span>            :  */</a>
+<a name="215"><span class="lineNum">     215 </span>            : void BKE_libblock_relink_to_newid(Main *bmain, ID *id, int remap_flag) ATTR_NONNULL();</a>
+<a name="216"><span class="lineNum">     216 </span>            : </a>
+<a name="217"><span class="lineNum">     217 </span>            : using BKE_library_free_notifier_reference_cb = void (*)(const void *);</a>
+<a name="218"><span class="lineNum">     218 </span>            : using BKE_library_remap_editor_id_reference_cb = void (*)(const bke::id::IDRemapper &amp;mappings);</a>
+<a name="219"><span class="lineNum">     219 </span>            : </a>
+<a name="220"><span class="lineNum">     220 </span>            : void BKE_library_callback_free_notifier_reference_set(BKE_library_free_notifier_reference_cb func);</a>
+<a name="221"><span class="lineNum">     221 </span>            : void BKE_library_callback_remap_editor_id_reference_set(</a>
+<a name="222"><span class="lineNum">     222 </span>            :     BKE_library_remap_editor_id_reference_cb func);</a>
+<a name="223"><span class="lineNum">     223 </span>            : </a>
+<a name="224"><span class="lineNum">     224 </span>            : /* IDRemapper */</a>
+<a name="225"><span class="lineNum">     225 </span>            : enum IDRemapperApplyResult {</a>
+<a name="226"><span class="lineNum">     226 </span>            :   /** No remapping rules available for the source. */</a>
+<a name="227"><span class="lineNum">     227 </span>            :   ID_REMAP_RESULT_SOURCE_UNAVAILABLE,</a>
+<a name="228"><span class="lineNum">     228 </span>            :   /** Source isn't mappable (e.g. NULL). */</a>
+<a name="229"><span class="lineNum">     229 </span>            :   ID_REMAP_RESULT_SOURCE_NOT_MAPPABLE,</a>
+<a name="230"><span class="lineNum">     230 </span>            :   /** Source has been remapped to a new pointer. */</a>
+<a name="231"><span class="lineNum">     231 </span>            :   ID_REMAP_RESULT_SOURCE_REMAPPED,</a>
+<a name="232"><span class="lineNum">     232 </span>            :   /** Source has been set to NULL. */</a>
+<a name="233"><span class="lineNum">     233 </span>            :   ID_REMAP_RESULT_SOURCE_UNASSIGNED,</a>
+<a name="234"><span class="lineNum">     234 </span>            : };</a>
+<a name="235"><span class="lineNum">     235 </span>            : </a>
+<a name="236"><span class="lineNum">     236 </span>            : enum IDRemapperApplyOptions {</a>
+<a name="237"><span class="lineNum">     237 </span>            :   /**</a>
+<a name="238"><span class="lineNum">     238 </span>            :    * Update the user count of the old and new ID data-block.</a>
+<a name="239"><span class="lineNum">     239 </span>            :    *</a>
+<a name="240"><span class="lineNum">     240 </span>            :    * For remapping the old ID users will be decremented and the new ID users will be</a>
+<a name="241"><span class="lineNum">     241 </span>            :    * incremented. When un-assigning the old ID users will be decremented.</a>
+<a name="242"><span class="lineNum">     242 </span>            :    *</a>
+<a name="243"><span class="lineNum">     243 </span>            :    * NOTE: Currently unused by main remapping code, since user-count is handled by</a>
+<a name="244"><span class="lineNum">     244 </span>            :    * `foreach_libblock_remap_callback_apply` there, depending on whether the remapped pointer does</a>
+<a name="245"><span class="lineNum">     245 </span>            :    * use it or not. Needed for rare cases in UI handling though (see e.g. `image_id_remap` in</a>
+<a name="246"><span class="lineNum">     246 </span>            :    * `space_image.cc`).</a>
+<a name="247"><span class="lineNum">     247 </span>            :    */</a>
+<a name="248"><span class="lineNum">     248 </span>            :   ID_REMAP_APPLY_UPDATE_REFCOUNT = (1 &lt;&lt; 0),</a>
+<a name="249"><span class="lineNum">     249 </span>            : </a>
+<a name="250"><span class="lineNum">     250 </span>            :   /**</a>
+<a name="251"><span class="lineNum">     251 </span>            :    * Make sure that the new ID data-block will have a 'real' user.</a>
+<a name="252"><span class="lineNum">     252 </span>            :    *</a>
+<a name="253"><span class="lineNum">     253 </span>            :    * NOTE: See Note for #ID_REMAP_APPLY_UPDATE_REFCOUNT above.</a>
+<a name="254"><span class="lineNum">     254 </span>            :    */</a>
+<a name="255"><span class="lineNum">     255 </span>            :   ID_REMAP_APPLY_ENSURE_REAL = (1 &lt;&lt; 1),</a>
+<a name="256"><span class="lineNum">     256 </span>            : </a>
+<a name="257"><span class="lineNum">     257 </span>            :   /**</a>
+<a name="258"><span class="lineNum">     258 </span>            :    * Unassign instead of remap when the new ID pointer would point to itself.</a>
+<a name="259"><span class="lineNum">     259 </span>            :    *</a>
+<a name="260"><span class="lineNum">     260 </span>            :    * To use this option #IDRemapper::apply must be used with a non-null id_self parameter.</a>
+<a name="261"><span class="lineNum">     261 </span>            :    */</a>
+<a name="262"><span class="lineNum">     262 </span>            :   ID_REMAP_APPLY_UNMAP_WHEN_REMAPPING_TO_SELF = (1 &lt;&lt; 2),</a>
+<a name="263"><span class="lineNum">     263 </span>            : </a>
+<a name="264"><span class="lineNum">     264 </span>            :   ID_REMAP_APPLY_DEFAULT = 0,</a>
+<a name="265"><span class="lineNum">     265 </span>            : };</a>
+<a name="266"><span class="lineNum">     266 </span><span class="lineCov">   46245591 : ENUM_OPERATORS(IDRemapperApplyOptions)</span></a>
+<a name="267"><span class="lineNum">     267 </span>            : </a>
+<a name="268"><span class="lineNum">     268 </span>            : using IDRemapperIterFunction = void (*)(ID *old_id, ID *new_id, void *user_data);</a>
+<a name="269"><span class="lineNum">     269 </span>            : using IDTypeFilter = uint64_t;</a>
+<a name="270"><span class="lineNum">     270 </span>            : </a>
+<a name="271"><span class="lineNum">     271 </span>            : namespace bke::id {</a>
+<a name="272"><span class="lineNum">     272 </span>            : </a>
+<a name="273"><span class="lineNum">     273 </span>            : class IDRemapper {</a>
+<a name="274"><span class="lineNum">     274 </span>            :   Map&lt;ID *, ID *&gt; mappings_;</a>
+<a name="275"><span class="lineNum">     275 </span>            :   IDTypeFilter source_types_ = 0;</a>
+<a name="276"><span class="lineNum">     276 </span>            : </a>
+<a name="277"><span class="lineNum">     277 </span>            :   /**</a>
+<a name="278"><span class="lineNum">     278 </span>            :    * Store all IDs using another ID with the 'NEVER_NULL' flag, which have (or</a>
+<a name="279"><span class="lineNum">     279 </span>            :    * should have been) remapped to `nullptr`.</a>
+<a name="280"><span class="lineNum">     280 </span>            :    */</a>
+<a name="281"><span class="lineNum">     281 </span>            :   Set&lt;ID *&gt; never_null_users_;</a>
+<a name="282"><span class="lineNum">     282 </span>            : </a>
+<a name="283"><span class="lineNum">     283 </span>            :  public:</a>
+<a name="284"><span class="lineNum">     284 </span>            :   /**</a>
+<a name="285"><span class="lineNum">     285 </span>            :    * In almost all cases, the original pointer and its new replacement should be of the same type.</a>
+<a name="286"><span class="lineNum">     286 </span>            :    * however, there are some rare exceptions, e.g. when converting from one ID type to another.</a>
+<a name="287"><span class="lineNum">     287 </span>            :    */</a>
+<a name="288"><span class="lineNum">     288 </span>            :   bool allow_idtype_mismatch = false;</a>
+<a name="289"><span class="lineNum">     289 </span>            : </a>
+<a name="290"><span class="lineNum">     290 </span><span class="lineCov">    3286995 :   void clear()</span></a>
+<a name="291"><span class="lineNum">     291 </span>            :   {</a>
+<a name="292"><span class="lineNum">     292 </span><span class="lineCov">    3286995 :     mappings_.clear();</span></a>
+<a name="293"><span class="lineNum">     293 </span><span class="lineCov">    3286995 :     never_null_users_.clear();</span></a>
+<a name="294"><span class="lineNum">     294 </span><span class="lineCov">    3286995 :     source_types_ = 0;</span></a>
+<a name="295"><span class="lineNum">     295 </span><span class="lineCov">    3286995 :   }</span></a>
+<a name="296"><span class="lineNum">     296 </span>            : </a>
+<a name="297"><span class="lineNum">     297 </span><span class="lineCov">    4479228 :   bool is_empty() const</span></a>
+<a name="298"><span class="lineNum">     298 </span>            :   {</a>
+<a name="299"><span class="lineNum">     299 </span><span class="lineCov">    4479228 :     return mappings_.is_empty();</span></a>
+<a name="300"><span class="lineNum">     300 </span>            :   }</a>
+<a name="301"><span class="lineNum">     301 </span>            : </a>
+<a name="302"><span class="lineNum">     302 </span><span class="lineCov">  121565634 :   bool contains_mappings_for_any(IDTypeFilter filter) const</span></a>
+<a name="303"><span class="lineNum">     303 </span>            :   {</a>
+<a name="304"><span class="lineNum">     304 </span><span class="lineCov">  121565634 :     return (source_types_ &amp; filter) != 0;</span></a>
+<a name="305"><span class="lineNum">     305 </span>            :   }</a>
+<a name="306"><span class="lineNum">     306 </span>            : </a>
+<a name="307"><span class="lineNum">     307 </span>            :   /** Add a new remapping. Does not replace an existing mapping for `old_id`, if any. */</a>
+<a name="308"><span class="lineNum">     308 </span>            :   void add(ID *old_id, ID *new_id);</a>
+<a name="309"><span class="lineNum">     309 </span>            :   /** Add a new remapping, replacing a potential already existing mapping of `old_id`. */</a>
+<a name="310"><span class="lineNum">     310 </span>            :   void add_overwrite(ID *old_id, ID *new_id);</a>
+<a name="311"><span class="lineNum">     311 </span>            : </a>
+<a name="312"><span class="lineNum">     312 </span>            :   /** Determine the mapping result, without applying the mapping. */</a>
+<a name="313"><span class="lineNum">     313 </span>            :   IDRemapperApplyResult get_mapping_result(ID *id,</a>
+<a name="314"><span class="lineNum">     314 </span>            :                                            IDRemapperApplyOptions options,</a>
+<a name="315"><span class="lineNum">     315 </span>            :                                            const ID *id_self) const;</a>
+<a name="316"><span class="lineNum">     316 </span>            : </a>
+<a name="317"><span class="lineNum">     317 </span>            :   /**</a>
+<a name="318"><span class="lineNum">     318 </span>            :    * Apply a remapping.</a>
+<a name="319"><span class="lineNum">     319 </span>            :    *</a>
+<a name="320"><span class="lineNum">     320 </span>            :    * Update the id pointer stored in the given r_id_ptr if a remapping rule exists.</a>
+<a name="321"><span class="lineNum">     321 </span>            :    *</a>
+<a name="322"><span class="lineNum">     322 </span>            :    * \param id_self: Only for ID_REMAP_APPLY_UNMAP_WHEN_REMAPPING_TO_SELF.</a>
+<a name="323"><span class="lineNum">     323 </span>            :    *     When remapping to `id_self` it will then be remapped to `nullptr` instead.</a>
+<a name="324"><span class="lineNum">     324 </span>            :    */</a>
+<a name="325"><span class="lineNum">     325 </span>            :   IDRemapperApplyResult apply(ID **r_id_ptr,</a>
+<a name="326"><span class="lineNum">     326 </span>            :                               IDRemapperApplyOptions options,</a>
+<a name="327"><span class="lineNum">     327 </span>            :                               ID *id_self = nullptr) const;</a>
+<a name="328"><span class="lineNum">     328 </span>            : </a>
+<a name="329"><span class="lineNum">     329 </span><span class="lineCov">          5 :   void never_null_users_add(ID *id)</span></a>
+<a name="330"><span class="lineNum">     330 </span>            :   {</a>
+<a name="331"><span class="lineNum">     331 </span><span class="lineCov">          5 :     never_null_users_.add(id);</span></a>
+<a name="332"><span class="lineNum">     332 </span><span class="lineCov">          5 :   }</span></a>
+<a name="333"><span class="lineNum">     333 </span>            : </a>
+<a name="334"><span class="lineNum">     334 </span><span class="lineCov">    2943904 :   const Set&lt;ID *&gt; &amp;never_null_users() const</span></a>
+<a name="335"><span class="lineNum">     335 </span>            :   {</a>
+<a name="336"><span class="lineNum">     336 </span><span class="lineCov">    2943904 :     return never_null_users_;</span></a>
+<a name="337"><span class="lineNum">     337 </span>            :   }</a>
+<a name="338"><span class="lineNum">     338 </span>            : </a>
+<a name="339"><span class="lineNum">     339 </span>            :   /** Iterate over all remapping pairs in the remapper, and call the callback function on them. */</a>
+<a name="340"><span class="lineNum">     340 </span><span class="lineCov">   14471657 :   void iter(FunctionRef&lt;void(ID *old_id, ID *new_id)&gt; func) const</span></a>
+<a name="341"><span class="lineNum">     341 </span>            :   {</a>
+<a name="342"><span class="lineNum">     342 </span><span class="lineCov">   41717495 :     for (auto item : mappings_.items()) {</span></a>
+<a name="343"><span class="lineNum">     343 </span><span class="lineCov">   13622919 :       func(item.key, item.value);</span></a>
+<a name="344"><span class="lineNum">     344 </span>            :     }</a>
+<a name="345"><span class="lineNum">     345 </span><span class="lineCov">   14471657 :   }</span></a>
+<a name="346"><span class="lineNum">     346 </span>            : </a>
+<a name="347"><span class="lineNum">     347 </span>            :   /** Return a readable string for the given result. Can be used for debugging purposes. */</a>
+<a name="348"><span class="lineNum">     348 </span>            :   static StringRefNull result_to_string(const IDRemapperApplyResult result);</a>
+<a name="349"><span class="lineNum">     349 </span>            : </a>
+<a name="350"><span class="lineNum">     350 </span>            :   /** Print out the rules inside the given id_remapper. Can be used for debugging purposes. */</a>
+<a name="351"><span class="lineNum">     351 </span>            :   void print() const;</a>
+<a name="352"><span class="lineNum">     352 </span>            : };</a>
+<a name="353"><span class="lineNum">     353 </span>            : </a>
+<a name="354"><span class="lineNum">     354 </span>            : }  // namespace bke::id</a>
+<a name="355"><span class="lineNum">     355 </span>            : }  // namespace blender</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,807 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - gpu/GPU_framebuffer.hh</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">gpu</a> - GPU_framebuffer.hh<span style="font-size: 80%;"> (source / <a href="GPU_framebuffer.hh.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2005 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup gpu</a>
+<a name="7"><span class="lineNum">       7 </span>            :  *</a>
+<a name="8"><span class="lineNum">       8 </span>            :  * A `GPUFramebuffer` is a wrapper for a frame-buffer object (FBO) from the underlying graphic API.</a>
+<a name="9"><span class="lineNum">       9 </span>            :  *</a>
+<a name="10"><span class="lineNum">      10 </span>            :  * A `GPUFramebuffer` is limited to one context and thus cannot be shared across different</a>
+<a name="11"><span class="lineNum">      11 </span>            :  * contexts. In the case this is needed, one must recreate the same `GPUFramebuffer` in each</a>
+<a name="12"><span class="lineNum">      12 </span>            :  * context.</a>
+<a name="13"><span class="lineNum">      13 </span>            :  *</a>
+<a name="14"><span class="lineNum">      14 </span>            :  * Note that actual FBO creation &amp; config is deferred until `GPU_framebuffer_bind` or</a>
+<a name="15"><span class="lineNum">      15 </span>            :  * `GPU_framebuffer_check_valid` is called. This means the context the `GPUFramebuffer` is bound</a>
+<a name="16"><span class="lineNum">      16 </span>            :  * with is the one active when `GPU_framebuffer_bind` is called.</a>
+<a name="17"><span class="lineNum">      17 </span>            :  *</a>
+<a name="18"><span class="lineNum">      18 </span>            :  * When a `gpu::Texture` is attached to a `GPUFramebuffer` a reference is created.</a>
+<a name="19"><span class="lineNum">      19 </span>            :  * Deleting either does not require any unbinding.</a>
+<a name="20"><span class="lineNum">      20 </span>            :  *</a>
+<a name="21"><span class="lineNum">      21 </span>            :  * A `GPUOffScreen` is a convenience type that holds a `GPUFramebuffer` and its associated</a>
+<a name="22"><span class="lineNum">      22 </span>            :  * `gpu::Texture`s. It is useful for quick drawing surface configuration.</a>
+<a name="23"><span class="lineNum">      23 </span>            :  */</a>
+<a name="24"><span class="lineNum">      24 </span>            : </a>
+<a name="25"><span class="lineNum">      25 </span>            : #pragma once</a>
+<a name="26"><span class="lineNum">      26 </span>            : </a>
+<a name="27"><span class="lineNum">      27 </span>            : #include &quot;GPU_common_types.hh&quot;</a>
+<a name="28"><span class="lineNum">      28 </span>            : #include &quot;GPU_texture.hh&quot;</a>
+<a name="29"><span class="lineNum">      29 </span>            : </a>
+<a name="30"><span class="lineNum">      30 </span>            : #include &quot;BLI_enum_flags.hh&quot;</a>
+<a name="31"><span class="lineNum">      31 </span>            : #include &quot;BLI_math_vector_types.hh&quot;</a>
+<a name="32"><span class="lineNum">      32 </span>            : </a>
+<a name="33"><span class="lineNum">      33 </span>            : namespace blender {</a>
+<a name="34"><span class="lineNum">      34 </span>            : </a>
+<a name="35"><span class="lineNum">      35 </span>            : namespace gpu {</a>
+<a name="36"><span class="lineNum">      36 </span>            : class Texture;</a>
+<a name="37"><span class="lineNum">      37 </span>            : class FrameBuffer;</a>
+<a name="38"><span class="lineNum">      38 </span>            : }  // namespace gpu</a>
+<a name="39"><span class="lineNum">      39 </span>            : </a>
+<a name="40"><span class="lineNum">      40 </span>            : enum GPUFrameBufferBits {</a>
+<a name="41"><span class="lineNum">      41 </span>            :   GPU_COLOR_BIT = (1 &lt;&lt; 0),</a>
+<a name="42"><span class="lineNum">      42 </span>            :   GPU_DEPTH_BIT = (1 &lt;&lt; 1),</a>
+<a name="43"><span class="lineNum">      43 </span>            :   GPU_STENCIL_BIT = (1 &lt;&lt; 2),</a>
+<a name="44"><span class="lineNum">      44 </span>            : };</a>
+<a name="45"><span class="lineNum">      45 </span>            : </a>
+<a name="46"><span class="lineNum">      46 </span><span class="lineNoCov">          0 : ENUM_OPERATORS(GPUFrameBufferBits)</span></a>
+<a name="47"><span class="lineNum">      47 </span>            : </a>
+<a name="48"><span class="lineNum">      48 </span>            : /* Guaranteed by the spec and is never greater than 16 on any hardware or implementation. */</a>
+<a name="49"><span class="lineNum">      49 </span>            : constexpr static int GPU_MAX_VIEWPORTS = 16;</a>
+<a name="50"><span class="lineNum">      50 </span>            : </a>
+<a name="51"><span class="lineNum">      51 </span>            : struct GPUAttachment {</a>
+<a name="52"><span class="lineNum">      52 </span>            :   gpu::Texture *tex;</a>
+<a name="53"><span class="lineNum">      53 </span>            :   int layer, mip;</a>
+<a name="54"><span class="lineNum">      54 </span>            : };</a>
+<a name="55"><span class="lineNum">      55 </span>            : </a>
+<a name="56"><span class="lineNum">      56 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="57"><span class="lineNum">      57 </span>            : /** \name Creation</a>
+<a name="58"><span class="lineNum">      58 </span>            :  * \{ */</a>
+<a name="59"><span class="lineNum">      59 </span>            : </a>
+<a name="60"><span class="lineNum">      60 </span>            : /**</a>
+<a name="61"><span class="lineNum">      61 </span>            :  * Create a #FrameBuffer object. It is not configured and not bound to a specific context until</a>
+<a name="62"><span class="lineNum">      62 </span>            :  * `GPU_framebuffer_bind()` is called.</a>
+<a name="63"><span class="lineNum">      63 </span>            :  */</a>
+<a name="64"><span class="lineNum">      64 </span>            : gpu::FrameBuffer *GPU_framebuffer_create(const char *name);</a>
+<a name="65"><span class="lineNum">      65 </span>            : </a>
+<a name="66"><span class="lineNum">      66 </span>            : /**</a>
+<a name="67"><span class="lineNum">      67 </span>            :  * Returns the current context active framebuffer.</a>
+<a name="68"><span class="lineNum">      68 </span>            :  * Return nullptr if no context is active.</a>
+<a name="69"><span class="lineNum">      69 </span>            :  */</a>
+<a name="70"><span class="lineNum">      70 </span>            : gpu::FrameBuffer *GPU_framebuffer_active_get();</a>
+<a name="71"><span class="lineNum">      71 </span>            : </a>
+<a name="72"><span class="lineNum">      72 </span>            : /**</a>
+<a name="73"><span class="lineNum">      73 </span>            :  * Returns the default (back-left) frame-buffer. It will always exists even if it's just a dummy.</a>
+<a name="74"><span class="lineNum">      74 </span>            :  * Return nullptr if no context is active.</a>
+<a name="75"><span class="lineNum">      75 </span>            :  */</a>
+<a name="76"><span class="lineNum">      76 </span>            : gpu::FrameBuffer *GPU_framebuffer_back_get();</a>
+<a name="77"><span class="lineNum">      77 </span>            : </a>
+<a name="78"><span class="lineNum">      78 </span>            : /** \} */</a>
+<a name="79"><span class="lineNum">      79 </span>            : </a>
+<a name="80"><span class="lineNum">      80 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="81"><span class="lineNum">      81 </span>            : /** \name Free</a>
+<a name="82"><span class="lineNum">      82 </span>            :  * \{ */</a>
+<a name="83"><span class="lineNum">      83 </span>            : </a>
+<a name="84"><span class="lineNum">      84 </span>            : /**</a>
+<a name="85"><span class="lineNum">      85 </span>            :  * Create a #FrameBuffer object. It is not configured and not bound to a specific context until</a>
+<a name="86"><span class="lineNum">      86 </span>            :  * `GPU_framebuffer_bind()` is called.</a>
+<a name="87"><span class="lineNum">      87 </span>            :  */</a>
+<a name="88"><span class="lineNum">      88 </span>            : void GPU_framebuffer_free(gpu::FrameBuffer *fb);</a>
+<a name="89"><span class="lineNum">      89 </span>            : </a>
+<a name="90"><span class="lineNum">      90 </span>            : #define GPU_FRAMEBUFFER_FREE_SAFE(fb) \</a>
+<a name="91"><span class="lineNum">      91 </span>            :   do { \</a>
+<a name="92"><span class="lineNum">      92 </span>            :     if (fb != nullptr) { \</a>
+<a name="93"><span class="lineNum">      93 </span>            :       GPU_framebuffer_free(fb); \</a>
+<a name="94"><span class="lineNum">      94 </span>            :       fb = nullptr; \</a>
+<a name="95"><span class="lineNum">      95 </span>            :     } \</a>
+<a name="96"><span class="lineNum">      96 </span>            :   } while (0)</a>
+<a name="97"><span class="lineNum">      97 </span>            : </a>
+<a name="98"><span class="lineNum">      98 </span>            : /** \} */</a>
+<a name="99"><span class="lineNum">      99 </span>            : </a>
+<a name="100"><span class="lineNum">     100 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="101"><span class="lineNum">     101 </span>            : /** \name Binding</a>
+<a name="102"><span class="lineNum">     102 </span>            :  * \{ */</a>
+<a name="103"><span class="lineNum">     103 </span>            : </a>
+<a name="104"><span class="lineNum">     104 </span>            : enum GPUBackBuffer {</a>
+<a name="105"><span class="lineNum">     105 </span>            :   /** Default framebuffer of a window. Always available. */</a>
+<a name="106"><span class="lineNum">     106 </span>            :   GPU_BACKBUFFER_LEFT = 0,</a>
+<a name="107"><span class="lineNum">     107 </span>            :   /** Right buffer of a window. Only available if window was created using stereo-view. */</a>
+<a name="108"><span class="lineNum">     108 </span>            :   GPU_BACKBUFFER_RIGHT,</a>
+<a name="109"><span class="lineNum">     109 </span>            : };</a>
+<a name="110"><span class="lineNum">     110 </span>            : </a>
+<a name="111"><span class="lineNum">     111 </span>            : /**</a>
+<a name="112"><span class="lineNum">     112 </span>            :  * Binds the active context's window frame-buffer.</a>
+<a name="113"><span class="lineNum">     113 </span>            :  * Note that `GPU_BACKBUFFER_RIGHT` is only available if the window was created using stereo-view.</a>
+<a name="114"><span class="lineNum">     114 </span>            :  */</a>
+<a name="115"><span class="lineNum">     115 </span>            : void GPU_backbuffer_bind(GPUBackBuffer back_buffer_type);</a>
+<a name="116"><span class="lineNum">     116 </span>            : </a>
+<a name="117"><span class="lineNum">     117 </span>            : /**</a>
+<a name="118"><span class="lineNum">     118 </span>            :  * Binds a #FrameBuffer making it the active framebuffer for all geometry rendering.</a>
+<a name="119"><span class="lineNum">     119 </span>            :  */</a>
+<a name="120"><span class="lineNum">     120 </span>            : void GPU_framebuffer_bind(gpu::FrameBuffer *fb);</a>
+<a name="121"><span class="lineNum">     121 </span>            : </a>
+<a name="122"><span class="lineNum">     122 </span>            : /**</a>
+<a name="123"><span class="lineNum">     123 </span>            :  * Same as `GPU_framebuffer_bind` but do not enable the SRGB transform.</a>
+<a name="124"><span class="lineNum">     124 </span>            :  */</a>
+<a name="125"><span class="lineNum">     125 </span>            : void GPU_framebuffer_bind_no_srgb(gpu::FrameBuffer *fb);</a>
+<a name="126"><span class="lineNum">     126 </span>            : </a>
+<a name="127"><span class="lineNum">     127 </span>            : /**</a>
+<a name="128"><span class="lineNum">     128 </span>            :  * Binds back the active context's default frame-buffer.</a>
+<a name="129"><span class="lineNum">     129 </span>            :  * Equivalent to `GPU_backbuffer_bind(GPU_BACKBUFFER_LEFT)`.</a>
+<a name="130"><span class="lineNum">     130 </span>            :  */</a>
+<a name="131"><span class="lineNum">     131 </span>            : void GPU_framebuffer_restore();</a>
+<a name="132"><span class="lineNum">     132 </span>            : </a>
+<a name="133"><span class="lineNum">     133 </span>            : /** \} */</a>
+<a name="134"><span class="lineNum">     134 </span>            : </a>
+<a name="135"><span class="lineNum">     135 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="136"><span class="lineNum">     136 </span>            : /** \name Advanced binding control</a>
+<a name="137"><span class="lineNum">     137 </span>            :  * \{ */</a>
+<a name="138"><span class="lineNum">     138 </span>            : </a>
+<a name="139"><span class="lineNum">     139 </span>            : struct GPULoadStore {</a>
+<a name="140"><span class="lineNum">     140 </span>            :   GPULoadOp load_action;</a>
+<a name="141"><span class="lineNum">     141 </span>            :   GPUStoreOp store_action;</a>
+<a name="142"><span class="lineNum">     142 </span>            :   double clear_value[4];</a>
+<a name="143"><span class="lineNum">     143 </span>            : };</a>
+<a name="144"><span class="lineNum">     144 </span>            : </a>
+<a name="145"><span class="lineNum">     145 </span>            : /* Empty bind point. */</a>
+<a name="146"><span class="lineNum">     146 </span>            : #define NULL_ATTACHMENT_COLOR {0.0, 0.0, 0.0, 0.0}</a>
+<a name="147"><span class="lineNum">     147 </span>            : #define NULL_LOAD_STORE \</a>
+<a name="148"><span class="lineNum">     148 </span>            :   {GPU_LOADACTION_DONT_CARE, GPU_STOREACTION_DONT_CARE, NULL_ATTACHMENT_COLOR}</a>
+<a name="149"><span class="lineNum">     149 </span>            : </a>
+<a name="150"><span class="lineNum">     150 </span>            : /**</a>
+<a name="151"><span class="lineNum">     151 </span>            :  * Load store config array (load_store_actions) matches attachment structure of</a>
+<a name="152"><span class="lineNum">     152 </span>            :  * GPU_framebuffer_config_array. This allows us to explicitly specify whether attachment data needs</a>
+<a name="153"><span class="lineNum">     153 </span>            :  * to be loaded and stored on a per-attachment basis. This enables a number of bandwidth</a>
+<a name="154"><span class="lineNum">     154 </span>            :  * optimizations:</a>
+<a name="155"><span class="lineNum">     155 </span>            :  *  - No need to load contents if subsequent work is over-writing every pixel.</a>
+<a name="156"><span class="lineNum">     156 </span>            :  *  - No need to store attachments whose contents are not used beyond this pass e.g. depth buffer.</a>
+<a name="157"><span class="lineNum">     157 </span>            :  *  - State can be customized at bind-time rather than applying to the frame-buffer object as a</a>
+<a name="158"><span class="lineNum">     158 </span>            :  * whole.</a>
+<a name="159"><span class="lineNum">     159 </span>            :  *</a>
+<a name="160"><span class="lineNum">     160 </span>            :  * NOTE: Using GPU_framebuffer_clear_* functions in conjunction with a custom load-store</a>
+<a name="161"><span class="lineNum">     161 </span>            :  * configuration is invalid. Instead, utilize GPU_LOADACTION_CLEAR and provide a clear color as</a>
+<a name="162"><span class="lineNum">     162 </span>            :  * the third parameter in `GPULoadStore action`.</a>
+<a name="163"><span class="lineNum">     163 </span>            :  *</a>
+<a name="164"><span class="lineNum">     164 </span>            :  * For Color attachments: `{GPU_LOADACTION_CLEAR, GPU_STOREACTION_STORE, {Rf, Gf, Bf, Af}}`</a>
+<a name="165"><span class="lineNum">     165 </span>            :  * For Depth attachments: `{GPU_LOADACTION_CLEAR, GPU_STOREACTION_STORE, {Df}}`</a>
+<a name="166"><span class="lineNum">     166 </span>            :  *</a>
+<a name="167"><span class="lineNum">     167 </span>            :  * Example:</a>
+<a name="168"><span class="lineNum">     168 </span>            :  * \code{.c}</a>
+<a name="169"><span class="lineNum">     169 </span>            :  * GPU_framebuffer_bind_loadstore(&amp;fb, {</a>
+<a name="170"><span class="lineNum">     170 </span>            :  *         {GPU_LOADACTION_LOAD, GPU_STOREACTION_DONT_CARE} // must be depth buffer</a>
+<a name="171"><span class="lineNum">     171 </span>            :  *         {GPU_LOADACTION_LOAD, GPU_STOREACTION_STORE}, // Color attachment 0</a>
+<a name="172"><span class="lineNum">     172 </span>            :  *         {GPU_LOADACTION_DONT_CARE, GPU_STOREACTION_STORE}, // Color attachment 1</a>
+<a name="173"><span class="lineNum">     173 </span>            :  *         {GPU_LOADACTION_DONT_CARE, GPU_STOREACTION_STORE} // Color attachment 2</a>
+<a name="174"><span class="lineNum">     174 </span>            :  * }, 4)</a>
+<a name="175"><span class="lineNum">     175 </span>            :  * \endcode</a>
+<a name="176"><span class="lineNum">     176 </span>            :  */</a>
+<a name="177"><span class="lineNum">     177 </span>            : void GPU_framebuffer_bind_loadstore(gpu::FrameBuffer *fb,</a>
+<a name="178"><span class="lineNum">     178 </span>            :                                     const GPULoadStore *load_store_actions,</a>
+<a name="179"><span class="lineNum">     179 </span>            :                                     uint load_store_actions_len);</a>
+<a name="180"><span class="lineNum">     180 </span>            : #define GPU_framebuffer_bind_ex(_fb, ...) \</a>
+<a name="181"><span class="lineNum">     181 </span>            :   { \</a>
+<a name="182"><span class="lineNum">     182 </span>            :     GPULoadStore actions[] = __VA_ARGS__; \</a>
+<a name="183"><span class="lineNum">     183 </span>            :     GPU_framebuffer_bind_loadstore(_fb, actions, (sizeof(actions) / sizeof(GPULoadStore))); \</a>
+<a name="184"><span class="lineNum">     184 </span>            :   }</a>
+<a name="185"><span class="lineNum">     185 </span>            : </a>
+<a name="186"><span class="lineNum">     186 </span>            : /**</a>
+<a name="187"><span class="lineNum">     187 </span>            :  * Sub-pass config array matches attachment structure of `GPU_framebuffer_config_array`.</a>
+<a name="188"><span class="lineNum">     188 </span>            :  * This allows to explicitly specify attachment state within the next sub-pass.</a>
+<a name="189"><span class="lineNum">     189 </span>            :  * This enables a number of bandwidth optimizations specially on Tile Based Deferred Renderers</a>
+<a name="190"><span class="lineNum">     190 </span>            :  * where the attachments can be kept into tile memory and used in place for later sub-passes.</a>
+<a name="191"><span class="lineNum">     191 </span>            :  *</a>
+<a name="192"><span class="lineNum">     192 </span>            :  * IMPORTANT: When using this, the framebuffer initial state is undefined. A sub-pass transition</a>
+<a name="193"><span class="lineNum">     193 </span>            :  * need to be issued before any draw-call.</a>
+<a name="194"><span class="lineNum">     194 </span>            :  *</a>
+<a name="195"><span class="lineNum">     195 </span>            :  * Example:</a>
+<a name="196"><span class="lineNum">     196 </span>            :  * \code{.c}</a>
+<a name="197"><span class="lineNum">     197 </span>            :  * GPU_framebuffer_bind_loadstore(&amp;fb, {</a>
+<a name="198"><span class="lineNum">     198 </span>            :  *         GPU_ATTACHMENT_WRITE,  // must be depth buffer</a>
+<a name="199"><span class="lineNum">     199 </span>            :  *         GPU_ATTACHMENT_READ,   // Color attachment 0</a>
+<a name="200"><span class="lineNum">     200 </span>            :  *         GPU_ATTACHMENT_IGNORE, // Color attachment 1</a>
+<a name="201"><span class="lineNum">     201 </span>            :  *         GPU_ATTACHMENT_WRITE}  // Color attachment 2</a>
+<a name="202"><span class="lineNum">     202 </span>            :  * })</a>
+<a name="203"><span class="lineNum">     203 </span>            :  * \endcode</a>
+<a name="204"><span class="lineNum">     204 </span>            :  *</a>
+<a name="205"><span class="lineNum">     205 </span>            :  * \note Excess attachments will have no effect as long as they are GPU_ATTACHMENT_IGNORE.</a>
+<a name="206"><span class="lineNum">     206 </span>            :  */</a>
+<a name="207"><span class="lineNum">     207 </span>            : void GPU_framebuffer_subpass_transition_array(gpu::FrameBuffer *fb,</a>
+<a name="208"><span class="lineNum">     208 </span>            :                                               const GPUAttachmentState *attachment_states,</a>
+<a name="209"><span class="lineNum">     209 </span>            :                                               uint attachment_len);</a>
+<a name="210"><span class="lineNum">     210 </span>            : </a>
+<a name="211"><span class="lineNum">     211 </span>            : #define GPU_framebuffer_subpass_transition(_fb, ...) \</a>
+<a name="212"><span class="lineNum">     212 </span>            :   { \</a>
+<a name="213"><span class="lineNum">     213 </span>            :     GPUAttachmentState actions[] = __VA_ARGS__; \</a>
+<a name="214"><span class="lineNum">     214 </span>            :     GPU_framebuffer_subpass_transition_array( \</a>
+<a name="215"><span class="lineNum">     215 </span>            :         _fb, actions, (sizeof(actions) / sizeof(GPUAttachmentState))); \</a>
+<a name="216"><span class="lineNum">     216 </span>            :   }</a>
+<a name="217"><span class="lineNum">     217 </span>            : </a>
+<a name="218"><span class="lineNum">     218 </span>            : /** \} */</a>
+<a name="219"><span class="lineNum">     219 </span>            : </a>
+<a name="220"><span class="lineNum">     220 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="221"><span class="lineNum">     221 </span>            : /** \name Attachments</a>
+<a name="222"><span class="lineNum">     222 </span>            :  * \{ */</a>
+<a name="223"><span class="lineNum">     223 </span>            : </a>
+<a name="224"><span class="lineNum">     224 </span>            : /**</a>
+<a name="225"><span class="lineNum">     225 </span>            :  * How to use #GPU_framebuffer_ensure_config().</a>
+<a name="226"><span class="lineNum">     226 </span>            :  *</a>
+<a name="227"><span class="lineNum">     227 </span>            :  * Example:</a>
+<a name="228"><span class="lineNum">     228 </span>            :  * \code{.c}</a>
+<a name="229"><span class="lineNum">     229 </span>            :  * GPU_framebuffer_ensure_config(&amp;fb, {</a>
+<a name="230"><span class="lineNum">     230 </span>            :  *         GPU_ATTACHMENT_TEXTURE(depth), // must be depth buffer</a>
+<a name="231"><span class="lineNum">     231 </span>            :  *         GPU_ATTACHMENT_TEXTURE(tex1),</a>
+<a name="232"><span class="lineNum">     232 </span>            :  *         GPU_ATTACHMENT_TEXTURE_CUBEFACE(tex2, 0),</a>
+<a name="233"><span class="lineNum">     233 </span>            :  *         GPU_ATTACHMENT_TEXTURE_LAYER_MIP(tex2, 0, 0)</a>
+<a name="234"><span class="lineNum">     234 </span>            :  * })</a>
+<a name="235"><span class="lineNum">     235 </span>            :  * \endcode</a>
+<a name="236"><span class="lineNum">     236 </span>            :  *</a>
+<a name="237"><span class="lineNum">     237 </span>            :  * \note Unspecified attachments (i.e: those beyond the last</a>
+<a name="238"><span class="lineNum">     238 </span>            :  * GPU_ATTACHMENT_* in GPU_framebuffer_ensure_config list) are left unchanged.</a>
+<a name="239"><span class="lineNum">     239 </span>            :  *</a>
+<a name="240"><span class="lineNum">     240 </span>            :  * \note Make sure that the dimensions of your textures matches</a>
+<a name="241"><span class="lineNum">     241 </span>            :  * otherwise you will have an invalid framebuffer error.</a>
+<a name="242"><span class="lineNum">     242 </span>            :  */</a>
+<a name="243"><span class="lineNum">     243 </span>            : #define GPU_framebuffer_ensure_config(_fb, ...) \</a>
+<a name="244"><span class="lineNum">     244 </span>            :   do { \</a>
+<a name="245"><span class="lineNum">     245 </span>            :     if (*(_fb) == nullptr) { \</a>
+<a name="246"><span class="lineNum">     246 </span>            :       *(_fb) = GPU_framebuffer_create(#_fb); \</a>
+<a name="247"><span class="lineNum">     247 </span>            :     } \</a>
+<a name="248"><span class="lineNum">     248 </span>            :     GPUAttachment config[] = __VA_ARGS__; \</a>
+<a name="249"><span class="lineNum">     249 </span>            :     GPU_framebuffer_config_array(*(_fb), config, (sizeof(config) / sizeof(GPUAttachment))); \</a>
+<a name="250"><span class="lineNum">     250 </span>            :   } while (0)</a>
+<a name="251"><span class="lineNum">     251 </span>            : </a>
+<a name="252"><span class="lineNum">     252 </span>            : /**</a>
+<a name="253"><span class="lineNum">     253 </span>            :  * First #GPUAttachment in *config is always the depth/depth_stencil buffer.</a>
+<a name="254"><span class="lineNum">     254 </span>            :  * Following #GPUAttachments are color buffers.</a>
+<a name="255"><span class="lineNum">     255 </span>            :  * Setting #GPUAttachment.mip to -1 will leave the texture in this slot.</a>
+<a name="256"><span class="lineNum">     256 </span>            :  * Setting #GPUAttachment.tex to nullptr will detach the texture in this slot.</a>
+<a name="257"><span class="lineNum">     257 </span>            :  */</a>
+<a name="258"><span class="lineNum">     258 </span>            : void GPU_framebuffer_config_array(gpu::FrameBuffer *fb,</a>
+<a name="259"><span class="lineNum">     259 </span>            :                                   const GPUAttachment *config,</a>
+<a name="260"><span class="lineNum">     260 </span>            :                                   int config_len);</a>
+<a name="261"><span class="lineNum">     261 </span>            : </a>
+<a name="262"><span class="lineNum">     262 </span>            : /** Empty bind point. */</a>
+<a name="263"><span class="lineNum">     263 </span>            : #define GPU_ATTACHMENT_NONE \</a>
+<a name="264"><span class="lineNum">     264 </span>            :   GPUAttachment \</a>
+<a name="265"><span class="lineNum">     265 </span>            :   { \</a>
+<a name="266"><span class="lineNum">     266 </span>            :     nullptr, -1, 0, \</a>
+<a name="267"><span class="lineNum">     267 </span>            :   }</a>
+<a name="268"><span class="lineNum">     268 </span>            : /** Leave currently bound texture in this slot. DEPRECATED: Specify all textures for clarity. */</a>
+<a name="269"><span class="lineNum">     269 </span>            : #define GPU_ATTACHMENT_LEAVE \</a>
+<a name="270"><span class="lineNum">     270 </span>            :   GPUAttachment \</a>
+<a name="271"><span class="lineNum">     271 </span>            :   { \</a>
+<a name="272"><span class="lineNum">     272 </span>            :     nullptr, -1, -1, \</a>
+<a name="273"><span class="lineNum">     273 </span>            :   }</a>
+<a name="274"><span class="lineNum">     274 </span>            : /** Bind the first mip level of a texture (all layers). */</a>
+<a name="275"><span class="lineNum">     275 </span>            : #define GPU_ATTACHMENT_TEXTURE(_texture) \</a>
+<a name="276"><span class="lineNum">     276 </span>            :   GPUAttachment \</a>
+<a name="277"><span class="lineNum">     277 </span>            :   { \</a>
+<a name="278"><span class="lineNum">     278 </span>            :     _texture, -1, 0, \</a>
+<a name="279"><span class="lineNum">     279 </span>            :   }</a>
+<a name="280"><span class="lineNum">     280 </span>            : /** Bind the \a _mip level of a texture (all layers). */</a>
+<a name="281"><span class="lineNum">     281 </span>            : #define GPU_ATTACHMENT_TEXTURE_MIP(_texture, _mip) \</a>
+<a name="282"><span class="lineNum">     282 </span>            :   GPUAttachment \</a>
+<a name="283"><span class="lineNum">     283 </span>            :   { \</a>
+<a name="284"><span class="lineNum">     284 </span>            :     _texture, -1, _mip, \</a>
+<a name="285"><span class="lineNum">     285 </span>            :   }</a>
+<a name="286"><span class="lineNum">     286 </span>            : /** Bind the \a _layer layer of the first mip level of a texture. */</a>
+<a name="287"><span class="lineNum">     287 </span>            : #define GPU_ATTACHMENT_TEXTURE_LAYER(_texture, _layer) \</a>
+<a name="288"><span class="lineNum">     288 </span>            :   GPUAttachment \</a>
+<a name="289"><span class="lineNum">     289 </span>            :   { \</a>
+<a name="290"><span class="lineNum">     290 </span>            :     _texture, _layer, 0, \</a>
+<a name="291"><span class="lineNum">     291 </span>            :   }</a>
+<a name="292"><span class="lineNum">     292 </span>            : /** Bind the \a _layer layer of the \a _mip level of a texture. */</a>
+<a name="293"><span class="lineNum">     293 </span>            : #define GPU_ATTACHMENT_TEXTURE_LAYER_MIP(_texture, _layer, _mip) \</a>
+<a name="294"><span class="lineNum">     294 </span>            :   GPUAttachment \</a>
+<a name="295"><span class="lineNum">     295 </span>            :   { \</a>
+<a name="296"><span class="lineNum">     296 </span>            :     _texture, _layer, _mip, \</a>
+<a name="297"><span class="lineNum">     297 </span>            :   }</a>
+<a name="298"><span class="lineNum">     298 </span>            : </a>
+<a name="299"><span class="lineNum">     299 </span>            : /** NOTE: The cube-face variants are equivalent to the layer ones but give better semantic. */</a>
+<a name="300"><span class="lineNum">     300 </span>            : </a>
+<a name="301"><span class="lineNum">     301 </span>            : /** Bind the first mip level of a cube-map \a _face texture. */</a>
+<a name="302"><span class="lineNum">     302 </span>            : #define GPU_ATTACHMENT_TEXTURE_CUBEFACE(_texture, _face) \</a>
+<a name="303"><span class="lineNum">     303 </span>            :   GPUAttachment \</a>
+<a name="304"><span class="lineNum">     304 </span>            :   { \</a>
+<a name="305"><span class="lineNum">     305 </span>            :     _texture, _face, 0, \</a>
+<a name="306"><span class="lineNum">     306 </span>            :   }</a>
+<a name="307"><span class="lineNum">     307 </span>            : /** Bind the \a _mip level of a cube-map \a _face texture. */</a>
+<a name="308"><span class="lineNum">     308 </span>            : #define GPU_ATTACHMENT_TEXTURE_CUBEFACE_MIP(_texture, _face, _mip) \</a>
+<a name="309"><span class="lineNum">     309 </span>            :   GPUAttachment \</a>
+<a name="310"><span class="lineNum">     310 </span>            :   { \</a>
+<a name="311"><span class="lineNum">     311 </span>            :     _texture, _face, _mip, \</a>
+<a name="312"><span class="lineNum">     312 </span>            :   }</a>
+<a name="313"><span class="lineNum">     313 </span>            : </a>
+<a name="314"><span class="lineNum">     314 </span>            : /**</a>
+<a name="315"><span class="lineNum">     315 </span>            :  * Attach an entire texture mip level to a #FrameBuffer.</a>
+<a name="316"><span class="lineNum">     316 </span>            :  * Changes will only take effect next time `GPU_framebuffer_bind()` is called.</a>
+<a name="317"><span class="lineNum">     317 </span>            :  * \a slot is the color texture slot to bind this texture to. Must be 0 if it is the depth texture.</a>
+<a name="318"><span class="lineNum">     318 </span>            :  * \a mip is the mip level of this texture to attach to the framebuffer.</a>
+<a name="319"><span class="lineNum">     319 </span>            :  * DEPRECATED: Prefer using multiple #FrameBuffer with different configurations with</a>
+<a name="320"><span class="lineNum">     320 </span>            :  * `GPU_framebuffer_config_array()`.</a>
+<a name="321"><span class="lineNum">     321 </span>            :  */</a>
+<a name="322"><span class="lineNum">     322 </span>            : void GPU_framebuffer_texture_attach(gpu::FrameBuffer *fb,</a>
+<a name="323"><span class="lineNum">     323 </span>            :                                     gpu::Texture *texture,</a>
+<a name="324"><span class="lineNum">     324 </span>            :                                     int slot,</a>
+<a name="325"><span class="lineNum">     325 </span>            :                                     int mip);</a>
+<a name="326"><span class="lineNum">     326 </span>            : </a>
+<a name="327"><span class="lineNum">     327 </span>            : /**</a>
+<a name="328"><span class="lineNum">     328 </span>            :  * Attach a single layer of an array texture mip level to a #FrameBuffer.</a>
+<a name="329"><span class="lineNum">     329 </span>            :  * Changes will only take effect next time `GPU_framebuffer_bind()` is called.</a>
+<a name="330"><span class="lineNum">     330 </span>            :  * \a slot is the color texture slot to bind this texture to. Must be 0 if it is the depth texture.</a>
+<a name="331"><span class="lineNum">     331 </span>            :  * \a layer is the layer of this array texture to attach to the framebuffer.</a>
+<a name="332"><span class="lineNum">     332 </span>            :  * \a mip is the mip level of this texture to attach to the framebuffer.</a>
+<a name="333"><span class="lineNum">     333 </span>            :  * DEPRECATED: Prefer using multiple #FrameBuffer with different configurations with</a>
+<a name="334"><span class="lineNum">     334 </span>            :  * `GPU_framebuffer_config_array()`.</a>
+<a name="335"><span class="lineNum">     335 </span>            :  */</a>
+<a name="336"><span class="lineNum">     336 </span>            : void GPU_framebuffer_texture_layer_attach(</a>
+<a name="337"><span class="lineNum">     337 </span>            :     gpu::FrameBuffer *fb, gpu::Texture *texture, int slot, int layer, int mip);</a>
+<a name="338"><span class="lineNum">     338 </span>            : </a>
+<a name="339"><span class="lineNum">     339 </span>            : /**</a>
+<a name="340"><span class="lineNum">     340 </span>            :  * Attach a single cube-face of an cube-map texture mip level to a #FrameBuffer.</a>
+<a name="341"><span class="lineNum">     341 </span>            :  * Changes will only take effect next time `GPU_framebuffer_bind()` is called.</a>
+<a name="342"><span class="lineNum">     342 </span>            :  * \a slot is the color texture slot to bind this texture to. Must be 0 if it is the depth texture.</a>
+<a name="343"><span class="lineNum">     343 </span>            :  * \a face is the cube-face of this cube-map texture to attach to the framebuffer.</a>
+<a name="344"><span class="lineNum">     344 </span>            :  * \a mip is the mip level of this texture to attach to the framebuffer.</a>
+<a name="345"><span class="lineNum">     345 </span>            :  * DEPRECATED: Prefer using multiple #FrameBuffer with different configurations with</a>
+<a name="346"><span class="lineNum">     346 </span>            :  * `GPU_framebuffer_config_array()`.</a>
+<a name="347"><span class="lineNum">     347 </span>            :  */</a>
+<a name="348"><span class="lineNum">     348 </span>            : void GPU_framebuffer_texture_cubeface_attach(</a>
+<a name="349"><span class="lineNum">     349 </span>            :     gpu::FrameBuffer *fb, gpu::Texture *texture, int slot, int face, int mip);</a>
+<a name="350"><span class="lineNum">     350 </span>            : </a>
+<a name="351"><span class="lineNum">     351 </span>            : /**</a>
+<a name="352"><span class="lineNum">     352 </span>            :  * Detach a texture from a #FrameBuffer. The texture must be attached.</a>
+<a name="353"><span class="lineNum">     353 </span>            :  * Changes will only take effect next time `GPU_framebuffer_bind()` is called.</a>
+<a name="354"><span class="lineNum">     354 </span>            :  * DEPRECATED: Prefer using multiple #FrameBuffer with different configurations with</a>
+<a name="355"><span class="lineNum">     355 </span>            :  * `GPU_framebuffer_config_array()`.</a>
+<a name="356"><span class="lineNum">     356 </span>            :  */</a>
+<a name="357"><span class="lineNum">     357 </span>            : void GPU_framebuffer_texture_detach(gpu::FrameBuffer *fb, gpu::Texture *texture);</a>
+<a name="358"><span class="lineNum">     358 </span>            : </a>
+<a name="359"><span class="lineNum">     359 </span>            : /**</a>
+<a name="360"><span class="lineNum">     360 </span>            :  * Checks a framebuffer current configuration for errors.</a>
+<a name="361"><span class="lineNum">     361 </span>            :  * Checks for texture size mismatch, incompatible attachment, incomplete textures etc...</a>
+<a name="362"><span class="lineNum">     362 </span>            :  * \note This binds the framebuffer to the active context.</a>
+<a name="363"><span class="lineNum">     363 </span>            :  * \a err_out is an error output buffer.</a>
+<a name="364"><span class="lineNum">     364 </span>            :  * \return false if the framebuffer is invalid.</a>
+<a name="365"><span class="lineNum">     365 </span>            :  */</a>
+<a name="366"><span class="lineNum">     366 </span>            : bool GPU_framebuffer_check_valid(gpu::FrameBuffer *fb, char err_out[256]);</a>
+<a name="367"><span class="lineNum">     367 </span>            : </a>
+<a name="368"><span class="lineNum">     368 </span>            : /** \} */</a>
+<a name="369"><span class="lineNum">     369 </span>            : </a>
+<a name="370"><span class="lineNum">     370 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="371"><span class="lineNum">     371 </span>            : /** \name Empty frame-buffer</a>
+<a name="372"><span class="lineNum">     372 </span>            :  *</a>
+<a name="373"><span class="lineNum">     373 </span>            :  * An empty frame-buffer is a frame-buffer with no attachments. This allow to rasterize geometry</a>
+<a name="374"><span class="lineNum">     374 </span>            :  * without creating any dummy attachments and write some computation results using other means</a>
+<a name="375"><span class="lineNum">     375 </span>            :  * (SSBOs, Images).</a>
+<a name="376"><span class="lineNum">     376 </span>            :  * \{ */</a>
+<a name="377"><span class="lineNum">     377 </span>            : </a>
+<a name="378"><span class="lineNum">     378 </span>            : /**</a>
+<a name="379"><span class="lineNum">     379 </span>            :  * Default size is used if the frame-buffer contains no attachments.</a>
+<a name="380"><span class="lineNum">     380 </span>            :  * It needs to be re-specified each time an attachment is added.</a>
+<a name="381"><span class="lineNum">     381 </span>            :  */</a>
+<a name="382"><span class="lineNum">     382 </span>            : void GPU_framebuffer_default_size(gpu::FrameBuffer *fb, int width, int height);</a>
+<a name="383"><span class="lineNum">     383 </span>            : </a>
+<a name="384"><span class="lineNum">     384 </span>            : /** \} */</a>
+<a name="385"><span class="lineNum">     385 </span>            : </a>
+<a name="386"><span class="lineNum">     386 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="387"><span class="lineNum">     387 </span>            : /** \name Internal state</a>
+<a name="388"><span class="lineNum">     388 </span>            :  * \{ */</a>
+<a name="389"><span class="lineNum">     389 </span>            : </a>
+<a name="390"><span class="lineNum">     390 </span>            : /**</a>
+<a name="391"><span class="lineNum">     391 </span>            :  * \brief Get the extent of the framebuffer</a>
+<a name="392"><span class="lineNum">     392 </span>            :  */</a>
+<a name="393"><span class="lineNum">     393 </span>            : int2 GPU_framebuffer_extent_get(gpu::FrameBuffer *fb);</a>
+<a name="394"><span class="lineNum">     394 </span>            : </a>
+<a name="395"><span class="lineNum">     395 </span>            : /**</a>
+<a name="396"><span class="lineNum">     396 </span>            :  * Set the viewport offset and size.</a>
+<a name="397"><span class="lineNum">     397 </span>            :  * These are reset to the original dimensions explicitly (using `GPU_framebuffer_viewport_reset()`)</a>
+<a name="398"><span class="lineNum">     398 </span>            :  * or when binding the frame-buffer after modifying its attachments.</a>
+<a name="399"><span class="lineNum">     399 </span>            :  *</a>
+<a name="400"><span class="lineNum">     400 </span>            :  * \note Viewport and scissor size is stored per frame-buffer.</a>
+<a name="401"><span class="lineNum">     401 </span>            :  * \note Setting a singular viewport will only change the state of the first viewport.</a>
+<a name="402"><span class="lineNum">     402 </span>            :  * \note Must be called after first bind.</a>
+<a name="403"><span class="lineNum">     403 </span>            :  */</a>
+<a name="404"><span class="lineNum">     404 </span>            : void GPU_framebuffer_viewport_set(gpu::FrameBuffer *fb, int x, int y, int width, int height);</a>
+<a name="405"><span class="lineNum">     405 </span>            : </a>
+<a name="406"><span class="lineNum">     406 </span>            : /**</a>
+<a name="407"><span class="lineNum">     407 </span>            :  * Similar to `GPU_framebuffer_viewport_set()` but specify the bounds of all 16 viewports.</a>
+<a name="408"><span class="lineNum">     408 </span>            :  * By default geometry renders only to the first viewport. That can be changed by setting</a>
+<a name="409"><span class="lineNum">     409 </span>            :  * `gpu_ViewportIndex` in the vertex.</a>
+<a name="410"><span class="lineNum">     410 </span>            :  *</a>
+<a name="411"><span class="lineNum">     411 </span>            :  * \note Viewport and scissor size is stored per frame-buffer.</a>
+<a name="412"><span class="lineNum">     412 </span>            :  * \note Must be called after first bind.</a>
+<a name="413"><span class="lineNum">     413 </span>            :  */</a>
+<a name="414"><span class="lineNum">     414 </span>            : void GPU_framebuffer_multi_viewports_set(gpu::FrameBuffer *gpu_fb,</a>
+<a name="415"><span class="lineNum">     415 </span>            :                                          const int viewport_rects[GPU_MAX_VIEWPORTS][4]);</a>
+<a name="416"><span class="lineNum">     416 </span>            : </a>
+<a name="417"><span class="lineNum">     417 </span>            : /**</a>
+<a name="418"><span class="lineNum">     418 </span>            :  * Return the viewport offset and size in a int quadruple: (x, y, width, height).</a>
+<a name="419"><span class="lineNum">     419 </span>            :  * \note Viewport and scissor size is stored per frame-buffer.</a>
+<a name="420"><span class="lineNum">     420 </span>            :  */</a>
+<a name="421"><span class="lineNum">     421 </span>            : void GPU_framebuffer_viewport_get(gpu::FrameBuffer *fb, int r_viewport[4]);</a>
+<a name="422"><span class="lineNum">     422 </span>            : </a>
+<a name="423"><span class="lineNum">     423 </span>            : /**</a>
+<a name="424"><span class="lineNum">     424 </span>            :  * Reset a frame-buffer viewport bounds to its attachment(s) size.</a>
+<a name="425"><span class="lineNum">     425 </span>            :  * \note Viewport and scissor size is stored per frame-buffer.</a>
+<a name="426"><span class="lineNum">     426 </span>            :  */</a>
+<a name="427"><span class="lineNum">     427 </span>            : void GPU_framebuffer_viewport_reset(gpu::FrameBuffer *fb);</a>
+<a name="428"><span class="lineNum">     428 </span>            : </a>
+<a name="429"><span class="lineNum">     429 </span>            : /** \} */</a>
+<a name="430"><span class="lineNum">     430 </span>            : </a>
+<a name="431"><span class="lineNum">     431 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="432"><span class="lineNum">     432 </span>            : /** \name Clearing</a>
+<a name="433"><span class="lineNum">     433 </span>            :  * \{ */</a>
+<a name="434"><span class="lineNum">     434 </span>            : </a>
+<a name="435"><span class="lineNum">     435 </span>            : /**</a>
+<a name="436"><span class="lineNum">     436 </span>            :  * Clear the frame-buffer attachments.</a>
+<a name="437"><span class="lineNum">     437 </span>            :  * \a buffers controls the types of attachments to clear. Setting GPU_COLOR_BIT will clear *all*</a>
+<a name="438"><span class="lineNum">     438 </span>            :  * the color attachment.</a>
+<a name="439"><span class="lineNum">     439 </span>            :  * Each attachment gets cleared to the value of its type:</a>
+<a name="440"><span class="lineNum">     440 </span>            :  * - color attachments gets cleared to \a clear_col .</a>
+<a name="441"><span class="lineNum">     441 </span>            :  * - depth attachment gets cleared to \a clear_depth .</a>
+<a name="442"><span class="lineNum">     442 </span>            :  * - stencil attachment gets cleared to \a clear_stencil .</a>
+<a name="443"><span class="lineNum">     443 </span>            :  *</a>
+<a name="444"><span class="lineNum">     444 </span>            :  * \note `GPU_write_mask`, and stencil test do not affect this command.</a>
+<a name="445"><span class="lineNum">     445 </span>            :  * \note Viewport and scissor regions affect this command but are not efficient nor recommended.</a>
+<a name="446"><span class="lineNum">     446 </span>            :  */</a>
+<a name="447"><span class="lineNum">     447 </span>            : void GPU_framebuffer_clear(gpu::FrameBuffer *fb,</a>
+<a name="448"><span class="lineNum">     448 </span>            :                            GPUFrameBufferBits buffers,</a>
+<a name="449"><span class="lineNum">     449 </span>            :                            const double4 clear_col,</a>
+<a name="450"><span class="lineNum">     450 </span>            :                            float clear_depth,</a>
+<a name="451"><span class="lineNum">     451 </span>            :                            unsigned int clear_stencil);</a>
+<a name="452"><span class="lineNum">     452 </span>            : </a>
+<a name="453"><span class="lineNum">     453 </span>            : /**</a>
+<a name="454"><span class="lineNum">     454 </span>            :  * Clear all color attachment textures with the value \a clear_col .</a>
+<a name="455"><span class="lineNum">     455 </span>            :  * \note `GPU_write_mask`, and stencil test do not affect this command.</a>
+<a name="456"><span class="lineNum">     456 </span>            :  * \note Viewport and scissor regions affect this command but are not efficient nor recommended.</a>
+<a name="457"><span class="lineNum">     457 </span>            :  */</a>
+<a name="458"><span class="lineNum">     458 </span>            : void GPU_framebuffer_clear_color(gpu::FrameBuffer *fb, const double4 clear_col);</a>
+<a name="459"><span class="lineNum">     459 </span>            : </a>
+<a name="460"><span class="lineNum">     460 </span>            : /**</a>
+<a name="461"><span class="lineNum">     461 </span>            :  * Clear the depth attachment texture with the value \a clear_depth .</a>
+<a name="462"><span class="lineNum">     462 </span>            :  * \note `GPU_write_mask`, and stencil test do not affect this command.</a>
+<a name="463"><span class="lineNum">     463 </span>            :  * \note Viewport and scissor regions affect this command but are not efficient nor recommended.</a>
+<a name="464"><span class="lineNum">     464 </span>            :  */</a>
+<a name="465"><span class="lineNum">     465 </span>            : void GPU_framebuffer_clear_depth(gpu::FrameBuffer *fb, float clear_depth);</a>
+<a name="466"><span class="lineNum">     466 </span>            : </a>
+<a name="467"><span class="lineNum">     467 </span>            : /**</a>
+<a name="468"><span class="lineNum">     468 </span>            :  * Clear the stencil attachment with the value \a clear_stencil .</a>
+<a name="469"><span class="lineNum">     469 </span>            :  * \note `GPU_write_mask`, and stencil test do not affect this command.</a>
+<a name="470"><span class="lineNum">     470 </span>            :  * \note Viewport and scissor regions affect this command but are not efficient nor recommended.</a>
+<a name="471"><span class="lineNum">     471 </span>            :  */</a>
+<a name="472"><span class="lineNum">     472 </span>            : void GPU_framebuffer_clear_stencil(gpu::FrameBuffer *fb, uint clear_stencil);</a>
+<a name="473"><span class="lineNum">     473 </span>            : </a>
+<a name="474"><span class="lineNum">     474 </span>            : /**</a>
+<a name="475"><span class="lineNum">     475 </span>            :  * Clear all color attachment textures with the value \a clear_col and the depth attachment texture</a>
+<a name="476"><span class="lineNum">     476 </span>            :  * with the value \a clear_depth .</a>
+<a name="477"><span class="lineNum">     477 </span>            :  * \note `GPU_write_mask`, and stencil test do not affect this command.</a>
+<a name="478"><span class="lineNum">     478 </span>            :  * \note Viewport and scissor regions affect this command but are not efficient nor recommended.</a>
+<a name="479"><span class="lineNum">     479 </span>            :  */</a>
+<a name="480"><span class="lineNum">     480 </span>            : void GPU_framebuffer_clear_color_depth(gpu::FrameBuffer *fb,</a>
+<a name="481"><span class="lineNum">     481 </span>            :                                        const double4 clear_col,</a>
+<a name="482"><span class="lineNum">     482 </span>            :                                        float clear_depth);</a>
+<a name="483"><span class="lineNum">     483 </span>            : </a>
+<a name="484"><span class="lineNum">     484 </span>            : /**</a>
+<a name="485"><span class="lineNum">     485 </span>            :  * Clear the depth attachment texture with the value \a clear_depth and the stencil attachment with</a>
+<a name="486"><span class="lineNum">     486 </span>            :  * the value \a clear_stencil .</a>
+<a name="487"><span class="lineNum">     487 </span>            :  * \note `GPU_write_mask`, and stencil test do not affect this command.</a>
+<a name="488"><span class="lineNum">     488 </span>            :  * \note Viewport and scissor regions affect this command but are not efficient nor recommended.</a>
+<a name="489"><span class="lineNum">     489 </span>            :  */</a>
+<a name="490"><span class="lineNum">     490 </span>            : void GPU_framebuffer_clear_depth_stencil(gpu::FrameBuffer *fb,</a>
+<a name="491"><span class="lineNum">     491 </span>            :                                          float clear_depth,</a>
+<a name="492"><span class="lineNum">     492 </span>            :                                          uint clear_stencil);</a>
+<a name="493"><span class="lineNum">     493 </span>            : /**</a>
+<a name="494"><span class="lineNum">     494 </span>            :  * Clear the depth attachment texture with the value \a clear_depth , the stencil attachment with</a>
+<a name="495"><span class="lineNum">     495 </span>            :  * the value \a clear_stencil and all the color attachments with the value \a clear_col .</a>
+<a name="496"><span class="lineNum">     496 </span>            :  * \note `GPU_write_mask`, and stencil test do not affect this command.</a>
+<a name="497"><span class="lineNum">     497 </span>            :  * \note Viewport and scissor regions affect this command but are not efficient nor recommended.</a>
+<a name="498"><span class="lineNum">     498 </span>            :  */</a>
+<a name="499"><span class="lineNum">     499 </span>            : void GPU_framebuffer_clear_color_depth_stencil(gpu::FrameBuffer *fb,</a>
+<a name="500"><span class="lineNum">     500 </span>            :                                                const double4 clear_col,</a>
+<a name="501"><span class="lineNum">     501 </span>            :                                                float clear_depth,</a>
+<a name="502"><span class="lineNum">     502 </span>            :                                                uint clear_stencil);</a>
+<a name="503"><span class="lineNum">     503 </span>            : </a>
+<a name="504"><span class="lineNum">     504 </span>            : /**</a>
+<a name="505"><span class="lineNum">     505 </span>            :  * Clear each color attachment texture attached to this frame-buffer with a different color.</a>
+<a name="506"><span class="lineNum">     506 </span>            :  * IMPORTANT: The size of `clear_colors` must contain at least the number of color attachments.</a>
+<a name="507"><span class="lineNum">     507 </span>            :  * \note `GPU_write_mask`, and stencil test do not affect this command.</a>
+<a name="508"><span class="lineNum">     508 </span>            :  * \note Viewport and scissor regions affect this command but are not efficient nor recommended.</a>
+<a name="509"><span class="lineNum">     509 </span>            :  */</a>
+<a name="510"><span class="lineNum">     510 </span>            : void GPU_framebuffer_multi_clear(gpu::FrameBuffer *fb, Span&lt;double4&gt; clear_colors);</a>
+<a name="511"><span class="lineNum">     511 </span>            : </a>
+<a name="512"><span class="lineNum">     512 </span>            : /**</a>
+<a name="513"><span class="lineNum">     513 </span>            :  * Clear all color attachment textures of the active frame-buffer with the given red, green, blue,</a>
+<a name="514"><span class="lineNum">     514 </span>            :  * alpha values.</a>
+<a name="515"><span class="lineNum">     515 </span>            :  * \note `GPU_write_mask`, and stencil test do not affect this command.</a>
+<a name="516"><span class="lineNum">     516 </span>            :  * \note Viewport and scissor regions affect this command but are not efficient nor recommended.</a>
+<a name="517"><span class="lineNum">     517 </span>            :  * DEPRECATED: Use `GPU_framebuffer_clear_color` with explicit frame-buffer.</a>
+<a name="518"><span class="lineNum">     518 </span>            :  */</a>
+<a name="519"><span class="lineNum">     519 </span>            : void GPU_clear_color(float red, float green, float blue, float alpha);</a>
+<a name="520"><span class="lineNum">     520 </span>            : </a>
+<a name="521"><span class="lineNum">     521 </span>            : /**</a>
+<a name="522"><span class="lineNum">     522 </span>            :  * Clear the depth attachment texture of the active frame-buffer with the given depth value.</a>
+<a name="523"><span class="lineNum">     523 </span>            :  * \note `GPU_write_mask`, and stencil test do not affect this command.</a>
+<a name="524"><span class="lineNum">     524 </span>            :  * \note Viewport and scissor regions affect this command but are not efficient nor recommended.</a>
+<a name="525"><span class="lineNum">     525 </span>            :  * DEPRECATED: Use `GPU_framebuffer_clear_color` with explicit frame-buffer.</a>
+<a name="526"><span class="lineNum">     526 </span>            :  */</a>
+<a name="527"><span class="lineNum">     527 </span>            : void GPU_clear_depth(float depth);</a>
+<a name="528"><span class="lineNum">     528 </span>            : </a>
+<a name="529"><span class="lineNum">     529 </span>            : /** \} */</a>
+<a name="530"><span class="lineNum">     530 </span>            : </a>
+<a name="531"><span class="lineNum">     531 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="532"><span class="lineNum">     532 </span>            : /** \name Debugging introspection API.</a>
+<a name="533"><span class="lineNum">     533 </span>            :  * \{ */</a>
+<a name="534"><span class="lineNum">     534 </span>            : </a>
+<a name="535"><span class="lineNum">     535 </span>            : const char *GPU_framebuffer_get_name(gpu::FrameBuffer *fb);</a>
+<a name="536"><span class="lineNum">     536 </span>            : </a>
+<a name="537"><span class="lineNum">     537 </span>            : /** \} */</a>
+<a name="538"><span class="lineNum">     538 </span>            : </a>
+<a name="539"><span class="lineNum">     539 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="540"><span class="lineNum">     540 </span>            : /** \name Python API &amp; meta-data</a>
+<a name="541"><span class="lineNum">     541 </span>            :  *</a>
+<a name="542"><span class="lineNum">     542 </span>            :  * These are not intrinsic properties of a frame-buffer but they are stored inside the</a>
+<a name="543"><span class="lineNum">     543 </span>            :  * gpu::FrameBuffer structure for tracking purpose.</a>
+<a name="544"><span class="lineNum">     544 </span>            :  * \{ */</a>
+<a name="545"><span class="lineNum">     545 </span>            : </a>
+<a name="546"><span class="lineNum">     546 </span>            : /**</a>
+<a name="547"><span class="lineNum">     547 </span>            :  * Reference of a pointer that needs to be cleaned when deallocating the frame-buffer.</a>
+<a name="548"><span class="lineNum">     548 </span>            :  * Points to #BPyGPUFrameBuffer.fb</a>
+<a name="549"><span class="lineNum">     549 </span>            :  */</a>
+<a name="550"><span class="lineNum">     550 </span>            : #ifndef GPU_NO_USE_PY_REFERENCES</a>
+<a name="551"><span class="lineNum">     551 </span>            : void **GPU_framebuffer_py_reference_get(gpu::FrameBuffer *fb);</a>
+<a name="552"><span class="lineNum">     552 </span>            : void GPU_framebuffer_py_reference_set(gpu::FrameBuffer *fb, void **py_ref);</a>
+<a name="553"><span class="lineNum">     553 </span>            : #endif</a>
+<a name="554"><span class="lineNum">     554 </span>            : </a>
+<a name="555"><span class="lineNum">     555 </span>            : /**</a>
+<a name="556"><span class="lineNum">     556 </span>            :  * Keep a stack of bound frame-buffer to allow scoped binding of frame-buffer in python.</a>
+<a name="557"><span class="lineNum">     557 </span>            :  * This is also used by #GPUOffScreen to save/restore the current frame-buffers.</a>
+<a name="558"><span class="lineNum">     558 </span>            :  * \note This isn't thread safe.</a>
+<a name="559"><span class="lineNum">     559 </span>            :  */</a>
+<a name="560"><span class="lineNum">     560 </span>            : /* TODO(fclem): This has nothing to do with the GPU module and should be move to the pyGPU module.</a>
+<a name="561"><span class="lineNum">     561 </span>            :  */</a>
+<a name="562"><span class="lineNum">     562 </span>            : void GPU_framebuffer_push(gpu::FrameBuffer *fb);</a>
+<a name="563"><span class="lineNum">     563 </span>            : gpu::FrameBuffer *GPU_framebuffer_pop();</a>
+<a name="564"><span class="lineNum">     564 </span>            : uint GPU_framebuffer_stack_level_get();</a>
+<a name="565"><span class="lineNum">     565 </span>            : </a>
+<a name="566"><span class="lineNum">     566 </span>            : /** \} */</a>
+<a name="567"><span class="lineNum">     567 </span>            : </a>
+<a name="568"><span class="lineNum">     568 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="569"><span class="lineNum">     569 </span>            : /** \name Deprecated</a>
+<a name="570"><span class="lineNum">     570 </span>            :  * \{ */</a>
+<a name="571"><span class="lineNum">     571 </span>            : </a>
+<a name="572"><span class="lineNum">     572 </span>            : /**</a>
+<a name="573"><span class="lineNum">     573 </span>            :  * Return true if \a framebuffer is the active framebuffer of the active context.</a>
+<a name="574"><span class="lineNum">     574 </span>            :  * \note return false if no context is active.</a>
+<a name="575"><span class="lineNum">     575 </span>            :  * \note this is undefined behavior if \a framebuffer is `nullptr`.</a>
+<a name="576"><span class="lineNum">     576 </span>            :  * DEPRECATED: Kept only because of Python GPU API.</a>
+<a name="577"><span class="lineNum">     577 </span>            :  */</a>
+<a name="578"><span class="lineNum">     578 </span>            : bool GPU_framebuffer_bound(gpu::FrameBuffer *fb);</a>
+<a name="579"><span class="lineNum">     579 </span>            : </a>
+<a name="580"><span class="lineNum">     580 </span>            : /**</a>
+<a name="581"><span class="lineNum">     581 </span>            :  * Read a region of the framebuffer depth attachment and copy it to \a r_data .</a>
+<a name="582"><span class="lineNum">     582 </span>            :  * The pixel data will be converted to \a data_format but it needs to be compatible with the</a>
+<a name="583"><span class="lineNum">     583 </span>            :  * attachment type. DEPRECATED: Prefer using `GPU_texture_read()`.</a>
+<a name="584"><span class="lineNum">     584 </span>            :  */</a>
+<a name="585"><span class="lineNum">     585 </span>            : void GPU_framebuffer_read_depth(gpu::FrameBuffer *fb,</a>
+<a name="586"><span class="lineNum">     586 </span>            :                                 int x,</a>
+<a name="587"><span class="lineNum">     587 </span>            :                                 int y,</a>
+<a name="588"><span class="lineNum">     588 </span>            :                                 int width,</a>
+<a name="589"><span class="lineNum">     589 </span>            :                                 int height,</a>
+<a name="590"><span class="lineNum">     590 </span>            :                                 eGPUDataFormat data_format,</a>
+<a name="591"><span class="lineNum">     591 </span>            :                                 void *r_data);</a>
+<a name="592"><span class="lineNum">     592 </span>            : </a>
+<a name="593"><span class="lineNum">     593 </span>            : /**</a>
+<a name="594"><span class="lineNum">     594 </span>            :  * Read a region of a framebuffer color attachment and copy it to \a r_data .</a>
+<a name="595"><span class="lineNum">     595 </span>            :  * The pixel data will be converted to \a data_format but it needs to be compatible with the</a>
+<a name="596"><span class="lineNum">     596 </span>            :  * attachment type. DEPRECATED: Prefer using `GPU_texture_read()`.</a>
+<a name="597"><span class="lineNum">     597 </span>            :  */</a>
+<a name="598"><span class="lineNum">     598 </span>            : void GPU_framebuffer_read_color(gpu::FrameBuffer *fb,</a>
+<a name="599"><span class="lineNum">     599 </span>            :                                 int x,</a>
+<a name="600"><span class="lineNum">     600 </span>            :                                 int y,</a>
+<a name="601"><span class="lineNum">     601 </span>            :                                 int width,</a>
+<a name="602"><span class="lineNum">     602 </span>            :                                 int height,</a>
+<a name="603"><span class="lineNum">     603 </span>            :                                 int channels,</a>
+<a name="604"><span class="lineNum">     604 </span>            :                                 int slot,</a>
+<a name="605"><span class="lineNum">     605 </span>            :                                 eGPUDataFormat data_format,</a>
+<a name="606"><span class="lineNum">     606 </span>            :                                 void *r_data);</a>
+<a name="607"><span class="lineNum">     607 </span>            : </a>
+<a name="608"><span class="lineNum">     608 </span>            : /**</a>
+<a name="609"><span class="lineNum">     609 </span>            :  * Read the color of the window screen as it is currently displayed (so the previously rendered</a>
+<a name="610"><span class="lineNum">     610 </span>            :  * back-buffer).</a>
+<a name="611"><span class="lineNum">     611 </span>            :  * DEPRECATED: This isn't even working correctly on some implementation.</a>
+<a name="612"><span class="lineNum">     612 </span>            :  * TODO: Emulate this by doing some slow texture copy on the backend side or try to read the areas</a>
+<a name="613"><span class="lineNum">     613 </span>            :  * offscreen textures directly.</a>
+<a name="614"><span class="lineNum">     614 </span>            :  */</a>
+<a name="615"><span class="lineNum">     615 </span>            : void GPU_frontbuffer_read_color(</a>
+<a name="616"><span class="lineNum">     616 </span>            :     int x, int y, int width, int height, int channels, eGPUDataFormat data_format, void *r_data);</a>
+<a name="617"><span class="lineNum">     617 </span>            : </a>
+<a name="618"><span class="lineNum">     618 </span>            : /**</a>
+<a name="619"><span class="lineNum">     619 </span>            :  * Copy the content of \a fb_read attachments to the \a fb_read attachments.</a>
+<a name="620"><span class="lineNum">     620 </span>            :  * The attachments types are chosen by \a blit_buffers .</a>
+<a name="621"><span class="lineNum">     621 </span>            :  * Only one color buffer can by copied at a time and its index is chosen by \a read_slot and \a</a>
+<a name="622"><span class="lineNum">     622 </span>            :  * write_slot.</a>
+<a name="623"><span class="lineNum">     623 </span>            :  * The source and destination frame-buffers dimensions have to match.</a>
+<a name="624"><span class="lineNum">     624 </span>            :  * DEPRECATED: Prefer using `GPU_texture_copy()`.</a>
+<a name="625"><span class="lineNum">     625 </span>            :  */</a>
+<a name="626"><span class="lineNum">     626 </span>            : void GPU_framebuffer_blit(gpu::FrameBuffer *fb_read,</a>
+<a name="627"><span class="lineNum">     627 </span>            :                           int read_slot,</a>
+<a name="628"><span class="lineNum">     628 </span>            :                           gpu::FrameBuffer *fb_write,</a>
+<a name="629"><span class="lineNum">     629 </span>            :                           int write_slot,</a>
+<a name="630"><span class="lineNum">     630 </span>            :                           GPUFrameBufferBits blit_buffers);</a>
+<a name="631"><span class="lineNum">     631 </span>            : </a>
+<a name="632"><span class="lineNum">     632 </span>            : /** \} */</a>
+<a name="633"><span class="lineNum">     633 </span>            : </a>
+<a name="634"><span class="lineNum">     634 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="635"><span class="lineNum">     635 </span>            : /** \name GPU OffScreen</a>
+<a name="636"><span class="lineNum">     636 </span>            :  *</a>
+<a name="637"><span class="lineNum">     637 </span>            :  * A `GPUOffScreen` is a convenience type that holds a `GPUFramebuffer` and its associated</a>
+<a name="638"><span class="lineNum">     638 </span>            :  * `gpu::Texture`s. It is useful for quick drawing surface configuration.</a>
+<a name="639"><span class="lineNum">     639 </span>            :  * NOTE: They are still limited by the same single context limitation as #FrameBuffer.</a>
+<a name="640"><span class="lineNum">     640 </span>            :  * \{ */</a>
+<a name="641"><span class="lineNum">     641 </span>            : </a>
+<a name="642"><span class="lineNum">     642 </span>            : struct GPUOffScreen;</a>
+<a name="643"><span class="lineNum">     643 </span>            : </a>
+<a name="644"><span class="lineNum">     644 </span>            : /**</a>
+<a name="645"><span class="lineNum">     645 </span>            :  * Create a #GPUOffScreen with attachment size of \a width by \a height pixels.</a>
+<a name="646"><span class="lineNum">     646 </span>            :  * If \a with_depth_buffer is true, a depth buffer attachment will also be created.</a>
+<a name="647"><span class="lineNum">     647 </span>            :  * \a format is the format of the color buffer.</a>
+<a name="648"><span class="lineNum">     648 </span>            :  * If \a clear is true, the color and depth buffer attachments will be cleared.</a>
+<a name="649"><span class="lineNum">     649 </span>            :  * If \a err_out is not `nullptr` it will be use to write any configuration error message..</a>
+<a name="650"><span class="lineNum">     650 </span>            :  * \note This function binds the framebuffer to the active context.</a>
+<a name="651"><span class="lineNum">     651 </span>            :  * \note `GPU_TEXTURE_USAGE_ATTACHMENT` is added to the usage parameter by default.</a>
+<a name="652"><span class="lineNum">     652 </span>            :  */</a>
+<a name="653"><span class="lineNum">     653 </span>            : GPUOffScreen *GPU_offscreen_create(int width,</a>
+<a name="654"><span class="lineNum">     654 </span>            :                                    int height,</a>
+<a name="655"><span class="lineNum">     655 </span>            :                                    bool with_depth_buffer,</a>
+<a name="656"><span class="lineNum">     656 </span>            :                                    gpu::TextureFormat format,</a>
+<a name="657"><span class="lineNum">     657 </span>            :                                    eGPUTextureUsage usage,</a>
+<a name="658"><span class="lineNum">     658 </span>            :                                    bool clear,</a>
+<a name="659"><span class="lineNum">     659 </span>            :                                    char err_out[256]);</a>
+<a name="660"><span class="lineNum">     660 </span>            : </a>
+<a name="661"><span class="lineNum">     661 </span>            : /**</a>
+<a name="662"><span class="lineNum">     662 </span>            :  * Free a #GPUOffScreen.</a>
+<a name="663"><span class="lineNum">     663 </span>            :  */</a>
+<a name="664"><span class="lineNum">     664 </span>            : void GPU_offscreen_free(GPUOffScreen *offscreen);</a>
+<a name="665"><span class="lineNum">     665 </span>            : </a>
+<a name="666"><span class="lineNum">     666 </span>            : /**</a>
+<a name="667"><span class="lineNum">     667 </span>            :  * Unbind a #GPUOffScreen from a #GPUContext.</a>
+<a name="668"><span class="lineNum">     668 </span>            :  * If \a save is true, it will save the currently bound framebuffer into a stack.</a>
+<a name="669"><span class="lineNum">     669 </span>            :  */</a>
+<a name="670"><span class="lineNum">     670 </span>            : /* TODO(fclem): Remove the `save` parameter and always save/restore. */</a>
+<a name="671"><span class="lineNum">     671 </span>            : void GPU_offscreen_bind(GPUOffScreen *offscreen, bool save);</a>
+<a name="672"><span class="lineNum">     672 </span>            : </a>
+<a name="673"><span class="lineNum">     673 </span>            : /**</a>
+<a name="674"><span class="lineNum">     674 </span>            :  * Unbind a #GPUOffScreen from a #GPUContext.</a>
+<a name="675"><span class="lineNum">     675 </span>            :  * If \a restore is true, it will restore the previously bound framebuffer. If false, it will bind</a>
+<a name="676"><span class="lineNum">     676 </span>            :  * the window back-buffer.</a>
+<a name="677"><span class="lineNum">     677 </span>            :  */</a>
+<a name="678"><span class="lineNum">     678 </span>            : /* TODO(fclem): Remove the `save` parameter and always save/restore. */</a>
+<a name="679"><span class="lineNum">     679 </span>            : void GPU_offscreen_unbind(GPUOffScreen *offscreen, bool restore);</a>
+<a name="680"><span class="lineNum">     680 </span>            : </a>
+<a name="681"><span class="lineNum">     681 </span>            : /**</a>
+<a name="682"><span class="lineNum">     682 </span>            :  * Read the whole color texture of the #GPUOffScreen.</a>
+<a name="683"><span class="lineNum">     683 </span>            :  * The pixel data will be converted to \a data_format but it needs to be compatible with the</a>
+<a name="684"><span class="lineNum">     684 </span>            :  * attachment type.</a>
+<a name="685"><span class="lineNum">     685 </span>            :  * IMPORTANT: \a r_data must be big enough for all pixels in \a data_format.</a>
+<a name="686"><span class="lineNum">     686 </span>            :  */</a>
+<a name="687"><span class="lineNum">     687 </span>            : void GPU_offscreen_read_color(GPUOffScreen *offscreen, eGPUDataFormat data_format, void *r_data);</a>
+<a name="688"><span class="lineNum">     688 </span>            : /**</a>
+<a name="689"><span class="lineNum">     689 </span>            :  * A version of #GPU_offscreen_read_color that reads into a region.</a>
+<a name="690"><span class="lineNum">     690 </span>            :  */</a>
+<a name="691"><span class="lineNum">     691 </span>            : void GPU_offscreen_read_color_region(</a>
+<a name="692"><span class="lineNum">     692 </span>            :     GPUOffScreen *offscreen, eGPUDataFormat data_format, int x, int y, int w, int h, void *r_data);</a>
+<a name="693"><span class="lineNum">     693 </span>            : </a>
+<a name="694"><span class="lineNum">     694 </span>            : /**</a>
+<a name="695"><span class="lineNum">     695 </span>            :  * Blit the offscreen color texture to the active framebuffer at the `(x, y)` location.</a>
+<a name="696"><span class="lineNum">     696 </span>            :  */</a>
+<a name="697"><span class="lineNum">     697 </span>            : void GPU_offscreen_draw_to_screen(GPUOffScreen *offscreen, int x, int y);</a>
+<a name="698"><span class="lineNum">     698 </span>            : </a>
+<a name="699"><span class="lineNum">     699 </span>            : /**</a>
+<a name="700"><span class="lineNum">     700 </span>            :  * Return the width of a #GPUOffScreen.</a>
+<a name="701"><span class="lineNum">     701 </span>            :  */</a>
+<a name="702"><span class="lineNum">     702 </span>            : int GPU_offscreen_width(const GPUOffScreen *offscreen);</a>
+<a name="703"><span class="lineNum">     703 </span>            : </a>
+<a name="704"><span class="lineNum">     704 </span>            : /**</a>
+<a name="705"><span class="lineNum">     705 </span>            :  * Return the height of a #GPUOffScreen.</a>
+<a name="706"><span class="lineNum">     706 </span>            :  */</a>
+<a name="707"><span class="lineNum">     707 </span>            : int GPU_offscreen_height(const GPUOffScreen *offscreen);</a>
+<a name="708"><span class="lineNum">     708 </span>            : </a>
+<a name="709"><span class="lineNum">     709 </span>            : /**</a>
+<a name="710"><span class="lineNum">     710 </span>            :  * Return the color texture of a #GPUOffScreen. Does not give ownership.</a>
+<a name="711"><span class="lineNum">     711 </span>            :  * \note only to be used by viewport code!</a>
+<a name="712"><span class="lineNum">     712 </span>            :  */</a>
+<a name="713"><span class="lineNum">     713 </span>            : gpu::Texture *GPU_offscreen_color_texture(const GPUOffScreen *offscreen);</a>
+<a name="714"><span class="lineNum">     714 </span>            : </a>
+<a name="715"><span class="lineNum">     715 </span>            : /**</a>
+<a name="716"><span class="lineNum">     716 </span>            :  * Return the texture format of a #GPUOffScreen.</a>
+<a name="717"><span class="lineNum">     717 </span>            :  */</a>
+<a name="718"><span class="lineNum">     718 </span>            : gpu::TextureFormat GPU_offscreen_format(const GPUOffScreen *offscreen);</a>
+<a name="719"><span class="lineNum">     719 </span>            : </a>
+<a name="720"><span class="lineNum">     720 </span>            : /**</a>
+<a name="721"><span class="lineNum">     721 </span>            :  * Return the internals of a #GPUOffScreen. Does not give ownership.</a>
+<a name="722"><span class="lineNum">     722 </span>            :  * \note only to be used by viewport code!</a>
+<a name="723"><span class="lineNum">     723 </span>            :  */</a>
+<a name="724"><span class="lineNum">     724 </span>            : void GPU_offscreen_viewport_data_get(GPUOffScreen *offscreen,</a>
+<a name="725"><span class="lineNum">     725 </span>            :                                      gpu::FrameBuffer **r_fb,</a>
+<a name="726"><span class="lineNum">     726 </span>            :                                      gpu::Texture **r_color,</a>
+<a name="727"><span class="lineNum">     727 </span>            :                                      gpu::Texture **r_depth);</a>
+<a name="728"><span class="lineNum">     728 </span>            : </a>
+<a name="729"><span class="lineNum">     729 </span>            : /** \} */</a>
+<a name="730"><span class="lineNum">     730 </span>            : </a>
+<a name="731"><span class="lineNum">     731 </span>            : }  // namespace blender</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

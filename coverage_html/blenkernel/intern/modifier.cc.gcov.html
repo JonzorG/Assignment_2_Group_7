@@ -1,0 +1,1657 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - blenkernel/intern/modifier.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">blenkernel/intern</a> - modifier.cc<span style="font-size: 80%;"> (source / <a href="modifier.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">470</td>
+            <td class="headerCovTableEntry">790</td>
+            <td class="headerCovTableEntryLo">59.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">48</td>
+            <td class="headerCovTableEntry">66</td>
+            <td class="headerCovTableEntryLo">72.7 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2005 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup bke</a>
+<a name="7"><span class="lineNum">       7 </span>            :  * Modifier stack implementation.</a>
+<a name="8"><span class="lineNum">       8 </span>            :  * BKE_modifier.hh contains the function prototypes for this file.</a>
+<a name="9"><span class="lineNum">       9 </span>            :  */</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : /* Allow using deprecated functionality for .blend file I/O. */</a>
+<a name="12"><span class="lineNum">      12 </span>            : #define DNA_DEPRECATED_ALLOW</a>
+<a name="13"><span class="lineNum">      13 </span>            : </a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &lt;cfloat&gt;</a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &lt;chrono&gt;</a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &lt;cstdarg&gt;</a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &lt;cstddef&gt;</a>
+<a name="18"><span class="lineNum">      18 </span>            : #include &lt;cstdlib&gt;</a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &lt;cstring&gt;</a>
+<a name="20"><span class="lineNum">      20 </span>            : </a>
+<a name="21"><span class="lineNum">      21 </span>            : #include &quot;MEM_guardedalloc.h&quot;</a>
+<a name="22"><span class="lineNum">      22 </span>            : </a>
+<a name="23"><span class="lineNum">      23 </span>            : #include &quot;DNA_armature_types.h&quot;</a>
+<a name="24"><span class="lineNum">      24 </span>            : #include &quot;DNA_cloth_types.h&quot;</a>
+<a name="25"><span class="lineNum">      25 </span>            : #include &quot;DNA_colorband_types.h&quot;</a>
+<a name="26"><span class="lineNum">      26 </span>            : #include &quot;DNA_dynamicpaint_types.h&quot;</a>
+<a name="27"><span class="lineNum">      27 </span>            : #include &quot;DNA_fluid_types.h&quot;</a>
+<a name="28"><span class="lineNum">      28 </span>            : #include &quot;DNA_layer_types.h&quot;</a>
+<a name="29"><span class="lineNum">      29 </span>            : #include &quot;DNA_mesh_types.h&quot;</a>
+<a name="30"><span class="lineNum">      30 </span>            : #include &quot;DNA_object_fluidsim_types.h&quot;</a>
+<a name="31"><span class="lineNum">      31 </span>            : #include &quot;DNA_object_force_types.h&quot;</a>
+<a name="32"><span class="lineNum">      32 </span>            : #include &quot;DNA_object_types.h&quot;</a>
+<a name="33"><span class="lineNum">      33 </span>            : #include &quot;DNA_particle_types.h&quot;</a>
+<a name="34"><span class="lineNum">      34 </span>            : #include &quot;DNA_scene_types.h&quot;</a>
+<a name="35"><span class="lineNum">      35 </span>            : #include &quot;DNA_screen_types.h&quot;</a>
+<a name="36"><span class="lineNum">      36 </span>            : </a>
+<a name="37"><span class="lineNum">      37 </span>            : #include &quot;BLI_linklist.hh&quot;</a>
+<a name="38"><span class="lineNum">      38 </span>            : #include &quot;BLI_listbase.hh&quot;</a>
+<a name="39"><span class="lineNum">      39 </span>            : #include &quot;BLI_path_utils.hh&quot;</a>
+<a name="40"><span class="lineNum">      40 </span>            : #include &quot;BLI_rand.hh&quot;</a>
+<a name="41"><span class="lineNum">      41 </span>            : #include &quot;BLI_string.hh&quot;</a>
+<a name="42"><span class="lineNum">      42 </span>            : #include &quot;BLI_string_utf8.hh&quot;</a>
+<a name="43"><span class="lineNum">      43 </span>            : #include &quot;BLI_string_utils.hh&quot;</a>
+<a name="44"><span class="lineNum">      44 </span>            : #include &quot;BLI_threads.hh&quot;</a>
+<a name="45"><span class="lineNum">      45 </span>            : #include &quot;BLI_utildefines.hh&quot;</a>
+<a name="46"><span class="lineNum">      46 </span>            : </a>
+<a name="47"><span class="lineNum">      47 </span>            : #include &quot;BLT_translation.hh&quot;</a>
+<a name="48"><span class="lineNum">      48 </span>            : </a>
+<a name="49"><span class="lineNum">      49 </span>            : #include &quot;BKE_appdir.hh&quot;</a>
+<a name="50"><span class="lineNum">      50 </span>            : #include &quot;BKE_editmesh.hh&quot;</a>
+<a name="51"><span class="lineNum">      51 </span>            : #include &quot;BKE_editmesh_cache.hh&quot;</a>
+<a name="52"><span class="lineNum">      52 </span>            : #include &quot;BKE_effect.h&quot;</a>
+<a name="53"><span class="lineNum">      53 </span>            : #include &quot;BKE_fluid.h&quot;</a>
+<a name="54"><span class="lineNum">      54 </span>            : #include &quot;BKE_geometry_set.hh&quot;</a>
+<a name="55"><span class="lineNum">      55 </span>            : #include &quot;BKE_global.hh&quot;</a>
+<a name="56"><span class="lineNum">      56 </span>            : #include &quot;BKE_idprop.hh&quot;</a>
+<a name="57"><span class="lineNum">      57 </span>            : #include &quot;BKE_idtype.hh&quot;</a>
+<a name="58"><span class="lineNum">      58 </span>            : #include &quot;BKE_key.hh&quot;</a>
+<a name="59"><span class="lineNum">      59 </span>            : #include &quot;BKE_lib_id.hh&quot;</a>
+<a name="60"><span class="lineNum">      60 </span>            : #include &quot;BKE_lib_query.hh&quot;</a>
+<a name="61"><span class="lineNum">      61 </span>            : #include &quot;BKE_library.hh&quot;</a>
+<a name="62"><span class="lineNum">      62 </span>            : #include &quot;BKE_mesh.hh&quot;</a>
+<a name="63"><span class="lineNum">      63 </span>            : #include &quot;BKE_mesh_topology_state.hh&quot;</a>
+<a name="64"><span class="lineNum">      64 </span>            : #include &quot;BKE_mesh_wrapper.hh&quot;</a>
+<a name="65"><span class="lineNum">      65 </span>            : #include &quot;BKE_multires.hh&quot;</a>
+<a name="66"><span class="lineNum">      66 </span>            : #include &quot;BKE_object.hh&quot;</a>
+<a name="67"><span class="lineNum">      67 </span>            : #include &quot;BKE_pointcache.h&quot;</a>
+<a name="68"><span class="lineNum">      68 </span>            : #include &quot;BKE_report.hh&quot;</a>
+<a name="69"><span class="lineNum">      69 </span>            : #include &quot;BKE_screen.hh&quot;</a>
+<a name="70"><span class="lineNum">      70 </span>            : </a>
+<a name="71"><span class="lineNum">      71 </span>            : /* may move these, only for BKE_modifier_path_relbase */</a>
+<a name="72"><span class="lineNum">      72 </span>            : #include &quot;BKE_main.hh&quot;</a>
+<a name="73"><span class="lineNum">      73 </span>            : /* end */</a>
+<a name="74"><span class="lineNum">      74 </span>            : </a>
+<a name="75"><span class="lineNum">      75 </span>            : #include &quot;DEG_depsgraph.hh&quot;</a>
+<a name="76"><span class="lineNum">      76 </span>            : #include &quot;DEG_depsgraph_query.hh&quot;</a>
+<a name="77"><span class="lineNum">      77 </span>            : </a>
+<a name="78"><span class="lineNum">      78 </span>            : #include &quot;MOD_modifiertypes.hh&quot;</a>
+<a name="79"><span class="lineNum">      79 </span>            : </a>
+<a name="80"><span class="lineNum">      80 </span>            : #include &quot;BLO_read_write.hh&quot;</a>
+<a name="81"><span class="lineNum">      81 </span>            : </a>
+<a name="82"><span class="lineNum">      82 </span>            : #include &quot;CLG_log.h&quot;</a>
+<a name="83"><span class="lineNum">      83 </span>            : </a>
+<a name="84"><span class="lineNum">      84 </span>            : namespace blender {</a>
+<a name="85"><span class="lineNum">      85 </span>            : </a>
+<a name="86"><span class="lineNum">      86 </span>            : static CLG_LogRef LOG = {&quot;object.modifier&quot;};</a>
+<a name="87"><span class="lineNum">      87 </span>            : static ModifierTypeInfo *modifier_types[NUM_MODIFIER_TYPES] = {nullptr};</a>
+<a name="88"><span class="lineNum">      88 </span>            : static VirtualModifierData virtualModifierCommonData;</a>
+<a name="89"><span class="lineNum">      89 </span>            : </a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineCov">        785 : void BKE_modifier_init()</span></a>
+<a name="91"><span class="lineNum">      91 </span>            : {</a>
+<a name="92"><span class="lineNum">      92 </span>            :   ModifierData *md;</a>
+<a name="93"><span class="lineNum">      93 </span>            : </a>
+<a name="94"><span class="lineNum">      94 </span>            :   /* Initialize modifier types */</a>
+<a name="95"><span class="lineNum">      95 </span><span class="lineCov">        785 :   modifier_type_init(modifier_types); /* MOD_util.cc */</span></a>
+<a name="96"><span class="lineNum">      96 </span>            : </a>
+<a name="97"><span class="lineNum">      97 </span>            :   /* Initialize global common storage used for virtual modifier list. */</a>
+<a name="98"><span class="lineNum">      98 </span><span class="lineCov">        785 :   md = BKE_modifier_new(eModifierType_Armature);</span></a>
+<a name="99"><span class="lineNum">      99 </span><span class="lineCov">        785 :   virtualModifierCommonData.amd = *(reinterpret_cast&lt;ArmatureModifierData *&gt;(md));</span></a>
+<a name="100"><span class="lineNum">     100 </span><span class="lineCov">        785 :   BKE_modifier_free(md);</span></a>
+<a name="101"><span class="lineNum">     101 </span>            : </a>
+<a name="102"><span class="lineNum">     102 </span><span class="lineCov">        785 :   md = BKE_modifier_new(eModifierType_Curve);</span></a>
+<a name="103"><span class="lineNum">     103 </span><span class="lineCov">        785 :   virtualModifierCommonData.cmd = *(reinterpret_cast&lt;CurveModifierData *&gt;(md));</span></a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineCov">        785 :   BKE_modifier_free(md);</span></a>
+<a name="105"><span class="lineNum">     105 </span>            : </a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineCov">        785 :   md = BKE_modifier_new(eModifierType_Lattice);</span></a>
+<a name="107"><span class="lineNum">     107 </span><span class="lineCov">        785 :   virtualModifierCommonData.lmd = *(reinterpret_cast&lt;LatticeModifierData *&gt;(md));</span></a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineCov">        785 :   BKE_modifier_free(md);</span></a>
+<a name="109"><span class="lineNum">     109 </span>            : </a>
+<a name="110"><span class="lineNum">     110 </span><span class="lineCov">        785 :   md = BKE_modifier_new(eModifierType_ShapeKey);</span></a>
+<a name="111"><span class="lineNum">     111 </span><span class="lineCov">        785 :   virtualModifierCommonData.smd = *(reinterpret_cast&lt;ShapeKeyModifierData *&gt;(md));</span></a>
+<a name="112"><span class="lineNum">     112 </span><span class="lineCov">        785 :   BKE_modifier_free(md);</span></a>
+<a name="113"><span class="lineNum">     113 </span>            : </a>
+<a name="114"><span class="lineNum">     114 </span><span class="lineCov">        785 :   virtualModifierCommonData.amd.modifier.mode |= eModifierMode_Virtual;</span></a>
+<a name="115"><span class="lineNum">     115 </span><span class="lineCov">        785 :   virtualModifierCommonData.cmd.modifier.mode |= eModifierMode_Virtual;</span></a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineCov">        785 :   virtualModifierCommonData.lmd.modifier.mode |= eModifierMode_Virtual;</span></a>
+<a name="117"><span class="lineNum">     117 </span><span class="lineCov">        785 :   virtualModifierCommonData.smd.modifier.mode |= eModifierMode_Virtual;</span></a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineCov">        785 : }</span></a>
+<a name="119"><span class="lineNum">     119 </span>            : </a>
+<a name="120"><span class="lineNum">     120 </span><span class="lineCov">     937494 : const ModifierTypeInfo *BKE_modifier_get_info(ModifierType type)</span></a>
+<a name="121"><span class="lineNum">     121 </span>            : {</a>
+<a name="122"><span class="lineNum">     122 </span>            :   /* type unsigned, no need to check &lt; 0 */</a>
+<a name="123"><span class="lineNum">     123 </span><span class="lineCov">     937494 :   if (type &lt; NUM_MODIFIER_TYPES &amp;&amp; modifier_types[type] &amp;&amp; modifier_types[type]-&gt;name[0] != '\0') {</span></a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineCov">     936440 :     return modifier_types[type];</span></a>
+<a name="125"><span class="lineNum">     125 </span>            :   }</a>
+<a name="126"><span class="lineNum">     126 </span>            : </a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineCov">       1054 :   return nullptr;</span></a>
+<a name="128"><span class="lineNum">     128 </span>            : }</a>
+<a name="129"><span class="lineNum">     129 </span>            : </a>
+<a name="130"><span class="lineNum">     130 </span><span class="lineCov">      65155 : void BKE_modifier_type_panel_id(ModifierType type, char *r_idname)</span></a>
+<a name="131"><span class="lineNum">     131 </span>            : {</a>
+<a name="132"><span class="lineNum">     132 </span><span class="lineCov">      65155 :   const ModifierTypeInfo *mti = BKE_modifier_get_info(type);</span></a>
+<a name="133"><span class="lineNum">     133 </span><span class="lineCov">      65155 :   BLI_string_join(r_idname, sizeof(PanelType::idname), MODIFIER_TYPE_PANEL_PREFIX, mti-&gt;idname);</span></a>
+<a name="134"><span class="lineNum">     134 </span><span class="lineCov">      65155 : }</span></a>
+<a name="135"><span class="lineNum">     135 </span>            : </a>
+<a name="136"><span class="lineNum">     136 </span><span class="lineNoCov">          0 : void BKE_modifier_panel_expand(ModifierData *md)</span></a>
+<a name="137"><span class="lineNum">     137 </span>            : {</a>
+<a name="138"><span class="lineNum">     138 </span><span class="lineNoCov">          0 :   md-&gt;ui_expand_flag |= UI_PANEL_DATA_EXPAND_ROOT;</span></a>
+<a name="139"><span class="lineNum">     139 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="140"><span class="lineNum">     140 </span>            : </a>
+<a name="141"><span class="lineNum">     141 </span>            : /***/</a>
+<a name="142"><span class="lineNum">     142 </span>            : </a>
+<a name="143"><span class="lineNum">     143 </span><span class="lineCov">      23600 : static ModifierData *modifier_allocate_and_init(ModifierType type)</span></a>
+<a name="144"><span class="lineNum">     144 </span>            : {</a>
+<a name="145"><span class="lineNum">     145 </span><span class="lineCov">      23600 :   const ModifierTypeInfo *mti = BKE_modifier_get_info(type);</span></a>
+<a name="146"><span class="lineNum">     146 </span>            :   ModifierData *md = static_cast&lt;ModifierData *&gt;(</a>
+<a name="147"><span class="lineNum">     147 </span><span class="lineCov">      23602 :       MEM_new_zeroed(mti-&gt;struct_size, mti-&gt;struct_name));</span></a>
+<a name="148"><span class="lineNum">     148 </span>            : </a>
+<a name="149"><span class="lineNum">     149 </span>            :   /* NOTE: this name must be made unique later. */</a>
+<a name="150"><span class="lineNum">     150 </span><span class="lineCov">      23665 :   STRNCPY_UTF8(md-&gt;name, DATA_(mti-&gt;name));</span></a>
+<a name="151"><span class="lineNum">     151 </span>            : </a>
+<a name="152"><span class="lineNum">     152 </span><span class="lineCov">      23670 :   md-&gt;type = type;</span></a>
+<a name="153"><span class="lineNum">     153 </span><span class="lineCov">      23670 :   md-&gt;mode = eModifierMode_Realtime | eModifierMode_Render;</span></a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineCov">      23654 :   md-&gt;flag = eModifierFlag_OverrideLibrary_Local;</span></a>
+<a name="155"><span class="lineNum">     155 </span>            :   /* Only open the main panel at the beginning, not the sub-panels. */</a>
+<a name="156"><span class="lineNum">     156 </span><span class="lineCov">      23654 :   md-&gt;ui_expand_flag = UI_PANEL_DATA_EXPAND_ROOT;</span></a>
+<a name="157"><span class="lineNum">     157 </span>            : </a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineCov">      23654 :   if (mti-&gt;flags &amp; eModifierTypeFlag_EnableInEditmode) {</span></a>
+<a name="159"><span class="lineNum">     159 </span><span class="lineCov">      17099 :     md-&gt;mode |= eModifierMode_Editmode;</span></a>
+<a name="160"><span class="lineNum">     160 </span>            :   }</a>
+<a name="161"><span class="lineNum">     161 </span>            : </a>
+<a name="162"><span class="lineNum">     162 </span><span class="lineCov">      23647 :   if (mti-&gt;init_data) {</span></a>
+<a name="163"><span class="lineNum">     163 </span><span class="lineCov">      22761 :     mti-&gt;init_data(md);</span></a>
+<a name="164"><span class="lineNum">     164 </span>            :   }</a>
+<a name="165"><span class="lineNum">     165 </span>            : </a>
+<a name="166"><span class="lineNum">     166 </span><span class="lineCov">      23646 :   return md;</span></a>
+<a name="167"><span class="lineNum">     167 </span>            : }</a>
+<a name="168"><span class="lineNum">     168 </span>            : </a>
+<a name="169"><span class="lineNum">     169 </span><span class="lineCov">       3884 : ModifierData *BKE_modifier_new(int type)</span></a>
+<a name="170"><span class="lineNum">     170 </span>            : {</a>
+<a name="171"><span class="lineNum">     171 </span><span class="lineCov">       3884 :   ModifierData *md = modifier_allocate_and_init(ModifierType(type));</span></a>
+<a name="172"><span class="lineNum">     172 </span><span class="lineCov">       3884 :   return md;</span></a>
+<a name="173"><span class="lineNum">     173 </span>            : }</a>
+<a name="174"><span class="lineNum">     174 </span>            : </a>
+<a name="175"><span class="lineNum">     175 </span><span class="lineCov">       3006 : static void modifier_free_data_id_us_cb(void * /*user_data*/,</span></a>
+<a name="176"><span class="lineNum">     176 </span>            :                                         Object * /*ob*/,</a>
+<a name="177"><span class="lineNum">     177 </span>            :                                         ID **idpoin,</a>
+<a name="178"><span class="lineNum">     178 </span>            :                                         const LibraryForeachIDCallbackFlag cb_flag)</a>
+<a name="179"><span class="lineNum">     179 </span>            : {</a>
+<a name="180"><span class="lineNum">     180 </span><span class="lineCov">       3006 :   ID *id = *idpoin;</span></a>
+<a name="181"><span class="lineNum">     181 </span><span class="lineCov">       3006 :   if (id != nullptr &amp;&amp; (cb_flag &amp; IDWALK_CB_USER) != 0) {</span></a>
+<a name="182"><span class="lineNum">     182 </span><span class="lineCov">        416 :     id_us_min(id);</span></a>
+<a name="183"><span class="lineNum">     183 </span>            :   }</a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineCov">       3006 : }</span></a>
+<a name="185"><span class="lineNum">     185 </span>            : </a>
+<a name="186"><span class="lineNum">     186 </span><span class="lineCov">      42422 : void BKE_modifier_free_ex(ModifierData *md, const int flag)</span></a>
+<a name="187"><span class="lineNum">     187 </span>            : {</a>
+<a name="188"><span class="lineNum">     188 </span><span class="lineCov">      42422 :   const ModifierTypeInfo *mti = BKE_modifier_get_info(md-&gt;type);</span></a>
+<a name="189"><span class="lineNum">     189 </span>            : </a>
+<a name="190"><span class="lineNum">     190 </span><span class="lineCov">      42459 :   if ((flag &amp; LIB_ID_CREATE_NO_USER_REFCOUNT) == 0) {</span></a>
+<a name="191"><span class="lineNum">     191 </span><span class="lineCov">       3993 :     if (mti-&gt;foreach_ID_link) {</span></a>
+<a name="192"><span class="lineNum">     192 </span><span class="lineCov">       2954 :       mti-&gt;foreach_ID_link(md, nullptr, modifier_free_data_id_us_cb, nullptr);</span></a>
+<a name="193"><span class="lineNum">     193 </span>            :     }</a>
+<a name="194"><span class="lineNum">     194 </span>            :   }</a>
+<a name="195"><span class="lineNum">     195 </span>            : </a>
+<a name="196"><span class="lineNum">     196 </span><span class="lineCov">      42459 :   if (mti-&gt;free_data) {</span></a>
+<a name="197"><span class="lineNum">     197 </span><span class="lineCov">      36616 :     mti-&gt;free_data(md);</span></a>
+<a name="198"><span class="lineNum">     198 </span>            :   }</a>
+<a name="199"><span class="lineNum">     199 </span><span class="lineCov">      42474 :   if (md-&gt;error) {</span></a>
+<a name="200"><span class="lineNum">     200 </span><span class="lineCov">         20 :     MEM_delete(md-&gt;error);</span></a>
+<a name="201"><span class="lineNum">     201 </span>            :   }</a>
+<a name="202"><span class="lineNum">     202 </span><span class="lineCov">      42474 :   if (md-&gt;system_properties != nullptr) {</span></a>
+<a name="203"><span class="lineNum">     203 </span><span class="lineCov">      18826 :     IDP_FreeProperty_ex(md-&gt;system_properties, false);</span></a>
+<a name="204"><span class="lineNum">     204 </span>            :   }</a>
+<a name="205"><span class="lineNum">     205 </span>            : </a>
+<a name="206"><span class="lineNum">     206 </span><span class="lineCov">      42478 :   MEM_delete(md);</span></a>
+<a name="207"><span class="lineNum">     207 </span><span class="lineCov">      42503 : }</span></a>
+<a name="208"><span class="lineNum">     208 </span>            : </a>
+<a name="209"><span class="lineNum">     209 </span><span class="lineCov">       3965 : void BKE_modifier_free(ModifierData *md)</span></a>
+<a name="210"><span class="lineNum">     210 </span>            : {</a>
+<a name="211"><span class="lineNum">     211 </span><span class="lineCov">       3965 :   BKE_modifier_free_ex(md, 0);</span></a>
+<a name="212"><span class="lineNum">     212 </span><span class="lineCov">       3965 : }</span></a>
+<a name="213"><span class="lineNum">     213 </span>            : </a>
+<a name="214"><span class="lineNum">     214 </span><span class="lineCov">        717 : void BKE_modifier_remove_from_list(Object *ob, ModifierData *md)</span></a>
+<a name="215"><span class="lineNum">     215 </span>            : {</a>
+<a name="216"><span class="lineNum">     216 </span><span class="lineCov">        717 :   BLI_assert(BLI_findindex(&amp;ob-&gt;modifiers, md) != -1);</span></a>
+<a name="217"><span class="lineNum">     217 </span>            : </a>
+<a name="218"><span class="lineNum">     218 </span><span class="lineCov">        717 :   if (md-&gt;flag &amp; eModifierFlag_Active) {</span></a>
+<a name="219"><span class="lineNum">     219 </span>            :     /* Prefer the next modifier but use the previous if this modifier is the last in the list. */</a>
+<a name="220"><span class="lineNum">     220 </span><span class="lineCov">        714 :     if (md-&gt;next != nullptr) {</span></a>
+<a name="221"><span class="lineNum">     221 </span><span class="lineCov">          4 :       BKE_object_modifier_set_active(ob, md-&gt;next);</span></a>
+<a name="222"><span class="lineNum">     222 </span>            :     }</a>
+<a name="223"><span class="lineNum">     223 </span><span class="lineCov">        710 :     else if (md-&gt;prev != nullptr) {</span></a>
+<a name="224"><span class="lineNum">     224 </span><span class="lineNoCov">          0 :       BKE_object_modifier_set_active(ob, md-&gt;prev);</span></a>
+<a name="225"><span class="lineNum">     225 </span>            :     }</a>
+<a name="226"><span class="lineNum">     226 </span>            :   }</a>
+<a name="227"><span class="lineNum">     227 </span>            : </a>
+<a name="228"><span class="lineNum">     228 </span><span class="lineCov">        717 :   BLI_remlink(&amp;ob-&gt;modifiers, md);</span></a>
+<a name="229"><span class="lineNum">     229 </span><span class="lineCov">        717 : }</span></a>
+<a name="230"><span class="lineNum">     230 </span>            : </a>
+<a name="231"><span class="lineNum">     231 </span><span class="lineCov">       1037 : void BKE_modifier_unique_name(ListBaseT&lt;ModifierData&gt; *modifiers, ModifierData *md)</span></a>
+<a name="232"><span class="lineNum">     232 </span>            : {</a>
+<a name="233"><span class="lineNum">     233 </span><span class="lineCov">       1037 :   if (modifiers &amp;&amp; md) {</span></a>
+<a name="234"><span class="lineNum">     234 </span><span class="lineCov">       1037 :     const ModifierTypeInfo *mti = BKE_modifier_get_info(md-&gt;type);</span></a>
+<a name="235"><span class="lineNum">     235 </span>            : </a>
+<a name="236"><span class="lineNum">     236 </span><span class="lineCov">       1037 :     BLI_uniquename(</span></a>
+<a name="237"><span class="lineNum">     237 </span><span class="lineCov">       1037 :         modifiers, md, DATA_(mti-&gt;name), '.', offsetof(ModifierData, name), sizeof(md-&gt;name));</span></a>
+<a name="238"><span class="lineNum">     238 </span>            :   }</a>
+<a name="239"><span class="lineNum">     239 </span><span class="lineCov">       1037 : }</span></a>
+<a name="240"><span class="lineNum">     240 </span>            : </a>
+<a name="241"><span class="lineNum">     241 </span><span class="lineCov">      26533 : bool BKE_modifier_depends_ontime(Scene *scene, ModifierData *md)</span></a>
+<a name="242"><span class="lineNum">     242 </span>            : {</a>
+<a name="243"><span class="lineNum">     243 </span><span class="lineCov">      26533 :   const ModifierTypeInfo *mti = BKE_modifier_get_info(md-&gt;type);</span></a>
+<a name="244"><span class="lineNum">     244 </span>            : </a>
+<a name="245"><span class="lineNum">     245 </span><span class="lineCov">      26533 :   return mti-&gt;depends_on_time &amp;&amp; mti-&gt;depends_on_time(scene, md);</span></a>
+<a name="246"><span class="lineNum">     246 </span>            : }</a>
+<a name="247"><span class="lineNum">     247 </span>            : </a>
+<a name="248"><span class="lineNum">     248 </span><span class="lineCov">        134 : bool BKE_modifier_supports_mapping(ModifierData *md)</span></a>
+<a name="249"><span class="lineNum">     249 </span>            : {</a>
+<a name="250"><span class="lineNum">     250 </span><span class="lineCov">        134 :   const ModifierTypeInfo *mti = BKE_modifier_get_info(md-&gt;type);</span></a>
+<a name="251"><span class="lineNum">     251 </span>            : </a>
+<a name="252"><span class="lineNum">     252 </span><span class="lineCov">        265 :   return (mti-&gt;type == ModifierTypeType::OnlyDeform ||</span></a>
+<a name="253"><span class="lineNum">     253 </span><span class="lineCov">        265 :           (mti-&gt;flags &amp; eModifierTypeFlag_SupportsMapping));</span></a>
+<a name="254"><span class="lineNum">     254 </span>            : }</a>
+<a name="255"><span class="lineNum">     255 </span>            : </a>
+<a name="256"><span class="lineNum">     256 </span><span class="lineCov">       9382 : ModifierData *BKE_modifiers_findby_type(const Object *ob, ModifierType type)</span></a>
+<a name="257"><span class="lineNum">     257 </span>            : {</a>
+<a name="258"><span class="lineNum">     258 </span><span class="lineCov">      11990 :   for (ModifierData &amp;md : ob-&gt;modifiers) {</span></a>
+<a name="259"><span class="lineNum">     259 </span><span class="lineCov">       3911 :     if (md.type == type) {</span></a>
+<a name="260"><span class="lineNum">     260 </span><span class="lineCov">       1303 :       return &amp;md;</span></a>
+<a name="261"><span class="lineNum">     261 </span>            :     }</a>
+<a name="262"><span class="lineNum">     262 </span>            :   }</a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineCov">       8079 :   return nullptr;</span></a>
+<a name="264"><span class="lineNum">     264 </span>            : }</a>
+<a name="265"><span class="lineNum">     265 </span>            : </a>
+<a name="266"><span class="lineNum">     266 </span><span class="lineCov">       2252 : ModifierData *BKE_modifiers_findby_name(const Object *ob, const char *name)</span></a>
+<a name="267"><span class="lineNum">     267 </span>            : {</a>
+<a name="268"><span class="lineNum">     268 </span>            :   return static_cast&lt;ModifierData *&gt;(</a>
+<a name="269"><span class="lineNum">     269 </span><span class="lineCov">       2252 :       BLI_findstring(&amp;(ob-&gt;modifiers), name, offsetof(ModifierData, name)));</span></a>
+<a name="270"><span class="lineNum">     270 </span>            : }</a>
+<a name="271"><span class="lineNum">     271 </span>            : </a>
+<a name="272"><span class="lineNum">     272 </span><span class="lineCov">      18440 : ModifierData *BKE_modifiers_findby_persistent_uid(const Object *ob, const int persistent_uid)</span></a>
+<a name="273"><span class="lineNum">     273 </span>            : {</a>
+<a name="274"><span class="lineNum">     274 </span><span class="lineCov">      30514 :   for (ModifierData &amp;md : ob-&gt;modifiers) {</span></a>
+<a name="275"><span class="lineNum">     275 </span><span class="lineCov">      29924 :     if (md.persistent_uid == persistent_uid) {</span></a>
+<a name="276"><span class="lineNum">     276 </span><span class="lineCov">      17850 :       return &amp;md;</span></a>
+<a name="277"><span class="lineNum">     277 </span>            :     }</a>
+<a name="278"><span class="lineNum">     278 </span>            :   }</a>
+<a name="279"><span class="lineNum">     279 </span><span class="lineCov">        687 :   return nullptr;</span></a>
+<a name="280"><span class="lineNum">     280 </span>            : }</a>
+<a name="281"><span class="lineNum">     281 </span>            : </a>
+<a name="282"><span class="lineNum">     282 </span><span class="lineCov">      54920 : void BKE_modifiers_clear_errors(Object *ob)</span></a>
+<a name="283"><span class="lineNum">     283 </span>            : {</a>
+<a name="284"><span class="lineNum">     284 </span><span class="lineCov">      77661 :   for (ModifierData &amp;md : ob-&gt;modifiers) {</span></a>
+<a name="285"><span class="lineNum">     285 </span><span class="lineCov">      22741 :     if (md.error) {</span></a>
+<a name="286"><span class="lineNum">     286 </span><span class="lineNoCov">          0 :       MEM_delete(md.error);</span></a>
+<a name="287"><span class="lineNum">     287 </span><span class="lineNoCov">          0 :       md.error = nullptr;</span></a>
+<a name="288"><span class="lineNum">     288 </span>            :     }</a>
+<a name="289"><span class="lineNum">     289 </span>            :   }</a>
+<a name="290"><span class="lineNum">     290 </span><span class="lineCov">      54873 : }</span></a>
+<a name="291"><span class="lineNum">     291 </span>            : </a>
+<a name="292"><span class="lineNum">     292 </span><span class="lineCov">    8195319 : void BKE_modifiers_foreach_ID_link(Object *ob, IDWalkFunc walk, void *user_data)</span></a>
+<a name="293"><span class="lineNum">     293 </span>            : {</a>
+<a name="294"><span class="lineNum">     294 </span><span class="lineCov">    8559621 :   for (ModifierData &amp;md : ob-&gt;modifiers) {</span></a>
+<a name="295"><span class="lineNum">     295 </span><span class="lineCov">     364333 :     const ModifierTypeInfo *mti = BKE_modifier_get_info(md.type);</span></a>
+<a name="296"><span class="lineNum">     296 </span><span class="lineCov">     364366 :     IDP_foreach_property(md.system_properties, IDP_TYPE_FILTER_ID, [&amp;](IDProperty *id_prop) {</span></a>
+<a name="297"><span class="lineNum">     297 </span><span class="lineCov">      29357 :       walk(user_data, ob, (ID **)&amp;id_prop-&gt;data.pointer, IDWALK_CB_USER);</span></a>
+<a name="298"><span class="lineNum">     298 </span><span class="lineCov">      29356 :     });</span></a>
+<a name="299"><span class="lineNum">     299 </span><span class="lineCov">     364284 :     if (mti-&gt;foreach_ID_link) {</span></a>
+<a name="300"><span class="lineNum">     300 </span><span class="lineCov">     191148 :       mti-&gt;foreach_ID_link(&amp;md, ob, walk, user_data);</span></a>
+<a name="301"><span class="lineNum">     301 </span>            :     }</a>
+<a name="302"><span class="lineNum">     302 </span>            :   }</a>
+<a name="303"><span class="lineNum">     303 </span><span class="lineCov">    8197440 : }</span></a>
+<a name="304"><span class="lineNum">     304 </span>            : </a>
+<a name="305"><span class="lineNum">     305 </span><span class="lineNoCov">          0 : void BKE_modifiers_foreach_tex_link(Object *ob, TexWalkFunc walk, void *user_data)</span></a>
+<a name="306"><span class="lineNum">     306 </span>            : {</a>
+<a name="307"><span class="lineNum">     307 </span><span class="lineNoCov">          0 :   for (ModifierData &amp;md : ob-&gt;modifiers) {</span></a>
+<a name="308"><span class="lineNum">     308 </span><span class="lineNoCov">          0 :     const ModifierTypeInfo *mti = BKE_modifier_get_info(md.type);</span></a>
+<a name="309"><span class="lineNum">     309 </span><span class="lineNoCov">          0 :     if (mti-&gt;foreach_tex_link) {</span></a>
+<a name="310"><span class="lineNum">     310 </span><span class="lineNoCov">          0 :       mti-&gt;foreach_tex_link(&amp;md, ob, walk, user_data);</span></a>
+<a name="311"><span class="lineNum">     311 </span>            :     }</a>
+<a name="312"><span class="lineNum">     312 </span>            :   }</a>
+<a name="313"><span class="lineNum">     313 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="314"><span class="lineNum">     314 </span>            : </a>
+<a name="315"><span class="lineNum">     315 </span><span class="lineCov">      19719 : ModifierData *BKE_modifier_copy_ex(const ModifierData *md, int flag)</span></a>
+<a name="316"><span class="lineNum">     316 </span>            : {</a>
+<a name="317"><span class="lineNum">     317 </span><span class="lineCov">      19719 :   ModifierData *md_dst = modifier_allocate_and_init(md-&gt;type);</span></a>
+<a name="318"><span class="lineNum">     318 </span>            : </a>
+<a name="319"><span class="lineNum">     319 </span><span class="lineCov">      19758 :   STRNCPY_UTF8(md_dst-&gt;name, md-&gt;name);</span></a>
+<a name="320"><span class="lineNum">     320 </span><span class="lineCov">      19778 :   BKE_modifier_copydata_ex(md, md_dst, flag);</span></a>
+<a name="321"><span class="lineNum">     321 </span>            : </a>
+<a name="322"><span class="lineNum">     322 </span><span class="lineCov">      19759 :   return md_dst;</span></a>
+<a name="323"><span class="lineNum">     323 </span>            : }</a>
+<a name="324"><span class="lineNum">     324 </span>            : </a>
+<a name="325"><span class="lineNum">     325 </span><span class="lineCov">      19461 : void BKE_modifier_copydata_generic(const ModifierData *md_src,</span></a>
+<a name="326"><span class="lineNum">     326 </span>            :                                    ModifierData *md_dst,</a>
+<a name="327"><span class="lineNum">     327 </span>            :                                    const int /*flag*/)</a>
+<a name="328"><span class="lineNum">     328 </span>            : {</a>
+<a name="329"><span class="lineNum">     329 </span><span class="lineCov">      19461 :   const ModifierTypeInfo *mti = BKE_modifier_get_info(md_src-&gt;type);</span></a>
+<a name="330"><span class="lineNum">     330 </span>            : </a>
+<a name="331"><span class="lineNum">     331 </span>            :   /* `md_dst` may have already be fully initialized with some extra allocated data,</a>
+<a name="332"><span class="lineNum">     332 </span>            :    * we need to free it now to avoid a memory leak. */</a>
+<a name="333"><span class="lineNum">     333 </span><span class="lineCov">      19460 :   if (mti-&gt;free_data) {</span></a>
+<a name="334"><span class="lineNum">     334 </span><span class="lineCov">      18194 :     mti-&gt;free_data(md_dst);</span></a>
+<a name="335"><span class="lineNum">     335 </span>            :   }</a>
+<a name="336"><span class="lineNum">     336 </span>            : </a>
+<a name="337"><span class="lineNum">     337 </span><span class="lineCov">      19482 :   const size_t data_size = sizeof(ModifierData);</span></a>
+<a name="338"><span class="lineNum">     338 </span><span class="lineCov">      19482 :   const char *md_src_data = (reinterpret_cast&lt;const char *&gt;(md_src)) + data_size;</span></a>
+<a name="339"><span class="lineNum">     339 </span><span class="lineCov">      19482 :   char *md_dst_data = (reinterpret_cast&lt;char *&gt;(md_dst)) + data_size;</span></a>
+<a name="340"><span class="lineNum">     340 </span><span class="lineCov">      19482 :   BLI_assert(data_size &lt;= size_t(mti-&gt;struct_size));</span></a>
+<a name="341"><span class="lineNum">     341 </span><span class="lineCov">      19482 :   memcpy(md_dst_data, md_src_data, size_t(mti-&gt;struct_size) - data_size);</span></a>
+<a name="342"><span class="lineNum">     342 </span>            : </a>
+<a name="343"><span class="lineNum">     343 </span>            :   /* Runtime fields are never to be preserved. */</a>
+<a name="344"><span class="lineNum">     344 </span><span class="lineCov">      19482 :   md_dst-&gt;runtime = nullptr;</span></a>
+<a name="345"><span class="lineNum">     345 </span><span class="lineCov">      19482 : }</span></a>
+<a name="346"><span class="lineNum">     346 </span>            : </a>
+<a name="347"><span class="lineNum">     347 </span><span class="lineNoCov">          0 : static void modifier_copy_data_id_us_cb(void * /*user_data*/,</span></a>
+<a name="348"><span class="lineNum">     348 </span>            :                                         Object * /*ob*/,</a>
+<a name="349"><span class="lineNum">     349 </span>            :                                         ID **idpoin,</a>
+<a name="350"><span class="lineNum">     350 </span>            :                                         const LibraryForeachIDCallbackFlag cb_flag)</a>
+<a name="351"><span class="lineNum">     351 </span>            : {</a>
+<a name="352"><span class="lineNum">     352 </span><span class="lineNoCov">          0 :   ID *id = *idpoin;</span></a>
+<a name="353"><span class="lineNum">     353 </span><span class="lineNoCov">          0 :   if (id != nullptr &amp;&amp; (cb_flag &amp; IDWALK_CB_USER) != 0) {</span></a>
+<a name="354"><span class="lineNum">     354 </span><span class="lineNoCov">          0 :     id_us_plus(id);</span></a>
+<a name="355"><span class="lineNum">     355 </span>            :   }</a>
+<a name="356"><span class="lineNum">     356 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="357"><span class="lineNum">     357 </span>            : </a>
+<a name="358"><span class="lineNum">     358 </span><span class="lineCov">      19808 : void BKE_modifier_copydata_ex(const ModifierData *md, ModifierData *target, const int flag)</span></a>
+<a name="359"><span class="lineNum">     359 </span>            : {</a>
+<a name="360"><span class="lineNum">     360 </span><span class="lineCov">      19808 :   const ModifierTypeInfo *mti = BKE_modifier_get_info(md-&gt;type);</span></a>
+<a name="361"><span class="lineNum">     361 </span>            : </a>
+<a name="362"><span class="lineNum">     362 </span><span class="lineCov">      19812 :   target-&gt;mode = md-&gt;mode;</span></a>
+<a name="363"><span class="lineNum">     363 </span><span class="lineCov">      19812 :   target-&gt;flag = md-&gt;flag;</span></a>
+<a name="364"><span class="lineNum">     364 </span><span class="lineCov">      19812 :   target-&gt;ui_expand_flag = md-&gt;ui_expand_flag;</span></a>
+<a name="365"><span class="lineNum">     365 </span><span class="lineCov">      19812 :   target-&gt;persistent_uid = md-&gt;persistent_uid;</span></a>
+<a name="366"><span class="lineNum">     366 </span>            : </a>
+<a name="367"><span class="lineNum">     367 </span><span class="lineCov">      19812 :   if (mti-&gt;copy_data) {</span></a>
+<a name="368"><span class="lineNum">     368 </span><span class="lineCov">      19641 :     mti-&gt;copy_data(md, target, flag);</span></a>
+<a name="369"><span class="lineNum">     369 </span>            :   }</a>
+<a name="370"><span class="lineNum">     370 </span>            : </a>
+<a name="371"><span class="lineNum">     371 </span><span class="lineCov">      19819 :   if ((flag &amp; LIB_ID_CREATE_NO_USER_REFCOUNT) == 0) {</span></a>
+<a name="372"><span class="lineNum">     372 </span><span class="lineNoCov">          0 :     if (mti-&gt;foreach_ID_link) {</span></a>
+<a name="373"><span class="lineNum">     373 </span><span class="lineNoCov">          0 :       mti-&gt;foreach_ID_link(target, nullptr, modifier_copy_data_id_us_cb, nullptr);</span></a>
+<a name="374"><span class="lineNum">     374 </span>            :     }</a>
+<a name="375"><span class="lineNum">     375 </span>            :   }</a>
+<a name="376"><span class="lineNum">     376 </span>            : </a>
+<a name="377"><span class="lineNum">     377 </span><span class="lineCov">      19819 :   if (md-&gt;system_properties) {</span></a>
+<a name="378"><span class="lineNum">     378 </span><span class="lineCov">       9566 :     target-&gt;system_properties = IDP_CopyProperty_ex(md-&gt;system_properties, flag);</span></a>
+<a name="379"><span class="lineNum">     379 </span>            :   }</a>
+<a name="380"><span class="lineNum">     380 </span><span class="lineCov">      19808 : }</span></a>
+<a name="381"><span class="lineNum">     381 </span>            : </a>
+<a name="382"><span class="lineNum">     382 </span><span class="lineNoCov">          0 : void BKE_modifier_copydata(const ModifierData *md, ModifierData *target)</span></a>
+<a name="383"><span class="lineNum">     383 </span>            : {</a>
+<a name="384"><span class="lineNum">     384 </span><span class="lineNoCov">          0 :   BKE_modifier_copydata_ex(md, target, 0);</span></a>
+<a name="385"><span class="lineNum">     385 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="386"><span class="lineNum">     386 </span>            : </a>
+<a name="387"><span class="lineNum">     387 </span><span class="lineNoCov">          0 : bool BKE_modifier_supports_cage(Scene *scene, ModifierData *md)</span></a>
+<a name="388"><span class="lineNum">     388 </span>            : {</a>
+<a name="389"><span class="lineNum">     389 </span><span class="lineNoCov">          0 :   const ModifierTypeInfo *mti = BKE_modifier_get_info(md-&gt;type);</span></a>
+<a name="390"><span class="lineNum">     390 </span>            : </a>
+<a name="391"><span class="lineNum">     391 </span><span class="lineNoCov">          0 :   return ((!mti-&gt;is_disabled || !mti-&gt;is_disabled(scene, md, false)) &amp;&amp;</span></a>
+<a name="392"><span class="lineNum">     392 </span><span class="lineNoCov">          0 :           (mti-&gt;flags &amp; eModifierTypeFlag_SupportsEditmode) &amp;&amp; BKE_modifier_supports_mapping(md));</span></a>
+<a name="393"><span class="lineNum">     393 </span>            : }</a>
+<a name="394"><span class="lineNum">     394 </span>            : </a>
+<a name="395"><span class="lineNum">     395 </span><span class="lineNoCov">          0 : bool BKE_modifier_couldbe_cage(Scene *scene, ModifierData *md)</span></a>
+<a name="396"><span class="lineNum">     396 </span>            : {</a>
+<a name="397"><span class="lineNum">     397 </span><span class="lineNoCov">          0 :   const ModifierTypeInfo *mti = BKE_modifier_get_info(md-&gt;type);</span></a>
+<a name="398"><span class="lineNum">     398 </span>            : </a>
+<a name="399"><span class="lineNum">     399 </span><span class="lineNoCov">          0 :   return ((md-&gt;mode &amp; eModifierMode_Realtime) &amp;&amp; (md-&gt;mode &amp; eModifierMode_Editmode) &amp;&amp;</span></a>
+<a name="400"><span class="lineNum">     400 </span><span class="lineNoCov">          0 :           (!mti-&gt;is_disabled || !mti-&gt;is_disabled(scene, md, false)) &amp;&amp;</span></a>
+<a name="401"><span class="lineNum">     401 </span><span class="lineNoCov">          0 :           BKE_modifier_supports_mapping(md));</span></a>
+<a name="402"><span class="lineNum">     402 </span>            : }</a>
+<a name="403"><span class="lineNum">     403 </span>            : </a>
+<a name="404"><span class="lineNum">     404 </span><span class="lineNoCov">          0 : bool BKE_modifier_is_same_topology(ModifierData *md)</span></a>
+<a name="405"><span class="lineNum">     405 </span>            : {</a>
+<a name="406"><span class="lineNum">     406 </span><span class="lineNoCov">          0 :   const ModifierTypeInfo *mti = BKE_modifier_get_info(md-&gt;type);</span></a>
+<a name="407"><span class="lineNum">     407 </span><span class="lineNoCov">          0 :   return ELEM(mti-&gt;type, ModifierTypeType::OnlyDeform, ModifierTypeType::NonGeometrical);</span></a>
+<a name="408"><span class="lineNum">     408 </span>            : }</a>
+<a name="409"><span class="lineNum">     409 </span>            : </a>
+<a name="410"><span class="lineNum">     410 </span><span class="lineNoCov">          0 : bool BKE_modifier_is_non_geometrical(ModifierData *md)</span></a>
+<a name="411"><span class="lineNum">     411 </span>            : {</a>
+<a name="412"><span class="lineNum">     412 </span><span class="lineNoCov">          0 :   const ModifierTypeInfo *mti = BKE_modifier_get_info(md-&gt;type);</span></a>
+<a name="413"><span class="lineNum">     413 </span><span class="lineNoCov">          0 :   return (mti-&gt;type == ModifierTypeType::NonGeometrical);</span></a>
+<a name="414"><span class="lineNum">     414 </span>            : }</a>
+<a name="415"><span class="lineNum">     415 </span>            : </a>
+<a name="416"><span class="lineNum">     416 </span><span class="lineCov">         10 : void BKE_modifier_set_error(const Object *ob, ModifierData *md, const char *_format, ...)</span></a>
+<a name="417"><span class="lineNum">     417 </span>            : {</a>
+<a name="418"><span class="lineNum">     418 </span>            :   char buffer[512];</a>
+<a name="419"><span class="lineNum">     419 </span>            :   va_list ap;</a>
+<a name="420"><span class="lineNum">     420 </span><span class="lineCov">         10 :   const char *format = RPT_(_format);</span></a>
+<a name="421"><span class="lineNum">     421 </span>            : </a>
+<a name="422"><span class="lineNum">     422 </span><span class="lineCov">         10 :   va_start(ap, _format);</span></a>
+<a name="423"><span class="lineNum">     423 </span><span class="lineCov">         10 :   vsnprintf(buffer, sizeof(buffer), format, ap);</span></a>
+<a name="424"><span class="lineNum">     424 </span><span class="lineCov">         10 :   va_end(ap);</span></a>
+<a name="425"><span class="lineNum">     425 </span><span class="lineCov">         10 :   buffer[sizeof(buffer) - 1] = '\0';</span></a>
+<a name="426"><span class="lineNum">     426 </span>            : </a>
+<a name="427"><span class="lineNum">     427 </span><span class="lineCov">         10 :   if (md-&gt;error) {</span></a>
+<a name="428"><span class="lineNum">     428 </span><span class="lineNoCov">          0 :     MEM_delete(md-&gt;error);</span></a>
+<a name="429"><span class="lineNum">     429 </span>            :   }</a>
+<a name="430"><span class="lineNum">     430 </span>            : </a>
+<a name="431"><span class="lineNum">     431 </span><span class="lineCov">         10 :   md-&gt;error = BLI_strdup(buffer);</span></a>
+<a name="432"><span class="lineNum">     432 </span>            : </a>
+<a name="433"><span class="lineNum">     433 </span>            : #ifndef NDEBUG</a>
+<a name="434"><span class="lineNum">     434 </span><span class="lineCov">         10 :   if ((md-&gt;mode &amp; eModifierMode_Virtual) == 0) {</span></a>
+<a name="435"><span class="lineNum">     435 </span>            :     /* Ensure correct object is passed in. */</a>
+<a name="436"><span class="lineNum">     436 </span><span class="lineCov">         10 :     BLI_assert(BKE_modifier_get_original(ob, md) != nullptr);</span></a>
+<a name="437"><span class="lineNum">     437 </span>            :   }</a>
+<a name="438"><span class="lineNum">     438 </span>            : #endif</a>
+<a name="439"><span class="lineNum">     439 </span>            : </a>
+<a name="440"><span class="lineNum">     440 </span><span class="lineCov">         10 :   CLOG_WARN(&amp;LOG, &quot;Object: \&quot;%s\&quot;, Modifier: \&quot;%s\&quot;, %s&quot;, ob-&gt;id.name + 2, md-&gt;name, md-&gt;error);</span></a>
+<a name="441"><span class="lineNum">     441 </span><span class="lineCov">         10 : }</span></a>
+<a name="442"><span class="lineNum">     442 </span>            : </a>
+<a name="443"><span class="lineNum">     443 </span><span class="lineNoCov">          0 : void BKE_modifier_set_warning(const Object *ob, ModifierData *md, const char *_format, ...)</span></a>
+<a name="444"><span class="lineNum">     444 </span>            : {</a>
+<a name="445"><span class="lineNum">     445 </span>            :   char buffer[512];</a>
+<a name="446"><span class="lineNum">     446 </span>            :   va_list ap;</a>
+<a name="447"><span class="lineNum">     447 </span><span class="lineNoCov">          0 :   const char *format = RPT_(_format);</span></a>
+<a name="448"><span class="lineNum">     448 </span>            : </a>
+<a name="449"><span class="lineNum">     449 </span><span class="lineNoCov">          0 :   va_start(ap, _format);</span></a>
+<a name="450"><span class="lineNum">     450 </span><span class="lineNoCov">          0 :   vsnprintf(buffer, sizeof(buffer), format, ap);</span></a>
+<a name="451"><span class="lineNum">     451 </span><span class="lineNoCov">          0 :   va_end(ap);</span></a>
+<a name="452"><span class="lineNum">     452 </span><span class="lineNoCov">          0 :   buffer[sizeof(buffer) - 1] = '\0';</span></a>
+<a name="453"><span class="lineNum">     453 </span>            : </a>
+<a name="454"><span class="lineNum">     454 </span>            :   /* Store the warning in the same field as the error.</a>
+<a name="455"><span class="lineNum">     455 </span>            :    * It is not expected to have both error and warning and having a single place to store the</a>
+<a name="456"><span class="lineNum">     456 </span>            :    * message simplifies interface code. */</a>
+<a name="457"><span class="lineNum">     457 </span>            : </a>
+<a name="458"><span class="lineNum">     458 </span><span class="lineNoCov">          0 :   if (md-&gt;error) {</span></a>
+<a name="459"><span class="lineNum">     459 </span><span class="lineNoCov">          0 :     MEM_delete(md-&gt;error);</span></a>
+<a name="460"><span class="lineNum">     460 </span>            :   }</a>
+<a name="461"><span class="lineNum">     461 </span>            : </a>
+<a name="462"><span class="lineNum">     462 </span><span class="lineNoCov">          0 :   md-&gt;error = BLI_strdup(buffer);</span></a>
+<a name="463"><span class="lineNum">     463 </span>            : </a>
+<a name="464"><span class="lineNum">     464 </span>            : #ifndef NDEBUG</a>
+<a name="465"><span class="lineNum">     465 </span><span class="lineNoCov">          0 :   if ((md-&gt;mode &amp; eModifierMode_Virtual) == 0) {</span></a>
+<a name="466"><span class="lineNum">     466 </span>            :     /* Ensure correct object is passed in. */</a>
+<a name="467"><span class="lineNum">     467 </span><span class="lineNoCov">          0 :     BLI_assert(BKE_modifier_get_original(ob, md) != nullptr);</span></a>
+<a name="468"><span class="lineNum">     468 </span>            :   }</a>
+<a name="469"><span class="lineNum">     469 </span>            : #endif</a>
+<a name="470"><span class="lineNum">     470 </span>            : </a>
+<a name="471"><span class="lineNum">     471 </span>            :   UNUSED_VARS_NDEBUG(ob);</a>
+<a name="472"><span class="lineNum">     472 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="473"><span class="lineNum">     473 </span>            : </a>
+<a name="474"><span class="lineNum">     474 </span><span class="lineCov">        721 : int BKE_modifiers_get_cage_index(const Scene *scene,</span></a>
+<a name="475"><span class="lineNum">     475 </span>            :                                  Object *ob,</a>
+<a name="476"><span class="lineNum">     476 </span>            :                                  int *r_lastPossibleCageIndex,</a>
+<a name="477"><span class="lineNum">     477 </span>            :                                  bool is_virtual)</a>
+<a name="478"><span class="lineNum">     478 </span>            : {</a>
+<a name="479"><span class="lineNum">     479 </span><span class="lineCov">        721 :   VirtualModifierData virtual_modifier_data;</span></a>
+<a name="480"><span class="lineNum">     480 </span><span class="lineCov">        721 :   ModifierData *md = (is_virtual) ?</span></a>
+<a name="481"><span class="lineNum">     481 </span><span class="lineCov">        721 :                          BKE_modifiers_get_virtual_modifierlist(ob, &amp;virtual_modifier_data) :</span></a>
+<a name="482"><span class="lineNum">     482 </span><span class="lineNoCov">          0 :                          ob-&gt;modifiers.first();</span></a>
+<a name="483"><span class="lineNum">     483 </span>            : </a>
+<a name="484"><span class="lineNum">     484 </span><span class="lineCov">        721 :   if (r_lastPossibleCageIndex) {</span></a>
+<a name="485"><span class="lineNum">     485 </span>            :     /* ensure the value is initialized */</a>
+<a name="486"><span class="lineNum">     486 </span><span class="lineNoCov">          0 :     *r_lastPossibleCageIndex = -1;</span></a>
+<a name="487"><span class="lineNum">     487 </span>            :   }</a>
+<a name="488"><span class="lineNum">     488 </span>            : </a>
+<a name="489"><span class="lineNum">     489 </span>            :   /* Find the last modifier acting on the cage. */</a>
+<a name="490"><span class="lineNum">     490 </span><span class="lineCov">        721 :   int cageIndex = -1;</span></a>
+<a name="491"><span class="lineNum">     491 </span><span class="lineCov">        856 :   for (int i = 0; md; i++, md = md-&gt;next) {</span></a>
+<a name="492"><span class="lineNum">     492 </span><span class="lineCov">        135 :     const ModifierTypeInfo *mti = BKE_modifier_get_info(md-&gt;type);</span></a>
+<a name="493"><span class="lineNum">     493 </span>            :     bool supports_mapping;</a>
+<a name="494"><span class="lineNum">     494 </span>            : </a>
+<a name="495"><span class="lineNum">     495 </span><span class="lineCov">        135 :     if (mti-&gt;is_disabled &amp;&amp; mti-&gt;is_disabled(scene, md, false)) {</span></a>
+<a name="496"><span class="lineNum">     496 </span><span class="lineNoCov">          0 :       continue;</span></a>
+<a name="497"><span class="lineNum">     497 </span>            :     }</a>
+<a name="498"><span class="lineNum">     498 </span><span class="lineCov">        135 :     if (!(mti-&gt;flags &amp; eModifierTypeFlag_SupportsEditmode)) {</span></a>
+<a name="499"><span class="lineNum">     499 </span><span class="lineCov">          1 :       continue;</span></a>
+<a name="500"><span class="lineNum">     500 </span>            :     }</a>
+<a name="501"><span class="lineNum">     501 </span><span class="lineCov">        134 :     if (md-&gt;mode &amp; eModifierMode_DisableTemporary) {</span></a>
+<a name="502"><span class="lineNum">     502 </span><span class="lineNoCov">          0 :       continue;</span></a>
+<a name="503"><span class="lineNum">     503 </span>            :     }</a>
+<a name="504"><span class="lineNum">     504 </span>            : </a>
+<a name="505"><span class="lineNum">     505 </span><span class="lineCov">        134 :     supports_mapping = BKE_modifier_supports_mapping(md);</span></a>
+<a name="506"><span class="lineNum">     506 </span><span class="lineCov">        134 :     if (r_lastPossibleCageIndex &amp;&amp; supports_mapping) {</span></a>
+<a name="507"><span class="lineNum">     507 </span><span class="lineNoCov">          0 :       *r_lastPossibleCageIndex = i;</span></a>
+<a name="508"><span class="lineNum">     508 </span>            :     }</a>
+<a name="509"><span class="lineNum">     509 </span>            : </a>
+<a name="510"><span class="lineNum">     510 </span><span class="lineCov">        134 :     if (!(md-&gt;mode &amp; eModifierMode_Realtime)) {</span></a>
+<a name="511"><span class="lineNum">     511 </span><span class="lineCov">          3 :       continue;</span></a>
+<a name="512"><span class="lineNum">     512 </span>            :     }</a>
+<a name="513"><span class="lineNum">     513 </span><span class="lineCov">        131 :     if (!(md-&gt;mode &amp; eModifierMode_Editmode)) {</span></a>
+<a name="514"><span class="lineNum">     514 </span><span class="lineCov">          3 :       continue;</span></a>
+<a name="515"><span class="lineNum">     515 </span>            :     }</a>
+<a name="516"><span class="lineNum">     516 </span>            : </a>
+<a name="517"><span class="lineNum">     517 </span><span class="lineCov">        128 :     if (!supports_mapping) {</span></a>
+<a name="518"><span class="lineNum">     518 </span><span class="lineNoCov">          0 :       break;</span></a>
+<a name="519"><span class="lineNum">     519 </span>            :     }</a>
+<a name="520"><span class="lineNum">     520 </span>            : </a>
+<a name="521"><span class="lineNum">     521 </span><span class="lineCov">        128 :     if (md-&gt;mode &amp; eModifierMode_OnCage) {</span></a>
+<a name="522"><span class="lineNum">     522 </span><span class="lineCov">          7 :       cageIndex = i;</span></a>
+<a name="523"><span class="lineNum">     523 </span>            :     }</a>
+<a name="524"><span class="lineNum">     524 </span>            :   }</a>
+<a name="525"><span class="lineNum">     525 </span>            : </a>
+<a name="526"><span class="lineNum">     526 </span><span class="lineCov">        721 :   return cageIndex;</span></a>
+<a name="527"><span class="lineNum">     527 </span>            : }</a>
+<a name="528"><span class="lineNum">     528 </span>            : </a>
+<a name="529"><span class="lineNum">     529 </span><span class="lineCov">      70303 : bool BKE_modifier_is_enabled(const Scene *scene, ModifierData *md, int required_mode)</span></a>
+<a name="530"><span class="lineNum">     530 </span>            : {</a>
+<a name="531"><span class="lineNum">     531 </span><span class="lineCov">      70303 :   const ModifierTypeInfo *mti = BKE_modifier_get_info(md-&gt;type);</span></a>
+<a name="532"><span class="lineNum">     532 </span>            : </a>
+<a name="533"><span class="lineNum">     533 </span><span class="lineCov">      70342 :   if ((md-&gt;mode &amp; required_mode) != required_mode) {</span></a>
+<a name="534"><span class="lineNum">     534 </span><span class="lineCov">       3531 :     return false;</span></a>
+<a name="535"><span class="lineNum">     535 </span>            :   }</a>
+<a name="536"><span class="lineNum">     536 </span><span class="lineCov">     118138 :   if (scene != nullptr &amp;&amp; mti-&gt;is_disabled &amp;&amp;</span></a>
+<a name="537"><span class="lineNum">     537 </span><span class="lineCov">      51354 :       mti-&gt;is_disabled(scene, md, required_mode == eModifierMode_Render))</span></a>
+<a name="538"><span class="lineNum">     538 </span>            :   {</a>
+<a name="539"><span class="lineNum">     539 </span><span class="lineCov">        154 :     return false;</span></a>
+<a name="540"><span class="lineNum">     540 </span>            :   }</a>
+<a name="541"><span class="lineNum">     541 </span><span class="lineCov">      66630 :   if (md-&gt;mode &amp; eModifierMode_DisableTemporary) {</span></a>
+<a name="542"><span class="lineNum">     542 </span><span class="lineCov">        353 :     return false;</span></a>
+<a name="543"><span class="lineNum">     543 </span>            :   }</a>
+<a name="544"><span class="lineNum">     544 </span><span class="lineCov">      66668 :   if ((required_mode &amp; eModifierMode_Editmode) &amp;&amp;</span></a>
+<a name="545"><span class="lineNum">     545 </span><span class="lineCov">        357 :       !(mti-&gt;flags &amp; eModifierTypeFlag_SupportsEditmode))</span></a>
+<a name="546"><span class="lineNum">     546 </span>            :   {</a>
+<a name="547"><span class="lineNum">     547 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="548"><span class="lineNum">     548 </span>            :   }</a>
+<a name="549"><span class="lineNum">     549 </span>            : </a>
+<a name="550"><span class="lineNum">     550 </span><span class="lineCov">      66311 :   return true;</span></a>
+<a name="551"><span class="lineNum">     551 </span>            : }</a>
+<a name="552"><span class="lineNum">     552 </span>            : </a>
+<a name="553"><span class="lineNum">     553 </span><span class="lineCov">       1646 : bool BKE_modifier_is_nonlocal_in_liboverride(const Object *ob, const ModifierData *md)</span></a>
+<a name="554"><span class="lineNum">     554 </span>            : {</a>
+<a name="555"><span class="lineNum">     555 </span><span class="lineCov">       1646 :   return (ID_IS_OVERRIDE_LIBRARY(ob) &amp;&amp;</span></a>
+<a name="556"><span class="lineNum">     556 </span><span class="lineCov">       1646 :           (md == nullptr || (md-&gt;flag &amp; eModifierFlag_OverrideLibrary_Local) == 0));</span></a>
+<a name="557"><span class="lineNum">     557 </span>            : }</a>
+<a name="558"><span class="lineNum">     558 </span>            : </a>
+<a name="559"><span class="lineNum">     559 </span><span class="lineCov">      43538 : CDMaskLink *BKE_modifier_calc_data_masks(const Scene *scene,</span></a>
+<a name="560"><span class="lineNum">     560 </span>            :                                          ModifierData *md,</a>
+<a name="561"><span class="lineNum">     561 </span>            :                                          CustomData_MeshMasks *final_datamask,</a>
+<a name="562"><span class="lineNum">     562 </span>            :                                          int required_mode)</a>
+<a name="563"><span class="lineNum">     563 </span>            : {</a>
+<a name="564"><span class="lineNum">     564 </span><span class="lineCov">      43538 :   CDMaskLink *dataMasks = nullptr;</span></a>
+<a name="565"><span class="lineNum">     565 </span>            :   CDMaskLink *curr, *prev;</a>
+<a name="566"><span class="lineNum">     566 </span><span class="lineCov">      43538 :   bool have_deform_modifier = false;</span></a>
+<a name="567"><span class="lineNum">     567 </span>            : </a>
+<a name="568"><span class="lineNum">     568 </span>            :   /* build a list of modifier data requirements in reverse order */</a>
+<a name="569"><span class="lineNum">     569 </span><span class="lineCov">      65582 :   for (; md; md = md-&gt;next) {</span></a>
+<a name="570"><span class="lineNum">     570 </span><span class="lineCov">      21870 :     const ModifierTypeInfo *mti = BKE_modifier_get_info(md-&gt;type);</span></a>
+<a name="571"><span class="lineNum">     571 </span>            : </a>
+<a name="572"><span class="lineNum">     572 </span><span class="lineCov">      21976 :     curr = MEM_new&lt;CDMaskLink&gt;(__func__);</span></a>
+<a name="573"><span class="lineNum">     573 </span>            : </a>
+<a name="574"><span class="lineNum">     574 </span><span class="lineCov">      22063 :     if (BKE_modifier_is_enabled(scene, md, required_mode)) {</span></a>
+<a name="575"><span class="lineNum">     575 </span><span class="lineCov">      20118 :       if (mti-&gt;type == ModifierTypeType::OnlyDeform) {</span></a>
+<a name="576"><span class="lineNum">     576 </span><span class="lineCov">       8130 :         have_deform_modifier = true;</span></a>
+<a name="577"><span class="lineNum">     577 </span>            :       }</a>
+<a name="578"><span class="lineNum">     578 </span>            : </a>
+<a name="579"><span class="lineNum">     579 </span><span class="lineCov">      20118 :       if (mti-&gt;required_data_mask) {</span></a>
+<a name="580"><span class="lineNum">     580 </span><span class="lineCov">       9239 :         mti-&gt;required_data_mask(md, &amp;curr-&gt;mask);</span></a>
+<a name="581"><span class="lineNum">     581 </span>            :       }</a>
+<a name="582"><span class="lineNum">     582 </span>            :     }</a>
+<a name="583"><span class="lineNum">     583 </span>            : </a>
+<a name="584"><span class="lineNum">     584 </span><span class="lineCov">      22044 :     if (!have_deform_modifier) {</span></a>
+<a name="585"><span class="lineNum">     585 </span>            :       /* Don't create orco layer when there is no deformation, we fall</a>
+<a name="586"><span class="lineNum">     586 </span>            :        * back to regular vertex coordinates */</a>
+<a name="587"><span class="lineNum">     587 </span><span class="lineCov">      13768 :       curr-&gt;mask.vmask &amp;= ~CD_MASK_ORCO;</span></a>
+<a name="588"><span class="lineNum">     588 </span>            :     }</a>
+<a name="589"><span class="lineNum">     589 </span>            : </a>
+<a name="590"><span class="lineNum">     590 </span>            :     /* prepend new datamask */</a>
+<a name="591"><span class="lineNum">     591 </span><span class="lineCov">      22044 :     curr-&gt;next = dataMasks;</span></a>
+<a name="592"><span class="lineNum">     592 </span><span class="lineCov">      22044 :     dataMasks = curr;</span></a>
+<a name="593"><span class="lineNum">     593 </span>            :   }</a>
+<a name="594"><span class="lineNum">     594 </span>            : </a>
+<a name="595"><span class="lineNum">     595 </span><span class="lineCov">      43712 :   if (!have_deform_modifier) {</span></a>
+<a name="596"><span class="lineNum">     596 </span><span class="lineCov">      37793 :     final_datamask-&gt;vmask &amp;= ~CD_MASK_ORCO;</span></a>
+<a name="597"><span class="lineNum">     597 </span>            :   }</a>
+<a name="598"><span class="lineNum">     598 </span>            : </a>
+<a name="599"><span class="lineNum">     599 </span>            :   /* build the list of required data masks - each mask in the list must</a>
+<a name="600"><span class="lineNum">     600 </span>            :    * include all elements of the masks that follow it</a>
+<a name="601"><span class="lineNum">     601 </span>            :    *</a>
+<a name="602"><span class="lineNum">     602 </span>            :    * note the list is currently in reverse order, so &quot;masks that follow it&quot;</a>
+<a name="603"><span class="lineNum">     603 </span>            :    * actually means &quot;masks that precede it&quot; at the moment</a>
+<a name="604"><span class="lineNum">     604 </span>            :    */</a>
+<a name="605"><span class="lineNum">     605 </span><span class="lineCov">      65749 :   for (curr = dataMasks, prev = nullptr; curr; prev = curr, curr = curr-&gt;next) {</span></a>
+<a name="606"><span class="lineNum">     606 </span><span class="lineCov">      22051 :     if (prev) {</span></a>
+<a name="607"><span class="lineNum">     607 </span><span class="lineCov">       4596 :       CustomData_MeshMasks_update(&amp;curr-&gt;mask, &amp;prev-&gt;mask);</span></a>
+<a name="608"><span class="lineNum">     608 </span>            :     }</a>
+<a name="609"><span class="lineNum">     609 </span>            :     else {</a>
+<a name="610"><span class="lineNum">     610 </span><span class="lineCov">      17455 :       CustomData_MeshMasks_update(&amp;curr-&gt;mask, final_datamask);</span></a>
+<a name="611"><span class="lineNum">     611 </span>            :     }</a>
+<a name="612"><span class="lineNum">     612 </span>            :   }</a>
+<a name="613"><span class="lineNum">     613 </span>            : </a>
+<a name="614"><span class="lineNum">     614 </span>            :   /* reverse the list so it's in the correct order */</a>
+<a name="615"><span class="lineNum">     615 </span><span class="lineCov">      43698 :   BLI_linklist_reverse(reinterpret_cast&lt;LinkNode **&gt;(&amp;dataMasks));</span></a>
+<a name="616"><span class="lineNum">     616 </span>            : </a>
+<a name="617"><span class="lineNum">     617 </span><span class="lineCov">      43681 :   return dataMasks;</span></a>
+<a name="618"><span class="lineNum">     618 </span>            : }</a>
+<a name="619"><span class="lineNum">     619 </span>            : </a>
+<a name="620"><span class="lineNum">     620 </span><span class="lineCov">     182430 : ModifierData *BKE_modifiers_get_virtual_modifierlist(const Object *ob,</span></a>
+<a name="621"><span class="lineNum">     621 </span>            :                                                      VirtualModifierData *virtual_modifier_data)</a>
+<a name="622"><span class="lineNum">     622 </span>            : {</a>
+<a name="623"><span class="lineNum">     623 </span><span class="lineCov">     182430 :   ModifierData *md = ob-&gt;modifiers.first();</span></a>
+<a name="624"><span class="lineNum">     624 </span>            : </a>
+<a name="625"><span class="lineNum">     625 </span><span class="lineCov">     182403 :   *virtual_modifier_data = virtualModifierCommonData;</span></a>
+<a name="626"><span class="lineNum">     626 </span>            : </a>
+<a name="627"><span class="lineNum">     627 </span><span class="lineCov">     182403 :   if (ob-&gt;parent) {</span></a>
+<a name="628"><span class="lineNum">     628 </span><span class="lineCov">       7087 :     if (ob-&gt;parent-&gt;type == OB_ARMATURE &amp;&amp; ob-&gt;partype == PARSKEL) {</span></a>
+<a name="629"><span class="lineNum">     629 </span><span class="lineNoCov">          0 :       virtual_modifier_data-&gt;amd.object = ob-&gt;parent;</span></a>
+<a name="630"><span class="lineNum">     630 </span><span class="lineNoCov">          0 :       virtual_modifier_data-&gt;amd.modifier.next = md;</span></a>
+<a name="631"><span class="lineNum">     631 </span><span class="lineNoCov">          0 :       virtual_modifier_data-&gt;amd.deformflag = (id_cast&lt;bArmature *&gt;(ob-&gt;parent-&gt;data))-&gt;deformflag;</span></a>
+<a name="632"><span class="lineNum">     632 </span><span class="lineNoCov">          0 :       md = &amp;virtual_modifier_data-&gt;amd.modifier;</span></a>
+<a name="633"><span class="lineNum">     633 </span>            :     }</a>
+<a name="634"><span class="lineNum">     634 </span><span class="lineCov">       7087 :     else if (ob-&gt;parent-&gt;type == OB_CURVES_LEGACY &amp;&amp; ob-&gt;partype == PARSKEL) {</span></a>
+<a name="635"><span class="lineNum">     635 </span><span class="lineCov">          3 :       virtual_modifier_data-&gt;cmd.object = ob-&gt;parent;</span></a>
+<a name="636"><span class="lineNum">     636 </span><span class="lineCov">          3 :       virtual_modifier_data-&gt;cmd.defaxis = CurveModifierDefaultAxis(ob-&gt;trackflag + 1);</span></a>
+<a name="637"><span class="lineNum">     637 </span><span class="lineCov">          3 :       virtual_modifier_data-&gt;cmd.modifier.next = md;</span></a>
+<a name="638"><span class="lineNum">     638 </span><span class="lineCov">          3 :       md = &amp;virtual_modifier_data-&gt;cmd.modifier;</span></a>
+<a name="639"><span class="lineNum">     639 </span>            :     }</a>
+<a name="640"><span class="lineNum">     640 </span><span class="lineCov">       7084 :     else if (ob-&gt;parent-&gt;type == OB_LATTICE &amp;&amp; ob-&gt;partype == PARSKEL) {</span></a>
+<a name="641"><span class="lineNum">     641 </span><span class="lineNoCov">          0 :       virtual_modifier_data-&gt;lmd.object = ob-&gt;parent;</span></a>
+<a name="642"><span class="lineNum">     642 </span><span class="lineNoCov">          0 :       virtual_modifier_data-&gt;lmd.modifier.next = md;</span></a>
+<a name="643"><span class="lineNum">     643 </span><span class="lineNoCov">          0 :       md = &amp;virtual_modifier_data-&gt;lmd.modifier;</span></a>
+<a name="644"><span class="lineNum">     644 </span>            :     }</a>
+<a name="645"><span class="lineNum">     645 </span>            :   }</a>
+<a name="646"><span class="lineNum">     646 </span>            : </a>
+<a name="647"><span class="lineNum">     647 </span>            :   /* shape key modifier, not yet for curves */</a>
+<a name="648"><span class="lineNum">     648 </span><span class="lineCov">     182403 :   if (ELEM(ob-&gt;type, OB_MESH, OB_LATTICE) &amp;&amp; BKE_key_from_object(const_cast&lt;Object *&gt;(ob))) {</span></a>
+<a name="649"><span class="lineNum">     649 </span><span class="lineCov">       3974 :     if (ob-&gt;type == OB_MESH &amp;&amp; (ob-&gt;shapeflag &amp; OB_SHAPE_EDIT_MODE)) {</span></a>
+<a name="650"><span class="lineNum">     650 </span><span class="lineCov">         19 :       virtual_modifier_data-&gt;smd.modifier.mode |= eModifierMode_Editmode | eModifierMode_OnCage;</span></a>
+<a name="651"><span class="lineNum">     651 </span>            :     }</a>
+<a name="652"><span class="lineNum">     652 </span>            :     else {</a>
+<a name="653"><span class="lineNum">     653 </span><span class="lineCov">       3948 :       virtual_modifier_data-&gt;smd.modifier.mode &amp;= ~eModifierMode_Editmode;</span></a>
+<a name="654"><span class="lineNum">     654 </span>            :     }</a>
+<a name="655"><span class="lineNum">     655 </span>            : </a>
+<a name="656"><span class="lineNum">     656 </span><span class="lineCov">       3975 :     virtual_modifier_data-&gt;smd.modifier.next = md;</span></a>
+<a name="657"><span class="lineNum">     657 </span><span class="lineCov">       3975 :     md = &amp;virtual_modifier_data-&gt;smd.modifier;</span></a>
+<a name="658"><span class="lineNum">     658 </span>            :   }</a>
+<a name="659"><span class="lineNum">     659 </span>            : </a>
+<a name="660"><span class="lineNum">     660 </span><span class="lineCov">     182532 :   return md;</span></a>
+<a name="661"><span class="lineNum">     661 </span>            : }</a>
+<a name="662"><span class="lineNum">     662 </span>            : </a>
+<a name="663"><span class="lineNum">     663 </span><span class="lineCov">     104826 : Object *BKE_modifiers_is_deformed_by_armature(Object *ob)</span></a>
+<a name="664"><span class="lineNum">     664 </span>            : {</a>
+<a name="665"><span class="lineNum">     665 </span><span class="lineCov">     104826 :   VirtualModifierData virtual_modifier_data;</span></a>
+<a name="666"><span class="lineNum">     666 </span><span class="lineCov">     104826 :   ModifierData *md = BKE_modifiers_get_virtual_modifierlist(ob, &amp;virtual_modifier_data);</span></a>
+<a name="667"><span class="lineNum">     667 </span>            : </a>
+<a name="668"><span class="lineNum">     668 </span><span class="lineCov">     104826 :   Object *armature = nullptr;</span></a>
+<a name="669"><span class="lineNum">     669 </span>            :   /* return the first selected armature, this lets us use multiple armatures */</a>
+<a name="670"><span class="lineNum">     670 </span><span class="lineCov">     104826 :   if (ob-&gt;type == OB_GREASE_PENCIL) {</span></a>
+<a name="671"><span class="lineNum">     671 </span><span class="lineCov">          5 :     for (; md; md = md-&gt;next) {</span></a>
+<a name="672"><span class="lineNum">     672 </span><span class="lineNoCov">          0 :       if (md-&gt;type == eModifierType_GreasePencilArmature) {</span></a>
+<a name="673"><span class="lineNum">     673 </span><span class="lineNoCov">          0 :         auto *amd = reinterpret_cast&lt;GreasePencilArmatureModifierData *&gt;(md);</span></a>
+<a name="674"><span class="lineNum">     674 </span><span class="lineNoCov">          0 :         armature = amd-&gt;object;</span></a>
+<a name="675"><span class="lineNum">     675 </span><span class="lineNoCov">          0 :         if (armature &amp;&amp; (armature-&gt;base_flag &amp; BASE_SELECTED)) {</span></a>
+<a name="676"><span class="lineNum">     676 </span><span class="lineNoCov">          0 :           return armature;</span></a>
+<a name="677"><span class="lineNum">     677 </span>            :         }</a>
+<a name="678"><span class="lineNum">     678 </span>            :       }</a>
+<a name="679"><span class="lineNum">     679 </span>            :     }</a>
+<a name="680"><span class="lineNum">     680 </span>            :   }</a>
+<a name="681"><span class="lineNum">     681 </span>            :   else {</a>
+<a name="682"><span class="lineNum">     682 </span><span class="lineCov">     211832 :     for (; md; md = md-&gt;next) {</span></a>
+<a name="683"><span class="lineNum">     683 </span><span class="lineCov">     107014 :       if (md-&gt;type == eModifierType_Armature) {</span></a>
+<a name="684"><span class="lineNum">     684 </span><span class="lineCov">          9 :         auto *amd = reinterpret_cast&lt;ArmatureModifierData *&gt;(md);</span></a>
+<a name="685"><span class="lineNum">     685 </span><span class="lineCov">          9 :         armature = amd-&gt;object;</span></a>
+<a name="686"><span class="lineNum">     686 </span><span class="lineCov">          9 :         if (armature &amp;&amp; (armature-&gt;base_flag &amp; BASE_SELECTED)) {</span></a>
+<a name="687"><span class="lineNum">     687 </span><span class="lineCov">          3 :           return armature;</span></a>
+<a name="688"><span class="lineNum">     688 </span>            :         }</a>
+<a name="689"><span class="lineNum">     689 </span>            :       }</a>
+<a name="690"><span class="lineNum">     690 </span>            :     }</a>
+<a name="691"><span class="lineNum">     691 </span>            :   }</a>
+<a name="692"><span class="lineNum">     692 </span>            :   /* If we're still here then return the last armature. */</a>
+<a name="693"><span class="lineNum">     693 </span><span class="lineCov">     104823 :   return armature;</span></a>
+<a name="694"><span class="lineNum">     694 </span>            : }</a>
+<a name="695"><span class="lineNum">     695 </span>            : </a>
+<a name="696"><span class="lineNum">     696 </span><span class="lineNoCov">          0 : Object *BKE_modifiers_is_deformed_by_meshdeform(Object *ob)</span></a>
+<a name="697"><span class="lineNum">     697 </span>            : {</a>
+<a name="698"><span class="lineNum">     698 </span><span class="lineNoCov">          0 :   VirtualModifierData virtual_modifier_data;</span></a>
+<a name="699"><span class="lineNum">     699 </span><span class="lineNoCov">          0 :   ModifierData *md = BKE_modifiers_get_virtual_modifierlist(ob, &amp;virtual_modifier_data);</span></a>
+<a name="700"><span class="lineNum">     700 </span><span class="lineNoCov">          0 :   MeshDeformModifierData *mdmd = nullptr;</span></a>
+<a name="701"><span class="lineNum">     701 </span>            : </a>
+<a name="702"><span class="lineNum">     702 </span>            :   /* return the first selected armature, this lets us use multiple armatures */</a>
+<a name="703"><span class="lineNum">     703 </span><span class="lineNoCov">          0 :   for (; md; md = md-&gt;next) {</span></a>
+<a name="704"><span class="lineNum">     704 </span><span class="lineNoCov">          0 :     if (md-&gt;type == eModifierType_MeshDeform) {</span></a>
+<a name="705"><span class="lineNum">     705 </span><span class="lineNoCov">          0 :       mdmd = reinterpret_cast&lt;MeshDeformModifierData *&gt;(md);</span></a>
+<a name="706"><span class="lineNum">     706 </span><span class="lineNoCov">          0 :       if (mdmd-&gt;object &amp;&amp; (mdmd-&gt;object-&gt;base_flag &amp; BASE_SELECTED)) {</span></a>
+<a name="707"><span class="lineNum">     707 </span><span class="lineNoCov">          0 :         return mdmd-&gt;object;</span></a>
+<a name="708"><span class="lineNum">     708 </span>            :       }</a>
+<a name="709"><span class="lineNum">     709 </span>            :     }</a>
+<a name="710"><span class="lineNum">     710 </span>            :   }</a>
+<a name="711"><span class="lineNum">     711 </span>            : </a>
+<a name="712"><span class="lineNum">     712 </span><span class="lineNoCov">          0 :   if (mdmd) { /* if we're still here then return the last armature */</span></a>
+<a name="713"><span class="lineNum">     713 </span><span class="lineNoCov">          0 :     return mdmd-&gt;object;</span></a>
+<a name="714"><span class="lineNum">     714 </span>            :   }</a>
+<a name="715"><span class="lineNum">     715 </span>            : </a>
+<a name="716"><span class="lineNum">     716 </span><span class="lineNoCov">          0 :   return nullptr;</span></a>
+<a name="717"><span class="lineNum">     717 </span>            : }</a>
+<a name="718"><span class="lineNum">     718 </span>            : </a>
+<a name="719"><span class="lineNum">     719 </span><span class="lineNoCov">          0 : Object *BKE_modifiers_is_deformed_by_lattice(Object *ob)</span></a>
+<a name="720"><span class="lineNum">     720 </span>            : {</a>
+<a name="721"><span class="lineNum">     721 </span><span class="lineNoCov">          0 :   VirtualModifierData virtual_modifier_data;</span></a>
+<a name="722"><span class="lineNum">     722 </span><span class="lineNoCov">          0 :   ModifierData *md = BKE_modifiers_get_virtual_modifierlist(ob, &amp;virtual_modifier_data);</span></a>
+<a name="723"><span class="lineNum">     723 </span>            : </a>
+<a name="724"><span class="lineNum">     724 </span><span class="lineNoCov">          0 :   if (ob-&gt;type == OB_GREASE_PENCIL) {</span></a>
+<a name="725"><span class="lineNum">     725 </span><span class="lineNoCov">          0 :     GreasePencilLatticeModifierData *gplmd = nullptr;</span></a>
+<a name="726"><span class="lineNum">     726 </span>            :     /* return the first selected lattice, this lets us use multiple lattices */</a>
+<a name="727"><span class="lineNum">     727 </span><span class="lineNoCov">          0 :     for (; md; md = md-&gt;next) {</span></a>
+<a name="728"><span class="lineNum">     728 </span><span class="lineNoCov">          0 :       if (md-&gt;type == eModifierType_GreasePencilLattice) {</span></a>
+<a name="729"><span class="lineNum">     729 </span><span class="lineNoCov">          0 :         gplmd = reinterpret_cast&lt;GreasePencilLatticeModifierData *&gt;(md);</span></a>
+<a name="730"><span class="lineNum">     730 </span><span class="lineNoCov">          0 :         if (gplmd-&gt;object &amp;&amp; (gplmd-&gt;object-&gt;base_flag &amp; BASE_SELECTED)) {</span></a>
+<a name="731"><span class="lineNum">     731 </span><span class="lineNoCov">          0 :           return gplmd-&gt;object;</span></a>
+<a name="732"><span class="lineNum">     732 </span>            :         }</a>
+<a name="733"><span class="lineNum">     733 </span>            :       }</a>
+<a name="734"><span class="lineNum">     734 </span>            :     }</a>
+<a name="735"><span class="lineNum">     735 </span><span class="lineNoCov">          0 :     if (gplmd) { /* if we're still here then return the last lattice */</span></a>
+<a name="736"><span class="lineNum">     736 </span><span class="lineNoCov">          0 :       return gplmd-&gt;object;</span></a>
+<a name="737"><span class="lineNum">     737 </span>            :     }</a>
+<a name="738"><span class="lineNum">     738 </span><span class="lineNoCov">          0 :     return nullptr;</span></a>
+<a name="739"><span class="lineNum">     739 </span>            :   }</a>
+<a name="740"><span class="lineNum">     740 </span>            : </a>
+<a name="741"><span class="lineNum">     741 </span><span class="lineNoCov">          0 :   LatticeModifierData *lmd = nullptr;</span></a>
+<a name="742"><span class="lineNum">     742 </span>            : </a>
+<a name="743"><span class="lineNum">     743 </span>            :   /* return the first selected lattice, this lets us use multiple lattices */</a>
+<a name="744"><span class="lineNum">     744 </span><span class="lineNoCov">          0 :   for (; md; md = md-&gt;next) {</span></a>
+<a name="745"><span class="lineNum">     745 </span><span class="lineNoCov">          0 :     if (md-&gt;type == eModifierType_Lattice) {</span></a>
+<a name="746"><span class="lineNum">     746 </span><span class="lineNoCov">          0 :       lmd = reinterpret_cast&lt;LatticeModifierData *&gt;(md);</span></a>
+<a name="747"><span class="lineNum">     747 </span><span class="lineNoCov">          0 :       if (lmd-&gt;object &amp;&amp; (lmd-&gt;object-&gt;base_flag &amp; BASE_SELECTED)) {</span></a>
+<a name="748"><span class="lineNum">     748 </span><span class="lineNoCov">          0 :         return lmd-&gt;object;</span></a>
+<a name="749"><span class="lineNum">     749 </span>            :       }</a>
+<a name="750"><span class="lineNum">     750 </span>            :     }</a>
+<a name="751"><span class="lineNum">     751 </span>            :   }</a>
+<a name="752"><span class="lineNum">     752 </span>            : </a>
+<a name="753"><span class="lineNum">     753 </span><span class="lineNoCov">          0 :   if (lmd) { /* if we're still here then return the last lattice */</span></a>
+<a name="754"><span class="lineNum">     754 </span><span class="lineNoCov">          0 :     return lmd-&gt;object;</span></a>
+<a name="755"><span class="lineNum">     755 </span>            :   }</a>
+<a name="756"><span class="lineNum">     756 </span>            : </a>
+<a name="757"><span class="lineNum">     757 </span><span class="lineNoCov">          0 :   return nullptr;</span></a>
+<a name="758"><span class="lineNum">     758 </span>            : }</a>
+<a name="759"><span class="lineNum">     759 </span>            : </a>
+<a name="760"><span class="lineNum">     760 </span><span class="lineNoCov">          0 : Object *BKE_modifiers_is_deformed_by_curve(Object *ob)</span></a>
+<a name="761"><span class="lineNum">     761 </span>            : {</a>
+<a name="762"><span class="lineNum">     762 </span><span class="lineNoCov">          0 :   VirtualModifierData virtual_modifier_data;</span></a>
+<a name="763"><span class="lineNum">     763 </span><span class="lineNoCov">          0 :   ModifierData *md = BKE_modifiers_get_virtual_modifierlist(ob, &amp;virtual_modifier_data);</span></a>
+<a name="764"><span class="lineNum">     764 </span><span class="lineNoCov">          0 :   CurveModifierData *cmd = nullptr;</span></a>
+<a name="765"><span class="lineNum">     765 </span>            : </a>
+<a name="766"><span class="lineNum">     766 </span>            :   /* return the first selected curve, this lets us use multiple curves */</a>
+<a name="767"><span class="lineNum">     767 </span><span class="lineNoCov">          0 :   for (; md; md = md-&gt;next) {</span></a>
+<a name="768"><span class="lineNum">     768 </span><span class="lineNoCov">          0 :     if (md-&gt;type == eModifierType_Curve) {</span></a>
+<a name="769"><span class="lineNum">     769 </span><span class="lineNoCov">          0 :       cmd = reinterpret_cast&lt;CurveModifierData *&gt;(md);</span></a>
+<a name="770"><span class="lineNum">     770 </span><span class="lineNoCov">          0 :       if (cmd-&gt;object &amp;&amp; (cmd-&gt;object-&gt;base_flag &amp; BASE_SELECTED)) {</span></a>
+<a name="771"><span class="lineNum">     771 </span><span class="lineNoCov">          0 :         return cmd-&gt;object;</span></a>
+<a name="772"><span class="lineNum">     772 </span>            :       }</a>
+<a name="773"><span class="lineNum">     773 </span>            :     }</a>
+<a name="774"><span class="lineNum">     774 </span>            :   }</a>
+<a name="775"><span class="lineNum">     775 </span>            : </a>
+<a name="776"><span class="lineNum">     776 </span><span class="lineNoCov">          0 :   if (cmd) { /* if we're still here then return the last curve */</span></a>
+<a name="777"><span class="lineNum">     777 </span><span class="lineNoCov">          0 :     return cmd-&gt;object;</span></a>
+<a name="778"><span class="lineNum">     778 </span>            :   }</a>
+<a name="779"><span class="lineNum">     779 </span>            : </a>
+<a name="780"><span class="lineNum">     780 </span><span class="lineNoCov">          0 :   return nullptr;</span></a>
+<a name="781"><span class="lineNum">     781 </span>            : }</a>
+<a name="782"><span class="lineNum">     782 </span>            : </a>
+<a name="783"><span class="lineNum">     783 </span><span class="lineCov">          6 : bool BKE_modifiers_uses_multires(Object *ob)</span></a>
+<a name="784"><span class="lineNum">     784 </span>            : {</a>
+<a name="785"><span class="lineNum">     785 </span><span class="lineCov">          6 :   VirtualModifierData virtual_modifier_data;</span></a>
+<a name="786"><span class="lineNum">     786 </span><span class="lineCov">          6 :   ModifierData *md = BKE_modifiers_get_virtual_modifierlist(ob, &amp;virtual_modifier_data);</span></a>
+<a name="787"><span class="lineNum">     787 </span><span class="lineCov">          6 :   MultiresModifierData *mmd = nullptr;</span></a>
+<a name="788"><span class="lineNum">     788 </span>            : </a>
+<a name="789"><span class="lineNum">     789 </span><span class="lineCov">          6 :   for (; md; md = md-&gt;next) {</span></a>
+<a name="790"><span class="lineNum">     790 </span><span class="lineNoCov">          0 :     if (md-&gt;type == eModifierType_Multires) {</span></a>
+<a name="791"><span class="lineNum">     791 </span><span class="lineNoCov">          0 :       mmd = reinterpret_cast&lt;MultiresModifierData *&gt;(md);</span></a>
+<a name="792"><span class="lineNum">     792 </span><span class="lineNoCov">          0 :       if (mmd-&gt;totlvl != 0) {</span></a>
+<a name="793"><span class="lineNum">     793 </span><span class="lineNoCov">          0 :         return true;</span></a>
+<a name="794"><span class="lineNum">     794 </span>            :       }</a>
+<a name="795"><span class="lineNum">     795 </span>            :     }</a>
+<a name="796"><span class="lineNum">     796 </span>            :   }</a>
+<a name="797"><span class="lineNum">     797 </span><span class="lineCov">          6 :   return false;</span></a>
+<a name="798"><span class="lineNum">     798 </span>            : }</a>
+<a name="799"><span class="lineNum">     799 </span>            : </a>
+<a name="800"><span class="lineNum">     800 </span><span class="lineCov">         30 : bool BKE_modifiers_uses_armature(Object *ob, bArmature *arm)</span></a>
+<a name="801"><span class="lineNum">     801 </span>            : {</a>
+<a name="802"><span class="lineNum">     802 </span><span class="lineCov">         30 :   VirtualModifierData virtual_modifier_data;</span></a>
+<a name="803"><span class="lineNum">     803 </span><span class="lineCov">         30 :   ModifierData *md = BKE_modifiers_get_virtual_modifierlist(ob, &amp;virtual_modifier_data);</span></a>
+<a name="804"><span class="lineNum">     804 </span>            : </a>
+<a name="805"><span class="lineNum">     805 </span><span class="lineCov">         30 :   for (; md; md = md-&gt;next) {</span></a>
+<a name="806"><span class="lineNum">     806 </span><span class="lineNoCov">          0 :     if (md-&gt;type == eModifierType_Armature) {</span></a>
+<a name="807"><span class="lineNum">     807 </span><span class="lineNoCov">          0 :       ArmatureModifierData *amd = reinterpret_cast&lt;ArmatureModifierData *&gt;(md);</span></a>
+<a name="808"><span class="lineNum">     808 </span><span class="lineNoCov">          0 :       if (amd-&gt;object &amp;&amp; amd-&gt;object-&gt;data == id_cast&lt;ID *&gt;(arm)) {</span></a>
+<a name="809"><span class="lineNum">     809 </span><span class="lineNoCov">          0 :         return true;</span></a>
+<a name="810"><span class="lineNum">     810 </span>            :       }</a>
+<a name="811"><span class="lineNum">     811 </span>            :     }</a>
+<a name="812"><span class="lineNum">     812 </span><span class="lineNoCov">          0 :     else if (md-&gt;type == eModifierType_GreasePencilArmature) {</span></a>
+<a name="813"><span class="lineNum">     813 </span><span class="lineNoCov">          0 :       GreasePencilArmatureModifierData *amd = reinterpret_cast&lt;GreasePencilArmatureModifierData *&gt;(</span></a>
+<a name="814"><span class="lineNum">     814 </span>            :           md);</a>
+<a name="815"><span class="lineNum">     815 </span><span class="lineNoCov">          0 :       if (amd-&gt;object &amp;&amp; amd-&gt;object-&gt;data == id_cast&lt;ID *&gt;(arm)) {</span></a>
+<a name="816"><span class="lineNum">     816 </span><span class="lineNoCov">          0 :         return true;</span></a>
+<a name="817"><span class="lineNum">     817 </span>            :       }</a>
+<a name="818"><span class="lineNum">     818 </span>            :     }</a>
+<a name="819"><span class="lineNum">     819 </span>            :   }</a>
+<a name="820"><span class="lineNum">     820 </span>            : </a>
+<a name="821"><span class="lineNum">     821 </span><span class="lineCov">         30 :   return false;</span></a>
+<a name="822"><span class="lineNum">     822 </span>            : }</a>
+<a name="823"><span class="lineNum">     823 </span>            : </a>
+<a name="824"><span class="lineNum">     824 </span><span class="lineNoCov">          0 : bool BKE_modifier_is_correctable_deformed(ModifierData *md)</span></a>
+<a name="825"><span class="lineNum">     825 </span>            : {</a>
+<a name="826"><span class="lineNum">     826 </span><span class="lineNoCov">          0 :   const ModifierTypeInfo *mti = BKE_modifier_get_info(md-&gt;type);</span></a>
+<a name="827"><span class="lineNum">     827 </span><span class="lineNoCov">          0 :   return mti-&gt;deform_matrices_EM != nullptr;</span></a>
+<a name="828"><span class="lineNum">     828 </span>            : }</a>
+<a name="829"><span class="lineNum">     829 </span>            : </a>
+<a name="830"><span class="lineNum">     830 </span><span class="lineNoCov">          0 : bool BKE_modifiers_is_correctable_deformed(const Scene *scene, Object *ob)</span></a>
+<a name="831"><span class="lineNum">     831 </span>            : {</a>
+<a name="832"><span class="lineNum">     832 </span><span class="lineNoCov">          0 :   VirtualModifierData virtual_modifier_data;</span></a>
+<a name="833"><span class="lineNum">     833 </span><span class="lineNoCov">          0 :   ModifierData *md = BKE_modifiers_get_virtual_modifierlist(ob, &amp;virtual_modifier_data);</span></a>
+<a name="834"><span class="lineNum">     834 </span><span class="lineNoCov">          0 :   int required_mode = eModifierMode_Realtime;</span></a>
+<a name="835"><span class="lineNum">     835 </span>            : </a>
+<a name="836"><span class="lineNum">     836 </span><span class="lineNoCov">          0 :   if (ob-&gt;mode == OB_MODE_EDIT) {</span></a>
+<a name="837"><span class="lineNum">     837 </span><span class="lineNoCov">          0 :     required_mode |= eModifierMode_Editmode;</span></a>
+<a name="838"><span class="lineNum">     838 </span>            :   }</a>
+<a name="839"><span class="lineNum">     839 </span><span class="lineNoCov">          0 :   for (; md; md = md-&gt;next) {</span></a>
+<a name="840"><span class="lineNum">     840 </span><span class="lineNoCov">          0 :     if (!BKE_modifier_is_enabled(scene, md, required_mode)) {</span></a>
+<a name="841"><span class="lineNum">     841 </span>            :       /* pass */</a>
+<a name="842"><span class="lineNum">     842 </span>            :     }</a>
+<a name="843"><span class="lineNum">     843 </span><span class="lineNoCov">          0 :     else if (BKE_modifier_is_correctable_deformed(md)) {</span></a>
+<a name="844"><span class="lineNum">     844 </span><span class="lineNoCov">          0 :       return true;</span></a>
+<a name="845"><span class="lineNum">     845 </span>            :     }</a>
+<a name="846"><span class="lineNum">     846 </span>            :   }</a>
+<a name="847"><span class="lineNum">     847 </span><span class="lineNoCov">          0 :   return false;</span></a>
+<a name="848"><span class="lineNum">     848 </span>            : }</a>
+<a name="849"><span class="lineNum">     849 </span>            : </a>
+<a name="850"><span class="lineNum">     850 </span><span class="lineCov">      21945 : void BKE_modifier_free_temporary_data(ModifierData *md)</span></a>
+<a name="851"><span class="lineNum">     851 </span>            : {</a>
+<a name="852"><span class="lineNum">     852 </span><span class="lineCov">      21945 :   if (md-&gt;type == eModifierType_Armature) {</span></a>
+<a name="853"><span class="lineNum">     853 </span><span class="lineCov">       2828 :     ArmatureModifierData *amd = reinterpret_cast&lt;ArmatureModifierData *&gt;(md);</span></a>
+<a name="854"><span class="lineNum">     854 </span>            : </a>
+<a name="855"><span class="lineNum">     855 </span><span class="lineCov">       2828 :     MEM_SAFE_DELETE(amd-&gt;vert_coords_prev);</span></a>
+<a name="856"><span class="lineNum">     856 </span>            :   }</a>
+<a name="857"><span class="lineNum">     857 </span><span class="lineCov">      21945 : }</span></a>
+<a name="858"><span class="lineNum">     858 </span>            : </a>
+<a name="859"><span class="lineNum">     859 </span><span class="lineCov">        286 : void BKE_modifiers_add_at_end_if_possible(Object *ob, ModifierData *new_md)</span></a>
+<a name="860"><span class="lineNum">     860 </span>            : {</a>
+<a name="861"><span class="lineNum">     861 </span><span class="lineCov">        286 :   ModifierData *next_md = nullptr;</span></a>
+<a name="862"><span class="lineNum">     862 </span><span class="lineCov">        286 :   for (ModifierData &amp;md : ob-&gt;modifiers.items_reversed()) {</span></a>
+<a name="863"><span class="lineNum">     863 </span><span class="lineCov">          5 :     if (md.flag &amp; eModifierFlag_PinLast) {</span></a>
+<a name="864"><span class="lineNum">     864 </span><span class="lineNoCov">          0 :       next_md = &amp;md;</span></a>
+<a name="865"><span class="lineNum">     865 </span>            :     }</a>
+<a name="866"><span class="lineNum">     866 </span>            :     else {</a>
+<a name="867"><span class="lineNum">     867 </span><span class="lineCov">          5 :       break;</span></a>
+<a name="868"><span class="lineNum">     868 </span>            :     }</a>
+<a name="869"><span class="lineNum">     869 </span>            :   }</a>
+<a name="870"><span class="lineNum">     870 </span>            : </a>
+<a name="871"><span class="lineNum">     871 </span><span class="lineCov">        286 :   const ModifierType mt = new_md-&gt;type;</span></a>
+<a name="872"><span class="lineNum">     872 </span><span class="lineCov">        286 :   const ModifierTypeInfo *mti = BKE_modifier_get_info(mt);</span></a>
+<a name="873"><span class="lineNum">     873 </span><span class="lineCov">        286 :   const bool check_deform_only = (mti-&gt;flags &amp; eModifierTypeFlag_RequiresOriginalData) ||</span></a>
+<a name="874"><span class="lineNum">     874 </span><span class="lineCov">        286 :                                  (mt == eModifierType_Hook);</span></a>
+<a name="875"><span class="lineNum">     875 </span><span class="lineCov">        286 :   if (check_deform_only) {</span></a>
+<a name="876"><span class="lineNum">     876 </span><span class="lineCov">         60 :     next_md = ob-&gt;modifiers.first();</span></a>
+<a name="877"><span class="lineNum">     877 </span>            : </a>
+<a name="878"><span class="lineNum">     878 </span><span class="lineCov">         60 :     while (next_md &amp;&amp; BKE_modifier_get_info(next_md-&gt;type)-&gt;type == ModifierTypeType::OnlyDeform) {</span></a>
+<a name="879"><span class="lineNum">     879 </span><span class="lineNoCov">          0 :       if (next_md-&gt;next &amp;&amp; (next_md-&gt;next-&gt;flag &amp; eModifierFlag_PinLast) != 0) {</span></a>
+<a name="880"><span class="lineNum">     880 </span><span class="lineNoCov">          0 :         break;</span></a>
+<a name="881"><span class="lineNum">     881 </span>            :       }</a>
+<a name="882"><span class="lineNum">     882 </span><span class="lineNoCov">          0 :       next_md = next_md-&gt;next;</span></a>
+<a name="883"><span class="lineNum">     883 </span>            :     }</a>
+<a name="884"><span class="lineNum">     884 </span>            :   }</a>
+<a name="885"><span class="lineNum">     885 </span>            : </a>
+<a name="886"><span class="lineNum">     886 </span><span class="lineCov">        286 :   BLI_insertlinkbefore(&amp;ob-&gt;modifiers, next_md, new_md);</span></a>
+<a name="887"><span class="lineNum">     887 </span><span class="lineCov">        286 : }</span></a>
+<a name="888"><span class="lineNum">     888 </span>            : </a>
+<a name="889"><span class="lineNum">     889 </span><span class="lineCov">       1074 : void BKE_modifiers_test_object(Object *ob)</span></a>
+<a name="890"><span class="lineNum">     890 </span>            : {</a>
+<a name="891"><span class="lineNum">     891 </span>            :   /* just multires checked for now, since only multires</a>
+<a name="892"><span class="lineNum">     892 </span>            :    * modifies mesh data */</a>
+<a name="893"><span class="lineNum">     893 </span>            : </a>
+<a name="894"><span class="lineNum">     894 </span><span class="lineCov">       1074 :   if (ob-&gt;type != OB_MESH) {</span></a>
+<a name="895"><span class="lineNum">     895 </span><span class="lineCov">         72 :     return;</span></a>
+<a name="896"><span class="lineNum">     896 </span>            :   }</a>
+<a name="897"><span class="lineNum">     897 </span>            : </a>
+<a name="898"><span class="lineNum">     898 </span><span class="lineCov">       1518 :   for (ModifierData &amp;md : ob-&gt;modifiers) {</span></a>
+<a name="899"><span class="lineNum">     899 </span><span class="lineCov">        516 :     if (md.type == eModifierType_Multires) {</span></a>
+<a name="900"><span class="lineNum">     900 </span><span class="lineCov">         97 :       MultiresModifierData *mmd = reinterpret_cast&lt;MultiresModifierData *&gt;(&amp;md);</span></a>
+<a name="901"><span class="lineNum">     901 </span>            : </a>
+<a name="902"><span class="lineNum">     902 </span><span class="lineCov">         97 :       multiresModifier_set_levels_from_disps(mmd, ob);</span></a>
+<a name="903"><span class="lineNum">     903 </span>            :     }</a>
+<a name="904"><span class="lineNum">     904 </span>            :   }</a>
+<a name="905"><span class="lineNum">     905 </span>            : }</a>
+<a name="906"><span class="lineNum">     906 </span>            : </a>
+<a name="907"><span class="lineNum">     907 </span><span class="lineCov">         66 : const char *BKE_modifier_path_relbase(Main *bmain, Object *ob)</span></a>
+<a name="908"><span class="lineNum">     908 </span>            : {</a>
+<a name="909"><span class="lineNum">     909 </span>            :   /* - If the ID is from a library, return library path.</a>
+<a name="910"><span class="lineNum">     910 </span>            :    * - Else if the file has been saved return the blend file path.</a>
+<a name="911"><span class="lineNum">     911 </span>            :    * - Else if the file isn't saved and the ID isn't from a library, return the temp directory.</a>
+<a name="912"><span class="lineNum">     912 </span>            :    */</a>
+<a name="913"><span class="lineNum">     913 </span><span class="lineCov">         66 :   if ((bmain-&gt;filepath[0] != '\0') || ID_IS_LINKED(ob)) {</span></a>
+<a name="914"><span class="lineNum">     914 </span><span class="lineCov">         66 :     return ID_BLEND_PATH(bmain, &amp;ob-&gt;id);</span></a>
+<a name="915"><span class="lineNum">     915 </span>            :   }</a>
+<a name="916"><span class="lineNum">     916 </span>            : </a>
+<a name="917"><span class="lineNum">     917 </span>            :   /* Last resort, better than using &quot;&quot; which resolves to the current working directory. */</a>
+<a name="918"><span class="lineNum">     918 </span><span class="lineNoCov">          0 :   return BKE_tempdir_session();</span></a>
+<a name="919"><span class="lineNum">     919 </span>            : }</a>
+<a name="920"><span class="lineNum">     920 </span>            : </a>
+<a name="921"><span class="lineNum">     921 </span><span class="lineCov">         66 : const char *BKE_modifier_path_relbase_from_global(Object *ob)</span></a>
+<a name="922"><span class="lineNum">     922 </span>            : {</a>
+<a name="923"><span class="lineNum">     923 </span><span class="lineCov">         66 :   return BKE_modifier_path_relbase(G_MAIN, ob);</span></a>
+<a name="924"><span class="lineNum">     924 </span>            : }</a>
+<a name="925"><span class="lineNum">     925 </span>            : </a>
+<a name="926"><span class="lineNum">     926 </span><span class="lineCov">         67 : void BKE_modifier_path_init(char *path, int path_maxncpy, const char *name)</span></a>
+<a name="927"><span class="lineNum">     927 </span>            : {</a>
+<a name="928"><span class="lineNum">     928 </span><span class="lineCov">         67 :   const char *blendfile_path = BKE_main_blendfile_path_from_global();</span></a>
+<a name="929"><span class="lineNum">     929 </span><span class="lineCov">         67 :   BLI_path_join(path, path_maxncpy, blendfile_path[0] ? &quot;//&quot; : BKE_tempdir_session(), name);</span></a>
+<a name="930"><span class="lineNum">     930 </span><span class="lineCov">         67 : }</span></a>
+<a name="931"><span class="lineNum">     931 </span>            : </a>
+<a name="932"><span class="lineNum">     932 </span>            : /**</a>
+<a name="933"><span class="lineNum">     933 </span>            :  * Call when #ModifierTypeInfo.depends_on_normals callback requests normals.</a>
+<a name="934"><span class="lineNum">     934 </span>            :  * Necessary for BMesh normals when there is no separate #EditMeshData positions array,</a>
+<a name="935"><span class="lineNum">     935 </span>            :  * since they cannot be calculated lazily.</a>
+<a name="936"><span class="lineNum">     936 </span>            :  */</a>
+<a name="937"><span class="lineNum">     937 </span><span class="lineNoCov">          0 : static void ensure_non_lazy_normals(Mesh *mesh)</span></a>
+<a name="938"><span class="lineNum">     938 </span>            : {</a>
+<a name="939"><span class="lineNum">     939 </span><span class="lineNoCov">          0 :   switch (mesh-&gt;runtime-&gt;wrapper_type) {</span></a>
+<a name="940"><span class="lineNum">     940 </span><span class="lineNoCov">          0 :     case ME_WRAPPER_TYPE_BMESH: {</span></a>
+<a name="941"><span class="lineNum">     941 </span><span class="lineNoCov">          0 :       bke::EditMeshData &amp;edit_data = *mesh-&gt;runtime-&gt;edit_data;</span></a>
+<a name="942"><span class="lineNum">     942 </span><span class="lineNoCov">          0 :       if (!edit_data.vert_positions.is_empty()) {</span></a>
+<a name="943"><span class="lineNum">     943 </span>            :         /* Note that 'ensure' is acceptable here since these values aren't modified in-place.</a>
+<a name="944"><span class="lineNum">     944 </span>            :          * If that changes we'll need to recalculate. */</a>
+<a name="945"><span class="lineNum">     945 </span><span class="lineNoCov">          0 :         BKE_editmesh_cache_ensure_vert_normals(*BKE_editmesh_bmesh_get_for_write(mesh), edit_data);</span></a>
+<a name="946"><span class="lineNum">     946 </span>            :       }</a>
+<a name="947"><span class="lineNum">     947 </span>            :       else {</a>
+<a name="948"><span class="lineNum">     948 </span><span class="lineNoCov">          0 :         BMesh *bm = BKE_editmesh_bmesh_get_for_write(mesh);</span></a>
+<a name="949"><span class="lineNum">     949 </span><span class="lineNoCov">          0 :         BM_mesh_normals_update(bm);</span></a>
+<a name="950"><span class="lineNum">     950 </span>            :       }</a>
+<a name="951"><span class="lineNum">     951 </span><span class="lineNoCov">          0 :       break;</span></a>
+<a name="952"><span class="lineNum">     952 </span>            :     }</a>
+<a name="953"><span class="lineNum">     953 </span><span class="lineNoCov">          0 :     case ME_WRAPPER_TYPE_SUBD:</span></a>
+<a name="954"><span class="lineNum">     954 </span>            :       /* Not an expected case. */</a>
+<a name="955"><span class="lineNum">     955 </span><span class="lineNoCov">          0 :       break;</span></a>
+<a name="956"><span class="lineNum">     956 </span><span class="lineNoCov">          0 :     case ME_WRAPPER_TYPE_MDATA:</span></a>
+<a name="957"><span class="lineNum">     957 </span>            :       /* Normals are calculated lazily. */</a>
+<a name="958"><span class="lineNum">     958 </span><span class="lineNoCov">          0 :       break;</span></a>
+<a name="959"><span class="lineNum">     959 </span>            :   }</a>
+<a name="960"><span class="lineNum">     960 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="961"><span class="lineNum">     961 </span>            : </a>
+<a name="962"><span class="lineNum">     962 </span>            : /* wrapper around ModifierTypeInfo.modify_mesh that ensures valid normals */</a>
+<a name="963"><span class="lineNum">     963 </span>            : </a>
+<a name="964"><span class="lineNum">     964 </span><span class="lineCov">       7118 : Mesh *BKE_modifier_modify_mesh(ModifierData *md, const ModifierEvalContext *ctx, Mesh *mesh)</span></a>
+<a name="965"><span class="lineNum">     965 </span>            : {</a>
+<a name="966"><span class="lineNum">     966 </span><span class="lineCov">       7118 :   const ModifierTypeInfo *mti = BKE_modifier_get_info(md-&gt;type);</span></a>
+<a name="967"><span class="lineNum">     967 </span>            : </a>
+<a name="968"><span class="lineNum">     968 </span><span class="lineCov">       7134 :   if (mesh-&gt;runtime-&gt;wrapper_type == ME_WRAPPER_TYPE_BMESH) {</span></a>
+<a name="969"><span class="lineNum">     969 </span><span class="lineCov">        114 :     if ((mti-&gt;flags &amp; eModifierTypeFlag_AcceptsBMesh) == 0) {</span></a>
+<a name="970"><span class="lineNum">     970 </span><span class="lineCov">        114 :       BKE_mesh_wrapper_ensure_mdata(mesh);</span></a>
+<a name="971"><span class="lineNum">     971 </span>            :     }</a>
+<a name="972"><span class="lineNum">     972 </span>            :   }</a>
+<a name="973"><span class="lineNum">     973 </span>            : </a>
+<a name="974"><span class="lineNum">     974 </span><span class="lineCov">       7134 :   return mti-&gt;modify_mesh(md, ctx, mesh);</span></a>
+<a name="975"><span class="lineNum">     975 </span>            : }</a>
+<a name="976"><span class="lineNum">     976 </span>            : </a>
+<a name="977"><span class="lineNum">     977 </span><span class="lineCov">       8087 : bool BKE_modifier_deform_verts(ModifierData *md,</span></a>
+<a name="978"><span class="lineNum">     978 </span>            :                                const ModifierEvalContext *ctx,</a>
+<a name="979"><span class="lineNum">     979 </span>            :                                Mesh *mesh,</a>
+<a name="980"><span class="lineNum">     980 </span>            :                                MutableSpan&lt;float3&gt; positions)</a>
+<a name="981"><span class="lineNum">     981 </span>            : {</a>
+<a name="982"><span class="lineNum">     982 </span>            :   using namespace blender::bke;</a>
+<a name="983"><span class="lineNum">     983 </span><span class="lineCov">       8087 :   const ModifierTypeInfo *mti = BKE_modifier_get_info(md-&gt;type);</span></a>
+<a name="984"><span class="lineNum">     984 </span>            : </a>
+<a name="985"><span class="lineNum">     985 </span><span class="lineCov">       8104 :   if (mti-&gt;deform_verts) {</span></a>
+<a name="986"><span class="lineNum">     986 </span><span class="lineCov">       8104 :     mti-&gt;deform_verts(md, ctx, mesh, positions);</span></a>
+<a name="987"><span class="lineNum">     987 </span><span class="lineCov">       8118 :     if (mesh) {</span></a>
+<a name="988"><span class="lineNum">     988 </span><span class="lineCov">       8124 :       mesh-&gt;tag_positions_changed();</span></a>
+<a name="989"><span class="lineNum">     989 </span>            :     }</a>
+<a name="990"><span class="lineNum">     990 </span><span class="lineCov">       8123 :     return true;</span></a>
+<a name="991"><span class="lineNum">     991 </span>            :   }</a>
+<a name="992"><span class="lineNum">     992 </span>            :   /* Try to emulate #deform_verts by deforming a mesh. */</a>
+<a name="993"><span class="lineNum">     993 </span><span class="lineNoCov">          0 :   if (mti-&gt;modify_geometry_set) {</span></a>
+<a name="994"><span class="lineNum">     994 </span>            :     /* Prepare mesh with vertices at the given positions. */</a>
+<a name="995"><span class="lineNum">     995 </span><span class="lineNoCov">          0 :     GeometrySet geometry;</span></a>
+<a name="996"><span class="lineNum">     996 </span><span class="lineNoCov">          0 :     if (mesh) {</span></a>
+<a name="997"><span class="lineNum">     997 </span><span class="lineNoCov">          0 :       geometry = GeometrySet::from_mesh(mesh, GeometryOwnershipType::ReadOnly);</span></a>
+<a name="998"><span class="lineNum">     998 </span>            :     }</a>
+<a name="999"><span class="lineNum">     999 </span>            :     else {</a>
+<a name="1000"><span class="lineNum">    1000 </span><span class="lineNoCov">          0 :       geometry = GeometrySet::from_mesh(BKE_mesh_new_nomain(positions.size(), 0, 0, 0));</span></a>
+<a name="1001"><span class="lineNum">    1001 </span>            :     }</a>
+<a name="1002"><span class="lineNum">    1002 </span><span class="lineNoCov">          0 :     Mesh *mesh_to_deform = geometry.get_mesh_for_write();</span></a>
+<a name="1003"><span class="lineNum">    1003 </span><span class="lineNoCov">          0 :     mesh_to_deform-&gt;vert_positions_for_write().copy_from(positions);</span></a>
+<a name="1004"><span class="lineNum">    1004 </span><span class="lineNoCov">          0 :     mesh_to_deform-&gt;tag_positions_changed();</span></a>
+<a name="1005"><span class="lineNum">    1005 </span>            : </a>
+<a name="1006"><span class="lineNum">    1006 </span>            :     /* Remember the topology of the mesh before passing it to the modifier. */</a>
+<a name="1007"><span class="lineNum">    1007 </span><span class="lineNoCov">          0 :     const MeshTopologyState old_topology{*mesh_to_deform};</span></a>
+<a name="1008"><span class="lineNum">    1008 </span>            : </a>
+<a name="1009"><span class="lineNum">    1009 </span>            :     /* Call the modifier and &quot;hope&quot; that it just deforms the mesh. */</a>
+<a name="1010"><span class="lineNum">    1010 </span><span class="lineNoCov">          0 :     mti-&gt;modify_geometry_set(md, ctx, &amp;geometry);</span></a>
+<a name="1011"><span class="lineNum">    1011 </span>            : </a>
+<a name="1012"><span class="lineNum">    1012 </span>            :     /* Extract the deformed vertex positions if the topology has not changed. */</a>
+<a name="1013"><span class="lineNum">    1013 </span><span class="lineNoCov">          0 :     if (const Mesh *deformed_mesh = geometry.get_mesh()) {</span></a>
+<a name="1014"><span class="lineNum">    1014 </span><span class="lineNoCov">          0 :       if (old_topology.same_topology_as(*deformed_mesh)) {</span></a>
+<a name="1015"><span class="lineNum">    1015 </span><span class="lineNoCov">          0 :         positions.copy_from(deformed_mesh-&gt;vert_positions());</span></a>
+<a name="1016"><span class="lineNum">    1016 </span><span class="lineNoCov">          0 :         if (mesh) {</span></a>
+<a name="1017"><span class="lineNum">    1017 </span><span class="lineNoCov">          0 :           mesh-&gt;tag_positions_changed();</span></a>
+<a name="1018"><span class="lineNum">    1018 </span>            :         }</a>
+<a name="1019"><span class="lineNum">    1019 </span><span class="lineNoCov">          0 :         return true;</span></a>
+<a name="1020"><span class="lineNum">    1020 </span>            :       }</a>
+<a name="1021"><span class="lineNum">    1021 </span>            :     }</a>
+<a name="1022"><span class="lineNum">    1022 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="1023"><span class="lineNum">    1023 </span><span class="lineNoCov">          0 :   return false;</span></a>
+<a name="1024"><span class="lineNum">    1024 </span>            : }</a>
+<a name="1025"><span class="lineNum">    1025 </span>            : </a>
+<a name="1026"><span class="lineNum">    1026 </span><span class="lineNoCov">          0 : void BKE_modifier_deform_vertsEM(ModifierData *md,</span></a>
+<a name="1027"><span class="lineNum">    1027 </span>            :                                  const ModifierEvalContext *ctx,</a>
+<a name="1028"><span class="lineNum">    1028 </span>            :                                  const BMEditMesh *em,</a>
+<a name="1029"><span class="lineNum">    1029 </span>            :                                  Mesh *mesh,</a>
+<a name="1030"><span class="lineNum">    1030 </span>            :                                  MutableSpan&lt;float3&gt; positions)</a>
+<a name="1031"><span class="lineNum">    1031 </span>            : {</a>
+<a name="1032"><span class="lineNum">    1032 </span><span class="lineNoCov">          0 :   const ModifierTypeInfo *mti = BKE_modifier_get_info(md-&gt;type);</span></a>
+<a name="1033"><span class="lineNum">    1033 </span><span class="lineNoCov">          0 :   if (mesh &amp;&amp; mti-&gt;depends_on_normals &amp;&amp; mti-&gt;depends_on_normals(md)) {</span></a>
+<a name="1034"><span class="lineNum">    1034 </span><span class="lineNoCov">          0 :     ensure_non_lazy_normals(mesh);</span></a>
+<a name="1035"><span class="lineNum">    1035 </span>            :   }</a>
+<a name="1036"><span class="lineNum">    1036 </span><span class="lineNoCov">          0 :   mti-&gt;deform_verts_EM(md, ctx, em, mesh, positions);</span></a>
+<a name="1037"><span class="lineNum">    1037 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="1038"><span class="lineNum">    1038 </span>            : </a>
+<a name="1039"><span class="lineNum">    1039 </span>            : /* end modifier callback wrappers */</a>
+<a name="1040"><span class="lineNum">    1040 </span>            : </a>
+<a name="1041"><span class="lineNum">    1041 </span><span class="lineCov">       6524 : Mesh *BKE_modifier_get_evaluated_mesh_from_evaluated_object(Object *ob_eval)</span></a>
+<a name="1042"><span class="lineNum">    1042 </span>            : {</a>
+<a name="1043"><span class="lineNum">    1043 </span><span class="lineCov">       6524 :   if (!DEG_object_geometry_is_evaluated(*ob_eval)) {</span></a>
+<a name="1044"><span class="lineNum">    1044 </span><span class="lineNoCov">          0 :     return nullptr;</span></a>
+<a name="1045"><span class="lineNum">    1045 </span>            :   }</a>
+<a name="1046"><span class="lineNum">    1046 </span>            : </a>
+<a name="1047"><span class="lineNum">    1047 </span><span class="lineCov">       6526 :   Mesh *mesh = nullptr;</span></a>
+<a name="1048"><span class="lineNum">    1048 </span>            : </a>
+<a name="1049"><span class="lineNum">    1049 </span><span class="lineCov">       6526 :   if ((ob_eval-&gt;type == OB_MESH) &amp;&amp; (ob_eval-&gt;mode &amp; OB_MODE_EDIT)) {</span></a>
+<a name="1050"><span class="lineNum">    1050 </span>            :     /* In EditMode, evaluated mesh is stored in BMEditMesh, not the object... */</a>
+<a name="1051"><span class="lineNum">    1051 </span><span class="lineNoCov">          0 :     const BMEditMesh *em = BKE_editmesh_from_object(DEG_get_original(ob_eval));</span></a>
+<a name="1052"><span class="lineNum">    1052 </span>            :     /* 'em' might not exist yet in some cases, just after loading a .blend file, see #57878. */</a>
+<a name="1053"><span class="lineNum">    1053 </span><span class="lineNoCov">          0 :     if (em != nullptr) {</span></a>
+<a name="1054"><span class="lineNum">    1054 </span><span class="lineNoCov">          0 :       mesh = const_cast&lt;Mesh *&gt;(BKE_object_get_editmesh_eval_final(ob_eval));</span></a>
+<a name="1055"><span class="lineNum">    1055 </span><span class="lineNoCov">          0 :       if (mesh != nullptr) {</span></a>
+<a name="1056"><span class="lineNum">    1056 </span><span class="lineCov">          1 :         mesh = BKE_mesh_wrapper_ensure_subdivision(mesh);</span></a>
+<a name="1057"><span class="lineNum">    1057 </span>            :       }</a>
+<a name="1058"><span class="lineNum">    1058 </span>            :     }</a>
+<a name="1059"><span class="lineNum">    1059 </span>            :   }</a>
+<a name="1060"><span class="lineNum">    1060 </span><span class="lineCov">       6524 :   if (mesh == nullptr) {</span></a>
+<a name="1061"><span class="lineNum">    1061 </span><span class="lineCov">       6524 :     mesh = BKE_object_get_evaluated_mesh(ob_eval);</span></a>
+<a name="1062"><span class="lineNum">    1062 </span>            :   }</a>
+<a name="1063"><span class="lineNum">    1063 </span>            : </a>
+<a name="1064"><span class="lineNum">    1064 </span><span class="lineCov">       6526 :   return mesh;</span></a>
+<a name="1065"><span class="lineNum">    1065 </span>            : }</a>
+<a name="1066"><span class="lineNum">    1066 </span>            : </a>
+<a name="1067"><span class="lineNum">    1067 </span><span class="lineCov">      17691 : ModifierData *BKE_modifier_get_original(const Object *object, ModifierData *md)</span></a>
+<a name="1068"><span class="lineNum">    1068 </span>            : {</a>
+<a name="1069"><span class="lineNum">    1069 </span><span class="lineCov">      17691 :   const Object *object_orig = DEG_get_original(const_cast&lt;Object *&gt;(object));</span></a>
+<a name="1070"><span class="lineNum">    1070 </span><span class="lineCov">      17768 :   return BKE_modifiers_findby_persistent_uid(object_orig, md-&gt;persistent_uid);</span></a>
+<a name="1071"><span class="lineNum">    1071 </span>            : }</a>
+<a name="1072"><span class="lineNum">    1072 </span>            : </a>
+<a name="1073"><span class="lineNum">    1073 </span><span class="lineCov">          8 : ModifierData *BKE_modifier_get_evaluated(Depsgraph *depsgraph, Object *object, ModifierData *md)</span></a>
+<a name="1074"><span class="lineNum">    1074 </span>            : {</a>
+<a name="1075"><span class="lineNum">    1075 </span><span class="lineCov">          8 :   Object *object_eval = DEG_get_evaluated(depsgraph, object);</span></a>
+<a name="1076"><span class="lineNum">    1076 </span><span class="lineCov">          8 :   if (object_eval == object) {</span></a>
+<a name="1077"><span class="lineNum">    1077 </span><span class="lineNoCov">          0 :     return md;</span></a>
+<a name="1078"><span class="lineNum">    1078 </span>            :   }</a>
+<a name="1079"><span class="lineNum">    1079 </span><span class="lineCov">          8 :   return BKE_modifiers_findby_persistent_uid(object_eval, md-&gt;persistent_uid);</span></a>
+<a name="1080"><span class="lineNum">    1080 </span>            : }</a>
+<a name="1081"><span class="lineNum">    1081 </span>            : </a>
+<a name="1082"><span class="lineNum">    1082 </span><span class="lineCov">        687 : void BKE_modifiers_persistent_uid_init(const Object &amp;object, ModifierData &amp;md)</span></a>
+<a name="1083"><span class="lineNum">    1083 </span>            : {</a>
+<a name="1084"><span class="lineNum">    1084 </span><span class="lineCov">        687 :   uint64_t hash = get_default_hash(StringRef(md.name));</span></a>
+<a name="1085"><span class="lineNum">    1085 </span><span class="lineCov">        687 :   if (ID_IS_LINKED(&amp;object)) {</span></a>
+<a name="1086"><span class="lineNum">    1086 </span><span class="lineCov">         23 :     hash = get_default_hash(hash, StringRef(object.id.lib-&gt;runtime-&gt;filepath_abs));</span></a>
+<a name="1087"><span class="lineNum">    1087 </span>            :   }</a>
+<a name="1088"><span class="lineNum">    1088 </span><span class="lineCov">        687 :   if (ID_IS_OVERRIDE_LIBRARY_REAL(&amp;object)) {</span></a>
+<a name="1089"><span class="lineNum">    1089 </span><span class="lineNoCov">          0 :     BLI_assert(ID_IS_LINKED(object.id.override_library-&gt;reference));</span></a>
+<a name="1090"><span class="lineNum">    1090 </span><span class="lineNoCov">          0 :     hash = get_default_hash(</span></a>
+<a name="1091"><span class="lineNum">    1091 </span><span class="lineNoCov">          0 :         hash, StringRef(object.id.override_library-&gt;reference-&gt;lib-&gt;runtime-&gt;filepath_abs));</span></a>
+<a name="1092"><span class="lineNum">    1092 </span>            :   }</a>
+<a name="1093"><span class="lineNum">    1093 </span><span class="lineCov">        687 :   RandomNumberGenerator rng{uint32_t(hash)};</span></a>
+<a name="1094"><span class="lineNum">    1094 </span>            :   while (true) {</a>
+<a name="1095"><span class="lineNum">    1095 </span><span class="lineCov">        705 :     const int new_uid = rng.get_int32();</span></a>
+<a name="1096"><span class="lineNum">    1096 </span><span class="lineCov">        705 :     if (new_uid &lt;= 0) {</span></a>
+<a name="1097"><span class="lineNum">    1097 </span><span class="lineNoCov">          0 :       continue;</span></a>
+<a name="1098"><span class="lineNum">    1098 </span>            :     }</a>
+<a name="1099"><span class="lineNum">    1099 </span><span class="lineCov">        705 :     if (BKE_modifiers_findby_persistent_uid(&amp;object, new_uid) != nullptr) {</span></a>
+<a name="1100"><span class="lineNum">    1100 </span><span class="lineCov">         18 :       continue;</span></a>
+<a name="1101"><span class="lineNum">    1101 </span>            :     }</a>
+<a name="1102"><span class="lineNum">    1102 </span><span class="lineCov">        687 :     md.persistent_uid = new_uid;</span></a>
+<a name="1103"><span class="lineNum">    1103 </span><span class="lineCov">        687 :     break;</span></a>
+<a name="1104"><span class="lineNum">    1104 </span><span class="lineCov">         18 :   }</span></a>
+<a name="1105"><span class="lineNum">    1105 </span><span class="lineCov">        687 : }</span></a>
+<a name="1106"><span class="lineNum">    1106 </span>            : </a>
+<a name="1107"><span class="lineNum">    1107 </span><span class="lineCov">      88048 : bool BKE_modifiers_persistent_uids_are_valid(const Object &amp;object)</span></a>
+<a name="1108"><span class="lineNum">    1108 </span>            : {</a>
+<a name="1109"><span class="lineNum">    1109 </span><span class="lineCov">      88048 :   Set&lt;int&gt; uids;</span></a>
+<a name="1110"><span class="lineNum">    1110 </span><span class="lineCov">      88103 :   int modifiers_num = 0;</span></a>
+<a name="1111"><span class="lineNum">    1111 </span><span class="lineCov">     107829 :   for (const ModifierData &amp;md : object.modifiers) {</span></a>
+<a name="1112"><span class="lineNum">    1112 </span><span class="lineCov">      19724 :     if (md.persistent_uid &lt;= 0) {</span></a>
+<a name="1113"><span class="lineNum">    1113 </span><span class="lineNoCov">          0 :       return false;</span></a>
+<a name="1114"><span class="lineNum">    1114 </span>            :     }</a>
+<a name="1115"><span class="lineNum">    1115 </span><span class="lineCov">      19724 :     uids.add(md.persistent_uid);</span></a>
+<a name="1116"><span class="lineNum">    1116 </span><span class="lineCov">      19708 :     modifiers_num++;</span></a>
+<a name="1117"><span class="lineNum">    1117 </span>            :   }</a>
+<a name="1118"><span class="lineNum">    1118 </span><span class="lineCov">      87963 :   if (uids.size() != modifiers_num) {</span></a>
+<a name="1119"><span class="lineNum">    1119 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="1120"><span class="lineNum">    1120 </span>            :   }</a>
+<a name="1121"><span class="lineNum">    1121 </span><span class="lineCov">      87867 :   return true;</span></a>
+<a name="1122"><span class="lineNum">    1122 </span><span class="lineCov">      87867 : }</span></a>
+<a name="1123"><span class="lineNum">    1123 </span>            : </a>
+<a name="1124"><span class="lineNum">    1124 </span><span class="lineCov">      65978 : void BKE_modifier_blend_write(BlendWriter *writer,</span></a>
+<a name="1125"><span class="lineNum">    1125 </span>            :                               const ID *id_owner,</a>
+<a name="1126"><span class="lineNum">    1126 </span>            :                               ListBaseT&lt;ModifierData&gt; *modbase)</a>
+<a name="1127"><span class="lineNum">    1127 </span>            : {</a>
+<a name="1128"><span class="lineNum">    1128 </span><span class="lineCov">      65978 :   if (modbase == nullptr) {</span></a>
+<a name="1129"><span class="lineNum">    1129 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="1130"><span class="lineNum">    1130 </span>            :   }</a>
+<a name="1131"><span class="lineNum">    1131 </span>            : </a>
+<a name="1132"><span class="lineNum">    1132 </span><span class="lineCov">      76966 :   for (ModifierData &amp;md : *modbase) {</span></a>
+<a name="1133"><span class="lineNum">    1133 </span><span class="lineCov">      10988 :     const ModifierTypeInfo *mti = BKE_modifier_get_info(md.type);</span></a>
+<a name="1134"><span class="lineNum">    1134 </span><span class="lineCov">      10988 :     if (mti == nullptr) {</span></a>
+<a name="1135"><span class="lineNum">    1135 </span><span class="lineNoCov">          0 :       continue;</span></a>
+<a name="1136"><span class="lineNum">    1136 </span>            :     }</a>
+<a name="1137"><span class="lineNum">    1137 </span>            : </a>
+<a name="1138"><span class="lineNum">    1138 </span><span class="lineCov">      10988 :     if (md.system_properties) {</span></a>
+<a name="1139"><span class="lineNum">    1139 </span><span class="lineCov">       4275 :       IDP_BlendWrite(writer, md.system_properties);</span></a>
+<a name="1140"><span class="lineNum">    1140 </span>            :     }</a>
+<a name="1141"><span class="lineNum">    1141 </span>            : </a>
+<a name="1142"><span class="lineNum">    1142 </span>            :     /* If the blend_write callback is defined, it should handle the whole writing process. */</a>
+<a name="1143"><span class="lineNum">    1143 </span><span class="lineCov">      10988 :     if (mti-&gt;blend_write != nullptr) {</span></a>
+<a name="1144"><span class="lineNum">    1144 </span><span class="lineCov">       4733 :       mti-&gt;blend_write(writer, id_owner, &amp;md);</span></a>
+<a name="1145"><span class="lineNum">    1145 </span><span class="lineCov">       4733 :       continue;</span></a>
+<a name="1146"><span class="lineNum">    1146 </span>            :     }</a>
+<a name="1147"><span class="lineNum">    1147 </span>            : </a>
+<a name="1148"><span class="lineNum">    1148 </span><span class="lineCov">       6255 :     writer-&gt;write_struct_by_name(mti-&gt;struct_name, &amp;md);</span></a>
+<a name="1149"><span class="lineNum">    1149 </span>            : </a>
+<a name="1150"><span class="lineNum">    1150 </span><span class="lineCov">       6255 :     if (md.type == eModifierType_Cloth) {</span></a>
+<a name="1151"><span class="lineNum">    1151 </span><span class="lineCov">         12 :       ClothModifierData *clmd = reinterpret_cast&lt;ClothModifierData *&gt;(&amp;md);</span></a>
+<a name="1152"><span class="lineNum">    1152 </span>            : </a>
+<a name="1153"><span class="lineNum">    1153 </span><span class="lineCov">         12 :       writer-&gt;write_struct(clmd-&gt;sim_parms);</span></a>
+<a name="1154"><span class="lineNum">    1154 </span><span class="lineCov">         12 :       writer-&gt;write_struct(clmd-&gt;coll_parms);</span></a>
+<a name="1155"><span class="lineNum">    1155 </span><span class="lineCov">         12 :       writer-&gt;write_struct(clmd-&gt;sim_parms-&gt;effector_weights);</span></a>
+<a name="1156"><span class="lineNum">    1156 </span><span class="lineCov">         12 :       BKE_ptcache_blend_write(writer, &amp;clmd-&gt;ptcaches);</span></a>
+<a name="1157"><span class="lineNum">    1157 </span>            :     }</a>
+<a name="1158"><span class="lineNum">    1158 </span><span class="lineCov">       6243 :     else if (md.type == eModifierType_Fluid) {</span></a>
+<a name="1159"><span class="lineNum">    1159 </span><span class="lineCov">         88 :       FluidModifierData *fmd = reinterpret_cast&lt;FluidModifierData *&gt;(&amp;md);</span></a>
+<a name="1160"><span class="lineNum">    1160 </span>            : </a>
+<a name="1161"><span class="lineNum">    1161 </span><span class="lineCov">         88 :       if (fmd-&gt;type &amp; MOD_FLUID_TYPE_DOMAIN) {</span></a>
+<a name="1162"><span class="lineNum">    1162 </span><span class="lineCov">         43 :         writer-&gt;write_struct(fmd-&gt;domain);</span></a>
+<a name="1163"><span class="lineNum">    1163 </span>            : </a>
+<a name="1164"><span class="lineNum">    1164 </span><span class="lineCov">         43 :         if (fmd-&gt;domain) {</span></a>
+<a name="1165"><span class="lineNum">    1165 </span><span class="lineCov">         43 :           BKE_ptcache_blend_write(writer, &amp;(fmd-&gt;domain-&gt;ptcaches[0]));</span></a>
+<a name="1166"><span class="lineNum">    1166 </span>            : </a>
+<a name="1167"><span class="lineNum">    1167 </span>            :           /* create fake pointcache so that old blender versions can read it */</a>
+<a name="1168"><span class="lineNum">    1168 </span><span class="lineCov">         43 :           fmd-&gt;domain-&gt;point_cache[1] = BKE_ptcache_add(&amp;fmd-&gt;domain-&gt;ptcaches[1]);</span></a>
+<a name="1169"><span class="lineNum">    1169 </span><span class="lineCov">         43 :           fmd-&gt;domain-&gt;point_cache[1]-&gt;flag |= PTCACHE_DISK_CACHE | PTCACHE_FAKE_SMOKE;</span></a>
+<a name="1170"><span class="lineNum">    1170 </span><span class="lineCov">         43 :           fmd-&gt;domain-&gt;point_cache[1]-&gt;step = 1;</span></a>
+<a name="1171"><span class="lineNum">    1171 </span>            : </a>
+<a name="1172"><span class="lineNum">    1172 </span><span class="lineCov">         43 :           BKE_ptcache_blend_write(writer, &amp;(fmd-&gt;domain-&gt;ptcaches[1]));</span></a>
+<a name="1173"><span class="lineNum">    1173 </span>            : </a>
+<a name="1174"><span class="lineNum">    1174 </span><span class="lineCov">         43 :           if (fmd-&gt;domain-&gt;coba) {</span></a>
+<a name="1175"><span class="lineNum">    1175 </span><span class="lineNoCov">          0 :             writer-&gt;write_struct(fmd-&gt;domain-&gt;coba);</span></a>
+<a name="1176"><span class="lineNum">    1176 </span>            :           }</a>
+<a name="1177"><span class="lineNum">    1177 </span>            : </a>
+<a name="1178"><span class="lineNum">    1178 </span>            :           /* cleanup the fake pointcache */</a>
+<a name="1179"><span class="lineNum">    1179 </span><span class="lineCov">         43 :           BKE_ptcache_free_list(&amp;fmd-&gt;domain-&gt;ptcaches[1]);</span></a>
+<a name="1180"><span class="lineNum">    1180 </span><span class="lineCov">         43 :           fmd-&gt;domain-&gt;point_cache[1] = nullptr;</span></a>
+<a name="1181"><span class="lineNum">    1181 </span>            : </a>
+<a name="1182"><span class="lineNum">    1182 </span><span class="lineCov">         43 :           writer-&gt;write_struct(fmd-&gt;domain-&gt;effector_weights);</span></a>
+<a name="1183"><span class="lineNum">    1183 </span>            :         }</a>
+<a name="1184"><span class="lineNum">    1184 </span>            :       }</a>
+<a name="1185"><span class="lineNum">    1185 </span><span class="lineCov">         45 :       else if (fmd-&gt;type &amp; MOD_FLUID_TYPE_FLOW) {</span></a>
+<a name="1186"><span class="lineNum">    1186 </span><span class="lineCov">         45 :         writer-&gt;write_struct(fmd-&gt;flow);</span></a>
+<a name="1187"><span class="lineNum">    1187 </span>            :       }</a>
+<a name="1188"><span class="lineNum">    1188 </span><span class="lineNoCov">          0 :       else if (fmd-&gt;type &amp; MOD_FLUID_TYPE_EFFEC) {</span></a>
+<a name="1189"><span class="lineNum">    1189 </span><span class="lineNoCov">          0 :         writer-&gt;write_struct(fmd-&gt;effector);</span></a>
+<a name="1190"><span class="lineNum">    1190 </span>            :       }</a>
+<a name="1191"><span class="lineNum">    1191 </span>            :     }</a>
+<a name="1192"><span class="lineNum">    1192 </span><span class="lineCov">       6155 :     else if (md.type == eModifierType_Fluidsim) {</span></a>
+<a name="1193"><span class="lineNum">    1193 </span><span class="lineNoCov">          0 :       BLI_assert_unreachable(); /* Deprecated data, should never be written. */</span></a>
+<a name="1194"><span class="lineNum">    1194 </span>            :     }</a>
+<a name="1195"><span class="lineNum">    1195 </span><span class="lineCov">       6155 :     else if (md.type == eModifierType_DynamicPaint) {</span></a>
+<a name="1196"><span class="lineNum">    1196 </span><span class="lineCov">         10 :       DynamicPaintModifierData *pmd = reinterpret_cast&lt;DynamicPaintModifierData *&gt;(&amp;md);</span></a>
+<a name="1197"><span class="lineNum">    1197 </span>            : </a>
+<a name="1198"><span class="lineNum">    1198 </span><span class="lineCov">         10 :       if (pmd-&gt;canvas) {</span></a>
+<a name="1199"><span class="lineNum">    1199 </span><span class="lineNoCov">          0 :         writer-&gt;write_struct(pmd-&gt;canvas);</span></a>
+<a name="1200"><span class="lineNum">    1200 </span>            : </a>
+<a name="1201"><span class="lineNum">    1201 </span>            :         /* write surfaces */</a>
+<a name="1202"><span class="lineNum">    1202 </span><span class="lineNoCov">          0 :         for (DynamicPaintSurface &amp;surface : pmd-&gt;canvas-&gt;surfaces) {</span></a>
+<a name="1203"><span class="lineNum">    1203 </span><span class="lineNoCov">          0 :           writer-&gt;write_struct(&amp;surface);</span></a>
+<a name="1204"><span class="lineNum">    1204 </span>            :         }</a>
+<a name="1205"><span class="lineNum">    1205 </span>            :         /* write caches and effector weights */</a>
+<a name="1206"><span class="lineNum">    1206 </span><span class="lineNoCov">          0 :         for (DynamicPaintSurface &amp;surface : pmd-&gt;canvas-&gt;surfaces) {</span></a>
+<a name="1207"><span class="lineNum">    1207 </span><span class="lineNoCov">          0 :           BKE_ptcache_blend_write(writer, &amp;(surface.ptcaches));</span></a>
+<a name="1208"><span class="lineNum">    1208 </span>            : </a>
+<a name="1209"><span class="lineNum">    1209 </span><span class="lineNoCov">          0 :           writer-&gt;write_struct(surface.effector_weights);</span></a>
+<a name="1210"><span class="lineNum">    1210 </span>            :         }</a>
+<a name="1211"><span class="lineNum">    1211 </span>            :       }</a>
+<a name="1212"><span class="lineNum">    1212 </span><span class="lineCov">         10 :       if (pmd-&gt;brush) {</span></a>
+<a name="1213"><span class="lineNum">    1213 </span><span class="lineCov">         10 :         writer-&gt;write_struct(pmd-&gt;brush);</span></a>
+<a name="1214"><span class="lineNum">    1214 </span><span class="lineCov">         10 :         writer-&gt;write_struct(pmd-&gt;brush-&gt;paint_ramp);</span></a>
+<a name="1215"><span class="lineNum">    1215 </span><span class="lineCov">         10 :         writer-&gt;write_struct(pmd-&gt;brush-&gt;vel_ramp);</span></a>
+<a name="1216"><span class="lineNum">    1216 </span>            :       }</a>
+<a name="1217"><span class="lineNum">    1217 </span>            :     }</a>
+<a name="1218"><span class="lineNum">    1218 </span><span class="lineCov">       6145 :     else if (md.type == eModifierType_Collision) {</span></a>
+<a name="1219"><span class="lineNum">    1219 </span>            : </a>
+<a name="1220"><span class="lineNum">    1220 </span>            : #if 0</a>
+<a name="1221"><span class="lineNum">    1221 </span>            :       CollisionModifierData *collmd = (CollisionModifierData *)md;</a>
+<a name="1222"><span class="lineNum">    1222 </span>            :       /* TODO: CollisionModifier should use pointcache</a>
+<a name="1223"><span class="lineNum">    1223 </span>            :        * + have proper reset events before enabling this. */</a>
+<a name="1224"><span class="lineNum">    1224 </span>            :       writestruct(wd, DATA, float[3], collmd-&gt;numverts, collmd-&gt;x);</a>
+<a name="1225"><span class="lineNum">    1225 </span>            :       writestruct(wd, DATA, float[3], collmd-&gt;numverts, collmd-&gt;xnew);</a>
+<a name="1226"><span class="lineNum">    1226 </span>            :       writestruct(wd, DATA, MFace, collmd-&gt;numfaces, collmd-&gt;mfaces);</a>
+<a name="1227"><span class="lineNum">    1227 </span>            : #endif</a>
+<a name="1228"><span class="lineNum">    1228 </span>            :     }</a>
+<a name="1229"><span class="lineNum">    1229 </span>            :   }</a>
+<a name="1230"><span class="lineNum">    1230 </span>            : }</a>
+<a name="1231"><span class="lineNum">    1231 </span>            : </a>
+<a name="1232"><span class="lineNum">    1232 </span>            : /* TODO(sergey): Find a better place for this.</a>
+<a name="1233"><span class="lineNum">    1233 </span>            :  *</a>
+<a name="1234"><span class="lineNum">    1234 </span>            :  * Unfortunately, this can not be done as a regular do_versions() since the modifier type is</a>
+<a name="1235"><span class="lineNum">    1235 </span>            :  * set to NONE, so the do_versions code wouldn't know where the modifier came from.</a>
+<a name="1236"><span class="lineNum">    1236 </span>            :  *</a>
+<a name="1237"><span class="lineNum">    1237 </span>            :  * The best approach seems to have the functionality in `versioning_280.cc` but still call the</a>
+<a name="1238"><span class="lineNum">    1238 </span>            :  * function from #BKE_modifier_blend_read_data().</a>
+<a name="1239"><span class="lineNum">    1239 </span>            :  */</a>
+<a name="1240"><span class="lineNum">    1240 </span>            : </a>
+<a name="1241"><span class="lineNum">    1241 </span>            : /* Domain, inflow, ... */</a>
+<a name="1242"><span class="lineNum">    1242 </span><span class="lineNoCov">          0 : static void modifier_ensure_type(FluidModifierData *fluid_modifier_data, FluidModifierType type)</span></a>
+<a name="1243"><span class="lineNum">    1243 </span>            : {</a>
+<a name="1244"><span class="lineNum">    1244 </span><span class="lineNoCov">          0 :   fluid_modifier_data-&gt;type = type;</span></a>
+<a name="1245"><span class="lineNum">    1245 </span><span class="lineNoCov">          0 :   BKE_fluid_modifier_free(fluid_modifier_data);</span></a>
+<a name="1246"><span class="lineNum">    1246 </span><span class="lineNoCov">          0 :   BKE_fluid_modifier_create_type_data(fluid_modifier_data);</span></a>
+<a name="1247"><span class="lineNum">    1247 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="1248"><span class="lineNum">    1248 </span>            : </a>
+<a name="1249"><span class="lineNum">    1249 </span>            : /**</a>
+<a name="1250"><span class="lineNum">    1250 </span>            :  * \note The old_modifier_data is NOT linked.</a>
+<a name="1251"><span class="lineNum">    1251 </span>            :  * This means that in order to access sub-data pointers #BLO_read_struct_no_us is to be used.</a>
+<a name="1252"><span class="lineNum">    1252 </span>            :  */</a>
+<a name="1253"><span class="lineNum">    1253 </span><span class="lineNoCov">          0 : static ModifierData *modifier_replace_with_fluid(BlendDataReader *reader,</span></a>
+<a name="1254"><span class="lineNum">    1254 </span>            :                                                  Object *object,</a>
+<a name="1255"><span class="lineNum">    1255 </span>            :                                                  ListBaseT&lt;ModifierData&gt; *modifiers,</a>
+<a name="1256"><span class="lineNum">    1256 </span>            :                                                  ModifierData *old_modifier_data)</a>
+<a name="1257"><span class="lineNum">    1257 </span>            : {</a>
+<a name="1258"><span class="lineNum">    1258 </span><span class="lineNoCov">          0 :   ModifierData *new_modifier_data = BKE_modifier_new(eModifierType_Fluid);</span></a>
+<a name="1259"><span class="lineNum">    1259 </span><span class="lineNoCov">          0 :   FluidModifierData *fluid_modifier_data = reinterpret_cast&lt;FluidModifierData *&gt;(</span></a>
+<a name="1260"><span class="lineNum">    1260 </span>            :       new_modifier_data);</a>
+<a name="1261"><span class="lineNum">    1261 </span>            : </a>
+<a name="1262"><span class="lineNum">    1262 </span><span class="lineNoCov">          0 :   if (old_modifier_data-&gt;type == eModifierType_Fluidsim) {</span></a>
+<a name="1263"><span class="lineNum">    1263 </span><span class="lineNoCov">          0 :     FluidsimModifierData *old_fluidsim_modifier_data = reinterpret_cast&lt;FluidsimModifierData *&gt;(</span></a>
+<a name="1264"><span class="lineNum">    1264 </span>            :         old_modifier_data);</a>
+<a name="1265"><span class="lineNum">    1265 </span>            :     /* Only get access to the data, do not mark it as used, otherwise there will be memory leak</a>
+<a name="1266"><span class="lineNum">    1266 </span>            :      * since readfile code won't free it. */</a>
+<a name="1267"><span class="lineNum">    1267 </span><span class="lineNoCov">          0 :     FluidsimSettings *old_fluidsim_settings = old_fluidsim_modifier_data-&gt;fss;</span></a>
+<a name="1268"><span class="lineNum">    1268 </span><span class="lineNoCov">          0 :     BLO_read_struct_no_us(reader, FluidsimSettings, &amp;old_fluidsim_settings);</span></a>
+<a name="1269"><span class="lineNum">    1269 </span><span class="lineNoCov">          0 :     if (old_fluidsim_settings) {</span></a>
+<a name="1270"><span class="lineNum">    1270 </span><span class="lineNoCov">          0 :       switch (old_fluidsim_settings-&gt;type) {</span></a>
+<a name="1271"><span class="lineNum">    1271 </span><span class="lineNoCov">          0 :         case OB_FLUIDSIM_ENABLE:</span></a>
+<a name="1272"><span class="lineNum">    1272 </span><span class="lineNoCov">          0 :           modifier_ensure_type(fluid_modifier_data, FluidModifierType{});</span></a>
+<a name="1273"><span class="lineNum">    1273 </span><span class="lineNoCov">          0 :           break;</span></a>
+<a name="1274"><span class="lineNum">    1274 </span><span class="lineNoCov">          0 :         case OB_FLUIDSIM_DOMAIN:</span></a>
+<a name="1275"><span class="lineNum">    1275 </span><span class="lineNoCov">          0 :           modifier_ensure_type(fluid_modifier_data, MOD_FLUID_TYPE_DOMAIN);</span></a>
+<a name="1276"><span class="lineNum">    1276 </span><span class="lineNoCov">          0 :           BKE_fluid_domain_type_set(object, fluid_modifier_data-&gt;domain, FLUID_DOMAIN_TYPE_LIQUID);</span></a>
+<a name="1277"><span class="lineNum">    1277 </span><span class="lineNoCov">          0 :           break;</span></a>
+<a name="1278"><span class="lineNum">    1278 </span><span class="lineNoCov">          0 :         case OB_FLUIDSIM_FLUID:</span></a>
+<a name="1279"><span class="lineNum">    1279 </span><span class="lineNoCov">          0 :           modifier_ensure_type(fluid_modifier_data, MOD_FLUID_TYPE_FLOW);</span></a>
+<a name="1280"><span class="lineNum">    1280 </span><span class="lineNoCov">          0 :           BKE_fluid_flow_type_set(object, fluid_modifier_data-&gt;flow, FLUID_FLOW_TYPE_LIQUID);</span></a>
+<a name="1281"><span class="lineNum">    1281 </span>            :           /* No need to emit liquid far away from surface. */</a>
+<a name="1282"><span class="lineNum">    1282 </span><span class="lineNoCov">          0 :           fluid_modifier_data-&gt;flow-&gt;surface_distance = 0.0f;</span></a>
+<a name="1283"><span class="lineNum">    1283 </span><span class="lineNoCov">          0 :           break;</span></a>
+<a name="1284"><span class="lineNum">    1284 </span><span class="lineNoCov">          0 :         case OB_FLUIDSIM_OBSTACLE:</span></a>
+<a name="1285"><span class="lineNum">    1285 </span><span class="lineNoCov">          0 :           modifier_ensure_type(fluid_modifier_data, MOD_FLUID_TYPE_EFFEC);</span></a>
+<a name="1286"><span class="lineNum">    1286 </span><span class="lineNoCov">          0 :           BKE_fluid_effector_type_set(</span></a>
+<a name="1287"><span class="lineNum">    1287 </span>            :               object, fluid_modifier_data-&gt;effector, FLUID_EFFECTOR_TYPE_COLLISION);</a>
+<a name="1288"><span class="lineNum">    1288 </span><span class="lineNoCov">          0 :           break;</span></a>
+<a name="1289"><span class="lineNum">    1289 </span><span class="lineNoCov">          0 :         case OB_FLUIDSIM_INFLOW:</span></a>
+<a name="1290"><span class="lineNum">    1290 </span><span class="lineNoCov">          0 :           modifier_ensure_type(fluid_modifier_data, MOD_FLUID_TYPE_FLOW);</span></a>
+<a name="1291"><span class="lineNum">    1291 </span><span class="lineNoCov">          0 :           BKE_fluid_flow_type_set(object, fluid_modifier_data-&gt;flow, FLUID_FLOW_TYPE_LIQUID);</span></a>
+<a name="1292"><span class="lineNum">    1292 </span><span class="lineNoCov">          0 :           BKE_fluid_flow_behavior_set(</span></a>
+<a name="1293"><span class="lineNum">    1293 </span>            :               object, fluid_modifier_data-&gt;flow, FLUID_FLOW_BEHAVIOR_INFLOW);</a>
+<a name="1294"><span class="lineNum">    1294 </span>            :           /* No need to emit liquid far away from surface. */</a>
+<a name="1295"><span class="lineNum">    1295 </span><span class="lineNoCov">          0 :           fluid_modifier_data-&gt;flow-&gt;surface_distance = 0.0f;</span></a>
+<a name="1296"><span class="lineNum">    1296 </span><span class="lineNoCov">          0 :           break;</span></a>
+<a name="1297"><span class="lineNum">    1297 </span><span class="lineNoCov">          0 :         case OB_FLUIDSIM_OUTFLOW:</span></a>
+<a name="1298"><span class="lineNum">    1298 </span><span class="lineNoCov">          0 :           modifier_ensure_type(fluid_modifier_data, MOD_FLUID_TYPE_FLOW);</span></a>
+<a name="1299"><span class="lineNum">    1299 </span><span class="lineNoCov">          0 :           BKE_fluid_flow_type_set(object, fluid_modifier_data-&gt;flow, FLUID_FLOW_TYPE_LIQUID);</span></a>
+<a name="1300"><span class="lineNum">    1300 </span><span class="lineNoCov">          0 :           BKE_fluid_flow_behavior_set(</span></a>
+<a name="1301"><span class="lineNum">    1301 </span>            :               object, fluid_modifier_data-&gt;flow, FLUID_FLOW_BEHAVIOR_OUTFLOW);</a>
+<a name="1302"><span class="lineNum">    1302 </span><span class="lineNoCov">          0 :           break;</span></a>
+<a name="1303"><span class="lineNum">    1303 </span><span class="lineNoCov">          0 :         case OB_FLUIDSIM_PARTICLE:</span></a>
+<a name="1304"><span class="lineNum">    1304 </span>            :           /* &quot;Particle&quot; type objects not being used by Mantaflow fluid simulations.</a>
+<a name="1305"><span class="lineNum">    1305 </span>            :            * Skip this object, secondary particles can only be enabled through the domain</a>
+<a name="1306"><span class="lineNum">    1306 </span>            :            * object. */</a>
+<a name="1307"><span class="lineNum">    1307 </span><span class="lineNoCov">          0 :           break;</span></a>
+<a name="1308"><span class="lineNum">    1308 </span><span class="lineNoCov">          0 :         case OB_FLUIDSIM_CONTROL:</span></a>
+<a name="1309"><span class="lineNum">    1309 </span>            :           /* &quot;Control&quot; type objects not being used by Mantaflow fluid simulations.</a>
+<a name="1310"><span class="lineNum">    1310 </span>            :            * Use guiding type instead which is similar. */</a>
+<a name="1311"><span class="lineNum">    1311 </span><span class="lineNoCov">          0 :           modifier_ensure_type(fluid_modifier_data, MOD_FLUID_TYPE_EFFEC);</span></a>
+<a name="1312"><span class="lineNum">    1312 </span><span class="lineNoCov">          0 :           BKE_fluid_effector_type_set(</span></a>
+<a name="1313"><span class="lineNum">    1313 </span>            :               object, fluid_modifier_data-&gt;effector, FLUID_EFFECTOR_TYPE_GUIDE);</a>
+<a name="1314"><span class="lineNum">    1314 </span><span class="lineNoCov">          0 :           break;</span></a>
+<a name="1315"><span class="lineNum">    1315 </span>            :       }</a>
+<a name="1316"><span class="lineNum">    1316 </span>            :     }</a>
+<a name="1317"><span class="lineNum">    1317 </span>            :   }</a>
+<a name="1318"><span class="lineNum">    1318 </span><span class="lineNoCov">          0 :   else if (old_modifier_data-&gt;type == eModifierType_Smoke) {</span></a>
+<a name="1319"><span class="lineNum">    1319 </span><span class="lineNoCov">          0 :     SmokeModifierData *old_smoke_modifier_data = reinterpret_cast&lt;SmokeModifierData *&gt;(</span></a>
+<a name="1320"><span class="lineNum">    1320 </span>            :         old_modifier_data);</a>
+<a name="1321"><span class="lineNum">    1321 </span><span class="lineNoCov">          0 :     modifier_ensure_type(fluid_modifier_data, FluidModifierType(old_smoke_modifier_data-&gt;type));</span></a>
+<a name="1322"><span class="lineNum">    1322 </span><span class="lineNoCov">          0 :     if (fluid_modifier_data-&gt;type == MOD_FLUID_TYPE_DOMAIN) {</span></a>
+<a name="1323"><span class="lineNum">    1323 </span><span class="lineNoCov">          0 :       BKE_fluid_domain_type_set(object, fluid_modifier_data-&gt;domain, FLUID_DOMAIN_TYPE_GAS);</span></a>
+<a name="1324"><span class="lineNum">    1324 </span>            :     }</a>
+<a name="1325"><span class="lineNum">    1325 </span><span class="lineNoCov">          0 :     else if (fluid_modifier_data-&gt;type == MOD_FLUID_TYPE_FLOW) {</span></a>
+<a name="1326"><span class="lineNum">    1326 </span><span class="lineNoCov">          0 :       BKE_fluid_flow_type_set(object, fluid_modifier_data-&gt;flow, FLUID_FLOW_TYPE_SMOKE);</span></a>
+<a name="1327"><span class="lineNum">    1327 </span>            :     }</a>
+<a name="1328"><span class="lineNum">    1328 </span><span class="lineNoCov">          0 :     else if (fluid_modifier_data-&gt;type == MOD_FLUID_TYPE_EFFEC) {</span></a>
+<a name="1329"><span class="lineNum">    1329 </span><span class="lineNoCov">          0 :       BKE_fluid_effector_type_set(</span></a>
+<a name="1330"><span class="lineNum">    1330 </span>            :           object, fluid_modifier_data-&gt;effector, FLUID_EFFECTOR_TYPE_COLLISION);</a>
+<a name="1331"><span class="lineNum">    1331 </span>            :     }</a>
+<a name="1332"><span class="lineNum">    1332 </span>            :   }</a>
+<a name="1333"><span class="lineNum">    1333 </span>            : </a>
+<a name="1334"><span class="lineNum">    1334 </span>            :   /* Replace modifier data in the stack. */</a>
+<a name="1335"><span class="lineNum">    1335 </span><span class="lineNoCov">          0 :   new_modifier_data-&gt;next = old_modifier_data-&gt;next;</span></a>
+<a name="1336"><span class="lineNum">    1336 </span><span class="lineNoCov">          0 :   new_modifier_data-&gt;prev = old_modifier_data-&gt;prev;</span></a>
+<a name="1337"><span class="lineNum">    1337 </span><span class="lineNoCov">          0 :   if (new_modifier_data-&gt;prev != nullptr) {</span></a>
+<a name="1338"><span class="lineNum">    1338 </span><span class="lineNoCov">          0 :     new_modifier_data-&gt;prev-&gt;next = new_modifier_data;</span></a>
+<a name="1339"><span class="lineNum">    1339 </span>            :   }</a>
+<a name="1340"><span class="lineNum">    1340 </span><span class="lineNoCov">          0 :   if (new_modifier_data-&gt;next != nullptr) {</span></a>
+<a name="1341"><span class="lineNum">    1341 </span><span class="lineNoCov">          0 :     new_modifier_data-&gt;next-&gt;prev = new_modifier_data;</span></a>
+<a name="1342"><span class="lineNum">    1342 </span>            :   }</a>
+<a name="1343"><span class="lineNum">    1343 </span><span class="lineNoCov">          0 :   if (modifiers-&gt;first() == old_modifier_data) {</span></a>
+<a name="1344"><span class="lineNum">    1344 </span><span class="lineNoCov">          0 :     modifiers-&gt;first_ = new_modifier_data;</span></a>
+<a name="1345"><span class="lineNum">    1345 </span>            :   }</a>
+<a name="1346"><span class="lineNum">    1346 </span><span class="lineNoCov">          0 :   if (modifiers-&gt;last_ == old_modifier_data) {</span></a>
+<a name="1347"><span class="lineNum">    1347 </span><span class="lineNoCov">          0 :     modifiers-&gt;last_ = new_modifier_data;</span></a>
+<a name="1348"><span class="lineNum">    1348 </span>            :   }</a>
+<a name="1349"><span class="lineNum">    1349 </span>            : </a>
+<a name="1350"><span class="lineNum">    1350 </span>            :   /* Free old modifier data. */</a>
+<a name="1351"><span class="lineNum">    1351 </span><span class="lineNoCov">          0 :   MEM_delete(old_modifier_data);</span></a>
+<a name="1352"><span class="lineNum">    1352 </span>            : </a>
+<a name="1353"><span class="lineNum">    1353 </span><span class="lineNoCov">          0 :   return new_modifier_data;</span></a>
+<a name="1354"><span class="lineNum">    1354 </span>            : }</a>
+<a name="1355"><span class="lineNum">    1355 </span>            : </a>
+<a name="1356"><span class="lineNum">    1356 </span><span class="lineCov">     138040 : void BKE_modifier_blend_read_data(BlendDataReader *reader, ListBaseT&lt;ModifierData&gt; *lb, Object *ob)</span></a>
+<a name="1357"><span class="lineNum">    1357 </span>            : {</a>
+<a name="1358"><span class="lineNum">    1358 </span><span class="lineCov">     138040 :   BLO_read_struct_list(reader, ModifierData, lb);</span></a>
+<a name="1359"><span class="lineNum">    1359 </span>            : </a>
+<a name="1360"><span class="lineNum">    1360 </span><span class="lineCov">     156823 :   for (ModifierData &amp;md_iter : lb-&gt;items_mutable()) {</span></a>
+<a name="1361"><span class="lineNum">    1361 </span><span class="lineCov">      18783 :     ModifierData *md = &amp;md_iter;</span></a>
+<a name="1362"><span class="lineNum">    1362 </span><span class="lineCov">      18783 :     md-&gt;error = nullptr;</span></a>
+<a name="1363"><span class="lineNum">    1363 </span><span class="lineCov">      18783 :     md-&gt;runtime = nullptr;</span></a>
+<a name="1364"><span class="lineNum">    1364 </span>            : </a>
+<a name="1365"><span class="lineNum">    1365 </span><span class="lineCov">      18783 :     BLO_read_struct(reader, IDProperty, &amp;md-&gt;system_properties);</span></a>
+<a name="1366"><span class="lineNum">    1366 </span><span class="lineCov">      18783 :     IDP_BlendDataRead(reader, &amp;md-&gt;system_properties);</span></a>
+<a name="1367"><span class="lineNum">    1367 </span>            : </a>
+<a name="1368"><span class="lineNum">    1368 </span>            :     /* If linking from a library, clear 'local' library override flag. */</a>
+<a name="1369"><span class="lineNum">    1369 </span><span class="lineCov">      18783 :     if (ID_IS_LINKED(ob)) {</span></a>
+<a name="1370"><span class="lineNum">    1370 </span><span class="lineCov">       3398 :       md-&gt;flag &amp;= ~eModifierFlag_OverrideLibrary_Local;</span></a>
+<a name="1371"><span class="lineNum">    1371 </span>            :     }</a>
+<a name="1372"><span class="lineNum">    1372 </span>            : </a>
+<a name="1373"><span class="lineNum">    1373 </span>            :     /* Modifier data has been allocated as a part of data migration process and</a>
+<a name="1374"><span class="lineNum">    1374 </span>            :      * no reading of nested fields from file is needed. */</a>
+<a name="1375"><span class="lineNum">    1375 </span><span class="lineCov">      18783 :     bool is_allocated = false;</span></a>
+<a name="1376"><span class="lineNum">    1376 </span>            : </a>
+<a name="1377"><span class="lineNum">    1377 </span><span class="lineCov">      18783 :     if (md-&gt;type == eModifierType_Fluidsim) {</span></a>
+<a name="1378"><span class="lineNum">    1378 </span><span class="lineNoCov">          0 :       BLO_reportf_wrap(</span></a>
+<a name="1379"><span class="lineNum">    1379 </span>            :           BLO_read_data_reports(reader),</a>
+<a name="1380"><span class="lineNum">    1380 </span>            :           RPT_WARNING,</a>
+<a name="1381"><span class="lineNum">    1381 </span>            :           RPT_(&quot;Possible data loss when saving this file! %s modifier is deprecated (Object: %s)&quot;),</a>
+<a name="1382"><span class="lineNum">    1382 </span><span class="lineNoCov">          0 :           md-&gt;name,</span></a>
+<a name="1383"><span class="lineNum">    1383 </span><span class="lineNoCov">          0 :           ob-&gt;id.name + 2);</span></a>
+<a name="1384"><span class="lineNum">    1384 </span><span class="lineNoCov">          0 :       md = modifier_replace_with_fluid(reader, ob, lb, md);</span></a>
+<a name="1385"><span class="lineNum">    1385 </span><span class="lineNoCov">          0 :       is_allocated = true;</span></a>
+<a name="1386"><span class="lineNum">    1386 </span>            :     }</a>
+<a name="1387"><span class="lineNum">    1387 </span><span class="lineCov">      18783 :     else if (md-&gt;type == eModifierType_Smoke) {</span></a>
+<a name="1388"><span class="lineNum">    1388 </span><span class="lineNoCov">          0 :       BLO_reportf_wrap(</span></a>
+<a name="1389"><span class="lineNum">    1389 </span>            :           BLO_read_data_reports(reader),</a>
+<a name="1390"><span class="lineNum">    1390 </span>            :           RPT_WARNING,</a>
+<a name="1391"><span class="lineNum">    1391 </span>            :           RPT_(&quot;Possible data loss when saving this file! %s modifier is deprecated (Object: %s)&quot;),</a>
+<a name="1392"><span class="lineNum">    1392 </span><span class="lineNoCov">          0 :           md-&gt;name,</span></a>
+<a name="1393"><span class="lineNum">    1393 </span><span class="lineNoCov">          0 :           ob-&gt;id.name + 2);</span></a>
+<a name="1394"><span class="lineNum">    1394 </span><span class="lineNoCov">          0 :       md = modifier_replace_with_fluid(reader, ob, lb, md);</span></a>
+<a name="1395"><span class="lineNum">    1395 </span><span class="lineNoCov">          0 :       is_allocated = true;</span></a>
+<a name="1396"><span class="lineNum">    1396 </span>            :     }</a>
+<a name="1397"><span class="lineNum">    1397 </span>            : </a>
+<a name="1398"><span class="lineNum">    1398 </span><span class="lineCov">      18783 :     const ModifierTypeInfo *mti = BKE_modifier_get_info(md-&gt;type);</span></a>
+<a name="1399"><span class="lineNum">    1399 </span>            : </a>
+<a name="1400"><span class="lineNum">    1400 </span>            :     /* if modifiers disappear, or for upward compatibility */</a>
+<a name="1401"><span class="lineNum">    1401 </span><span class="lineCov">      18783 :     if (mti == nullptr) {</span></a>
+<a name="1402"><span class="lineNum">    1402 </span><span class="lineNoCov">          0 :       md-&gt;type = eModifierType_None;</span></a>
+<a name="1403"><span class="lineNum">    1403 </span>            :     }</a>
+<a name="1404"><span class="lineNum">    1404 </span>            : </a>
+<a name="1405"><span class="lineNum">    1405 </span><span class="lineCov">      18783 :     if (is_allocated) {</span></a>
+<a name="1406"><span class="lineNum">    1406 </span>            :       /* All the fields has been properly allocated. */</a>
+<a name="1407"><span class="lineNum">    1407 </span>            :     }</a>
+<a name="1408"><span class="lineNum">    1408 </span><span class="lineCov">      18783 :     else if (md-&gt;type == eModifierType_Cloth) {</span></a>
+<a name="1409"><span class="lineNum">    1409 </span><span class="lineCov">         19 :       ClothModifierData *clmd = reinterpret_cast&lt;ClothModifierData *&gt;(md);</span></a>
+<a name="1410"><span class="lineNum">    1410 </span>            : </a>
+<a name="1411"><span class="lineNum">    1411 </span><span class="lineCov">         19 :       clmd-&gt;clothObject = nullptr;</span></a>
+<a name="1412"><span class="lineNum">    1412 </span><span class="lineCov">         19 :       clmd-&gt;hairdata = nullptr;</span></a>
+<a name="1413"><span class="lineNum">    1413 </span>            : </a>
+<a name="1414"><span class="lineNum">    1414 </span><span class="lineCov">         19 :       BLO_read_struct(reader, ClothSimSettings, &amp;clmd-&gt;sim_parms);</span></a>
+<a name="1415"><span class="lineNum">    1415 </span><span class="lineCov">         19 :       BLO_read_struct(reader, ClothCollSettings, &amp;clmd-&gt;coll_parms);</span></a>
+<a name="1416"><span class="lineNum">    1416 </span>            : </a>
+<a name="1417"><span class="lineNum">    1417 </span><span class="lineCov">         19 :       BKE_ptcache_blend_read_data(reader, &amp;clmd-&gt;ptcaches, &amp;clmd-&gt;point_cache, 0);</span></a>
+<a name="1418"><span class="lineNum">    1418 </span>            : </a>
+<a name="1419"><span class="lineNum">    1419 </span><span class="lineCov">         19 :       if (clmd-&gt;sim_parms) {</span></a>
+<a name="1420"><span class="lineNum">    1420 </span><span class="lineCov">         19 :         if (clmd-&gt;sim_parms-&gt;presets &gt; 10) {</span></a>
+<a name="1421"><span class="lineNum">    1421 </span><span class="lineNoCov">          0 :           clmd-&gt;sim_parms-&gt;presets = 0;</span></a>
+<a name="1422"><span class="lineNum">    1422 </span>            :         }</a>
+<a name="1423"><span class="lineNum">    1423 </span>            : </a>
+<a name="1424"><span class="lineNum">    1424 </span><span class="lineCov">         19 :         clmd-&gt;sim_parms-&gt;reset = 0;</span></a>
+<a name="1425"><span class="lineNum">    1425 </span>            : </a>
+<a name="1426"><span class="lineNum">    1426 </span><span class="lineCov">         19 :         BLO_read_struct(reader, EffectorWeights, &amp;clmd-&gt;sim_parms-&gt;effector_weights);</span></a>
+<a name="1427"><span class="lineNum">    1427 </span>            : </a>
+<a name="1428"><span class="lineNum">    1428 </span><span class="lineCov">         19 :         if (!clmd-&gt;sim_parms-&gt;effector_weights) {</span></a>
+<a name="1429"><span class="lineNum">    1429 </span><span class="lineNoCov">          0 :           clmd-&gt;sim_parms-&gt;effector_weights = BKE_effector_add_weights(nullptr);</span></a>
+<a name="1430"><span class="lineNum">    1430 </span>            :         }</a>
+<a name="1431"><span class="lineNum">    1431 </span>            :       }</a>
+<a name="1432"><span class="lineNum">    1432 </span>            : </a>
+<a name="1433"><span class="lineNum">    1433 </span><span class="lineCov">         19 :       clmd-&gt;solver_result = nullptr;</span></a>
+<a name="1434"><span class="lineNum">    1434 </span>            :     }</a>
+<a name="1435"><span class="lineNum">    1435 </span><span class="lineCov">      18764 :     else if (md-&gt;type == eModifierType_Fluid) {</span></a>
+<a name="1436"><span class="lineNum">    1436 </span>            : </a>
+<a name="1437"><span class="lineNum">    1437 </span><span class="lineCov">        166 :       FluidModifierData *fmd = reinterpret_cast&lt;FluidModifierData *&gt;(md);</span></a>
+<a name="1438"><span class="lineNum">    1438 </span>            : </a>
+<a name="1439"><span class="lineNum">    1439 </span><span class="lineCov">        166 :       if (fmd-&gt;type == MOD_FLUID_TYPE_DOMAIN) {</span></a>
+<a name="1440"><span class="lineNum">    1440 </span><span class="lineCov">         95 :         fmd-&gt;flow = nullptr;</span></a>
+<a name="1441"><span class="lineNum">    1441 </span><span class="lineCov">         95 :         fmd-&gt;effector = nullptr;</span></a>
+<a name="1442"><span class="lineNum">    1442 </span><span class="lineCov">         95 :         if (BLO_read_struct_nonnull(reader, FluidDomainSettings, &amp;fmd-&gt;domain)) {</span></a>
+<a name="1443"><span class="lineNum">    1443 </span><span class="lineCov">         95 :           fmd-&gt;domain-&gt;fmd = fmd;</span></a>
+<a name="1444"><span class="lineNum">    1444 </span>            : </a>
+<a name="1445"><span class="lineNum">    1445 </span><span class="lineCov">         95 :           fmd-&gt;domain-&gt;fluid = nullptr;</span></a>
+<a name="1446"><span class="lineNum">    1446 </span><span class="lineCov">         95 :           fmd-&gt;domain-&gt;fluid_mutex = BLI_rw_mutex_alloc();</span></a>
+<a name="1447"><span class="lineNum">    1447 </span><span class="lineCov">         95 :           fmd-&gt;domain-&gt;tex_density = nullptr;</span></a>
+<a name="1448"><span class="lineNum">    1448 </span><span class="lineCov">         95 :           fmd-&gt;domain-&gt;tex_color = nullptr;</span></a>
+<a name="1449"><span class="lineNum">    1449 </span><span class="lineCov">         95 :           fmd-&gt;domain-&gt;tex_shadow = nullptr;</span></a>
+<a name="1450"><span class="lineNum">    1450 </span><span class="lineCov">         95 :           fmd-&gt;domain-&gt;tex_flame = nullptr;</span></a>
+<a name="1451"><span class="lineNum">    1451 </span><span class="lineCov">         95 :           fmd-&gt;domain-&gt;tex_flame_coba = nullptr;</span></a>
+<a name="1452"><span class="lineNum">    1452 </span><span class="lineCov">         95 :           fmd-&gt;domain-&gt;tex_coba = nullptr;</span></a>
+<a name="1453"><span class="lineNum">    1453 </span><span class="lineCov">         95 :           fmd-&gt;domain-&gt;tex_field = nullptr;</span></a>
+<a name="1454"><span class="lineNum">    1454 </span><span class="lineCov">         95 :           fmd-&gt;domain-&gt;tex_velocity_x = nullptr;</span></a>
+<a name="1455"><span class="lineNum">    1455 </span><span class="lineCov">         95 :           fmd-&gt;domain-&gt;tex_velocity_y = nullptr;</span></a>
+<a name="1456"><span class="lineNum">    1456 </span><span class="lineCov">         95 :           fmd-&gt;domain-&gt;tex_velocity_z = nullptr;</span></a>
+<a name="1457"><span class="lineNum">    1457 </span><span class="lineCov">         95 :           fmd-&gt;domain-&gt;tex_wt = nullptr;</span></a>
+<a name="1458"><span class="lineNum">    1458 </span><span class="lineCov">         95 :           BLO_read_struct(reader, ColorBand, &amp;fmd-&gt;domain-&gt;coba);</span></a>
+<a name="1459"><span class="lineNum">    1459 </span>            : </a>
+<a name="1460"><span class="lineNum">    1460 </span><span class="lineCov">         95 :           BLO_read_struct(reader, EffectorWeights, &amp;fmd-&gt;domain-&gt;effector_weights);</span></a>
+<a name="1461"><span class="lineNum">    1461 </span><span class="lineCov">         95 :           if (!fmd-&gt;domain-&gt;effector_weights) {</span></a>
+<a name="1462"><span class="lineNum">    1462 </span><span class="lineNoCov">          0 :             fmd-&gt;domain-&gt;effector_weights = BKE_effector_add_weights(nullptr);</span></a>
+<a name="1463"><span class="lineNum">    1463 </span>            :           }</a>
+<a name="1464"><span class="lineNum">    1464 </span>            : </a>
+<a name="1465"><span class="lineNum">    1465 </span><span class="lineCov">         95 :           BKE_ptcache_blend_read_data(</span></a>
+<a name="1466"><span class="lineNum">    1466 </span><span class="lineCov">         95 :               reader, &amp;(fmd-&gt;domain-&gt;ptcaches[0]), &amp;(fmd-&gt;domain-&gt;point_cache[0]), 1);</span></a>
+<a name="1467"><span class="lineNum">    1467 </span>            : </a>
+<a name="1468"><span class="lineNum">    1468 </span>            :           /* Manta sim uses only one cache from now on, so store pointer convert */</a>
+<a name="1469"><span class="lineNum">    1469 </span><span class="lineCov">         95 :           if (fmd-&gt;domain-&gt;ptcaches[1].first() || fmd-&gt;domain-&gt;point_cache[1]) {</span></a>
+<a name="1470"><span class="lineNum">    1470 </span><span class="lineNoCov">          0 :             PointCache *cache = fmd-&gt;domain-&gt;point_cache[1];</span></a>
+<a name="1471"><span class="lineNum">    1471 </span><span class="lineNoCov">          0 :             if (BLO_read_struct_no_us_nonnull(reader, PointCache, &amp;cache)) {</span></a>
+<a name="1472"><span class="lineNum">    1472 </span><span class="lineNoCov">          0 :               if (cache-&gt;flag &amp; PTCACHE_FAKE_SMOKE) {</span></a>
+<a name="1473"><span class="lineNum">    1473 </span>            :                 /* Manta-sim/smoke was already saved in &quot;new format&quot; and this cache is fake. */</a>
+<a name="1474"><span class="lineNum">    1474 </span>            :               }</a>
+<a name="1475"><span class="lineNum">    1475 </span>            :               else {</a>
+<a name="1476"><span class="lineNum">    1476 </span><span class="lineNoCov">          0 :                 printf(</span></a>
+<a name="1477"><span class="lineNum">    1477 </span>            :                     &quot;High resolution manta cache not available due to pointcache update. Please &quot;</a>
+<a name="1478"><span class="lineNum">    1478 </span>            :                     &quot;reset the simulation.\n&quot;);</a>
+<a name="1479"><span class="lineNum">    1479 </span>            :               }</a>
+<a name="1480"><span class="lineNum">    1480 </span>            :             }</a>
+<a name="1481"><span class="lineNum">    1481 </span><span class="lineNoCov">          0 :             BLI_listbase_clear(&amp;fmd-&gt;domain-&gt;ptcaches[1]);</span></a>
+<a name="1482"><span class="lineNum">    1482 </span><span class="lineNoCov">          0 :             fmd-&gt;domain-&gt;point_cache[1] = nullptr;</span></a>
+<a name="1483"><span class="lineNum">    1483 </span>            :           }</a>
+<a name="1484"><span class="lineNum">    1484 </span>            : </a>
+<a name="1485"><span class="lineNum">    1485 </span>            :           /* Flag for refreshing the simulation after loading */</a>
+<a name="1486"><span class="lineNum">    1486 </span><span class="lineCov">         95 :           fmd-&gt;domain-&gt;flags |= FLUID_DOMAIN_FILE_LOAD;</span></a>
+<a name="1487"><span class="lineNum">    1487 </span>            :         }</a>
+<a name="1488"><span class="lineNum">    1488 </span>            :       }</a>
+<a name="1489"><span class="lineNum">    1489 </span><span class="lineCov">         71 :       else if (fmd-&gt;type == MOD_FLUID_TYPE_FLOW) {</span></a>
+<a name="1490"><span class="lineNum">    1490 </span><span class="lineCov">         71 :         fmd-&gt;domain = nullptr;</span></a>
+<a name="1491"><span class="lineNum">    1491 </span><span class="lineCov">         71 :         fmd-&gt;effector = nullptr;</span></a>
+<a name="1492"><span class="lineNum">    1492 </span><span class="lineCov">         71 :         if (BLO_read_struct_nonnull(reader, FluidFlowSettings, &amp;fmd-&gt;flow)) {</span></a>
+<a name="1493"><span class="lineNum">    1493 </span><span class="lineCov">         71 :           fmd-&gt;flow-&gt;fmd = fmd;</span></a>
+<a name="1494"><span class="lineNum">    1494 </span><span class="lineCov">         71 :           fmd-&gt;flow-&gt;mesh = nullptr;</span></a>
+<a name="1495"><span class="lineNum">    1495 </span><span class="lineCov">         71 :           fmd-&gt;flow-&gt;verts_old = nullptr;</span></a>
+<a name="1496"><span class="lineNum">    1496 </span><span class="lineCov">         71 :           fmd-&gt;flow-&gt;numverts = 0;</span></a>
+<a name="1497"><span class="lineNum">    1497 </span><span class="lineCov">         71 :           BLO_read_struct(reader, ParticleSystem, &amp;fmd-&gt;flow-&gt;psys);</span></a>
+<a name="1498"><span class="lineNum">    1498 </span>            : </a>
+<a name="1499"><span class="lineNum">    1499 </span><span class="lineCov">         71 :           fmd-&gt;flow-&gt;flags &amp;= ~FLUID_FLOW_NEEDS_UPDATE;</span></a>
+<a name="1500"><span class="lineNum">    1500 </span>            :         }</a>
+<a name="1501"><span class="lineNum">    1501 </span>            :       }</a>
+<a name="1502"><span class="lineNum">    1502 </span><span class="lineNoCov">          0 :       else if (fmd-&gt;type == MOD_FLUID_TYPE_EFFEC) {</span></a>
+<a name="1503"><span class="lineNum">    1503 </span><span class="lineNoCov">          0 :         fmd-&gt;flow = nullptr;</span></a>
+<a name="1504"><span class="lineNum">    1504 </span><span class="lineNoCov">          0 :         fmd-&gt;domain = nullptr;</span></a>
+<a name="1505"><span class="lineNum">    1505 </span><span class="lineNoCov">          0 :         if (BLO_read_struct_nonnull(reader, FluidEffectorSettings, &amp;fmd-&gt;effector)) {</span></a>
+<a name="1506"><span class="lineNum">    1506 </span><span class="lineNoCov">          0 :           fmd-&gt;effector-&gt;fmd = fmd;</span></a>
+<a name="1507"><span class="lineNum">    1507 </span><span class="lineNoCov">          0 :           fmd-&gt;effector-&gt;verts_old = nullptr;</span></a>
+<a name="1508"><span class="lineNum">    1508 </span><span class="lineNoCov">          0 :           fmd-&gt;effector-&gt;numverts = 0;</span></a>
+<a name="1509"><span class="lineNum">    1509 </span><span class="lineNoCov">          0 :           fmd-&gt;effector-&gt;mesh = nullptr;</span></a>
+<a name="1510"><span class="lineNum">    1510 </span>            : </a>
+<a name="1511"><span class="lineNum">    1511 </span><span class="lineNoCov">          0 :           fmd-&gt;effector-&gt;flags &amp;= ~FLUID_EFFECTOR_NEEDS_UPDATE;</span></a>
+<a name="1512"><span class="lineNum">    1512 </span>            :         }</a>
+<a name="1513"><span class="lineNum">    1513 </span>            :         else {</a>
+<a name="1514"><span class="lineNum">    1514 </span><span class="lineNoCov">          0 :           fmd-&gt;type = FluidModifierType{};</span></a>
+<a name="1515"><span class="lineNum">    1515 </span><span class="lineNoCov">          0 :           fmd-&gt;flow = nullptr;</span></a>
+<a name="1516"><span class="lineNum">    1516 </span><span class="lineNoCov">          0 :           fmd-&gt;domain = nullptr;</span></a>
+<a name="1517"><span class="lineNum">    1517 </span><span class="lineNoCov">          0 :           fmd-&gt;effector = nullptr;</span></a>
+<a name="1518"><span class="lineNum">    1518 </span>            :         }</a>
+<a name="1519"><span class="lineNum">    1519 </span>            :       }</a>
+<a name="1520"><span class="lineNum">    1520 </span>            :     }</a>
+<a name="1521"><span class="lineNum">    1521 </span><span class="lineCov">      18598 :     else if (md-&gt;type == eModifierType_DynamicPaint) {</span></a>
+<a name="1522"><span class="lineNum">    1522 </span><span class="lineCov">         14 :       DynamicPaintModifierData *pmd = reinterpret_cast&lt;DynamicPaintModifierData *&gt;(md);</span></a>
+<a name="1523"><span class="lineNum">    1523 </span>            : </a>
+<a name="1524"><span class="lineNum">    1524 </span><span class="lineCov">         14 :       if (BLO_read_struct_nonnull(reader, DynamicPaintCanvasSettings, &amp;pmd-&gt;canvas)) {</span></a>
+<a name="1525"><span class="lineNum">    1525 </span><span class="lineNoCov">          0 :         pmd-&gt;canvas-&gt;pmd = pmd;</span></a>
+<a name="1526"><span class="lineNum">    1526 </span><span class="lineNoCov">          0 :         pmd-&gt;canvas-&gt;flags &amp;= ~MOD_DPAINT_BAKING; /* just in case */</span></a>
+<a name="1527"><span class="lineNum">    1527 </span>            : </a>
+<a name="1528"><span class="lineNum">    1528 </span><span class="lineNoCov">          0 :         if (pmd-&gt;canvas-&gt;surfaces.first()) {</span></a>
+<a name="1529"><span class="lineNum">    1529 </span><span class="lineNoCov">          0 :           BLO_read_struct_list(reader, DynamicPaintSurface, &amp;pmd-&gt;canvas-&gt;surfaces);</span></a>
+<a name="1530"><span class="lineNum">    1530 </span>            : </a>
+<a name="1531"><span class="lineNum">    1531 </span><span class="lineNoCov">          0 :           for (DynamicPaintSurface &amp;surface : pmd-&gt;canvas-&gt;surfaces) {</span></a>
+<a name="1532"><span class="lineNum">    1532 </span><span class="lineNoCov">          0 :             surface.canvas = pmd-&gt;canvas;</span></a>
+<a name="1533"><span class="lineNum">    1533 </span><span class="lineNoCov">          0 :             surface.data = nullptr;</span></a>
+<a name="1534"><span class="lineNum">    1534 </span><span class="lineNoCov">          0 :             BKE_ptcache_blend_read_data(reader, &amp;(surface.ptcaches), &amp;(surface.pointcache), 1);</span></a>
+<a name="1535"><span class="lineNum">    1535 </span>            : </a>
+<a name="1536"><span class="lineNum">    1536 </span><span class="lineNoCov">          0 :             BLO_read_struct(reader, EffectorWeights, &amp;surface.effector_weights);</span></a>
+<a name="1537"><span class="lineNum">    1537 </span><span class="lineNoCov">          0 :             if (surface.effector_weights == nullptr) {</span></a>
+<a name="1538"><span class="lineNum">    1538 </span><span class="lineNoCov">          0 :               surface.effector_weights = BKE_effector_add_weights(nullptr);</span></a>
+<a name="1539"><span class="lineNum">    1539 </span>            :             }</a>
+<a name="1540"><span class="lineNum">    1540 </span>            :           }</a>
+<a name="1541"><span class="lineNum">    1541 </span>            :         }</a>
+<a name="1542"><span class="lineNum">    1542 </span>            :       }</a>
+<a name="1543"><span class="lineNum">    1543 </span><span class="lineCov">         14 :       if (BLO_read_struct_nonnull(reader, DynamicPaintBrushSettings, &amp;pmd-&gt;brush)) {</span></a>
+<a name="1544"><span class="lineNum">    1544 </span><span class="lineCov">         14 :         pmd-&gt;brush-&gt;pmd = pmd;</span></a>
+<a name="1545"><span class="lineNum">    1545 </span><span class="lineCov">         14 :         BLO_read_struct(reader, ParticleSystem, &amp;pmd-&gt;brush-&gt;psys);</span></a>
+<a name="1546"><span class="lineNum">    1546 </span><span class="lineCov">         14 :         BLO_read_struct(reader, ColorBand, &amp;pmd-&gt;brush-&gt;paint_ramp);</span></a>
+<a name="1547"><span class="lineNum">    1547 </span><span class="lineCov">         14 :         BLO_read_struct(reader, ColorBand, &amp;pmd-&gt;brush-&gt;vel_ramp);</span></a>
+<a name="1548"><span class="lineNum">    1548 </span>            :       }</a>
+<a name="1549"><span class="lineNum">    1549 </span>            :     }</a>
+<a name="1550"><span class="lineNum">    1550 </span>            : </a>
+<a name="1551"><span class="lineNum">    1551 </span><span class="lineCov">      18783 :     if ((mti != nullptr) &amp;&amp; (mti-&gt;blend_read != nullptr)) {</span></a>
+<a name="1552"><span class="lineNum">    1552 </span><span class="lineCov">      10800 :       mti-&gt;blend_read(reader, md);</span></a>
+<a name="1553"><span class="lineNum">    1553 </span>            :     }</a>
+<a name="1554"><span class="lineNum">    1554 </span>            :   }</a>
+<a name="1555"><span class="lineNum">    1555 </span><span class="lineCov">     138040 : }</span></a>
+<a name="1556"><span class="lineNum">    1556 </span>            : </a>
+<a name="1557"><span class="lineNum">    1557 </span>            : namespace bke {</a>
+<a name="1558"><span class="lineNum">    1558 </span>            : </a>
+<a name="1559"><span class="lineNum">    1559 </span>            : using Clock = std::chrono::high_resolution_clock;</a>
+<a name="1560"><span class="lineNum">    1560 </span>            : </a>
+<a name="1561"><span class="lineNum">    1561 </span><span class="lineCov">      49057 : static double get_current_time_in_seconds()</span></a>
+<a name="1562"><span class="lineNum">    1562 </span>            : {</a>
+<a name="1563"><span class="lineNum">    1563 </span><span class="lineCov">      49154 :   return std::chrono::duration&lt;double, std::chrono::seconds::period&gt;(</span></a>
+<a name="1564"><span class="lineNum">    1564 </span><span class="lineCov">      98211 :              Clock::now().time_since_epoch())</span></a>
+<a name="1565"><span class="lineNum">    1565 </span><span class="lineCov">      98294 :       .count();</span></a>
+<a name="1566"><span class="lineNum">    1566 </span>            : }</a>
+<a name="1567"><span class="lineNum">    1567 </span>            : </a>
+<a name="1568"><span class="lineNum">    1568 </span><span class="lineCov">      24542 : ScopedModifierTimer::ScopedModifierTimer(ModifierData &amp;md) : md_(md)</span></a>
+<a name="1569"><span class="lineNum">    1569 </span>            : {</a>
+<a name="1570"><span class="lineNum">    1570 </span><span class="lineCov">      24542 :   start_time_ = get_current_time_in_seconds();</span></a>
+<a name="1571"><span class="lineNum">    1571 </span><span class="lineCov">      24601 : }</span></a>
+<a name="1572"><span class="lineNum">    1572 </span>            : </a>
+<a name="1573"><span class="lineNum">    1573 </span><span class="lineCov">      24542 : ScopedModifierTimer::~ScopedModifierTimer()</span></a>
+<a name="1574"><span class="lineNum">    1574 </span>            : {</a>
+<a name="1575"><span class="lineNum">    1575 </span><span class="lineCov">      24542 :   const double end_time = get_current_time_in_seconds();</span></a>
+<a name="1576"><span class="lineNum">    1576 </span><span class="lineCov">      24575 :   const double duration = end_time - start_time_;</span></a>
+<a name="1577"><span class="lineNum">    1577 </span><span class="lineCov">      24575 :   md_.execution_time = duration;</span></a>
+<a name="1578"><span class="lineNum">    1578 </span><span class="lineCov">      24575 : }</span></a>
+<a name="1579"><span class="lineNum">    1579 </span>            : </a>
+<a name="1580"><span class="lineNum">    1580 </span>            : }  // namespace bke</a>
+<a name="1581"><span class="lineNum">    1581 </span>            : }  // namespace blender</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

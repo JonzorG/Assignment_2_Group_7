@@ -1,0 +1,527 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - /home/dev/Blender_PA1483/blender/lib/linux_x64/abseil/include/absl/log/internal/log_message.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../../../../../../index.html">top level</a> - <a href="index.html">home/dev/Blender_PA1483/blender/lib/linux_x64/abseil/include/absl/log/internal</a> - log_message.h<span style="font-size: 80%;"> (source / <a href="log_message.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright 2022 The Abseil Authors.</a>
+<a name="2"><span class="lineNum">       2 </span>            : //</a>
+<a name="3"><span class="lineNum">       3 </span>            : // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</a>
+<a name="4"><span class="lineNum">       4 </span>            : // you may not use this file except in compliance with the License.</a>
+<a name="5"><span class="lineNum">       5 </span>            : // You may obtain a copy of the License at</a>
+<a name="6"><span class="lineNum">       6 </span>            : //</a>
+<a name="7"><span class="lineNum">       7 </span>            : //      https://www.apache.org/licenses/LICENSE-2.0</a>
+<a name="8"><span class="lineNum">       8 </span>            : //</a>
+<a name="9"><span class="lineNum">       9 </span>            : // Unless required by applicable law or agreed to in writing, software</a>
+<a name="10"><span class="lineNum">      10 </span>            : // distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</a>
+<a name="11"><span class="lineNum">      11 </span>            : // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</a>
+<a name="12"><span class="lineNum">      12 </span>            : // See the License for the specific language governing permissions and</a>
+<a name="13"><span class="lineNum">      13 </span>            : // limitations under the License.</a>
+<a name="14"><span class="lineNum">      14 </span>            : //</a>
+<a name="15"><span class="lineNum">      15 </span>            : // -----------------------------------------------------------------------------</a>
+<a name="16"><span class="lineNum">      16 </span>            : // File: log/internal/log_message.h</a>
+<a name="17"><span class="lineNum">      17 </span>            : // -----------------------------------------------------------------------------</a>
+<a name="18"><span class="lineNum">      18 </span>            : //</a>
+<a name="19"><span class="lineNum">      19 </span>            : // This file declares `class absl::log_internal::LogMessage`. This class more or</a>
+<a name="20"><span class="lineNum">      20 </span>            : // less represents a particular log message. LOG/CHECK macros create a temporary</a>
+<a name="21"><span class="lineNum">      21 </span>            : // instance of `LogMessage` and then stream values to it.  At the end of the</a>
+<a name="22"><span class="lineNum">      22 </span>            : // LOG/CHECK statement, the LogMessage is voidified by operator&amp;&amp;, and `Flush()`</a>
+<a name="23"><span class="lineNum">      23 </span>            : // directs the message to the registered log sinks.  Heap-allocation of</a>
+<a name="24"><span class="lineNum">      24 </span>            : // `LogMessage` is unsupported.  Construction outside of a `LOG` macro is</a>
+<a name="25"><span class="lineNum">      25 </span>            : // unsupported.</a>
+<a name="26"><span class="lineNum">      26 </span>            : </a>
+<a name="27"><span class="lineNum">      27 </span>            : #ifndef ABSL_LOG_INTERNAL_LOG_MESSAGE_H_</a>
+<a name="28"><span class="lineNum">      28 </span>            : #define ABSL_LOG_INTERNAL_LOG_MESSAGE_H_</a>
+<a name="29"><span class="lineNum">      29 </span>            : </a>
+<a name="30"><span class="lineNum">      30 </span>            : #include &lt;wchar.h&gt;</a>
+<a name="31"><span class="lineNum">      31 </span>            : </a>
+<a name="32"><span class="lineNum">      32 </span>            : #include &lt;cstddef&gt;</a>
+<a name="33"><span class="lineNum">      33 </span>            : #include &lt;ios&gt;</a>
+<a name="34"><span class="lineNum">      34 </span>            : #include &lt;memory&gt;</a>
+<a name="35"><span class="lineNum">      35 </span>            : #include &lt;ostream&gt;</a>
+<a name="36"><span class="lineNum">      36 </span>            : #include &lt;streambuf&gt;</a>
+<a name="37"><span class="lineNum">      37 </span>            : #include &lt;string&gt;</a>
+<a name="38"><span class="lineNum">      38 </span>            : #include &lt;string_view&gt;</a>
+<a name="39"><span class="lineNum">      39 </span>            : #include &lt;type_traits&gt;</a>
+<a name="40"><span class="lineNum">      40 </span>            : </a>
+<a name="41"><span class="lineNum">      41 </span>            : #include &quot;absl/base/attributes.h&quot;</a>
+<a name="42"><span class="lineNum">      42 </span>            : #include &quot;absl/base/config.h&quot;</a>
+<a name="43"><span class="lineNum">      43 </span>            : #include &quot;absl/base/internal/errno_saver.h&quot;</a>
+<a name="44"><span class="lineNum">      44 </span>            : #include &quot;absl/base/log_severity.h&quot;</a>
+<a name="45"><span class="lineNum">      45 </span>            : #include &quot;absl/base/nullability.h&quot;</a>
+<a name="46"><span class="lineNum">      46 </span>            : #include &quot;absl/log/internal/nullguard.h&quot;</a>
+<a name="47"><span class="lineNum">      47 </span>            : #include &quot;absl/log/internal/structured_proto.h&quot;</a>
+<a name="48"><span class="lineNum">      48 </span>            : #include &quot;absl/log/log_entry.h&quot;</a>
+<a name="49"><span class="lineNum">      49 </span>            : #include &quot;absl/log/log_sink.h&quot;</a>
+<a name="50"><span class="lineNum">      50 </span>            : #include &quot;absl/strings/has_absl_stringify.h&quot;</a>
+<a name="51"><span class="lineNum">      51 </span>            : #include &quot;absl/strings/string_view.h&quot;</a>
+<a name="52"><span class="lineNum">      52 </span>            : #include &quot;absl/time/time.h&quot;</a>
+<a name="53"><span class="lineNum">      53 </span>            : </a>
+<a name="54"><span class="lineNum">      54 </span>            : namespace absl {</a>
+<a name="55"><span class="lineNum">      55 </span>            : ABSL_NAMESPACE_BEGIN</a>
+<a name="56"><span class="lineNum">      56 </span>            : namespace log_internal {</a>
+<a name="57"><span class="lineNum">      57 </span>            : constexpr int kLogMessageBufferSize = 15000;</a>
+<a name="58"><span class="lineNum">      58 </span>            : </a>
+<a name="59"><span class="lineNum">      59 </span>            : enum class StructuredStringType;</a>
+<a name="60"><span class="lineNum">      60 </span>            : </a>
+<a name="61"><span class="lineNum">      61 </span>            : class LogMessage {</a>
+<a name="62"><span class="lineNum">      62 </span>            :  public:</a>
+<a name="63"><span class="lineNum">      63 </span>            :   struct InfoTag {};</a>
+<a name="64"><span class="lineNum">      64 </span>            :   struct WarningTag {};</a>
+<a name="65"><span class="lineNum">      65 </span>            :   struct ErrorTag {};</a>
+<a name="66"><span class="lineNum">      66 </span>            : </a>
+<a name="67"><span class="lineNum">      67 </span>            :   // Used for `LOG`.</a>
+<a name="68"><span class="lineNum">      68 </span>            :   LogMessage(const char* absl_nonnull file, int line,</a>
+<a name="69"><span class="lineNum">      69 </span>            :              absl::LogSeverity severity) ABSL_ATTRIBUTE_COLD;</a>
+<a name="70"><span class="lineNum">      70 </span>            :   // These constructors are slightly smaller/faster to call; the severity is</a>
+<a name="71"><span class="lineNum">      71 </span>            :   // curried into the function pointer.</a>
+<a name="72"><span class="lineNum">      72 </span>            :   LogMessage(const char* absl_nonnull file, int line,</a>
+<a name="73"><span class="lineNum">      73 </span>            :              InfoTag) ABSL_ATTRIBUTE_COLD ABSL_ATTRIBUTE_NOINLINE;</a>
+<a name="74"><span class="lineNum">      74 </span>            :   LogMessage(const char* absl_nonnull file, int line,</a>
+<a name="75"><span class="lineNum">      75 </span>            :              WarningTag) ABSL_ATTRIBUTE_COLD ABSL_ATTRIBUTE_NOINLINE;</a>
+<a name="76"><span class="lineNum">      76 </span>            :   LogMessage(const char* absl_nonnull file, int line,</a>
+<a name="77"><span class="lineNum">      77 </span>            :              ErrorTag) ABSL_ATTRIBUTE_COLD ABSL_ATTRIBUTE_NOINLINE;</a>
+<a name="78"><span class="lineNum">      78 </span>            :   LogMessage(const LogMessage&amp;) = delete;</a>
+<a name="79"><span class="lineNum">      79 </span>            :   LogMessage&amp; operator=(const LogMessage&amp;) = delete;</a>
+<a name="80"><span class="lineNum">      80 </span>            :   ~LogMessage() ABSL_ATTRIBUTE_COLD;</a>
+<a name="81"><span class="lineNum">      81 </span>            : </a>
+<a name="82"><span class="lineNum">      82 </span>            :   // Overrides the location inferred from the callsite.  The string pointed to</a>
+<a name="83"><span class="lineNum">      83 </span>            :   // by `file` must be valid until the end of the statement.</a>
+<a name="84"><span class="lineNum">      84 </span>            :   LogMessage&amp; AtLocation(absl::string_view file, int line);</a>
+<a name="85"><span class="lineNum">      85 </span>            :   // Omits the prefix from this line.  The prefix includes metadata about the</a>
+<a name="86"><span class="lineNum">      86 </span>            :   // logged data such as source code location and timestamp.</a>
+<a name="87"><span class="lineNum">      87 </span>            :   LogMessage&amp; NoPrefix();</a>
+<a name="88"><span class="lineNum">      88 </span>            :   // Sets the verbosity field of the logged message as if it was logged by</a>
+<a name="89"><span class="lineNum">      89 </span>            :   // `VLOG(verbose_level)`.  Unlike `VLOG`, this method does not affect</a>
+<a name="90"><span class="lineNum">      90 </span>            :   // evaluation of the statement when the specified `verbose_level` has been</a>
+<a name="91"><span class="lineNum">      91 </span>            :   // disabled.  The only effect is on `absl::LogSink` implementations which</a>
+<a name="92"><span class="lineNum">      92 </span>            :   // make use of the `absl::LogSink::verbosity()` value.  The value</a>
+<a name="93"><span class="lineNum">      93 </span>            :   // `absl::LogEntry::kNoVerbosityLevel` can be specified to mark the message</a>
+<a name="94"><span class="lineNum">      94 </span>            :   // not verbose.</a>
+<a name="95"><span class="lineNum">      95 </span>            :   LogMessage&amp; WithVerbosity(int verbose_level);</a>
+<a name="96"><span class="lineNum">      96 </span>            :   // Uses the specified timestamp instead of one collected in the constructor.</a>
+<a name="97"><span class="lineNum">      97 </span>            :   LogMessage&amp; WithTimestamp(absl::Time timestamp);</a>
+<a name="98"><span class="lineNum">      98 </span>            :   // Uses the specified thread ID instead of one collected in the constructor.</a>
+<a name="99"><span class="lineNum">      99 </span>            :   LogMessage&amp; WithThreadID(absl::LogEntry::tid_t tid);</a>
+<a name="100"><span class="lineNum">     100 </span>            :   // Copies all metadata (but no data) from the specified `absl::LogEntry`.</a>
+<a name="101"><span class="lineNum">     101 </span>            :   LogMessage&amp; WithMetadataFrom(const absl::LogEntry&amp; entry);</a>
+<a name="102"><span class="lineNum">     102 </span>            :   // Appends to the logged message a colon, a space, a textual description of</a>
+<a name="103"><span class="lineNum">     103 </span>            :   // the current value of `errno` (as by strerror(3)), and the numerical value</a>
+<a name="104"><span class="lineNum">     104 </span>            :   // of `errno`.</a>
+<a name="105"><span class="lineNum">     105 </span>            :   LogMessage&amp; WithPerror();</a>
+<a name="106"><span class="lineNum">     106 </span>            :   // Sends this message to `*sink` in addition to whatever other sinks it would</a>
+<a name="107"><span class="lineNum">     107 </span>            :   // otherwise have been sent to.</a>
+<a name="108"><span class="lineNum">     108 </span>            :   LogMessage&amp; ToSinkAlso(absl::LogSink* absl_nonnull sink);</a>
+<a name="109"><span class="lineNum">     109 </span>            :   // Sends this message to `*sink` and no others.</a>
+<a name="110"><span class="lineNum">     110 </span>            :   LogMessage&amp; ToSinkOnly(absl::LogSink* absl_nonnull sink);</a>
+<a name="111"><span class="lineNum">     111 </span>            : </a>
+<a name="112"><span class="lineNum">     112 </span>            :   // Don't call this method from outside this library.</a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineNoCov">          0 :   LogMessage&amp; InternalStream() { return *this; }</span></a>
+<a name="114"><span class="lineNum">     114 </span>            : </a>
+<a name="115"><span class="lineNum">     115 </span>            :   // By-value overloads for small, common types let us overlook common failures</a>
+<a name="116"><span class="lineNum">     116 </span>            :   // to define globals and static data members (i.e. in a .cc file).</a>
+<a name="117"><span class="lineNum">     117 </span>            :   // NOLINTBEGIN(runtime/int)</a>
+<a name="118"><span class="lineNum">     118 </span>            :   // NOLINTBEGIN(google-runtime-int)</a>
+<a name="119"><span class="lineNum">     119 </span>            :   // clang-format off:  The CUDA toolchain cannot handle these &lt;&lt;&lt;'s</a>
+<a name="120"><span class="lineNum">     120 </span>            :   LogMessage&amp; operator&lt;&lt;(char v) { return operator&lt;&lt; &lt;char&gt;(v); }</a>
+<a name="121"><span class="lineNum">     121 </span>            :   LogMessage&amp; operator&lt;&lt;(signed char v) { return operator&lt;&lt; &lt;signed char&gt;(v); }</a>
+<a name="122"><span class="lineNum">     122 </span>            :   LogMessage&amp; operator&lt;&lt;(unsigned char v) {</a>
+<a name="123"><span class="lineNum">     123 </span>            :     return operator&lt;&lt; &lt;unsigned char&gt;(v);</a>
+<a name="124"><span class="lineNum">     124 </span>            :   }</a>
+<a name="125"><span class="lineNum">     125 </span>            :   LogMessage&amp; operator&lt;&lt;(signed short v) {</a>
+<a name="126"><span class="lineNum">     126 </span>            :     return operator&lt;&lt; &lt;signed short&gt;(v);</a>
+<a name="127"><span class="lineNum">     127 </span>            :   }</a>
+<a name="128"><span class="lineNum">     128 </span>            :   LogMessage&amp; operator&lt;&lt;(signed int v) { return operator&lt;&lt; &lt;signed int&gt;(v); }</a>
+<a name="129"><span class="lineNum">     129 </span>            :   LogMessage&amp; operator&lt;&lt;(signed long v) {</a>
+<a name="130"><span class="lineNum">     130 </span>            :     return operator&lt;&lt; &lt;signed long&gt;(v);</a>
+<a name="131"><span class="lineNum">     131 </span>            :   }</a>
+<a name="132"><span class="lineNum">     132 </span>            :   LogMessage&amp; operator&lt;&lt;(signed long long v) {</a>
+<a name="133"><span class="lineNum">     133 </span>            :     return operator&lt;&lt; &lt;signed long long&gt;(v);</a>
+<a name="134"><span class="lineNum">     134 </span>            :   }</a>
+<a name="135"><span class="lineNum">     135 </span>            :   LogMessage&amp; operator&lt;&lt;(unsigned short v) {</a>
+<a name="136"><span class="lineNum">     136 </span>            :     return operator&lt;&lt; &lt;unsigned short&gt;(v);</a>
+<a name="137"><span class="lineNum">     137 </span>            :   }</a>
+<a name="138"><span class="lineNum">     138 </span>            :   LogMessage&amp; operator&lt;&lt;(unsigned int v) {</a>
+<a name="139"><span class="lineNum">     139 </span>            :     return operator&lt;&lt; &lt;unsigned int&gt;(v);</a>
+<a name="140"><span class="lineNum">     140 </span>            :   }</a>
+<a name="141"><span class="lineNum">     141 </span>            :   LogMessage&amp; operator&lt;&lt;(unsigned long v) {</a>
+<a name="142"><span class="lineNum">     142 </span>            :     return operator&lt;&lt; &lt;unsigned long&gt;(v);</a>
+<a name="143"><span class="lineNum">     143 </span>            :   }</a>
+<a name="144"><span class="lineNum">     144 </span>            :   LogMessage&amp; operator&lt;&lt;(unsigned long long v) {</a>
+<a name="145"><span class="lineNum">     145 </span>            :     return operator&lt;&lt; &lt;unsigned long long&gt;(v);</a>
+<a name="146"><span class="lineNum">     146 </span>            :   }</a>
+<a name="147"><span class="lineNum">     147 </span>            :   LogMessage&amp; operator&lt;&lt;(void* absl_nullable  v) {</a>
+<a name="148"><span class="lineNum">     148 </span>            :     return operator&lt;&lt; &lt;void*&gt;(v);</a>
+<a name="149"><span class="lineNum">     149 </span>            :   }</a>
+<a name="150"><span class="lineNum">     150 </span>            :   LogMessage&amp; operator&lt;&lt;(const void* absl_nullable  v) {</a>
+<a name="151"><span class="lineNum">     151 </span>            :     return operator&lt;&lt; &lt;const void*&gt;(v);</a>
+<a name="152"><span class="lineNum">     152 </span>            :   }</a>
+<a name="153"><span class="lineNum">     153 </span>            :   LogMessage&amp; operator&lt;&lt;(float v) { return operator&lt;&lt; &lt;float&gt;(v); }</a>
+<a name="154"><span class="lineNum">     154 </span>            :   LogMessage&amp; operator&lt;&lt;(double v) { return operator&lt;&lt; &lt;double&gt;(v); }</a>
+<a name="155"><span class="lineNum">     155 </span>            :   LogMessage&amp; operator&lt;&lt;(bool v) { return operator&lt;&lt; &lt;bool&gt;(v); }</a>
+<a name="156"><span class="lineNum">     156 </span>            :   // clang-format on</a>
+<a name="157"><span class="lineNum">     157 </span>            :   // NOLINTEND(google-runtime-int)</a>
+<a name="158"><span class="lineNum">     158 </span>            :   // NOLINTEND(runtime/int)</a>
+<a name="159"><span class="lineNum">     159 </span>            : </a>
+<a name="160"><span class="lineNum">     160 </span>            :   // These overloads are more efficient since no `ostream` is involved.</a>
+<a name="161"><span class="lineNum">     161 </span>            :   LogMessage&amp; operator&lt;&lt;(const std::string&amp; v);</a>
+<a name="162"><span class="lineNum">     162 </span>            :   LogMessage&amp; operator&lt;&lt;(absl::string_view v);</a>
+<a name="163"><span class="lineNum">     163 </span>            : </a>
+<a name="164"><span class="lineNum">     164 </span>            :   // Wide string overloads (since std::ostream does not provide them).</a>
+<a name="165"><span class="lineNum">     165 </span>            :   LogMessage&amp; operator&lt;&lt;(const std::wstring&amp; v);</a>
+<a name="166"><span class="lineNum">     166 </span>            :   LogMessage&amp; operator&lt;&lt;(std::wstring_view v);</a>
+<a name="167"><span class="lineNum">     167 </span>            :   // `const wchar_t*` is handled by `operator&lt;&lt; &lt;const wchar_t*&gt;`.</a>
+<a name="168"><span class="lineNum">     168 </span>            :   LogMessage&amp; operator&lt;&lt;(wchar_t* absl_nullable v);</a>
+<a name="169"><span class="lineNum">     169 </span>            :   LogMessage&amp; operator&lt;&lt;(wchar_t v);</a>
+<a name="170"><span class="lineNum">     170 </span>            : </a>
+<a name="171"><span class="lineNum">     171 </span>            :   // Handle stream manipulators e.g. std::endl.</a>
+<a name="172"><span class="lineNum">     172 </span>            :   LogMessage&amp; operator&lt;&lt;(std::ostream&amp; (*absl_nonnull m)(std::ostream&amp; os));</a>
+<a name="173"><span class="lineNum">     173 </span>            :   LogMessage&amp; operator&lt;&lt;(std::ios_base&amp; (*absl_nonnull m)(std::ios_base&amp; os));</a>
+<a name="174"><span class="lineNum">     174 </span>            : </a>
+<a name="175"><span class="lineNum">     175 </span>            :   // Literal strings.  This allows us to record C string literals as literals in</a>
+<a name="176"><span class="lineNum">     176 </span>            :   // the logging.proto.Value.</a>
+<a name="177"><span class="lineNum">     177 </span>            :   //</a>
+<a name="178"><span class="lineNum">     178 </span>            :   // Allow this overload to be inlined to prevent generating instantiations of</a>
+<a name="179"><span class="lineNum">     179 </span>            :   // this template for every value of `SIZE` encountered in each source code</a>
+<a name="180"><span class="lineNum">     180 </span>            :   // file. That significantly increases linker input sizes. Inlining is cheap</a>
+<a name="181"><span class="lineNum">     181 </span>            :   // because the argument to this overload is almost always a string literal so</a>
+<a name="182"><span class="lineNum">     182 </span>            :   // the call to `strlen` can be replaced at compile time. The overloads for</a>
+<a name="183"><span class="lineNum">     183 </span>            :   // `char[]`/`wchar_t[]` below should not be inlined. The compiler typically</a>
+<a name="184"><span class="lineNum">     184 </span>            :   // does not have the string at compile time and cannot replace the call to</a>
+<a name="185"><span class="lineNum">     185 </span>            :   // `strlen` so inlining it increases the binary size. See the discussion on</a>
+<a name="186"><span class="lineNum">     186 </span>            :   // cl/107527369.</a>
+<a name="187"><span class="lineNum">     187 </span>            :   template &lt;int SIZE&gt;</a>
+<a name="188"><span class="lineNum">     188 </span>            :   LogMessage&amp; operator&lt;&lt;(const char (&amp;buf)[SIZE]);</a>
+<a name="189"><span class="lineNum">     189 </span>            :   template &lt;int SIZE&gt;</a>
+<a name="190"><span class="lineNum">     190 </span>            :   LogMessage&amp; operator&lt;&lt;(const wchar_t (&amp;buf)[SIZE]);</a>
+<a name="191"><span class="lineNum">     191 </span>            : </a>
+<a name="192"><span class="lineNum">     192 </span>            :   // This prevents non-const `char[]` arrays from looking like literals.</a>
+<a name="193"><span class="lineNum">     193 </span>            :   template &lt;int SIZE&gt;</a>
+<a name="194"><span class="lineNum">     194 </span>            :   LogMessage&amp; operator&lt;&lt;(char (&amp;buf)[SIZE]) ABSL_ATTRIBUTE_NOINLINE;</a>
+<a name="195"><span class="lineNum">     195 </span>            :   // `wchar_t[SIZE]` is handled by `operator&lt;&lt; &lt;const wchar_t*&gt;`.</a>
+<a name="196"><span class="lineNum">     196 </span>            : </a>
+<a name="197"><span class="lineNum">     197 </span>            :   // Types that support `AbslStringify()` are serialized that way.</a>
+<a name="198"><span class="lineNum">     198 </span>            :   // Types that don't support `AbslStringify()` but do support streaming into a</a>
+<a name="199"><span class="lineNum">     199 </span>            :   // `std::ostream&amp;` are serialized that way.</a>
+<a name="200"><span class="lineNum">     200 </span>            :   template &lt;typename T&gt;</a>
+<a name="201"><span class="lineNum">     201 </span>            :   LogMessage&amp; operator&lt;&lt;(const T&amp; v) ABSL_ATTRIBUTE_NOINLINE;</a>
+<a name="202"><span class="lineNum">     202 </span>            : </a>
+<a name="203"><span class="lineNum">     203 </span>            :   // Dispatches the completed `absl::LogEntry` to applicable `absl::LogSink`s.</a>
+<a name="204"><span class="lineNum">     204 </span>            :   void Flush();</a>
+<a name="205"><span class="lineNum">     205 </span>            : </a>
+<a name="206"><span class="lineNum">     206 </span>            :   // Note: We explicitly do not support `operator&lt;&lt;` for non-const references</a>
+<a name="207"><span class="lineNum">     207 </span>            :   // because it breaks logging of non-integer bitfield types (i.e., enums).</a>
+<a name="208"><span class="lineNum">     208 </span>            : </a>
+<a name="209"><span class="lineNum">     209 </span>            :  protected:</a>
+<a name="210"><span class="lineNum">     210 </span>            :   // Call `abort()` or similar to perform `LOG(FATAL)` crash.  It is assumed</a>
+<a name="211"><span class="lineNum">     211 </span>            :   // that the caller has already generated and written the trace as appropriate.</a>
+<a name="212"><span class="lineNum">     212 </span>            :   [[noreturn]] static void FailWithoutStackTrace();</a>
+<a name="213"><span class="lineNum">     213 </span>            : </a>
+<a name="214"><span class="lineNum">     214 </span>            :   // Similar to `FailWithoutStackTrace()`, but without `abort()`.  Terminates</a>
+<a name="215"><span class="lineNum">     215 </span>            :   // the process with an error exit code.</a>
+<a name="216"><span class="lineNum">     216 </span>            :   [[noreturn]] static void FailQuietly();</a>
+<a name="217"><span class="lineNum">     217 </span>            : </a>
+<a name="218"><span class="lineNum">     218 </span>            :   // After this is called, failures are done as quiet as possible for this log</a>
+<a name="219"><span class="lineNum">     219 </span>            :   // message.</a>
+<a name="220"><span class="lineNum">     220 </span>            :   void SetFailQuietly();</a>
+<a name="221"><span class="lineNum">     221 </span>            : </a>
+<a name="222"><span class="lineNum">     222 </span>            :  private:</a>
+<a name="223"><span class="lineNum">     223 </span>            :   struct LogMessageData;  // Opaque type containing message state</a>
+<a name="224"><span class="lineNum">     224 </span>            :   friend class AsLiteralImpl;</a>
+<a name="225"><span class="lineNum">     225 </span>            :   friend class StringifySink;</a>
+<a name="226"><span class="lineNum">     226 </span>            :   template &lt;StructuredStringType str_type&gt;</a>
+<a name="227"><span class="lineNum">     227 </span>            :   friend class AsStructuredStringTypeImpl;</a>
+<a name="228"><span class="lineNum">     228 </span>            :   template &lt;typename T&gt;</a>
+<a name="229"><span class="lineNum">     229 </span>            :   friend class AsStructuredValueImpl;</a>
+<a name="230"><span class="lineNum">     230 </span>            : </a>
+<a name="231"><span class="lineNum">     231 </span>            :   // This streambuf writes directly into the structured logging buffer so that</a>
+<a name="232"><span class="lineNum">     232 </span>            :   // arbitrary types can be encoded as string data (using</a>
+<a name="233"><span class="lineNum">     233 </span>            :   // `operator&lt;&lt;(std::ostream &amp;, ...)` without any extra allocation or copying.</a>
+<a name="234"><span class="lineNum">     234 </span>            :   // Space is reserved before the data to store the length field, which is</a>
+<a name="235"><span class="lineNum">     235 </span>            :   // filled in by `~OstreamView`.</a>
+<a name="236"><span class="lineNum">     236 </span>            :   class OstreamView final : public std::streambuf {</a>
+<a name="237"><span class="lineNum">     237 </span>            :    public:</a>
+<a name="238"><span class="lineNum">     238 </span>            :     explicit OstreamView(LogMessageData&amp; message_data);</a>
+<a name="239"><span class="lineNum">     239 </span>            :     ~OstreamView() override;</a>
+<a name="240"><span class="lineNum">     240 </span>            :     OstreamView(const OstreamView&amp;) = delete;</a>
+<a name="241"><span class="lineNum">     241 </span>            :     OstreamView&amp; operator=(const OstreamView&amp;) = delete;</a>
+<a name="242"><span class="lineNum">     242 </span>            :     std::ostream&amp; stream();</a>
+<a name="243"><span class="lineNum">     243 </span>            : </a>
+<a name="244"><span class="lineNum">     244 </span>            :    private:</a>
+<a name="245"><span class="lineNum">     245 </span>            :     LogMessageData&amp; data_;</a>
+<a name="246"><span class="lineNum">     246 </span>            :     absl::Span&lt;char&gt; encoded_remaining_copy_;</a>
+<a name="247"><span class="lineNum">     247 </span>            :     absl::Span&lt;char&gt; message_start_;</a>
+<a name="248"><span class="lineNum">     248 </span>            :     absl::Span&lt;char&gt; string_start_;</a>
+<a name="249"><span class="lineNum">     249 </span>            :   };</a>
+<a name="250"><span class="lineNum">     250 </span>            : </a>
+<a name="251"><span class="lineNum">     251 </span>            :   enum class StringType {</a>
+<a name="252"><span class="lineNum">     252 </span>            :     kLiteral,</a>
+<a name="253"><span class="lineNum">     253 </span>            :     kNotLiteral,</a>
+<a name="254"><span class="lineNum">     254 </span>            :   };</a>
+<a name="255"><span class="lineNum">     255 </span>            :   template &lt;StringType str_type&gt;</a>
+<a name="256"><span class="lineNum">     256 </span>            :   void CopyToEncodedBuffer(absl::string_view str) ABSL_ATTRIBUTE_NOINLINE;</a>
+<a name="257"><span class="lineNum">     257 </span>            :   template &lt;StringType str_type&gt;</a>
+<a name="258"><span class="lineNum">     258 </span>            :   void CopyToEncodedBuffer(char ch, size_t num) ABSL_ATTRIBUTE_NOINLINE;</a>
+<a name="259"><span class="lineNum">     259 </span>            :   template &lt;StringType str_type&gt;</a>
+<a name="260"><span class="lineNum">     260 </span>            :   void CopyToEncodedBuffer(std::wstring_view str) ABSL_ATTRIBUTE_NOINLINE;</a>
+<a name="261"><span class="lineNum">     261 </span>            : </a>
+<a name="262"><span class="lineNum">     262 </span>            :   // Copies `field` to the encoded buffer, then appends `str` after it</a>
+<a name="263"><span class="lineNum">     263 </span>            :   // (truncating `str` if necessary to fit).</a>
+<a name="264"><span class="lineNum">     264 </span>            :   template &lt;StringType str_type&gt;</a>
+<a name="265"><span class="lineNum">     265 </span>            :   void CopyToEncodedBufferWithStructuredProtoField(StructuredProtoField field,</a>
+<a name="266"><span class="lineNum">     266 </span>            :                                                    absl::string_view str)</a>
+<a name="267"><span class="lineNum">     267 </span>            :       ABSL_ATTRIBUTE_NOINLINE;</a>
+<a name="268"><span class="lineNum">     268 </span>            : </a>
+<a name="269"><span class="lineNum">     269 </span>            :   // Returns `true` if the message is fatal or enabled debug-fatal.</a>
+<a name="270"><span class="lineNum">     270 </span>            :   bool IsFatal() const;</a>
+<a name="271"><span class="lineNum">     271 </span>            : </a>
+<a name="272"><span class="lineNum">     272 </span>            :   // Records some tombstone-type data in anticipation of `Die`.</a>
+<a name="273"><span class="lineNum">     273 </span>            :   void PrepareToDie();</a>
+<a name="274"><span class="lineNum">     274 </span>            :   void Die();</a>
+<a name="275"><span class="lineNum">     275 </span>            : </a>
+<a name="276"><span class="lineNum">     276 </span>            :   void SendToLog();</a>
+<a name="277"><span class="lineNum">     277 </span>            : </a>
+<a name="278"><span class="lineNum">     278 </span>            :   // Checks `FLAGS_log_backtrace_at` and appends a backtrace if appropriate.</a>
+<a name="279"><span class="lineNum">     279 </span>            :   void LogBacktraceIfNeeded();</a>
+<a name="280"><span class="lineNum">     280 </span>            : </a>
+<a name="281"><span class="lineNum">     281 </span>            :   // This should be the first data member so that its initializer captures errno</a>
+<a name="282"><span class="lineNum">     282 </span>            :   // before any other initializers alter it (e.g. with calls to new) and so that</a>
+<a name="283"><span class="lineNum">     283 </span>            :   // no other destructors run afterward an alter it (e.g. with calls to delete).</a>
+<a name="284"><span class="lineNum">     284 </span>            :   absl::base_internal::ErrnoSaver errno_saver_;</a>
+<a name="285"><span class="lineNum">     285 </span>            : </a>
+<a name="286"><span class="lineNum">     286 </span>            :   // We keep the data in a separate struct so that each instance of `LogMessage`</a>
+<a name="287"><span class="lineNum">     287 </span>            :   // uses less stack space.</a>
+<a name="288"><span class="lineNum">     288 </span>            :   absl_nonnull std::unique_ptr&lt;LogMessageData&gt; data_;</a>
+<a name="289"><span class="lineNum">     289 </span>            : };</a>
+<a name="290"><span class="lineNum">     290 </span>            : </a>
+<a name="291"><span class="lineNum">     291 </span>            : // Explicitly specializes the generic operator&lt;&lt; for `const wchar_t*`</a>
+<a name="292"><span class="lineNum">     292 </span>            : // arguments.</a>
+<a name="293"><span class="lineNum">     293 </span>            : //</a>
+<a name="294"><span class="lineNum">     294 </span>            : // This method is used instead of a non-template `const wchar_t*` overload,</a>
+<a name="295"><span class="lineNum">     295 </span>            : // as the latter was found to take precedence over the array template</a>
+<a name="296"><span class="lineNum">     296 </span>            : // (`operator&lt;&lt;(const wchar_t(&amp;)[SIZE])`) when handling string literals.</a>
+<a name="297"><span class="lineNum">     297 </span>            : // This specialization ensures the array template now correctly processes</a>
+<a name="298"><span class="lineNum">     298 </span>            : // literals.</a>
+<a name="299"><span class="lineNum">     299 </span>            : template &lt;&gt;</a>
+<a name="300"><span class="lineNum">     300 </span>            : LogMessage&amp; LogMessage::operator&lt;&lt; &lt;const wchar_t*&gt;(</a>
+<a name="301"><span class="lineNum">     301 </span>            :     const wchar_t* absl_nullable const&amp; v);</a>
+<a name="302"><span class="lineNum">     302 </span>            : </a>
+<a name="303"><span class="lineNum">     303 </span>            : inline LogMessage&amp; LogMessage::operator&lt;&lt;(wchar_t* absl_nullable v) {</a>
+<a name="304"><span class="lineNum">     304 </span>            :   return operator&lt;&lt;(const_cast&lt;const wchar_t*&gt;(v));</a>
+<a name="305"><span class="lineNum">     305 </span>            : }</a>
+<a name="306"><span class="lineNum">     306 </span>            : </a>
+<a name="307"><span class="lineNum">     307 </span>            : // Helper class so that `AbslStringify()` can modify the LogMessage.</a>
+<a name="308"><span class="lineNum">     308 </span>            : class StringifySink final {</a>
+<a name="309"><span class="lineNum">     309 </span>            :  public:</a>
+<a name="310"><span class="lineNum">     310 </span>            :   explicit StringifySink(LogMessage&amp; message) : message_(message) {}</a>
+<a name="311"><span class="lineNum">     311 </span>            : </a>
+<a name="312"><span class="lineNum">     312 </span>            :   void Append(size_t count, char ch) {</a>
+<a name="313"><span class="lineNum">     313 </span>            :     message_.CopyToEncodedBuffer&lt;LogMessage::StringType::kNotLiteral&gt;(ch,</a>
+<a name="314"><span class="lineNum">     314 </span>            :                                                                       count);</a>
+<a name="315"><span class="lineNum">     315 </span>            :   }</a>
+<a name="316"><span class="lineNum">     316 </span>            : </a>
+<a name="317"><span class="lineNum">     317 </span>            :   void Append(absl::string_view v) {</a>
+<a name="318"><span class="lineNum">     318 </span>            :     message_.CopyToEncodedBuffer&lt;LogMessage::StringType::kNotLiteral&gt;(v);</a>
+<a name="319"><span class="lineNum">     319 </span>            :   }</a>
+<a name="320"><span class="lineNum">     320 </span>            : </a>
+<a name="321"><span class="lineNum">     321 </span>            :   // For types that implement `AbslStringify` using `absl::Format()`.</a>
+<a name="322"><span class="lineNum">     322 </span>            :   friend void AbslFormatFlush(StringifySink* absl_nonnull sink,</a>
+<a name="323"><span class="lineNum">     323 </span>            :                               absl::string_view v) {</a>
+<a name="324"><span class="lineNum">     324 </span>            :     sink-&gt;Append(v);</a>
+<a name="325"><span class="lineNum">     325 </span>            :   }</a>
+<a name="326"><span class="lineNum">     326 </span>            : </a>
+<a name="327"><span class="lineNum">     327 </span>            :  private:</a>
+<a name="328"><span class="lineNum">     328 </span>            :   LogMessage&amp; message_;</a>
+<a name="329"><span class="lineNum">     329 </span>            : };</a>
+<a name="330"><span class="lineNum">     330 </span>            : </a>
+<a name="331"><span class="lineNum">     331 </span>            : // Note: the following is declared `ABSL_ATTRIBUTE_NOINLINE`</a>
+<a name="332"><span class="lineNum">     332 </span>            : template &lt;typename T&gt;</a>
+<a name="333"><span class="lineNum">     333 </span>            : LogMessage&amp; LogMessage::operator&lt;&lt;(const T&amp; v) {</a>
+<a name="334"><span class="lineNum">     334 </span>            :   if constexpr (absl::HasAbslStringify&lt;T&gt;::value) {</a>
+<a name="335"><span class="lineNum">     335 </span>            :     StringifySink sink(*this);</a>
+<a name="336"><span class="lineNum">     336 </span>            :     // Replace with public API.</a>
+<a name="337"><span class="lineNum">     337 </span>            :     AbslStringify(sink, v);</a>
+<a name="338"><span class="lineNum">     338 </span>            :   } else {</a>
+<a name="339"><span class="lineNum">     339 </span>            :     OstreamView view(*data_);</a>
+<a name="340"><span class="lineNum">     340 </span>            :     view.stream() &lt;&lt; log_internal::NullGuard&lt;T&gt;().Guard(v);</a>
+<a name="341"><span class="lineNum">     341 </span>            :   }</a>
+<a name="342"><span class="lineNum">     342 </span>            :   return *this;</a>
+<a name="343"><span class="lineNum">     343 </span>            : }</a>
+<a name="344"><span class="lineNum">     344 </span>            : </a>
+<a name="345"><span class="lineNum">     345 </span>            : template &lt;int SIZE&gt;</a>
+<a name="346"><span class="lineNum">     346 </span><span class="lineNoCov">          0 : LogMessage&amp; LogMessage::operator&lt;&lt;(const char (&amp;buf)[SIZE]) {</span></a>
+<a name="347"><span class="lineNum">     347 </span><span class="lineNoCov">          0 :   CopyToEncodedBuffer&lt;StringType::kLiteral&gt;(buf);</span></a>
+<a name="348"><span class="lineNum">     348 </span><span class="lineNoCov">          0 :   return *this;</span></a>
+<a name="349"><span class="lineNum">     349 </span>            : }</a>
+<a name="350"><span class="lineNum">     350 </span>            : </a>
+<a name="351"><span class="lineNum">     351 </span>            : template &lt;int SIZE&gt;</a>
+<a name="352"><span class="lineNum">     352 </span>            : LogMessage&amp; LogMessage::operator&lt;&lt;(const wchar_t (&amp;buf)[SIZE]) {</a>
+<a name="353"><span class="lineNum">     353 </span>            :   CopyToEncodedBuffer&lt;StringType::kLiteral&gt;(buf);</a>
+<a name="354"><span class="lineNum">     354 </span>            :   return *this;</a>
+<a name="355"><span class="lineNum">     355 </span>            : }</a>
+<a name="356"><span class="lineNum">     356 </span>            : </a>
+<a name="357"><span class="lineNum">     357 </span>            : // Note: the following is declared `ABSL_ATTRIBUTE_NOINLINE`</a>
+<a name="358"><span class="lineNum">     358 </span>            : template &lt;int SIZE&gt;</a>
+<a name="359"><span class="lineNum">     359 </span>            : LogMessage&amp; LogMessage::operator&lt;&lt;(char (&amp;buf)[SIZE]) {</a>
+<a name="360"><span class="lineNum">     360 </span>            :   CopyToEncodedBuffer&lt;StringType::kNotLiteral&gt;(buf);</a>
+<a name="361"><span class="lineNum">     361 </span>            :   return *this;</a>
+<a name="362"><span class="lineNum">     362 </span>            : }</a>
+<a name="363"><span class="lineNum">     363 </span>            : // We instantiate these specializations in the library's TU to save space in</a>
+<a name="364"><span class="lineNum">     364 </span>            : // other TUs.  Since the template is marked `ABSL_ATTRIBUTE_NOINLINE` we will be</a>
+<a name="365"><span class="lineNum">     365 </span>            : // emitting a function call either way.</a>
+<a name="366"><span class="lineNum">     366 </span>            : // NOLINTBEGIN(runtime/int)</a>
+<a name="367"><span class="lineNum">     367 </span>            : // NOLINTBEGIN(google-runtime-int)</a>
+<a name="368"><span class="lineNum">     368 </span>            : extern template LogMessage&amp; LogMessage::operator&lt;&lt;(const char&amp; v);</a>
+<a name="369"><span class="lineNum">     369 </span>            : extern template LogMessage&amp; LogMessage::operator&lt;&lt;(const signed char&amp; v);</a>
+<a name="370"><span class="lineNum">     370 </span>            : extern template LogMessage&amp; LogMessage::operator&lt;&lt;(const unsigned char&amp; v);</a>
+<a name="371"><span class="lineNum">     371 </span>            : extern template LogMessage&amp; LogMessage::operator&lt;&lt;(const short&amp; v);</a>
+<a name="372"><span class="lineNum">     372 </span>            : extern template LogMessage&amp; LogMessage::operator&lt;&lt;(const unsigned short&amp; v);</a>
+<a name="373"><span class="lineNum">     373 </span>            : extern template LogMessage&amp; LogMessage::operator&lt;&lt;(const int&amp; v);</a>
+<a name="374"><span class="lineNum">     374 </span>            : extern template LogMessage&amp; LogMessage::operator&lt;&lt;(const unsigned int&amp; v);</a>
+<a name="375"><span class="lineNum">     375 </span>            : extern template LogMessage&amp; LogMessage::operator&lt;&lt;(const long&amp; v);</a>
+<a name="376"><span class="lineNum">     376 </span>            : extern template LogMessage&amp; LogMessage::operator&lt;&lt;(const unsigned long&amp; v);</a>
+<a name="377"><span class="lineNum">     377 </span>            : extern template LogMessage&amp; LogMessage::operator&lt;&lt;(const long long&amp; v);</a>
+<a name="378"><span class="lineNum">     378 </span>            : extern template LogMessage&amp; LogMessage::operator&lt;&lt;(const unsigned long long&amp; v);</a>
+<a name="379"><span class="lineNum">     379 </span>            : extern template LogMessage&amp; LogMessage::operator&lt;&lt;(</a>
+<a name="380"><span class="lineNum">     380 </span>            :     void* absl_nullable const&amp; v);</a>
+<a name="381"><span class="lineNum">     381 </span>            : extern template LogMessage&amp; LogMessage::operator&lt;&lt;(</a>
+<a name="382"><span class="lineNum">     382 </span>            :     const void* absl_nullable const&amp; v);</a>
+<a name="383"><span class="lineNum">     383 </span>            : extern template LogMessage&amp; LogMessage::operator&lt;&lt;(const float&amp; v);</a>
+<a name="384"><span class="lineNum">     384 </span>            : extern template LogMessage&amp; LogMessage::operator&lt;&lt;(const double&amp; v);</a>
+<a name="385"><span class="lineNum">     385 </span>            : extern template LogMessage&amp; LogMessage::operator&lt;&lt;(const bool&amp; v);</a>
+<a name="386"><span class="lineNum">     386 </span>            : // NOLINTEND(google-runtime-int)</a>
+<a name="387"><span class="lineNum">     387 </span>            : // NOLINTEND(runtime/int)</a>
+<a name="388"><span class="lineNum">     388 </span>            : </a>
+<a name="389"><span class="lineNum">     389 </span>            : extern template void LogMessage::CopyToEncodedBuffer&lt;</a>
+<a name="390"><span class="lineNum">     390 </span>            :     LogMessage::StringType::kLiteral&gt;(absl::string_view str);</a>
+<a name="391"><span class="lineNum">     391 </span>            : extern template void LogMessage::CopyToEncodedBuffer&lt;</a>
+<a name="392"><span class="lineNum">     392 </span>            :     LogMessage::StringType::kNotLiteral&gt;(absl::string_view str);</a>
+<a name="393"><span class="lineNum">     393 </span>            : extern template void</a>
+<a name="394"><span class="lineNum">     394 </span>            : LogMessage::CopyToEncodedBuffer&lt;LogMessage::StringType::kLiteral&gt;(char ch,</a>
+<a name="395"><span class="lineNum">     395 </span>            :                                                                   size_t num);</a>
+<a name="396"><span class="lineNum">     396 </span>            : extern template void LogMessage::CopyToEncodedBuffer&lt;</a>
+<a name="397"><span class="lineNum">     397 </span>            :     LogMessage::StringType::kNotLiteral&gt;(char ch, size_t num);</a>
+<a name="398"><span class="lineNum">     398 </span>            : extern template void LogMessage::CopyToEncodedBuffer&lt;</a>
+<a name="399"><span class="lineNum">     399 </span>            :     LogMessage::StringType::kLiteral&gt;(std::wstring_view str);</a>
+<a name="400"><span class="lineNum">     400 </span>            : extern template void LogMessage::CopyToEncodedBuffer&lt;</a>
+<a name="401"><span class="lineNum">     401 </span>            :     LogMessage::StringType::kNotLiteral&gt;(std::wstring_view str);</a>
+<a name="402"><span class="lineNum">     402 </span>            : </a>
+<a name="403"><span class="lineNum">     403 </span>            : // `LogMessageFatal` ensures the process will exit in failure after logging this</a>
+<a name="404"><span class="lineNum">     404 </span>            : // message.</a>
+<a name="405"><span class="lineNum">     405 </span>            : class LogMessageFatal final : public LogMessage {</a>
+<a name="406"><span class="lineNum">     406 </span>            :  public:</a>
+<a name="407"><span class="lineNum">     407 </span>            :   LogMessageFatal(const char* absl_nonnull file, int line) ABSL_ATTRIBUTE_COLD;</a>
+<a name="408"><span class="lineNum">     408 </span>            :   LogMessageFatal(const char* absl_nonnull file, int line,</a>
+<a name="409"><span class="lineNum">     409 </span>            :                   const char* absl_nonnull failure_msg) ABSL_ATTRIBUTE_COLD;</a>
+<a name="410"><span class="lineNum">     410 </span>            :   [[noreturn]] ~LogMessageFatal();</a>
+<a name="411"><span class="lineNum">     411 </span>            : };</a>
+<a name="412"><span class="lineNum">     412 </span>            : </a>
+<a name="413"><span class="lineNum">     413 </span>            : // `LogMessageDebugFatal` ensures the process will exit in failure after logging</a>
+<a name="414"><span class="lineNum">     414 </span>            : // this message. It matches LogMessageFatal but is not [[noreturn]] as it's used</a>
+<a name="415"><span class="lineNum">     415 </span>            : // for DLOG(FATAL) variants.</a>
+<a name="416"><span class="lineNum">     416 </span>            : class LogMessageDebugFatal final : public LogMessage {</a>
+<a name="417"><span class="lineNum">     417 </span>            :  public:</a>
+<a name="418"><span class="lineNum">     418 </span>            :   LogMessageDebugFatal(const char* absl_nonnull file,</a>
+<a name="419"><span class="lineNum">     419 </span>            :                        int line) ABSL_ATTRIBUTE_COLD;</a>
+<a name="420"><span class="lineNum">     420 </span>            :   ~LogMessageDebugFatal();</a>
+<a name="421"><span class="lineNum">     421 </span>            : };</a>
+<a name="422"><span class="lineNum">     422 </span>            : </a>
+<a name="423"><span class="lineNum">     423 </span>            : class LogMessageQuietlyDebugFatal final : public LogMessage {</a>
+<a name="424"><span class="lineNum">     424 </span>            :  public:</a>
+<a name="425"><span class="lineNum">     425 </span>            :   // DLOG(QFATAL) calls this instead of LogMessageQuietlyFatal to make sure the</a>
+<a name="426"><span class="lineNum">     426 </span>            :   // destructor is not [[noreturn]] even if this is always FATAL as this is only</a>
+<a name="427"><span class="lineNum">     427 </span>            :   // invoked when DLOG() is enabled.</a>
+<a name="428"><span class="lineNum">     428 </span>            :   LogMessageQuietlyDebugFatal(const char* absl_nonnull file,</a>
+<a name="429"><span class="lineNum">     429 </span>            :                               int line) ABSL_ATTRIBUTE_COLD;</a>
+<a name="430"><span class="lineNum">     430 </span>            :   ~LogMessageQuietlyDebugFatal();</a>
+<a name="431"><span class="lineNum">     431 </span>            : };</a>
+<a name="432"><span class="lineNum">     432 </span>            : </a>
+<a name="433"><span class="lineNum">     433 </span>            : // Used for LOG(QFATAL) to make sure it's properly understood as [[noreturn]].</a>
+<a name="434"><span class="lineNum">     434 </span>            : class LogMessageQuietlyFatal final : public LogMessage {</a>
+<a name="435"><span class="lineNum">     435 </span>            :  public:</a>
+<a name="436"><span class="lineNum">     436 </span>            :   LogMessageQuietlyFatal(const char* absl_nonnull file,</a>
+<a name="437"><span class="lineNum">     437 </span>            :                          int line) ABSL_ATTRIBUTE_COLD;</a>
+<a name="438"><span class="lineNum">     438 </span>            :   LogMessageQuietlyFatal(const char* absl_nonnull file, int line,</a>
+<a name="439"><span class="lineNum">     439 </span>            :                          const char* absl_nonnull failure_msg)</a>
+<a name="440"><span class="lineNum">     440 </span>            :       ABSL_ATTRIBUTE_COLD;</a>
+<a name="441"><span class="lineNum">     441 </span>            :   [[noreturn]] ~LogMessageQuietlyFatal();</a>
+<a name="442"><span class="lineNum">     442 </span>            : };</a>
+<a name="443"><span class="lineNum">     443 </span>            : </a>
+<a name="444"><span class="lineNum">     444 </span>            : }  // namespace log_internal</a>
+<a name="445"><span class="lineNum">     445 </span>            : ABSL_NAMESPACE_END</a>
+<a name="446"><span class="lineNum">     446 </span>            : }  // namespace absl</a>
+<a name="447"><span class="lineNum">     447 </span>            : </a>
+<a name="448"><span class="lineNum">     448 </span>            : extern &quot;C&quot; ABSL_ATTRIBUTE_WEAK void ABSL_INTERNAL_C_SYMBOL(</a>
+<a name="449"><span class="lineNum">     449 </span>            :     AbslInternalOnFatalLogMessage)(const absl::LogEntry&amp;);</a>
+<a name="450"><span class="lineNum">     450 </span>            : </a>
+<a name="451"><span class="lineNum">     451 </span>            : #endif  // ABSL_LOG_INTERNAL_LOG_MESSAGE_H_</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

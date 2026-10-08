@@ -1,0 +1,779 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - /home/dev/Blender_PA1483/blender/lib/linux_x64/python/include/python3.13/cpython/unicodeobject.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../../../../../index.html">top level</a> - <a href="index.html">home/dev/Blender_PA1483/blender/lib/linux_x64/python/include/python3.13/cpython</a> - unicodeobject.h<span style="font-size: 80%;"> (source / <a href="unicodeobject.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #ifndef Py_CPYTHON_UNICODEOBJECT_H</a>
+<a name="2"><span class="lineNum">       2 </span>            : #  error &quot;this header file must not be included directly&quot;</a>
+<a name="3"><span class="lineNum">       3 </span>            : #endif</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /* Py_UNICODE was the native Unicode storage format (code unit) used by</a>
+<a name="6"><span class="lineNum">       6 </span>            :    Python and represents a single Unicode element in the Unicode type.</a>
+<a name="7"><span class="lineNum">       7 </span>            :    With PEP 393, Py_UNICODE is deprecated and replaced with a</a>
+<a name="8"><span class="lineNum">       8 </span>            :    typedef to wchar_t. */</a>
+<a name="9"><span class="lineNum">       9 </span>            : Py_DEPRECATED(3.13) typedef wchar_t PY_UNICODE_TYPE;</a>
+<a name="10"><span class="lineNum">      10 </span>            : Py_DEPRECATED(3.13) typedef wchar_t Py_UNICODE;</a>
+<a name="11"><span class="lineNum">      11 </span>            : </a>
+<a name="12"><span class="lineNum">      12 </span>            : </a>
+<a name="13"><span class="lineNum">      13 </span>            : /* --- Internal Unicode Operations ---------------------------------------- */</a>
+<a name="14"><span class="lineNum">      14 </span>            : </a>
+<a name="15"><span class="lineNum">      15 </span>            : // Static inline functions to work with surrogates</a>
+<a name="16"><span class="lineNum">      16 </span>            : static inline int Py_UNICODE_IS_SURROGATE(Py_UCS4 ch) {</a>
+<a name="17"><span class="lineNum">      17 </span>            :     return (0xD800 &lt;= ch &amp;&amp; ch &lt;= 0xDFFF);</a>
+<a name="18"><span class="lineNum">      18 </span>            : }</a>
+<a name="19"><span class="lineNum">      19 </span>            : static inline int Py_UNICODE_IS_HIGH_SURROGATE(Py_UCS4 ch) {</a>
+<a name="20"><span class="lineNum">      20 </span>            :     return (0xD800 &lt;= ch &amp;&amp; ch &lt;= 0xDBFF);</a>
+<a name="21"><span class="lineNum">      21 </span>            : }</a>
+<a name="22"><span class="lineNum">      22 </span>            : static inline int Py_UNICODE_IS_LOW_SURROGATE(Py_UCS4 ch) {</a>
+<a name="23"><span class="lineNum">      23 </span>            :     return (0xDC00 &lt;= ch &amp;&amp; ch &lt;= 0xDFFF);</a>
+<a name="24"><span class="lineNum">      24 </span>            : }</a>
+<a name="25"><span class="lineNum">      25 </span>            : </a>
+<a name="26"><span class="lineNum">      26 </span>            : // Join two surrogate characters and return a single Py_UCS4 value.</a>
+<a name="27"><span class="lineNum">      27 </span>            : static inline Py_UCS4 Py_UNICODE_JOIN_SURROGATES(Py_UCS4 high, Py_UCS4 low)  {</a>
+<a name="28"><span class="lineNum">      28 </span>            :     assert(Py_UNICODE_IS_HIGH_SURROGATE(high));</a>
+<a name="29"><span class="lineNum">      29 </span>            :     assert(Py_UNICODE_IS_LOW_SURROGATE(low));</a>
+<a name="30"><span class="lineNum">      30 </span>            :     return 0x10000 + (((high &amp; 0x03FF) &lt;&lt; 10) | (low &amp; 0x03FF));</a>
+<a name="31"><span class="lineNum">      31 </span>            : }</a>
+<a name="32"><span class="lineNum">      32 </span>            : </a>
+<a name="33"><span class="lineNum">      33 </span>            : // High surrogate = top 10 bits added to 0xD800.</a>
+<a name="34"><span class="lineNum">      34 </span>            : // The character must be in the range [U+10000; U+10ffff].</a>
+<a name="35"><span class="lineNum">      35 </span>            : static inline Py_UCS4 Py_UNICODE_HIGH_SURROGATE(Py_UCS4 ch) {</a>
+<a name="36"><span class="lineNum">      36 </span>            :     assert(0x10000 &lt;= ch &amp;&amp; ch &lt;= 0x10ffff);</a>
+<a name="37"><span class="lineNum">      37 </span>            :     return (0xD800 - (0x10000 &gt;&gt; 10) + (ch &gt;&gt; 10));</a>
+<a name="38"><span class="lineNum">      38 </span>            : }</a>
+<a name="39"><span class="lineNum">      39 </span>            : </a>
+<a name="40"><span class="lineNum">      40 </span>            : // Low surrogate = bottom 10 bits added to 0xDC00.</a>
+<a name="41"><span class="lineNum">      41 </span>            : // The character must be in the range [U+10000; U+10ffff].</a>
+<a name="42"><span class="lineNum">      42 </span>            : static inline Py_UCS4 Py_UNICODE_LOW_SURROGATE(Py_UCS4 ch) {</a>
+<a name="43"><span class="lineNum">      43 </span>            :     assert(0x10000 &lt;= ch &amp;&amp; ch &lt;= 0x10ffff);</a>
+<a name="44"><span class="lineNum">      44 </span>            :     return (0xDC00 + (ch &amp; 0x3FF));</a>
+<a name="45"><span class="lineNum">      45 </span>            : }</a>
+<a name="46"><span class="lineNum">      46 </span>            : </a>
+<a name="47"><span class="lineNum">      47 </span>            : </a>
+<a name="48"><span class="lineNum">      48 </span>            : /* --- Unicode Type ------------------------------------------------------- */</a>
+<a name="49"><span class="lineNum">      49 </span>            : </a>
+<a name="50"><span class="lineNum">      50 </span>            : /* ASCII-only strings created through PyUnicode_New use the PyASCIIObject</a>
+<a name="51"><span class="lineNum">      51 </span>            :    structure. state.ascii and state.compact are set, and the data</a>
+<a name="52"><span class="lineNum">      52 </span>            :    immediately follow the structure. utf8_length can be found</a>
+<a name="53"><span class="lineNum">      53 </span>            :    in the length field; the utf8 pointer is equal to the data pointer. */</a>
+<a name="54"><span class="lineNum">      54 </span>            : typedef struct {</a>
+<a name="55"><span class="lineNum">      55 </span>            :     /* There are 4 forms of Unicode strings:</a>
+<a name="56"><span class="lineNum">      56 </span>            : </a>
+<a name="57"><span class="lineNum">      57 </span>            :        - compact ascii:</a>
+<a name="58"><span class="lineNum">      58 </span>            : </a>
+<a name="59"><span class="lineNum">      59 </span>            :          * structure = PyASCIIObject</a>
+<a name="60"><span class="lineNum">      60 </span>            :          * test: PyUnicode_IS_COMPACT_ASCII(op)</a>
+<a name="61"><span class="lineNum">      61 </span>            :          * kind = PyUnicode_1BYTE_KIND</a>
+<a name="62"><span class="lineNum">      62 </span>            :          * compact = 1</a>
+<a name="63"><span class="lineNum">      63 </span>            :          * ascii = 1</a>
+<a name="64"><span class="lineNum">      64 </span>            :          * (length is the length of the utf8)</a>
+<a name="65"><span class="lineNum">      65 </span>            :          * (data starts just after the structure)</a>
+<a name="66"><span class="lineNum">      66 </span>            :          * (since ASCII is decoded from UTF-8, the utf8 string are the data)</a>
+<a name="67"><span class="lineNum">      67 </span>            : </a>
+<a name="68"><span class="lineNum">      68 </span>            :        - compact:</a>
+<a name="69"><span class="lineNum">      69 </span>            : </a>
+<a name="70"><span class="lineNum">      70 </span>            :          * structure = PyCompactUnicodeObject</a>
+<a name="71"><span class="lineNum">      71 </span>            :          * test: PyUnicode_IS_COMPACT(op) &amp;&amp; !PyUnicode_IS_ASCII(op)</a>
+<a name="72"><span class="lineNum">      72 </span>            :          * kind = PyUnicode_1BYTE_KIND, PyUnicode_2BYTE_KIND or</a>
+<a name="73"><span class="lineNum">      73 </span>            :            PyUnicode_4BYTE_KIND</a>
+<a name="74"><span class="lineNum">      74 </span>            :          * compact = 1</a>
+<a name="75"><span class="lineNum">      75 </span>            :          * ascii = 0</a>
+<a name="76"><span class="lineNum">      76 </span>            :          * utf8 is not shared with data</a>
+<a name="77"><span class="lineNum">      77 </span>            :          * utf8_length = 0 if utf8 is NULL</a>
+<a name="78"><span class="lineNum">      78 </span>            :          * (data starts just after the structure)</a>
+<a name="79"><span class="lineNum">      79 </span>            : </a>
+<a name="80"><span class="lineNum">      80 </span>            :        - legacy string:</a>
+<a name="81"><span class="lineNum">      81 </span>            : </a>
+<a name="82"><span class="lineNum">      82 </span>            :          * structure = PyUnicodeObject structure</a>
+<a name="83"><span class="lineNum">      83 </span>            :          * test: !PyUnicode_IS_COMPACT(op)</a>
+<a name="84"><span class="lineNum">      84 </span>            :          * kind = PyUnicode_1BYTE_KIND, PyUnicode_2BYTE_KIND or</a>
+<a name="85"><span class="lineNum">      85 </span>            :            PyUnicode_4BYTE_KIND</a>
+<a name="86"><span class="lineNum">      86 </span>            :          * compact = 0</a>
+<a name="87"><span class="lineNum">      87 </span>            :          * data.any is not NULL</a>
+<a name="88"><span class="lineNum">      88 </span>            :          * utf8 is shared and utf8_length = length with data.any if ascii = 1</a>
+<a name="89"><span class="lineNum">      89 </span>            :          * utf8_length = 0 if utf8 is NULL</a>
+<a name="90"><span class="lineNum">      90 </span>            : </a>
+<a name="91"><span class="lineNum">      91 </span>            :        Compact strings use only one memory block (structure + characters),</a>
+<a name="92"><span class="lineNum">      92 </span>            :        whereas legacy strings use one block for the structure and one block</a>
+<a name="93"><span class="lineNum">      93 </span>            :        for characters.</a>
+<a name="94"><span class="lineNum">      94 </span>            : </a>
+<a name="95"><span class="lineNum">      95 </span>            :        Legacy strings are created by subclasses of Unicode.</a>
+<a name="96"><span class="lineNum">      96 </span>            : </a>
+<a name="97"><span class="lineNum">      97 </span>            :        See also _PyUnicode_CheckConsistency().</a>
+<a name="98"><span class="lineNum">      98 </span>            :     */</a>
+<a name="99"><span class="lineNum">      99 </span>            :     PyObject_HEAD</a>
+<a name="100"><span class="lineNum">     100 </span>            :     Py_ssize_t length;          /* Number of code points in the string */</a>
+<a name="101"><span class="lineNum">     101 </span>            :     Py_hash_t hash;             /* Hash value; -1 if not set */</a>
+<a name="102"><span class="lineNum">     102 </span>            :     struct {</a>
+<a name="103"><span class="lineNum">     103 </span>            :         /* If interned is non-zero, the two references from the</a>
+<a name="104"><span class="lineNum">     104 </span>            :            dictionary to this object are *not* counted in ob_refcnt.</a>
+<a name="105"><span class="lineNum">     105 </span>            :            The possible values here are:</a>
+<a name="106"><span class="lineNum">     106 </span>            :                0: Not Interned</a>
+<a name="107"><span class="lineNum">     107 </span>            :                1: Interned</a>
+<a name="108"><span class="lineNum">     108 </span>            :                2: Interned and Immortal</a>
+<a name="109"><span class="lineNum">     109 </span>            :                3: Interned, Immortal, and Static</a>
+<a name="110"><span class="lineNum">     110 </span>            :            This categorization allows the runtime to determine the right</a>
+<a name="111"><span class="lineNum">     111 </span>            :            cleanup mechanism at runtime shutdown. */</a>
+<a name="112"><span class="lineNum">     112 </span>            :         unsigned int interned:2;</a>
+<a name="113"><span class="lineNum">     113 </span>            :         /* Character size:</a>
+<a name="114"><span class="lineNum">     114 </span>            : </a>
+<a name="115"><span class="lineNum">     115 </span>            :            - PyUnicode_1BYTE_KIND (1):</a>
+<a name="116"><span class="lineNum">     116 </span>            : </a>
+<a name="117"><span class="lineNum">     117 </span>            :              * character type = Py_UCS1 (8 bits, unsigned)</a>
+<a name="118"><span class="lineNum">     118 </span>            :              * all characters are in the range U+0000-U+00FF (latin1)</a>
+<a name="119"><span class="lineNum">     119 </span>            :              * if ascii is set, all characters are in the range U+0000-U+007F</a>
+<a name="120"><span class="lineNum">     120 </span>            :                (ASCII), otherwise at least one character is in the range</a>
+<a name="121"><span class="lineNum">     121 </span>            :                U+0080-U+00FF</a>
+<a name="122"><span class="lineNum">     122 </span>            : </a>
+<a name="123"><span class="lineNum">     123 </span>            :            - PyUnicode_2BYTE_KIND (2):</a>
+<a name="124"><span class="lineNum">     124 </span>            : </a>
+<a name="125"><span class="lineNum">     125 </span>            :              * character type = Py_UCS2 (16 bits, unsigned)</a>
+<a name="126"><span class="lineNum">     126 </span>            :              * all characters are in the range U+0000-U+FFFF (BMP)</a>
+<a name="127"><span class="lineNum">     127 </span>            :              * at least one character is in the range U+0100-U+FFFF</a>
+<a name="128"><span class="lineNum">     128 </span>            : </a>
+<a name="129"><span class="lineNum">     129 </span>            :            - PyUnicode_4BYTE_KIND (4):</a>
+<a name="130"><span class="lineNum">     130 </span>            : </a>
+<a name="131"><span class="lineNum">     131 </span>            :              * character type = Py_UCS4 (32 bits, unsigned)</a>
+<a name="132"><span class="lineNum">     132 </span>            :              * all characters are in the range U+0000-U+10FFFF</a>
+<a name="133"><span class="lineNum">     133 </span>            :              * at least one character is in the range U+10000-U+10FFFF</a>
+<a name="134"><span class="lineNum">     134 </span>            :          */</a>
+<a name="135"><span class="lineNum">     135 </span>            :         unsigned int kind:3;</a>
+<a name="136"><span class="lineNum">     136 </span>            :         /* Compact is with respect to the allocation scheme. Compact unicode</a>
+<a name="137"><span class="lineNum">     137 </span>            :            objects only require one memory block while non-compact objects use</a>
+<a name="138"><span class="lineNum">     138 </span>            :            one block for the PyUnicodeObject struct and another for its data</a>
+<a name="139"><span class="lineNum">     139 </span>            :            buffer. */</a>
+<a name="140"><span class="lineNum">     140 </span>            :         unsigned int compact:1;</a>
+<a name="141"><span class="lineNum">     141 </span>            :         /* The string only contains characters in the range U+0000-U+007F (ASCII)</a>
+<a name="142"><span class="lineNum">     142 </span>            :            and the kind is PyUnicode_1BYTE_KIND. If ascii is set and compact is</a>
+<a name="143"><span class="lineNum">     143 </span>            :            set, use the PyASCIIObject structure. */</a>
+<a name="144"><span class="lineNum">     144 </span>            :         unsigned int ascii:1;</a>
+<a name="145"><span class="lineNum">     145 </span>            :         /* The object is statically allocated. */</a>
+<a name="146"><span class="lineNum">     146 </span>            :         unsigned int statically_allocated:1;</a>
+<a name="147"><span class="lineNum">     147 </span>            :         /* Padding to ensure that PyUnicode_DATA() is always aligned to</a>
+<a name="148"><span class="lineNum">     148 </span>            :            4 bytes (see issue #19537 on m68k). */</a>
+<a name="149"><span class="lineNum">     149 </span>            :         unsigned int :24;</a>
+<a name="150"><span class="lineNum">     150 </span>            :     } state;</a>
+<a name="151"><span class="lineNum">     151 </span>            : } PyASCIIObject;</a>
+<a name="152"><span class="lineNum">     152 </span>            : </a>
+<a name="153"><span class="lineNum">     153 </span>            : /* Non-ASCII strings allocated through PyUnicode_New use the</a>
+<a name="154"><span class="lineNum">     154 </span>            :    PyCompactUnicodeObject structure. state.compact is set, and the data</a>
+<a name="155"><span class="lineNum">     155 </span>            :    immediately follow the structure. */</a>
+<a name="156"><span class="lineNum">     156 </span>            : typedef struct {</a>
+<a name="157"><span class="lineNum">     157 </span>            :     PyASCIIObject _base;</a>
+<a name="158"><span class="lineNum">     158 </span>            :     Py_ssize_t utf8_length;     /* Number of bytes in utf8, excluding the</a>
+<a name="159"><span class="lineNum">     159 </span>            :                                  * terminating \0. */</a>
+<a name="160"><span class="lineNum">     160 </span>            :     char *utf8;                 /* UTF-8 representation (null-terminated) */</a>
+<a name="161"><span class="lineNum">     161 </span>            : } PyCompactUnicodeObject;</a>
+<a name="162"><span class="lineNum">     162 </span>            : </a>
+<a name="163"><span class="lineNum">     163 </span>            : /* Object format for Unicode subclasses. */</a>
+<a name="164"><span class="lineNum">     164 </span>            : typedef struct {</a>
+<a name="165"><span class="lineNum">     165 </span>            :     PyCompactUnicodeObject _base;</a>
+<a name="166"><span class="lineNum">     166 </span>            :     union {</a>
+<a name="167"><span class="lineNum">     167 </span>            :         void *any;</a>
+<a name="168"><span class="lineNum">     168 </span>            :         Py_UCS1 *latin1;</a>
+<a name="169"><span class="lineNum">     169 </span>            :         Py_UCS2 *ucs2;</a>
+<a name="170"><span class="lineNum">     170 </span>            :         Py_UCS4 *ucs4;</a>
+<a name="171"><span class="lineNum">     171 </span>            :     } data;                     /* Canonical, smallest-form Unicode buffer */</a>
+<a name="172"><span class="lineNum">     172 </span>            : } PyUnicodeObject;</a>
+<a name="173"><span class="lineNum">     173 </span>            : </a>
+<a name="174"><span class="lineNum">     174 </span>            : </a>
+<a name="175"><span class="lineNum">     175 </span>            : #define _PyASCIIObject_CAST(op) \</a>
+<a name="176"><span class="lineNum">     176 </span>            :     (assert(PyUnicode_Check(op)), \</a>
+<a name="177"><span class="lineNum">     177 </span>            :      _Py_CAST(PyASCIIObject*, (op)))</a>
+<a name="178"><span class="lineNum">     178 </span>            : #define _PyCompactUnicodeObject_CAST(op) \</a>
+<a name="179"><span class="lineNum">     179 </span>            :     (assert(PyUnicode_Check(op)), \</a>
+<a name="180"><span class="lineNum">     180 </span>            :      _Py_CAST(PyCompactUnicodeObject*, (op)))</a>
+<a name="181"><span class="lineNum">     181 </span>            : #define _PyUnicodeObject_CAST(op) \</a>
+<a name="182"><span class="lineNum">     182 </span>            :     (assert(PyUnicode_Check(op)), \</a>
+<a name="183"><span class="lineNum">     183 </span>            :      _Py_CAST(PyUnicodeObject*, (op)))</a>
+<a name="184"><span class="lineNum">     184 </span>            : </a>
+<a name="185"><span class="lineNum">     185 </span>            : </a>
+<a name="186"><span class="lineNum">     186 </span>            : /* --- Flexible String Representation Helper Macros (PEP 393) -------------- */</a>
+<a name="187"><span class="lineNum">     187 </span>            : </a>
+<a name="188"><span class="lineNum">     188 </span>            : /* Values for PyASCIIObject.state: */</a>
+<a name="189"><span class="lineNum">     189 </span>            : </a>
+<a name="190"><span class="lineNum">     190 </span>            : /* Interning state. */</a>
+<a name="191"><span class="lineNum">     191 </span>            : #define SSTATE_NOT_INTERNED 0</a>
+<a name="192"><span class="lineNum">     192 </span>            : #define SSTATE_INTERNED_MORTAL 1</a>
+<a name="193"><span class="lineNum">     193 </span>            : #define SSTATE_INTERNED_IMMORTAL 2</a>
+<a name="194"><span class="lineNum">     194 </span>            : #define SSTATE_INTERNED_IMMORTAL_STATIC 3</a>
+<a name="195"><span class="lineNum">     195 </span>            : </a>
+<a name="196"><span class="lineNum">     196 </span>            : /* Use only if you know it's a string */</a>
+<a name="197"><span class="lineNum">     197 </span>            : static inline unsigned int PyUnicode_CHECK_INTERNED(PyObject *op) {</a>
+<a name="198"><span class="lineNum">     198 </span>            :     return _PyASCIIObject_CAST(op)-&gt;state.interned;</a>
+<a name="199"><span class="lineNum">     199 </span>            : }</a>
+<a name="200"><span class="lineNum">     200 </span>            : #define PyUnicode_CHECK_INTERNED(op) PyUnicode_CHECK_INTERNED(_PyObject_CAST(op))</a>
+<a name="201"><span class="lineNum">     201 </span>            : </a>
+<a name="202"><span class="lineNum">     202 </span>            : /* For backward compatibility */</a>
+<a name="203"><span class="lineNum">     203 </span>            : static inline unsigned int PyUnicode_IS_READY(PyObject* Py_UNUSED(op)) {</a>
+<a name="204"><span class="lineNum">     204 </span>            :     return 1;</a>
+<a name="205"><span class="lineNum">     205 </span>            : }</a>
+<a name="206"><span class="lineNum">     206 </span>            : #define PyUnicode_IS_READY(op) PyUnicode_IS_READY(_PyObject_CAST(op))</a>
+<a name="207"><span class="lineNum">     207 </span>            : </a>
+<a name="208"><span class="lineNum">     208 </span>            : /* Return true if the string contains only ASCII characters, or 0 if not. The</a>
+<a name="209"><span class="lineNum">     209 </span>            :    string may be compact (PyUnicode_IS_COMPACT_ASCII) or not, but must be</a>
+<a name="210"><span class="lineNum">     210 </span>            :    ready. */</a>
+<a name="211"><span class="lineNum">     211 </span>            : static inline unsigned int PyUnicode_IS_ASCII(PyObject *op) {</a>
+<a name="212"><span class="lineNum">     212 </span>            :     return _PyASCIIObject_CAST(op)-&gt;state.ascii;</a>
+<a name="213"><span class="lineNum">     213 </span>            : }</a>
+<a name="214"><span class="lineNum">     214 </span>            : #define PyUnicode_IS_ASCII(op) PyUnicode_IS_ASCII(_PyObject_CAST(op))</a>
+<a name="215"><span class="lineNum">     215 </span>            : </a>
+<a name="216"><span class="lineNum">     216 </span>            : /* Return true if the string is compact or 0 if not.</a>
+<a name="217"><span class="lineNum">     217 </span>            :    No type checks or Ready calls are performed. */</a>
+<a name="218"><span class="lineNum">     218 </span>            : static inline unsigned int PyUnicode_IS_COMPACT(PyObject *op) {</a>
+<a name="219"><span class="lineNum">     219 </span>            :     return _PyASCIIObject_CAST(op)-&gt;state.compact;</a>
+<a name="220"><span class="lineNum">     220 </span>            : }</a>
+<a name="221"><span class="lineNum">     221 </span>            : #define PyUnicode_IS_COMPACT(op) PyUnicode_IS_COMPACT(_PyObject_CAST(op))</a>
+<a name="222"><span class="lineNum">     222 </span>            : </a>
+<a name="223"><span class="lineNum">     223 </span>            : /* Return true if the string is a compact ASCII string (use PyASCIIObject</a>
+<a name="224"><span class="lineNum">     224 </span>            :    structure), or 0 if not.  No type checks or Ready calls are performed. */</a>
+<a name="225"><span class="lineNum">     225 </span>            : static inline int PyUnicode_IS_COMPACT_ASCII(PyObject *op) {</a>
+<a name="226"><span class="lineNum">     226 </span>            :     return (_PyASCIIObject_CAST(op)-&gt;state.ascii &amp;&amp; PyUnicode_IS_COMPACT(op));</a>
+<a name="227"><span class="lineNum">     227 </span>            : }</a>
+<a name="228"><span class="lineNum">     228 </span>            : #define PyUnicode_IS_COMPACT_ASCII(op) PyUnicode_IS_COMPACT_ASCII(_PyObject_CAST(op))</a>
+<a name="229"><span class="lineNum">     229 </span>            : </a>
+<a name="230"><span class="lineNum">     230 </span>            : enum PyUnicode_Kind {</a>
+<a name="231"><span class="lineNum">     231 </span>            : /* Return values of the PyUnicode_KIND() function: */</a>
+<a name="232"><span class="lineNum">     232 </span>            :     PyUnicode_1BYTE_KIND = 1,</a>
+<a name="233"><span class="lineNum">     233 </span>            :     PyUnicode_2BYTE_KIND = 2,</a>
+<a name="234"><span class="lineNum">     234 </span>            :     PyUnicode_4BYTE_KIND = 4</a>
+<a name="235"><span class="lineNum">     235 </span>            : };</a>
+<a name="236"><span class="lineNum">     236 </span>            : </a>
+<a name="237"><span class="lineNum">     237 </span>            : // PyUnicode_KIND(): Return one of the PyUnicode_*_KIND values defined above.</a>
+<a name="238"><span class="lineNum">     238 </span>            : //</a>
+<a name="239"><span class="lineNum">     239 </span>            : // gh-89653: Converting this macro to a static inline function would introduce</a>
+<a name="240"><span class="lineNum">     240 </span>            : // new compiler warnings on &quot;kind &lt; PyUnicode_KIND(str)&quot; (compare signed and</a>
+<a name="241"><span class="lineNum">     241 </span>            : // unsigned numbers) where kind type is an int or on</a>
+<a name="242"><span class="lineNum">     242 </span>            : // &quot;unsigned int kind = PyUnicode_KIND(str)&quot; (cast signed to unsigned).</a>
+<a name="243"><span class="lineNum">     243 </span>            : #define PyUnicode_KIND(op) _Py_RVALUE(_PyASCIIObject_CAST(op)-&gt;state.kind)</a>
+<a name="244"><span class="lineNum">     244 </span>            : </a>
+<a name="245"><span class="lineNum">     245 </span>            : /* Return a void pointer to the raw unicode buffer. */</a>
+<a name="246"><span class="lineNum">     246 </span>            : static inline void* _PyUnicode_COMPACT_DATA(PyObject *op) {</a>
+<a name="247"><span class="lineNum">     247 </span>            :     if (PyUnicode_IS_ASCII(op)) {</a>
+<a name="248"><span class="lineNum">     248 </span>            :         return _Py_STATIC_CAST(void*, (_PyASCIIObject_CAST(op) + 1));</a>
+<a name="249"><span class="lineNum">     249 </span>            :     }</a>
+<a name="250"><span class="lineNum">     250 </span>            :     return _Py_STATIC_CAST(void*, (_PyCompactUnicodeObject_CAST(op) + 1));</a>
+<a name="251"><span class="lineNum">     251 </span>            : }</a>
+<a name="252"><span class="lineNum">     252 </span>            : </a>
+<a name="253"><span class="lineNum">     253 </span>            : static inline void* _PyUnicode_NONCOMPACT_DATA(PyObject *op) {</a>
+<a name="254"><span class="lineNum">     254 </span>            :     void *data;</a>
+<a name="255"><span class="lineNum">     255 </span>            :     assert(!PyUnicode_IS_COMPACT(op));</a>
+<a name="256"><span class="lineNum">     256 </span>            :     data = _PyUnicodeObject_CAST(op)-&gt;data.any;</a>
+<a name="257"><span class="lineNum">     257 </span>            :     assert(data != NULL);</a>
+<a name="258"><span class="lineNum">     258 </span>            :     return data;</a>
+<a name="259"><span class="lineNum">     259 </span>            : }</a>
+<a name="260"><span class="lineNum">     260 </span>            : </a>
+<a name="261"><span class="lineNum">     261 </span>            : static inline void* PyUnicode_DATA(PyObject *op) {</a>
+<a name="262"><span class="lineNum">     262 </span>            :     if (PyUnicode_IS_COMPACT(op)) {</a>
+<a name="263"><span class="lineNum">     263 </span>            :         return _PyUnicode_COMPACT_DATA(op);</a>
+<a name="264"><span class="lineNum">     264 </span>            :     }</a>
+<a name="265"><span class="lineNum">     265 </span>            :     return _PyUnicode_NONCOMPACT_DATA(op);</a>
+<a name="266"><span class="lineNum">     266 </span>            : }</a>
+<a name="267"><span class="lineNum">     267 </span>            : #define PyUnicode_DATA(op) PyUnicode_DATA(_PyObject_CAST(op))</a>
+<a name="268"><span class="lineNum">     268 </span>            : </a>
+<a name="269"><span class="lineNum">     269 </span>            : /* Return pointers to the canonical representation cast to unsigned char,</a>
+<a name="270"><span class="lineNum">     270 </span>            :    Py_UCS2, or Py_UCS4 for direct character access.</a>
+<a name="271"><span class="lineNum">     271 </span>            :    No checks are performed, use PyUnicode_KIND() before to ensure</a>
+<a name="272"><span class="lineNum">     272 </span>            :    these will work correctly. */</a>
+<a name="273"><span class="lineNum">     273 </span>            : </a>
+<a name="274"><span class="lineNum">     274 </span>            : #define PyUnicode_1BYTE_DATA(op) _Py_STATIC_CAST(Py_UCS1*, PyUnicode_DATA(op))</a>
+<a name="275"><span class="lineNum">     275 </span>            : #define PyUnicode_2BYTE_DATA(op) _Py_STATIC_CAST(Py_UCS2*, PyUnicode_DATA(op))</a>
+<a name="276"><span class="lineNum">     276 </span>            : #define PyUnicode_4BYTE_DATA(op) _Py_STATIC_CAST(Py_UCS4*, PyUnicode_DATA(op))</a>
+<a name="277"><span class="lineNum">     277 </span>            : </a>
+<a name="278"><span class="lineNum">     278 </span>            : /* Returns the length of the unicode string. */</a>
+<a name="279"><span class="lineNum">     279 </span>            : static inline Py_ssize_t PyUnicode_GET_LENGTH(PyObject *op) {</a>
+<a name="280"><span class="lineNum">     280 </span>            :     return _PyASCIIObject_CAST(op)-&gt;length;</a>
+<a name="281"><span class="lineNum">     281 </span>            : }</a>
+<a name="282"><span class="lineNum">     282 </span>            : #define PyUnicode_GET_LENGTH(op) PyUnicode_GET_LENGTH(_PyObject_CAST(op))</a>
+<a name="283"><span class="lineNum">     283 </span>            : </a>
+<a name="284"><span class="lineNum">     284 </span>            : /* Write into the canonical representation, this function does not do any sanity</a>
+<a name="285"><span class="lineNum">     285 </span>            :    checks and is intended for usage in loops.  The caller should cache the</a>
+<a name="286"><span class="lineNum">     286 </span>            :    kind and data pointers obtained from other function calls.</a>
+<a name="287"><span class="lineNum">     287 </span>            :    index is the index in the string (starts at 0) and value is the new</a>
+<a name="288"><span class="lineNum">     288 </span>            :    code point value which should be written to that location. */</a>
+<a name="289"><span class="lineNum">     289 </span>            : static inline void PyUnicode_WRITE(int kind, void *data,</a>
+<a name="290"><span class="lineNum">     290 </span>            :                                    Py_ssize_t index, Py_UCS4 value)</a>
+<a name="291"><span class="lineNum">     291 </span>            : {</a>
+<a name="292"><span class="lineNum">     292 </span>            :     assert(index &gt;= 0);</a>
+<a name="293"><span class="lineNum">     293 </span>            :     if (kind == PyUnicode_1BYTE_KIND) {</a>
+<a name="294"><span class="lineNum">     294 </span>            :         assert(value &lt;= 0xffU);</a>
+<a name="295"><span class="lineNum">     295 </span>            :         _Py_STATIC_CAST(Py_UCS1*, data)[index] = _Py_STATIC_CAST(Py_UCS1, value);</a>
+<a name="296"><span class="lineNum">     296 </span>            :     }</a>
+<a name="297"><span class="lineNum">     297 </span>            :     else if (kind == PyUnicode_2BYTE_KIND) {</a>
+<a name="298"><span class="lineNum">     298 </span>            :         assert(value &lt;= 0xffffU);</a>
+<a name="299"><span class="lineNum">     299 </span>            :         _Py_STATIC_CAST(Py_UCS2*, data)[index] = _Py_STATIC_CAST(Py_UCS2, value);</a>
+<a name="300"><span class="lineNum">     300 </span>            :     }</a>
+<a name="301"><span class="lineNum">     301 </span>            :     else {</a>
+<a name="302"><span class="lineNum">     302 </span>            :         assert(kind == PyUnicode_4BYTE_KIND);</a>
+<a name="303"><span class="lineNum">     303 </span>            :         assert(value &lt;= 0x10ffffU);</a>
+<a name="304"><span class="lineNum">     304 </span>            :         _Py_STATIC_CAST(Py_UCS4*, data)[index] = value;</a>
+<a name="305"><span class="lineNum">     305 </span>            :     }</a>
+<a name="306"><span class="lineNum">     306 </span>            : }</a>
+<a name="307"><span class="lineNum">     307 </span>            : #define PyUnicode_WRITE(kind, data, index, value) \</a>
+<a name="308"><span class="lineNum">     308 </span>            :     PyUnicode_WRITE(_Py_STATIC_CAST(int, kind), _Py_CAST(void*, data), \</a>
+<a name="309"><span class="lineNum">     309 </span>            :                     (index), _Py_STATIC_CAST(Py_UCS4, value))</a>
+<a name="310"><span class="lineNum">     310 </span>            : </a>
+<a name="311"><span class="lineNum">     311 </span>            : /* Read a code point from the string's canonical representation.  No checks</a>
+<a name="312"><span class="lineNum">     312 </span>            :    or ready calls are performed. */</a>
+<a name="313"><span class="lineNum">     313 </span>            : static inline Py_UCS4 PyUnicode_READ(int kind,</a>
+<a name="314"><span class="lineNum">     314 </span>            :                                      const void *data, Py_ssize_t index)</a>
+<a name="315"><span class="lineNum">     315 </span>            : {</a>
+<a name="316"><span class="lineNum">     316 </span>            :     assert(index &gt;= 0);</a>
+<a name="317"><span class="lineNum">     317 </span>            :     if (kind == PyUnicode_1BYTE_KIND) {</a>
+<a name="318"><span class="lineNum">     318 </span>            :         return _Py_STATIC_CAST(const Py_UCS1*, data)[index];</a>
+<a name="319"><span class="lineNum">     319 </span>            :     }</a>
+<a name="320"><span class="lineNum">     320 </span>            :     if (kind == PyUnicode_2BYTE_KIND) {</a>
+<a name="321"><span class="lineNum">     321 </span>            :         return _Py_STATIC_CAST(const Py_UCS2*, data)[index];</a>
+<a name="322"><span class="lineNum">     322 </span>            :     }</a>
+<a name="323"><span class="lineNum">     323 </span>            :     assert(kind == PyUnicode_4BYTE_KIND);</a>
+<a name="324"><span class="lineNum">     324 </span>            :     return _Py_STATIC_CAST(const Py_UCS4*, data)[index];</a>
+<a name="325"><span class="lineNum">     325 </span>            : }</a>
+<a name="326"><span class="lineNum">     326 </span>            : #define PyUnicode_READ(kind, data, index) \</a>
+<a name="327"><span class="lineNum">     327 </span>            :     PyUnicode_READ(_Py_STATIC_CAST(int, kind), \</a>
+<a name="328"><span class="lineNum">     328 </span>            :                    _Py_STATIC_CAST(const void*, data), \</a>
+<a name="329"><span class="lineNum">     329 </span>            :                    (index))</a>
+<a name="330"><span class="lineNum">     330 </span>            : </a>
+<a name="331"><span class="lineNum">     331 </span>            : /* PyUnicode_READ_CHAR() is less efficient than PyUnicode_READ() because it</a>
+<a name="332"><span class="lineNum">     332 </span>            :    calls PyUnicode_KIND() and might call it twice.  For single reads, use</a>
+<a name="333"><span class="lineNum">     333 </span>            :    PyUnicode_READ_CHAR, for multiple consecutive reads callers should</a>
+<a name="334"><span class="lineNum">     334 </span>            :    cache kind and use PyUnicode_READ instead. */</a>
+<a name="335"><span class="lineNum">     335 </span>            : static inline Py_UCS4 PyUnicode_READ_CHAR(PyObject *unicode, Py_ssize_t index)</a>
+<a name="336"><span class="lineNum">     336 </span>            : {</a>
+<a name="337"><span class="lineNum">     337 </span>            :     int kind;</a>
+<a name="338"><span class="lineNum">     338 </span>            : </a>
+<a name="339"><span class="lineNum">     339 </span>            :     assert(index &gt;= 0);</a>
+<a name="340"><span class="lineNum">     340 </span>            :     // Tolerate reading the NUL character at str[len(str)]</a>
+<a name="341"><span class="lineNum">     341 </span>            :     assert(index &lt;= PyUnicode_GET_LENGTH(unicode));</a>
+<a name="342"><span class="lineNum">     342 </span>            : </a>
+<a name="343"><span class="lineNum">     343 </span>            :     kind = PyUnicode_KIND(unicode);</a>
+<a name="344"><span class="lineNum">     344 </span>            :     if (kind == PyUnicode_1BYTE_KIND) {</a>
+<a name="345"><span class="lineNum">     345 </span>            :         return PyUnicode_1BYTE_DATA(unicode)[index];</a>
+<a name="346"><span class="lineNum">     346 </span>            :     }</a>
+<a name="347"><span class="lineNum">     347 </span>            :     if (kind == PyUnicode_2BYTE_KIND) {</a>
+<a name="348"><span class="lineNum">     348 </span>            :         return PyUnicode_2BYTE_DATA(unicode)[index];</a>
+<a name="349"><span class="lineNum">     349 </span>            :     }</a>
+<a name="350"><span class="lineNum">     350 </span>            :     assert(kind == PyUnicode_4BYTE_KIND);</a>
+<a name="351"><span class="lineNum">     351 </span>            :     return PyUnicode_4BYTE_DATA(unicode)[index];</a>
+<a name="352"><span class="lineNum">     352 </span>            : }</a>
+<a name="353"><span class="lineNum">     353 </span>            : #define PyUnicode_READ_CHAR(unicode, index) \</a>
+<a name="354"><span class="lineNum">     354 </span>            :     PyUnicode_READ_CHAR(_PyObject_CAST(unicode), (index))</a>
+<a name="355"><span class="lineNum">     355 </span>            : </a>
+<a name="356"><span class="lineNum">     356 </span>            : /* Return a maximum character value which is suitable for creating another</a>
+<a name="357"><span class="lineNum">     357 </span>            :    string based on op.  This is always an approximation but more efficient</a>
+<a name="358"><span class="lineNum">     358 </span>            :    than iterating over the string. */</a>
+<a name="359"><span class="lineNum">     359 </span>            : static inline Py_UCS4 PyUnicode_MAX_CHAR_VALUE(PyObject *op)</a>
+<a name="360"><span class="lineNum">     360 </span>            : {</a>
+<a name="361"><span class="lineNum">     361 </span>            :     int kind;</a>
+<a name="362"><span class="lineNum">     362 </span>            : </a>
+<a name="363"><span class="lineNum">     363 </span>            :     if (PyUnicode_IS_ASCII(op)) {</a>
+<a name="364"><span class="lineNum">     364 </span>            :         return 0x7fU;</a>
+<a name="365"><span class="lineNum">     365 </span>            :     }</a>
+<a name="366"><span class="lineNum">     366 </span>            : </a>
+<a name="367"><span class="lineNum">     367 </span>            :     kind = PyUnicode_KIND(op);</a>
+<a name="368"><span class="lineNum">     368 </span>            :     if (kind == PyUnicode_1BYTE_KIND) {</a>
+<a name="369"><span class="lineNum">     369 </span>            :        return 0xffU;</a>
+<a name="370"><span class="lineNum">     370 </span>            :     }</a>
+<a name="371"><span class="lineNum">     371 </span>            :     if (kind == PyUnicode_2BYTE_KIND) {</a>
+<a name="372"><span class="lineNum">     372 </span>            :         return 0xffffU;</a>
+<a name="373"><span class="lineNum">     373 </span>            :     }</a>
+<a name="374"><span class="lineNum">     374 </span>            :     assert(kind == PyUnicode_4BYTE_KIND);</a>
+<a name="375"><span class="lineNum">     375 </span>            :     return 0x10ffffU;</a>
+<a name="376"><span class="lineNum">     376 </span>            : }</a>
+<a name="377"><span class="lineNum">     377 </span>            : #define PyUnicode_MAX_CHAR_VALUE(op) \</a>
+<a name="378"><span class="lineNum">     378 </span>            :     PyUnicode_MAX_CHAR_VALUE(_PyObject_CAST(op))</a>
+<a name="379"><span class="lineNum">     379 </span>            : </a>
+<a name="380"><span class="lineNum">     380 </span>            : </a>
+<a name="381"><span class="lineNum">     381 </span>            : /* === Public API ========================================================= */</a>
+<a name="382"><span class="lineNum">     382 </span>            : </a>
+<a name="383"><span class="lineNum">     383 </span>            : /* With PEP 393, this is the recommended way to allocate a new unicode object.</a>
+<a name="384"><span class="lineNum">     384 </span>            :    This function will allocate the object and its buffer in a single memory</a>
+<a name="385"><span class="lineNum">     385 </span>            :    block.  Objects created using this function are not resizable. */</a>
+<a name="386"><span class="lineNum">     386 </span>            : PyAPI_FUNC(PyObject*) PyUnicode_New(</a>
+<a name="387"><span class="lineNum">     387 </span>            :     Py_ssize_t size,            /* Number of code points in the new string */</a>
+<a name="388"><span class="lineNum">     388 </span>            :     Py_UCS4 maxchar             /* maximum code point value in the string */</a>
+<a name="389"><span class="lineNum">     389 </span>            :     );</a>
+<a name="390"><span class="lineNum">     390 </span>            : </a>
+<a name="391"><span class="lineNum">     391 </span>            : /* For backward compatibility */</a>
+<a name="392"><span class="lineNum">     392 </span>            : static inline int PyUnicode_READY(PyObject* Py_UNUSED(op))</a>
+<a name="393"><span class="lineNum">     393 </span>            : {</a>
+<a name="394"><span class="lineNum">     394 </span>            :     return 0;</a>
+<a name="395"><span class="lineNum">     395 </span>            : }</a>
+<a name="396"><span class="lineNum">     396 </span>            : #define PyUnicode_READY(op) PyUnicode_READY(_PyObject_CAST(op))</a>
+<a name="397"><span class="lineNum">     397 </span>            : </a>
+<a name="398"><span class="lineNum">     398 </span>            : /* Copy character from one unicode object into another, this function performs</a>
+<a name="399"><span class="lineNum">     399 </span>            :    character conversion when necessary and falls back to memcpy() if possible.</a>
+<a name="400"><span class="lineNum">     400 </span>            : </a>
+<a name="401"><span class="lineNum">     401 </span>            :    Fail if to is too small (smaller than *how_many* or smaller than</a>
+<a name="402"><span class="lineNum">     402 </span>            :    len(from)-from_start), or if kind(from[from_start:from_start+how_many]) &gt;</a>
+<a name="403"><span class="lineNum">     403 </span>            :    kind(to), or if *to* has more than 1 reference.</a>
+<a name="404"><span class="lineNum">     404 </span>            : </a>
+<a name="405"><span class="lineNum">     405 </span>            :    Return the number of written character, or return -1 and raise an exception</a>
+<a name="406"><span class="lineNum">     406 </span>            :    on error.</a>
+<a name="407"><span class="lineNum">     407 </span>            : </a>
+<a name="408"><span class="lineNum">     408 </span>            :    Pseudo-code:</a>
+<a name="409"><span class="lineNum">     409 </span>            : </a>
+<a name="410"><span class="lineNum">     410 </span>            :        how_many = min(how_many, len(from) - from_start)</a>
+<a name="411"><span class="lineNum">     411 </span>            :        to[to_start:to_start+how_many] = from[from_start:from_start+how_many]</a>
+<a name="412"><span class="lineNum">     412 </span>            :        return how_many</a>
+<a name="413"><span class="lineNum">     413 </span>            : </a>
+<a name="414"><span class="lineNum">     414 </span>            :    Note: The function doesn't write a terminating null character.</a>
+<a name="415"><span class="lineNum">     415 </span>            :    */</a>
+<a name="416"><span class="lineNum">     416 </span>            : PyAPI_FUNC(Py_ssize_t) PyUnicode_CopyCharacters(</a>
+<a name="417"><span class="lineNum">     417 </span>            :     PyObject *to,</a>
+<a name="418"><span class="lineNum">     418 </span>            :     Py_ssize_t to_start,</a>
+<a name="419"><span class="lineNum">     419 </span>            :     PyObject *from,</a>
+<a name="420"><span class="lineNum">     420 </span>            :     Py_ssize_t from_start,</a>
+<a name="421"><span class="lineNum">     421 </span>            :     Py_ssize_t how_many</a>
+<a name="422"><span class="lineNum">     422 </span>            :     );</a>
+<a name="423"><span class="lineNum">     423 </span>            : </a>
+<a name="424"><span class="lineNum">     424 </span>            : /* Fill a string with a character: write fill_char into</a>
+<a name="425"><span class="lineNum">     425 </span>            :    unicode[start:start+length].</a>
+<a name="426"><span class="lineNum">     426 </span>            : </a>
+<a name="427"><span class="lineNum">     427 </span>            :    Fail if fill_char is bigger than the string maximum character, or if the</a>
+<a name="428"><span class="lineNum">     428 </span>            :    string has more than 1 reference.</a>
+<a name="429"><span class="lineNum">     429 </span>            : </a>
+<a name="430"><span class="lineNum">     430 </span>            :    Return the number of written character, or return -1 and raise an exception</a>
+<a name="431"><span class="lineNum">     431 </span>            :    on error. */</a>
+<a name="432"><span class="lineNum">     432 </span>            : PyAPI_FUNC(Py_ssize_t) PyUnicode_Fill(</a>
+<a name="433"><span class="lineNum">     433 </span>            :     PyObject *unicode,</a>
+<a name="434"><span class="lineNum">     434 </span>            :     Py_ssize_t start,</a>
+<a name="435"><span class="lineNum">     435 </span>            :     Py_ssize_t length,</a>
+<a name="436"><span class="lineNum">     436 </span>            :     Py_UCS4 fill_char</a>
+<a name="437"><span class="lineNum">     437 </span>            :     );</a>
+<a name="438"><span class="lineNum">     438 </span>            : </a>
+<a name="439"><span class="lineNum">     439 </span>            : /* Create a new string from a buffer of Py_UCS1, Py_UCS2 or Py_UCS4 characters.</a>
+<a name="440"><span class="lineNum">     440 </span>            :    Scan the string to find the maximum character. */</a>
+<a name="441"><span class="lineNum">     441 </span>            : PyAPI_FUNC(PyObject*) PyUnicode_FromKindAndData(</a>
+<a name="442"><span class="lineNum">     442 </span>            :     int kind,</a>
+<a name="443"><span class="lineNum">     443 </span>            :     const void *buffer,</a>
+<a name="444"><span class="lineNum">     444 </span>            :     Py_ssize_t size);</a>
+<a name="445"><span class="lineNum">     445 </span>            : </a>
+<a name="446"><span class="lineNum">     446 </span>            : </a>
+<a name="447"><span class="lineNum">     447 </span>            : /* --- _PyUnicodeWriter API ----------------------------------------------- */</a>
+<a name="448"><span class="lineNum">     448 </span>            : </a>
+<a name="449"><span class="lineNum">     449 </span>            : typedef struct {</a>
+<a name="450"><span class="lineNum">     450 </span>            :     PyObject *buffer;</a>
+<a name="451"><span class="lineNum">     451 </span>            :     void *data;</a>
+<a name="452"><span class="lineNum">     452 </span>            :     int kind;</a>
+<a name="453"><span class="lineNum">     453 </span>            :     Py_UCS4 maxchar;</a>
+<a name="454"><span class="lineNum">     454 </span>            :     Py_ssize_t size;</a>
+<a name="455"><span class="lineNum">     455 </span>            :     Py_ssize_t pos;</a>
+<a name="456"><span class="lineNum">     456 </span>            : </a>
+<a name="457"><span class="lineNum">     457 </span>            :     /* minimum number of allocated characters (default: 0) */</a>
+<a name="458"><span class="lineNum">     458 </span>            :     Py_ssize_t min_length;</a>
+<a name="459"><span class="lineNum">     459 </span>            : </a>
+<a name="460"><span class="lineNum">     460 </span>            :     /* minimum character (default: 127, ASCII) */</a>
+<a name="461"><span class="lineNum">     461 </span>            :     Py_UCS4 min_char;</a>
+<a name="462"><span class="lineNum">     462 </span>            : </a>
+<a name="463"><span class="lineNum">     463 </span>            :     /* If non-zero, overallocate the buffer (default: 0). */</a>
+<a name="464"><span class="lineNum">     464 </span>            :     unsigned char overallocate;</a>
+<a name="465"><span class="lineNum">     465 </span>            : </a>
+<a name="466"><span class="lineNum">     466 </span>            :     /* If readonly is 1, buffer is a shared string (cannot be modified)</a>
+<a name="467"><span class="lineNum">     467 </span>            :        and size is set to 0. */</a>
+<a name="468"><span class="lineNum">     468 </span>            :     unsigned char readonly;</a>
+<a name="469"><span class="lineNum">     469 </span>            : } _PyUnicodeWriter ;</a>
+<a name="470"><span class="lineNum">     470 </span>            : </a>
+<a name="471"><span class="lineNum">     471 </span>            : // Initialize a Unicode writer.</a>
+<a name="472"><span class="lineNum">     472 </span>            : //</a>
+<a name="473"><span class="lineNum">     473 </span>            : // By default, the minimum buffer size is 0 character and overallocation is</a>
+<a name="474"><span class="lineNum">     474 </span>            : // disabled. Set min_length, min_char and overallocate attributes to control</a>
+<a name="475"><span class="lineNum">     475 </span>            : // the allocation of the buffer.</a>
+<a name="476"><span class="lineNum">     476 </span>            : PyAPI_FUNC(void)</a>
+<a name="477"><span class="lineNum">     477 </span>            : _PyUnicodeWriter_Init(_PyUnicodeWriter *writer);</a>
+<a name="478"><span class="lineNum">     478 </span>            : </a>
+<a name="479"><span class="lineNum">     479 </span>            : /* Prepare the buffer to write 'length' characters</a>
+<a name="480"><span class="lineNum">     480 </span>            :    with the specified maximum character.</a>
+<a name="481"><span class="lineNum">     481 </span>            : </a>
+<a name="482"><span class="lineNum">     482 </span>            :    Return 0 on success, raise an exception and return -1 on error. */</a>
+<a name="483"><span class="lineNum">     483 </span>            : #define _PyUnicodeWriter_Prepare(WRITER, LENGTH, MAXCHAR)             \</a>
+<a name="484"><span class="lineNum">     484 </span>            :     (((MAXCHAR) &lt;= (WRITER)-&gt;maxchar                                  \</a>
+<a name="485"><span class="lineNum">     485 </span>            :       &amp;&amp; (LENGTH) &lt;= (WRITER)-&gt;size - (WRITER)-&gt;pos)                  \</a>
+<a name="486"><span class="lineNum">     486 </span>            :      ? 0                                                              \</a>
+<a name="487"><span class="lineNum">     487 </span>            :      : (((LENGTH) == 0)                                               \</a>
+<a name="488"><span class="lineNum">     488 </span>            :         ? 0                                                           \</a>
+<a name="489"><span class="lineNum">     489 </span>            :         : _PyUnicodeWriter_PrepareInternal((WRITER), (LENGTH), (MAXCHAR))))</a>
+<a name="490"><span class="lineNum">     490 </span>            : </a>
+<a name="491"><span class="lineNum">     491 </span>            : /* Don't call this function directly, use the _PyUnicodeWriter_Prepare() macro</a>
+<a name="492"><span class="lineNum">     492 </span>            :    instead. */</a>
+<a name="493"><span class="lineNum">     493 </span>            : PyAPI_FUNC(int)</a>
+<a name="494"><span class="lineNum">     494 </span>            : _PyUnicodeWriter_PrepareInternal(_PyUnicodeWriter *writer,</a>
+<a name="495"><span class="lineNum">     495 </span>            :                                  Py_ssize_t length, Py_UCS4 maxchar);</a>
+<a name="496"><span class="lineNum">     496 </span>            : </a>
+<a name="497"><span class="lineNum">     497 </span>            : /* Prepare the buffer to have at least the kind KIND.</a>
+<a name="498"><span class="lineNum">     498 </span>            :    For example, kind=PyUnicode_2BYTE_KIND ensures that the writer will</a>
+<a name="499"><span class="lineNum">     499 </span>            :    support characters in range U+000-U+FFFF.</a>
+<a name="500"><span class="lineNum">     500 </span>            : </a>
+<a name="501"><span class="lineNum">     501 </span>            :    Return 0 on success, raise an exception and return -1 on error. */</a>
+<a name="502"><span class="lineNum">     502 </span>            : #define _PyUnicodeWriter_PrepareKind(WRITER, KIND)                    \</a>
+<a name="503"><span class="lineNum">     503 </span>            :     ((KIND) &lt;= (WRITER)-&gt;kind                                         \</a>
+<a name="504"><span class="lineNum">     504 </span>            :      ? 0                                                              \</a>
+<a name="505"><span class="lineNum">     505 </span>            :      : _PyUnicodeWriter_PrepareKindInternal((WRITER), (KIND)))</a>
+<a name="506"><span class="lineNum">     506 </span>            : </a>
+<a name="507"><span class="lineNum">     507 </span>            : /* Don't call this function directly, use the _PyUnicodeWriter_PrepareKind()</a>
+<a name="508"><span class="lineNum">     508 </span>            :    macro instead. */</a>
+<a name="509"><span class="lineNum">     509 </span>            : PyAPI_FUNC(int)</a>
+<a name="510"><span class="lineNum">     510 </span>            : _PyUnicodeWriter_PrepareKindInternal(_PyUnicodeWriter *writer,</a>
+<a name="511"><span class="lineNum">     511 </span>            :                                      int kind);</a>
+<a name="512"><span class="lineNum">     512 </span>            : </a>
+<a name="513"><span class="lineNum">     513 </span>            : /* Append a Unicode character.</a>
+<a name="514"><span class="lineNum">     514 </span>            :    Return 0 on success, raise an exception and return -1 on error. */</a>
+<a name="515"><span class="lineNum">     515 </span>            : PyAPI_FUNC(int)</a>
+<a name="516"><span class="lineNum">     516 </span>            : _PyUnicodeWriter_WriteChar(_PyUnicodeWriter *writer,</a>
+<a name="517"><span class="lineNum">     517 </span>            :     Py_UCS4 ch</a>
+<a name="518"><span class="lineNum">     518 </span>            :     );</a>
+<a name="519"><span class="lineNum">     519 </span>            : </a>
+<a name="520"><span class="lineNum">     520 </span>            : /* Append a Unicode string.</a>
+<a name="521"><span class="lineNum">     521 </span>            :    Return 0 on success, raise an exception and return -1 on error. */</a>
+<a name="522"><span class="lineNum">     522 </span>            : PyAPI_FUNC(int)</a>
+<a name="523"><span class="lineNum">     523 </span>            : _PyUnicodeWriter_WriteStr(_PyUnicodeWriter *writer,</a>
+<a name="524"><span class="lineNum">     524 </span>            :     PyObject *str               /* Unicode string */</a>
+<a name="525"><span class="lineNum">     525 </span>            :     );</a>
+<a name="526"><span class="lineNum">     526 </span>            : </a>
+<a name="527"><span class="lineNum">     527 </span>            : /* Append a substring of a Unicode string.</a>
+<a name="528"><span class="lineNum">     528 </span>            :    Return 0 on success, raise an exception and return -1 on error. */</a>
+<a name="529"><span class="lineNum">     529 </span>            : PyAPI_FUNC(int)</a>
+<a name="530"><span class="lineNum">     530 </span>            : _PyUnicodeWriter_WriteSubstring(_PyUnicodeWriter *writer,</a>
+<a name="531"><span class="lineNum">     531 </span>            :     PyObject *str,              /* Unicode string */</a>
+<a name="532"><span class="lineNum">     532 </span>            :     Py_ssize_t start,</a>
+<a name="533"><span class="lineNum">     533 </span>            :     Py_ssize_t end</a>
+<a name="534"><span class="lineNum">     534 </span>            :     );</a>
+<a name="535"><span class="lineNum">     535 </span>            : </a>
+<a name="536"><span class="lineNum">     536 </span>            : /* Append an ASCII-encoded byte string.</a>
+<a name="537"><span class="lineNum">     537 </span>            :    Return 0 on success, raise an exception and return -1 on error. */</a>
+<a name="538"><span class="lineNum">     538 </span>            : PyAPI_FUNC(int)</a>
+<a name="539"><span class="lineNum">     539 </span>            : _PyUnicodeWriter_WriteASCIIString(_PyUnicodeWriter *writer,</a>
+<a name="540"><span class="lineNum">     540 </span>            :     const char *str,           /* ASCII-encoded byte string */</a>
+<a name="541"><span class="lineNum">     541 </span>            :     Py_ssize_t len             /* number of bytes, or -1 if unknown */</a>
+<a name="542"><span class="lineNum">     542 </span>            :     );</a>
+<a name="543"><span class="lineNum">     543 </span>            : </a>
+<a name="544"><span class="lineNum">     544 </span>            : /* Append a latin1-encoded byte string.</a>
+<a name="545"><span class="lineNum">     545 </span>            :    Return 0 on success, raise an exception and return -1 on error. */</a>
+<a name="546"><span class="lineNum">     546 </span>            : PyAPI_FUNC(int)</a>
+<a name="547"><span class="lineNum">     547 </span>            : _PyUnicodeWriter_WriteLatin1String(_PyUnicodeWriter *writer,</a>
+<a name="548"><span class="lineNum">     548 </span>            :     const char *str,           /* latin1-encoded byte string */</a>
+<a name="549"><span class="lineNum">     549 </span>            :     Py_ssize_t len             /* length in bytes */</a>
+<a name="550"><span class="lineNum">     550 </span>            :     );</a>
+<a name="551"><span class="lineNum">     551 </span>            : </a>
+<a name="552"><span class="lineNum">     552 </span>            : /* Get the value of the writer as a Unicode string. Clear the</a>
+<a name="553"><span class="lineNum">     553 </span>            :    buffer of the writer. Raise an exception and return NULL</a>
+<a name="554"><span class="lineNum">     554 </span>            :    on error. */</a>
+<a name="555"><span class="lineNum">     555 </span>            : PyAPI_FUNC(PyObject *)</a>
+<a name="556"><span class="lineNum">     556 </span>            : _PyUnicodeWriter_Finish(_PyUnicodeWriter *writer);</a>
+<a name="557"><span class="lineNum">     557 </span>            : </a>
+<a name="558"><span class="lineNum">     558 </span>            : /* Deallocate memory of a writer (clear its internal buffer). */</a>
+<a name="559"><span class="lineNum">     559 </span>            : PyAPI_FUNC(void)</a>
+<a name="560"><span class="lineNum">     560 </span>            : _PyUnicodeWriter_Dealloc(_PyUnicodeWriter *writer);</a>
+<a name="561"><span class="lineNum">     561 </span>            : </a>
+<a name="562"><span class="lineNum">     562 </span>            : </a>
+<a name="563"><span class="lineNum">     563 </span>            : /* --- Manage the default encoding ---------------------------------------- */</a>
+<a name="564"><span class="lineNum">     564 </span>            : </a>
+<a name="565"><span class="lineNum">     565 </span>            : /* Returns a pointer to the default encoding (UTF-8) of the</a>
+<a name="566"><span class="lineNum">     566 </span>            :    Unicode object unicode.</a>
+<a name="567"><span class="lineNum">     567 </span>            : </a>
+<a name="568"><span class="lineNum">     568 </span>            :    Like PyUnicode_AsUTF8AndSize(), this also caches the UTF-8 representation</a>
+<a name="569"><span class="lineNum">     569 </span>            :    in the unicodeobject.</a>
+<a name="570"><span class="lineNum">     570 </span>            : </a>
+<a name="571"><span class="lineNum">     571 </span>            :    _PyUnicode_AsString is a #define for PyUnicode_AsUTF8 to</a>
+<a name="572"><span class="lineNum">     572 </span>            :    support the previous internal function with the same behaviour.</a>
+<a name="573"><span class="lineNum">     573 </span>            : </a>
+<a name="574"><span class="lineNum">     574 </span>            :    Use of this API is DEPRECATED since no size information can be</a>
+<a name="575"><span class="lineNum">     575 </span>            :    extracted from the returned data.</a>
+<a name="576"><span class="lineNum">     576 </span>            : */</a>
+<a name="577"><span class="lineNum">     577 </span>            : </a>
+<a name="578"><span class="lineNum">     578 </span>            : PyAPI_FUNC(const char *) PyUnicode_AsUTF8(PyObject *unicode);</a>
+<a name="579"><span class="lineNum">     579 </span>            : </a>
+<a name="580"><span class="lineNum">     580 </span>            : // Alias kept for backward compatibility</a>
+<a name="581"><span class="lineNum">     581 </span>            : #define _PyUnicode_AsString PyUnicode_AsUTF8</a>
+<a name="582"><span class="lineNum">     582 </span>            : </a>
+<a name="583"><span class="lineNum">     583 </span>            : </a>
+<a name="584"><span class="lineNum">     584 </span>            : /* === Characters Type APIs =============================================== */</a>
+<a name="585"><span class="lineNum">     585 </span>            : </a>
+<a name="586"><span class="lineNum">     586 </span>            : /* These should not be used directly. Use the Py_UNICODE_IS* and</a>
+<a name="587"><span class="lineNum">     587 </span>            :    Py_UNICODE_TO* macros instead.</a>
+<a name="588"><span class="lineNum">     588 </span>            : </a>
+<a name="589"><span class="lineNum">     589 </span>            :    These APIs are implemented in Objects/unicodectype.c.</a>
+<a name="590"><span class="lineNum">     590 </span>            : </a>
+<a name="591"><span class="lineNum">     591 </span>            : */</a>
+<a name="592"><span class="lineNum">     592 </span>            : </a>
+<a name="593"><span class="lineNum">     593 </span>            : PyAPI_FUNC(int) _PyUnicode_IsLowercase(</a>
+<a name="594"><span class="lineNum">     594 </span>            :     Py_UCS4 ch       /* Unicode character */</a>
+<a name="595"><span class="lineNum">     595 </span>            :     );</a>
+<a name="596"><span class="lineNum">     596 </span>            : </a>
+<a name="597"><span class="lineNum">     597 </span>            : PyAPI_FUNC(int) _PyUnicode_IsUppercase(</a>
+<a name="598"><span class="lineNum">     598 </span>            :     Py_UCS4 ch       /* Unicode character */</a>
+<a name="599"><span class="lineNum">     599 </span>            :     );</a>
+<a name="600"><span class="lineNum">     600 </span>            : </a>
+<a name="601"><span class="lineNum">     601 </span>            : PyAPI_FUNC(int) _PyUnicode_IsTitlecase(</a>
+<a name="602"><span class="lineNum">     602 </span>            :     Py_UCS4 ch       /* Unicode character */</a>
+<a name="603"><span class="lineNum">     603 </span>            :     );</a>
+<a name="604"><span class="lineNum">     604 </span>            : </a>
+<a name="605"><span class="lineNum">     605 </span>            : PyAPI_FUNC(int) _PyUnicode_IsWhitespace(</a>
+<a name="606"><span class="lineNum">     606 </span>            :     const Py_UCS4 ch         /* Unicode character */</a>
+<a name="607"><span class="lineNum">     607 </span>            :     );</a>
+<a name="608"><span class="lineNum">     608 </span>            : </a>
+<a name="609"><span class="lineNum">     609 </span>            : PyAPI_FUNC(int) _PyUnicode_IsLinebreak(</a>
+<a name="610"><span class="lineNum">     610 </span>            :     const Py_UCS4 ch         /* Unicode character */</a>
+<a name="611"><span class="lineNum">     611 </span>            :     );</a>
+<a name="612"><span class="lineNum">     612 </span>            : </a>
+<a name="613"><span class="lineNum">     613 </span>            : PyAPI_FUNC(Py_UCS4) _PyUnicode_ToLowercase(</a>
+<a name="614"><span class="lineNum">     614 </span>            :     Py_UCS4 ch       /* Unicode character */</a>
+<a name="615"><span class="lineNum">     615 </span>            :     );</a>
+<a name="616"><span class="lineNum">     616 </span>            : </a>
+<a name="617"><span class="lineNum">     617 </span>            : PyAPI_FUNC(Py_UCS4) _PyUnicode_ToUppercase(</a>
+<a name="618"><span class="lineNum">     618 </span>            :     Py_UCS4 ch       /* Unicode character */</a>
+<a name="619"><span class="lineNum">     619 </span>            :     );</a>
+<a name="620"><span class="lineNum">     620 </span>            : </a>
+<a name="621"><span class="lineNum">     621 </span>            : PyAPI_FUNC(Py_UCS4) _PyUnicode_ToTitlecase(</a>
+<a name="622"><span class="lineNum">     622 </span>            :     Py_UCS4 ch       /* Unicode character */</a>
+<a name="623"><span class="lineNum">     623 </span>            :     );</a>
+<a name="624"><span class="lineNum">     624 </span>            : </a>
+<a name="625"><span class="lineNum">     625 </span>            : PyAPI_FUNC(int) _PyUnicode_ToDecimalDigit(</a>
+<a name="626"><span class="lineNum">     626 </span>            :     Py_UCS4 ch       /* Unicode character */</a>
+<a name="627"><span class="lineNum">     627 </span>            :     );</a>
+<a name="628"><span class="lineNum">     628 </span>            : </a>
+<a name="629"><span class="lineNum">     629 </span>            : PyAPI_FUNC(int) _PyUnicode_ToDigit(</a>
+<a name="630"><span class="lineNum">     630 </span>            :     Py_UCS4 ch       /* Unicode character */</a>
+<a name="631"><span class="lineNum">     631 </span>            :     );</a>
+<a name="632"><span class="lineNum">     632 </span>            : </a>
+<a name="633"><span class="lineNum">     633 </span>            : PyAPI_FUNC(double) _PyUnicode_ToNumeric(</a>
+<a name="634"><span class="lineNum">     634 </span>            :     Py_UCS4 ch       /* Unicode character */</a>
+<a name="635"><span class="lineNum">     635 </span>            :     );</a>
+<a name="636"><span class="lineNum">     636 </span>            : </a>
+<a name="637"><span class="lineNum">     637 </span>            : PyAPI_FUNC(int) _PyUnicode_IsDecimalDigit(</a>
+<a name="638"><span class="lineNum">     638 </span>            :     Py_UCS4 ch       /* Unicode character */</a>
+<a name="639"><span class="lineNum">     639 </span>            :     );</a>
+<a name="640"><span class="lineNum">     640 </span>            : </a>
+<a name="641"><span class="lineNum">     641 </span>            : PyAPI_FUNC(int) _PyUnicode_IsDigit(</a>
+<a name="642"><span class="lineNum">     642 </span>            :     Py_UCS4 ch       /* Unicode character */</a>
+<a name="643"><span class="lineNum">     643 </span>            :     );</a>
+<a name="644"><span class="lineNum">     644 </span>            : </a>
+<a name="645"><span class="lineNum">     645 </span>            : PyAPI_FUNC(int) _PyUnicode_IsNumeric(</a>
+<a name="646"><span class="lineNum">     646 </span>            :     Py_UCS4 ch       /* Unicode character */</a>
+<a name="647"><span class="lineNum">     647 </span>            :     );</a>
+<a name="648"><span class="lineNum">     648 </span>            : </a>
+<a name="649"><span class="lineNum">     649 </span>            : PyAPI_FUNC(int) _PyUnicode_IsPrintable(</a>
+<a name="650"><span class="lineNum">     650 </span>            :     Py_UCS4 ch       /* Unicode character */</a>
+<a name="651"><span class="lineNum">     651 </span>            :     );</a>
+<a name="652"><span class="lineNum">     652 </span>            : </a>
+<a name="653"><span class="lineNum">     653 </span>            : PyAPI_FUNC(int) _PyUnicode_IsAlpha(</a>
+<a name="654"><span class="lineNum">     654 </span>            :     Py_UCS4 ch       /* Unicode character */</a>
+<a name="655"><span class="lineNum">     655 </span>            :     );</a>
+<a name="656"><span class="lineNum">     656 </span>            : </a>
+<a name="657"><span class="lineNum">     657 </span>            : // Helper array used by Py_UNICODE_ISSPACE().</a>
+<a name="658"><span class="lineNum">     658 </span>            : PyAPI_DATA(const unsigned char) _Py_ascii_whitespace[];</a>
+<a name="659"><span class="lineNum">     659 </span>            : </a>
+<a name="660"><span class="lineNum">     660 </span>            : // Since splitting on whitespace is an important use case, and</a>
+<a name="661"><span class="lineNum">     661 </span>            : // whitespace in most situations is solely ASCII whitespace, we</a>
+<a name="662"><span class="lineNum">     662 </span>            : // optimize for the common case by using a quick look-up table</a>
+<a name="663"><span class="lineNum">     663 </span>            : // _Py_ascii_whitespace (see below) with an inlined check.</a>
+<a name="664"><span class="lineNum">     664 </span>            : static inline int Py_UNICODE_ISSPACE(Py_UCS4 ch) {</a>
+<a name="665"><span class="lineNum">     665 </span>            :     if (ch &lt; 128) {</a>
+<a name="666"><span class="lineNum">     666 </span>            :         return _Py_ascii_whitespace[ch];</a>
+<a name="667"><span class="lineNum">     667 </span>            :     }</a>
+<a name="668"><span class="lineNum">     668 </span>            :     return _PyUnicode_IsWhitespace(ch);</a>
+<a name="669"><span class="lineNum">     669 </span>            : }</a>
+<a name="670"><span class="lineNum">     670 </span>            : </a>
+<a name="671"><span class="lineNum">     671 </span>            : #define Py_UNICODE_ISLOWER(ch) _PyUnicode_IsLowercase(ch)</a>
+<a name="672"><span class="lineNum">     672 </span>            : #define Py_UNICODE_ISUPPER(ch) _PyUnicode_IsUppercase(ch)</a>
+<a name="673"><span class="lineNum">     673 </span>            : #define Py_UNICODE_ISTITLE(ch) _PyUnicode_IsTitlecase(ch)</a>
+<a name="674"><span class="lineNum">     674 </span>            : #define Py_UNICODE_ISLINEBREAK(ch) _PyUnicode_IsLinebreak(ch)</a>
+<a name="675"><span class="lineNum">     675 </span>            : </a>
+<a name="676"><span class="lineNum">     676 </span>            : #define Py_UNICODE_TOLOWER(ch) _PyUnicode_ToLowercase(ch)</a>
+<a name="677"><span class="lineNum">     677 </span>            : #define Py_UNICODE_TOUPPER(ch) _PyUnicode_ToUppercase(ch)</a>
+<a name="678"><span class="lineNum">     678 </span>            : #define Py_UNICODE_TOTITLE(ch) _PyUnicode_ToTitlecase(ch)</a>
+<a name="679"><span class="lineNum">     679 </span>            : </a>
+<a name="680"><span class="lineNum">     680 </span>            : #define Py_UNICODE_ISDECIMAL(ch) _PyUnicode_IsDecimalDigit(ch)</a>
+<a name="681"><span class="lineNum">     681 </span>            : #define Py_UNICODE_ISDIGIT(ch) _PyUnicode_IsDigit(ch)</a>
+<a name="682"><span class="lineNum">     682 </span>            : #define Py_UNICODE_ISNUMERIC(ch) _PyUnicode_IsNumeric(ch)</a>
+<a name="683"><span class="lineNum">     683 </span>            : #define Py_UNICODE_ISPRINTABLE(ch) _PyUnicode_IsPrintable(ch)</a>
+<a name="684"><span class="lineNum">     684 </span>            : </a>
+<a name="685"><span class="lineNum">     685 </span>            : #define Py_UNICODE_TODECIMAL(ch) _PyUnicode_ToDecimalDigit(ch)</a>
+<a name="686"><span class="lineNum">     686 </span>            : #define Py_UNICODE_TODIGIT(ch) _PyUnicode_ToDigit(ch)</a>
+<a name="687"><span class="lineNum">     687 </span>            : #define Py_UNICODE_TONUMERIC(ch) _PyUnicode_ToNumeric(ch)</a>
+<a name="688"><span class="lineNum">     688 </span>            : </a>
+<a name="689"><span class="lineNum">     689 </span>            : #define Py_UNICODE_ISALPHA(ch) _PyUnicode_IsAlpha(ch)</a>
+<a name="690"><span class="lineNum">     690 </span>            : </a>
+<a name="691"><span class="lineNum">     691 </span><span class="lineNoCov">          0 : static inline int Py_UNICODE_ISALNUM(Py_UCS4 ch) {</span></a>
+<a name="692"><span class="lineNum">     692 </span><span class="lineNoCov">          0 :    return (Py_UNICODE_ISALPHA(ch)</span></a>
+<a name="693"><span class="lineNum">     693 </span><span class="lineNoCov">          0 :            || Py_UNICODE_ISDECIMAL(ch)</span></a>
+<a name="694"><span class="lineNum">     694 </span><span class="lineNoCov">          0 :            || Py_UNICODE_ISDIGIT(ch)</span></a>
+<a name="695"><span class="lineNum">     695 </span><span class="lineNoCov">          0 :            || Py_UNICODE_ISNUMERIC(ch));</span></a>
+<a name="696"><span class="lineNum">     696 </span>            : }</a>
+<a name="697"><span class="lineNum">     697 </span>            : </a>
+<a name="698"><span class="lineNum">     698 </span>            : </a>
+<a name="699"><span class="lineNum">     699 </span>            : /* === Misc functions ===================================================== */</a>
+<a name="700"><span class="lineNum">     700 </span>            : </a>
+<a name="701"><span class="lineNum">     701 </span>            : // Return an interned Unicode object for an Identifier; may fail if there is no</a>
+<a name="702"><span class="lineNum">     702 </span>            : // memory.</a>
+<a name="703"><span class="lineNum">     703 </span>            : PyAPI_FUNC(PyObject*) _PyUnicode_FromId(_Py_Identifier*);</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

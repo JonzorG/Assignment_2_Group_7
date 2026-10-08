@@ -1,0 +1,925 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - /home/dev/Blender_PA1483/blender/lib/linux_x64/openvdb/include/openvdb/points/impl/PointConversionImpl.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../../../../../../index.html">top level</a> - <a href="index.html">home/dev/Blender_PA1483/blender/lib/linux_x64/openvdb/include/openvdb/points/impl</a> - PointConversionImpl.h<span style="font-size: 80%;"> (source / <a href="PointConversionImpl.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">67</td>
+            <td class="headerCovTableEntry">68</td>
+            <td class="headerCovTableEntryHi">98.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntry">33</td>
+            <td class="headerCovTableEntryLo">30.3 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright Contributors to the OpenVDB Project</a>
+<a name="2"><span class="lineNum">       2 </span>            : // SPDX-License-Identifier: Apache-2.0</a>
+<a name="3"><span class="lineNum">       3 </span>            : </a>
+<a name="4"><span class="lineNum">       4 </span>            : /// @author Dan Bailey, Nick Avramoussis</a>
+<a name="5"><span class="lineNum">       5 </span>            : ///</a>
+<a name="6"><span class="lineNum">       6 </span>            : /// @file PointConversionImpl.h</a>
+<a name="7"><span class="lineNum">       7 </span>            : ///</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #ifndef OPENVDB_POINTS_POINT_CONVERSION_IMPL_HAS_BEEN_INCLUDED</a>
+<a name="10"><span class="lineNum">      10 </span>            : #define OPENVDB_POINTS_POINT_CONVERSION_IMPL_HAS_BEEN_INCLUDED</a>
+<a name="11"><span class="lineNum">      11 </span>            : </a>
+<a name="12"><span class="lineNum">      12 </span>            : namespace openvdb {</a>
+<a name="13"><span class="lineNum">      13 </span>            : OPENVDB_USE_VERSION_NAMESPACE</a>
+<a name="14"><span class="lineNum">      14 </span>            : namespace OPENVDB_VERSION_NAME {</a>
+<a name="15"><span class="lineNum">      15 </span>            : namespace points {</a>
+<a name="16"><span class="lineNum">      16 </span>            : </a>
+<a name="17"><span class="lineNum">      17 </span>            : /// @cond OPENVDB_DOCS_INTERNAL</a>
+<a name="18"><span class="lineNum">      18 </span>            : </a>
+<a name="19"><span class="lineNum">      19 </span>            : namespace point_conversion_internal {</a>
+<a name="20"><span class="lineNum">      20 </span>            : </a>
+<a name="21"><span class="lineNum">      21 </span>            : </a>
+<a name="22"><span class="lineNum">      22 </span>            : // ConversionTraits to create the relevant Attribute Handles from a LeafNode</a>
+<a name="23"><span class="lineNum">      23 </span>            : template &lt;typename T&gt; struct ConversionTraits</a>
+<a name="24"><span class="lineNum">      24 </span>            : {</a>
+<a name="25"><span class="lineNum">      25 </span>            :     using Handle = AttributeHandle&lt;T, UnknownCodec&gt;;</a>
+<a name="26"><span class="lineNum">      26 </span>            :     using WriteHandle = AttributeWriteHandle&lt;T, UnknownCodec&gt;;</a>
+<a name="27"><span class="lineNum">      27 </span>            :     static T zero() { return zeroVal&lt;T&gt;(); }</a>
+<a name="28"><span class="lineNum">      28 </span>            :     template &lt;typename LeafT&gt;</a>
+<a name="29"><span class="lineNum">      29 </span>            :     static std::unique_ptr&lt;Handle&gt; handleFromLeaf(const LeafT&amp; leaf, const Index index) {</a>
+<a name="30"><span class="lineNum">      30 </span>            :         const AttributeArray&amp; array = leaf.constAttributeArray(index);</a>
+<a name="31"><span class="lineNum">      31 </span>            :         return std::make_unique&lt;Handle&gt;(array);</a>
+<a name="32"><span class="lineNum">      32 </span>            :     }</a>
+<a name="33"><span class="lineNum">      33 </span>            :     template &lt;typename LeafT&gt;</a>
+<a name="34"><span class="lineNum">      34 </span><span class="lineCov">        651 :     static std::unique_ptr&lt;WriteHandle&gt; writeHandleFromLeaf(LeafT&amp; leaf, const Index index) {</span></a>
+<a name="35"><span class="lineNum">      35 </span><span class="lineCov">        651 :         AttributeArray&amp; array = leaf.attributeArray(index);</span></a>
+<a name="36"><span class="lineNum">      36 </span><span class="lineCov">        663 :         return std::make_unique&lt;WriteHandle&gt;(array);</span></a>
+<a name="37"><span class="lineNum">      37 </span>            :     }</a>
+<a name="38"><span class="lineNum">      38 </span>            : }; // ConversionTraits</a>
+<a name="39"><span class="lineNum">      39 </span>            : template &lt;&gt; struct ConversionTraits&lt;openvdb::Name&gt;</a>
+<a name="40"><span class="lineNum">      40 </span>            : {</a>
+<a name="41"><span class="lineNum">      41 </span>            :     using Handle = StringAttributeHandle;</a>
+<a name="42"><span class="lineNum">      42 </span>            :     using WriteHandle = StringAttributeWriteHandle;</a>
+<a name="43"><span class="lineNum">      43 </span>            :     static openvdb::Name zero() { return &quot;&quot;; }</a>
+<a name="44"><span class="lineNum">      44 </span>            :     template &lt;typename LeafT&gt;</a>
+<a name="45"><span class="lineNum">      45 </span>            :     static std::unique_ptr&lt;Handle&gt; handleFromLeaf(const LeafT&amp; leaf, const Index index) {</a>
+<a name="46"><span class="lineNum">      46 </span>            :         const AttributeArray&amp; array = leaf.constAttributeArray(index);</a>
+<a name="47"><span class="lineNum">      47 </span>            :         const AttributeSet::Descriptor&amp; descriptor = leaf.attributeSet().descriptor();</a>
+<a name="48"><span class="lineNum">      48 </span>            :         return std::make_unique&lt;Handle&gt;(array, descriptor.getMetadata());</a>
+<a name="49"><span class="lineNum">      49 </span>            :     }</a>
+<a name="50"><span class="lineNum">      50 </span>            :     template &lt;typename LeafT&gt;</a>
+<a name="51"><span class="lineNum">      51 </span>            :     static std::unique_ptr&lt;WriteHandle&gt; writeHandleFromLeaf(LeafT&amp; leaf, const Index index) {</a>
+<a name="52"><span class="lineNum">      52 </span>            :         AttributeArray&amp; array = leaf.attributeArray(index);</a>
+<a name="53"><span class="lineNum">      53 </span>            :         const AttributeSet::Descriptor&amp; descriptor = leaf.attributeSet().descriptor();</a>
+<a name="54"><span class="lineNum">      54 </span>            :         return std::make_unique&lt;WriteHandle&gt;(array, descriptor.getMetadata());</a>
+<a name="55"><span class="lineNum">      55 </span>            :     }</a>
+<a name="56"><span class="lineNum">      56 </span>            : }; // ConversionTraits&lt;openvdb::Name&gt;</a>
+<a name="57"><span class="lineNum">      57 </span>            : </a>
+<a name="58"><span class="lineNum">      58 </span>            : template&lt;   typename PointDataTreeType,</a>
+<a name="59"><span class="lineNum">      59 </span>            :             typename PointIndexTreeType,</a>
+<a name="60"><span class="lineNum">      60 </span>            :             typename AttributeListType&gt;</a>
+<a name="61"><span class="lineNum">      61 </span>            : struct PopulateAttributeOp {</a>
+<a name="62"><span class="lineNum">      62 </span>            : </a>
+<a name="63"><span class="lineNum">      63 </span>            :     using LeafManagerT          = typename tree::LeafManager&lt;PointDataTreeType&gt;;</a>
+<a name="64"><span class="lineNum">      64 </span>            :     using LeafRangeT            = typename LeafManagerT::LeafRange;</a>
+<a name="65"><span class="lineNum">      65 </span>            :     using PointIndexLeafNode    = typename PointIndexTreeType::LeafNodeType;</a>
+<a name="66"><span class="lineNum">      66 </span>            :     using IndexArray            = typename PointIndexLeafNode::IndexArray;</a>
+<a name="67"><span class="lineNum">      67 </span>            :     using ValueType             = typename AttributeListType::value_type;</a>
+<a name="68"><span class="lineNum">      68 </span>            :     using HandleT               = typename ConversionTraits&lt;ValueType&gt;::WriteHandle;</a>
+<a name="69"><span class="lineNum">      69 </span>            : </a>
+<a name="70"><span class="lineNum">      70 </span><span class="lineCov">         84 :     PopulateAttributeOp(const PointIndexTreeType&amp; pointIndexTree,</span></a>
+<a name="71"><span class="lineNum">      71 </span>            :                         const AttributeListType&amp; data,</a>
+<a name="72"><span class="lineNum">      72 </span>            :                         const size_t index,</a>
+<a name="73"><span class="lineNum">      73 </span>            :                         const Index stride = 1)</a>
+<a name="74"><span class="lineNum">      74 </span><span class="lineCov">         84 :         : mPointIndexTree(pointIndexTree)</span></a>
+<a name="75"><span class="lineNum">      75 </span><span class="lineCov">         84 :         , mData(data)</span></a>
+<a name="76"><span class="lineNum">      76 </span><span class="lineCov">         84 :         , mIndex(index)</span></a>
+<a name="77"><span class="lineNum">      77 </span><span class="lineCov">         84 :         , mStride(stride) { }</span></a>
+<a name="78"><span class="lineNum">      78 </span>            : </a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineCov">        667 :     void operator()(const typename LeafManagerT::LeafRange&amp; range) const {</span></a>
+<a name="80"><span class="lineNum">      80 </span>            : </a>
+<a name="81"><span class="lineNum">      81 </span><span class="lineCov">       2009 :         for (auto leaf = range.begin(); leaf; ++leaf) {</span></a>
+<a name="82"><span class="lineNum">      82 </span>            : </a>
+<a name="83"><span class="lineNum">      83 </span>            :             // obtain the PointIndexLeafNode (using the origin of the current leaf)</a>
+<a name="84"><span class="lineNum">      84 </span>            : </a>
+<a name="85"><span class="lineNum">      85 </span>            :             const PointIndexLeafNode* pointIndexLeaf =</a>
+<a name="86"><span class="lineNum">      86 </span><span class="lineCov">        669 :                 mPointIndexTree.probeConstLeaf(leaf-&gt;origin());</span></a>
+<a name="87"><span class="lineNum">      87 </span>            : </a>
+<a name="88"><span class="lineNum">      88 </span><span class="lineCov">        654 :             if (!pointIndexLeaf)    continue;</span></a>
+<a name="89"><span class="lineNum">      89 </span>            : </a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineCov">       1306 :             auto attributeWriteHandle =</span></a>
+<a name="91"><span class="lineNum">      91 </span><span class="lineCov">        654 :                 ConversionTraits&lt;ValueType&gt;::writeHandleFromLeaf(*leaf, static_cast&lt;Index&gt;(mIndex));</span></a>
+<a name="92"><span class="lineNum">      92 </span>            : </a>
+<a name="93"><span class="lineNum">      93 </span><span class="lineCov">        660 :             Index64 index = 0;</span></a>
+<a name="94"><span class="lineNum">      94 </span>            : </a>
+<a name="95"><span class="lineNum">      95 </span><span class="lineCov">        660 :             const IndexArray&amp; indices = pointIndexLeaf-&gt;indices();</span></a>
+<a name="96"><span class="lineNum">      96 </span>            : </a>
+<a name="97"><span class="lineNum">      97 </span><span class="lineCov">     436504 :             for (const Index64 leafIndex: indices)</span></a>
+<a name="98"><span class="lineNum">      98 </span>            :             {</a>
+<a name="99"><span class="lineNum">      99 </span>            :                 ValueType value;</a>
+<a name="100"><span class="lineNum">     100 </span><span class="lineCov">     869257 :                 for (Index i = 0; i &lt; mStride; i++) {</span></a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineCov">     434716 :                     mData.get(value, leafIndex, i);</span></a>
+<a name="102"><span class="lineNum">     102 </span><span class="lineCov">     455931 :                     attributeWriteHandle-&gt;set(static_cast&lt;Index&gt;(index), i, value);</span></a>
+<a name="103"><span class="lineNum">     103 </span>            :                 }</a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineCov">     434541 :                 index++;</span></a>
+<a name="105"><span class="lineNum">     105 </span>            :             }</a>
+<a name="106"><span class="lineNum">     106 </span>            : </a>
+<a name="107"><span class="lineNum">     107 </span>            :             // attempt to compact the array</a>
+<a name="108"><span class="lineNum">     108 </span>            : </a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineCov">         89 :             attributeWriteHandle-&gt;compact();</span></a>
+<a name="110"><span class="lineNum">     110 </span>            :         }</a>
+<a name="111"><span class="lineNum">     111 </span><span class="lineCov">        671 :     }</span></a>
+<a name="112"><span class="lineNum">     112 </span>            : </a>
+<a name="113"><span class="lineNum">     113 </span>            :     //////////</a>
+<a name="114"><span class="lineNum">     114 </span>            : </a>
+<a name="115"><span class="lineNum">     115 </span>            :     const PointIndexTreeType&amp;   mPointIndexTree;</a>
+<a name="116"><span class="lineNum">     116 </span>            :     const AttributeListType&amp;    mData;</a>
+<a name="117"><span class="lineNum">     117 </span>            :     const size_t                mIndex;</a>
+<a name="118"><span class="lineNum">     118 </span>            :     const Index                 mStride;</a>
+<a name="119"><span class="lineNum">     119 </span>            : };</a>
+<a name="120"><span class="lineNum">     120 </span>            : </a>
+<a name="121"><span class="lineNum">     121 </span>            : template&lt;typename PointDataTreeType, typename Attribute, typename FilterT&gt;</a>
+<a name="122"><span class="lineNum">     122 </span>            : struct ConvertPointDataGridPositionOp {</a>
+<a name="123"><span class="lineNum">     123 </span>            : </a>
+<a name="124"><span class="lineNum">     124 </span>            :     using LeafNode      = typename PointDataTreeType::LeafNodeType;</a>
+<a name="125"><span class="lineNum">     125 </span>            :     using ValueType     = typename Attribute::ValueType;</a>
+<a name="126"><span class="lineNum">     126 </span>            :     using HandleT       = typename Attribute::Handle;</a>
+<a name="127"><span class="lineNum">     127 </span>            :     using SourceHandleT = AttributeHandle&lt;ValueType&gt;;</a>
+<a name="128"><span class="lineNum">     128 </span>            :     using LeafManagerT  = typename tree::LeafManager&lt;const PointDataTreeType&gt;;</a>
+<a name="129"><span class="lineNum">     129 </span>            :     using LeafRangeT    = typename LeafManagerT::LeafRange;</a>
+<a name="130"><span class="lineNum">     130 </span>            : </a>
+<a name="131"><span class="lineNum">     131 </span>            :     ConvertPointDataGridPositionOp( Attribute&amp; attribute,</a>
+<a name="132"><span class="lineNum">     132 </span>            :                                     const std::vector&lt;Index64&gt;&amp; pointOffsets,</a>
+<a name="133"><span class="lineNum">     133 </span>            :                                     const Index64 startOffset,</a>
+<a name="134"><span class="lineNum">     134 </span>            :                                     const math::Transform&amp; transform,</a>
+<a name="135"><span class="lineNum">     135 </span>            :                                     const size_t index,</a>
+<a name="136"><span class="lineNum">     136 </span>            :                                     const FilterT&amp; filter,</a>
+<a name="137"><span class="lineNum">     137 </span>            :                                     const bool inCoreOnly)</a>
+<a name="138"><span class="lineNum">     138 </span>            :         : mAttribute(attribute)</a>
+<a name="139"><span class="lineNum">     139 </span>            :         , mPointOffsets(pointOffsets)</a>
+<a name="140"><span class="lineNum">     140 </span>            :         , mStartOffset(startOffset)</a>
+<a name="141"><span class="lineNum">     141 </span>            :         , mTransform(transform)</a>
+<a name="142"><span class="lineNum">     142 </span>            :         , mIndex(index)</a>
+<a name="143"><span class="lineNum">     143 </span>            :         , mFilter(filter)</a>
+<a name="144"><span class="lineNum">     144 </span>            :         , mInCoreOnly(inCoreOnly)</a>
+<a name="145"><span class="lineNum">     145 </span>            :     {</a>
+<a name="146"><span class="lineNum">     146 </span>            :         // only accept Vec3f as ValueType</a>
+<a name="147"><span class="lineNum">     147 </span>            :         static_assert(VecTraits&lt;ValueType&gt;::Size == 3 &amp;&amp;</a>
+<a name="148"><span class="lineNum">     148 </span>            :                       std::is_floating_point&lt;typename ValueType::ValueType&gt;::value,</a>
+<a name="149"><span class="lineNum">     149 </span>            :                       &quot;ValueType is not Vec3f&quot;);</a>
+<a name="150"><span class="lineNum">     150 </span>            :     }</a>
+<a name="151"><span class="lineNum">     151 </span>            : </a>
+<a name="152"><span class="lineNum">     152 </span>            :     template &lt;typename IterT&gt;</a>
+<a name="153"><span class="lineNum">     153 </span>            :     void convert(IterT&amp; iter, HandleT&amp; targetHandle,</a>
+<a name="154"><span class="lineNum">     154 </span>            :         SourceHandleT&amp; sourceHandle, Index64&amp; offset) const</a>
+<a name="155"><span class="lineNum">     155 </span>            :     {</a>
+<a name="156"><span class="lineNum">     156 </span>            :         for (; iter; ++iter) {</a>
+<a name="157"><span class="lineNum">     157 </span>            :             const Vec3d xyz = iter.getCoord().asVec3d();</a>
+<a name="158"><span class="lineNum">     158 </span>            :             const Vec3d pos = sourceHandle.get(*iter);</a>
+<a name="159"><span class="lineNum">     159 </span>            :             targetHandle.set(static_cast&lt;Index&gt;(offset++), /*stride=*/0,</a>
+<a name="160"><span class="lineNum">     160 </span>            :                 mTransform.indexToWorld(pos + xyz));</a>
+<a name="161"><span class="lineNum">     161 </span>            :         }</a>
+<a name="162"><span class="lineNum">     162 </span>            :     }</a>
+<a name="163"><span class="lineNum">     163 </span>            : </a>
+<a name="164"><span class="lineNum">     164 </span>            :     void operator()(const LeafRangeT&amp; range) const</a>
+<a name="165"><span class="lineNum">     165 </span>            :     {</a>
+<a name="166"><span class="lineNum">     166 </span>            :         HandleT pHandle(mAttribute);</a>
+<a name="167"><span class="lineNum">     167 </span>            : </a>
+<a name="168"><span class="lineNum">     168 </span>            :         for (auto leaf = range.begin(); leaf; ++leaf) {</a>
+<a name="169"><span class="lineNum">     169 </span>            : </a>
+<a name="170"><span class="lineNum">     170 </span>            :             OPENVDB_ASSERT(leaf.pos() &lt; mPointOffsets.size());</a>
+<a name="171"><span class="lineNum">     171 </span>            : </a>
+<a name="172"><span class="lineNum">     172 </span>            :             if (mInCoreOnly &amp;&amp; leaf-&gt;buffer().isOutOfCore())    continue;</a>
+<a name="173"><span class="lineNum">     173 </span>            : </a>
+<a name="174"><span class="lineNum">     174 </span>            :             Index64 offset = mStartOffset;</a>
+<a name="175"><span class="lineNum">     175 </span>            : </a>
+<a name="176"><span class="lineNum">     176 </span>            :             if (leaf.pos() &gt; 0) offset += mPointOffsets[leaf.pos() - 1];</a>
+<a name="177"><span class="lineNum">     177 </span>            : </a>
+<a name="178"><span class="lineNum">     178 </span>            :             auto handle = SourceHandleT::create(leaf-&gt;constAttributeArray(mIndex));</a>
+<a name="179"><span class="lineNum">     179 </span>            : </a>
+<a name="180"><span class="lineNum">     180 </span>            :             if (mFilter.state() == index::ALL) {</a>
+<a name="181"><span class="lineNum">     181 </span>            :                 auto iter = leaf-&gt;beginIndexOn();</a>
+<a name="182"><span class="lineNum">     182 </span>            :                 convert(iter, pHandle, *handle, offset);</a>
+<a name="183"><span class="lineNum">     183 </span>            :             }</a>
+<a name="184"><span class="lineNum">     184 </span>            :             else {</a>
+<a name="185"><span class="lineNum">     185 </span>            :                 auto iter = leaf-&gt;beginIndexOn(mFilter);</a>
+<a name="186"><span class="lineNum">     186 </span>            :                 convert(iter, pHandle, *handle, offset);</a>
+<a name="187"><span class="lineNum">     187 </span>            :             }</a>
+<a name="188"><span class="lineNum">     188 </span>            :         }</a>
+<a name="189"><span class="lineNum">     189 </span>            :     }</a>
+<a name="190"><span class="lineNum">     190 </span>            : </a>
+<a name="191"><span class="lineNum">     191 </span>            :     //////////</a>
+<a name="192"><span class="lineNum">     192 </span>            : </a>
+<a name="193"><span class="lineNum">     193 </span>            :     Attribute&amp;                              mAttribute;</a>
+<a name="194"><span class="lineNum">     194 </span>            :     const std::vector&lt;Index64&gt;&amp;             mPointOffsets;</a>
+<a name="195"><span class="lineNum">     195 </span>            :     const Index64                           mStartOffset;</a>
+<a name="196"><span class="lineNum">     196 </span>            :     const math::Transform&amp;                  mTransform;</a>
+<a name="197"><span class="lineNum">     197 </span>            :     const size_t                            mIndex;</a>
+<a name="198"><span class="lineNum">     198 </span>            :     const FilterT&amp;                          mFilter;</a>
+<a name="199"><span class="lineNum">     199 </span>            :     const bool                              mInCoreOnly;</a>
+<a name="200"><span class="lineNum">     200 </span>            : }; // ConvertPointDataGridPositionOp</a>
+<a name="201"><span class="lineNum">     201 </span>            : </a>
+<a name="202"><span class="lineNum">     202 </span>            : </a>
+<a name="203"><span class="lineNum">     203 </span>            : template&lt;typename PointDataTreeType, typename Attribute, typename FilterT&gt;</a>
+<a name="204"><span class="lineNum">     204 </span>            : struct ConvertPointDataGridAttributeOp {</a>
+<a name="205"><span class="lineNum">     205 </span>            : </a>
+<a name="206"><span class="lineNum">     206 </span>            :     using LeafNode      = typename PointDataTreeType::LeafNodeType;</a>
+<a name="207"><span class="lineNum">     207 </span>            :     using ValueType     = typename Attribute::ValueType;</a>
+<a name="208"><span class="lineNum">     208 </span>            :     using HandleT       = typename Attribute::Handle;</a>
+<a name="209"><span class="lineNum">     209 </span>            :     using SourceHandleT = typename ConversionTraits&lt;ValueType&gt;::Handle;</a>
+<a name="210"><span class="lineNum">     210 </span>            :     using LeafManagerT  = typename tree::LeafManager&lt;const PointDataTreeType&gt;;</a>
+<a name="211"><span class="lineNum">     211 </span>            :     using LeafRangeT    = typename LeafManagerT::LeafRange;</a>
+<a name="212"><span class="lineNum">     212 </span>            : </a>
+<a name="213"><span class="lineNum">     213 </span>            :     ConvertPointDataGridAttributeOp(Attribute&amp; attribute,</a>
+<a name="214"><span class="lineNum">     214 </span>            :                                     const std::vector&lt;Index64&gt;&amp; pointOffsets,</a>
+<a name="215"><span class="lineNum">     215 </span>            :                                     const Index64 startOffset,</a>
+<a name="216"><span class="lineNum">     216 </span>            :                                     const size_t index,</a>
+<a name="217"><span class="lineNum">     217 </span>            :                                     const Index stride,</a>
+<a name="218"><span class="lineNum">     218 </span>            :                                     const FilterT&amp; filter,</a>
+<a name="219"><span class="lineNum">     219 </span>            :                                     const bool inCoreOnly)</a>
+<a name="220"><span class="lineNum">     220 </span>            :         : mAttribute(attribute)</a>
+<a name="221"><span class="lineNum">     221 </span>            :         , mPointOffsets(pointOffsets)</a>
+<a name="222"><span class="lineNum">     222 </span>            :         , mStartOffset(startOffset)</a>
+<a name="223"><span class="lineNum">     223 </span>            :         , mIndex(index)</a>
+<a name="224"><span class="lineNum">     224 </span>            :         , mStride(stride)</a>
+<a name="225"><span class="lineNum">     225 </span>            :         , mFilter(filter)</a>
+<a name="226"><span class="lineNum">     226 </span>            :         , mInCoreOnly(inCoreOnly) { }</a>
+<a name="227"><span class="lineNum">     227 </span>            : </a>
+<a name="228"><span class="lineNum">     228 </span>            :     template &lt;typename IterT&gt;</a>
+<a name="229"><span class="lineNum">     229 </span>            :     void convert(IterT&amp; iter, HandleT&amp; targetHandle,</a>
+<a name="230"><span class="lineNum">     230 </span>            :         SourceHandleT&amp; sourceHandle, Index64&amp; offset) const</a>
+<a name="231"><span class="lineNum">     231 </span>            :     {</a>
+<a name="232"><span class="lineNum">     232 </span>            :         if (sourceHandle.isUniform()) {</a>
+<a name="233"><span class="lineNum">     233 </span>            :             const ValueType uniformValue(sourceHandle.get(0));</a>
+<a name="234"><span class="lineNum">     234 </span>            :             for (; iter; ++iter) {</a>
+<a name="235"><span class="lineNum">     235 </span>            :                 for (Index i = 0; i &lt; mStride; i++) {</a>
+<a name="236"><span class="lineNum">     236 </span>            :                     targetHandle.set(static_cast&lt;Index&gt;(offset), i, uniformValue);</a>
+<a name="237"><span class="lineNum">     237 </span>            :                 }</a>
+<a name="238"><span class="lineNum">     238 </span>            :                 offset++;</a>
+<a name="239"><span class="lineNum">     239 </span>            :             }</a>
+<a name="240"><span class="lineNum">     240 </span>            :         }</a>
+<a name="241"><span class="lineNum">     241 </span>            :         else {</a>
+<a name="242"><span class="lineNum">     242 </span>            :             for (; iter; ++iter) {</a>
+<a name="243"><span class="lineNum">     243 </span>            :                 for (Index i = 0; i &lt; mStride; i++) {</a>
+<a name="244"><span class="lineNum">     244 </span>            :                     targetHandle.set(static_cast&lt;Index&gt;(offset), i,</a>
+<a name="245"><span class="lineNum">     245 </span>            :                         sourceHandle.get(*iter, /*stride=*/i));</a>
+<a name="246"><span class="lineNum">     246 </span>            :                 }</a>
+<a name="247"><span class="lineNum">     247 </span>            :                 offset++;</a>
+<a name="248"><span class="lineNum">     248 </span>            :             }</a>
+<a name="249"><span class="lineNum">     249 </span>            :         }</a>
+<a name="250"><span class="lineNum">     250 </span>            :     }</a>
+<a name="251"><span class="lineNum">     251 </span>            : </a>
+<a name="252"><span class="lineNum">     252 </span>            :     void operator()(const LeafRangeT&amp; range) const</a>
+<a name="253"><span class="lineNum">     253 </span>            :     {</a>
+<a name="254"><span class="lineNum">     254 </span>            :         HandleT pHandle(mAttribute);</a>
+<a name="255"><span class="lineNum">     255 </span>            : </a>
+<a name="256"><span class="lineNum">     256 </span>            :         for (auto leaf = range.begin(); leaf; ++leaf) {</a>
+<a name="257"><span class="lineNum">     257 </span>            : </a>
+<a name="258"><span class="lineNum">     258 </span>            :             OPENVDB_ASSERT(leaf.pos() &lt; mPointOffsets.size());</a>
+<a name="259"><span class="lineNum">     259 </span>            : </a>
+<a name="260"><span class="lineNum">     260 </span>            :             if (mInCoreOnly &amp;&amp; leaf-&gt;buffer().isOutOfCore())    continue;</a>
+<a name="261"><span class="lineNum">     261 </span>            : </a>
+<a name="262"><span class="lineNum">     262 </span>            :             Index64 offset = mStartOffset;</a>
+<a name="263"><span class="lineNum">     263 </span>            : </a>
+<a name="264"><span class="lineNum">     264 </span>            :             if (leaf.pos() &gt; 0) offset += mPointOffsets[leaf.pos() - 1];</a>
+<a name="265"><span class="lineNum">     265 </span>            : </a>
+<a name="266"><span class="lineNum">     266 </span>            :             auto handle = ConversionTraits&lt;ValueType&gt;::handleFromLeaf(</a>
+<a name="267"><span class="lineNum">     267 </span>            :                 *leaf, static_cast&lt;Index&gt;(mIndex));</a>
+<a name="268"><span class="lineNum">     268 </span>            : </a>
+<a name="269"><span class="lineNum">     269 </span>            :             if (mFilter.state() == index::ALL) {</a>
+<a name="270"><span class="lineNum">     270 </span>            :                 auto iter = leaf-&gt;beginIndexOn();</a>
+<a name="271"><span class="lineNum">     271 </span>            :                 convert(iter, pHandle, *handle, offset);</a>
+<a name="272"><span class="lineNum">     272 </span>            :             } else {</a>
+<a name="273"><span class="lineNum">     273 </span>            :                 auto iter = leaf-&gt;beginIndexOn(mFilter);</a>
+<a name="274"><span class="lineNum">     274 </span>            :                 convert(iter, pHandle, *handle, offset);</a>
+<a name="275"><span class="lineNum">     275 </span>            :             }</a>
+<a name="276"><span class="lineNum">     276 </span>            :         }</a>
+<a name="277"><span class="lineNum">     277 </span>            :     }</a>
+<a name="278"><span class="lineNum">     278 </span>            : </a>
+<a name="279"><span class="lineNum">     279 </span>            :     //////////</a>
+<a name="280"><span class="lineNum">     280 </span>            : </a>
+<a name="281"><span class="lineNum">     281 </span>            :     Attribute&amp;                              mAttribute;</a>
+<a name="282"><span class="lineNum">     282 </span>            :     const std::vector&lt;Index64&gt;&amp;             mPointOffsets;</a>
+<a name="283"><span class="lineNum">     283 </span>            :     const Index64                           mStartOffset;</a>
+<a name="284"><span class="lineNum">     284 </span>            :     const size_t                            mIndex;</a>
+<a name="285"><span class="lineNum">     285 </span>            :     const Index                             mStride;</a>
+<a name="286"><span class="lineNum">     286 </span>            :     const FilterT&amp;                          mFilter;</a>
+<a name="287"><span class="lineNum">     287 </span>            :     const bool                              mInCoreOnly;</a>
+<a name="288"><span class="lineNum">     288 </span>            : }; // ConvertPointDataGridAttributeOp</a>
+<a name="289"><span class="lineNum">     289 </span>            : </a>
+<a name="290"><span class="lineNum">     290 </span>            : template&lt;typename PointDataTreeType, typename Group, typename FilterT&gt;</a>
+<a name="291"><span class="lineNum">     291 </span>            : struct ConvertPointDataGridGroupOp {</a>
+<a name="292"><span class="lineNum">     292 </span>            : </a>
+<a name="293"><span class="lineNum">     293 </span>            :     using LeafNode      = typename PointDataTreeType::LeafNodeType;</a>
+<a name="294"><span class="lineNum">     294 </span>            :     using GroupIndex    = AttributeSet::Descriptor::GroupIndex;</a>
+<a name="295"><span class="lineNum">     295 </span>            :     using LeafManagerT  = typename tree::LeafManager&lt;const PointDataTreeType&gt;;</a>
+<a name="296"><span class="lineNum">     296 </span>            :     using LeafRangeT    = typename LeafManagerT::LeafRange;</a>
+<a name="297"><span class="lineNum">     297 </span>            : </a>
+<a name="298"><span class="lineNum">     298 </span>            :     ConvertPointDataGridGroupOp(Group&amp; group,</a>
+<a name="299"><span class="lineNum">     299 </span>            :                                 const std::vector&lt;Index64&gt;&amp; pointOffsets,</a>
+<a name="300"><span class="lineNum">     300 </span>            :                                 const Index64 startOffset,</a>
+<a name="301"><span class="lineNum">     301 </span>            :                                 const AttributeSet::Descriptor::GroupIndex index,</a>
+<a name="302"><span class="lineNum">     302 </span>            :                                 const FilterT&amp; filter,</a>
+<a name="303"><span class="lineNum">     303 </span>            :                                 const bool inCoreOnly)</a>
+<a name="304"><span class="lineNum">     304 </span>            :         : mGroup(group)</a>
+<a name="305"><span class="lineNum">     305 </span>            :         , mPointOffsets(pointOffsets)</a>
+<a name="306"><span class="lineNum">     306 </span>            :         , mStartOffset(startOffset)</a>
+<a name="307"><span class="lineNum">     307 </span>            :         , mIndex(index)</a>
+<a name="308"><span class="lineNum">     308 </span>            :         , mFilter(filter)</a>
+<a name="309"><span class="lineNum">     309 </span>            :         , mInCoreOnly(inCoreOnly) { }</a>
+<a name="310"><span class="lineNum">     310 </span>            : </a>
+<a name="311"><span class="lineNum">     311 </span>            :     template &lt;typename IterT&gt;</a>
+<a name="312"><span class="lineNum">     312 </span>            :     void convert(IterT&amp; iter, const GroupAttributeArray&amp; groupArray, Index64&amp; offset) const</a>
+<a name="313"><span class="lineNum">     313 </span>            :     {</a>
+<a name="314"><span class="lineNum">     314 </span>            :         const auto bitmask = static_cast&lt;GroupType&gt;(1 &lt;&lt; mIndex.second);</a>
+<a name="315"><span class="lineNum">     315 </span>            : </a>
+<a name="316"><span class="lineNum">     316 </span>            :         if (groupArray.isUniform()) {</a>
+<a name="317"><span class="lineNum">     317 </span>            :             if (groupArray.get(0) &amp; bitmask) {</a>
+<a name="318"><span class="lineNum">     318 </span>            :                 for (; iter; ++iter) {</a>
+<a name="319"><span class="lineNum">     319 </span>            :                     mGroup.setOffsetOn(static_cast&lt;Index&gt;(offset));</a>
+<a name="320"><span class="lineNum">     320 </span>            :                     offset++;</a>
+<a name="321"><span class="lineNum">     321 </span>            :                 }</a>
+<a name="322"><span class="lineNum">     322 </span>            :             }</a>
+<a name="323"><span class="lineNum">     323 </span>            :         }</a>
+<a name="324"><span class="lineNum">     324 </span>            :         else {</a>
+<a name="325"><span class="lineNum">     325 </span>            :             for (; iter; ++iter) {</a>
+<a name="326"><span class="lineNum">     326 </span>            :                 if (groupArray.get(*iter) &amp; bitmask) {</a>
+<a name="327"><span class="lineNum">     327 </span>            :                     mGroup.setOffsetOn(static_cast&lt;Index&gt;(offset));</a>
+<a name="328"><span class="lineNum">     328 </span>            :                 }</a>
+<a name="329"><span class="lineNum">     329 </span>            :                 offset++;</a>
+<a name="330"><span class="lineNum">     330 </span>            :             }</a>
+<a name="331"><span class="lineNum">     331 </span>            :         }</a>
+<a name="332"><span class="lineNum">     332 </span>            :     }</a>
+<a name="333"><span class="lineNum">     333 </span>            : </a>
+<a name="334"><span class="lineNum">     334 </span>            :     void operator()(const LeafRangeT&amp; range) const</a>
+<a name="335"><span class="lineNum">     335 </span>            :     {</a>
+<a name="336"><span class="lineNum">     336 </span>            :         for (auto leaf = range.begin(); leaf; ++leaf) {</a>
+<a name="337"><span class="lineNum">     337 </span>            : </a>
+<a name="338"><span class="lineNum">     338 </span>            :             OPENVDB_ASSERT(leaf.pos() &lt; mPointOffsets.size());</a>
+<a name="339"><span class="lineNum">     339 </span>            : </a>
+<a name="340"><span class="lineNum">     340 </span>            :             if (mInCoreOnly &amp;&amp; leaf-&gt;buffer().isOutOfCore())    continue;</a>
+<a name="341"><span class="lineNum">     341 </span>            : </a>
+<a name="342"><span class="lineNum">     342 </span>            :             Index64 offset = mStartOffset;</a>
+<a name="343"><span class="lineNum">     343 </span>            : </a>
+<a name="344"><span class="lineNum">     344 </span>            :             if (leaf.pos() &gt; 0)     offset += mPointOffsets[leaf.pos() - 1];</a>
+<a name="345"><span class="lineNum">     345 </span>            : </a>
+<a name="346"><span class="lineNum">     346 </span>            :             const AttributeArray&amp; array = leaf-&gt;constAttributeArray(mIndex.first);</a>
+<a name="347"><span class="lineNum">     347 </span>            :             OPENVDB_ASSERT(isGroup(array));</a>
+<a name="348"><span class="lineNum">     348 </span>            :             const GroupAttributeArray&amp; groupArray = GroupAttributeArray::cast(array);</a>
+<a name="349"><span class="lineNum">     349 </span>            : </a>
+<a name="350"><span class="lineNum">     350 </span>            :             if (mFilter.state() == index::ALL) {</a>
+<a name="351"><span class="lineNum">     351 </span>            :                 auto iter = leaf-&gt;beginIndexOn();</a>
+<a name="352"><span class="lineNum">     352 </span>            :                 convert(iter, groupArray, offset);</a>
+<a name="353"><span class="lineNum">     353 </span>            :             }</a>
+<a name="354"><span class="lineNum">     354 </span>            :             else {</a>
+<a name="355"><span class="lineNum">     355 </span>            :                 auto iter = leaf-&gt;beginIndexOn(mFilter);</a>
+<a name="356"><span class="lineNum">     356 </span>            :                 convert(iter, groupArray, offset);</a>
+<a name="357"><span class="lineNum">     357 </span>            :             }</a>
+<a name="358"><span class="lineNum">     358 </span>            :         }</a>
+<a name="359"><span class="lineNum">     359 </span>            :     }</a>
+<a name="360"><span class="lineNum">     360 </span>            : </a>
+<a name="361"><span class="lineNum">     361 </span>            :     //////////</a>
+<a name="362"><span class="lineNum">     362 </span>            : </a>
+<a name="363"><span class="lineNum">     363 </span>            :     Group&amp;                                  mGroup;</a>
+<a name="364"><span class="lineNum">     364 </span>            :     const std::vector&lt;Index64&gt;&amp;             mPointOffsets;</a>
+<a name="365"><span class="lineNum">     365 </span>            :     const Index64                           mStartOffset;</a>
+<a name="366"><span class="lineNum">     366 </span>            :     const GroupIndex                        mIndex;</a>
+<a name="367"><span class="lineNum">     367 </span>            :     const FilterT&amp;                          mFilter;</a>
+<a name="368"><span class="lineNum">     368 </span>            :     const bool                              mInCoreOnly;</a>
+<a name="369"><span class="lineNum">     369 </span>            : }; // ConvertPointDataGridGroupOp</a>
+<a name="370"><span class="lineNum">     370 </span>            : </a>
+<a name="371"><span class="lineNum">     371 </span>            : template&lt;typename PositionArrayT, typename VecT = Vec3R&gt;</a>
+<a name="372"><span class="lineNum">     372 </span>            : struct CalculatePositionBounds</a>
+<a name="373"><span class="lineNum">     373 </span>            : {</a>
+<a name="374"><span class="lineNum">     374 </span>            :     CalculatePositionBounds(const PositionArrayT&amp; positions,</a>
+<a name="375"><span class="lineNum">     375 </span>            :                             const math::Mat4d&amp; inverse)</a>
+<a name="376"><span class="lineNum">     376 </span>            :         : mPositions(positions)</a>
+<a name="377"><span class="lineNum">     377 </span>            :         , mInverseMat(inverse)</a>
+<a name="378"><span class="lineNum">     378 </span>            :         , mMin(std::numeric_limits&lt;Real&gt;::max())</a>
+<a name="379"><span class="lineNum">     379 </span>            :         , mMax(-std::numeric_limits&lt;Real&gt;::max()) {}</a>
+<a name="380"><span class="lineNum">     380 </span>            : </a>
+<a name="381"><span class="lineNum">     381 </span>            :     CalculatePositionBounds(const CalculatePositionBounds&amp; other, tbb::split)</a>
+<a name="382"><span class="lineNum">     382 </span>            :         : mPositions(other.mPositions)</a>
+<a name="383"><span class="lineNum">     383 </span>            :         , mInverseMat(other.mInverseMat)</a>
+<a name="384"><span class="lineNum">     384 </span>            :         , mMin(std::numeric_limits&lt;Real&gt;::max())</a>
+<a name="385"><span class="lineNum">     385 </span>            :         , mMax(-std::numeric_limits&lt;Real&gt;::max()) {}</a>
+<a name="386"><span class="lineNum">     386 </span>            : </a>
+<a name="387"><span class="lineNum">     387 </span>            :     void operator()(const tbb::blocked_range&lt;size_t&gt;&amp; range) {</a>
+<a name="388"><span class="lineNum">     388 </span>            :         VecT pos;</a>
+<a name="389"><span class="lineNum">     389 </span>            :         for (size_t n = range.begin(), N = range.end(); n != N; ++n) {</a>
+<a name="390"><span class="lineNum">     390 </span>            :             mPositions.getPos(n, pos);</a>
+<a name="391"><span class="lineNum">     391 </span>            :             pos = mInverseMat.transform(pos);</a>
+<a name="392"><span class="lineNum">     392 </span>            :             mMin = math::minComponent(mMin, pos);</a>
+<a name="393"><span class="lineNum">     393 </span>            :             mMax = math::maxComponent(mMax, pos);</a>
+<a name="394"><span class="lineNum">     394 </span>            :         }</a>
+<a name="395"><span class="lineNum">     395 </span>            :     }</a>
+<a name="396"><span class="lineNum">     396 </span>            : </a>
+<a name="397"><span class="lineNum">     397 </span>            :     void join(const CalculatePositionBounds&amp; other) {</a>
+<a name="398"><span class="lineNum">     398 </span>            :         mMin = math::minComponent(mMin, other.mMin);</a>
+<a name="399"><span class="lineNum">     399 </span>            :         mMax = math::maxComponent(mMax, other.mMax);</a>
+<a name="400"><span class="lineNum">     400 </span>            :     }</a>
+<a name="401"><span class="lineNum">     401 </span>            : </a>
+<a name="402"><span class="lineNum">     402 </span>            :     BBoxd getBoundingBox() const {</a>
+<a name="403"><span class="lineNum">     403 </span>            :         return BBoxd(mMin, mMax);</a>
+<a name="404"><span class="lineNum">     404 </span>            :     }</a>
+<a name="405"><span class="lineNum">     405 </span>            : </a>
+<a name="406"><span class="lineNum">     406 </span>            : private:</a>
+<a name="407"><span class="lineNum">     407 </span>            :     const PositionArrayT&amp; mPositions;</a>
+<a name="408"><span class="lineNum">     408 </span>            :     const math::Mat4d&amp;    mInverseMat;</a>
+<a name="409"><span class="lineNum">     409 </span>            :     VecT mMin, mMax;</a>
+<a name="410"><span class="lineNum">     410 </span>            : };</a>
+<a name="411"><span class="lineNum">     411 </span>            : </a>
+<a name="412"><span class="lineNum">     412 </span>            : } // namespace point_conversion_internal</a>
+<a name="413"><span class="lineNum">     413 </span>            : </a>
+<a name="414"><span class="lineNum">     414 </span>            : /// @endcond</a>
+<a name="415"><span class="lineNum">     415 </span>            : </a>
+<a name="416"><span class="lineNum">     416 </span>            : ////////////////////////////////////////</a>
+<a name="417"><span class="lineNum">     417 </span>            : </a>
+<a name="418"><span class="lineNum">     418 </span>            : </a>
+<a name="419"><span class="lineNum">     419 </span>            : template&lt;typename CompressionT, typename PointDataGridT, typename PositionArrayT, typename PointIndexGridT&gt;</a>
+<a name="420"><span class="lineNum">     420 </span>            : inline typename PointDataGridT::Ptr</a>
+<a name="421"><span class="lineNum">     421 </span><span class="lineCov">         28 : createPointDataGrid(const PointIndexGridT&amp; pointIndexGrid,</span></a>
+<a name="422"><span class="lineNum">     422 </span>            :                     const PositionArrayT&amp; positions,</a>
+<a name="423"><span class="lineNum">     423 </span>            :                     const math::Transform&amp; xform,</a>
+<a name="424"><span class="lineNum">     424 </span>            :                     const Metadata* positionDefaultValue)</a>
+<a name="425"><span class="lineNum">     425 </span>            : {</a>
+<a name="426"><span class="lineNum">     426 </span>            :     using PointDataTreeT        = typename PointDataGridT::TreeType;</a>
+<a name="427"><span class="lineNum">     427 </span>            :     using LeafT                 = typename PointDataTreeT::LeafNodeType;</a>
+<a name="428"><span class="lineNum">     428 </span>            :     using PointIndexLeafT       = typename PointIndexGridT::TreeType::LeafNodeType;</a>
+<a name="429"><span class="lineNum">     429 </span>            :     using PointIndexT           = typename PointIndexLeafT::ValueType;</a>
+<a name="430"><span class="lineNum">     430 </span>            :     using LeafManagerT          = typename tree::LeafManager&lt;PointDataTreeT&gt;;</a>
+<a name="431"><span class="lineNum">     431 </span>            :     using PositionAttributeT    = TypedAttributeArray&lt;Vec3f, CompressionT&gt;;</a>
+<a name="432"><span class="lineNum">     432 </span>            : </a>
+<a name="433"><span class="lineNum">     433 </span><span class="lineCov">         28 :     const NamePair positionType = PositionAttributeT::attributeType();</span></a>
+<a name="434"><span class="lineNum">     434 </span>            : </a>
+<a name="435"><span class="lineNum">     435 </span>            :     // construct the Tree using a topology copy of the PointIndexGrid</a>
+<a name="436"><span class="lineNum">     436 </span>            : </a>
+<a name="437"><span class="lineNum">     437 </span><span class="lineCov">         28 :     const auto&amp; pointIndexTree = pointIndexGrid.tree();</span></a>
+<a name="438"><span class="lineNum">     438 </span><span class="lineCov">         28 :     typename PointDataTreeT::Ptr treePtr(new PointDataTreeT(pointIndexTree));</span></a>
+<a name="439"><span class="lineNum">     439 </span>            : </a>
+<a name="440"><span class="lineNum">     440 </span>            :     // create attribute descriptor from position type</a>
+<a name="441"><span class="lineNum">     441 </span>            : </a>
+<a name="442"><span class="lineNum">     442 </span><span class="lineCov">         28 :     auto descriptor = AttributeSet::Descriptor::create(positionType);</span></a>
+<a name="443"><span class="lineNum">     443 </span>            : </a>
+<a name="444"><span class="lineNum">     444 </span>            :     // add default value for position if provided</a>
+<a name="445"><span class="lineNum">     445 </span>            : </a>
+<a name="446"><span class="lineNum">     446 </span><span class="lineCov">         28 :     if (positionDefaultValue)   descriptor-&gt;setDefaultValue(&quot;P&quot;, *positionDefaultValue);</span></a>
+<a name="447"><span class="lineNum">     447 </span>            : </a>
+<a name="448"><span class="lineNum">     448 </span>            :     // retrieve position index</a>
+<a name="449"><span class="lineNum">     449 </span>            : </a>
+<a name="450"><span class="lineNum">     450 </span><span class="lineCov">         56 :     const size_t positionIndex = descriptor-&gt;find(&quot;P&quot;);</span></a>
+<a name="451"><span class="lineNum">     451 </span>            :     OPENVDB_ASSERT(positionIndex != AttributeSet::INVALID_POS);</a>
+<a name="452"><span class="lineNum">     452 </span>            : </a>
+<a name="453"><span class="lineNum">     453 </span>            :     // acquire registry lock to avoid locking when appending attributes in parallel</a>
+<a name="454"><span class="lineNum">     454 </span>            : </a>
+<a name="455"><span class="lineNum">     455 </span><span class="lineCov">         28 :     AttributeArray::ScopedRegistryLock lock;</span></a>
+<a name="456"><span class="lineNum">     456 </span>            : </a>
+<a name="457"><span class="lineNum">     457 </span>            :     // populate position attribute</a>
+<a name="458"><span class="lineNum">     458 </span>            : </a>
+<a name="459"><span class="lineNum">     459 </span><span class="lineCov">         28 :     LeafManagerT leafManager(*treePtr);</span></a>
+<a name="460"><span class="lineNum">     460 </span><span class="lineCov">         28 :     leafManager.foreach(</span></a>
+<a name="461"><span class="lineNum">     461 </span><span class="lineCov">        252 :         [&amp;](LeafT&amp; leaf, size_t /*idx*/) {</span></a>
+<a name="462"><span class="lineNum">     462 </span>            : </a>
+<a name="463"><span class="lineNum">     463 </span>            :             // obtain the PointIndexLeafNode (using the origin of the current leaf)</a>
+<a name="464"><span class="lineNum">     464 </span>            : </a>
+<a name="465"><span class="lineNum">     465 </span><span class="lineCov">        223 :             const auto* pointIndexLeaf = pointIndexTree.probeConstLeaf(leaf.origin());</span></a>
+<a name="466"><span class="lineNum">     466 </span>            :             OPENVDB_ASSERT(pointIndexLeaf);</a>
+<a name="467"><span class="lineNum">     467 </span>            : </a>
+<a name="468"><span class="lineNum">     468 </span>            :             // initialise the attribute storage</a>
+<a name="469"><span class="lineNum">     469 </span>            : </a>
+<a name="470"><span class="lineNum">     470 </span><span class="lineCov">        223 :             Index pointCount(static_cast&lt;Index&gt;(pointIndexLeaf-&gt;indices().size()));</span></a>
+<a name="471"><span class="lineNum">     471 </span><span class="lineCov">        223 :             leaf.initializeAttributes(descriptor, pointCount, &amp;lock);</span></a>
+<a name="472"><span class="lineNum">     472 </span>            : </a>
+<a name="473"><span class="lineNum">     473 </span>            :             // create write handle for position</a>
+<a name="474"><span class="lineNum">     474 </span>            : </a>
+<a name="475"><span class="lineNum">     475 </span><span class="lineCov">        224 :             auto attributeWriteHandle = AttributeWriteHandle&lt;Vec3f, CompressionT&gt;::create(</span></a>
+<a name="476"><span class="lineNum">     476 </span>            :                 leaf.attributeArray(positionIndex));</a>
+<a name="477"><span class="lineNum">     477 </span>            : </a>
+<a name="478"><span class="lineNum">     478 </span><span class="lineCov">        223 :             Index index = 0;</span></a>
+<a name="479"><span class="lineNum">     479 </span>            : </a>
+<a name="480"><span class="lineNum">     480 </span>            :             const PointIndexT</a>
+<a name="481"><span class="lineNum">     481 </span><span class="lineCov">        223 :                 *begin = static_cast&lt;PointIndexT*&gt;(nullptr),</span></a>
+<a name="482"><span class="lineNum">     482 </span><span class="lineCov">        223 :                 *end = static_cast&lt;PointIndexT*&gt;(nullptr);</span></a>
+<a name="483"><span class="lineNum">     483 </span>            : </a>
+<a name="484"><span class="lineNum">     484 </span>            :             // iterator over every active voxel in the point index leaf</a>
+<a name="485"><span class="lineNum">     485 </span>            : </a>
+<a name="486"><span class="lineNum">     486 </span><span class="lineCov">      11706 :             for (auto iter = pointIndexLeaf-&gt;cbeginValueOn(); iter; ++iter) {</span></a>
+<a name="487"><span class="lineNum">     487 </span>            : </a>
+<a name="488"><span class="lineNum">     488 </span>            :                 // find the voxel center</a>
+<a name="489"><span class="lineNum">     489 </span>            : </a>
+<a name="490"><span class="lineNum">     490 </span><span class="lineCov">       6228 :                 const Coord&amp; ijk = iter.getCoord();</span></a>
+<a name="491"><span class="lineNum">     491 </span><span class="lineCov">       6256 :                 const Vec3d&amp; positionCellCenter(ijk.asVec3d());</span></a>
+<a name="492"><span class="lineNum">     492 </span>            : </a>
+<a name="493"><span class="lineNum">     493 </span>            :                 // obtain pointers for this voxel from begin to end in the indices array</a>
+<a name="494"><span class="lineNum">     494 </span>            : </a>
+<a name="495"><span class="lineNum">     495 </span><span class="lineCov">       6243 :                 pointIndexLeaf-&gt;getIndices(ijk, begin, end);</span></a>
+<a name="496"><span class="lineNum">     496 </span>            : </a>
+<a name="497"><span class="lineNum">     497 </span><span class="lineCov">     190202 :                 while (begin &lt; end) {</span></a>
+<a name="498"><span class="lineNum">     498 </span>            : </a>
+<a name="499"><span class="lineNum">     499 </span>            :                     typename PositionArrayT::value_type positionWorldSpace;</a>
+<a name="500"><span class="lineNum">     500 </span><span class="lineCov">     184948 :                     positions.getPos(*begin, positionWorldSpace);</span></a>
+<a name="501"><span class="lineNum">     501 </span>            : </a>
+<a name="502"><span class="lineNum">     502 </span>            :                     // compute the index-space position and then subtract the voxel center</a>
+<a name="503"><span class="lineNum">     503 </span>            : </a>
+<a name="504"><span class="lineNum">     504 </span><span class="lineCov">     206491 :                     const Vec3d positionIndexSpace = xform.worldToIndex(positionWorldSpace);</span></a>
+<a name="505"><span class="lineNum">     505 </span><span class="lineCov">     187077 :                     const Vec3f positionVoxelSpace(positionIndexSpace - positionCellCenter);</span></a>
+<a name="506"><span class="lineNum">     506 </span>            : </a>
+<a name="507"><span class="lineNum">     507 </span><span class="lineCov">     177655 :                     attributeWriteHandle-&gt;set(index++, positionVoxelSpace);</span></a>
+<a name="508"><span class="lineNum">     508 </span>            : </a>
+<a name="509"><span class="lineNum">     509 </span><span class="lineCov">     183972 :                     ++begin;</span></a>
+<a name="510"><span class="lineNum">     510 </span>            :                 }</a>
+<a name="511"><span class="lineNum">     511 </span>            :             }</a>
+<a name="512"><span class="lineNum">     512 </span><span class="lineCov">        223 :         },</span></a>
+<a name="513"><span class="lineNum">     513 </span>            :     /*threaded=*/true);</a>
+<a name="514"><span class="lineNum">     514 </span>            : </a>
+<a name="515"><span class="lineNum">     515 </span><span class="lineCov">         28 :     auto grid = PointDataGridT::create(treePtr);</span></a>
+<a name="516"><span class="lineNum">     516 </span><span class="lineCov">         28 :     grid-&gt;setTransform(xform.copy());</span></a>
+<a name="517"><span class="lineNum">     517 </span><span class="lineCov">         28 :     return grid;</span></a>
+<a name="518"><span class="lineNum">     518 </span><span class="lineCov">         28 : }</span></a>
+<a name="519"><span class="lineNum">     519 </span>            : </a>
+<a name="520"><span class="lineNum">     520 </span>            : </a>
+<a name="521"><span class="lineNum">     521 </span>            : ////////////////////////////////////////</a>
+<a name="522"><span class="lineNum">     522 </span>            : </a>
+<a name="523"><span class="lineNum">     523 </span>            : </a>
+<a name="524"><span class="lineNum">     524 </span>            : template &lt;typename CompressionT, typename PointDataGridT, typename ValueT&gt;</a>
+<a name="525"><span class="lineNum">     525 </span>            : inline typename PointDataGridT::Ptr</a>
+<a name="526"><span class="lineNum">     526 </span>            : createPointDataGrid(const std::vector&lt;ValueT&gt;&amp; positions,</a>
+<a name="527"><span class="lineNum">     527 </span>            :                     const math::Transform&amp; xform,</a>
+<a name="528"><span class="lineNum">     528 </span>            :                     const Metadata* positionDefaultValue)</a>
+<a name="529"><span class="lineNum">     529 </span>            : {</a>
+<a name="530"><span class="lineNum">     530 </span>            :     const PointAttributeVector&lt;ValueT&gt; pointList(positions);</a>
+<a name="531"><span class="lineNum">     531 </span>            : </a>
+<a name="532"><span class="lineNum">     532 </span>            :     tools::PointIndexGrid::Ptr pointIndexGrid =</a>
+<a name="533"><span class="lineNum">     533 </span>            :         tools::createPointIndexGrid&lt;tools::PointIndexGrid&gt;(pointList, xform);</a>
+<a name="534"><span class="lineNum">     534 </span>            :     return createPointDataGrid&lt;CompressionT, PointDataGridT&gt;(</a>
+<a name="535"><span class="lineNum">     535 </span>            :         *pointIndexGrid, pointList, xform, positionDefaultValue);</a>
+<a name="536"><span class="lineNum">     536 </span>            : }</a>
+<a name="537"><span class="lineNum">     537 </span>            : </a>
+<a name="538"><span class="lineNum">     538 </span>            : </a>
+<a name="539"><span class="lineNum">     539 </span>            : ////////////////////////////////////////</a>
+<a name="540"><span class="lineNum">     540 </span>            : </a>
+<a name="541"><span class="lineNum">     541 </span>            : </a>
+<a name="542"><span class="lineNum">     542 </span>            : template &lt;typename PointDataTreeT, typename PointIndexTreeT, typename PointArrayT&gt;</a>
+<a name="543"><span class="lineNum">     543 </span>            : inline void</a>
+<a name="544"><span class="lineNum">     544 </span><span class="lineCov">         84 : populateAttribute(PointDataTreeT&amp; tree, const PointIndexTreeT&amp; pointIndexTree,</span></a>
+<a name="545"><span class="lineNum">     545 </span>            :     const openvdb::Name&amp; attributeName, const PointArrayT&amp; data, const Index stride,</a>
+<a name="546"><span class="lineNum">     546 </span>            :     const bool insertMetadata)</a>
+<a name="547"><span class="lineNum">     547 </span>            : {</a>
+<a name="548"><span class="lineNum">     548 </span>            :     using point_conversion_internal::PopulateAttributeOp;</a>
+<a name="549"><span class="lineNum">     549 </span>            :     using ValueType = typename PointArrayT::value_type;</a>
+<a name="550"><span class="lineNum">     550 </span>            : </a>
+<a name="551"><span class="lineNum">     551 </span><span class="lineCov">         84 :     auto iter = tree.cbeginLeaf();</span></a>
+<a name="552"><span class="lineNum">     552 </span>            : </a>
+<a name="553"><span class="lineNum">     553 </span><span class="lineCov">         84 :     if (!iter)  return;</span></a>
+<a name="554"><span class="lineNum">     554 </span>            : </a>
+<a name="555"><span class="lineNum">     555 </span><span class="lineCov">         84 :     const size_t index = iter-&gt;attributeSet().find(attributeName);</span></a>
+<a name="556"><span class="lineNum">     556 </span>            : </a>
+<a name="557"><span class="lineNum">     557 </span><span class="lineCov">         84 :     if (index == AttributeSet::INVALID_POS) {</span></a>
+<a name="558"><span class="lineNum">     558 </span><span class="lineNoCov">          0 :         OPENVDB_THROW(KeyError, &quot;Attribute not found to populate - &quot; &lt;&lt; attributeName &lt;&lt; &quot;.&quot;);</span></a>
+<a name="559"><span class="lineNum">     559 </span>            :     }</a>
+<a name="560"><span class="lineNum">     560 </span>            : </a>
+<a name="561"><span class="lineNum">     561 </span><span class="lineCov">         84 :     if (insertMetadata) {</span></a>
+<a name="562"><span class="lineNum">     562 </span><span class="lineCov">         84 :         point_attribute_internal::MetadataStorage&lt;PointDataTreeT, ValueType&gt;::add(tree, data);</span></a>
+<a name="563"><span class="lineNum">     563 </span>            :     }</a>
+<a name="564"><span class="lineNum">     564 </span>            : </a>
+<a name="565"><span class="lineNum">     565 </span>            :     // populate attribute</a>
+<a name="566"><span class="lineNum">     566 </span>            : </a>
+<a name="567"><span class="lineNum">     567 </span><span class="lineCov">         84 :     typename tree::LeafManager&lt;PointDataTreeT&gt; leafManager(tree);</span></a>
+<a name="568"><span class="lineNum">     568 </span>            : </a>
+<a name="569"><span class="lineNum">     569 </span>            :     PopulateAttributeOp&lt;PointDataTreeT,</a>
+<a name="570"><span class="lineNum">     570 </span>            :                         PointIndexTreeT,</a>
+<a name="571"><span class="lineNum">     571 </span><span class="lineCov">         84 :                         PointArrayT&gt; populate(pointIndexTree, data, index, stride);</span></a>
+<a name="572"><span class="lineNum">     572 </span><span class="lineCov">         84 :     tbb::parallel_for(leafManager.leafRange(), populate);</span></a>
+<a name="573"><span class="lineNum">     573 </span><span class="lineCov">         84 : }</span></a>
+<a name="574"><span class="lineNum">     574 </span>            : </a>
+<a name="575"><span class="lineNum">     575 </span>            : </a>
+<a name="576"><span class="lineNum">     576 </span>            : ////////////////////////////////////////</a>
+<a name="577"><span class="lineNum">     577 </span>            : </a>
+<a name="578"><span class="lineNum">     578 </span>            : </a>
+<a name="579"><span class="lineNum">     579 </span>            : template &lt;typename PositionAttribute, typename PointDataGridT, typename FilterT&gt;</a>
+<a name="580"><span class="lineNum">     580 </span>            : inline void</a>
+<a name="581"><span class="lineNum">     581 </span>            : convertPointDataGridPosition(   PositionAttribute&amp; positionAttribute,</a>
+<a name="582"><span class="lineNum">     582 </span>            :                                 const PointDataGridT&amp; grid,</a>
+<a name="583"><span class="lineNum">     583 </span>            :                                 const std::vector&lt;Index64&gt;&amp; pointOffsets,</a>
+<a name="584"><span class="lineNum">     584 </span>            :                                 const Index64 startOffset,</a>
+<a name="585"><span class="lineNum">     585 </span>            :                                 const FilterT&amp; filter,</a>
+<a name="586"><span class="lineNum">     586 </span>            :                                 const bool inCoreOnly)</a>
+<a name="587"><span class="lineNum">     587 </span>            : {</a>
+<a name="588"><span class="lineNum">     588 </span>            :     using TreeType      = typename PointDataGridT::TreeType;</a>
+<a name="589"><span class="lineNum">     589 </span>            :     using LeafManagerT  = typename tree::LeafManager&lt;const TreeType&gt;;</a>
+<a name="590"><span class="lineNum">     590 </span>            : </a>
+<a name="591"><span class="lineNum">     591 </span>            :     using point_conversion_internal::ConvertPointDataGridPositionOp;</a>
+<a name="592"><span class="lineNum">     592 </span>            : </a>
+<a name="593"><span class="lineNum">     593 </span>            :     const TreeType&amp; tree = grid.tree();</a>
+<a name="594"><span class="lineNum">     594 </span>            :     auto iter = tree.cbeginLeaf();</a>
+<a name="595"><span class="lineNum">     595 </span>            : </a>
+<a name="596"><span class="lineNum">     596 </span>            :     if (!iter)  return;</a>
+<a name="597"><span class="lineNum">     597 </span>            : </a>
+<a name="598"><span class="lineNum">     598 </span>            :     const size_t positionIndex = iter-&gt;attributeSet().find(&quot;P&quot;);</a>
+<a name="599"><span class="lineNum">     599 </span>            : </a>
+<a name="600"><span class="lineNum">     600 </span>            :     positionAttribute.expand();</a>
+<a name="601"><span class="lineNum">     601 </span>            :     LeafManagerT leafManager(tree);</a>
+<a name="602"><span class="lineNum">     602 </span>            :     ConvertPointDataGridPositionOp&lt;TreeType, PositionAttribute, FilterT&gt; convert(</a>
+<a name="603"><span class="lineNum">     603 </span>            :                     positionAttribute, pointOffsets, startOffset, grid.transform(), positionIndex,</a>
+<a name="604"><span class="lineNum">     604 </span>            :                     filter, inCoreOnly);</a>
+<a name="605"><span class="lineNum">     605 </span>            :     tbb::parallel_for(leafManager.leafRange(), convert);</a>
+<a name="606"><span class="lineNum">     606 </span>            :     positionAttribute.compact();</a>
+<a name="607"><span class="lineNum">     607 </span>            : }</a>
+<a name="608"><span class="lineNum">     608 </span>            : </a>
+<a name="609"><span class="lineNum">     609 </span>            : </a>
+<a name="610"><span class="lineNum">     610 </span>            : ////////////////////////////////////////</a>
+<a name="611"><span class="lineNum">     611 </span>            : </a>
+<a name="612"><span class="lineNum">     612 </span>            : </a>
+<a name="613"><span class="lineNum">     613 </span>            : template &lt;typename TypedAttribute, typename PointDataTreeT, typename FilterT&gt;</a>
+<a name="614"><span class="lineNum">     614 </span>            : inline void</a>
+<a name="615"><span class="lineNum">     615 </span>            : convertPointDataGridAttribute(  TypedAttribute&amp; attribute,</a>
+<a name="616"><span class="lineNum">     616 </span>            :                                 const PointDataTreeT&amp; tree,</a>
+<a name="617"><span class="lineNum">     617 </span>            :                                 const std::vector&lt;Index64&gt;&amp; pointOffsets,</a>
+<a name="618"><span class="lineNum">     618 </span>            :                                 const Index64 startOffset,</a>
+<a name="619"><span class="lineNum">     619 </span>            :                                 const unsigned arrayIndex,</a>
+<a name="620"><span class="lineNum">     620 </span>            :                                 const Index stride,</a>
+<a name="621"><span class="lineNum">     621 </span>            :                                 const FilterT&amp; filter,</a>
+<a name="622"><span class="lineNum">     622 </span>            :                                 const bool inCoreOnly)</a>
+<a name="623"><span class="lineNum">     623 </span>            : {</a>
+<a name="624"><span class="lineNum">     624 </span>            :     using LeafManagerT = typename tree::LeafManager&lt;const PointDataTreeT&gt;;</a>
+<a name="625"><span class="lineNum">     625 </span>            : </a>
+<a name="626"><span class="lineNum">     626 </span>            :     using point_conversion_internal::ConvertPointDataGridAttributeOp;</a>
+<a name="627"><span class="lineNum">     627 </span>            : </a>
+<a name="628"><span class="lineNum">     628 </span>            :     auto iter = tree.cbeginLeaf();</a>
+<a name="629"><span class="lineNum">     629 </span>            : </a>
+<a name="630"><span class="lineNum">     630 </span>            :     if (!iter)  return;</a>
+<a name="631"><span class="lineNum">     631 </span>            : </a>
+<a name="632"><span class="lineNum">     632 </span>            :     attribute.expand();</a>
+<a name="633"><span class="lineNum">     633 </span>            :     LeafManagerT leafManager(tree);</a>
+<a name="634"><span class="lineNum">     634 </span>            :     ConvertPointDataGridAttributeOp&lt;PointDataTreeT, TypedAttribute, FilterT&gt; convert(</a>
+<a name="635"><span class="lineNum">     635 </span>            :                         attribute, pointOffsets, startOffset, arrayIndex, stride,</a>
+<a name="636"><span class="lineNum">     636 </span>            :                         filter, inCoreOnly);</a>
+<a name="637"><span class="lineNum">     637 </span>            :         tbb::parallel_for(leafManager.leafRange(), convert);</a>
+<a name="638"><span class="lineNum">     638 </span>            :     attribute.compact();</a>
+<a name="639"><span class="lineNum">     639 </span>            : }</a>
+<a name="640"><span class="lineNum">     640 </span>            : </a>
+<a name="641"><span class="lineNum">     641 </span>            : </a>
+<a name="642"><span class="lineNum">     642 </span>            : ////////////////////////////////////////</a>
+<a name="643"><span class="lineNum">     643 </span>            : </a>
+<a name="644"><span class="lineNum">     644 </span>            : </a>
+<a name="645"><span class="lineNum">     645 </span>            : template &lt;typename Group, typename PointDataTreeT, typename FilterT&gt;</a>
+<a name="646"><span class="lineNum">     646 </span>            : inline void</a>
+<a name="647"><span class="lineNum">     647 </span>            : convertPointDataGridGroup(  Group&amp; group,</a>
+<a name="648"><span class="lineNum">     648 </span>            :                             const PointDataTreeT&amp; tree,</a>
+<a name="649"><span class="lineNum">     649 </span>            :                             const std::vector&lt;Index64&gt;&amp; pointOffsets,</a>
+<a name="650"><span class="lineNum">     650 </span>            :                             const Index64 startOffset,</a>
+<a name="651"><span class="lineNum">     651 </span>            :                             const AttributeSet::Descriptor::GroupIndex index,</a>
+<a name="652"><span class="lineNum">     652 </span>            :                             const FilterT&amp; filter,</a>
+<a name="653"><span class="lineNum">     653 </span>            :                             const bool inCoreOnly)</a>
+<a name="654"><span class="lineNum">     654 </span>            : {</a>
+<a name="655"><span class="lineNum">     655 </span>            :     using LeafManagerT= typename tree::LeafManager&lt;const PointDataTreeT&gt;;</a>
+<a name="656"><span class="lineNum">     656 </span>            : </a>
+<a name="657"><span class="lineNum">     657 </span>            :     using point_conversion_internal::ConvertPointDataGridGroupOp;</a>
+<a name="658"><span class="lineNum">     658 </span>            : </a>
+<a name="659"><span class="lineNum">     659 </span>            :     auto iter = tree.cbeginLeaf();</a>
+<a name="660"><span class="lineNum">     660 </span>            :     if (!iter)  return;</a>
+<a name="661"><span class="lineNum">     661 </span>            : </a>
+<a name="662"><span class="lineNum">     662 </span>            :     LeafManagerT leafManager(tree);</a>
+<a name="663"><span class="lineNum">     663 </span>            :     ConvertPointDataGridGroupOp&lt;PointDataTreeT, Group, FilterT&gt; convert(</a>
+<a name="664"><span class="lineNum">     664 </span>            :                     group, pointOffsets, startOffset, index,</a>
+<a name="665"><span class="lineNum">     665 </span>            :                     filter, inCoreOnly);</a>
+<a name="666"><span class="lineNum">     666 </span>            :     tbb::parallel_for(leafManager.leafRange(), convert);</a>
+<a name="667"><span class="lineNum">     667 </span>            : </a>
+<a name="668"><span class="lineNum">     668 </span>            :     // must call this after modifying point groups in parallel</a>
+<a name="669"><span class="lineNum">     669 </span>            : </a>
+<a name="670"><span class="lineNum">     670 </span>            :     group.finalize();</a>
+<a name="671"><span class="lineNum">     671 </span>            : }</a>
+<a name="672"><span class="lineNum">     672 </span>            : </a>
+<a name="673"><span class="lineNum">     673 </span>            : template&lt;typename PositionWrapper, typename InterrupterT, typename VecT&gt;</a>
+<a name="674"><span class="lineNum">     674 </span>            : inline float</a>
+<a name="675"><span class="lineNum">     675 </span>            : computeVoxelSize(  const PositionWrapper&amp; positions,</a>
+<a name="676"><span class="lineNum">     676 </span>            :                    const uint32_t pointsPerVoxel,</a>
+<a name="677"><span class="lineNum">     677 </span>            :                    const math::Mat4d transform,</a>
+<a name="678"><span class="lineNum">     678 </span>            :                    const Index decimalPlaces,</a>
+<a name="679"><span class="lineNum">     679 </span>            :                    InterrupterT* const interrupter)</a>
+<a name="680"><span class="lineNum">     680 </span>            : {</a>
+<a name="681"><span class="lineNum">     681 </span>            :     using namespace point_conversion_internal;</a>
+<a name="682"><span class="lineNum">     682 </span>            : </a>
+<a name="683"><span class="lineNum">     683 </span>            :     struct Local {</a>
+<a name="684"><span class="lineNum">     684 </span>            : </a>
+<a name="685"><span class="lineNum">     685 </span>            :         static bool voxelSizeFromVolume(const double volume,</a>
+<a name="686"><span class="lineNum">     686 </span>            :                                         const size_t estimatedVoxelCount,</a>
+<a name="687"><span class="lineNum">     687 </span>            :                                         float&amp; voxelSize)</a>
+<a name="688"><span class="lineNum">     688 </span>            :         {</a>
+<a name="689"><span class="lineNum">     689 </span>            :             // dictated by the math::ScaleMap limit</a>
+<a name="690"><span class="lineNum">     690 </span>            :             static const double minimumVoxelVolume(3e-15);</a>
+<a name="691"><span class="lineNum">     691 </span>            :             static const double maximumVoxelVolume(std::numeric_limits&lt;float&gt;::max());</a>
+<a name="692"><span class="lineNum">     692 </span>            : </a>
+<a name="693"><span class="lineNum">     693 </span>            :             double voxelVolume = volume / static_cast&lt;double&gt;(estimatedVoxelCount);</a>
+<a name="694"><span class="lineNum">     694 </span>            :             bool valid = true;</a>
+<a name="695"><span class="lineNum">     695 </span>            : </a>
+<a name="696"><span class="lineNum">     696 </span>            :             if (voxelVolume &lt; minimumVoxelVolume) {</a>
+<a name="697"><span class="lineNum">     697 </span>            :                 voxelVolume = minimumVoxelVolume;</a>
+<a name="698"><span class="lineNum">     698 </span>            :                 valid = false;</a>
+<a name="699"><span class="lineNum">     699 </span>            :             }</a>
+<a name="700"><span class="lineNum">     700 </span>            :             else if (voxelVolume &gt; maximumVoxelVolume) {</a>
+<a name="701"><span class="lineNum">     701 </span>            :                 voxelVolume = maximumVoxelVolume;</a>
+<a name="702"><span class="lineNum">     702 </span>            :                 valid = false;</a>
+<a name="703"><span class="lineNum">     703 </span>            :             }</a>
+<a name="704"><span class="lineNum">     704 </span>            : </a>
+<a name="705"><span class="lineNum">     705 </span>            :             voxelSize = static_cast&lt;float&gt;(math::Pow(voxelVolume, 1.0/3.0));</a>
+<a name="706"><span class="lineNum">     706 </span>            :             return valid;</a>
+<a name="707"><span class="lineNum">     707 </span>            :         }</a>
+<a name="708"><span class="lineNum">     708 </span>            : </a>
+<a name="709"><span class="lineNum">     709 </span>            :         static float truncate(const float voxelSize, Index decPlaces)</a>
+<a name="710"><span class="lineNum">     710 </span>            :         {</a>
+<a name="711"><span class="lineNum">     711 </span>            :             float truncatedVoxelSize = voxelSize;</a>
+<a name="712"><span class="lineNum">     712 </span>            : </a>
+<a name="713"><span class="lineNum">     713 </span>            :             // attempt to truncate from decPlaces -&gt; 11</a>
+<a name="714"><span class="lineNum">     714 </span>            :             for (int i = decPlaces; i &lt; 11; i++) {</a>
+<a name="715"><span class="lineNum">     715 </span>            :                 truncatedVoxelSize = static_cast&lt;float&gt;(math::Truncate(double(voxelSize), i));</a>
+<a name="716"><span class="lineNum">     716 </span>            :                 if (truncatedVoxelSize != 0.0f)     break;</a>
+<a name="717"><span class="lineNum">     717 </span>            :             }</a>
+<a name="718"><span class="lineNum">     718 </span>            : </a>
+<a name="719"><span class="lineNum">     719 </span>            :             return truncatedVoxelSize;</a>
+<a name="720"><span class="lineNum">     720 </span>            :         }</a>
+<a name="721"><span class="lineNum">     721 </span>            :     };</a>
+<a name="722"><span class="lineNum">     722 </span>            : </a>
+<a name="723"><span class="lineNum">     723 </span>            :     if (pointsPerVoxel == 0) OPENVDB_THROW(ValueError, &quot;Points per voxel cannot be zero.&quot;);</a>
+<a name="724"><span class="lineNum">     724 </span>            : </a>
+<a name="725"><span class="lineNum">     725 </span>            :     // constructed with the default voxel size as specified by openvdb interface values</a>
+<a name="726"><span class="lineNum">     726 </span>            : </a>
+<a name="727"><span class="lineNum">     727 </span>            :     float voxelSize(0.1f);</a>
+<a name="728"><span class="lineNum">     728 </span>            : </a>
+<a name="729"><span class="lineNum">     729 </span>            :     const size_t numPoints = positions.size();</a>
+<a name="730"><span class="lineNum">     730 </span>            : </a>
+<a name="731"><span class="lineNum">     731 </span>            :     // return the default voxel size if we have zero or only 1 point</a>
+<a name="732"><span class="lineNum">     732 </span>            : </a>
+<a name="733"><span class="lineNum">     733 </span>            :     if (numPoints &lt;= 1) return voxelSize;</a>
+<a name="734"><span class="lineNum">     734 </span>            : </a>
+<a name="735"><span class="lineNum">     735 </span>            :     size_t targetVoxelCount(numPoints / size_t(pointsPerVoxel));</a>
+<a name="736"><span class="lineNum">     736 </span>            :     if (targetVoxelCount == 0)   targetVoxelCount++;</a>
+<a name="737"><span class="lineNum">     737 </span>            : </a>
+<a name="738"><span class="lineNum">     738 </span>            :     // calculate the world space, transform-oriented bounding box</a>
+<a name="739"><span class="lineNum">     739 </span>            : </a>
+<a name="740"><span class="lineNum">     740 </span>            :     math::Mat4d inverseTransform = transform.inverse();</a>
+<a name="741"><span class="lineNum">     741 </span>            :     inverseTransform = math::unit(inverseTransform);</a>
+<a name="742"><span class="lineNum">     742 </span>            : </a>
+<a name="743"><span class="lineNum">     743 </span>            :     tbb::blocked_range&lt;size_t&gt; range(0, numPoints);</a>
+<a name="744"><span class="lineNum">     744 </span>            :     CalculatePositionBounds&lt;PositionWrapper, VecT&gt; calculateBounds(positions, inverseTransform);</a>
+<a name="745"><span class="lineNum">     745 </span>            :     tbb::parallel_reduce(range, calculateBounds);</a>
+<a name="746"><span class="lineNum">     746 </span>            : </a>
+<a name="747"><span class="lineNum">     747 </span>            :     BBoxd bbox = calculateBounds.getBoundingBox();</a>
+<a name="748"><span class="lineNum">     748 </span>            : </a>
+<a name="749"><span class="lineNum">     749 </span>            :     // return default size if points are coincident</a>
+<a name="750"><span class="lineNum">     750 </span>            : </a>
+<a name="751"><span class="lineNum">     751 </span>            :     if (bbox.min() == bbox.max())  return voxelSize;</a>
+<a name="752"><span class="lineNum">     752 </span>            : </a>
+<a name="753"><span class="lineNum">     753 </span>            :     double volume = bbox.volume();</a>
+<a name="754"><span class="lineNum">     754 </span>            : </a>
+<a name="755"><span class="lineNum">     755 </span>            :     // handle points that are collinear or coplanar by expanding the volume</a>
+<a name="756"><span class="lineNum">     756 </span>            : </a>
+<a name="757"><span class="lineNum">     757 </span>            :     if (math::isApproxZero(volume)) {</a>
+<a name="758"><span class="lineNum">     758 </span>            :         Vec3d extents = bbox.extents().sorted().reversed();</a>
+<a name="759"><span class="lineNum">     759 </span>            :         if (math::isApproxZero(extents[1])) {</a>
+<a name="760"><span class="lineNum">     760 </span>            :             // colinear (maxExtent^3)</a>
+<a name="761"><span class="lineNum">     761 </span>            :             volume = extents[0]*extents[0]*extents[0];</a>
+<a name="762"><span class="lineNum">     762 </span>            :         }</a>
+<a name="763"><span class="lineNum">     763 </span>            :         else {</a>
+<a name="764"><span class="lineNum">     764 </span>            :             // coplanar (maxExtent*nextMaxExtent^2)</a>
+<a name="765"><span class="lineNum">     765 </span>            :             volume = extents[0]*extents[1]*extents[1];</a>
+<a name="766"><span class="lineNum">     766 </span>            :         }</a>
+<a name="767"><span class="lineNum">     767 </span>            :     }</a>
+<a name="768"><span class="lineNum">     768 </span>            : </a>
+<a name="769"><span class="lineNum">     769 </span>            :     double previousVolume = volume;</a>
+<a name="770"><span class="lineNum">     770 </span>            : </a>
+<a name="771"><span class="lineNum">     771 </span>            :     if (!Local::voxelSizeFromVolume(volume, targetVoxelCount, voxelSize)) {</a>
+<a name="772"><span class="lineNum">     772 </span>            :         OPENVDB_LOG_DEBUG(&quot;Out of range, clamping voxel size.&quot;);</a>
+<a name="773"><span class="lineNum">     773 </span>            :         return voxelSize;</a>
+<a name="774"><span class="lineNum">     774 </span>            :     }</a>
+<a name="775"><span class="lineNum">     775 </span>            : </a>
+<a name="776"><span class="lineNum">     776 </span>            :     size_t previousVoxelCount(0);</a>
+<a name="777"><span class="lineNum">     777 </span>            :     size_t voxelCount(1);</a>
+<a name="778"><span class="lineNum">     778 </span>            : </a>
+<a name="779"><span class="lineNum">     779 </span>            :     if (interrupter) interrupter-&gt;start(&quot;Computing voxel size&quot;);</a>
+<a name="780"><span class="lineNum">     780 </span>            : </a>
+<a name="781"><span class="lineNum">     781 </span>            :     while (voxelCount &gt; previousVoxelCount)</a>
+<a name="782"><span class="lineNum">     782 </span>            :     {</a>
+<a name="783"><span class="lineNum">     783 </span>            :         math::Transform::Ptr newTransform;</a>
+<a name="784"><span class="lineNum">     784 </span>            : </a>
+<a name="785"><span class="lineNum">     785 </span>            :         if (!math::isIdentity(transform))</a>
+<a name="786"><span class="lineNum">     786 </span>            :         {</a>
+<a name="787"><span class="lineNum">     787 </span>            :             // if using a custom transform, pre-scale by coefficients</a>
+<a name="788"><span class="lineNum">     788 </span>            :             // which define the new voxel size</a>
+<a name="789"><span class="lineNum">     789 </span>            : </a>
+<a name="790"><span class="lineNum">     790 </span>            :             math::Mat4d matrix(transform);</a>
+<a name="791"><span class="lineNum">     791 </span>            :             matrix.preScale(Vec3d(voxelSize) / math::getScale(matrix));</a>
+<a name="792"><span class="lineNum">     792 </span>            :             newTransform = math::Transform::createLinearTransform(matrix);</a>
+<a name="793"><span class="lineNum">     793 </span>            :         }</a>
+<a name="794"><span class="lineNum">     794 </span>            :         else</a>
+<a name="795"><span class="lineNum">     795 </span>            :         {</a>
+<a name="796"><span class="lineNum">     796 </span>            :             newTransform = math::Transform::createLinearTransform(voxelSize);</a>
+<a name="797"><span class="lineNum">     797 </span>            :         }</a>
+<a name="798"><span class="lineNum">     798 </span>            : </a>
+<a name="799"><span class="lineNum">     799 </span>            :         // create a mask grid of the points from the calculated voxel size</a>
+<a name="800"><span class="lineNum">     800 </span>            :         // this is the same function call as tools::createPointMask() which has</a>
+<a name="801"><span class="lineNum">     801 </span>            :         // been duplicated to provide an interrupter</a>
+<a name="802"><span class="lineNum">     802 </span>            : </a>
+<a name="803"><span class="lineNum">     803 </span>            :         MaskGrid::Ptr mask = createGrid&lt;MaskGrid&gt;(false);</a>
+<a name="804"><span class="lineNum">     804 </span>            :         mask-&gt;setTransform(newTransform);</a>
+<a name="805"><span class="lineNum">     805 </span>            :         tools::PointsToMask&lt;MaskGrid, InterrupterT&gt; pointMaskOp(*mask, interrupter);</a>
+<a name="806"><span class="lineNum">     806 </span>            :         pointMaskOp.template addPoints&lt;PositionWrapper, VecT&gt;(positions);</a>
+<a name="807"><span class="lineNum">     807 </span>            : </a>
+<a name="808"><span class="lineNum">     808 </span>            :         if (interrupter &amp;&amp; util::wasInterrupted(interrupter)) break;</a>
+<a name="809"><span class="lineNum">     809 </span>            : </a>
+<a name="810"><span class="lineNum">     810 </span>            :         previousVoxelCount = voxelCount;</a>
+<a name="811"><span class="lineNum">     811 </span>            :         voxelCount = mask-&gt;activeVoxelCount();</a>
+<a name="812"><span class="lineNum">     812 </span>            :         volume = math::Pow3(voxelSize) * static_cast&lt;float&gt;(voxelCount);</a>
+<a name="813"><span class="lineNum">     813 </span>            : </a>
+<a name="814"><span class="lineNum">     814 </span>            :         // stop if no change in the volume or the volume has increased</a>
+<a name="815"><span class="lineNum">     815 </span>            : </a>
+<a name="816"><span class="lineNum">     816 </span>            :         if (volume &gt;= previousVolume) break;</a>
+<a name="817"><span class="lineNum">     817 </span>            :         previousVolume = volume;</a>
+<a name="818"><span class="lineNum">     818 </span>            : </a>
+<a name="819"><span class="lineNum">     819 </span>            :         const float previousVoxelSize = voxelSize;</a>
+<a name="820"><span class="lineNum">     820 </span>            : </a>
+<a name="821"><span class="lineNum">     821 </span>            :         // compute the new voxel size and if invalid return the previous value</a>
+<a name="822"><span class="lineNum">     822 </span>            : </a>
+<a name="823"><span class="lineNum">     823 </span>            :         if (!Local::voxelSizeFromVolume(volume, targetVoxelCount, voxelSize)) {</a>
+<a name="824"><span class="lineNum">     824 </span>            :             voxelSize = previousVoxelSize;</a>
+<a name="825"><span class="lineNum">     825 </span>            :             break;</a>
+<a name="826"><span class="lineNum">     826 </span>            :         }</a>
+<a name="827"><span class="lineNum">     827 </span>            : </a>
+<a name="828"><span class="lineNum">     828 </span>            :         // halt convergence if the voxel size has decreased by less</a>
+<a name="829"><span class="lineNum">     829 </span>            :         // than 10% in this iteration</a>
+<a name="830"><span class="lineNum">     830 </span>            : </a>
+<a name="831"><span class="lineNum">     831 </span>            :         if (voxelSize / previousVoxelSize &gt; 0.9f) break;</a>
+<a name="832"><span class="lineNum">     832 </span>            :     }</a>
+<a name="833"><span class="lineNum">     833 </span>            : </a>
+<a name="834"><span class="lineNum">     834 </span>            :     if (interrupter) interrupter-&gt;end();</a>
+<a name="835"><span class="lineNum">     835 </span>            : </a>
+<a name="836"><span class="lineNum">     836 </span>            :     // truncate the voxel size for readability and return the value</a>
+<a name="837"><span class="lineNum">     837 </span>            : </a>
+<a name="838"><span class="lineNum">     838 </span>            :     return Local::truncate(voxelSize, decimalPlaces);</a>
+<a name="839"><span class="lineNum">     839 </span>            : }</a>
+<a name="840"><span class="lineNum">     840 </span>            : </a>
+<a name="841"><span class="lineNum">     841 </span>            : </a>
+<a name="842"><span class="lineNum">     842 </span>            : ////////////////////////////////////////</a>
+<a name="843"><span class="lineNum">     843 </span>            : </a>
+<a name="844"><span class="lineNum">     844 </span>            : </a>
+<a name="845"><span class="lineNum">     845 </span>            : } // namespace points</a>
+<a name="846"><span class="lineNum">     846 </span>            : } // namespace OPENVDB_VERSION_NAME</a>
+<a name="847"><span class="lineNum">     847 </span>            : } // namespace openvdb</a>
+<a name="848"><span class="lineNum">     848 </span>            : </a>
+<a name="849"><span class="lineNum">     849 </span>            : #endif // OPENVDB_POINTS_POINT_CONVERSION_IMPL_HAS_BEEN_INCLUDED</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

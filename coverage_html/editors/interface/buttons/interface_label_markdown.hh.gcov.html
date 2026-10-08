@@ -1,0 +1,226 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - editors/interface/buttons/interface_label_markdown.hh</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">editors/interface/buttons</a> - interface_label_markdown.hh<span style="font-size: 80%;"> (source / <a href="interface_label_markdown.hh.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2026 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup buttons</a>
+<a name="7"><span class="lineNum">       7 </span>            :  */</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #pragma once</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &lt;optional&gt;</a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &lt;variant&gt;</a>
+<a name="13"><span class="lineNum">      13 </span>            : </a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;BLI_rect.hh&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;BLI_resource_scope.hh&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &quot;BLI_string_ref.hh&quot;</a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;BLI_vector.hh&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : </a>
+<a name="19"><span class="lineNum">      19 </span>            : namespace blender::ui {</a>
+<a name="20"><span class="lineNum">      20 </span>            : </a>
+<a name="21"><span class="lineNum">      21 </span>            : struct Block;</a>
+<a name="22"><span class="lineNum">      22 </span>            : struct Button;</a>
+<a name="23"><span class="lineNum">      23 </span>            : struct ButtonLabel;</a>
+<a name="24"><span class="lineNum">      24 </span>            : struct Layout;</a>
+<a name="25"><span class="lineNum">      25 </span>            : </a>
+<a name="26"><span class="lineNum">      26 </span>            : /**</a>
+<a name="27"><span class="lineNum">      27 </span>            :  * After resolving a markdown label this represents a text span on a single line with a specific</a>
+<a name="28"><span class="lineNum">      28 </span>            :  * format.</a>
+<a name="29"><span class="lineNum">      29 </span>            :  */</a>
+<a name="30"><span class="lineNum">      30 </span>            : struct MarkdownItemText {</a>
+<a name="31"><span class="lineNum">      31 </span>            :   enum class CodeContext {</a>
+<a name="32"><span class="lineNum">      32 </span>            :     None,</a>
+<a name="33"><span class="lineNum">      33 </span>            :     CodeSpan,</a>
+<a name="34"><span class="lineNum">      34 </span>            :     CodeBlock,</a>
+<a name="35"><span class="lineNum">      35 </span>            :   };</a>
+<a name="36"><span class="lineNum">      36 </span>            : </a>
+<a name="37"><span class="lineNum">      37 </span>            :   /**</a>
+<a name="38"><span class="lineNum">      38 </span>            :    * Baseline position of the text in pixels.</a>
+<a name="39"><span class="lineNum">      39 </span>            :    */</a>
+<a name="40"><span class="lineNum">      40 </span>            :   float x = 0.0f;</a>
+<a name="41"><span class="lineNum">      41 </span>            :   float y = 0.0f;</a>
+<a name="42"><span class="lineNum">      42 </span>            :   float size_px = 0.0f;</a>
+<a name="43"><span class="lineNum">      43 </span>            :   int fontid = 0;</a>
+<a name="44"><span class="lineNum">      44 </span>            :   int weight = 400;</a>
+<a name="45"><span class="lineNum">      45 </span>            :   bool italic = false;</a>
+<a name="46"><span class="lineNum">      46 </span>            :   bool is_in_quote = false;</a>
+<a name="47"><span class="lineNum">      47 </span>            :   CodeContext code_context = CodeContext::None;</a>
+<a name="48"><span class="lineNum">      48 </span>            :   StringRef text;</a>
+<a name="49"><span class="lineNum">      49 </span>            :   std::optional&lt;StringRef&gt; url;</a>
+<a name="50"><span class="lineNum">      50 </span>            : };</a>
+<a name="51"><span class="lineNum">      51 </span>            : </a>
+<a name="52"><span class="lineNum">      52 </span>            : /**</a>
+<a name="53"><span class="lineNum">      53 </span>            :  * Represents a horizontal separator line. The position is determined during the markdown</a>
+<a name="54"><span class="lineNum">      54 </span>            :  * laying out phase.</a>
+<a name="55"><span class="lineNum">      55 </span>            :  */</a>
+<a name="56"><span class="lineNum">      56 </span>            : struct MarkdownItemHorizontalRule {</a>
+<a name="57"><span class="lineNum">      57 </span>            :   /** Vertical center of the line in pixels. */</a>
+<a name="58"><span class="lineNum">      58 </span>            :   float y = 0.0f;</a>
+<a name="59"><span class="lineNum">      59 </span>            : };</a>
+<a name="60"><span class="lineNum">      60 </span>            : </a>
+<a name="61"><span class="lineNum">      61 </span>            : /**</a>
+<a name="62"><span class="lineNum">      62 </span>            :  * Represents the vertical line drawn next to a quote block. The position is determined during the</a>
+<a name="63"><span class="lineNum">      63 </span>            :  * markdown laying out phase.</a>
+<a name="64"><span class="lineNum">      64 </span>            :  */</a>
+<a name="65"><span class="lineNum">      65 </span>            : struct MarkdownItemQuoteLine {</a>
+<a name="66"><span class="lineNum">      66 </span>            :   /** Top position of the bar in pixels. */</a>
+<a name="67"><span class="lineNum">      67 </span>            :   float x = 0.0f;</a>
+<a name="68"><span class="lineNum">      68 </span>            :   float y = 0.0f;</a>
+<a name="69"><span class="lineNum">      69 </span>            :   /** Length of the bar extending downward. */</a>
+<a name="70"><span class="lineNum">      70 </span>            :   float height = 0.0f;</a>
+<a name="71"><span class="lineNum">      71 </span>            : };</a>
+<a name="72"><span class="lineNum">      72 </span>            : </a>
+<a name="73"><span class="lineNum">      73 </span>            : /**</a>
+<a name="74"><span class="lineNum">      74 </span>            :  * Represents the background box drawn behind a code block or inline code span. The position is</a>
+<a name="75"><span class="lineNum">      75 </span>            :  * determined during the markdown laying out phase.</a>
+<a name="76"><span class="lineNum">      76 </span>            :  */</a>
+<a name="77"><span class="lineNum">      77 </span>            : struct MarkdownItemCodeBox {</a>
+<a name="78"><span class="lineNum">      78 </span>            :   enum class Kind {</a>
+<a name="79"><span class="lineNum">      79 </span>            :     Block,</a>
+<a name="80"><span class="lineNum">      80 </span>            :     Inline,</a>
+<a name="81"><span class="lineNum">      81 </span>            :   };</a>
+<a name="82"><span class="lineNum">      82 </span>            : </a>
+<a name="83"><span class="lineNum">      83 </span>            :   rctf rect = {};</a>
+<a name="84"><span class="lineNum">      84 </span>            :   Kind kind = Kind::Block;</a>
+<a name="85"><span class="lineNum">      85 </span>            : };</a>
+<a name="86"><span class="lineNum">      86 </span>            : </a>
+<a name="87"><span class="lineNum">      87 </span>            : /**</a>
+<a name="88"><span class="lineNum">      88 </span>            :  * Markdown text is parsed into a list of #MarkdownItem values, each representing something that</a>
+<a name="89"><span class="lineNum">      89 </span>            :  * needs to be rendered in the UI.</a>
+<a name="90"><span class="lineNum">      90 </span>            :  */</a>
+<a name="91"><span class="lineNum">      91 </span>            : using MarkdownItem = std::variant&lt;MarkdownItemText,</a>
+<a name="92"><span class="lineNum">      92 </span>            :                                   MarkdownItemHorizontalRule,</a>
+<a name="93"><span class="lineNum">      93 </span>            :                                   MarkdownItemQuoteLine,</a>
+<a name="94"><span class="lineNum">      94 </span>            :                                   MarkdownItemCodeBox&gt;;</a>
+<a name="95"><span class="lineNum">      95 </span>            : </a>
+<a name="96"><span class="lineNum">      96 </span>            : /**</a>
+<a name="97"><span class="lineNum">      97 </span>            :  * The information that impacts the markdown laying out process. If this changes, the layout</a>
+<a name="98"><span class="lineNum">      98 </span>            :  * generally changes too.</a>
+<a name="99"><span class="lineNum">      99 </span>            :  */</a>
+<a name="100"><span class="lineNum">     100 </span>            : struct MarkdownLayoutCacheKey {</a>
+<a name="101"><span class="lineNum">     101 </span>            :   StringRef text;</a>
+<a name="102"><span class="lineNum">     102 </span><span class="lineNoCov">          0 :   int wrap_width_px = 0;</span></a>
+<a name="103"><span class="lineNum">     103 </span><span class="lineNoCov">          0 :   float pixels_per_point = 0.0f;</span></a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineNoCov">          0 :   int markdown_layout_generation = 0;</span></a>
+<a name="105"><span class="lineNum">     105 </span>            : </a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineNoCov">          0 :   bool operator==(const MarkdownLayoutCacheKey &amp;other) const = default;</span></a>
+<a name="107"><span class="lineNum">     107 </span>            : };</a>
+<a name="108"><span class="lineNum">     108 </span>            : </a>
+<a name="109"><span class="lineNum">     109 </span>            : /** The actual generated layout based on the parsed text. */</a>
+<a name="110"><span class="lineNum">     110 </span>            : struct MarkdownLayout {</a>
+<a name="111"><span class="lineNum">     111 </span>            :   Vector&lt;MarkdownItem&gt; items;</a>
+<a name="112"><span class="lineNum">     112 </span>            :   /** Height of laid-out content in pixels. */</a>
+<a name="113"><span class="lineNum">     113 </span>            :   float content_height = 0.0f;</a>
+<a name="114"><span class="lineNum">     114 </span>            : };</a>
+<a name="115"><span class="lineNum">     115 </span>            : </a>
+<a name="116"><span class="lineNum">     116 </span>            : /**</a>
+<a name="117"><span class="lineNum">     117 </span>            :  * Drawing markdown is split into two phases:</a>
+<a name="118"><span class="lineNum">     118 </span>            :  * 1. The text is parsed into a #MarkdownLayout which contains rendering instructions. This happens</a>
+<a name="119"><span class="lineNum">     119 </span>            :  *    as part of resolving the ui::Layout.</a>
+<a name="120"><span class="lineNum">     120 </span>            :  * 2. The computed layout is drawn using the computed instructions.</a>
+<a name="121"><span class="lineNum">     121 </span>            :  *</a>
+<a name="122"><span class="lineNum">     122 </span>            :  * Importantly, the drawing instructions are reused across different redraws (unless e.g. the width</a>
+<a name="123"><span class="lineNum">     123 </span>            :  * or font size changes).</a>
+<a name="124"><span class="lineNum">     124 </span>            :  */</a>
+<a name="125"><span class="lineNum">     125 </span>            : struct MarkdownLayoutCache {</a>
+<a name="126"><span class="lineNum">     126 </span>            :   ResourceScope scope;</a>
+<a name="127"><span class="lineNum">     127 </span>            :   MarkdownLayoutCacheKey key;</a>
+<a name="128"><span class="lineNum">     128 </span>            :   MarkdownLayout md_layout;</a>
+<a name="129"><span class="lineNum">     129 </span>            : };</a>
+<a name="130"><span class="lineNum">     130 </span>            : </a>
+<a name="131"><span class="lineNum">     131 </span>            : bool button_label_is_markdown(const Button *button);</a>
+<a name="132"><span class="lineNum">     132 </span>            : </a>
+<a name="133"><span class="lineNum">     133 </span>            : /**</a>
+<a name="134"><span class="lineNum">     134 </span>            :  * Parses and lays out markdown for a label button, adjusting its height.</a>
+<a name="135"><span class="lineNum">     135 </span>            :  * Tries to reuse layout cache from previous redraws.</a>
+<a name="136"><span class="lineNum">     136 </span>            :  */</a>
+<a name="137"><span class="lineNum">     137 </span>            : void label_markdown_resolve(ButtonLabel *button);</a>
+<a name="138"><span class="lineNum">     138 </span>            : </a>
+<a name="139"><span class="lineNum">     139 </span>            : /**</a>
+<a name="140"><span class="lineNum">     140 </span>            :  * Creates invisible link buttons for markdown labels in \a block.</a>
+<a name="141"><span class="lineNum">     141 </span>            :  * Call after layout resolve so button positions are final.</a>
+<a name="142"><span class="lineNum">     142 </span>            :  */</a>
+<a name="143"><span class="lineNum">     143 </span>            : void label_markdown_create_link_buttons(Block *block);</a>
+<a name="144"><span class="lineNum">     144 </span>            : </a>
+<a name="145"><span class="lineNum">     145 </span>            : /** Draws markdown label contents into \a rect (pixel space). */</a>
+<a name="146"><span class="lineNum">     146 </span>            : void label_markdown_draw(const ButtonLabel *button, const uchar color[4], const rcti *rect);</a>
+<a name="147"><span class="lineNum">     147 </span>            : </a>
+<a name="148"><span class="lineNum">     148 </span>            : void label_markdown_dev_config(Layout &amp;layout);</a>
+<a name="149"><span class="lineNum">     149 </span>            : </a>
+<a name="150"><span class="lineNum">     150 </span>            : }  // namespace blender::ui</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

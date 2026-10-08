@@ -1,0 +1,609 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - /home/dev/Blender_PA1483/blender/lib/linux_x64/openvdb/include/nanovdb/GridHandle.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../../../../index.html">top level</a> - <a href="index.html">home/dev/Blender_PA1483/blender/lib/linux_x64/openvdb/include/nanovdb</a> - GridHandle.h<span style="font-size: 80%;"> (source / <a href="GridHandle.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">35</td>
+            <td class="headerCovTableEntry">35</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright Contributors to the OpenVDB Project</a>
+<a name="2"><span class="lineNum">       2 </span>            : // SPDX-License-Identifier: Apache-2.0</a>
+<a name="3"><span class="lineNum">       3 </span>            : </a>
+<a name="4"><span class="lineNum">       4 </span>            : /*!</a>
+<a name="5"><span class="lineNum">       5 </span>            :     \file nanovdb/GridHandle.h</a>
+<a name="6"><span class="lineNum">       6 </span>            : </a>
+<a name="7"><span class="lineNum">       7 </span>            :     \author Ken Museth</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            :     \date January 8, 2020</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            :     \brief Defines GridHandle, which manages a host, and possibly a device,</a>
+<a name="12"><span class="lineNum">      12 </span>            :            memory buffer containing one or more NanoVDB grids.</a>
+<a name="13"><span class="lineNum">      13 </span>            : */</a>
+<a name="14"><span class="lineNum">      14 </span>            : </a>
+<a name="15"><span class="lineNum">      15 </span>            : #ifndef NANOVDB_GRID_HANDLE_H_HAS_BEEN_INCLUDED</a>
+<a name="16"><span class="lineNum">      16 </span>            : #define NANOVDB_GRID_HANDLE_H_HAS_BEEN_INCLUDED</a>
+<a name="17"><span class="lineNum">      17 </span>            : </a>
+<a name="18"><span class="lineNum">      18 </span>            : #include &lt;fstream&gt; // for std::ifstream</a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &lt;iostream&gt; // for std::cerr/cout</a>
+<a name="20"><span class="lineNum">      20 </span>            : #include &lt;vector&gt;</a>
+<a name="21"><span class="lineNum">      21 </span>            : #include &lt;initializer_list&gt;</a>
+<a name="22"><span class="lineNum">      22 </span>            : </a>
+<a name="23"><span class="lineNum">      23 </span>            : #include &lt;nanovdb/NanoVDB.h&gt;// for toGridType</a>
+<a name="24"><span class="lineNum">      24 </span>            : #include &lt;nanovdb/HostBuffer.h&gt;</a>
+<a name="25"><span class="lineNum">      25 </span>            : #include &lt;nanovdb/tools/GridChecksum.h&gt;// for updateGridCount</a>
+<a name="26"><span class="lineNum">      26 </span>            : </a>
+<a name="27"><span class="lineNum">      27 </span>            : namespace nanovdb {</a>
+<a name="28"><span class="lineNum">      28 </span>            : </a>
+<a name="29"><span class="lineNum">      29 </span>            : // --------------------------&gt; GridHandle &lt;------------------------------------</a>
+<a name="30"><span class="lineNum">      30 </span>            : </a>
+<a name="31"><span class="lineNum">      31 </span>            : struct GridHandleMetaData {uint64_t offset, size; GridType gridType;};</a>
+<a name="32"><span class="lineNum">      32 </span>            : </a>
+<a name="33"><span class="lineNum">      33 </span>            : /// @brief This class serves to manage a buffer containing one or more NanoVDB Grids.</a>
+<a name="34"><span class="lineNum">      34 </span>            : ///</a>
+<a name="35"><span class="lineNum">      35 </span>            : /// @note  It is important to note that this class does NOT depend on OpenVDB.</a>
+<a name="36"><span class="lineNum">      36 </span>            : template&lt;typename BufferT = HostBuffer&gt;</a>
+<a name="37"><span class="lineNum">      37 </span>            : class GridHandle</a>
+<a name="38"><span class="lineNum">      38 </span>            : {</a>
+<a name="39"><span class="lineNum">      39 </span>            :     std::vector&lt;GridHandleMetaData&gt; mMetaData;</a>
+<a name="40"><span class="lineNum">      40 </span>            :     BufferT mBuffer;</a>
+<a name="41"><span class="lineNum">      41 </span>            : </a>
+<a name="42"><span class="lineNum">      42 </span>            :     template &lt;typename T&gt;</a>
+<a name="43"><span class="lineNum">      43 </span>            :     static T* no_const(const T* ptr) { return const_cast&lt;T*&gt;(ptr); }</a>
+<a name="44"><span class="lineNum">      44 </span>            : </a>
+<a name="45"><span class="lineNum">      45 </span>            : public:</a>
+<a name="46"><span class="lineNum">      46 </span>            :     using BufferType = BufferT;</a>
+<a name="47"><span class="lineNum">      47 </span>            : </a>
+<a name="48"><span class="lineNum">      48 </span>            :     /// @brief  Move constructor from a dual host-device buffer</a>
+<a name="49"><span class="lineNum">      49 </span>            :     /// @param buffer buffer containing one or more NanoGrids that will be moved into this GridHandle</a>
+<a name="50"><span class="lineNum">      50 </span>            :     /// @throw Will throw and error with the buffer does not contain a valid NanoGrid!</a>
+<a name="51"><span class="lineNum">      51 </span>            :     /// @note The implementation of this template specialization is in nanovdb/cuda/GridHandle.cuh since it requires CUDA</a>
+<a name="52"><span class="lineNum">      52 </span>            :     template&lt;typename T = BufferT, typename util::enable_if&lt;BufferTraits&lt;T&gt;::hasDeviceDual, int&gt;::type = 0&gt;</a>
+<a name="53"><span class="lineNum">      53 </span>            :     GridHandle(T&amp;&amp; buffer);</a>
+<a name="54"><span class="lineNum">      54 </span>            : </a>
+<a name="55"><span class="lineNum">      55 </span>            :     /// @brief  Move constructor from a host buffer</a>
+<a name="56"><span class="lineNum">      56 </span>            :     /// @param buffer buffer containing one or more NanoGrids that will be moved into this GridHandle</a>
+<a name="57"><span class="lineNum">      57 </span>            :     /// @throw Will throw and error with the buffer does not contain a valid NanoGrid!</a>
+<a name="58"><span class="lineNum">      58 </span>            :     template&lt;typename T = BufferT, typename util::disable_if&lt;BufferTraits&lt;T&gt;::hasDeviceDual, int&gt;::type = 0&gt;</a>
+<a name="59"><span class="lineNum">      59 </span>            :     GridHandle(T&amp;&amp; buffer);</a>
+<a name="60"><span class="lineNum">      60 </span>            : </a>
+<a name="61"><span class="lineNum">      61 </span>            :     /// @brief Constructs an empty GridHandle</a>
+<a name="62"><span class="lineNum">      62 </span><span class="lineCov">         71 :     GridHandle() = default;</span></a>
+<a name="63"><span class="lineNum">      63 </span>            : </a>
+<a name="64"><span class="lineNum">      64 </span>            :     /// @brief Disallow copy-construction</a>
+<a name="65"><span class="lineNum">      65 </span>            :     GridHandle(const GridHandle&amp;) = delete;</a>
+<a name="66"><span class="lineNum">      66 </span>            : </a>
+<a name="67"><span class="lineNum">      67 </span>            :     /// @brief Move copy-constructor</a>
+<a name="68"><span class="lineNum">      68 </span><span class="lineCov">         32 :     GridHandle(GridHandle&amp;&amp; other) noexcept {</span></a>
+<a name="69"><span class="lineNum">      69 </span><span class="lineCov">         32 :         mBuffer   = std::move(other.mBuffer);</span></a>
+<a name="70"><span class="lineNum">      70 </span><span class="lineCov">         32 :         mMetaData = std::move(other.mMetaData);</span></a>
+<a name="71"><span class="lineNum">      71 </span><span class="lineCov">         32 :     }</span></a>
+<a name="72"><span class="lineNum">      72 </span>            : </a>
+<a name="73"><span class="lineNum">      73 </span>            :     /// @brief clear this GridHandle to an empty handle</a>
+<a name="74"><span class="lineNum">      74 </span><span class="lineCov">         32 :     void reset() {</span></a>
+<a name="75"><span class="lineNum">      75 </span><span class="lineCov">         32 :         mBuffer.clear();</span></a>
+<a name="76"><span class="lineNum">      76 </span><span class="lineCov">         32 :         mMetaData.clear();</span></a>
+<a name="77"><span class="lineNum">      77 </span><span class="lineCov">         32 :     }</span></a>
+<a name="78"><span class="lineNum">      78 </span>            : </a>
+<a name="79"><span class="lineNum">      79 </span>            :     /// @brief Disallow copy assignment operation</a>
+<a name="80"><span class="lineNum">      80 </span>            :     GridHandle&amp; operator=(const GridHandle&amp;) = delete;</a>
+<a name="81"><span class="lineNum">      81 </span>            : </a>
+<a name="82"><span class="lineNum">      82 </span>            :     /// @brief Move copy assignment operation</a>
+<a name="83"><span class="lineNum">      83 </span><span class="lineCov">         64 :     GridHandle&amp; operator=(GridHandle&amp;&amp; other) noexcept {</span></a>
+<a name="84"><span class="lineNum">      84 </span><span class="lineCov">         64 :         mBuffer   = std::move(other.mBuffer);</span></a>
+<a name="85"><span class="lineNum">      85 </span><span class="lineCov">         64 :         mMetaData = std::move(other.mMetaData);</span></a>
+<a name="86"><span class="lineNum">      86 </span><span class="lineCov">         64 :         return *this;</span></a>
+<a name="87"><span class="lineNum">      87 </span>            :     }</a>
+<a name="88"><span class="lineNum">      88 </span>            : </a>
+<a name="89"><span class="lineNum">      89 </span>            :     /// @brief Performs a deep copy of the GridHandle, possibly templated on a different buffer type</a>
+<a name="90"><span class="lineNum">      90 </span>            :     /// @tparam OtherBufferT Buffer type of the deep copy</a>
+<a name="91"><span class="lineNum">      91 </span>            :     /// @param buffer optional buffer used for allocation</a>
+<a name="92"><span class="lineNum">      92 </span>            :     /// @return A new handle of the specified buffer type that contains a deep copy of the current handle</a>
+<a name="93"><span class="lineNum">      93 </span>            :     template &lt;typename OtherBufferT = HostBuffer&gt;</a>
+<a name="94"><span class="lineNum">      94 </span>            :     GridHandle&lt;OtherBufferT&gt; copy(const OtherBufferT&amp; buffer = OtherBufferT()) const;</a>
+<a name="95"><span class="lineNum">      95 </span>            : </a>
+<a name="96"><span class="lineNum">      96 </span>            :     /// @brief Return a reference to the buffer</a>
+<a name="97"><span class="lineNum">      97 </span>            :     BufferT&amp;       buffer() { return mBuffer; }</a>
+<a name="98"><span class="lineNum">      98 </span>            : </a>
+<a name="99"><span class="lineNum">      99 </span>            :     /// @brief Return a const reference to the buffer</a>
+<a name="100"><span class="lineNum">     100 </span>            :     const BufferT&amp; buffer() const { return mBuffer; }</a>
+<a name="101"><span class="lineNum">     101 </span>            : </a>
+<a name="102"><span class="lineNum">     102 </span>            :     /// @brief Returns a non-const pointer to the data.</a>
+<a name="103"><span class="lineNum">     103 </span>            :     /// @warning Note that the return pointer can be NULL if the GridHandle was not initialized</a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineCov">         32 :     void* data() { return mBuffer.data(); }</span></a>
+<a name="105"><span class="lineNum">     105 </span>            : </a>
+<a name="106"><span class="lineNum">     106 </span>            :     /// @brief Returns a const pointer to the data.</a>
+<a name="107"><span class="lineNum">     107 </span>            :     /// @warning Note that the return pointer can be NULL if the GridHandle was not initialized</a>
+<a name="108"><span class="lineNum">     108 </span>            :     const void* data() const { return mBuffer.data(); }</a>
+<a name="109"><span class="lineNum">     109 </span>            : </a>
+<a name="110"><span class="lineNum">     110 </span>            :     template&lt;typename U = BufferT&gt;</a>
+<a name="111"><span class="lineNum">     111 </span>            :     typename util::enable_if&lt;BufferTraits&lt;U&gt;::hasDeviceDual, const void*&gt;::type</a>
+<a name="112"><span class="lineNum">     112 </span>            :     deviceData() const { return mBuffer.deviceData(); }</a>
+<a name="113"><span class="lineNum">     113 </span>            :     template&lt;typename U = BufferT&gt;</a>
+<a name="114"><span class="lineNum">     114 </span>            :     typename util::enable_if&lt;BufferTraits&lt;U&gt;::hasDeviceDual, const void*&gt;::type</a>
+<a name="115"><span class="lineNum">     115 </span>            :     deviceData(int device) const { return mBuffer.deviceData(device); }</a>
+<a name="116"><span class="lineNum">     116 </span>            :     template&lt;typename U = BufferT&gt;</a>
+<a name="117"><span class="lineNum">     117 </span>            :     typename util::enable_if&lt;BufferTraits&lt;U&gt;::hasDeviceDual, void*&gt;::type</a>
+<a name="118"><span class="lineNum">     118 </span>            :     deviceData() { return mBuffer.deviceData(); }</a>
+<a name="119"><span class="lineNum">     119 </span>            :     template&lt;typename U = BufferT&gt;</a>
+<a name="120"><span class="lineNum">     120 </span>            :     typename util::enable_if&lt;BufferTraits&lt;U&gt;::hasDeviceDual, void*&gt;::type</a>
+<a name="121"><span class="lineNum">     121 </span>            :     deviceData(int device) { return mBuffer.deviceData(device); }</a>
+<a name="122"><span class="lineNum">     122 </span>            : </a>
+<a name="123"><span class="lineNum">     123 </span>            :     //@{</a>
+<a name="124"><span class="lineNum">     124 </span>            :     /// @brief Returns the size in bytes of the raw memory buffer managed by this GridHandle.</a>
+<a name="125"><span class="lineNum">     125 </span>            :     [[deprecated(&quot;Use GridHandle::bufferSize instead.&quot;)]] uint64_t size() const { return mBuffer.size(); }</a>
+<a name="126"><span class="lineNum">     126 </span><span class="lineCov">         32 :     uint64_t bufferSize() const { return mBuffer.size(); }</span></a>
+<a name="127"><span class="lineNum">     127 </span>            :     //@}</a>
+<a name="128"><span class="lineNum">     128 </span>            : </a>
+<a name="129"><span class="lineNum">     129 </span>            :     //@{</a>
+<a name="130"><span class="lineNum">     130 </span>            :     /// @brief Return true if this handle is empty, i.e. has no allocated memory</a>
+<a name="131"><span class="lineNum">     131 </span><span class="lineCov">         64 :     bool empty()   const { return mBuffer.size() == 0; }</span></a>
+<a name="132"><span class="lineNum">     132 </span>            :     bool isEmpty() const { return mBuffer.size() == 0; }</a>
+<a name="133"><span class="lineNum">     133 </span>            :     //@}</a>
+<a name="134"><span class="lineNum">     134 </span>            : </a>
+<a name="135"><span class="lineNum">     135 </span>            :     /// @brief Return true if this handle is not empty, i.e. contains at least one grid</a>
+<a name="136"><span class="lineNum">     136 </span><span class="lineCov">         64 :     operator bool() const { return !this-&gt;empty(); }</span></a>
+<a name="137"><span class="lineNum">     137 </span>            : </a>
+<a name="138"><span class="lineNum">     138 </span>            :     /// @brief Returns a const host pointer to the @a n'th NanoVDB grid encoded in this GridHandle.</a>
+<a name="139"><span class="lineNum">     139 </span>            :     /// @tparam ValueT Value type of the grid point to be returned</a>
+<a name="140"><span class="lineNum">     140 </span>            :     /// @param n Index of the (host) grid pointer to be returned</a>
+<a name="141"><span class="lineNum">     141 </span>            :     /// @warning Note that the return pointer can be NULL if the GridHandle no host grid, @a n is invalid</a>
+<a name="142"><span class="lineNum">     142 </span>            :     ///          or if the template parameter does not match the specified grid!</a>
+<a name="143"><span class="lineNum">     143 </span>            :     template&lt;typename ValueT&gt;</a>
+<a name="144"><span class="lineNum">     144 </span>            :     const NanoGrid&lt;ValueT&gt;* grid(uint32_t n = 0) const;</a>
+<a name="145"><span class="lineNum">     145 </span>            : </a>
+<a name="146"><span class="lineNum">     146 </span>            :     /// @brief Returns a host pointer to the @a n'th  NanoVDB grid encoded in this GridHandle.</a>
+<a name="147"><span class="lineNum">     147 </span>            :     /// @tparam ValueT Value type of the grid point to be returned</a>
+<a name="148"><span class="lineNum">     148 </span>            :     /// @param n Index of the (host) grid pointer to be returned</a>
+<a name="149"><span class="lineNum">     149 </span>            :     /// @warning Note that the return pointer can be NULL if the GridHandle no host grid, @a n is invalid</a>
+<a name="150"><span class="lineNum">     150 </span>            :     ///          or if the template parameter does not match the specified grid!</a>
+<a name="151"><span class="lineNum">     151 </span>            :     template&lt;typename ValueT&gt;</a>
+<a name="152"><span class="lineNum">     152 </span>            :     NanoGrid&lt;ValueT&gt;* grid(uint32_t n = 0) {return const_cast&lt;NanoGrid&lt;ValueT&gt;*&gt;(static_cast&lt;const GridHandle*&gt;(this)-&gt;template grid&lt;ValueT&gt;(n));}</a>
+<a name="153"><span class="lineNum">     153 </span>            : </a>
+<a name="154"><span class="lineNum">     154 </span>            :     /// @brief Return a const pointer to the @a n'th grid encoded in this GridHandle on the device, e.g. GPU</a>
+<a name="155"><span class="lineNum">     155 </span>            :     /// @tparam ValueT Value type of the grid point to be returned</a>
+<a name="156"><span class="lineNum">     156 </span>            :     /// @param n Index of the (device) grid pointer to be returned</a>
+<a name="157"><span class="lineNum">     157 </span>            :     /// @warning Note that the return pointer can be NULL if the GridHandle has no device grid, @a n is invalid,</a>
+<a name="158"><span class="lineNum">     158 </span>            :     ///          or if the template parameter does not match the specified grid.</a>
+<a name="159"><span class="lineNum">     159 </span>            :     template&lt;typename ValueT, typename U = BufferT&gt;</a>
+<a name="160"><span class="lineNum">     160 </span>            :     typename util::enable_if&lt;BufferTraits&lt;U&gt;::hasDeviceDual, const NanoGrid&lt;ValueT&gt;*&gt;::type</a>
+<a name="161"><span class="lineNum">     161 </span>            :     deviceGrid(uint32_t n=0) const;</a>
+<a name="162"><span class="lineNum">     162 </span>            : </a>
+<a name="163"><span class="lineNum">     163 </span>            :     /// @brief Return a const pointer to the @a n'th grid encoded in this GridHandle on the device, e.g. GPU</a>
+<a name="164"><span class="lineNum">     164 </span>            :     /// @tparam ValueT Value type of the grid point to be returned</a>
+<a name="165"><span class="lineNum">     165 </span>            :     /// @param n Index of the grid pointer to be returned</a>
+<a name="166"><span class="lineNum">     166 </span>            :     /// @param verbose if non-zero error messages will be printed in case something failed</a>
+<a name="167"><span class="lineNum">     167 </span>            :     /// @warning Note that the return pointer can be NULL if the GridHandle was not initialized, @a n is invalid,</a>
+<a name="168"><span class="lineNum">     168 </span>            :     ///          or if the template parameter does not match the specified grid.</a>
+<a name="169"><span class="lineNum">     169 </span>            :     template&lt;typename ValueT, typename U = BufferT&gt;</a>
+<a name="170"><span class="lineNum">     170 </span>            :     typename util::enable_if&lt;BufferTraits&lt;U&gt;::hasDeviceDual, NanoGrid&lt;ValueT&gt;*&gt;::type</a>
+<a name="171"><span class="lineNum">     171 </span>            :     deviceGrid(uint32_t n=0){return const_cast&lt;NanoGrid&lt;ValueT&gt;*&gt;(static_cast&lt;const GridHandle*&gt;(this)-&gt;template deviceGrid&lt;ValueT&gt;(n));}</a>
+<a name="172"><span class="lineNum">     172 </span>            : </a>
+<a name="173"><span class="lineNum">     173 </span>            :     /// @brief Upload the grid to the device, e.g. from CPU to GPU</a>
+<a name="174"><span class="lineNum">     174 </span>            :     /// @note This method is only available if the buffer supports devices</a>
+<a name="175"><span class="lineNum">     175 </span>            :     template&lt;typename U = BufferT&gt;</a>
+<a name="176"><span class="lineNum">     176 </span>            :     typename util::enable_if&lt;BufferTraits&lt;U&gt;::hasDeviceDual, void&gt;::type</a>
+<a name="177"><span class="lineNum">     177 </span>            :     deviceUpload(void* stream, bool sync = true) { mBuffer.deviceUpload(stream, sync); }</a>
+<a name="178"><span class="lineNum">     178 </span>            : </a>
+<a name="179"><span class="lineNum">     179 </span>            :     /// @brief Upload the host buffer to a specific device buffer. It device buffer doesn't exist it's created first</a>
+<a name="180"><span class="lineNum">     180 </span>            :     /// @param device Device to upload host data to</a>
+<a name="181"><span class="lineNum">     181 </span>            :     /// @param stream cuda stream</a>
+<a name="182"><span class="lineNum">     182 </span>            :     /// @param sync if false the memory copy is asynchronous</a>
+<a name="183"><span class="lineNum">     183 </span>            :     template&lt;typename U = BufferT&gt;</a>
+<a name="184"><span class="lineNum">     184 </span>            :     typename util::enable_if&lt;BufferTraits&lt;U&gt;::hasDeviceDual, void&gt;::type</a>
+<a name="185"><span class="lineNum">     185 </span>            :     deviceUpload(int device = 0, void* stream = nullptr, bool sync = true) { mBuffer.deviceUpload(device, stream, sync); }</a>
+<a name="186"><span class="lineNum">     186 </span>            : </a>
+<a name="187"><span class="lineNum">     187 </span>            :     /// @brief Download the grid to from the device, e.g. from GPU to CPU</a>
+<a name="188"><span class="lineNum">     188 </span>            :     /// @note This method is only available if the buffer supports devices</a>
+<a name="189"><span class="lineNum">     189 </span>            :     template&lt;typename U = BufferT&gt;</a>
+<a name="190"><span class="lineNum">     190 </span>            :     typename util::enable_if&lt;BufferTraits&lt;U&gt;::hasDeviceDual, void&gt;::type</a>
+<a name="191"><span class="lineNum">     191 </span>            :     deviceDownload(void* stream, bool sync = true) { mBuffer.deviceDownload(stream, sync); }</a>
+<a name="192"><span class="lineNum">     192 </span>            : </a>
+<a name="193"><span class="lineNum">     193 </span>            :     template&lt;typename U = BufferT&gt;</a>
+<a name="194"><span class="lineNum">     194 </span>            :     typename util::enable_if&lt;BufferTraits&lt;U&gt;::hasDeviceDual, void&gt;::type</a>
+<a name="195"><span class="lineNum">     195 </span>            :     deviceDownload(int device = 0, void* stream = nullptr, bool sync = true) { mBuffer.deviceDownload(device, stream, sync); }</a>
+<a name="196"><span class="lineNum">     196 </span>            : </a>
+<a name="197"><span class="lineNum">     197 </span>            :     /// @brief Check if the buffer is this handle has any padding, i.e. if the buffer is larger than the combined size of all its grids</a>
+<a name="198"><span class="lineNum">     198 </span>            :     /// @return true is the combined size of all grid is smaller than the buffer size</a>
+<a name="199"><span class="lineNum">     199 </span>            :     bool isPadded() const {return mMetaData.empty() ? false : mMetaData.back().offset + mMetaData.back().size != mBuffer.size();}</a>
+<a name="200"><span class="lineNum">     200 </span>            : </a>
+<a name="201"><span class="lineNum">     201 </span>            :     /// @brief Return the total number of grids contained in this buffer</a>
+<a name="202"><span class="lineNum">     202 </span>            :     uint32_t gridCount() const {return static_cast&lt;uint32_t&gt;(mMetaData.size());}</a>
+<a name="203"><span class="lineNum">     203 </span>            : </a>
+<a name="204"><span class="lineNum">     204 </span>            :     /// @brief Return the grid size of the @a n'th grid in this GridHandle</a>
+<a name="205"><span class="lineNum">     205 </span>            :     /// @param n index of the grid (assumed to be less than gridCount())</a>
+<a name="206"><span class="lineNum">     206 </span>            :     /// @return Return the byte size of the specified grid</a>
+<a name="207"><span class="lineNum">     207 </span>            :     uint64_t gridSize(uint32_t n = 0) const {return mMetaData[n].size; }</a>
+<a name="208"><span class="lineNum">     208 </span>            : </a>
+<a name="209"><span class="lineNum">     209 </span>            :     /// @brief compute the total sum of memory footprints of all the grids in this buffer</a>
+<a name="210"><span class="lineNum">     210 </span>            :     /// @return the number of bytes occupied by all grids associated with this buffer</a>
+<a name="211"><span class="lineNum">     211 </span>            :     uint64_t totalGridSize() const {</a>
+<a name="212"><span class="lineNum">     212 </span>            :         uint64_t sum = 0;</a>
+<a name="213"><span class="lineNum">     213 </span>            :         for (auto &amp;m : mMetaData) sum += m.size;</a>
+<a name="214"><span class="lineNum">     214 </span>            :         NANOVDB_ASSERT(sum &lt;= mBuffer.size());</a>
+<a name="215"><span class="lineNum">     215 </span>            :         return sum;</a>
+<a name="216"><span class="lineNum">     216 </span>            :     }</a>
+<a name="217"><span class="lineNum">     217 </span>            : </a>
+<a name="218"><span class="lineNum">     218 </span>            :     /// @brief compute the size of unused storage in this buffer</a>
+<a name="219"><span class="lineNum">     219 </span>            :     /// @return the number of unused bytes in this buffer.</a>
+<a name="220"><span class="lineNum">     220 </span>            :     uint64_t freeSize() const {return mBuffer.size() - this-&gt;totalGridSize();}</a>
+<a name="221"><span class="lineNum">     221 </span>            : </a>
+<a name="222"><span class="lineNum">     222 </span>            :     /// @brief Test if this buffer has any unused storage left, i.e. memory not occupied by grids</a>
+<a name="223"><span class="lineNum">     223 </span>            :     /// @return true if there is no extra storage left in this buffer, i.e. empty or fully occupied with grids</a>
+<a name="224"><span class="lineNum">     224 </span>            :     bool isFull() const { return this-&gt;totalGridSize() == mBuffer.size(); }</a>
+<a name="225"><span class="lineNum">     225 </span>            : </a>
+<a name="226"><span class="lineNum">     226 </span>            :     /// @brief Return the GridType of the @a n'th grid in this GridHandle</a>
+<a name="227"><span class="lineNum">     227 </span>            :     /// @param n index of the grid (assumed to be less than gridCount())</a>
+<a name="228"><span class="lineNum">     228 </span>            :     /// @return Return the GridType of the specified grid</a>
+<a name="229"><span class="lineNum">     229 </span>            :     GridType gridType(uint32_t n = 0) const {return mMetaData[n].gridType; }</a>
+<a name="230"><span class="lineNum">     230 </span>            : </a>
+<a name="231"><span class="lineNum">     231 </span>            :     /// @brief Access to the GridData of the n'th grid in the current handle</a>
+<a name="232"><span class="lineNum">     232 </span>            :     /// @param n zero-based ID of the grid</a>
+<a name="233"><span class="lineNum">     233 </span>            :     /// @return Const pointer to the n'th GridData in the current handle</a>
+<a name="234"><span class="lineNum">     234 </span>            :     const GridData* gridData(uint32_t n = 0) const;</a>
+<a name="235"><span class="lineNum">     235 </span>            : </a>
+<a name="236"><span class="lineNum">     236 </span>            :     /// @brief Returns a const point to the @a n'th grid meta data</a>
+<a name="237"><span class="lineNum">     237 </span>            :     /// @param n zero-based ID of the grid</a>
+<a name="238"><span class="lineNum">     238 </span>            :     /// @warning Note that the return pointer can be NULL if the GridHandle was not initialized</a>
+<a name="239"><span class="lineNum">     239 </span>            :     const GridMetaData* gridMetaData(uint32_t n = 0) const;</a>
+<a name="240"><span class="lineNum">     240 </span>            : </a>
+<a name="241"><span class="lineNum">     241 </span>            :     /// @brief Write a specific grid in this buffer to an output stream</a>
+<a name="242"><span class="lineNum">     242 </span>            :     /// @param os  output stream that the buffer will be written to</a>
+<a name="243"><span class="lineNum">     243 </span>            :     /// @param n zero-based index of the grid to be written to stream</a>
+<a name="244"><span class="lineNum">     244 </span>            :     void write(std::ostream&amp; os, uint32_t n) const {</a>
+<a name="245"><span class="lineNum">     245 </span>            :         if (const GridData* data = this-&gt;gridData(n)) {</a>
+<a name="246"><span class="lineNum">     246 </span>            :             os.write((const char*)data, data-&gt;mGridSize);</a>
+<a name="247"><span class="lineNum">     247 </span>            :         } else {</a>
+<a name="248"><span class="lineNum">     248 </span>            :             throw std::runtime_error(&quot;GridHandle does not contain a #&quot; + std::to_string(n) + &quot; grid&quot;);</a>
+<a name="249"><span class="lineNum">     249 </span>            :         }</a>
+<a name="250"><span class="lineNum">     250 </span>            :     }</a>
+<a name="251"><span class="lineNum">     251 </span>            : </a>
+<a name="252"><span class="lineNum">     252 </span>            :     /// @brief Write the entire grid buffer to an output stream</a>
+<a name="253"><span class="lineNum">     253 </span>            :     /// @param os output stream that the buffer will be written to</a>
+<a name="254"><span class="lineNum">     254 </span>            :     void write(std::ostream&amp; os) const {</a>
+<a name="255"><span class="lineNum">     255 </span>            :         for (uint32_t n=0; n&lt;this-&gt;gridCount(); ++n) this-&gt;write(os, n);</a>
+<a name="256"><span class="lineNum">     256 </span>            :     }</a>
+<a name="257"><span class="lineNum">     257 </span>            : </a>
+<a name="258"><span class="lineNum">     258 </span>            :     /// @brief Write this entire grid buffer to a file</a>
+<a name="259"><span class="lineNum">     259 </span>            :     /// @param fileName string name of the output file</a>
+<a name="260"><span class="lineNum">     260 </span>            :     void write(const std::string &amp;fileName) const {</a>
+<a name="261"><span class="lineNum">     261 </span>            :         std::ofstream os(fileName, std::ios::out | std::ios::binary | std::ios::trunc);</a>
+<a name="262"><span class="lineNum">     262 </span>            :         if (!os.is_open()) throw std::ios_base::failure(&quot;Unable to open file named \&quot;&quot; + fileName + &quot;\&quot; for output&quot;);</a>
+<a name="263"><span class="lineNum">     263 </span>            :         this-&gt;write(os);</a>
+<a name="264"><span class="lineNum">     264 </span>            :     }</a>
+<a name="265"><span class="lineNum">     265 </span>            : </a>
+<a name="266"><span class="lineNum">     266 </span>            :     /// @brief Write a specific grid to file</a>
+<a name="267"><span class="lineNum">     267 </span>            :     /// @param fileName string name of the output file</a>
+<a name="268"><span class="lineNum">     268 </span>            :     /// @param n zero-based index of the grid to be written to file</a>
+<a name="269"><span class="lineNum">     269 </span>            :     void write(const std::string &amp;fileName, uint32_t n) const {</a>
+<a name="270"><span class="lineNum">     270 </span>            :         std::ofstream os(fileName, std::ios::out | std::ios::binary | std::ios::trunc);</a>
+<a name="271"><span class="lineNum">     271 </span>            :         if (!os.is_open()) throw std::ios_base::failure(&quot;Unable to open file named \&quot;&quot; + fileName + &quot;\&quot; for output&quot;);</a>
+<a name="272"><span class="lineNum">     272 </span>            :         this-&gt;write(os, n);</a>
+<a name="273"><span class="lineNum">     273 </span>            :     }</a>
+<a name="274"><span class="lineNum">     274 </span>            : </a>
+<a name="275"><span class="lineNum">     275 </span>            :     /// @brief Read an entire raw grid buffer from an input stream</a>
+<a name="276"><span class="lineNum">     276 </span>            :     /// @param is input stream containing a raw grid buffer</a>
+<a name="277"><span class="lineNum">     277 </span>            :     /// @param pool optional pool from which to allocate the new grid buffer</a>
+<a name="278"><span class="lineNum">     278 </span>            :     /// @throw Will throw a std::logic_error if the stream does not contain a valid raw grid</a>
+<a name="279"><span class="lineNum">     279 </span>            :     void read(std::istream&amp; is, const BufferT&amp; pool = BufferT());</a>
+<a name="280"><span class="lineNum">     280 </span>            : </a>
+<a name="281"><span class="lineNum">     281 </span>            :     /// @brief Read a specific grid from an input stream containing a raw grid buffer</a>
+<a name="282"><span class="lineNum">     282 </span>            :     /// @param is input stream containing a raw grid buffer</a>
+<a name="283"><span class="lineNum">     283 </span>            :     /// @param n zero-based index of the grid to be read</a>
+<a name="284"><span class="lineNum">     284 </span>            :     /// @param pool optional pool from which to allocate the new grid buffer</a>
+<a name="285"><span class="lineNum">     285 </span>            :     /// @throw Will throw a std::logic_error if the stream does not contain a valid raw grid</a>
+<a name="286"><span class="lineNum">     286 </span>            :     void read(std::istream&amp; is, uint32_t n, const BufferT&amp; pool = BufferT());</a>
+<a name="287"><span class="lineNum">     287 </span>            : </a>
+<a name="288"><span class="lineNum">     288 </span>            :     /// @brief Read a specific grid from an input stream containing a raw grid buffer</a>
+<a name="289"><span class="lineNum">     289 </span>            :     /// @param is input stream containing a raw grid buffer</a>
+<a name="290"><span class="lineNum">     290 </span>            :     /// @param gridName string name of the grid to be read</a>
+<a name="291"><span class="lineNum">     291 </span>            :     /// @param pool optional pool from which to allocate the new grid buffer</a>
+<a name="292"><span class="lineNum">     292 </span>            :     /// @throw Will throw a std::logic_error if the stream does not contain a valid raw grid with the specified name</a>
+<a name="293"><span class="lineNum">     293 </span>            :     void read(std::istream&amp; is, const std::string &amp;gridName, const BufferT&amp; pool = BufferT());</a>
+<a name="294"><span class="lineNum">     294 </span>            : </a>
+<a name="295"><span class="lineNum">     295 </span>            :     /// @brief Read a raw grid buffer from a file</a>
+<a name="296"><span class="lineNum">     296 </span>            :     /// @param filename string name of the input file containing a raw grid buffer</a>
+<a name="297"><span class="lineNum">     297 </span>            :     /// @param pool optional pool from which to allocate the new grid buffer</a>
+<a name="298"><span class="lineNum">     298 </span>            :     void read(const std::string &amp;fileName, const BufferT&amp; pool = BufferT()) {</a>
+<a name="299"><span class="lineNum">     299 </span>            :         std::ifstream is(fileName, std::ios::in | std::ios::binary);</a>
+<a name="300"><span class="lineNum">     300 </span>            :         if (!is.is_open()) throw std::ios_base::failure(&quot;Unable to open file named \&quot;&quot; + fileName + &quot;\&quot; for input&quot;);</a>
+<a name="301"><span class="lineNum">     301 </span>            :         this-&gt;read(is, pool);</a>
+<a name="302"><span class="lineNum">     302 </span>            :     }</a>
+<a name="303"><span class="lineNum">     303 </span>            : </a>
+<a name="304"><span class="lineNum">     304 </span>            :     /// @brief Read a specific grid from a file containing a raw grid buffer</a>
+<a name="305"><span class="lineNum">     305 </span>            :     /// @param filename string name of the input file containing a raw grid buffer</a>
+<a name="306"><span class="lineNum">     306 </span>            :     /// @param n zero-based index of the grid to be read</a>
+<a name="307"><span class="lineNum">     307 </span>            :     /// @param pool optional pool from which to allocate the new grid buffer</a>
+<a name="308"><span class="lineNum">     308 </span>            :     /// @throw Will throw a std::ios_base::failure if the file does not exist and a</a>
+<a name="309"><span class="lineNum">     309 </span>            :     ///        std::logic_error if the files does not contain a valid raw grid</a>
+<a name="310"><span class="lineNum">     310 </span>            :     void read(const std::string &amp;fileName, uint32_t n, const BufferT&amp; pool = BufferT()) {</a>
+<a name="311"><span class="lineNum">     311 </span>            :         std::ifstream is(fileName, std::ios::in | std::ios::binary);</a>
+<a name="312"><span class="lineNum">     312 </span>            :         if (!is.is_open()) throw std::ios_base::failure(&quot;Unable to open file named \&quot;&quot; + fileName + &quot;\&quot; for input&quot;);</a>
+<a name="313"><span class="lineNum">     313 </span>            :         this-&gt;read(is, n, pool);</a>
+<a name="314"><span class="lineNum">     314 </span>            :     }</a>
+<a name="315"><span class="lineNum">     315 </span>            : </a>
+<a name="316"><span class="lineNum">     316 </span>            :     /// @brief Read a specific grid from a file containing a raw grid buffer</a>
+<a name="317"><span class="lineNum">     317 </span>            :     /// @param filename string name of the input file containing a raw grid buffer</a>
+<a name="318"><span class="lineNum">     318 </span>            :     /// @param gridName string name of the grid to be read</a>
+<a name="319"><span class="lineNum">     319 </span>            :     /// @param pool optional pool from which to allocate the new grid buffer</a>
+<a name="320"><span class="lineNum">     320 </span>            :     /// @throw Will throw a std::ios_base::failure if the file does not exist and a</a>
+<a name="321"><span class="lineNum">     321 </span>            :     ///        std::logic_error if the files does not contain a valid raw grid withe the specified name</a>
+<a name="322"><span class="lineNum">     322 </span>            :     void read(const std::string &amp;fileName, const std::string &amp;gridName, const BufferT&amp; pool = BufferT()) {</a>
+<a name="323"><span class="lineNum">     323 </span>            :         std::ifstream is(fileName, std::ios::in | std::ios::binary);</a>
+<a name="324"><span class="lineNum">     324 </span>            :         if (!is.is_open()) throw std::ios_base::failure(&quot;Unable to open file named \&quot;&quot; + fileName + &quot;\&quot; for input&quot;);</a>
+<a name="325"><span class="lineNum">     325 </span>            :         this-&gt;read(is, gridName, pool);</a>
+<a name="326"><span class="lineNum">     326 </span>            :     }</a>
+<a name="327"><span class="lineNum">     327 </span>            : }; // GridHandle</a>
+<a name="328"><span class="lineNum">     328 </span>            : </a>
+<a name="329"><span class="lineNum">     329 </span>            : // --------------------------&gt; Implementation of private methods in GridHandle &lt;------------------------------------</a>
+<a name="330"><span class="lineNum">     330 </span>            : </a>
+<a name="331"><span class="lineNum">     331 </span>            : template&lt;typename BufferT&gt;</a>
+<a name="332"><span class="lineNum">     332 </span>            : inline const GridData* GridHandle&lt;BufferT&gt;::gridData(uint32_t n) const</a>
+<a name="333"><span class="lineNum">     333 </span>            : {</a>
+<a name="334"><span class="lineNum">     334 </span>            :     const void *data = this-&gt;data();</a>
+<a name="335"><span class="lineNum">     335 </span>            :     if (data == nullptr || n &gt;= mMetaData.size()) return nullptr;</a>
+<a name="336"><span class="lineNum">     336 </span>            :     return util::PtrAdd&lt;GridData&gt;(data, mMetaData[n].offset);</a>
+<a name="337"><span class="lineNum">     337 </span>            : }// const GridData* GridHandle&lt;BufferT&gt;::gridData(uint32_t n) const</a>
+<a name="338"><span class="lineNum">     338 </span>            : </a>
+<a name="339"><span class="lineNum">     339 </span>            : template&lt;typename BufferT&gt;</a>
+<a name="340"><span class="lineNum">     340 </span>            : inline const GridMetaData* GridHandle&lt;BufferT&gt;::gridMetaData(uint32_t n) const</a>
+<a name="341"><span class="lineNum">     341 </span>            : {</a>
+<a name="342"><span class="lineNum">     342 </span>            :     const auto *data = this-&gt;data();</a>
+<a name="343"><span class="lineNum">     343 </span>            :     if (data == nullptr || n &gt;= mMetaData.size()) return nullptr;</a>
+<a name="344"><span class="lineNum">     344 </span>            :     return util::PtrAdd&lt;GridMetaData&gt;(data, mMetaData[n].offset);</a>
+<a name="345"><span class="lineNum">     345 </span>            : }// const GridMetaData* GridHandle&lt;BufferT&gt;::gridMetaData(uint32_t n) const</a>
+<a name="346"><span class="lineNum">     346 </span>            : </a>
+<a name="347"><span class="lineNum">     347 </span><span class="lineCov">         71 : inline __hostdev__ void cpyGridHandleMeta(const GridData *data, GridHandleMetaData *meta)</span></a>
+<a name="348"><span class="lineNum">     348 </span>            : {</a>
+<a name="349"><span class="lineNum">     349 </span><span class="lineCov">         71 :     uint64_t offset = 0;</span></a>
+<a name="350"><span class="lineNum">     350 </span><span class="lineCov">        142 :     for (auto *p=meta, *q=p+data-&gt;mGridCount; p!=q; ++p) {</span></a>
+<a name="351"><span class="lineNum">     351 </span><span class="lineCov">         71 :         *p = {offset,  data-&gt;mGridSize, data-&gt;mGridType};</span></a>
+<a name="352"><span class="lineNum">     352 </span><span class="lineCov">         71 :         offset += p-&gt;size;</span></a>
+<a name="353"><span class="lineNum">     353 </span><span class="lineCov">         71 :         data = util::PtrAdd&lt;GridData&gt;(data, p-&gt;size);</span></a>
+<a name="354"><span class="lineNum">     354 </span>            :     }</a>
+<a name="355"><span class="lineNum">     355 </span><span class="lineCov">         71 : }// void cpyGridHandleMeta(const GridData *data, GridHandleMetaData *meta)</span></a>
+<a name="356"><span class="lineNum">     356 </span>            : </a>
+<a name="357"><span class="lineNum">     357 </span>            : // template specialization of move constructor from a host buffer</a>
+<a name="358"><span class="lineNum">     358 </span>            : template&lt;typename BufferT&gt;</a>
+<a name="359"><span class="lineNum">     359 </span>            : template&lt;typename T, typename util::disable_if&lt;BufferTraits&lt;T&gt;::hasDeviceDual, int&gt;::type&gt;</a>
+<a name="360"><span class="lineNum">     360 </span><span class="lineCov">         71 : GridHandle&lt;BufferT&gt;::GridHandle(T&amp;&amp; buffer)</span></a>
+<a name="361"><span class="lineNum">     361 </span>            : {</a>
+<a name="362"><span class="lineNum">     362 </span>            :     static_assert(util::is_same&lt;T,BufferT&gt;::value, &quot;Expected U==BufferT&quot;);</a>
+<a name="363"><span class="lineNum">     363 </span><span class="lineCov">         71 :     mBuffer = std::move(buffer);</span></a>
+<a name="364"><span class="lineNum">     364 </span><span class="lineCov">         71 :     if (auto *data = reinterpret_cast&lt;const GridData*&gt;(mBuffer.data())) {</span></a>
+<a name="365"><span class="lineNum">     365 </span><span class="lineCov">         71 :         if (!data-&gt;isValid()) throw std::runtime_error(&quot;GridHandle was constructed with an invalid host buffer&quot;);</span></a>
+<a name="366"><span class="lineNum">     366 </span><span class="lineCov">         71 :         mMetaData.resize(data-&gt;mGridCount);</span></a>
+<a name="367"><span class="lineNum">     367 </span><span class="lineCov">         71 :         cpyGridHandleMeta(data, mMetaData.data());</span></a>
+<a name="368"><span class="lineNum">     368 </span>            :     }</a>
+<a name="369"><span class="lineNum">     369 </span><span class="lineCov">         71 : }// GridHandle&lt;BufferT&gt;::GridHandle(T&amp;&amp; buffer)</span></a>
+<a name="370"><span class="lineNum">     370 </span>            : </a>
+<a name="371"><span class="lineNum">     371 </span>            : template&lt;typename BufferT&gt;</a>
+<a name="372"><span class="lineNum">     372 </span>            : template &lt;typename OtherBufferT&gt;</a>
+<a name="373"><span class="lineNum">     373 </span>            : inline GridHandle&lt;OtherBufferT&gt; GridHandle&lt;BufferT&gt;::copy(const OtherBufferT&amp; other) const</a>
+<a name="374"><span class="lineNum">     374 </span>            : {</a>
+<a name="375"><span class="lineNum">     375 </span>            :     if (mBuffer.isEmpty()) return GridHandle&lt;OtherBufferT&gt;();// return an empty handle</a>
+<a name="376"><span class="lineNum">     376 </span>            :     auto buffer = OtherBufferT::create(mBuffer.size(), &amp;other);</a>
+<a name="377"><span class="lineNum">     377 </span>            :     std::memcpy(buffer.data(), mBuffer.data(), mBuffer.size());// deep copy of buffer</a>
+<a name="378"><span class="lineNum">     378 </span>            :     return GridHandle&lt;OtherBufferT&gt;(std::move(buffer));</a>
+<a name="379"><span class="lineNum">     379 </span>            : }// GridHandle&lt;OtherBufferT&gt; GridHandle&lt;BufferT&gt;::copy(const OtherBufferT&amp; other) const</a>
+<a name="380"><span class="lineNum">     380 </span>            : </a>
+<a name="381"><span class="lineNum">     381 </span>            : template&lt;typename BufferT&gt;</a>
+<a name="382"><span class="lineNum">     382 </span>            : template&lt;typename ValueT&gt;</a>
+<a name="383"><span class="lineNum">     383 </span><span class="lineCov">         95 : inline const NanoGrid&lt;ValueT&gt;* GridHandle&lt;BufferT&gt;::grid(uint32_t n) const</span></a>
+<a name="384"><span class="lineNum">     384 </span>            : {</a>
+<a name="385"><span class="lineNum">     385 </span><span class="lineCov">         95 :     const void *data = mBuffer.data();</span></a>
+<a name="386"><span class="lineNum">     386 </span><span class="lineCov">         95 :     if (data == nullptr || n &gt;= mMetaData.size() || mMetaData[n].gridType != toGridType&lt;ValueT&gt;()) return nullptr;</span></a>
+<a name="387"><span class="lineNum">     387 </span><span class="lineCov">         39 :     return util::PtrAdd&lt;NanoGrid&lt;ValueT&gt;&gt;(data, mMetaData[n].offset);</span></a>
+<a name="388"><span class="lineNum">     388 </span>            : }// const NanoGrid&lt;ValueT&gt;* GridHandle&lt;BufferT&gt;::grid(uint32_t n) const</a>
+<a name="389"><span class="lineNum">     389 </span>            : </a>
+<a name="390"><span class="lineNum">     390 </span>            : template&lt;typename BufferT&gt;</a>
+<a name="391"><span class="lineNum">     391 </span>            : template&lt;typename ValueT, typename U&gt;</a>
+<a name="392"><span class="lineNum">     392 </span>            : inline typename util::enable_if&lt;BufferTraits&lt;U&gt;::hasDeviceDual, const NanoGrid&lt;ValueT&gt;*&gt;::type</a>
+<a name="393"><span class="lineNum">     393 </span>            : GridHandle&lt;BufferT&gt;::deviceGrid(uint32_t n) const</a>
+<a name="394"><span class="lineNum">     394 </span>            : {</a>
+<a name="395"><span class="lineNum">     395 </span>            :     const void *data = mBuffer.deviceData();</a>
+<a name="396"><span class="lineNum">     396 </span>            :     if (data == nullptr || n &gt;= mMetaData.size() || mMetaData[n].gridType != toGridType&lt;ValueT&gt;()) return nullptr;</a>
+<a name="397"><span class="lineNum">     397 </span>            :     return util::PtrAdd&lt;NanoGrid&lt;ValueT&gt;&gt;(data, mMetaData[n].offset);</a>
+<a name="398"><span class="lineNum">     398 </span>            : }// GridHandle&lt;BufferT&gt;::deviceGrid(uint32_t n) cons</a>
+<a name="399"><span class="lineNum">     399 </span>            : </a>
+<a name="400"><span class="lineNum">     400 </span>            : template&lt;typename BufferT&gt;</a>
+<a name="401"><span class="lineNum">     401 </span>            : void GridHandle&lt;BufferT&gt;::read(std::istream&amp; is, const BufferT&amp; pool)</a>
+<a name="402"><span class="lineNum">     402 </span>            : {</a>
+<a name="403"><span class="lineNum">     403 </span>            :     GridData data;</a>
+<a name="404"><span class="lineNum">     404 </span>            :     is.read((char*)&amp;data, sizeof(GridData));</a>
+<a name="405"><span class="lineNum">     405 </span>            :     if (data.isValid()) {</a>
+<a name="406"><span class="lineNum">     406 </span>            :         uint64_t size = data.mGridSize, sum = 0u;</a>
+<a name="407"><span class="lineNum">     407 </span>            :         while(data.mGridIndex + 1u &lt; data.mGridCount) {// loop over remaining raw grids in stream</a>
+<a name="408"><span class="lineNum">     408 </span>            :             is.seekg(data.mGridSize - sizeof(GridData), std::ios::cur);// skip grid</a>
+<a name="409"><span class="lineNum">     409 </span>            :             is.read((char*)&amp;data, sizeof(GridData));</a>
+<a name="410"><span class="lineNum">     410 </span>            :             sum += data.mGridSize;</a>
+<a name="411"><span class="lineNum">     411 </span>            :         }</a>
+<a name="412"><span class="lineNum">     412 </span>            :         auto buffer = BufferT::create(size + sum, &amp;pool);</a>
+<a name="413"><span class="lineNum">     413 </span>            :         is.seekg(-int64_t(sum + sizeof(GridData)), std::ios::cur);// rewind to start</a>
+<a name="414"><span class="lineNum">     414 </span>            :         is.read((char*)(buffer.data()), buffer.size());</a>
+<a name="415"><span class="lineNum">     415 </span>            :         *this = GridHandle(std::move(buffer));</a>
+<a name="416"><span class="lineNum">     416 </span>            :     } else {</a>
+<a name="417"><span class="lineNum">     417 </span>            :         is.seekg(-sizeof(GridData), std::ios::cur);// rewind</a>
+<a name="418"><span class="lineNum">     418 </span>            :         throw std::logic_error(&quot;This stream does not contain a valid raw grid buffer&quot;);</a>
+<a name="419"><span class="lineNum">     419 </span>            :     }</a>
+<a name="420"><span class="lineNum">     420 </span>            : }// void GridHandle&lt;BufferT&gt;::read(std::istream&amp; is, const BufferT&amp; pool)</a>
+<a name="421"><span class="lineNum">     421 </span>            : </a>
+<a name="422"><span class="lineNum">     422 </span>            : template&lt;typename BufferT&gt;</a>
+<a name="423"><span class="lineNum">     423 </span>            : void GridHandle&lt;BufferT&gt;::read(std::istream&amp; is, uint32_t n, const BufferT&amp; pool)</a>
+<a name="424"><span class="lineNum">     424 </span>            : {</a>
+<a name="425"><span class="lineNum">     425 </span>            :     GridData data;</a>
+<a name="426"><span class="lineNum">     426 </span>            :     is.read((char*)&amp;data, sizeof(GridData));</a>
+<a name="427"><span class="lineNum">     427 </span>            :     if (data.isValid()) {</a>
+<a name="428"><span class="lineNum">     428 </span>            :         if (n&gt;=data.mGridCount) throw std::runtime_error(&quot;stream does not contain a #&quot; + std::to_string(n) + &quot; grid&quot;);</a>
+<a name="429"><span class="lineNum">     429 </span>            :         while(data.mGridIndex != n) {</a>
+<a name="430"><span class="lineNum">     430 </span>            :             is.seekg(data.mGridSize - sizeof(GridData), std::ios::cur);// skip grid</a>
+<a name="431"><span class="lineNum">     431 </span>            :             is.read((char*)&amp;data, sizeof(GridData));</a>
+<a name="432"><span class="lineNum">     432 </span>            :         }</a>
+<a name="433"><span class="lineNum">     433 </span>            :         auto buffer = BufferT::create(data.mGridSize, &amp;pool);</a>
+<a name="434"><span class="lineNum">     434 </span>            :         is.seekg(-sizeof(GridData), std::ios::cur);// rewind</a>
+<a name="435"><span class="lineNum">     435 </span>            :         is.read((char*)(buffer.data()), data.mGridSize);</a>
+<a name="436"><span class="lineNum">     436 </span>            :         tools::updateGridCount((GridData*)buffer.data(), 0u, 1u);</a>
+<a name="437"><span class="lineNum">     437 </span>            :         *this = GridHandle(std::move(buffer));</a>
+<a name="438"><span class="lineNum">     438 </span>            :     } else {</a>
+<a name="439"><span class="lineNum">     439 </span>            :         is.seekg(-sizeof(GridData), std::ios::cur);// rewind sizeof(GridData) bytes to undo initial read</a>
+<a name="440"><span class="lineNum">     440 </span>            :         throw std::logic_error(&quot;This file does not contain a valid raw buffer&quot;);</a>
+<a name="441"><span class="lineNum">     441 </span>            :     }</a>
+<a name="442"><span class="lineNum">     442 </span>            : }// void GridHandle&lt;BufferT&gt;::read(std::istream&amp; is, uint32_t n, const BufferT&amp; pool)</a>
+<a name="443"><span class="lineNum">     443 </span>            : </a>
+<a name="444"><span class="lineNum">     444 </span>            : template&lt;typename BufferT&gt;</a>
+<a name="445"><span class="lineNum">     445 </span>            : void GridHandle&lt;BufferT&gt;::read(std::istream&amp; is, const std::string &amp;gridName, const BufferT&amp; pool)</a>
+<a name="446"><span class="lineNum">     446 </span>            : {</a>
+<a name="447"><span class="lineNum">     447 </span>            :     static const std::streamsize byteSize = sizeof(GridData);</a>
+<a name="448"><span class="lineNum">     448 </span>            :     GridData data;</a>
+<a name="449"><span class="lineNum">     449 </span>            :     is.read((char*)&amp;data, byteSize);</a>
+<a name="450"><span class="lineNum">     450 </span>            :     is.seekg(-byteSize, std::ios::cur);// rewind</a>
+<a name="451"><span class="lineNum">     451 </span>            :     if (data.isValid()) {</a>
+<a name="452"><span class="lineNum">     452 </span>            :         uint32_t n = 0;</a>
+<a name="453"><span class="lineNum">     453 </span>            :         while(data.mGridName != gridName &amp;&amp; n++ &lt; data.mGridCount) {</a>
+<a name="454"><span class="lineNum">     454 </span>            :             is.seekg(data.mGridSize, std::ios::cur);// skip grid</a>
+<a name="455"><span class="lineNum">     455 </span>            :             is.read((char*)&amp;data, byteSize);// read sizeof(GridData) bytes</a>
+<a name="456"><span class="lineNum">     456 </span>            :             is.seekg(-byteSize, std::ios::cur);// rewind</a>
+<a name="457"><span class="lineNum">     457 </span>            :         }</a>
+<a name="458"><span class="lineNum">     458 </span>            :         if (n&gt;data.mGridCount) throw std::runtime_error(&quot;No raw grid named \&quot;&quot;+gridName+&quot;\&quot;&quot;);</a>
+<a name="459"><span class="lineNum">     459 </span>            :         auto buffer = BufferT::create(data.mGridSize, &amp;pool);</a>
+<a name="460"><span class="lineNum">     460 </span>            :         is.read((char*)(buffer.data()), data.mGridSize);</a>
+<a name="461"><span class="lineNum">     461 </span>            :         tools::updateGridCount((GridData*)buffer.data(), 0u, 1u);</a>
+<a name="462"><span class="lineNum">     462 </span>            :         *this = GridHandle(std::move(buffer));</a>
+<a name="463"><span class="lineNum">     463 </span>            :     } else {</a>
+<a name="464"><span class="lineNum">     464 </span>            :         throw std::logic_error(&quot;This file does not contain a valid raw buffer&quot;);</a>
+<a name="465"><span class="lineNum">     465 </span>            :     }</a>
+<a name="466"><span class="lineNum">     466 </span>            : }// void GridHandle&lt;BufferT&gt;::read(std::istream&amp; is, const std::string &amp;gridName n, const BufferT&amp; pool)</a>
+<a name="467"><span class="lineNum">     467 </span>            : </a>
+<a name="468"><span class="lineNum">     468 </span>            : // --------------------------&gt; free-standing functions &lt;------------------------------------</a>
+<a name="469"><span class="lineNum">     469 </span>            : </a>
+<a name="470"><span class="lineNum">     470 </span>            : /// @brief Split all grids in a single GridHandle into a vector of multiple GridHandles each with a single grid</a>
+<a name="471"><span class="lineNum">     471 </span>            : /// @tparam BufferT Type of the input and output grid buffers</a>
+<a name="472"><span class="lineNum">     472 </span>            : /// @param handle GridHandle with grids that will be slip into individual GridHandles</a>
+<a name="473"><span class="lineNum">     473 </span>            : /// @param pool optional pool used for allocation of output GridHandle</a>
+<a name="474"><span class="lineNum">     474 </span>            : /// @return Vector of GridHandles each containing a single grid</a>
+<a name="475"><span class="lineNum">     475 </span>            : template&lt;typename BufferT, template &lt;class, class...&gt; class VectorT = std::vector&gt;</a>
+<a name="476"><span class="lineNum">     476 </span>            : inline VectorT&lt;GridHandle&lt;BufferT&gt;&gt;</a>
+<a name="477"><span class="lineNum">     477 </span>            : splitGrids(const GridHandle&lt;BufferT&gt; &amp;handle, const BufferT* other = nullptr)</a>
+<a name="478"><span class="lineNum">     478 </span>            : {</a>
+<a name="479"><span class="lineNum">     479 </span>            :     using HandleT = GridHandle&lt;BufferT&gt;;</a>
+<a name="480"><span class="lineNum">     480 </span>            :     const void *ptr = handle.data();</a>
+<a name="481"><span class="lineNum">     481 </span>            :     if (ptr == nullptr) return VectorT&lt;HandleT&gt;();</a>
+<a name="482"><span class="lineNum">     482 </span>            :     VectorT&lt;HandleT&gt; handles(handle.gridCount());</a>
+<a name="483"><span class="lineNum">     483 </span>            :     for (auto &amp;h : handles) {</a>
+<a name="484"><span class="lineNum">     484 </span>            :         const GridData *src = reinterpret_cast&lt;const GridData*&gt;(ptr);</a>
+<a name="485"><span class="lineNum">     485 </span>            :         NANOVDB_ASSERT(src-&gt;isValid());</a>
+<a name="486"><span class="lineNum">     486 </span>            :         auto buffer = BufferT::create(src-&gt;mGridSize, other);</a>
+<a name="487"><span class="lineNum">     487 </span>            :         GridData *dst = reinterpret_cast&lt;GridData*&gt;(buffer.data());</a>
+<a name="488"><span class="lineNum">     488 </span>            :         std::memcpy(dst, src, src-&gt;mGridSize);</a>
+<a name="489"><span class="lineNum">     489 </span>            :         tools::updateGridCount(dst, 0u, 1u);</a>
+<a name="490"><span class="lineNum">     490 </span>            :         h = HandleT(std::move(buffer));</a>
+<a name="491"><span class="lineNum">     491 </span>            :         ptr = util::PtrAdd(ptr, src-&gt;mGridSize);</a>
+<a name="492"><span class="lineNum">     492 </span>            :     }</a>
+<a name="493"><span class="lineNum">     493 </span>            :     return handles;</a>
+<a name="494"><span class="lineNum">     494 </span>            : }// splitGrids</a>
+<a name="495"><span class="lineNum">     495 </span>            : </a>
+<a name="496"><span class="lineNum">     496 </span>            : /// @brief Combines (or merges) multiple GridHandles into a single GridHandle containing all grids</a>
+<a name="497"><span class="lineNum">     497 </span>            : /// @tparam BufferT Type of the input and output grid buffers</a>
+<a name="498"><span class="lineNum">     498 </span>            : /// @param handles Vector of GridHandles to be combined</a>
+<a name="499"><span class="lineNum">     499 </span>            : /// @param pool optional pool used for allocation of output GridHandle</a>
+<a name="500"><span class="lineNum">     500 </span>            : /// @return single GridHandle containing all input grids</a>
+<a name="501"><span class="lineNum">     501 </span>            : template&lt;typename BufferT, template &lt;class, class...&gt; class VectorT&gt;</a>
+<a name="502"><span class="lineNum">     502 </span>            : inline GridHandle&lt;BufferT&gt;</a>
+<a name="503"><span class="lineNum">     503 </span>            : mergeGrids(const VectorT&lt;GridHandle&lt;BufferT&gt;&gt; &amp;handles, const BufferT* pool = nullptr)</a>
+<a name="504"><span class="lineNum">     504 </span>            : {</a>
+<a name="505"><span class="lineNum">     505 </span>            :     uint64_t size = 0u;</a>
+<a name="506"><span class="lineNum">     506 </span>            :     uint32_t counter = 0u, gridCount = 0u;</a>
+<a name="507"><span class="lineNum">     507 </span>            :     for (auto &amp;h : handles) {</a>
+<a name="508"><span class="lineNum">     508 </span>            :         gridCount += h.gridCount();</a>
+<a name="509"><span class="lineNum">     509 </span>            :         for (uint32_t n=0; n&lt;h.gridCount(); ++n) size += h.gridSize(n);</a>
+<a name="510"><span class="lineNum">     510 </span>            :     }</a>
+<a name="511"><span class="lineNum">     511 </span>            :     auto buffer = BufferT::create(size, pool);</a>
+<a name="512"><span class="lineNum">     512 </span>            :     void *dst = buffer.data();</a>
+<a name="513"><span class="lineNum">     513 </span>            :     for (auto &amp;h : handles) {</a>
+<a name="514"><span class="lineNum">     514 </span>            :         const void *src = h.data();</a>
+<a name="515"><span class="lineNum">     515 </span>            :         for (uint32_t n=0; n&lt;h.gridCount(); ++n) {</a>
+<a name="516"><span class="lineNum">     516 </span>            :             std::memcpy(dst, src, h.gridSize(n));</a>
+<a name="517"><span class="lineNum">     517 </span>            :             GridData *data = reinterpret_cast&lt;GridData*&gt;(dst);</a>
+<a name="518"><span class="lineNum">     518 </span>            :             NANOVDB_ASSERT(data-&gt;isValid());</a>
+<a name="519"><span class="lineNum">     519 </span>            :             tools::updateGridCount(data, counter++, gridCount);</a>
+<a name="520"><span class="lineNum">     520 </span>            :             dst = util::PtrAdd(dst, data-&gt;mGridSize);</a>
+<a name="521"><span class="lineNum">     521 </span>            :             src = util::PtrAdd(src, data-&gt;mGridSize);</a>
+<a name="522"><span class="lineNum">     522 </span>            :         }</a>
+<a name="523"><span class="lineNum">     523 </span>            :     }</a>
+<a name="524"><span class="lineNum">     524 </span>            :     return GridHandle&lt;BufferT&gt;(std::move(buffer));</a>
+<a name="525"><span class="lineNum">     525 </span>            : }// mergeGrids</a>
+<a name="526"><span class="lineNum">     526 </span>            : </a>
+<a name="527"><span class="lineNum">     527 </span>            : } // namespace nanovdb</a>
+<a name="528"><span class="lineNum">     528 </span>            : </a>
+<a name="529"><span class="lineNum">     529 </span>            : #if defined(__CUDACC__)</a>
+<a name="530"><span class="lineNum">     530 </span>            : #include &lt;nanovdb/cuda/GridHandle.cuh&gt;</a>
+<a name="531"><span class="lineNum">     531 </span>            : #endif// defined(__CUDACC__)</a>
+<a name="532"><span class="lineNum">     532 </span>            : </a>
+<a name="533"><span class="lineNum">     533 </span>            : #endif // NANOVDB_GRID_HANDLE_H_HAS_BEEN_INCLUDED</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

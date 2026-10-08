@@ -1,0 +1,311 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - asset_system/intern/asset_library_service.hh</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">asset_system/intern</a> - asset_library_service.hh<span style="font-size: 80%;"> (source / <a href="asset_library_service.hh.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2023 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup asset_system</a>
+<a name="7"><span class="lineNum">       7 </span>            :  */</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #pragma once</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &lt;memory&gt;</a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &lt;mutex&gt;</a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &lt;optional&gt;</a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &lt;utility&gt;</a>
+<a name="15"><span class="lineNum">      15 </span>            : </a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &quot;AS_asset_library.hh&quot;</a>
+<a name="17"><span class="lineNum">      17 </span>            : </a>
+<a name="18"><span class="lineNum">      18 </span>            : #include &quot;BLI_function_ref.hh&quot;</a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &quot;BLI_map.hh&quot;</a>
+<a name="20"><span class="lineNum">      20 </span>            : </a>
+<a name="21"><span class="lineNum">      21 </span>            : #include &quot;essentials_library.hh&quot;</a>
+<a name="22"><span class="lineNum">      22 </span>            : </a>
+<a name="23"><span class="lineNum">      23 </span>            : namespace blender {</a>
+<a name="24"><span class="lineNum">      24 </span>            : </a>
+<a name="25"><span class="lineNum">      25 </span>            : struct AssetLibraryReference;</a>
+<a name="26"><span class="lineNum">      26 </span>            : struct bUserAssetLibrary;</a>
+<a name="27"><span class="lineNum">      27 </span>            : </a>
+<a name="28"><span class="lineNum">      28 </span>            : namespace asset_system {</a>
+<a name="29"><span class="lineNum">      29 </span>            : </a>
+<a name="30"><span class="lineNum">      30 </span>            : class AllAssetLibrary;</a>
+<a name="31"><span class="lineNum">      31 </span>            : class OnDiskAssetLibrary;</a>
+<a name="32"><span class="lineNum">      32 </span>            : class PreferencesRemoteAssetLibrary;</a>
+<a name="33"><span class="lineNum">      33 </span>            : class RuntimeAssetLibrary;</a>
+<a name="34"><span class="lineNum">      34 </span>            : </a>
+<a name="35"><span class="lineNum">      35 </span>            : /**</a>
+<a name="36"><span class="lineNum">      36 </span>            :  * Global singleton-ish that provides access to individual #AssetLibrary instances.</a>
+<a name="37"><span class="lineNum">      37 </span>            :  *</a>
+<a name="38"><span class="lineNum">      38 </span>            :  * Whenever a blend file is loaded, the existing instance of AssetLibraryService is destructed, and</a>
+<a name="39"><span class="lineNum">      39 </span>            :  * a new one is created -- hence the &quot;singleton-ish&quot;. This ensures only information about relevant</a>
+<a name="40"><span class="lineNum">      40 </span>            :  * asset libraries is loaded.</a>
+<a name="41"><span class="lineNum">      41 </span>            :  *</a>
+<a name="42"><span class="lineNum">      42 </span>            :  * \note How Asset libraries are identified may change in the future.</a>
+<a name="43"><span class="lineNum">      43 </span>            :  *  For now they are assumed to be:</a>
+<a name="44"><span class="lineNum">      44 </span>            :  * - on disk (identified by the absolute directory), or</a>
+<a name="45"><span class="lineNum">      45 </span>            :  * - the &quot;current file&quot; library (which is in memory but could have catalogs</a>
+<a name="46"><span class="lineNum">      46 </span>            :  *   loaded from a file on disk).</a>
+<a name="47"><span class="lineNum">      47 </span>            :  */</a>
+<a name="48"><span class="lineNum">      48 </span>            : class AssetLibraryService {</a>
+<a name="49"><span class="lineNum">      49 </span>            :   static std::unique_ptr&lt;AssetLibraryService&gt; instance_;</a>
+<a name="50"><span class="lineNum">      50 </span>            : </a>
+<a name="51"><span class="lineNum">      51 </span>            :   /**</a>
+<a name="52"><span class="lineNum">      52 </span>            :    * Identify libraries with the library type, and the absolute path of the library's root path</a>
+<a name="53"><span class="lineNum">      53 </span>            :    * (normalize with #normalize_directory_path()!). The type is relevant since the current file</a>
+<a name="54"><span class="lineNum">      54 </span>            :    * library may point to the same path as a custom library.</a>
+<a name="55"><span class="lineNum">      55 </span>            :    */</a>
+<a name="56"><span class="lineNum">      56 </span>            :   using OnDiskLibraryIdentifier = std::pair&lt;eAssetLibraryType, std::string&gt;;</a>
+<a name="57"><span class="lineNum">      57 </span>            :   /**</a>
+<a name="58"><span class="lineNum">      58 </span>            :    * Mapping of a (type, root path) pair to the AssetLibrary instance.</a>
+<a name="59"><span class="lineNum">      59 </span>            :    * Always protect access with #on_disk_libraries_mutex_ below.</a>
+<a name="60"><span class="lineNum">      60 </span>            :    */</a>
+<a name="61"><span class="lineNum">      61 </span>            :   Map&lt;OnDiskLibraryIdentifier, std::unique_ptr&lt;OnDiskAssetLibrary&gt;&gt; on_disk_libraries_;</a>
+<a name="62"><span class="lineNum">      62 </span>            :   mutable std::recursive_mutex on_disk_libraries_mutex_;</a>
+<a name="63"><span class="lineNum">      63 </span>            :   using URLLibraryIdentifier = std::string;</a>
+<a name="64"><span class="lineNum">      64 </span>            :   /** Always protect access with #remote_libraries_mutex_ below. */</a>
+<a name="65"><span class="lineNum">      65 </span>            :   Map&lt;URLLibraryIdentifier, std::unique_ptr&lt;PreferencesRemoteAssetLibrary&gt;&gt; remote_libraries_;</a>
+<a name="66"><span class="lineNum">      66 </span>            :   mutable std::recursive_mutex remote_libraries_mutex_;</a>
+<a name="67"><span class="lineNum">      67 </span>            :   /**</a>
+<a name="68"><span class="lineNum">      68 </span>            :    * Library without a known path, i.e. the &quot;Current File&quot; library if the file isn't saved yet. If</a>
+<a name="69"><span class="lineNum">      69 </span>            :    * the file was saved, a valid path for the library can be determined and #on_disk_libraries_</a>
+<a name="70"><span class="lineNum">      70 </span>            :    * above should be used.</a>
+<a name="71"><span class="lineNum">      71 </span>            :    */</a>
+<a name="72"><span class="lineNum">      72 </span>            :   std::unique_ptr&lt;RuntimeAssetLibrary&gt; current_file_library_;</a>
+<a name="73"><span class="lineNum">      73 </span>            :   /** The &quot;all&quot; asset library, merging all other libraries into one. */</a>
+<a name="74"><span class="lineNum">      74 </span>            :   std::unique_ptr&lt;AllAssetLibrary&gt; all_library_;</a>
+<a name="75"><span class="lineNum">      75 </span>            :   std::unique_ptr&lt;OnlineEssentialsLibrary&gt; online_essentials_library_;</a>
+<a name="76"><span class="lineNum">      76 </span>            : </a>
+<a name="77"><span class="lineNum">      77 </span>            :   /** Handlers for managing the life cycle of the AssetLibraryService instance. */</a>
+<a name="78"><span class="lineNum">      78 </span>            :   bCallbackFuncStore on_load_callback_store_;</a>
+<a name="79"><span class="lineNum">      79 </span>            :   static bool atexit_handler_registered_;</a>
+<a name="80"><span class="lineNum">      80 </span>            : </a>
+<a name="81"><span class="lineNum">      81 </span>            :  public:</a>
+<a name="82"><span class="lineNum">      82 </span><span class="lineCov">      28265 :   AssetLibraryService() = default;</span></a>
+<a name="83"><span class="lineNum">      83 </span><span class="lineCov">      28265 :   ~AssetLibraryService() = default;</span></a>
+<a name="84"><span class="lineNum">      84 </span>            : </a>
+<a name="85"><span class="lineNum">      85 </span>            :   /** Return the AssetLibraryService singleton, allocating it if necessary. */</a>
+<a name="86"><span class="lineNum">      86 </span>            :   static AssetLibraryService *get();</a>
+<a name="87"><span class="lineNum">      87 </span>            : </a>
+<a name="88"><span class="lineNum">      88 </span>            :   /** Destroy the AssetLibraryService singleton. It will be reallocated by #get() if necessary. */</a>
+<a name="89"><span class="lineNum">      89 </span>            :   static void destroy();</a>
+<a name="90"><span class="lineNum">      90 </span>            : </a>
+<a name="91"><span class="lineNum">      91 </span>            :   static std::string root_path_from_library_ref(const AssetLibraryReference &amp;library_reference);</a>
+<a name="92"><span class="lineNum">      92 </span>            :   static bUserAssetLibrary *find_custom_asset_library_from_library_ref(</a>
+<a name="93"><span class="lineNum">      93 </span>            :       const AssetLibraryReference &amp;library_reference);</a>
+<a name="94"><span class="lineNum">      94 </span>            :   static bUserAssetLibrary *find_custom_preferences_asset_library_from_asset_weak_ref(</a>
+<a name="95"><span class="lineNum">      95 </span>            :       const AssetWeakReference &amp;asset_reference);</a>
+<a name="96"><span class="lineNum">      96 </span>            :   /**</a>
+<a name="97"><span class="lineNum">      97 </span>            :    * Turn the runtime current file library into an on-disk current file library, preserving</a>
+<a name="98"><span class="lineNum">      98 </span>            :    * catalog data like undo/redo history, deleted catalog info, catalog saving state, etc.</a>
+<a name="99"><span class="lineNum">      99 </span>            :    * Note that this creates a new on-disk asset library and destroys the runtime one.</a>
+<a name="100"><span class="lineNum">     100 </span>            :    *</a>
+<a name="101"><span class="lineNum">     101 </span>            :    * Call when the `.blend` file is saved to disk.</a>
+<a name="102"><span class="lineNum">     102 </span>            :    *</a>
+<a name="103"><span class="lineNum">     103 </span>            :    * \return the new on-disk current file asset library (null in case of failure to find a path to</a>
+<a name="104"><span class="lineNum">     104 </span>            :    * store the library in, based on the #Main.filepath from \a main).</a>
+<a name="105"><span class="lineNum">     105 </span>            :    */</a>
+<a name="106"><span class="lineNum">     106 </span>            :   static AssetLibrary *move_runtime_current_file_into_on_disk_library(const Main &amp;bmain);</a>
+<a name="107"><span class="lineNum">     107 </span>            : </a>
+<a name="108"><span class="lineNum">     108 </span>            :   AssetLibrary *get_asset_library(const Main *bmain,</a>
+<a name="109"><span class="lineNum">     109 </span>            :                                   const AssetLibraryReference &amp;library_reference);</a>
+<a name="110"><span class="lineNum">     110 </span>            : </a>
+<a name="111"><span class="lineNum">     111 </span>            :   /**</a>
+<a name="112"><span class="lineNum">     112 </span>            :    * Get an asset library of type #ASSET_LIBRARY_CUSTOM from a directory path. Use</a>
+<a name="113"><span class="lineNum">     113 </span>            :    * #get_asset_library_on_disk_custom_preferences() for asset libraries registered in the</a>
+<a name="114"><span class="lineNum">     114 </span>            :    * Preferences.</a>
+<a name="115"><span class="lineNum">     115 </span>            :    */</a>
+<a name="116"><span class="lineNum">     116 </span>            :   AssetLibrary *get_asset_library_on_disk_custom(StringRef name, StringRefNull root_path);</a>
+<a name="117"><span class="lineNum">     117 </span>            :   /**</a>
+<a name="118"><span class="lineNum">     118 </span>            :    * Get an asset library of type #ASSET_LIBRARY_CUSTOM from an asset library definition in the</a>
+<a name="119"><span class="lineNum">     119 </span>            :    * Preferences.</a>
+<a name="120"><span class="lineNum">     120 </span>            :    */</a>
+<a name="121"><span class="lineNum">     121 </span>            :   AssetLibrary *get_asset_library_on_disk_custom_preferences(bUserAssetLibrary *custom_library);</a>
+<a name="122"><span class="lineNum">     122 </span>            :   /**</a>
+<a name="123"><span class="lineNum">     123 </span>            :    * Get a builtin (not user defined) asset library. I.e. a library that is **not** of type</a>
+<a name="124"><span class="lineNum">     124 </span>            :    * #ASSET_LIBRARY_CUSTOM.</a>
+<a name="125"><span class="lineNum">     125 </span>            :    */</a>
+<a name="126"><span class="lineNum">     126 </span>            :   AssetLibrary *get_asset_library_on_disk_builtin(eAssetLibraryType type, StringRefNull root_path);</a>
+<a name="127"><span class="lineNum">     127 </span>            :   /** Get the &quot;Current File&quot; asset library. */</a>
+<a name="128"><span class="lineNum">     128 </span>            :   AssetLibrary *get_asset_library_current_file();</a>
+<a name="129"><span class="lineNum">     129 </span>            :   /** Get the &quot;All&quot; asset library, which loads all others and merges them into one. */</a>
+<a name="130"><span class="lineNum">     130 </span>            :   AssetLibrary *get_asset_library_all(const Main *bmain);</a>
+<a name="131"><span class="lineNum">     131 </span>            :   /**</a>
+<a name="132"><span class="lineNum">     132 </span>            :    * Tag the &quot;All&quot; asset library as needing to reload catalogs. This should be called when catalog</a>
+<a name="133"><span class="lineNum">     133 </span>            :    * data of other asset libraries changes. Note that changes to the catalog definition file on</a>
+<a name="134"><span class="lineNum">     134 </span>            :    * disk don't ever affect this &quot;dirty&quot; flag. It only reflects changes from this Blender session.</a>
+<a name="135"><span class="lineNum">     135 </span>            :    */</a>
+<a name="136"><span class="lineNum">     136 </span>            :   void tag_all_library_catalogs_dirty();</a>
+<a name="137"><span class="lineNum">     137 </span>            :   void reload_all_library_catalogs_if_dirty();</a>
+<a name="138"><span class="lineNum">     138 </span>            : </a>
+<a name="139"><span class="lineNum">     139 </span>            :   /**</a>
+<a name="140"><span class="lineNum">     140 </span>            :    * Return the start position of the last blend-file extension in given path,</a>
+<a name="141"><span class="lineNum">     141 </span>            :    * or #std::string::npos if not found. Works with both kind of path separators.</a>
+<a name="142"><span class="lineNum">     142 </span>            :    */</a>
+<a name="143"><span class="lineNum">     143 </span>            :   int64_t rfind_blendfile_extension(StringRef path);</a>
+<a name="144"><span class="lineNum">     144 </span>            :   /**</a>
+<a name="145"><span class="lineNum">     145 </span>            :    * Return a normalized version of #AssetWeakReference.relative_asset_identifier.</a>
+<a name="146"><span class="lineNum">     146 </span>            :    * Special care is required here because slashes or backslashes should not be converted in the ID</a>
+<a name="147"><span class="lineNum">     147 </span>            :    * name itself.</a>
+<a name="148"><span class="lineNum">     148 </span>            :    */</a>
+<a name="149"><span class="lineNum">     149 </span>            :   std::string normalize_asset_weak_reference_relative_asset_identifier(</a>
+<a name="150"><span class="lineNum">     150 </span>            :       const AssetWeakReference &amp;asset_reference);</a>
+<a name="151"><span class="lineNum">     151 </span>            :   /**</a>
+<a name="152"><span class="lineNum">     152 </span>            :    * Get a valid library path from the weak reference. Empty if e.g. the reference is to a local</a>
+<a name="153"><span class="lineNum">     153 </span>            :    * asset.</a>
+<a name="154"><span class="lineNum">     154 </span>            :    */</a>
+<a name="155"><span class="lineNum">     155 </span>            :   std::string resolve_asset_weak_reference_to_library_path(</a>
+<a name="156"><span class="lineNum">     156 </span>            :       const AssetWeakReference &amp;asset_reference);</a>
+<a name="157"><span class="lineNum">     157 </span>            :   /**</a>
+<a name="158"><span class="lineNum">     158 </span>            :    * Attempt to build a full path to an asset based on the currently available (not necessary</a>
+<a name="159"><span class="lineNum">     159 </span>            :    * loaded) asset libraries. The path is not guaranteed to exist. The returned path will be</a>
+<a name="160"><span class="lineNum">     160 </span>            :    * normalized and using native slashes.</a>
+<a name="161"><span class="lineNum">     161 </span>            :    *</a>
+<a name="162"><span class="lineNum">     162 </span>            :    * \note Only works for asset libraries on disk (others can't be resolved).</a>
+<a name="163"><span class="lineNum">     163 </span>            :    */</a>
+<a name="164"><span class="lineNum">     164 </span>            :   std::string resolve_asset_weak_reference_to_full_path(const AssetWeakReference &amp;asset_reference);</a>
+<a name="165"><span class="lineNum">     165 </span>            :   /**</a>
+<a name="166"><span class="lineNum">     166 </span>            :    * Struct to hold results from path explosion functions</a>
+<a name="167"><span class="lineNum">     167 </span>            :    * (#resolve_asset_weak_reference_to_exploded_path()).</a>
+<a name="168"><span class="lineNum">     168 </span>            :    */</a>
+<a name="169"><span class="lineNum">     169 </span>            :   struct ExplodedPath {</a>
+<a name="170"><span class="lineNum">     170 </span>            :     /**</a>
+<a name="171"><span class="lineNum">     171 </span>            :      * The string buffer containing the fully resolved path, if resolving was successful. Pointer</a>
+<a name="172"><span class="lineNum">     172 </span>            :      * so that the contained string address doesn't change when moving this object.</a>
+<a name="173"><span class="lineNum">     173 </span>            :      */</a>
+<a name="174"><span class="lineNum">     174 </span>            :     std::unique_ptr&lt;std::string&gt; full_path;</a>
+<a name="175"><span class="lineNum">     175 </span>            :     /**</a>
+<a name="176"><span class="lineNum">     176 </span>            :      * Reference into the part of #full_path that is the library directory path. That is, it ends</a>
+<a name="177"><span class="lineNum">     177 </span>            :      * with the library .blend file (&quot;directory&quot; is misleading).</a>
+<a name="178"><span class="lineNum">     178 </span>            :      */</a>
+<a name="179"><span class="lineNum">     179 </span>            :     StringRef dir_component = &quot;&quot;;</a>
+<a name="180"><span class="lineNum">     180 </span>            :     /**</a>
+<a name="181"><span class="lineNum">     181 </span>            :      * Reference into the part of #full_path that is the ID group name (&quot;Object&quot;, &quot;Material&quot;,</a>
+<a name="182"><span class="lineNum">     182 </span>            :      * &quot;Brush&quot;, ...).</a>
+<a name="183"><span class="lineNum">     183 </span>            :      */</a>
+<a name="184"><span class="lineNum">     184 </span>            :     StringRef group_component = &quot;&quot;;</a>
+<a name="185"><span class="lineNum">     185 </span>            :     /** Reference into the part of #full_path that is the ID name. */</a>
+<a name="186"><span class="lineNum">     186 </span>            :     StringRef name_component = &quot;&quot;;</a>
+<a name="187"><span class="lineNum">     187 </span>            :   };</a>
+<a name="188"><span class="lineNum">     188 </span>            :   /**</a>
+<a name="189"><span class="lineNum">     189 </span>            :    * Similar to #BKE_blendfile_library_path_explode, returns the full path as</a>
+<a name="190"><span class="lineNum">     190 </span>            :    * #resolve_asset_weak_reference_to_library_path, with StringRefs to the `dir` (i.e. blendfile</a>
+<a name="191"><span class="lineNum">     191 </span>            :    * path), `group` (i.e. ID type) and `name` (i.e. ID name) parts.</a>
+<a name="192"><span class="lineNum">     192 </span>            :    */</a>
+<a name="193"><span class="lineNum">     193 </span>            :   std::optional&lt;ExplodedPath&gt; resolve_asset_weak_reference_to_exploded_path(</a>
+<a name="194"><span class="lineNum">     194 </span>            :       const AssetWeakReference &amp;asset_reference);</a>
+<a name="195"><span class="lineNum">     195 </span>            : </a>
+<a name="196"><span class="lineNum">     196 </span>            :   /** Returns whether there are any known asset libraries with unsaved catalog edits. */</a>
+<a name="197"><span class="lineNum">     197 </span>            :   bool has_any_unsaved_catalogs() const;</a>
+<a name="198"><span class="lineNum">     198 </span>            : </a>
+<a name="199"><span class="lineNum">     199 </span>            :   /** See AssetLibrary::foreach_loaded(). */</a>
+<a name="200"><span class="lineNum">     200 </span>            :   void foreach_loaded_asset_library(FunctionRef&lt;void(AssetLibrary &amp;)&gt; fn,</a>
+<a name="201"><span class="lineNum">     201 </span>            :                                     bool include_all_library) const;</a>
+<a name="202"><span class="lineNum">     202 </span>            : </a>
+<a name="203"><span class="lineNum">     203 </span>            :  protected:</a>
+<a name="204"><span class="lineNum">     204 </span>            :   /** Allocate a new instance of the service and assign it to `instance_`. */</a>
+<a name="205"><span class="lineNum">     205 </span>            :   static void allocate_service_instance();</a>
+<a name="206"><span class="lineNum">     206 </span>            : </a>
+<a name="207"><span class="lineNum">     207 </span>            :   OnDiskAssetLibrary *lookup_on_disk_library(eAssetLibraryType type, StringRefNull root_path);</a>
+<a name="208"><span class="lineNum">     208 </span>            : </a>
+<a name="209"><span class="lineNum">     209 </span>            :   AssetLibrary *find_loaded_on_disk_asset_library_from_name(StringRef name) const;</a>
+<a name="210"><span class="lineNum">     210 </span>            : </a>
+<a name="211"><span class="lineNum">     211 </span>            :   AssetLibrary *get_online_essentials_asset_library();</a>
+<a name="212"><span class="lineNum">     212 </span>            :   AssetLibrary *get_preferences_remote_asset_library(const bUserAssetLibrary &amp;custom_library);</a>
+<a name="213"><span class="lineNum">     213 </span>            :   /**</a>
+<a name="214"><span class="lineNum">     214 </span>            :    * Get the given asset library. Opens it (i.e. creates a new AssetLibrary instance) if necessary.</a>
+<a name="215"><span class="lineNum">     215 </span>            :    *</a>
+<a name="216"><span class="lineNum">     216 </span>            :    * \param root_path: The top level directory.</a>
+<a name="217"><span class="lineNum">     217 </span>            :    * \param preferences_library: The definition of the library from the Preferences. Set this to</a>
+<a name="218"><span class="lineNum">     218 </span>            :    * null if the library is not registered in the Preferences (but non-null if it is!).</a>
+<a name="219"><span class="lineNum">     219 </span>            :    */</a>
+<a name="220"><span class="lineNum">     220 </span>            :   AssetLibrary *get_asset_library_on_disk(eAssetLibraryType library_type,</a>
+<a name="221"><span class="lineNum">     221 </span>            :                                           StringRef name,</a>
+<a name="222"><span class="lineNum">     222 </span>            :                                           StringRefNull root_path,</a>
+<a name="223"><span class="lineNum">     223 </span>            :                                           bool load_catalogs = true,</a>
+<a name="224"><span class="lineNum">     224 </span>            :                                           bUserAssetLibrary *preferences_library = nullptr);</a>
+<a name="225"><span class="lineNum">     225 </span>            :   /**</a>
+<a name="226"><span class="lineNum">     226 </span>            :    * Ensure the AssetLibraryService instance is destroyed before a new blend file is loaded.</a>
+<a name="227"><span class="lineNum">     227 </span>            :    * This makes memory management simple, and ensures a fresh start for every blend file.</a>
+<a name="228"><span class="lineNum">     228 </span>            :    */</a>
+<a name="229"><span class="lineNum">     229 </span>            :   void app_handler_register();</a>
+<a name="230"><span class="lineNum">     230 </span>            :   void app_handler_unregister();</a>
+<a name="231"><span class="lineNum">     231 </span>            : };</a>
+<a name="232"><span class="lineNum">     232 </span>            : </a>
+<a name="233"><span class="lineNum">     233 </span>            : }  // namespace asset_system</a>
+<a name="234"><span class="lineNum">     234 </span>            : </a>
+<a name="235"><span class="lineNum">     235 </span>            : }  // namespace blender</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

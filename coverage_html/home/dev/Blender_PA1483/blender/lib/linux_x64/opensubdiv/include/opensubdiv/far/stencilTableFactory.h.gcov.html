@@ -1,0 +1,443 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - /home/dev/Blender_PA1483/blender/lib/linux_x64/opensubdiv/include/opensubdiv/far/stencilTableFactory.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../../../../../index.html">top level</a> - <a href="index.html">home/dev/Blender_PA1483/blender/lib/linux_x64/opensubdiv/include/opensubdiv/far</a> - stencilTableFactory.h<span style="font-size: 80%;"> (source / <a href="stencilTableFactory.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : //</a>
+<a name="2"><span class="lineNum">       2 </span>            : //   Copyright 2013 Pixar</a>
+<a name="3"><span class="lineNum">       3 </span>            : //</a>
+<a name="4"><span class="lineNum">       4 </span>            : //   Licensed under the terms set forth in the LICENSE.txt file available at</a>
+<a name="5"><span class="lineNum">       5 </span>            : //   https://opensubdiv.org/license.</a>
+<a name="6"><span class="lineNum">       6 </span>            : //</a>
+<a name="7"><span class="lineNum">       7 </span>            : </a>
+<a name="8"><span class="lineNum">       8 </span>            : #ifndef OPENSUBDIV3_FAR_STENCILTABLE_FACTORY_H</a>
+<a name="9"><span class="lineNum">       9 </span>            : #define OPENSUBDIV3_FAR_STENCILTABLE_FACTORY_H</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &quot;../version.h&quot;</a>
+<a name="12"><span class="lineNum">      12 </span>            : </a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;../far/patchTable.h&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : </a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &lt;vector&gt;</a>
+<a name="16"><span class="lineNum">      16 </span>            : </a>
+<a name="17"><span class="lineNum">      17 </span>            : namespace OpenSubdiv {</a>
+<a name="18"><span class="lineNum">      18 </span>            : namespace OPENSUBDIV_VERSION {</a>
+<a name="19"><span class="lineNum">      19 </span>            : </a>
+<a name="20"><span class="lineNum">      20 </span>            : namespace Far {</a>
+<a name="21"><span class="lineNum">      21 </span>            : </a>
+<a name="22"><span class="lineNum">      22 </span>            : class TopologyRefiner;</a>
+<a name="23"><span class="lineNum">      23 </span>            : </a>
+<a name="24"><span class="lineNum">      24 </span>            : template &lt;typename REAL&gt; class StencilReal;</a>
+<a name="25"><span class="lineNum">      25 </span>            : template &lt;typename REAL&gt; class StencilTableReal;</a>
+<a name="26"><span class="lineNum">      26 </span>            : </a>
+<a name="27"><span class="lineNum">      27 </span>            : template &lt;typename REAL&gt; class LimitStencilReal;</a>
+<a name="28"><span class="lineNum">      28 </span>            : template &lt;typename REAL&gt; class LimitStencilTableReal;</a>
+<a name="29"><span class="lineNum">      29 </span>            : </a>
+<a name="30"><span class="lineNum">      30 </span>            : </a>
+<a name="31"><span class="lineNum">      31 </span>            : /// \brief A specialized factory for StencilTable</a>
+<a name="32"><span class="lineNum">      32 </span>            : ///</a>
+<a name="33"><span class="lineNum">      33 </span>            : template &lt;typename REAL&gt;</a>
+<a name="34"><span class="lineNum">      34 </span>            : class StencilTableFactoryReal {</a>
+<a name="35"><span class="lineNum">      35 </span>            : </a>
+<a name="36"><span class="lineNum">      36 </span>            : public:</a>
+<a name="37"><span class="lineNum">      37 </span>            : </a>
+<a name="38"><span class="lineNum">      38 </span>            :     enum Mode {</a>
+<a name="39"><span class="lineNum">      39 </span>            :         INTERPOLATE_VERTEX=0,           ///&lt; vertex primvar stencils</a>
+<a name="40"><span class="lineNum">      40 </span>            :         INTERPOLATE_VARYING,            ///&lt; varying primvar stencils</a>
+<a name="41"><span class="lineNum">      41 </span>            :         INTERPOLATE_FACE_VARYING        ///&lt; face-varying primvar stencils</a>
+<a name="42"><span class="lineNum">      42 </span>            :     };</a>
+<a name="43"><span class="lineNum">      43 </span>            : </a>
+<a name="44"><span class="lineNum">      44 </span>            :     struct Options {</a>
+<a name="45"><span class="lineNum">      45 </span>            : </a>
+<a name="46"><span class="lineNum">      46 </span><span class="lineCov">       2806 :         Options() : interpolationMode(INTERPOLATE_VERTEX),</span></a>
+<a name="47"><span class="lineNum">      47 </span><span class="lineCov">       2806 :                     generateOffsets(false),</span></a>
+<a name="48"><span class="lineNum">      48 </span><span class="lineCov">       2806 :                     generateControlVerts(false),</span></a>
+<a name="49"><span class="lineNum">      49 </span><span class="lineCov">       2806 :                     generateIntermediateLevels(true),</span></a>
+<a name="50"><span class="lineNum">      50 </span><span class="lineCov">       2806 :                     factorizeIntermediateLevels(true),</span></a>
+<a name="51"><span class="lineNum">      51 </span><span class="lineCov">       2806 :                     maxLevel(10),</span></a>
+<a name="52"><span class="lineNum">      52 </span><span class="lineCov">       2806 :                     fvarChannel(0) { }</span></a>
+<a name="53"><span class="lineNum">      53 </span>            : </a>
+<a name="54"><span class="lineNum">      54 </span>            :         unsigned int interpolationMode           : 2, ///&lt; interpolation mode</a>
+<a name="55"><span class="lineNum">      55 </span>            :                      generateOffsets             : 1, ///&lt; populate optional &quot;_offsets&quot; field</a>
+<a name="56"><span class="lineNum">      56 </span>            :                      generateControlVerts        : 1, ///&lt; generate stencils for control-vertices</a>
+<a name="57"><span class="lineNum">      57 </span>            :                      generateIntermediateLevels  : 1, ///&lt; vertices at all levels or highest only</a>
+<a name="58"><span class="lineNum">      58 </span>            :                      factorizeIntermediateLevels : 1, ///&lt; accumulate stencil weights from control</a>
+<a name="59"><span class="lineNum">      59 </span>            :                                                       ///  vertices or from the stencils of the</a>
+<a name="60"><span class="lineNum">      60 </span>            :                                                       ///  previous level</a>
+<a name="61"><span class="lineNum">      61 </span>            :                      maxLevel                    : 4; ///&lt; generate stencils up to 'maxLevel'</a>
+<a name="62"><span class="lineNum">      62 </span>            :         unsigned int fvarChannel;                     ///&lt; face-varying channel to use</a>
+<a name="63"><span class="lineNum">      63 </span>            :                                                       ///  when generating face-varying stencils</a>
+<a name="64"><span class="lineNum">      64 </span>            :     };</a>
+<a name="65"><span class="lineNum">      65 </span>            : </a>
+<a name="66"><span class="lineNum">      66 </span>            :     /// \brief Instantiates StencilTable from TopologyRefiner that have been</a>
+<a name="67"><span class="lineNum">      67 </span>            :     ///        refined uniformly or adaptively.</a>
+<a name="68"><span class="lineNum">      68 </span>            :     ///</a>
+<a name="69"><span class="lineNum">      69 </span>            :     /// \note The factory only creates stencils for vertices that have already</a>
+<a name="70"><span class="lineNum">      70 </span>            :     ///       been refined in the TopologyRefiner. Use RefineUniform() or</a>
+<a name="71"><span class="lineNum">      71 </span>            :     ///       RefineAdaptive() before constructing the stencils.</a>
+<a name="72"><span class="lineNum">      72 </span>            :     ///</a>
+<a name="73"><span class="lineNum">      73 </span>            :     /// @param refiner  The TopologyRefiner containing the topology</a>
+<a name="74"><span class="lineNum">      74 </span>            :     ///</a>
+<a name="75"><span class="lineNum">      75 </span>            :     /// @param options  Options controlling the creation of the table</a>
+<a name="76"><span class="lineNum">      76 </span>            :     ///</a>
+<a name="77"><span class="lineNum">      77 </span>            :     static StencilTableReal&lt;REAL&gt; const * Create(</a>
+<a name="78"><span class="lineNum">      78 </span>            :                 TopologyRefiner const &amp; refiner, Options options = Options());</a>
+<a name="79"><span class="lineNum">      79 </span>            : </a>
+<a name="80"><span class="lineNum">      80 </span>            : </a>
+<a name="81"><span class="lineNum">      81 </span>            :     /// \brief Instantiates StencilTable by concatenating an array of existing</a>
+<a name="82"><span class="lineNum">      82 </span>            :     ///        stencil tables.</a>
+<a name="83"><span class="lineNum">      83 </span>            :     ///</a>
+<a name="84"><span class="lineNum">      84 </span>            :     /// \note This factory checks that the stencil tables point to the same set</a>
+<a name="85"><span class="lineNum">      85 </span>            :     ///       of supporting control vertices - no re-indexing is done.</a>
+<a name="86"><span class="lineNum">      86 </span>            :     ///       GetNumControlVertices() *must* return the same value for all input</a>
+<a name="87"><span class="lineNum">      87 </span>            :     ///       tables.</a>
+<a name="88"><span class="lineNum">      88 </span>            :     ///</a>
+<a name="89"><span class="lineNum">      89 </span>            :     /// @param numTables Number of input StencilTables</a>
+<a name="90"><span class="lineNum">      90 </span>            :     ///</a>
+<a name="91"><span class="lineNum">      91 </span>            :     /// @param tables    Array of input StencilTables</a>
+<a name="92"><span class="lineNum">      92 </span>            :     ///</a>
+<a name="93"><span class="lineNum">      93 </span>            :     static StencilTableReal&lt;REAL&gt; const * Create(</a>
+<a name="94"><span class="lineNum">      94 </span>            :                 int numTables, StencilTableReal&lt;REAL&gt; const ** tables);</a>
+<a name="95"><span class="lineNum">      95 </span>            : </a>
+<a name="96"><span class="lineNum">      96 </span>            : </a>
+<a name="97"><span class="lineNum">      97 </span>            :     /// \brief Utility function for stencil splicing for local point stencils.</a>
+<a name="98"><span class="lineNum">      98 </span>            :     ///</a>
+<a name="99"><span class="lineNum">      99 </span>            :     /// @param refiner              The TopologyRefiner containing the topology</a>
+<a name="100"><span class="lineNum">     100 </span>            :     ///</a>
+<a name="101"><span class="lineNum">     101 </span>            :     /// @param baseStencilTable     Input StencilTable for refined vertices</a>
+<a name="102"><span class="lineNum">     102 </span>            :     ///</a>
+<a name="103"><span class="lineNum">     103 </span>            :     /// @param localPointStencilTable</a>
+<a name="104"><span class="lineNum">     104 </span>            :     ///                             StencilTable for the change of basis patch points.</a>
+<a name="105"><span class="lineNum">     105 </span>            :     ///</a>
+<a name="106"><span class="lineNum">     106 </span>            :     /// @param factorize            If factorize is set to true, endcap stencils will be</a>
+<a name="107"><span class="lineNum">     107 </span>            :     ///                             factorized with supporting vertices from baseStencil</a>
+<a name="108"><span class="lineNum">     108 </span>            :     ///                             table so that the endcap points can be computed</a>
+<a name="109"><span class="lineNum">     109 </span>            :     ///                             directly from control vertices.</a>
+<a name="110"><span class="lineNum">     110 </span>            :     ///</a>
+<a name="111"><span class="lineNum">     111 </span>            :     static StencilTableReal&lt;REAL&gt; const * AppendLocalPointStencilTable(</a>
+<a name="112"><span class="lineNum">     112 </span>            :                 TopologyRefiner const &amp;refiner,</a>
+<a name="113"><span class="lineNum">     113 </span>            :                 StencilTableReal&lt;REAL&gt; const *baseStencilTable,</a>
+<a name="114"><span class="lineNum">     114 </span>            :                 StencilTableReal&lt;REAL&gt; const *localPointStencilTable,</a>
+<a name="115"><span class="lineNum">     115 </span>            :                 bool factorize = true);</a>
+<a name="116"><span class="lineNum">     116 </span>            : </a>
+<a name="117"><span class="lineNum">     117 </span>            :     /// \brief Utility function for stencil splicing for local point varying stencils.</a>
+<a name="118"><span class="lineNum">     118 </span>            :     ///</a>
+<a name="119"><span class="lineNum">     119 </span>            :     /// @param refiner              The TopologyRefiner containing the topology</a>
+<a name="120"><span class="lineNum">     120 </span>            :     ///</a>
+<a name="121"><span class="lineNum">     121 </span>            :     /// @param baseStencilTable     Input StencilTable for refined vertices</a>
+<a name="122"><span class="lineNum">     122 </span>            :     ///</a>
+<a name="123"><span class="lineNum">     123 </span>            :     /// @param localPointStencilTable</a>
+<a name="124"><span class="lineNum">     124 </span>            :     ///                             StencilTable for the change of basis patch points.</a>
+<a name="125"><span class="lineNum">     125 </span>            :     ///</a>
+<a name="126"><span class="lineNum">     126 </span>            :     /// @param factorize            If factorize is set to true, endcap stencils will be</a>
+<a name="127"><span class="lineNum">     127 </span>            :     ///                             factorized with supporting vertices from baseStencil</a>
+<a name="128"><span class="lineNum">     128 </span>            :     ///                             table so that the endcap points can be computed</a>
+<a name="129"><span class="lineNum">     129 </span>            :     ///                             directly from control vertices.</a>
+<a name="130"><span class="lineNum">     130 </span>            :     ///</a>
+<a name="131"><span class="lineNum">     131 </span>            :     static StencilTableReal&lt;REAL&gt; const * AppendLocalPointStencilTableVarying(</a>
+<a name="132"><span class="lineNum">     132 </span>            :                 TopologyRefiner const &amp;refiner,</a>
+<a name="133"><span class="lineNum">     133 </span>            :                 StencilTableReal&lt;REAL&gt; const *baseStencilTable,</a>
+<a name="134"><span class="lineNum">     134 </span>            :                 StencilTableReal&lt;REAL&gt; const *localPointStencilTable,</a>
+<a name="135"><span class="lineNum">     135 </span>            :                 bool factorize = true) {</a>
+<a name="136"><span class="lineNum">     136 </span>            :         return AppendLocalPointStencilTable(</a>
+<a name="137"><span class="lineNum">     137 </span>            :                 refiner, baseStencilTable, localPointStencilTable, factorize);</a>
+<a name="138"><span class="lineNum">     138 </span>            :     }</a>
+<a name="139"><span class="lineNum">     139 </span>            : </a>
+<a name="140"><span class="lineNum">     140 </span>            :     /// \brief Utility function for stencil splicing for local point</a>
+<a name="141"><span class="lineNum">     141 </span>            :     /// face-varying stencils.</a>
+<a name="142"><span class="lineNum">     142 </span>            :     ///</a>
+<a name="143"><span class="lineNum">     143 </span>            :     /// @param refiner              The TopologyRefiner containing the topology</a>
+<a name="144"><span class="lineNum">     144 </span>            :     ///</a>
+<a name="145"><span class="lineNum">     145 </span>            :     /// @param baseStencilTable     Input StencilTable for refined vertices</a>
+<a name="146"><span class="lineNum">     146 </span>            :     ///</a>
+<a name="147"><span class="lineNum">     147 </span>            :     /// @param localPointStencilTable</a>
+<a name="148"><span class="lineNum">     148 </span>            :     ///                             StencilTable for the change of basis patch points.</a>
+<a name="149"><span class="lineNum">     149 </span>            :     ///</a>
+<a name="150"><span class="lineNum">     150 </span>            :     /// @param channel              face-varying channel</a>
+<a name="151"><span class="lineNum">     151 </span>            :     ///</a>
+<a name="152"><span class="lineNum">     152 </span>            :     /// @param factorize            If factorize is set to true, endcap stencils will be</a>
+<a name="153"><span class="lineNum">     153 </span>            :     ///                             factorized with supporting vertices from baseStencil</a>
+<a name="154"><span class="lineNum">     154 </span>            :     ///                             table so that the endcap points can be computed</a>
+<a name="155"><span class="lineNum">     155 </span>            :     ///                             directly from control vertices.</a>
+<a name="156"><span class="lineNum">     156 </span>            :     ///</a>
+<a name="157"><span class="lineNum">     157 </span>            :     static StencilTableReal&lt;REAL&gt; const * AppendLocalPointStencilTableFaceVarying(</a>
+<a name="158"><span class="lineNum">     158 </span>            :                 TopologyRefiner const &amp;refiner,</a>
+<a name="159"><span class="lineNum">     159 </span>            :                 StencilTableReal&lt;REAL&gt; const *baseStencilTable,</a>
+<a name="160"><span class="lineNum">     160 </span>            :                 StencilTableReal&lt;REAL&gt; const *localPointStencilTable,</a>
+<a name="161"><span class="lineNum">     161 </span>            :                 int channel = 0,</a>
+<a name="162"><span class="lineNum">     162 </span>            :                 bool factorize = true);</a>
+<a name="163"><span class="lineNum">     163 </span>            : </a>
+<a name="164"><span class="lineNum">     164 </span>            : private:</a>
+<a name="165"><span class="lineNum">     165 </span>            : </a>
+<a name="166"><span class="lineNum">     166 </span>            :     // Generate stencils for the coarse control-vertices (single weight = 1.0f)</a>
+<a name="167"><span class="lineNum">     167 </span>            :     static void generateControlVertStencils(</a>
+<a name="168"><span class="lineNum">     168 </span>            :                 int numControlVerts,</a>
+<a name="169"><span class="lineNum">     169 </span>            :                 StencilReal&lt;REAL&gt; &amp; dst);</a>
+<a name="170"><span class="lineNum">     170 </span>            : </a>
+<a name="171"><span class="lineNum">     171 </span>            :     // Internal method to splice local point stencils</a>
+<a name="172"><span class="lineNum">     172 </span>            :     static StencilTableReal&lt;REAL&gt; const * appendLocalPointStencilTable(</a>
+<a name="173"><span class="lineNum">     173 </span>            :                 TopologyRefiner const &amp;refiner,</a>
+<a name="174"><span class="lineNum">     174 </span>            :                 StencilTableReal&lt;REAL&gt; const * baseStencilTable,</a>
+<a name="175"><span class="lineNum">     175 </span>            :                 StencilTableReal&lt;REAL&gt; const * localPointStencilTable,</a>
+<a name="176"><span class="lineNum">     176 </span>            :                 int channel,</a>
+<a name="177"><span class="lineNum">     177 </span>            :                 bool factorize);</a>
+<a name="178"><span class="lineNum">     178 </span>            : };</a>
+<a name="179"><span class="lineNum">     179 </span>            : </a>
+<a name="180"><span class="lineNum">     180 </span>            : /// \brief A specialized factory for LimitStencilTable</a>
+<a name="181"><span class="lineNum">     181 </span>            : ///</a>
+<a name="182"><span class="lineNum">     182 </span>            : /// The LimitStencilTableFactory creates a table of limit stencils. Limit</a>
+<a name="183"><span class="lineNum">     183 </span>            : /// stencils can interpolate any arbitrary location on the limit surface.</a>
+<a name="184"><span class="lineNum">     184 </span>            : /// The stencils will be bilinear if the surface is refined uniformly, and</a>
+<a name="185"><span class="lineNum">     185 </span>            : /// bicubic if feature adaptive isolation is used instead.</a>
+<a name="186"><span class="lineNum">     186 </span>            : ///</a>
+<a name="187"><span class="lineNum">     187 </span>            : /// Surface locations are expressed as a combination of ptex face index and</a>
+<a name="188"><span class="lineNum">     188 </span>            : /// normalized (s,t) patch coordinates. The factory exposes the LocationArray</a>
+<a name="189"><span class="lineNum">     189 </span>            : /// struct as a container for these location descriptors.</a>
+<a name="190"><span class="lineNum">     190 </span>            : ///</a>
+<a name="191"><span class="lineNum">     191 </span>            : template &lt;typename REAL&gt;</a>
+<a name="192"><span class="lineNum">     192 </span>            : class LimitStencilTableFactoryReal {</a>
+<a name="193"><span class="lineNum">     193 </span>            : </a>
+<a name="194"><span class="lineNum">     194 </span>            : public:</a>
+<a name="195"><span class="lineNum">     195 </span>            : </a>
+<a name="196"><span class="lineNum">     196 </span>            :     enum Mode {</a>
+<a name="197"><span class="lineNum">     197 </span>            :         INTERPOLATE_VERTEX=0,           ///&lt; vertex primvar stencils</a>
+<a name="198"><span class="lineNum">     198 </span>            :         INTERPOLATE_VARYING,            ///&lt; varying primvar stencils</a>
+<a name="199"><span class="lineNum">     199 </span>            :         INTERPOLATE_FACE_VARYING        ///&lt; face-varying primvar stencils</a>
+<a name="200"><span class="lineNum">     200 </span>            :     };</a>
+<a name="201"><span class="lineNum">     201 </span>            : </a>
+<a name="202"><span class="lineNum">     202 </span>            :     struct Options {</a>
+<a name="203"><span class="lineNum">     203 </span>            : </a>
+<a name="204"><span class="lineNum">     204 </span>            :         Options() : interpolationMode(INTERPOLATE_VERTEX),</a>
+<a name="205"><span class="lineNum">     205 </span>            :                     generate1stDerivatives(true),</a>
+<a name="206"><span class="lineNum">     206 </span>            :                     generate2ndDerivatives(false),</a>
+<a name="207"><span class="lineNum">     207 </span>            :                     fvarChannel(0) { }</a>
+<a name="208"><span class="lineNum">     208 </span>            : </a>
+<a name="209"><span class="lineNum">     209 </span>            :         unsigned int interpolationMode           : 2, ///&lt; interpolation mode</a>
+<a name="210"><span class="lineNum">     210 </span>            :                      generate1stDerivatives      : 1, ///&lt; Generate weights for 1st derivatives</a>
+<a name="211"><span class="lineNum">     211 </span>            :                      generate2ndDerivatives      : 1; ///&lt; Generate weights for 2nd derivatives</a>
+<a name="212"><span class="lineNum">     212 </span>            :         unsigned int fvarChannel;                     ///&lt; face-varying channel to use</a>
+<a name="213"><span class="lineNum">     213 </span>            :     };</a>
+<a name="214"><span class="lineNum">     214 </span>            : </a>
+<a name="215"><span class="lineNum">     215 </span>            :     /// \brief Descriptor for limit surface locations</a>
+<a name="216"><span class="lineNum">     216 </span>            :     struct LocationArray {</a>
+<a name="217"><span class="lineNum">     217 </span>            : </a>
+<a name="218"><span class="lineNum">     218 </span>            :         LocationArray() : ptexIdx(-1), numLocations(0), s(0), t(0) { }</a>
+<a name="219"><span class="lineNum">     219 </span>            : </a>
+<a name="220"><span class="lineNum">     220 </span>            :         int ptexIdx,        ///&lt; ptex face index</a>
+<a name="221"><span class="lineNum">     221 </span>            :             numLocations;   ///&lt; number of (u,v) coordinates in the array</a>
+<a name="222"><span class="lineNum">     222 </span>            : </a>
+<a name="223"><span class="lineNum">     223 </span>            :         REAL  const * s,    ///&lt; array of u coordinates</a>
+<a name="224"><span class="lineNum">     224 </span>            :                     * t;    ///&lt; array of v coordinates</a>
+<a name="225"><span class="lineNum">     225 </span>            :     };</a>
+<a name="226"><span class="lineNum">     226 </span>            : </a>
+<a name="227"><span class="lineNum">     227 </span>            :     typedef std::vector&lt;LocationArray&gt; LocationArrayVec;</a>
+<a name="228"><span class="lineNum">     228 </span>            : </a>
+<a name="229"><span class="lineNum">     229 </span>            :     /// \brief Instantiates LimitStencilTable from a TopologyRefiner that has</a>
+<a name="230"><span class="lineNum">     230 </span>            :     ///        been refined either uniformly or adaptively.</a>
+<a name="231"><span class="lineNum">     231 </span>            :     ///</a>
+<a name="232"><span class="lineNum">     232 </span>            :     /// @param refiner          The TopologyRefiner containing the topology</a>
+<a name="233"><span class="lineNum">     233 </span>            :     ///</a>
+<a name="234"><span class="lineNum">     234 </span>            :     /// @param locationArrays   An array of surface location descriptors</a>
+<a name="235"><span class="lineNum">     235 </span>            :     ///                         (see LocationArray)</a>
+<a name="236"><span class="lineNum">     236 </span>            :     ///</a>
+<a name="237"><span class="lineNum">     237 </span>            :     /// @param cvStencils       A StencilTable generated from the TopologyRefiner</a>
+<a name="238"><span class="lineNum">     238 </span>            :     ///                         (Optional: prevents redundant instantiation of the</a>
+<a name="239"><span class="lineNum">     239 </span>            :     ///                         table if available. The given table must at least</a>
+<a name="240"><span class="lineNum">     240 </span>            :     ///                         contain stencils for all control points and all</a>
+<a name="241"><span class="lineNum">     241 </span>            :     ///                         refined points -- any stencils for local points of</a>
+<a name="242"><span class="lineNum">     242 </span>            :     ///                         a PatchTable must match the PatchTable provided or</a>
+<a name="243"><span class="lineNum">     243 </span>            :     ///                         internally generated)</a>
+<a name="244"><span class="lineNum">     244 </span>            :     ///</a>
+<a name="245"><span class="lineNum">     245 </span>            :     /// @param patchTable       A PatchTable generated from the TopologyRefiner</a>
+<a name="246"><span class="lineNum">     246 </span>            :     ///                         (Optional: prevents redundant instantiation of the</a>
+<a name="247"><span class="lineNum">     247 </span>            :     ///                         table if available. The given table must match</a>
+<a name="248"><span class="lineNum">     248 </span>            :     ///                         the optional StencilTable if also provided)</a>
+<a name="249"><span class="lineNum">     249 </span>            :     ///</a>
+<a name="250"><span class="lineNum">     250 </span>            :     /// @param options          Options controlling the creation of the table</a>
+<a name="251"><span class="lineNum">     251 </span>            :     ///</a>
+<a name="252"><span class="lineNum">     252 </span>            :     static LimitStencilTableReal&lt;REAL&gt; const * Create(</a>
+<a name="253"><span class="lineNum">     253 </span>            :                 TopologyRefiner const &amp; refiner,</a>
+<a name="254"><span class="lineNum">     254 </span>            :                 LocationArrayVec const &amp; locationArrays,</a>
+<a name="255"><span class="lineNum">     255 </span>            :                 StencilTableReal&lt;REAL&gt; const * cvStencils = 0,</a>
+<a name="256"><span class="lineNum">     256 </span>            :                 PatchTable const * patchTable = 0,</a>
+<a name="257"><span class="lineNum">     257 </span>            :                 Options options = Options());</a>
+<a name="258"><span class="lineNum">     258 </span>            : </a>
+<a name="259"><span class="lineNum">     259 </span>            : };</a>
+<a name="260"><span class="lineNum">     260 </span>            : </a>
+<a name="261"><span class="lineNum">     261 </span>            : </a>
+<a name="262"><span class="lineNum">     262 </span>            : //</a>
+<a name="263"><span class="lineNum">     263 </span>            : //  Public wrapper classes for the templates</a>
+<a name="264"><span class="lineNum">     264 </span>            : //</a>
+<a name="265"><span class="lineNum">     265 </span>            : class Stencil;</a>
+<a name="266"><span class="lineNum">     266 </span>            : class StencilTable;</a>
+<a name="267"><span class="lineNum">     267 </span>            : </a>
+<a name="268"><span class="lineNum">     268 </span>            : /// \brief Stencil table factory class wrapping the template for compatibility.</a>
+<a name="269"><span class="lineNum">     269 </span>            : ///</a>
+<a name="270"><span class="lineNum">     270 </span>            : class StencilTableFactory : public StencilTableFactoryReal&lt;float&gt; {</a>
+<a name="271"><span class="lineNum">     271 </span>            : private:</a>
+<a name="272"><span class="lineNum">     272 </span>            :     typedef StencilTableFactoryReal&lt;float&gt; BaseFactory;</a>
+<a name="273"><span class="lineNum">     273 </span>            :     typedef StencilTableReal&lt;float&gt;        BaseTable;</a>
+<a name="274"><span class="lineNum">     274 </span>            : </a>
+<a name="275"><span class="lineNum">     275 </span>            : public:</a>
+<a name="276"><span class="lineNum">     276 </span><span class="lineCov">       2805 :     static StencilTable const * Create(</span></a>
+<a name="277"><span class="lineNum">     277 </span>            :                 TopologyRefiner const &amp; refiner, Options options = Options()) {</a>
+<a name="278"><span class="lineNum">     278 </span>            : </a>
+<a name="279"><span class="lineNum">     279 </span>            :         return reinterpret_cast&lt;StencilTable const *&gt;(</a>
+<a name="280"><span class="lineNum">     280 </span><span class="lineCov">       2805 :                 BaseFactory::Create(refiner, options));</span></a>
+<a name="281"><span class="lineNum">     281 </span>            :     }</a>
+<a name="282"><span class="lineNum">     282 </span>            : </a>
+<a name="283"><span class="lineNum">     283 </span>            :     static StencilTable const * Create(</a>
+<a name="284"><span class="lineNum">     284 </span>            :                 int numTables, StencilTable const ** tables) {</a>
+<a name="285"><span class="lineNum">     285 </span>            : </a>
+<a name="286"><span class="lineNum">     286 </span>            :         return reinterpret_cast&lt;StencilTable const *&gt;(</a>
+<a name="287"><span class="lineNum">     287 </span>            :                 BaseFactory::Create(numTables,</a>
+<a name="288"><span class="lineNum">     288 </span>            :                         reinterpret_cast&lt;BaseTable const **&gt;(tables)));</a>
+<a name="289"><span class="lineNum">     289 </span>            :     }</a>
+<a name="290"><span class="lineNum">     290 </span>            : </a>
+<a name="291"><span class="lineNum">     291 </span><span class="lineCov">       1283 :     static StencilTable const * AppendLocalPointStencilTable(</span></a>
+<a name="292"><span class="lineNum">     292 </span>            :                 TopologyRefiner const &amp;refiner,</a>
+<a name="293"><span class="lineNum">     293 </span>            :                 StencilTable const *baseStencilTable,</a>
+<a name="294"><span class="lineNum">     294 </span>            :                 StencilTable const *localPointStencilTable,</a>
+<a name="295"><span class="lineNum">     295 </span>            :                 bool factorize = true) {</a>
+<a name="296"><span class="lineNum">     296 </span>            : </a>
+<a name="297"><span class="lineNum">     297 </span>            :         return reinterpret_cast&lt;StencilTable const *&gt;(</a>
+<a name="298"><span class="lineNum">     298 </span><span class="lineCov">       1283 :                 BaseFactory::AppendLocalPointStencilTable(refiner,</span></a>
+<a name="299"><span class="lineNum">     299 </span>            :                         static_cast&lt;BaseTable const *&gt;(baseStencilTable),</a>
+<a name="300"><span class="lineNum">     300 </span>            :                         static_cast&lt;BaseTable const *&gt;(localPointStencilTable),</a>
+<a name="301"><span class="lineNum">     301 </span><span class="lineCov">       1283 :                         factorize));</span></a>
+<a name="302"><span class="lineNum">     302 </span>            :     }</a>
+<a name="303"><span class="lineNum">     303 </span>            : </a>
+<a name="304"><span class="lineNum">     304 </span>            :     static StencilTable const * AppendLocalPointStencilTableVarying(</a>
+<a name="305"><span class="lineNum">     305 </span>            :                 TopologyRefiner const &amp;refiner,</a>
+<a name="306"><span class="lineNum">     306 </span>            :                 StencilTable const *baseStencilTable,</a>
+<a name="307"><span class="lineNum">     307 </span>            :                 StencilTable const *localPointStencilTable,</a>
+<a name="308"><span class="lineNum">     308 </span>            :                 bool factorize = true) {</a>
+<a name="309"><span class="lineNum">     309 </span>            : </a>
+<a name="310"><span class="lineNum">     310 </span>            :         return reinterpret_cast&lt;StencilTable const *&gt;(</a>
+<a name="311"><span class="lineNum">     311 </span>            :                 BaseFactory::AppendLocalPointStencilTableVarying(refiner,</a>
+<a name="312"><span class="lineNum">     312 </span>            :                         static_cast&lt;BaseTable const *&gt;(baseStencilTable),</a>
+<a name="313"><span class="lineNum">     313 </span>            :                         static_cast&lt;BaseTable const *&gt;(localPointStencilTable),</a>
+<a name="314"><span class="lineNum">     314 </span>            :                         factorize));</a>
+<a name="315"><span class="lineNum">     315 </span>            :     }</a>
+<a name="316"><span class="lineNum">     316 </span>            : </a>
+<a name="317"><span class="lineNum">     317 </span><span class="lineCov">       1059 :     static StencilTable const * AppendLocalPointStencilTableFaceVarying(</span></a>
+<a name="318"><span class="lineNum">     318 </span>            :                 TopologyRefiner const &amp;refiner,</a>
+<a name="319"><span class="lineNum">     319 </span>            :                 StencilTable const *baseStencilTable,</a>
+<a name="320"><span class="lineNum">     320 </span>            :                 StencilTable const *localPointStencilTable,</a>
+<a name="321"><span class="lineNum">     321 </span>            :                 int channel = 0,</a>
+<a name="322"><span class="lineNum">     322 </span>            :                 bool factorize = true) {</a>
+<a name="323"><span class="lineNum">     323 </span>            : </a>
+<a name="324"><span class="lineNum">     324 </span>            :         return reinterpret_cast&lt;StencilTable const *&gt;(</a>
+<a name="325"><span class="lineNum">     325 </span><span class="lineCov">       1059 :                 BaseFactory::AppendLocalPointStencilTableFaceVarying(refiner,</span></a>
+<a name="326"><span class="lineNum">     326 </span>            :                         static_cast&lt;BaseTable const *&gt;(baseStencilTable),</a>
+<a name="327"><span class="lineNum">     327 </span>            :                         static_cast&lt;BaseTable const *&gt;(localPointStencilTable),</a>
+<a name="328"><span class="lineNum">     328 </span><span class="lineCov">       1059 :                         channel, factorize));</span></a>
+<a name="329"><span class="lineNum">     329 </span>            :     }</a>
+<a name="330"><span class="lineNum">     330 </span>            : };</a>
+<a name="331"><span class="lineNum">     331 </span>            : </a>
+<a name="332"><span class="lineNum">     332 </span>            : class LimitStencil;</a>
+<a name="333"><span class="lineNum">     333 </span>            : class LimitStencilTable;</a>
+<a name="334"><span class="lineNum">     334 </span>            : </a>
+<a name="335"><span class="lineNum">     335 </span>            : /// \brief Stencil table factory class wrapping the template for compatibility.</a>
+<a name="336"><span class="lineNum">     336 </span>            : ///</a>
+<a name="337"><span class="lineNum">     337 </span>            : class LimitStencilTableFactory : public LimitStencilTableFactoryReal&lt;float&gt; {</a>
+<a name="338"><span class="lineNum">     338 </span>            : private:</a>
+<a name="339"><span class="lineNum">     339 </span>            :     typedef LimitStencilTableFactoryReal&lt;float&gt; BaseFactory;</a>
+<a name="340"><span class="lineNum">     340 </span>            :     typedef StencilTableReal&lt;float&gt;             BaseTable;</a>
+<a name="341"><span class="lineNum">     341 </span>            : </a>
+<a name="342"><span class="lineNum">     342 </span>            : public:</a>
+<a name="343"><span class="lineNum">     343 </span>            :     static LimitStencilTable const * Create(</a>
+<a name="344"><span class="lineNum">     344 </span>            :                 TopologyRefiner const &amp; refiner,</a>
+<a name="345"><span class="lineNum">     345 </span>            :                 LocationArrayVec const &amp; locationArrays,</a>
+<a name="346"><span class="lineNum">     346 </span>            :                 StencilTable const * cvStencils = 0,</a>
+<a name="347"><span class="lineNum">     347 </span>            :                 PatchTable const * patchTable = 0,</a>
+<a name="348"><span class="lineNum">     348 </span>            :                 Options options = Options()) {</a>
+<a name="349"><span class="lineNum">     349 </span>            : </a>
+<a name="350"><span class="lineNum">     350 </span>            :         return reinterpret_cast&lt;LimitStencilTable const *&gt;(</a>
+<a name="351"><span class="lineNum">     351 </span>            :                 BaseFactory::Create(</a>
+<a name="352"><span class="lineNum">     352 </span>            :                         refiner,</a>
+<a name="353"><span class="lineNum">     353 </span>            :                         locationArrays,</a>
+<a name="354"><span class="lineNum">     354 </span>            :                         static_cast&lt;BaseTable const *&gt;(cvStencils),</a>
+<a name="355"><span class="lineNum">     355 </span>            :                         patchTable,</a>
+<a name="356"><span class="lineNum">     356 </span>            :                         options));</a>
+<a name="357"><span class="lineNum">     357 </span>            :     }</a>
+<a name="358"><span class="lineNum">     358 </span>            : };</a>
+<a name="359"><span class="lineNum">     359 </span>            : </a>
+<a name="360"><span class="lineNum">     360 </span>            : } // end namespace Far</a>
+<a name="361"><span class="lineNum">     361 </span>            : </a>
+<a name="362"><span class="lineNum">     362 </span>            : } // end namespace OPENSUBDIV_VERSION</a>
+<a name="363"><span class="lineNum">     363 </span>            : using namespace OPENSUBDIV_VERSION;</a>
+<a name="364"><span class="lineNum">     364 </span>            : </a>
+<a name="365"><span class="lineNum">     365 </span>            : } // end namespace OpenSubdiv</a>
+<a name="366"><span class="lineNum">     366 </span>            : </a>
+<a name="367"><span class="lineNum">     367 </span>            : #endif // OPENSUBDIV3_FAR_STENCILTABLE_FACTORY_H</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

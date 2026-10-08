@@ -1,0 +1,309 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - io/usd/intern/usd_writer_armature.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">io/usd/intern</a> - usd_writer_armature.cc<span style="font-size: 80%;"> (source / <a href="usd_writer_armature.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">79</td>
+            <td class="headerCovTableEntry">96</td>
+            <td class="headerCovTableEntryMed">82.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2023 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : #include &quot;usd_writer_armature.hh&quot;</a>
+<a name="6"><span class="lineNum">       6 </span>            : #include &quot;usd_armature_utils.hh&quot;</a>
+<a name="7"><span class="lineNum">       7 </span>            : #include &quot;usd_attribute_utils.hh&quot;</a>
+<a name="8"><span class="lineNum">       8 </span>            : #include &quot;usd_utils.hh&quot;</a>
+<a name="9"><span class="lineNum">       9 </span>            : </a>
+<a name="10"><span class="lineNum">      10 </span>            : #include &quot;ANIM_action.hh&quot;</a>
+<a name="11"><span class="lineNum">      11 </span>            : </a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &quot;BLI_listbase_iterator.hh&quot;</a>
+<a name="13"><span class="lineNum">      13 </span>            : </a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;BKE_action.hh&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : </a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &quot;DNA_armature_types.h&quot;</a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;DNA_object_types.h&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : </a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &lt;pxr/base/gf/matrix4d.h&gt;</a>
+<a name="20"><span class="lineNum">      20 </span>            : #include &lt;pxr/base/gf/matrix4f.h&gt;</a>
+<a name="21"><span class="lineNum">      21 </span>            : #include &lt;pxr/usd/usdGeom/primvarsAPI.h&gt;</a>
+<a name="22"><span class="lineNum">      22 </span>            : #include &lt;pxr/usd/usdSkel/animation.h&gt;</a>
+<a name="23"><span class="lineNum">      23 </span>            : #include &lt;pxr/usd/usdSkel/bindingAPI.h&gt;</a>
+<a name="24"><span class="lineNum">      24 </span>            : #include &lt;pxr/usd/usdSkel/skeleton.h&gt;</a>
+<a name="25"><span class="lineNum">      25 </span>            : #include &lt;pxr/usd/usdSkel/utils.h&gt;</a>
+<a name="26"><span class="lineNum">      26 </span>            : </a>
+<a name="27"><span class="lineNum">      27 </span>            : #include &quot;CLG_log.h&quot;</a>
+<a name="28"><span class="lineNum">      28 </span>            : </a>
+<a name="29"><span class="lineNum">      29 </span>            : namespace blender {</a>
+<a name="30"><span class="lineNum">      30 </span>            : </a>
+<a name="31"><span class="lineNum">      31 </span>            : static CLG_LogRef LOG = {&quot;io.usd&quot;};</a>
+<a name="32"><span class="lineNum">      32 </span>            : </a>
+<a name="33"><span class="lineNum">      33 </span>            : /**</a>
+<a name="34"><span class="lineNum">      34 </span>            :  * Get the pose matrix for the given channel.</a>
+<a name="35"><span class="lineNum">      35 </span>            :  * The matrix is computed relative to its parent, if a parent exists.</a>
+<a name="36"><span class="lineNum">      36 </span>            :  * The returned matrix corresponds to the USD joint-local transform.</a>
+<a name="37"><span class="lineNum">      37 </span>            :  */</a>
+<a name="38"><span class="lineNum">      38 </span><span class="lineCov">         90 : static pxr::GfMatrix4d parent_relative_pose_mat(const bPoseChannel *pchan)</span></a>
+<a name="39"><span class="lineNum">      39 </span>            : {</a>
+<a name="40"><span class="lineNum">      40 </span>            :   /* Note that the float matrix will be returned as GfMatrix4d, because</a>
+<a name="41"><span class="lineNum">      41 </span>            :    * USD requires doubles. */</a>
+<a name="42"><span class="lineNum">      42 </span><span class="lineCov">         90 :   const pxr::GfMatrix4f pose_mat(pchan-&gt;pose_mat);</span></a>
+<a name="43"><span class="lineNum">      43 </span>            : </a>
+<a name="44"><span class="lineNum">      44 </span><span class="lineCov">         90 :   if (pchan-&gt;parent) {</span></a>
+<a name="45"><span class="lineNum">      45 </span><span class="lineCov">         60 :     const pxr::GfMatrix4f parent_pose_mat(pchan-&gt;parent-&gt;pose_mat);</span></a>
+<a name="46"><span class="lineNum">      46 </span><span class="lineCov">         60 :     const pxr::GfMatrix4f xf = pose_mat * parent_pose_mat.GetInverse();</span></a>
+<a name="47"><span class="lineNum">      47 </span><span class="lineCov">         60 :     return pxr::GfMatrix4d(xf);</span></a>
+<a name="48"><span class="lineNum">      48 </span>            :   }</a>
+<a name="49"><span class="lineNum">      49 </span>            : </a>
+<a name="50"><span class="lineNum">      50 </span>            :   /* No parent, so return the pose matrix directly. */</a>
+<a name="51"><span class="lineNum">      51 </span><span class="lineCov">         30 :   return pxr::GfMatrix4d(pose_mat);</span></a>
+<a name="52"><span class="lineNum">      52 </span>            : }</a>
+<a name="53"><span class="lineNum">      53 </span>            : </a>
+<a name="54"><span class="lineNum">      54 </span>            : /* Initialize the given skeleton and animation from</a>
+<a name="55"><span class="lineNum">      55 </span>            :  * the given armature object. */</a>
+<a name="56"><span class="lineNum">      56 </span><span class="lineCov">          6 : static void initialize(const Object *obj,</span></a>
+<a name="57"><span class="lineNum">      57 </span>            :                        pxr::UsdSkelSkeleton &amp;skel,</a>
+<a name="58"><span class="lineNum">      58 </span>            :                        pxr::UsdSkelAnimation &amp;skel_anim,</a>
+<a name="59"><span class="lineNum">      59 </span>            :                        const Map&lt;StringRef, const Bone *&gt; *deform_bones,</a>
+<a name="60"><span class="lineNum">      60 </span>            :                        bool allow_unicode)</a>
+<a name="61"><span class="lineNum">      61 </span>            : {</a>
+<a name="62"><span class="lineNum">      62 </span>            :   using namespace blender::io::usd;</a>
+<a name="63"><span class="lineNum">      63 </span>            : </a>
+<a name="64"><span class="lineNum">      64 </span><span class="lineCov">          6 :   pxr::VtTokenArray joints;</span></a>
+<a name="65"><span class="lineNum">      65 </span><span class="lineCov">          6 :   pxr::VtArray&lt;float&gt; bone_lengths;</span></a>
+<a name="66"><span class="lineNum">      66 </span><span class="lineCov">          6 :   pxr::VtArray&lt;pxr::GfMatrix4d&gt; bind_xforms;</span></a>
+<a name="67"><span class="lineNum">      67 </span><span class="lineCov">          6 :   pxr::VtArray&lt;pxr::GfMatrix4d&gt; rest_xforms;</span></a>
+<a name="68"><span class="lineNum">      68 </span>            : </a>
+<a name="69"><span class="lineNum">      69 </span>            :   /* Function to collect the bind and rest transforms from each bone. */</a>
+<a name="70"><span class="lineNum">      70 </span><span class="lineCov">         18 :   auto visitor = [&amp;](const Bone *bone) {</span></a>
+<a name="71"><span class="lineNum">      71 </span><span class="lineCov">         18 :     if (!bone) {</span></a>
+<a name="72"><span class="lineNum">      72 </span><span class="lineNoCov">          0 :       return;</span></a>
+<a name="73"><span class="lineNum">      73 </span>            :     }</a>
+<a name="74"><span class="lineNum">      74 </span>            : </a>
+<a name="75"><span class="lineNum">      75 </span><span class="lineCov">         18 :     if (deform_bones &amp;&amp; !deform_bones-&gt;contains(bone-&gt;name)) {</span></a>
+<a name="76"><span class="lineNum">      76 </span>            :       /* If deform_map is passed in, assume we're going deform-only.</a>
+<a name="77"><span class="lineNum">      77 </span>            :        * Bones not found in the map should be skipped. */</a>
+<a name="78"><span class="lineNum">      78 </span><span class="lineNoCov">          0 :       return;</span></a>
+<a name="79"><span class="lineNum">      79 </span>            :     }</a>
+<a name="80"><span class="lineNum">      80 </span>            : </a>
+<a name="81"><span class="lineNum">      81 </span>            :     /* Store Blender bone lengths to facilitate better round-tripping. */</a>
+<a name="82"><span class="lineNum">      82 </span><span class="lineCov">         18 :     bone_lengths.push_back(bone-&gt;length);</span></a>
+<a name="83"><span class="lineNum">      83 </span>            : </a>
+<a name="84"><span class="lineNum">      84 </span><span class="lineCov">         18 :     joints.push_back(build_usd_joint_path(bone, allow_unicode));</span></a>
+<a name="85"><span class="lineNum">      85 </span><span class="lineCov">         18 :     const pxr::GfMatrix4f arm_mat(bone-&gt;arm_mat);</span></a>
+<a name="86"><span class="lineNum">      86 </span><span class="lineCov">         18 :     bind_xforms.push_back(pxr::GfMatrix4d(arm_mat));</span></a>
+<a name="87"><span class="lineNum">      87 </span>            : </a>
+<a name="88"><span class="lineNum">      88 </span>            :     /* Set the rest transform to the parent-relative pose matrix, or the parent-relative</a>
+<a name="89"><span class="lineNum">      89 </span>            :      * armature matrix, if no pose channel exists. */</a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineCov">         18 :     if (const bPoseChannel *pchan = BKE_pose_channel_find_name(obj-&gt;pose, bone-&gt;name)) {</span></a>
+<a name="91"><span class="lineNum">      91 </span><span class="lineCov">         18 :       rest_xforms.push_back(parent_relative_pose_mat(pchan));</span></a>
+<a name="92"><span class="lineNum">      92 </span>            :     }</a>
+<a name="93"><span class="lineNum">      93 </span><span class="lineNoCov">          0 :     else if (bone-&gt;parent) {</span></a>
+<a name="94"><span class="lineNum">      94 </span><span class="lineNoCov">          0 :       pxr::GfMatrix4f parent_arm_mat(bone-&gt;parent-&gt;arm_mat);</span></a>
+<a name="95"><span class="lineNum">      95 </span><span class="lineNoCov">          0 :       const pxr::GfMatrix4f rest_mat = arm_mat * parent_arm_mat.GetInverse();</span></a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineNoCov">          0 :       rest_xforms.push_back(pxr::GfMatrix4d(rest_mat));</span></a>
+<a name="97"><span class="lineNum">      97 </span>            :     }</a>
+<a name="98"><span class="lineNum">      98 </span>            :     else {</a>
+<a name="99"><span class="lineNum">      99 </span><span class="lineNoCov">          0 :       rest_xforms.push_back(pxr::GfMatrix4d(arm_mat));</span></a>
+<a name="100"><span class="lineNum">     100 </span>            :     }</a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineCov">          6 :   };</span></a>
+<a name="102"><span class="lineNum">     102 </span>            : </a>
+<a name="103"><span class="lineNum">     103 </span><span class="lineCov">          6 :   visit_bones(obj, visitor);</span></a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineCov">          6 :   skel.GetJointsAttr().Set(joints);</span></a>
+<a name="105"><span class="lineNum">     105 </span><span class="lineCov">          6 :   skel.GetBindTransformsAttr().Set(bind_xforms);</span></a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineCov">          6 :   skel.GetRestTransformsAttr().Set(rest_xforms);</span></a>
+<a name="107"><span class="lineNum">     107 </span>            : </a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineCov">          6 :   const pxr::UsdPrim skel_prim = skel.GetPrim();</span></a>
+<a name="109"><span class="lineNum">     109 </span>            : </a>
+<a name="110"><span class="lineNum">     110 </span>            :   /* Store the custom bone lengths as just a regular Primvar attached to the Skeleton. */</a>
+<a name="111"><span class="lineNum">     111 </span><span class="lineCov">          6 :   const pxr::UsdGeomPrimvarsAPI pv_api = pxr::UsdGeomPrimvarsAPI(skel_prim);</span></a>
+<a name="112"><span class="lineNum">     112 </span>            :   pxr::UsdGeomPrimvar pv_lengths = pv_api.CreatePrimvar(</a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineCov">          6 :       BlenderBoneLengths, pxr::SdfValueTypeNames-&gt;FloatArray, pxr::UsdGeomTokens-&gt;uniform);</span></a>
+<a name="114"><span class="lineNum">     114 </span><span class="lineCov">          6 :   pv_lengths.Set(bone_lengths);</span></a>
+<a name="115"><span class="lineNum">     115 </span>            : </a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineCov">          6 :   pxr::UsdSkelBindingAPI usd_skel_api = pxr::UsdSkelBindingAPI::Apply(skel_prim);</span></a>
+<a name="117"><span class="lineNum">     117 </span>            : </a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineCov">          6 :   if (skel_anim) {</span></a>
+<a name="119"><span class="lineNum">     119 </span><span class="lineCov">         12 :     usd_skel_api.CreateAnimationSourceRel().SetTargets(</span></a>
+<a name="120"><span class="lineNum">     120 </span><span class="lineCov">         12 :         pxr::SdfPathVector({pxr::SdfPath(skel_anim.GetPath().GetName())}));</span></a>
+<a name="121"><span class="lineNum">     121 </span><span class="lineCov">          6 :     create_pose_joints(skel_anim, *obj, deform_bones, allow_unicode);</span></a>
+<a name="122"><span class="lineNum">     122 </span>            :   }</a>
+<a name="123"><span class="lineNum">     123 </span><span class="lineCov">         12 : }</span></a>
+<a name="124"><span class="lineNum">     124 </span>            : </a>
+<a name="125"><span class="lineNum">     125 </span>            : namespace io::usd {</a>
+<a name="126"><span class="lineNum">     126 </span>            : </a>
+<a name="127"><span class="lineNum">     127 </span>            : /* Add skeleton transform samples from the armature pose channels. */</a>
+<a name="128"><span class="lineNum">     128 </span><span class="lineCov">         24 : static void add_anim_sample(pxr::UsdSkelAnimation &amp;skel_anim,</span></a>
+<a name="129"><span class="lineNum">     129 </span>            :                             const Object *obj,</a>
+<a name="130"><span class="lineNum">     130 </span>            :                             const pxr::UsdTimeCode time,</a>
+<a name="131"><span class="lineNum">     131 </span>            :                             const Map&lt;StringRef, const Bone *&gt; *deform_map,</a>
+<a name="132"><span class="lineNum">     132 </span>            :                             pxr::UsdUtilsSparseValueWriter &amp;value_writer)</a>
+<a name="133"><span class="lineNum">     133 </span>            : {</a>
+<a name="134"><span class="lineNum">     134 </span><span class="lineCov">         24 :   if (!(skel_anim &amp;&amp; obj &amp;&amp; obj-&gt;pose)) {</span></a>
+<a name="135"><span class="lineNum">     135 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="136"><span class="lineNum">     136 </span>            :   }</a>
+<a name="137"><span class="lineNum">     137 </span>            : </a>
+<a name="138"><span class="lineNum">     138 </span><span class="lineCov">         24 :   pxr::VtArray&lt;pxr::GfMatrix4d&gt; xforms;</span></a>
+<a name="139"><span class="lineNum">     139 </span>            : </a>
+<a name="140"><span class="lineNum">     140 </span><span class="lineCov">         24 :   const bPose *pose = obj-&gt;pose;</span></a>
+<a name="141"><span class="lineNum">     141 </span>            : </a>
+<a name="142"><span class="lineNum">     142 </span><span class="lineCov">         96 :   for (const bPoseChannel &amp;pchan : pose-&gt;chanbase) {</span></a>
+<a name="143"><span class="lineNum">     143 </span><span class="lineCov">         72 :     if (deform_map &amp;&amp; !deform_map-&gt;contains(pchan.name)) {</span></a>
+<a name="144"><span class="lineNum">     144 </span>            :       /* If deform_map is passed in, assume we're going deform-only.</a>
+<a name="145"><span class="lineNum">     145 </span>            :        * Bones not found in the map should be skipped. */</a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineNoCov">          0 :       continue;</span></a>
+<a name="147"><span class="lineNum">     147 </span>            :     }</a>
+<a name="148"><span class="lineNum">     148 </span>            : </a>
+<a name="149"><span class="lineNum">     149 </span><span class="lineCov">         72 :     xforms.push_back(parent_relative_pose_mat(&amp;pchan));</span></a>
+<a name="150"><span class="lineNum">     150 </span>            :   }</a>
+<a name="151"><span class="lineNum">     151 </span>            : </a>
+<a name="152"><span class="lineNum">     152 </span>            :   /* Perform the same steps as UsdSkelAnimation::SetTransforms but write data out sparsely. */</a>
+<a name="153"><span class="lineNum">     153 </span><span class="lineCov">         24 :   pxr::VtArray&lt;pxr::GfVec3f&gt; translations;</span></a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineCov">         24 :   pxr::VtArray&lt;pxr::GfQuatf&gt; rotations;</span></a>
+<a name="155"><span class="lineNum">     155 </span><span class="lineCov">         24 :   pxr::VtArray&lt;pxr::GfVec3h&gt; scales;</span></a>
+<a name="156"><span class="lineNum">     156 </span><span class="lineCov">         24 :   if (pxr::UsdSkelDecomposeTransforms(xforms, &amp;translations, &amp;rotations, &amp;scales)) {</span></a>
+<a name="157"><span class="lineNum">     157 </span><span class="lineCov">         24 :     set_attribute(skel_anim.GetTranslationsAttr(), translations, time, value_writer);</span></a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineCov">         24 :     set_attribute(skel_anim.GetRotationsAttr(), rotations, time, value_writer);</span></a>
+<a name="159"><span class="lineNum">     159 </span><span class="lineCov">         24 :     set_attribute(skel_anim.GetScalesAttr(), scales, time, value_writer);</span></a>
+<a name="160"><span class="lineNum">     160 </span>            :   }</a>
+<a name="161"><span class="lineNum">     161 </span>            :   else {</a>
+<a name="162"><span class="lineNum">     162 </span><span class="lineNoCov">          0 :     CLOG_WARN(&amp;LOG, &quot;Could not decompose skeleton transforms for frame time %f&quot;, time.GetValue());</span></a>
+<a name="163"><span class="lineNum">     163 </span>            :   }</a>
+<a name="164"><span class="lineNum">     164 </span><span class="lineCov">         24 : }</span></a>
+<a name="165"><span class="lineNum">     165 </span>            : </a>
+<a name="166"><span class="lineNum">     166 </span><span class="lineCov">          6 : USDArmatureWriter::USDArmatureWriter(const USDExporterContext &amp;ctx) : USDAbstractWriter(ctx) {}</span></a>
+<a name="167"><span class="lineNum">     167 </span>            : </a>
+<a name="168"><span class="lineNum">     168 </span><span class="lineCov">         24 : void USDArmatureWriter::do_write(HierarchyContext &amp;context)</span></a>
+<a name="169"><span class="lineNum">     169 </span>            : {</a>
+<a name="170"><span class="lineNum">     170 </span><span class="lineCov">         24 :   if (!(context.object &amp;&amp; context.object-&gt;type == OB_ARMATURE &amp;&amp; context.object-&gt;data)) {</span></a>
+<a name="171"><span class="lineNum">     171 </span><span class="lineNoCov">          0 :     BLI_assert_unreachable();</span></a>
+<a name="172"><span class="lineNum">     172 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="173"><span class="lineNum">     173 </span>            :   }</a>
+<a name="174"><span class="lineNum">     174 </span>            : </a>
+<a name="175"><span class="lineNum">     175 </span>            :   /* Create the skeleton. */</a>
+<a name="176"><span class="lineNum">     176 </span><span class="lineCov">         24 :   pxr::UsdStageRefPtr stage = usd_export_context_.stage;</span></a>
+<a name="177"><span class="lineNum">     177 </span><span class="lineCov">         24 :   pxr::UsdSkelSkeleton skel = pxr::UsdSkelSkeleton::Define(stage, usd_export_context_.usd_path);</span></a>
+<a name="178"><span class="lineNum">     178 </span>            : </a>
+<a name="179"><span class="lineNum">     179 </span><span class="lineCov">         24 :   if (!skel) {</span></a>
+<a name="180"><span class="lineNum">     180 </span><span class="lineNoCov">          0 :     CLOG_WARN(&amp;LOG,</span></a>
+<a name="181"><span class="lineNum">     181 </span>            :               &quot;Couldn't define UsdSkelSkeleton %s&quot;,</a>
+<a name="182"><span class="lineNum">     182 </span>            :               usd_export_context_.usd_path.GetString().c_str());</a>
+<a name="183"><span class="lineNum">     183 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="184"><span class="lineNum">     184 </span>            :   }</a>
+<a name="185"><span class="lineNum">     185 </span>            : </a>
+<a name="186"><span class="lineNum">     186 </span><span class="lineCov">         24 :   pxr::UsdSkelAnimation skel_anim;</span></a>
+<a name="187"><span class="lineNum">     187 </span>            : </a>
+<a name="188"><span class="lineNum">     188 </span><span class="lineCov">         24 :   const bool allow_unicode = usd_export_context_.export_params.allow_unicode;</span></a>
+<a name="189"><span class="lineNum">     189 </span>            : </a>
+<a name="190"><span class="lineNum">     190 </span><span class="lineCov">         24 :   if (usd_export_context_.export_params.export_animation) {</span></a>
+<a name="191"><span class="lineNum">     191 </span>            :     /* Use the action name as the animation name. */</a>
+<a name="192"><span class="lineNum">     192 </span><span class="lineCov">         24 :     const animrig::Action *action = animrig::get_action(context.object-&gt;id);</span></a>
+<a name="193"><span class="lineNum">     193 </span><span class="lineCov">         48 :     const pxr::TfToken anim_name(action ? make_safe_name(action-&gt;id.name + 2, allow_unicode) :</span></a>
+<a name="194"><span class="lineNum">     194 </span><span class="lineCov">         48 :                                           &quot;Action&quot;);</span></a>
+<a name="195"><span class="lineNum">     195 </span>            : </a>
+<a name="196"><span class="lineNum">     196 </span>            :     /* Create the skeleton animation primitive as a child of the skeleton. */</a>
+<a name="197"><span class="lineNum">     197 </span><span class="lineCov">         24 :     pxr::SdfPath anim_path = usd_export_context_.usd_path.AppendChild(anim_name);</span></a>
+<a name="198"><span class="lineNum">     198 </span><span class="lineCov">         24 :     skel_anim = pxr::UsdSkelAnimation::Define(stage, anim_path);</span></a>
+<a name="199"><span class="lineNum">     199 </span>            : </a>
+<a name="200"><span class="lineNum">     200 </span><span class="lineCov">         24 :     if (!skel_anim) {</span></a>
+<a name="201"><span class="lineNum">     201 </span><span class="lineNoCov">          0 :       CLOG_WARN(&amp;LOG, &quot;Couldn't define UsdSkelAnimation %s&quot;, anim_path.GetString().c_str());</span></a>
+<a name="202"><span class="lineNum">     202 </span><span class="lineNoCov">          0 :       return;</span></a>
+<a name="203"><span class="lineNum">     203 </span>            :     }</a>
+<a name="204"><span class="lineNum">     204 </span><span class="lineCov">         24 :   }</span></a>
+<a name="205"><span class="lineNum">     205 </span>            : </a>
+<a name="206"><span class="lineNum">     206 </span><span class="lineCov">         24 :   Map&lt;StringRef, const Bone *&gt; *deform_map = usd_export_context_.export_params.only_deform_bones ?</span></a>
+<a name="207"><span class="lineNum">     207 </span>            :                                                  &amp;deform_map_ :</a>
+<a name="208"><span class="lineNum">     208 </span>            :                                                  nullptr;</a>
+<a name="209"><span class="lineNum">     209 </span>            : </a>
+<a name="210"><span class="lineNum">     210 </span><span class="lineCov">         24 :   if (!this-&gt;frame_has_been_written_) {</span></a>
+<a name="211"><span class="lineNum">     211 </span><span class="lineCov">          6 :     init_deform_bones_map(context.object, deform_map);</span></a>
+<a name="212"><span class="lineNum">     212 </span><span class="lineCov">          6 :     initialize(context.object, skel, skel_anim, deform_map, allow_unicode);</span></a>
+<a name="213"><span class="lineNum">     213 </span>            :   }</a>
+<a name="214"><span class="lineNum">     214 </span>            : </a>
+<a name="215"><span class="lineNum">     215 </span><span class="lineCov">         24 :   if (usd_export_context_.export_params.export_animation) {</span></a>
+<a name="216"><span class="lineNum">     216 </span><span class="lineCov">         48 :     add_anim_sample(</span></a>
+<a name="217"><span class="lineNum">     217 </span><span class="lineCov">         24 :         skel_anim, context.object, get_export_time_code(), deform_map, usd_value_writer_);</span></a>
+<a name="218"><span class="lineNum">     218 </span>            :   }</a>
+<a name="219"><span class="lineNum">     219 </span><span class="lineCov">         24 : }</span></a>
+<a name="220"><span class="lineNum">     220 </span>            : </a>
+<a name="221"><span class="lineNum">     221 </span><span class="lineCov">          6 : bool USDArmatureWriter::check_is_animated(const HierarchyContext &amp;context) const</span></a>
+<a name="222"><span class="lineNum">     222 </span>            : {</a>
+<a name="223"><span class="lineNum">     223 </span><span class="lineCov">          6 :   const Object *obj = context.object;</span></a>
+<a name="224"><span class="lineNum">     224 </span>            : </a>
+<a name="225"><span class="lineNum">     225 </span><span class="lineCov">          6 :   if (!(obj &amp;&amp; obj-&gt;type == OB_ARMATURE)) {</span></a>
+<a name="226"><span class="lineNum">     226 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="227"><span class="lineNum">     227 </span>            :   }</a>
+<a name="228"><span class="lineNum">     228 </span>            : </a>
+<a name="229"><span class="lineNum">     229 </span><span class="lineCov">          6 :   return obj-&gt;adt != nullptr;</span></a>
+<a name="230"><span class="lineNum">     230 </span>            : }</a>
+<a name="231"><span class="lineNum">     231 </span>            : </a>
+<a name="232"><span class="lineNum">     232 </span>            : }  // namespace io::usd</a>
+<a name="233"><span class="lineNum">     233 </span>            : }  // namespace blender</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

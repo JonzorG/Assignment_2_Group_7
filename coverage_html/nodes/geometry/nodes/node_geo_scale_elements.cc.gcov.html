@@ -1,0 +1,585 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - nodes/geometry/nodes/node_geo_scale_elements.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">nodes/geometry/nodes</a> - node_geo_scale_elements.cc<span style="font-size: 80%;"> (source / <a href="node_geo_scale_elements.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">278</td>
+            <td class="headerCovTableEntry">284</td>
+            <td class="headerCovTableEntryHi">97.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">35</td>
+            <td class="headerCovTableEntry">50</td>
+            <td class="headerCovTableEntryLo">70.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2023 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : #include &quot;BLI_array.hh&quot;</a>
+<a name="6"><span class="lineNum">       6 </span>            : #include &quot;BLI_array_utils.hh&quot;</a>
+<a name="7"><span class="lineNum">       7 </span>            : #include &quot;BLI_atomic_disjoint_set.hh&quot;</a>
+<a name="8"><span class="lineNum">       8 </span>            : #include &quot;BLI_math_matrix.hh&quot;</a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &quot;BLI_task.hh&quot;</a>
+<a name="10"><span class="lineNum">      10 </span>            : #include &quot;BLI_virtual_array.hh&quot;</a>
+<a name="11"><span class="lineNum">      11 </span>            : </a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &quot;DNA_mesh_types.h&quot;</a>
+<a name="13"><span class="lineNum">      13 </span>            : </a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;UI_interface_layout.hh&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;UI_resources.hh&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : </a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;GEO_foreach_geometry.hh&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : #include &quot;GEO_mesh_selection.hh&quot;</a>
+<a name="19"><span class="lineNum">      19 </span>            : </a>
+<a name="20"><span class="lineNum">      20 </span>            : #include &quot;NOD_rna_define.hh&quot;</a>
+<a name="21"><span class="lineNum">      21 </span>            : </a>
+<a name="22"><span class="lineNum">      22 </span>            : #include &quot;node_geometry_util.hh&quot;</a>
+<a name="23"><span class="lineNum">      23 </span>            : </a>
+<a name="24"><span class="lineNum">      24 </span>            : namespace blender::nodes::node_geo_scale_elements_cc {</a>
+<a name="25"><span class="lineNum">      25 </span>            : </a>
+<a name="26"><span class="lineNum">      26 </span>            : static const EnumPropertyItem scale_mode_items[] = {</a>
+<a name="27"><span class="lineNum">      27 </span>            :     {GEO_NODE_SCALE_ELEMENTS_UNIFORM,</a>
+<a name="28"><span class="lineNum">      28 </span>            :      &quot;UNIFORM&quot;,</a>
+<a name="29"><span class="lineNum">      29 </span>            :      ICON_NONE,</a>
+<a name="30"><span class="lineNum">      30 </span>            :      N_(&quot;Uniform&quot;),</a>
+<a name="31"><span class="lineNum">      31 </span>            :      N_(&quot;Scale elements by the same factor in every direction&quot;)},</a>
+<a name="32"><span class="lineNum">      32 </span>            :     {GEO_NODE_SCALE_ELEMENTS_SINGLE_AXIS,</a>
+<a name="33"><span class="lineNum">      33 </span>            :      &quot;SINGLE_AXIS&quot;,</a>
+<a name="34"><span class="lineNum">      34 </span>            :      ICON_NONE,</a>
+<a name="35"><span class="lineNum">      35 </span>            :      N_(&quot;Single Axis&quot;),</a>
+<a name="36"><span class="lineNum">      36 </span>            :      N_(&quot;Scale elements in a single direction&quot;)},</a>
+<a name="37"><span class="lineNum">      37 </span>            :     {0, nullptr, 0, nullptr, nullptr},</a>
+<a name="38"><span class="lineNum">      38 </span>            : };</a>
+<a name="39"><span class="lineNum">      39 </span>            : </a>
+<a name="40"><span class="lineNum">      40 </span><span class="lineCov">        785 : static void node_declare(NodeDeclarationBuilder &amp;b)</span></a>
+<a name="41"><span class="lineNum">      41 </span>            : {</a>
+<a name="42"><span class="lineNum">      42 </span><span class="lineCov">        785 :   b.use_custom_socket_order();</span></a>
+<a name="43"><span class="lineNum">      43 </span><span class="lineCov">        785 :   b.allow_any_socket_order();</span></a>
+<a name="44"><span class="lineNum">      44 </span><span class="lineCov">        785 :   b.add_default_layout();</span></a>
+<a name="45"><span class="lineNum">      45 </span><span class="lineCov">        785 :   b.add_input&lt;decl::Geometry&gt;(&quot;Geometry&quot;_ustr)</span></a>
+<a name="46"><span class="lineNum">      46 </span><span class="lineCov">        785 :       .supported_type(GeometryComponent::Type::Mesh)</span></a>
+<a name="47"><span class="lineNum">      47 </span><span class="lineCov">       1570 :       .description(&quot;Geometry to scale elements of&quot;);</span></a>
+<a name="48"><span class="lineNum">      48 </span><span class="lineCov">        785 :   b.add_output&lt;decl::Geometry&gt;(&quot;Geometry&quot;_ustr).propagate_all_geometry().align_with_previous();</span></a>
+<a name="49"><span class="lineNum">      49 </span><span class="lineCov">        785 :   b.add_input&lt;decl::Bool&gt;(&quot;Selection&quot;_ustr)</span></a>
+<a name="50"><span class="lineNum">      50 </span><span class="lineCov">        785 :       .default_value(true)</span></a>
+<a name="51"><span class="lineNum">      51 </span><span class="lineCov">        785 :       .hide_value()</span></a>
+<a name="52"><span class="lineNum">      52 </span><span class="lineCov">        785 :       .evaluated_geometry_field();</span></a>
+<a name="53"><span class="lineNum">      53 </span>            : </a>
+<a name="54"><span class="lineNum">      54 </span><span class="lineCov">        785 :   b.add_input&lt;decl::Float&gt;(&quot;Scale&quot;_ustr, &quot;Scale&quot;_ustr)</span></a>
+<a name="55"><span class="lineNum">      55 </span><span class="lineCov">        785 :       .default_value(1.0f)</span></a>
+<a name="56"><span class="lineNum">      56 </span><span class="lineCov">        785 :       .min(0.0f)</span></a>
+<a name="57"><span class="lineNum">      57 </span><span class="lineCov">        785 :       .evaluated_geometry_field();</span></a>
+<a name="58"><span class="lineNum">      58 </span><span class="lineCov">        785 :   b.add_input&lt;decl::Vector&gt;(&quot;Center&quot;_ustr)</span></a>
+<a name="59"><span class="lineNum">      59 </span><span class="lineCov">        785 :       .subtype(PROP_TRANSLATION)</span></a>
+<a name="60"><span class="lineNum">      60 </span><span class="lineCov">        785 :       .evaluated_geometry_field()</span></a>
+<a name="61"><span class="lineNum">      61 </span><span class="lineCov">        785 :       .default_input_type(NODE_DEFAULT_INPUT_POSITION_FIELD)</span></a>
+<a name="62"><span class="lineNum">      62 </span><span class="lineCov">        785 :       .description(</span></a>
+<a name="63"><span class="lineNum">      63 </span>            :           &quot;Origin of the scaling for each element. If multiple elements are connected, their &quot;</a>
+<a name="64"><span class="lineNum">      64 </span>            :           &quot;center is averaged&quot;);</a>
+<a name="65"><span class="lineNum">      65 </span><span class="lineCov">        785 :   b.add_input&lt;decl::Menu&gt;(&quot;Scale Mode&quot;_ustr)</span></a>
+<a name="66"><span class="lineNum">      66 </span><span class="lineCov">        785 :       .static_items(scale_mode_items)</span></a>
+<a name="67"><span class="lineNum">      67 </span><span class="lineCov">        785 :       .default_value(GEO_NODE_SCALE_ELEMENTS_UNIFORM)</span></a>
+<a name="68"><span class="lineNum">      68 </span><span class="lineCov">        785 :       .optional_label();</span></a>
+<a name="69"><span class="lineNum">      69 </span><span class="lineCov">        785 :   b.add_input&lt;decl::Vector&gt;(&quot;Axis&quot;_ustr)</span></a>
+<a name="70"><span class="lineNum">      70 </span><span class="lineCov">        785 :       .default_value({1.0f, 0.0f, 0.0f})</span></a>
+<a name="71"><span class="lineNum">      71 </span><span class="lineCov">        785 :       .evaluated_geometry_field()</span></a>
+<a name="72"><span class="lineNum">      72 </span><span class="lineCov">       1570 :       .description(&quot;Direction in which to scale the element&quot;)</span></a>
+<a name="73"><span class="lineNum">      73 </span><span class="lineCov">        785 :       .usage_by_single_menu(GEO_NODE_SCALE_ELEMENTS_SINGLE_AXIS);</span></a>
+<a name="74"><span class="lineNum">      74 </span><span class="lineCov">        785 : };</span></a>
+<a name="75"><span class="lineNum">      75 </span>            : </a>
+<a name="76"><span class="lineNum">      76 </span><span class="lineNoCov">          0 : static void node_layout(ui::Layout &amp;layout, bContext * /*C*/, PointerRNA *ptr)</span></a>
+<a name="77"><span class="lineNum">      77 </span>            : {</a>
+<a name="78"><span class="lineNum">      78 </span><span class="lineNoCov">          0 :   layout.prop(ptr, &quot;domain&quot;, UI_ITEM_NONE, &quot;&quot;, ICON_NONE);</span></a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="80"><span class="lineNum">      80 </span>            : </a>
+<a name="81"><span class="lineNum">      81 </span><span class="lineCov">         25 : static void node_init(bNodeTree * /*tree*/, bNode *node)</span></a>
+<a name="82"><span class="lineNum">      82 </span>            : {</a>
+<a name="83"><span class="lineNum">      83 </span><span class="lineCov">         25 :   node-&gt;custom1 = int16_t(AttrDomain::Face);</span></a>
+<a name="84"><span class="lineNum">      84 </span><span class="lineCov">         25 : }</span></a>
+<a name="85"><span class="lineNum">      85 </span>            : </a>
+<a name="86"><span class="lineNum">      86 </span><span class="lineCov">        400 : template&lt;typename T&gt; static T gather_mean(const VArray&lt;T&gt; &amp;values, const Span&lt;int&gt; indices)</span></a>
+<a name="87"><span class="lineNum">      87 </span>            : {</a>
+<a name="88"><span class="lineNum">      88 </span><span class="lineCov">        400 :   BLI_assert(!indices.is_empty());</span></a>
+<a name="89"><span class="lineNum">      89 </span>            :   using MeanAccumulator = std::pair&lt;T, int&gt;;</a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineCov">        400 :   const auto join_accumulators = [](const MeanAccumulator a,</span></a>
+<a name="91"><span class="lineNum">      91 </span>            :                                     const MeanAccumulator b) -&gt; MeanAccumulator {</a>
+<a name="92"><span class="lineNum">      92 </span><span class="lineCov">        400 :     return {(a.first + b.first) / (a.second + b.second), 1};</span></a>
+<a name="93"><span class="lineNum">      93 </span>            :   };</a>
+<a name="94"><span class="lineNum">      94 </span>            : </a>
+<a name="95"><span class="lineNum">      95 </span>            :   T value;</a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineCov">        800 :   devirtualize_varray(values, [&amp;](const auto values) {</span></a>
+<a name="97"><span class="lineNum">      97 </span><span class="lineCov">        400 :     const auto accumulator = threading::parallel_deterministic_reduce&lt;MeanAccumulator&gt;(</span></a>
+<a name="98"><span class="lineNum">      98 </span>            :         indices.index_range(),</a>
+<a name="99"><span class="lineNum">      99 </span>            :         2048,</a>
+<a name="100"><span class="lineNum">     100 </span><span class="lineCov">       1200 :         MeanAccumulator(T(), 0),</span></a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineCov">        800 :         [&amp;](const IndexRange range, MeanAccumulator other) -&gt; MeanAccumulator {</span></a>
+<a name="102"><span class="lineNum">     102 </span><span class="lineCov">        400 :           T value(0);</span></a>
+<a name="103"><span class="lineNum">     103 </span><span class="lineCov">        920 :           for (const int i : indices.slice(range)) {</span></a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineCov">        520 :             value += values[i];</span></a>
+<a name="105"><span class="lineNum">     105 </span>            :           }</a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineCov">        400 :           return join_accumulators({value, int(range.size())}, other);</span></a>
+<a name="107"><span class="lineNum">     107 </span>            :         },</a>
+<a name="108"><span class="lineNum">     108 </span>            :         join_accumulators);</a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineCov">        400 :     value = accumulator.first / accumulator.second;</span></a>
+<a name="110"><span class="lineNum">     110 </span>            :   });</a>
+<a name="111"><span class="lineNum">     111 </span><span class="lineCov">        400 :   return value;</span></a>
+<a name="112"><span class="lineNum">     112 </span>            : }</a>
+<a name="113"><span class="lineNum">     113 </span>            : </a>
+<a name="114"><span class="lineNum">     114 </span>            : template&lt;typename T&gt;</a>
+<a name="115"><span class="lineNum">     115 </span><span class="lineCov">         56 : static void gather_means(const VArray&lt;T&gt; &amp;values, GroupedSpan&lt;int&gt; groups, MutableSpan&lt;T&gt; means)</span></a>
+<a name="116"><span class="lineNum">     116 </span>            : {</a>
+<a name="117"><span class="lineNum">     117 </span><span class="lineCov">        112 :   threading::parallel_for(groups.index_range(), 512, [&amp;](const IndexRange range) {</span></a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineCov">        456 :     for (const int group : range) {</span></a>
+<a name="119"><span class="lineNum">     119 </span><span class="lineCov">        400 :       means[group] = gather_mean&lt;T&gt;(values, groups[group]);</span></a>
+<a name="120"><span class="lineNum">     120 </span>            :     }</a>
+<a name="121"><span class="lineNum">     121 </span>            :   });</a>
+<a name="122"><span class="lineNum">     122 </span><span class="lineCov">         56 : }</span></a>
+<a name="123"><span class="lineNum">     123 </span>            : </a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineCov">        104 : template&lt;typename T&gt; static Array&lt;T&gt; gather_means(const VArray&lt;T&gt; &amp;values, GroupedSpan&lt;int&gt; groups)</span></a>
+<a name="125"><span class="lineNum">     125 </span>            : {</a>
+<a name="126"><span class="lineNum">     126 </span><span class="lineCov">        104 :   if (const std::optional&lt;T&gt; value = values.get_if_single()) {</span></a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineCov">         48 :     return Array&lt;T&gt;(groups.size(), *value);</span></a>
+<a name="128"><span class="lineNum">     128 </span>            :   }</a>
+<a name="129"><span class="lineNum">     129 </span><span class="lineCov">         56 :   Array&lt;T&gt; means(groups.size());</span></a>
+<a name="130"><span class="lineNum">     130 </span>            :   /* NOTE: This could also be implemented with #attribute_math::mix_groups if #values is a span and</a>
+<a name="131"><span class="lineNum">     131 </span>            :    * all the group sizes are below the grain size. */</a>
+<a name="132"><span class="lineNum">     132 </span><span class="lineCov">         56 :   gather_means&lt;T&gt;(values, groups, means);</span></a>
+<a name="133"><span class="lineNum">     133 </span><span class="lineCov">         56 :   return means;</span></a>
+<a name="134"><span class="lineNum">     134 </span><span class="lineCov">         56 : }</span></a>
+<a name="135"><span class="lineNum">     135 </span>            : </a>
+<a name="136"><span class="lineNum">     136 </span><span class="lineCov">        240 : static float3 transform_with_uniform_scale(const float3 &amp;position,</span></a>
+<a name="137"><span class="lineNum">     137 </span>            :                                            const float3 &amp;center,</a>
+<a name="138"><span class="lineNum">     138 </span>            :                                            const float scale)</a>
+<a name="139"><span class="lineNum">     139 </span>            : {</a>
+<a name="140"><span class="lineNum">     140 </span><span class="lineCov">        240 :   const float3 diff = position - center;</span></a>
+<a name="141"><span class="lineNum">     141 </span><span class="lineCov">        240 :   const float3 scaled_diff = scale * diff;</span></a>
+<a name="142"><span class="lineNum">     142 </span><span class="lineCov">        240 :   const float3 new_position = center + scaled_diff;</span></a>
+<a name="143"><span class="lineNum">     143 </span><span class="lineCov">        240 :   return new_position;</span></a>
+<a name="144"><span class="lineNum">     144 </span>            : }</a>
+<a name="145"><span class="lineNum">     145 </span>            : </a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineCov">         16 : static void scale_uniformly(const GroupedSpan&lt;int&gt; elem_islands,</span></a>
+<a name="147"><span class="lineNum">     147 </span>            :                             const GroupedSpan&lt;int&gt; vert_islands,</a>
+<a name="148"><span class="lineNum">     148 </span>            :                             const VArray&lt;float&gt; &amp;scale_varray,</a>
+<a name="149"><span class="lineNum">     149 </span>            :                             const VArray&lt;float3&gt; &amp;center_varray,</a>
+<a name="150"><span class="lineNum">     150 </span>            :                             Mesh &amp;mesh)</a>
+<a name="151"><span class="lineNum">     151 </span>            : {</a>
+<a name="152"><span class="lineNum">     152 </span><span class="lineCov">         16 :   const Array&lt;float&gt; scales = gather_means(scale_varray, elem_islands);</span></a>
+<a name="153"><span class="lineNum">     153 </span><span class="lineCov">         16 :   const Array&lt;float3&gt; centers = gather_means(center_varray, elem_islands);</span></a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineCov">         16 :   MutableSpan&lt;float3&gt; positions = mesh.vert_positions_for_write();</span></a>
+<a name="155"><span class="lineNum">     155 </span><span class="lineCov">         16 :   threading::parallel_for(</span></a>
+<a name="156"><span class="lineNum">     156 </span>            :       elem_islands.index_range(),</a>
+<a name="157"><span class="lineNum">     157 </span>            :       512,</a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineCov">         16 :       [&amp;](const IndexRange range) {</span></a>
+<a name="159"><span class="lineNum">     159 </span><span class="lineCov">         96 :         for (const int island_index : range) {</span></a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineCov">         80 :           const Span&lt;int&gt; vert_island = vert_islands[island_index];</span></a>
+<a name="161"><span class="lineNum">     161 </span><span class="lineCov">         80 :           const float scale = scales[island_index];</span></a>
+<a name="162"><span class="lineNum">     162 </span><span class="lineCov">         80 :           const float3 center = centers[island_index];</span></a>
+<a name="163"><span class="lineNum">     163 </span><span class="lineCov">         80 :           threading::parallel_for(vert_island.index_range(), 2048, [&amp;](const IndexRange range) {</span></a>
+<a name="164"><span class="lineNum">     164 </span><span class="lineCov">        320 :             for (const int vert_i : vert_island.slice(range)) {</span></a>
+<a name="165"><span class="lineNum">     165 </span><span class="lineCov">        240 :               positions[vert_i] = transform_with_uniform_scale(positions[vert_i], center, scale);</span></a>
+<a name="166"><span class="lineNum">     166 </span>            :             }</a>
+<a name="167"><span class="lineNum">     167 </span><span class="lineCov">         80 :           });</span></a>
+<a name="168"><span class="lineNum">     168 </span>            :         }</a>
+<a name="169"><span class="lineNum">     169 </span><span class="lineCov">         16 :       },</span></a>
+<a name="170"><span class="lineNum">     170 </span><span class="lineCov">         16 :       threading::accumulated_task_sizes([&amp;](const IndexRange range) {</span></a>
+<a name="171"><span class="lineNum">     171 </span><span class="lineCov">         16 :         return elem_islands.offsets[range].size() + vert_islands.offsets[range].size();</span></a>
+<a name="172"><span class="lineNum">     172 </span>            :       }));</a>
+<a name="173"><span class="lineNum">     173 </span><span class="lineCov">         16 : }</span></a>
+<a name="174"><span class="lineNum">     174 </span>            : </a>
+<a name="175"><span class="lineNum">     175 </span><span class="lineCov">        192 : static float4x4 create_single_axis_transform(const float3 &amp;center,</span></a>
+<a name="176"><span class="lineNum">     176 </span>            :                                              const float3 &amp;axis,</a>
+<a name="177"><span class="lineNum">     177 </span>            :                                              const float scale)</a>
+<a name="178"><span class="lineNum">     178 </span>            : {</a>
+<a name="179"><span class="lineNum">     179 </span>            :   /* Scale along x axis. The other axis need to be orthogonal, but their specific value does not</a>
+<a name="180"><span class="lineNum">     180 </span>            :    * matter. */</a>
+<a name="181"><span class="lineNum">     181 </span><span class="lineCov">        192 :   const float3 x_axis = math::normalize(axis);</span></a>
+<a name="182"><span class="lineNum">     182 </span><span class="lineCov">        192 :   float3 y_axis = math::cross(x_axis, float3(0.0f, 0.0f, 1.0f));</span></a>
+<a name="183"><span class="lineNum">     183 </span><span class="lineCov">        192 :   if (math::is_zero(y_axis)) {</span></a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineCov">         64 :     y_axis = math::cross(x_axis, float3(0.0f, 1.0f, 0.0f));</span></a>
+<a name="185"><span class="lineNum">     185 </span>            :   }</a>
+<a name="186"><span class="lineNum">     186 </span><span class="lineCov">        192 :   y_axis = math::normalize(y_axis);</span></a>
+<a name="187"><span class="lineNum">     187 </span><span class="lineCov">        192 :   const float3 z_axis = math::cross(x_axis, y_axis);</span></a>
+<a name="188"><span class="lineNum">     188 </span>            : </a>
+<a name="189"><span class="lineNum">     189 </span><span class="lineCov">        192 :   float4x4 transform = float4x4::identity();</span></a>
+<a name="190"><span class="lineNum">     190 </span>            : </a>
+<a name="191"><span class="lineNum">     191 </span>            :   /* Move scaling center to the origin. */</a>
+<a name="192"><span class="lineNum">     192 </span><span class="lineCov">        192 :   transform.location() -= center;</span></a>
+<a name="193"><span class="lineNum">     193 </span>            : </a>
+<a name="194"><span class="lineNum">     194 </span>            :   /* `base_change` and `base_change_inv` are used to rotate space so that scaling along the</a>
+<a name="195"><span class="lineNum">     195 </span>            :    * provided axis is the same as scaling along the x axis. */</a>
+<a name="196"><span class="lineNum">     196 </span><span class="lineCov">        192 :   float4x4 base_change = float4x4::identity();</span></a>
+<a name="197"><span class="lineNum">     197 </span><span class="lineCov">        192 :   base_change.x_axis() = x_axis;</span></a>
+<a name="198"><span class="lineNum">     198 </span><span class="lineCov">        192 :   base_change.y_axis() = y_axis;</span></a>
+<a name="199"><span class="lineNum">     199 </span><span class="lineCov">        192 :   base_change.z_axis() = z_axis;</span></a>
+<a name="200"><span class="lineNum">     200 </span>            : </a>
+<a name="201"><span class="lineNum">     201 </span>            :   /* Can invert by transposing, because the matrix is orthonormal. */</a>
+<a name="202"><span class="lineNum">     202 </span><span class="lineCov">        192 :   float4x4 base_change_inv = math::transpose(base_change);</span></a>
+<a name="203"><span class="lineNum">     203 </span>            : </a>
+<a name="204"><span class="lineNum">     204 </span><span class="lineCov">        192 :   float4x4 scale_transform = float4x4::identity();</span></a>
+<a name="205"><span class="lineNum">     205 </span><span class="lineCov">        192 :   scale_transform[0][0] = scale;</span></a>
+<a name="206"><span class="lineNum">     206 </span>            : </a>
+<a name="207"><span class="lineNum">     207 </span><span class="lineCov">        192 :   transform = base_change * scale_transform * base_change_inv * transform;</span></a>
+<a name="208"><span class="lineNum">     208 </span>            : </a>
+<a name="209"><span class="lineNum">     209 </span>            :   /* Move scaling center back to where it was. */</a>
+<a name="210"><span class="lineNum">     210 </span><span class="lineCov">        192 :   transform.location() += center;</span></a>
+<a name="211"><span class="lineNum">     211 </span>            : </a>
+<a name="212"><span class="lineNum">     212 </span><span class="lineCov">        384 :   return transform;</span></a>
+<a name="213"><span class="lineNum">     213 </span>            : }</a>
+<a name="214"><span class="lineNum">     214 </span>            : </a>
+<a name="215"><span class="lineNum">     215 </span><span class="lineCov">         24 : static void scale_on_axis(const GroupedSpan&lt;int&gt; elem_islands,</span></a>
+<a name="216"><span class="lineNum">     216 </span>            :                           const GroupedSpan&lt;int&gt; vert_islands,</a>
+<a name="217"><span class="lineNum">     217 </span>            :                           const VArray&lt;float&gt; &amp;scale_varray,</a>
+<a name="218"><span class="lineNum">     218 </span>            :                           const VArray&lt;float3&gt; &amp;center_varray,</a>
+<a name="219"><span class="lineNum">     219 </span>            :                           const VArray&lt;float3&gt; &amp;axis_varray,</a>
+<a name="220"><span class="lineNum">     220 </span>            :                           Mesh &amp;mesh)</a>
+<a name="221"><span class="lineNum">     221 </span>            : {</a>
+<a name="222"><span class="lineNum">     222 </span><span class="lineCov">         24 :   const Array&lt;float&gt; scales = gather_means(scale_varray, elem_islands);</span></a>
+<a name="223"><span class="lineNum">     223 </span><span class="lineCov">         24 :   const Array&lt;float3&gt; centers = gather_means(center_varray, elem_islands);</span></a>
+<a name="224"><span class="lineNum">     224 </span><span class="lineCov">         24 :   const Array&lt;float3&gt; axes = gather_means(axis_varray, elem_islands);</span></a>
+<a name="225"><span class="lineNum">     225 </span><span class="lineCov">         24 :   MutableSpan&lt;float3&gt; positions = mesh.vert_positions_for_write();</span></a>
+<a name="226"><span class="lineNum">     226 </span><span class="lineCov">         24 :   threading::parallel_for(</span></a>
+<a name="227"><span class="lineNum">     227 </span>            :       elem_islands.index_range(),</a>
+<a name="228"><span class="lineNum">     228 </span>            :       512,</a>
+<a name="229"><span class="lineNum">     229 </span><span class="lineCov">         24 :       [&amp;](const IndexRange range) {</span></a>
+<a name="230"><span class="lineNum">     230 </span><span class="lineCov">        216 :         for (const int island_index : range) {</span></a>
+<a name="231"><span class="lineNum">     231 </span><span class="lineCov">        192 :           const Span&lt;int&gt; vert_island = vert_islands[island_index];</span></a>
+<a name="232"><span class="lineNum">     232 </span><span class="lineCov">        192 :           const float scale = scales[island_index];</span></a>
+<a name="233"><span class="lineNum">     233 </span><span class="lineCov">        192 :           const float3 center = centers[island_index];</span></a>
+<a name="234"><span class="lineNum">     234 </span><span class="lineCov">        192 :           const float3 axis = axes[island_index];</span></a>
+<a name="235"><span class="lineNum">     235 </span><span class="lineCov">        192 :           const float3 fixed_axis = math::is_zero(axis) ? float3(1.0f, 0.0f, 0.0f) : axis;</span></a>
+<a name="236"><span class="lineNum">     236 </span><span class="lineCov">        192 :           const float4x4 transform = create_single_axis_transform(center, fixed_axis, scale);</span></a>
+<a name="237"><span class="lineNum">     237 </span><span class="lineCov">        192 :           threading::parallel_for(vert_island.index_range(), 2048, [&amp;](const IndexRange range) {</span></a>
+<a name="238"><span class="lineNum">     238 </span><span class="lineCov">        960 :             for (const int vert_i : vert_island.slice(range)) {</span></a>
+<a name="239"><span class="lineNum">     239 </span><span class="lineCov">        768 :               positions[vert_i] = math::transform_point(transform, positions[vert_i]);</span></a>
+<a name="240"><span class="lineNum">     240 </span>            :             }</a>
+<a name="241"><span class="lineNum">     241 </span><span class="lineCov">        192 :           });</span></a>
+<a name="242"><span class="lineNum">     242 </span>            :         }</a>
+<a name="243"><span class="lineNum">     243 </span><span class="lineCov">         24 :       },</span></a>
+<a name="244"><span class="lineNum">     244 </span><span class="lineCov">         24 :       threading::accumulated_task_sizes([&amp;](const IndexRange range) {</span></a>
+<a name="245"><span class="lineNum">     245 </span><span class="lineCov">         24 :         return vert_islands.offsets[range].size() + elem_islands.offsets[range].size();</span></a>
+<a name="246"><span class="lineNum">     246 </span>            :       }));</a>
+<a name="247"><span class="lineNum">     247 </span><span class="lineCov">         24 : }</span></a>
+<a name="248"><span class="lineNum">     248 </span>            : </a>
+<a name="249"><span class="lineNum">     249 </span><span class="lineCov">         24 : static int face_to_vert_islands(const Mesh &amp;mesh,</span></a>
+<a name="250"><span class="lineNum">     250 </span>            :                                 const IndexMask &amp;face_mask,</a>
+<a name="251"><span class="lineNum">     251 </span>            :                                 const IndexMask &amp;vert_mask,</a>
+<a name="252"><span class="lineNum">     252 </span>            :                                 MutableSpan&lt;int&gt; face_island_indices,</a>
+<a name="253"><span class="lineNum">     253 </span>            :                                 MutableSpan&lt;int&gt; vert_island_indices)</a>
+<a name="254"><span class="lineNum">     254 </span>            : {</a>
+<a name="255"><span class="lineNum">     255 </span><span class="lineCov">         24 :   Array&lt;int&gt; verts_pos(vert_mask.min_array_size());</span></a>
+<a name="256"><span class="lineNum">     256 </span><span class="lineCov">         24 :   index_mask::build_reverse_map&lt;int&gt;(vert_mask, verts_pos);</span></a>
+<a name="257"><span class="lineNum">     257 </span>            : </a>
+<a name="258"><span class="lineNum">     258 </span><span class="lineCov">         24 :   AtomicDisjointSet disjoint_set(vert_mask.size());</span></a>
+<a name="259"><span class="lineNum">     259 </span><span class="lineCov">         24 :   const GroupedSpan&lt;int&gt; face_verts(mesh.faces(), mesh.corner_verts());</span></a>
+<a name="260"><span class="lineNum">     260 </span>            : </a>
+<a name="261"><span class="lineNum">     261 </span><span class="lineCov">         24 :   face_mask.foreach_index_optimized&lt;int&gt;(</span></a>
+<a name="262"><span class="lineNum">     262 </span><span class="lineCov">         24 :       [&amp;](const int face_i) {</span></a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineCov">        192 :         const Span&lt;int&gt; verts = face_verts[face_i];</span></a>
+<a name="264"><span class="lineNum">     264 </span><span class="lineCov">        192 :         const int v1 = verts_pos[verts.first()];</span></a>
+<a name="265"><span class="lineNum">     265 </span><span class="lineCov">        768 :         for (const int vert_i : verts.drop_front(1)) {</span></a>
+<a name="266"><span class="lineNum">     266 </span><span class="lineCov">        576 :           const int v2 = verts_pos[vert_i];</span></a>
+<a name="267"><span class="lineNum">     267 </span><span class="lineCov">        576 :           disjoint_set.join(v1, v2);</span></a>
+<a name="268"><span class="lineNum">     268 </span>            :         }</a>
+<a name="269"><span class="lineNum">     269 </span><span class="lineCov">        192 :       },</span></a>
+<a name="270"><span class="lineNum">     270 </span>            :       exec_mode::grain_size(4096));</a>
+<a name="271"><span class="lineNum">     271 </span>            : </a>
+<a name="272"><span class="lineNum">     272 </span><span class="lineCov">         24 :   disjoint_set.calc_reduced_ids(vert_island_indices);</span></a>
+<a name="273"><span class="lineNum">     273 </span>            : </a>
+<a name="274"><span class="lineNum">     274 </span><span class="lineCov">         24 :   face_mask.foreach_index(</span></a>
+<a name="275"><span class="lineNum">     275 </span><span class="lineCov">         24 :       [&amp;](const int face_i, const int face_pos) {</span></a>
+<a name="276"><span class="lineNum">     276 </span><span class="lineCov">        192 :         const int face_vert_i = face_verts[face_i].first();</span></a>
+<a name="277"><span class="lineNum">     277 </span><span class="lineCov">        192 :         const int vert_pos = verts_pos[face_vert_i];</span></a>
+<a name="278"><span class="lineNum">     278 </span><span class="lineCov">        192 :         const int vert_island = vert_island_indices[vert_pos];</span></a>
+<a name="279"><span class="lineNum">     279 </span><span class="lineCov">        192 :         face_island_indices[face_pos] = vert_island;</span></a>
+<a name="280"><span class="lineNum">     280 </span><span class="lineCov">        192 :       },</span></a>
+<a name="281"><span class="lineNum">     281 </span>            :       exec_mode::grain_size(4096));</a>
+<a name="282"><span class="lineNum">     282 </span>            : </a>
+<a name="283"><span class="lineNum">     283 </span><span class="lineCov">         48 :   return disjoint_set.count_sets();</span></a>
+<a name="284"><span class="lineNum">     284 </span><span class="lineCov">         24 : }</span></a>
+<a name="285"><span class="lineNum">     285 </span>            : </a>
+<a name="286"><span class="lineNum">     286 </span><span class="lineCov">         24 : static void gather_face_islands(const Mesh &amp;mesh,</span></a>
+<a name="287"><span class="lineNum">     287 </span>            :                                 const IndexMask &amp;face_mask,</a>
+<a name="288"><span class="lineNum">     288 </span>            :                                 Array&lt;int&gt; &amp;r_item_offsets,</a>
+<a name="289"><span class="lineNum">     289 </span>            :                                 Array&lt;int&gt; &amp;r_item_indices,</a>
+<a name="290"><span class="lineNum">     290 </span>            :                                 Array&lt;int&gt; &amp;r_vert_offsets,</a>
+<a name="291"><span class="lineNum">     291 </span>            :                                 Array&lt;int&gt; &amp;r_vert_indices)</a>
+<a name="292"><span class="lineNum">     292 </span>            : {</a>
+<a name="293"><span class="lineNum">     293 </span><span class="lineCov">         24 :   IndexMaskMemory memory;</span></a>
+<a name="294"><span class="lineNum">     294 </span><span class="lineCov">         24 :   const IndexMask vert_mask = geometry::vert_selection_from_face(</span></a>
+<a name="295"><span class="lineNum">     295 </span><span class="lineCov">         24 :       mesh.face_offsets(), face_mask, mesh.corner_verts(), mesh.verts_num, memory);</span></a>
+<a name="296"><span class="lineNum">     296 </span>            : </a>
+<a name="297"><span class="lineNum">     297 </span><span class="lineCov">         24 :   Array&lt;int&gt; face_island_indices(face_mask.size());</span></a>
+<a name="298"><span class="lineNum">     298 </span><span class="lineCov">         24 :   Array&lt;int&gt; vert_island_indices(vert_mask.size());</span></a>
+<a name="299"><span class="lineNum">     299 </span><span class="lineCov">         24 :   const int total_islands = face_to_vert_islands(</span></a>
+<a name="300"><span class="lineNum">     300 </span>            :       mesh, face_mask, vert_mask, face_island_indices, vert_island_indices);</a>
+<a name="301"><span class="lineNum">     301 </span>            : </a>
+<a name="302"><span class="lineNum">     302 </span>            :   /* Group gathered vertices and faces. */</a>
+<a name="303"><span class="lineNum">     303 </span><span class="lineCov">         24 :   offset_indices::build_groups_from_indices(</span></a>
+<a name="304"><span class="lineNum">     304 </span>            :       vert_island_indices, total_islands, r_vert_offsets, r_vert_indices);</a>
+<a name="305"><span class="lineNum">     305 </span><span class="lineCov">         24 :   offset_indices::build_groups_from_indices(</span></a>
+<a name="306"><span class="lineNum">     306 </span>            :       face_island_indices, total_islands, r_item_offsets, r_item_indices);</a>
+<a name="307"><span class="lineNum">     307 </span>            : </a>
+<a name="308"><span class="lineNum">     308 </span>            :   /* If result indices is for gathered array, map than back into global indices. */</a>
+<a name="309"><span class="lineNum">     309 </span><span class="lineCov">         24 :   if (face_mask.size() != mesh.faces_num) {</span></a>
+<a name="310"><span class="lineNum">     310 </span><span class="lineCov">         24 :     Array&lt;int&gt; face_mask_map(face_mask.size());</span></a>
+<a name="311"><span class="lineNum">     311 </span><span class="lineCov">         24 :     face_mask.to_indices&lt;int&gt;(face_mask_map);</span></a>
+<a name="312"><span class="lineNum">     312 </span><span class="lineCov">         24 :     array_utils::gather&lt;int&gt;(</span></a>
+<a name="313"><span class="lineNum">     313 </span>            :         face_mask_map.as_span(), r_item_indices.as_span(), r_item_indices.as_mutable_span());</a>
+<a name="314"><span class="lineNum">     314 </span><span class="lineCov">         24 :   }</span></a>
+<a name="315"><span class="lineNum">     315 </span><span class="lineCov">         24 :   if (vert_mask.size() != mesh.verts_num) {</span></a>
+<a name="316"><span class="lineNum">     316 </span><span class="lineCov">         24 :     Array&lt;int&gt; vert_mask_map(vert_mask.size());</span></a>
+<a name="317"><span class="lineNum">     317 </span><span class="lineCov">         24 :     vert_mask.to_indices&lt;int&gt;(vert_mask_map);</span></a>
+<a name="318"><span class="lineNum">     318 </span><span class="lineCov">         24 :     array_utils::gather&lt;int&gt;(</span></a>
+<a name="319"><span class="lineNum">     319 </span>            :         vert_mask_map.as_span(), r_vert_indices.as_span(), r_vert_indices.as_mutable_span());</a>
+<a name="320"><span class="lineNum">     320 </span><span class="lineCov">         24 :   }</span></a>
+<a name="321"><span class="lineNum">     321 </span><span class="lineCov">         24 : }</span></a>
+<a name="322"><span class="lineNum">     322 </span>            : </a>
+<a name="323"><span class="lineNum">     323 </span><span class="lineCov">         16 : static int edge_to_vert_islands(const Mesh &amp;mesh,</span></a>
+<a name="324"><span class="lineNum">     324 </span>            :                                 const IndexMask &amp;edge_mask,</a>
+<a name="325"><span class="lineNum">     325 </span>            :                                 const IndexMask &amp;vert_mask,</a>
+<a name="326"><span class="lineNum">     326 </span>            :                                 MutableSpan&lt;int&gt; edge_island_indices,</a>
+<a name="327"><span class="lineNum">     327 </span>            :                                 MutableSpan&lt;int&gt; vert_island_indices)</a>
+<a name="328"><span class="lineNum">     328 </span>            : {</a>
+<a name="329"><span class="lineNum">     329 </span><span class="lineCov">         16 :   Array&lt;int&gt; verts_pos(vert_mask.min_array_size());</span></a>
+<a name="330"><span class="lineNum">     330 </span><span class="lineCov">         16 :   index_mask::build_reverse_map&lt;int&gt;(vert_mask, verts_pos);</span></a>
+<a name="331"><span class="lineNum">     331 </span>            : </a>
+<a name="332"><span class="lineNum">     332 </span><span class="lineCov">         16 :   AtomicDisjointSet disjoint_set(vert_mask.size());</span></a>
+<a name="333"><span class="lineNum">     333 </span><span class="lineCov">         16 :   const Span&lt;int2&gt; edges = mesh.edges();</span></a>
+<a name="334"><span class="lineNum">     334 </span>            : </a>
+<a name="335"><span class="lineNum">     335 </span><span class="lineCov">         16 :   edge_mask.foreach_index_optimized&lt;int&gt;(</span></a>
+<a name="336"><span class="lineNum">     336 </span><span class="lineCov">         16 :       [&amp;](const int edge_i) {</span></a>
+<a name="337"><span class="lineNum">     337 </span><span class="lineCov">        200 :         const int2 edge = edges[edge_i];</span></a>
+<a name="338"><span class="lineNum">     338 </span><span class="lineCov">        200 :         const int v1 = verts_pos[edge[0]];</span></a>
+<a name="339"><span class="lineNum">     339 </span><span class="lineCov">        200 :         const int v2 = verts_pos[edge[1]];</span></a>
+<a name="340"><span class="lineNum">     340 </span><span class="lineCov">        200 :         disjoint_set.join(v1, v2);</span></a>
+<a name="341"><span class="lineNum">     341 </span><span class="lineCov">        200 :       },</span></a>
+<a name="342"><span class="lineNum">     342 </span>            :       exec_mode::grain_size(4096));</a>
+<a name="343"><span class="lineNum">     343 </span>            : </a>
+<a name="344"><span class="lineNum">     344 </span><span class="lineCov">         16 :   disjoint_set.calc_reduced_ids(vert_island_indices);</span></a>
+<a name="345"><span class="lineNum">     345 </span>            : </a>
+<a name="346"><span class="lineNum">     346 </span><span class="lineCov">         16 :   edge_mask.foreach_index(</span></a>
+<a name="347"><span class="lineNum">     347 </span><span class="lineCov">         16 :       [&amp;](const int edge_i, const int edge_pos) {</span></a>
+<a name="348"><span class="lineNum">     348 </span><span class="lineCov">        200 :         const int2 edge = edges[edge_i];</span></a>
+<a name="349"><span class="lineNum">     349 </span><span class="lineCov">        200 :         const int edge_vert_i = edge[0];</span></a>
+<a name="350"><span class="lineNum">     350 </span><span class="lineCov">        200 :         const int vert_pos = verts_pos[edge_vert_i];</span></a>
+<a name="351"><span class="lineNum">     351 </span><span class="lineCov">        200 :         const int vert_island = vert_island_indices[vert_pos];</span></a>
+<a name="352"><span class="lineNum">     352 </span><span class="lineCov">        200 :         edge_island_indices[edge_pos] = vert_island;</span></a>
+<a name="353"><span class="lineNum">     353 </span><span class="lineCov">        200 :       },</span></a>
+<a name="354"><span class="lineNum">     354 </span>            :       exec_mode::grain_size(4096));</a>
+<a name="355"><span class="lineNum">     355 </span>            : </a>
+<a name="356"><span class="lineNum">     356 </span><span class="lineCov">         32 :   return disjoint_set.count_sets();</span></a>
+<a name="357"><span class="lineNum">     357 </span><span class="lineCov">         16 : }</span></a>
+<a name="358"><span class="lineNum">     358 </span>            : </a>
+<a name="359"><span class="lineNum">     359 </span><span class="lineCov">         16 : static void gather_edge_islands(const Mesh &amp;mesh,</span></a>
+<a name="360"><span class="lineNum">     360 </span>            :                                 const IndexMask &amp;edge_mask,</a>
+<a name="361"><span class="lineNum">     361 </span>            :                                 Array&lt;int&gt; &amp;r_item_offsets,</a>
+<a name="362"><span class="lineNum">     362 </span>            :                                 Array&lt;int&gt; &amp;r_item_indices,</a>
+<a name="363"><span class="lineNum">     363 </span>            :                                 Array&lt;int&gt; &amp;r_vert_offsets,</a>
+<a name="364"><span class="lineNum">     364 </span>            :                                 Array&lt;int&gt; &amp;r_vert_indices)</a>
+<a name="365"><span class="lineNum">     365 </span>            : {</a>
+<a name="366"><span class="lineNum">     366 </span><span class="lineCov">         16 :   IndexMaskMemory memory;</span></a>
+<a name="367"><span class="lineNum">     367 </span><span class="lineCov">         16 :   const IndexMask vert_mask = geometry::vert_selection_from_edge(</span></a>
+<a name="368"><span class="lineNum">     368 </span><span class="lineCov">         16 :       mesh.edges(), edge_mask, mesh.verts_num, memory);</span></a>
+<a name="369"><span class="lineNum">     369 </span>            : </a>
+<a name="370"><span class="lineNum">     370 </span><span class="lineCov">         16 :   Array&lt;int&gt; edge_island_indices(edge_mask.size());</span></a>
+<a name="371"><span class="lineNum">     371 </span><span class="lineCov">         16 :   Array&lt;int&gt; vert_island_indices(vert_mask.size());</span></a>
+<a name="372"><span class="lineNum">     372 </span><span class="lineCov">         16 :   const int total_islands = edge_to_vert_islands(</span></a>
+<a name="373"><span class="lineNum">     373 </span>            :       mesh, edge_mask, vert_mask, edge_island_indices, vert_island_indices);</a>
+<a name="374"><span class="lineNum">     374 </span>            : </a>
+<a name="375"><span class="lineNum">     375 </span>            :   /* Group gathered vertices and edges. */</a>
+<a name="376"><span class="lineNum">     376 </span><span class="lineCov">         16 :   offset_indices::build_groups_from_indices(</span></a>
+<a name="377"><span class="lineNum">     377 </span>            :       vert_island_indices, total_islands, r_vert_offsets, r_vert_indices);</a>
+<a name="378"><span class="lineNum">     378 </span><span class="lineCov">         16 :   offset_indices::build_groups_from_indices(</span></a>
+<a name="379"><span class="lineNum">     379 </span>            :       edge_island_indices, total_islands, r_item_offsets, r_item_indices);</a>
+<a name="380"><span class="lineNum">     380 </span>            : </a>
+<a name="381"><span class="lineNum">     381 </span>            :   /* If result indices is for gathered array, map than back into global indices. */</a>
+<a name="382"><span class="lineNum">     382 </span><span class="lineCov">         16 :   if (edge_mask.size() != mesh.edges_num) {</span></a>
+<a name="383"><span class="lineNum">     383 </span><span class="lineCov">         16 :     Array&lt;int&gt; edge_mask_map(edge_mask.size());</span></a>
+<a name="384"><span class="lineNum">     384 </span><span class="lineCov">         16 :     edge_mask.to_indices&lt;int&gt;(edge_mask_map);</span></a>
+<a name="385"><span class="lineNum">     385 </span><span class="lineCov">         16 :     array_utils::gather&lt;int&gt;(</span></a>
+<a name="386"><span class="lineNum">     386 </span>            :         edge_mask_map.as_span(), r_item_indices.as_span(), r_item_indices.as_mutable_span());</a>
+<a name="387"><span class="lineNum">     387 </span><span class="lineCov">         16 :   }</span></a>
+<a name="388"><span class="lineNum">     388 </span><span class="lineCov">         16 :   if (vert_mask.size() != mesh.verts_num) {</span></a>
+<a name="389"><span class="lineNum">     389 </span><span class="lineCov">         16 :     Array&lt;int&gt; vert_mask_map(vert_mask.size());</span></a>
+<a name="390"><span class="lineNum">     390 </span><span class="lineCov">         16 :     vert_mask.to_indices&lt;int&gt;(vert_mask_map);</span></a>
+<a name="391"><span class="lineNum">     391 </span><span class="lineCov">         16 :     array_utils::gather&lt;int&gt;(</span></a>
+<a name="392"><span class="lineNum">     392 </span>            :         vert_mask_map.as_span(), r_vert_indices.as_span(), r_vert_indices.as_mutable_span());</a>
+<a name="393"><span class="lineNum">     393 </span><span class="lineCov">         16 :   }</span></a>
+<a name="394"><span class="lineNum">     394 </span><span class="lineCov">         16 : }</span></a>
+<a name="395"><span class="lineNum">     395 </span>            : </a>
+<a name="396"><span class="lineNum">     396 </span><span class="lineCov">         40 : static void node_geo_exec(GeoNodeExecParams params)</span></a>
+<a name="397"><span class="lineNum">     397 </span>            : {</a>
+<a name="398"><span class="lineNum">     398 </span><span class="lineCov">         40 :   const bNode &amp;node = params.node();</span></a>
+<a name="399"><span class="lineNum">     399 </span><span class="lineCov">         40 :   const AttrDomain domain = AttrDomain(node.custom1);</span></a>
+<a name="400"><span class="lineNum">     400 </span><span class="lineCov">         40 :   const auto scale_mode = params.get_input&lt;GeometryNodeScaleElementsMode&gt;(&quot;Scale Mode&quot;_ustr);</span></a>
+<a name="401"><span class="lineNum">     401 </span>            : </a>
+<a name="402"><span class="lineNum">     402 </span><span class="lineCov">         40 :   GeometrySet geometry = params.extract_input&lt;GeometrySet&gt;(&quot;Geometry&quot;_ustr);</span></a>
+<a name="403"><span class="lineNum">     403 </span>            : </a>
+<a name="404"><span class="lineNum">     404 </span><span class="lineCov">         40 :   const Field&lt;bool&gt; selection_field = params.extract_input&lt;Field&lt;bool&gt;&gt;(&quot;Selection&quot;_ustr);</span></a>
+<a name="405"><span class="lineNum">     405 </span><span class="lineCov">         40 :   const Field&lt;float&gt; scale_field = params.extract_input&lt;Field&lt;float&gt;&gt;(&quot;Scale&quot;_ustr);</span></a>
+<a name="406"><span class="lineNum">     406 </span><span class="lineCov">         40 :   const Field&lt;float3&gt; center_field = params.extract_input&lt;Field&lt;float3&gt;&gt;(&quot;Center&quot;_ustr);</span></a>
+<a name="407"><span class="lineNum">     407 </span>            : </a>
+<a name="408"><span class="lineNum">     408 </span><span class="lineCov">         40 :   geometry::foreach_real_geometry(geometry, [&amp;](GeometrySet &amp;geometry) {</span></a>
+<a name="409"><span class="lineNum">     409 </span><span class="lineCov">         40 :     if (Mesh *mesh = geometry.get_mesh_for_write()) {</span></a>
+<a name="410"><span class="lineNum">     410 </span><span class="lineCov">         40 :       const bke::MeshFieldContext context{*mesh, domain};</span></a>
+<a name="411"><span class="lineNum">     411 </span><span class="lineCov">         40 :       FieldEvaluator evaluator{context, mesh-&gt;attributes().domain_size(domain)};</span></a>
+<a name="412"><span class="lineNum">     412 </span><span class="lineCov">         40 :       evaluator.set_selection(selection_field);</span></a>
+<a name="413"><span class="lineNum">     413 </span><span class="lineCov">         40 :       evaluator.add(scale_field);</span></a>
+<a name="414"><span class="lineNum">     414 </span><span class="lineCov">         40 :       evaluator.add(center_field);</span></a>
+<a name="415"><span class="lineNum">     415 </span><span class="lineCov">         40 :       if (scale_mode == GEO_NODE_SCALE_ELEMENTS_SINGLE_AXIS) {</span></a>
+<a name="416"><span class="lineNum">     416 </span><span class="lineCov">         24 :         evaluator.add(params.get_input&lt;Field&lt;float3&gt;&gt;(&quot;Axis&quot;_ustr));</span></a>
+<a name="417"><span class="lineNum">     417 </span>            :       }</a>
+<a name="418"><span class="lineNum">     418 </span><span class="lineCov">         40 :       evaluator.evaluate();</span></a>
+<a name="419"><span class="lineNum">     419 </span><span class="lineCov">         40 :       const IndexMask &amp;mask = evaluator.get_evaluated_selection_as_mask();</span></a>
+<a name="420"><span class="lineNum">     420 </span><span class="lineCov">         40 :       if (mask.is_empty()) {</span></a>
+<a name="421"><span class="lineNum">     421 </span><span class="lineNoCov">          0 :         return;</span></a>
+<a name="422"><span class="lineNum">     422 </span>            :       }</a>
+<a name="423"><span class="lineNum">     423 </span>            : </a>
+<a name="424"><span class="lineNum">     424 </span><span class="lineCov">         40 :       Array&lt;int&gt; item_offsets;</span></a>
+<a name="425"><span class="lineNum">     425 </span><span class="lineCov">         40 :       Array&lt;int&gt; item_indices;</span></a>
+<a name="426"><span class="lineNum">     426 </span>            : </a>
+<a name="427"><span class="lineNum">     427 </span><span class="lineCov">         40 :       Array&lt;int&gt; vert_offsets;</span></a>
+<a name="428"><span class="lineNum">     428 </span><span class="lineCov">         40 :       Array&lt;int&gt; vert_indices;</span></a>
+<a name="429"><span class="lineNum">     429 </span>            : </a>
+<a name="430"><span class="lineNum">     430 </span><span class="lineCov">         40 :       switch (domain) {</span></a>
+<a name="431"><span class="lineNum">     431 </span><span class="lineCov">         24 :         case AttrDomain::Face:</span></a>
+<a name="432"><span class="lineNum">     432 </span><span class="lineCov">         24 :           gather_face_islands(*mesh, mask, item_offsets, item_indices, vert_offsets, vert_indices);</span></a>
+<a name="433"><span class="lineNum">     433 </span><span class="lineCov">         24 :           break;</span></a>
+<a name="434"><span class="lineNum">     434 </span><span class="lineCov">         16 :         case AttrDomain::Edge:</span></a>
+<a name="435"><span class="lineNum">     435 </span><span class="lineCov">         16 :           gather_edge_islands(*mesh, mask, item_offsets, item_indices, vert_offsets, vert_indices);</span></a>
+<a name="436"><span class="lineNum">     436 </span><span class="lineCov">         16 :           break;</span></a>
+<a name="437"><span class="lineNum">     437 </span><span class="lineNoCov">          0 :         default:</span></a>
+<a name="438"><span class="lineNum">     438 </span><span class="lineNoCov">          0 :           BLI_assert_unreachable();</span></a>
+<a name="439"><span class="lineNum">     439 </span>            :       }</a>
+<a name="440"><span class="lineNum">     440 </span>            : </a>
+<a name="441"><span class="lineNum">     441 </span><span class="lineCov">         40 :       const GroupedSpan&lt;int&gt; item_islands(item_offsets.as_span(), item_indices);</span></a>
+<a name="442"><span class="lineNum">     442 </span><span class="lineCov">         40 :       const GroupedSpan&lt;int&gt; vert_islands(vert_offsets.as_span(), vert_indices);</span></a>
+<a name="443"><span class="lineNum">     443 </span>            : </a>
+<a name="444"><span class="lineNum">     444 </span><span class="lineCov">         80 :       const VArray&lt;float&gt; scale_varray = evaluator.get_evaluated&lt;float&gt;(0);</span></a>
+<a name="445"><span class="lineNum">     445 </span><span class="lineCov">         80 :       const VArray&lt;float3&gt; center_varray = evaluator.get_evaluated&lt;float3&gt;(1);</span></a>
+<a name="446"><span class="lineNum">     446 </span>            : </a>
+<a name="447"><span class="lineNum">     447 </span><span class="lineCov">         40 :       switch (scale_mode) {</span></a>
+<a name="448"><span class="lineNum">     448 </span><span class="lineCov">         16 :         case GEO_NODE_SCALE_ELEMENTS_UNIFORM:</span></a>
+<a name="449"><span class="lineNum">     449 </span><span class="lineCov">         16 :           scale_uniformly(item_islands, vert_islands, scale_varray, center_varray, *mesh);</span></a>
+<a name="450"><span class="lineNum">     450 </span><span class="lineCov">         16 :           break;</span></a>
+<a name="451"><span class="lineNum">     451 </span><span class="lineCov">         24 :         case GEO_NODE_SCALE_ELEMENTS_SINGLE_AXIS: {</span></a>
+<a name="452"><span class="lineNum">     452 </span><span class="lineCov">         24 :           const VArray&lt;float3&gt; axis_varray = evaluator.get_evaluated&lt;float3&gt;(2);</span></a>
+<a name="453"><span class="lineNum">     453 </span><span class="lineCov">         24 :           scale_on_axis(</span></a>
+<a name="454"><span class="lineNum">     454 </span>            :               item_islands, vert_islands, scale_varray, center_varray, axis_varray, *mesh);</a>
+<a name="455"><span class="lineNum">     455 </span><span class="lineCov">         24 :           break;</span></a>
+<a name="456"><span class="lineNum">     456 </span><span class="lineCov">         24 :         }</span></a>
+<a name="457"><span class="lineNum">     457 </span>            :       }</a>
+<a name="458"><span class="lineNum">     458 </span><span class="lineCov">         40 :       mesh-&gt;tag_positions_changed();</span></a>
+<a name="459"><span class="lineNum">     459 </span><span class="lineCov">         40 :     }</span></a>
+<a name="460"><span class="lineNum">     460 </span>            :   });</a>
+<a name="461"><span class="lineNum">     461 </span>            : </a>
+<a name="462"><span class="lineNum">     462 </span><span class="lineCov">         40 :   params.set_output(&quot;Geometry&quot;_ustr, std::move(geometry));</span></a>
+<a name="463"><span class="lineNum">     463 </span><span class="lineCov">         40 : }</span></a>
+<a name="464"><span class="lineNum">     464 </span>            : </a>
+<a name="465"><span class="lineNum">     465 </span><span class="lineCov">        785 : static void node_rna(StructRNA *srna)</span></a>
+<a name="466"><span class="lineNum">     466 </span>            : {</a>
+<a name="467"><span class="lineNum">     467 </span>            :   static const EnumPropertyItem domain_items[] = {</a>
+<a name="468"><span class="lineNum">     468 </span>            :       {int(AttrDomain::Face),</a>
+<a name="469"><span class="lineNum">     469 </span>            :        &quot;FACE&quot;,</a>
+<a name="470"><span class="lineNum">     470 </span>            :        ICON_NONE,</a>
+<a name="471"><span class="lineNum">     471 </span>            :        &quot;Face&quot;,</a>
+<a name="472"><span class="lineNum">     472 </span>            :        &quot;Scale individual faces or neighboring face islands&quot;},</a>
+<a name="473"><span class="lineNum">     473 </span>            :       {int(AttrDomain::Edge),</a>
+<a name="474"><span class="lineNum">     474 </span>            :        &quot;EDGE&quot;,</a>
+<a name="475"><span class="lineNum">     475 </span>            :        ICON_NONE,</a>
+<a name="476"><span class="lineNum">     476 </span>            :        &quot;Edge&quot;,</a>
+<a name="477"><span class="lineNum">     477 </span>            :        &quot;Scale individual edges or neighboring edge islands&quot;},</a>
+<a name="478"><span class="lineNum">     478 </span>            :       {0, nullptr, 0, nullptr, nullptr},</a>
+<a name="479"><span class="lineNum">     479 </span>            :   };</a>
+<a name="480"><span class="lineNum">     480 </span>            : </a>
+<a name="481"><span class="lineNum">     481 </span><span class="lineCov">        785 :   RNA_def_node_enum(srna,</span></a>
+<a name="482"><span class="lineNum">     482 </span>            :                     &quot;domain&quot;,</a>
+<a name="483"><span class="lineNum">     483 </span>            :                     &quot;Domain&quot;,</a>
+<a name="484"><span class="lineNum">     484 </span>            :                     &quot;Element type to transform&quot;,</a>
+<a name="485"><span class="lineNum">     485 </span>            :                     domain_items,</a>
+<a name="486"><span class="lineNum">     486 </span><span class="lineCov">        785 :                     NOD_inline_enum_accessors(custom1),</span></a>
+<a name="487"><span class="lineNum">     487 </span><span class="lineCov">        785 :                     int(AttrDomain::Face));</span></a>
+<a name="488"><span class="lineNum">     488 </span><span class="lineCov">        785 : }</span></a>
+<a name="489"><span class="lineNum">     489 </span>            : </a>
+<a name="490"><span class="lineNum">     490 </span><span class="lineCov">        785 : static void node_register()</span></a>
+<a name="491"><span class="lineNum">     491 </span>            : {</a>
+<a name="492"><span class="lineNum">     492 </span><span class="lineCov">        785 :   static bke::bNodeType ntype;</span></a>
+<a name="493"><span class="lineNum">     493 </span>            : </a>
+<a name="494"><span class="lineNum">     494 </span><span class="lineCov">        785 :   geo_node_type_base(&amp;ntype, &quot;GeometryNodeScaleElements&quot;_ustr, GEO_NODE_SCALE_ELEMENTS);</span></a>
+<a name="495"><span class="lineNum">     495 </span><span class="lineCov">        785 :   ntype.ui_name = &quot;Scale Elements&quot;;</span></a>
+<a name="496"><span class="lineNum">     496 </span><span class="lineCov">        785 :   ntype.ui_description = &quot;Scale groups of connected edges and faces&quot;;</span></a>
+<a name="497"><span class="lineNum">     497 </span><span class="lineCov">        785 :   ntype.enum_name_legacy = &quot;SCALE_ELEMENTS&quot;;</span></a>
+<a name="498"><span class="lineNum">     498 </span><span class="lineCov">        785 :   ntype.nclass = NODE_CLASS_GEOMETRY;</span></a>
+<a name="499"><span class="lineNum">     499 </span><span class="lineCov">        785 :   ntype.geometry_node_execute = node_geo_exec;</span></a>
+<a name="500"><span class="lineNum">     500 </span><span class="lineCov">        785 :   ntype.declare = node_declare;</span></a>
+<a name="501"><span class="lineNum">     501 </span><span class="lineCov">        785 :   ntype.draw_buttons = node_layout;</span></a>
+<a name="502"><span class="lineNum">     502 </span><span class="lineCov">        785 :   ntype.initfunc = node_init;</span></a>
+<a name="503"><span class="lineNum">     503 </span><span class="lineCov">        785 :   bke::node_register_type(ntype);</span></a>
+<a name="504"><span class="lineNum">     504 </span>            : </a>
+<a name="505"><span class="lineNum">     505 </span><span class="lineCov">        785 :   node_rna(ntype.rna_ext.srna);</span></a>
+<a name="506"><span class="lineNum">     506 </span><span class="lineCov">        785 : }</span></a>
+<a name="507"><span class="lineNum">     507 </span><span class="lineCov">        785 : NOD_REGISTER_NODE(node_register)</span></a>
+<a name="508"><span class="lineNum">     508 </span>            : </a>
+<a name="509"><span class="lineNum">     509 </span>            : }  // namespace blender::nodes::node_geo_scale_elements_cc</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - imbuf/intern/util.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">imbuf/intern</a> - util.cc<span style="font-size: 80%;"> (source / <a href="util.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">35</td>
+            <td class="headerCovTableEntryLo">14.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryLo">20.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2001-2002 NaN Holding BV. All rights reserved.</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup imbuf</a>
+<a name="7"><span class="lineNum">       7 </span>            :  */</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #ifdef _WIN32</a>
+<a name="10"><span class="lineNum">      10 </span>            : #  include &lt;io.h&gt;</a>
+<a name="11"><span class="lineNum">      11 </span>            : #endif</a>
+<a name="12"><span class="lineNum">      12 </span>            : </a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &lt;cstdlib&gt;</a>
+<a name="14"><span class="lineNum">      14 </span>            : </a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;BLI_fileops.hh&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &quot;BLI_path_utils.hh&quot;</a>
+<a name="17"><span class="lineNum">      17 </span>            : #ifdef _WIN32</a>
+<a name="18"><span class="lineNum">      18 </span>            : #  include &quot;BLI_winstuff.hh&quot;</a>
+<a name="19"><span class="lineNum">      19 </span>            : #endif</a>
+<a name="20"><span class="lineNum">      20 </span>            : </a>
+<a name="21"><span class="lineNum">      21 </span>            : #include &quot;IMB_filetype.hh&quot;</a>
+<a name="22"><span class="lineNum">      22 </span>            : #include &quot;IMB_imbuf.hh&quot;</a>
+<a name="23"><span class="lineNum">      23 </span>            : #include &quot;IMB_imbuf_types.hh&quot;</a>
+<a name="24"><span class="lineNum">      24 </span>            : #include &quot;imbuf.hh&quot;</a>
+<a name="25"><span class="lineNum">      25 </span>            : </a>
+<a name="26"><span class="lineNum">      26 </span>            : #include &quot;CLG_log.h&quot;</a>
+<a name="27"><span class="lineNum">      27 </span>            : </a>
+<a name="28"><span class="lineNum">      28 </span>            : namespace blender {</a>
+<a name="29"><span class="lineNum">      29 </span>            : </a>
+<a name="30"><span class="lineNum">      30 </span>            : static CLG_LogRef LOG = {&quot;image.read&quot;};</a>
+<a name="31"><span class="lineNum">      31 </span>            : </a>
+<a name="32"><span class="lineNum">      32 </span>            : const char *imb_ext_image[] = {</a>
+<a name="33"><span class="lineNum">      33 </span>            :     /* #IMB_FTYPE_PNG */</a>
+<a name="34"><span class="lineNum">      34 </span>            :     &quot;.png&quot;,</a>
+<a name="35"><span class="lineNum">      35 </span>            :     /* #IMB_FTYPE_TGA */</a>
+<a name="36"><span class="lineNum">      36 </span>            :     &quot;.tga&quot;,</a>
+<a name="37"><span class="lineNum">      37 </span>            :     /* #IMB_FTYPE_BMP */</a>
+<a name="38"><span class="lineNum">      38 </span>            :     &quot;.bmp&quot;,</a>
+<a name="39"><span class="lineNum">      39 </span>            :     /* #IMB_FTYPE_JPG */</a>
+<a name="40"><span class="lineNum">      40 </span>            :     &quot;.jpg&quot;,</a>
+<a name="41"><span class="lineNum">      41 </span>            :     &quot;.jpeg&quot;,</a>
+<a name="42"><span class="lineNum">      42 </span>            :     /* #IMB_FTYPE_IRIS */</a>
+<a name="43"><span class="lineNum">      43 </span>            :     &quot;.sgi&quot;,</a>
+<a name="44"><span class="lineNum">      44 </span>            :     &quot;.rgb&quot;,</a>
+<a name="45"><span class="lineNum">      45 </span>            :     &quot;.rgba&quot;,</a>
+<a name="46"><span class="lineNum">      46 </span>            :     /* #IMB_FTYPE_TIF */</a>
+<a name="47"><span class="lineNum">      47 </span>            :     &quot;.tif&quot;,</a>
+<a name="48"><span class="lineNum">      48 </span>            :     &quot;.tiff&quot;,</a>
+<a name="49"><span class="lineNum">      49 </span>            :     /* A convention for naming tiled images at different resolutions (MIP-mapped),</a>
+<a name="50"><span class="lineNum">      50 </span>            :      * supported by various render engines texture caching systems.</a>
+<a name="51"><span class="lineNum">      51 </span>            :      * These are typically TIFF or EXR images. See the tool `maketx` from OpenImageIO. */</a>
+<a name="52"><span class="lineNum">      52 </span>            :     &quot;.tx&quot;,</a>
+<a name="53"><span class="lineNum">      53 </span>            :     /* #IMB_FTYPE_AVIF */</a>
+<a name="54"><span class="lineNum">      54 </span>            :     &quot;.avif&quot;,</a>
+<a name="55"><span class="lineNum">      55 </span>            : #ifdef WITH_IMAGE_OPENJPEG</a>
+<a name="56"><span class="lineNum">      56 </span>            :     /* #IMB_FTYPE_JP2 */</a>
+<a name="57"><span class="lineNum">      57 </span>            :     &quot;.jp2&quot;,</a>
+<a name="58"><span class="lineNum">      58 </span>            :     &quot;.j2c&quot;,</a>
+<a name="59"><span class="lineNum">      59 </span>            : #endif</a>
+<a name="60"><span class="lineNum">      60 </span>            :     /* #IMB_FTYPE_RADHDR */</a>
+<a name="61"><span class="lineNum">      61 </span>            :     &quot;.hdr&quot;,</a>
+<a name="62"><span class="lineNum">      62 </span>            :     /* #IMB_FTYPE_DDS */</a>
+<a name="63"><span class="lineNum">      63 </span>            :     &quot;.dds&quot;,</a>
+<a name="64"><span class="lineNum">      64 </span>            : #ifdef WITH_IMAGE_CINEON</a>
+<a name="65"><span class="lineNum">      65 </span>            :     /* #IMB_FTYPE_DPX */</a>
+<a name="66"><span class="lineNum">      66 </span>            :     &quot;.dpx&quot;,</a>
+<a name="67"><span class="lineNum">      67 </span>            :     /* #IMB_FTYPE_CINEON */</a>
+<a name="68"><span class="lineNum">      68 </span>            :     &quot;.cin&quot;,</a>
+<a name="69"><span class="lineNum">      69 </span>            : #endif</a>
+<a name="70"><span class="lineNum">      70 </span>            :     /* #IMB_FTYPE_EXR */</a>
+<a name="71"><span class="lineNum">      71 </span>            :     &quot;.exr&quot;,</a>
+<a name="72"><span class="lineNum">      72 </span>            :     /* #IMB_FTYPE_PSD */</a>
+<a name="73"><span class="lineNum">      73 </span>            :     &quot;.psd&quot;,</a>
+<a name="74"><span class="lineNum">      74 </span>            :     &quot;.pdd&quot;,</a>
+<a name="75"><span class="lineNum">      75 </span>            :     &quot;.psb&quot;,</a>
+<a name="76"><span class="lineNum">      76 </span>            : #ifdef WITH_IMAGE_WEBP</a>
+<a name="77"><span class="lineNum">      77 </span>            :     /* #IMB_FTYPE_WEBP */</a>
+<a name="78"><span class="lineNum">      78 </span>            :     &quot;.webp&quot;,</a>
+<a name="79"><span class="lineNum">      79 </span>            : #endif</a>
+<a name="80"><span class="lineNum">      80 </span>            :     nullptr,</a>
+<a name="81"><span class="lineNum">      81 </span>            : };</a>
+<a name="82"><span class="lineNum">      82 </span>            : </a>
+<a name="83"><span class="lineNum">      83 </span>            : const char *imb_ext_movie[] = {</a>
+<a name="84"><span class="lineNum">      84 </span>            :     &quot;.avi&quot;,  &quot;.flc&quot;, &quot;.mov&quot;, &quot;.movie&quot;, &quot;.mp4&quot;,  &quot;.m4v&quot;,  &quot;.m2v&quot;, &quot;.m2t&quot;,  &quot;.m2ts&quot;, &quot;.mts&quot;,</a>
+<a name="85"><span class="lineNum">      85 </span>            :     &quot;.ts&quot;,   &quot;.mv&quot;,  &quot;.avs&quot;, &quot;.wmv&quot;,   &quot;.ogv&quot;,  &quot;.ogg&quot;,  &quot;.r3d&quot;, &quot;.dv&quot;,   &quot;.mpeg&quot;, &quot;.mpg&quot;,</a>
+<a name="86"><span class="lineNum">      86 </span>            :     &quot;.mpg2&quot;, &quot;.vob&quot;, &quot;.mkv&quot;, &quot;.flv&quot;,   &quot;.divx&quot;, &quot;.xvid&quot;, &quot;.mxf&quot;, &quot;.webm&quot;, &quot;.gif&quot;,  nullptr,</a>
+<a name="87"><span class="lineNum">      87 </span>            : };</a>
+<a name="88"><span class="lineNum">      88 </span>            : </a>
+<a name="89"><span class="lineNum">      89 </span>            : /** Sort of wrong having audio extensions in imbuf. */</a>
+<a name="90"><span class="lineNum">      90 </span>            : </a>
+<a name="91"><span class="lineNum">      91 </span>            : const char *imb_ext_audio[] = {</a>
+<a name="92"><span class="lineNum">      92 </span>            :     &quot;.wav&quot;,</a>
+<a name="93"><span class="lineNum">      93 </span>            :     &quot;.ogg&quot;,</a>
+<a name="94"><span class="lineNum">      94 </span>            :     &quot;.oga&quot;,</a>
+<a name="95"><span class="lineNum">      95 </span>            :     &quot;.mp3&quot;,</a>
+<a name="96"><span class="lineNum">      96 </span>            :     &quot;.mp2&quot;,</a>
+<a name="97"><span class="lineNum">      97 </span>            :     &quot;.ac3&quot;,</a>
+<a name="98"><span class="lineNum">      98 </span>            :     &quot;.aac&quot;,</a>
+<a name="99"><span class="lineNum">      99 </span>            :     &quot;.flac&quot;,</a>
+<a name="100"><span class="lineNum">     100 </span>            :     &quot;.wma&quot;,</a>
+<a name="101"><span class="lineNum">     101 </span>            :     &quot;.eac3&quot;,</a>
+<a name="102"><span class="lineNum">     102 </span>            :     &quot;.aif&quot;,</a>
+<a name="103"><span class="lineNum">     103 </span>            :     &quot;.aiff&quot;,</a>
+<a name="104"><span class="lineNum">     104 </span>            :     &quot;.m4a&quot;,</a>
+<a name="105"><span class="lineNum">     105 </span>            :     &quot;.mka&quot;,</a>
+<a name="106"><span class="lineNum">     106 </span>            :     &quot;.opus&quot;,</a>
+<a name="107"><span class="lineNum">     107 </span>            :     nullptr,</a>
+<a name="108"><span class="lineNum">     108 </span>            : };</a>
+<a name="109"><span class="lineNum">     109 </span>            : </a>
+<a name="110"><span class="lineNum">     110 </span>            : /* OIIO will validate the entire header of some files and DPX requires 2048 */</a>
+<a name="111"><span class="lineNum">     111 </span>            : #define HEADER_SIZE 2048</a>
+<a name="112"><span class="lineNum">     112 </span>            : </a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineNoCov">          0 : static int64_t imb_test_image_read_header_from_filepath(const char *filepath,</span></a>
+<a name="114"><span class="lineNum">     114 </span>            :                                                         uchar buf[HEADER_SIZE])</a>
+<a name="115"><span class="lineNum">     115 </span>            : {</a>
+<a name="116"><span class="lineNum">     116 </span>            :   BLI_stat_t st;</a>
+<a name="117"><span class="lineNum">     117 </span>            :   int fp;</a>
+<a name="118"><span class="lineNum">     118 </span>            : </a>
+<a name="119"><span class="lineNum">     119 </span><span class="lineNoCov">          0 :   BLI_assert(!BLI_path_is_rel(filepath));</span></a>
+<a name="120"><span class="lineNum">     120 </span>            : </a>
+<a name="121"><span class="lineNum">     121 </span><span class="lineNoCov">          0 :   CLOG_TRACE(&amp;LOG, &quot;%s: loading %s&quot;, __func__, filepath);</span></a>
+<a name="122"><span class="lineNum">     122 </span>            : </a>
+<a name="123"><span class="lineNum">     123 </span><span class="lineNoCov">          0 :   if (BLI_stat(filepath, &amp;st) == -1) {</span></a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineNoCov">          0 :     return -1;</span></a>
+<a name="125"><span class="lineNum">     125 </span>            :   }</a>
+<a name="126"><span class="lineNum">     126 </span><span class="lineNoCov">          0 :   if (((st.st_mode) &amp; S_IFMT) != S_IFREG) {</span></a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineNoCov">          0 :     return -1;</span></a>
+<a name="128"><span class="lineNum">     128 </span>            :   }</a>
+<a name="129"><span class="lineNum">     129 </span>            : </a>
+<a name="130"><span class="lineNum">     130 </span><span class="lineNoCov">          0 :   if ((fp = BLI_open(filepath, O_BINARY | O_RDONLY, 0)) == -1) {</span></a>
+<a name="131"><span class="lineNum">     131 </span><span class="lineNoCov">          0 :     return -1;</span></a>
+<a name="132"><span class="lineNum">     132 </span>            :   }</a>
+<a name="133"><span class="lineNum">     133 </span>            : </a>
+<a name="134"><span class="lineNum">     134 </span><span class="lineNoCov">          0 :   const int64_t size = BLI_read(fp, buf, HEADER_SIZE);</span></a>
+<a name="135"><span class="lineNum">     135 </span>            : </a>
+<a name="136"><span class="lineNum">     136 </span><span class="lineNoCov">          0 :   close(fp);</span></a>
+<a name="137"><span class="lineNum">     137 </span><span class="lineNoCov">          0 :   return size;</span></a>
+<a name="138"><span class="lineNum">     138 </span>            : }</a>
+<a name="139"><span class="lineNum">     139 </span>            : </a>
+<a name="140"><span class="lineNum">     140 </span><span class="lineCov">         23 : eImbFileType IMB_test_image_type_from_memory(const uchar *buf, const size_t buf_size)</span></a>
+<a name="141"><span class="lineNum">     141 </span>            : {</a>
+<a name="142"><span class="lineNum">     142 </span><span class="lineCov">        171 :   for (const ImFileType *type = IMB_FILE_TYPES; type &lt; IMB_FILE_TYPES_LAST; type++) {</span></a>
+<a name="143"><span class="lineNum">     143 </span><span class="lineCov">        171 :     if (type-&gt;is_a != nullptr) {</span></a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineCov">        171 :       if (type-&gt;is_a(buf, buf_size)) {</span></a>
+<a name="145"><span class="lineNum">     145 </span><span class="lineCov">         23 :         return type-&gt;filetype;</span></a>
+<a name="146"><span class="lineNum">     146 </span>            :       }</a>
+<a name="147"><span class="lineNum">     147 </span>            :     }</a>
+<a name="148"><span class="lineNum">     148 </span>            :   }</a>
+<a name="149"><span class="lineNum">     149 </span>            : </a>
+<a name="150"><span class="lineNum">     150 </span><span class="lineNoCov">          0 :   return IMB_FTYPE_NONE;</span></a>
+<a name="151"><span class="lineNum">     151 </span>            : }</a>
+<a name="152"><span class="lineNum">     152 </span>            : </a>
+<a name="153"><span class="lineNum">     153 </span><span class="lineNoCov">          0 : eImbFileType IMB_test_image_type(const char *filepath)</span></a>
+<a name="154"><span class="lineNum">     154 </span>            : {</a>
+<a name="155"><span class="lineNum">     155 </span>            :   uchar buf[HEADER_SIZE];</a>
+<a name="156"><span class="lineNum">     156 </span><span class="lineNoCov">          0 :   const int64_t buf_size = imb_test_image_read_header_from_filepath(filepath, buf);</span></a>
+<a name="157"><span class="lineNum">     157 </span><span class="lineNoCov">          0 :   if (buf_size &lt;= 0) {</span></a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineNoCov">          0 :     return IMB_FTYPE_NONE;</span></a>
+<a name="159"><span class="lineNum">     159 </span>            :   }</a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineNoCov">          0 :   return IMB_test_image_type_from_memory(buf, size_t(buf_size));</span></a>
+<a name="161"><span class="lineNum">     161 </span>            : }</a>
+<a name="162"><span class="lineNum">     162 </span>            : </a>
+<a name="163"><span class="lineNum">     163 </span><span class="lineNoCov">          0 : bool IMB_test_image_type_matches(const char *filepath, eImbFileType filetype)</span></a>
+<a name="164"><span class="lineNum">     164 </span>            : {</a>
+<a name="165"><span class="lineNum">     165 </span>            :   uchar buf[HEADER_SIZE];</a>
+<a name="166"><span class="lineNum">     166 </span><span class="lineNoCov">          0 :   const int64_t buf_size = imb_test_image_read_header_from_filepath(filepath, buf);</span></a>
+<a name="167"><span class="lineNum">     167 </span><span class="lineNoCov">          0 :   if (buf_size &lt;= 0) {</span></a>
+<a name="168"><span class="lineNum">     168 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="169"><span class="lineNum">     169 </span>            :   }</a>
+<a name="170"><span class="lineNum">     170 </span>            : </a>
+<a name="171"><span class="lineNum">     171 </span><span class="lineNoCov">          0 :   const ImFileType *type = IMB_file_type_from_ftype(filetype);</span></a>
+<a name="172"><span class="lineNum">     172 </span><span class="lineNoCov">          0 :   if (type != nullptr) {</span></a>
+<a name="173"><span class="lineNum">     173 </span>            :     /* Requesting to load a type that can't check its own header doesn't make sense.</a>
+<a name="174"><span class="lineNum">     174 </span>            :      * Keep the check for developers. */</a>
+<a name="175"><span class="lineNum">     175 </span><span class="lineNoCov">          0 :     BLI_assert(type-&gt;is_a != nullptr);</span></a>
+<a name="176"><span class="lineNum">     176 </span><span class="lineNoCov">          0 :     if (type-&gt;is_a != nullptr) {</span></a>
+<a name="177"><span class="lineNum">     177 </span><span class="lineNoCov">          0 :       return type-&gt;is_a(buf, size_t(buf_size));</span></a>
+<a name="178"><span class="lineNum">     178 </span>            :     }</a>
+<a name="179"><span class="lineNum">     179 </span>            :   }</a>
+<a name="180"><span class="lineNum">     180 </span><span class="lineNoCov">          0 :   return false;</span></a>
+<a name="181"><span class="lineNum">     181 </span>            : }</a>
+<a name="182"><span class="lineNum">     182 </span>            : </a>
+<a name="183"><span class="lineNum">     183 </span>            : #undef HEADER_SIZE</a>
+<a name="184"><span class="lineNum">     184 </span>            : </a>
+<a name="185"><span class="lineNum">     185 </span><span class="lineNoCov">          0 : bool IMB_test_image(const char *filepath)</span></a>
+<a name="186"><span class="lineNum">     186 </span>            : {</a>
+<a name="187"><span class="lineNum">     187 </span><span class="lineNoCov">          0 :   return (IMB_test_image_type(filepath) != IMB_FTYPE_NONE);</span></a>
+<a name="188"><span class="lineNum">     188 </span>            : }</a>
+<a name="189"><span class="lineNum">     189 </span>            : </a>
+<a name="190"><span class="lineNum">     190 </span>            : }  // namespace blender</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

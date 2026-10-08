@@ -1,0 +1,411 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - nodes/geometry/nodes/node_geo_field_average.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">nodes/geometry/nodes</a> - node_geo_field_average.cc<span style="font-size: 80%;"> (source / <a href="node_geo_field_average.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">128</td>
+            <td class="headerCovTableEntry">185</td>
+            <td class="headerCovTableEntryLo">69.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntry">27</td>
+            <td class="headerCovTableEntryLo">55.6 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2025 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : #include &quot;BKE_attribute_math.hh&quot;</a>
+<a name="6"><span class="lineNum">       6 </span>            : </a>
+<a name="7"><span class="lineNum">       7 </span>            : #include &quot;BLI_array.hh&quot;</a>
+<a name="8"><span class="lineNum">       8 </span>            : #include &quot;BLI_array_utils.hh&quot;</a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &quot;BLI_generic_virtual_array.hh&quot;</a>
+<a name="10"><span class="lineNum">      10 </span>            : #include &quot;BLI_math_vector_c.hh&quot;</a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &quot;BLI_vector.hh&quot;</a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &quot;BLI_virtual_array.hh&quot;</a>
+<a name="13"><span class="lineNum">      13 </span>            : </a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;NOD_rna_define.hh&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;NOD_socket_search_link.hh&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : </a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;RNA_enum_types.hh&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : </a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &quot;node_geometry_util.hh&quot;</a>
+<a name="20"><span class="lineNum">      20 </span>            : </a>
+<a name="21"><span class="lineNum">      21 </span>            : #include &quot;UI_interface_layout.hh&quot;</a>
+<a name="22"><span class="lineNum">      22 </span>            : #include &quot;UI_resources.hh&quot;</a>
+<a name="23"><span class="lineNum">      23 </span>            : </a>
+<a name="24"><span class="lineNum">      24 </span>            : namespace blender::nodes::node_geo_field_average_cc {</a>
+<a name="25"><span class="lineNum">      25 </span>            : </a>
+<a name="26"><span class="lineNum">      26 </span><span class="lineCov">        971 : static void node_declare(NodeDeclarationBuilder &amp;b)</span></a>
+<a name="27"><span class="lineNum">      27 </span>            : {</a>
+<a name="28"><span class="lineNum">      28 </span><span class="lineCov">        971 :   const bNode *node = b.node_or_null();</span></a>
+<a name="29"><span class="lineNum">      29 </span>            : </a>
+<a name="30"><span class="lineNum">      30 </span><span class="lineCov">        971 :   if (node != nullptr) {</span></a>
+<a name="31"><span class="lineNum">      31 </span><span class="lineCov">        186 :     const eCustomDataType data_type = eCustomDataType(node-&gt;custom1);</span></a>
+<a name="32"><span class="lineNum">      32 </span><span class="lineCov">        186 :     b.add_input(data_type, &quot;Value&quot;_ustr)</span></a>
+<a name="33"><span class="lineNum">      33 </span><span class="lineCov">        186 :         .structure_type(StructureType::Field)</span></a>
+<a name="34"><span class="lineNum">      34 </span><span class="lineCov">        372 :         .description(&quot;The values the mean and median will be calculated from&quot;);</span></a>
+<a name="35"><span class="lineNum">      35 </span>            :   }</a>
+<a name="36"><span class="lineNum">      36 </span>            : </a>
+<a name="37"><span class="lineNum">      37 </span><span class="lineCov">        971 :   b.add_input&lt;decl::Int&gt;(&quot;Group ID&quot;_ustr, &quot;Group Index&quot;_ustr)</span></a>
+<a name="38"><span class="lineNum">      38 </span><span class="lineCov">        971 :       .structure_type(StructureType::Field)</span></a>
+<a name="39"><span class="lineNum">      39 </span><span class="lineCov">        971 :       .hide_value()</span></a>
+<a name="40"><span class="lineNum">      40 </span><span class="lineCov">        971 :       .description(&quot;An index used to group values together for multiple separate operations&quot;);</span></a>
+<a name="41"><span class="lineNum">      41 </span>            : </a>
+<a name="42"><span class="lineNum">      42 </span><span class="lineCov">        971 :   if (node != nullptr) {</span></a>
+<a name="43"><span class="lineNum">      43 </span><span class="lineCov">        186 :     const eCustomDataType data_type = eCustomDataType(node-&gt;custom1);</span></a>
+<a name="44"><span class="lineNum">      44 </span><span class="lineCov">        186 :     b.add_output(data_type, &quot;Mean&quot;_ustr)</span></a>
+<a name="45"><span class="lineNum">      45 </span><span class="lineCov">        186 :         .structure_type(StructureType::Field)</span></a>
+<a name="46"><span class="lineNum">      46 </span><span class="lineCov">        186 :         .propagate_references()</span></a>
+<a name="47"><span class="lineNum">      47 </span><span class="lineCov">        186 :         .description(&quot;The sum of all values in each group divided by the size of said group&quot;);</span></a>
+<a name="48"><span class="lineNum">      48 </span><span class="lineCov">        186 :     b.add_output(data_type, &quot;Median&quot;_ustr)</span></a>
+<a name="49"><span class="lineNum">      49 </span><span class="lineCov">        372 :         .translation_context(BLT_I18NCONTEXT_ID_NODETREE)</span></a>
+<a name="50"><span class="lineNum">      50 </span><span class="lineCov">        186 :         .structure_type(StructureType::Field)</span></a>
+<a name="51"><span class="lineNum">      51 </span><span class="lineCov">        186 :         .propagate_references()</span></a>
+<a name="52"><span class="lineNum">      52 </span><span class="lineCov">        372 :         .description(</span></a>
+<a name="53"><span class="lineNum">      53 </span>            :             &quot;The middle value in each group when all values are sorted from lowest to highest&quot;);</a>
+<a name="54"><span class="lineNum">      54 </span>            :   }</a>
+<a name="55"><span class="lineNum">      55 </span><span class="lineCov">        971 : }</span></a>
+<a name="56"><span class="lineNum">      56 </span>            : </a>
+<a name="57"><span class="lineNum">      57 </span><span class="lineNoCov">          0 : static void node_layout(ui::Layout &amp;layout, bContext * /*C*/, PointerRNA *ptr)</span></a>
+<a name="58"><span class="lineNum">      58 </span>            : {</a>
+<a name="59"><span class="lineNum">      59 </span><span class="lineNoCov">          0 :   layout.prop(ptr, &quot;data_type&quot;, UI_ITEM_NONE, &quot;&quot;, ICON_NONE);</span></a>
+<a name="60"><span class="lineNum">      60 </span><span class="lineNoCov">          0 :   layout.prop(ptr, &quot;domain&quot;, UI_ITEM_NONE, &quot;&quot;, ICON_NONE);</span></a>
+<a name="61"><span class="lineNum">      61 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="62"><span class="lineNum">      62 </span>            : </a>
+<a name="63"><span class="lineNum">      63 </span><span class="lineCov">         20 : static void node_init(bNodeTree * /*tree*/, bNode *node)</span></a>
+<a name="64"><span class="lineNum">      64 </span>            : {</a>
+<a name="65"><span class="lineNum">      65 </span><span class="lineCov">         20 :   node-&gt;custom1 = CD_PROP_FLOAT;</span></a>
+<a name="66"><span class="lineNum">      66 </span><span class="lineCov">         20 :   node-&gt;custom2 = int16_t(AttrDomain::Point);</span></a>
+<a name="67"><span class="lineNum">      67 </span><span class="lineCov">         20 : }</span></a>
+<a name="68"><span class="lineNum">      68 </span>            : </a>
+<a name="69"><span class="lineNum">      69 </span>            : enum class Operation { Mean = 0, Median = 1 };</a>
+<a name="70"><span class="lineNum">      70 </span>            : </a>
+<a name="71"><span class="lineNum">      71 </span><span class="lineCov">       7674 : static std::optional&lt;eCustomDataType&gt; node_type_from_other_socket(const bNodeSocket &amp;socket)</span></a>
+<a name="72"><span class="lineNum">      72 </span>            : {</a>
+<a name="73"><span class="lineNum">      73 </span><span class="lineCov">       7674 :   switch (socket.type) {</span></a>
+<a name="74"><span class="lineNum">      74 </span><span class="lineCov">       3786 :     case SOCK_FLOAT:</span></a>
+<a name="75"><span class="lineNum">      75 </span>            :     case SOCK_BOOLEAN:</a>
+<a name="76"><span class="lineNum">      76 </span>            :     case SOCK_INT:</a>
+<a name="77"><span class="lineNum">      77 </span><span class="lineCov">       3786 :       return CD_PROP_FLOAT;</span></a>
+<a name="78"><span class="lineNum">      78 </span><span class="lineCov">       2570 :     case SOCK_VECTOR:</span></a>
+<a name="79"><span class="lineNum">      79 </span>            :     case SOCK_RGBA:</a>
+<a name="80"><span class="lineNum">      80 </span><span class="lineCov">       2570 :       return CD_PROP_FLOAT3;</span></a>
+<a name="81"><span class="lineNum">      81 </span><span class="lineCov">       1318 :     default:</span></a>
+<a name="82"><span class="lineNum">      82 </span><span class="lineCov">       1318 :       return std::nullopt;</span></a>
+<a name="83"><span class="lineNum">      83 </span>            :   }</a>
+<a name="84"><span class="lineNum">      84 </span>            : }</a>
+<a name="85"><span class="lineNum">      85 </span>            : </a>
+<a name="86"><span class="lineNum">      86 </span><span class="lineCov">       7674 : static void node_gather_link_searches(GatherLinkSearchOpParams &amp;params)</span></a>
+<a name="87"><span class="lineNum">      87 </span>            : {</a>
+<a name="88"><span class="lineNum">      88 </span><span class="lineCov">       7674 :   const NodeDeclaration &amp;declaration = *params.node_type().static_declaration;</span></a>
+<a name="89"><span class="lineNum">      89 </span><span class="lineCov">       7674 :   search_link_ops_for_declarations(params, declaration.inputs);</span></a>
+<a name="90"><span class="lineNum">      90 </span>            : </a>
+<a name="91"><span class="lineNum">      91 </span><span class="lineCov">       7674 :   const std::optional&lt;eCustomDataType&gt; type = node_type_from_other_socket(params.other_socket());</span></a>
+<a name="92"><span class="lineNum">      92 </span><span class="lineCov">       7674 :   if (!type) {</span></a>
+<a name="93"><span class="lineNum">      93 </span><span class="lineCov">       1318 :     return;</span></a>
+<a name="94"><span class="lineNum">      94 </span>            :   }</a>
+<a name="95"><span class="lineNum">      95 </span><span class="lineCov">       6356 :   if (params.in_out() == SOCK_OUT) {</span></a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineCov">       4924 :     params.add_item(</span></a>
+<a name="97"><span class="lineNum">      97 </span>            :         IFACE_(&quot;Mean&quot;),</a>
+<a name="98"><span class="lineNum">      98 </span><span class="lineCov">       2462 :         [type](LinkSearchOpParams &amp;params) {</span></a>
+<a name="99"><span class="lineNum">      99 </span><span class="lineCov">          5 :           bNode &amp;node = params.add_node(&quot;GeometryNodeFieldAverage&quot;_ustr);</span></a>
+<a name="100"><span class="lineNum">     100 </span><span class="lineCov">          5 :           node.custom1 = *type;</span></a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineCov">          5 :           params.update_and_connect_available_socket(node, &quot;Mean&quot;_ustr);</span></a>
+<a name="102"><span class="lineNum">     102 </span><span class="lineCov">          5 :         },</span></a>
+<a name="103"><span class="lineNum">     103 </span>            :         0);</a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineCov">       4924 :     params.add_item(</span></a>
+<a name="105"><span class="lineNum">     105 </span>            :         CTX_IFACE_(BLT_I18NCONTEXT_ID_NODETREE, &quot;Median&quot;),</a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineCov">       4924 :         [type](LinkSearchOpParams &amp;params) {</span></a>
+<a name="107"><span class="lineNum">     107 </span><span class="lineCov">          5 :           bNode &amp;node = params.add_node(&quot;GeometryNodeFieldAverage&quot;_ustr);</span></a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineCov">          5 :           node.custom1 = *type;</span></a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineCov">          5 :           params.update_and_connect_available_socket(node, &quot;Median&quot;_ustr);</span></a>
+<a name="110"><span class="lineNum">     110 </span><span class="lineCov">          5 :         },</span></a>
+<a name="111"><span class="lineNum">     111 </span>            :         -1);</a>
+<a name="112"><span class="lineNum">     112 </span>            :   }</a>
+<a name="113"><span class="lineNum">     113 </span>            :   else {</a>
+<a name="114"><span class="lineNum">     114 </span><span class="lineCov">       7788 :     params.add_item(</span></a>
+<a name="115"><span class="lineNum">     115 </span>            :         IFACE_(&quot;Value&quot;),</a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineCov">       7788 :         [type](LinkSearchOpParams &amp;params) {</span></a>
+<a name="117"><span class="lineNum">     117 </span><span class="lineCov">          5 :           bNode &amp;node = params.add_node(&quot;GeometryNodeFieldAverage&quot;_ustr);</span></a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineCov">          5 :           node.custom1 = *type;</span></a>
+<a name="119"><span class="lineNum">     119 </span><span class="lineCov">          5 :           params.update_and_connect_available_socket(node, &quot;Value&quot;_ustr);</span></a>
+<a name="120"><span class="lineNum">     120 </span><span class="lineCov">          5 :         },</span></a>
+<a name="121"><span class="lineNum">     121 </span>            :         0);</a>
+<a name="122"><span class="lineNum">     122 </span>            :   }</a>
+<a name="123"><span class="lineNum">     123 </span>            : }</a>
+<a name="124"><span class="lineNum">     124 </span>            : </a>
+<a name="125"><span class="lineNum">     125 </span><span class="lineNoCov">          0 : template&lt;typename T&gt; static T calculate_median(MutableSpan&lt;T&gt; values)</span></a>
+<a name="126"><span class="lineNum">     126 </span>            : {</a>
+<a name="127"><span class="lineNum">     127 </span>            :   if constexpr (std::is_same&lt;T, float3&gt;::value) {</a>
+<a name="128"><span class="lineNum">     128 </span><span class="lineNoCov">          0 :     Array&lt;float&gt; x_vals(values.size()), y_vals(values.size()), z_vals(values.size());</span></a>
+<a name="129"><span class="lineNum">     129 </span>            : </a>
+<a name="130"><span class="lineNum">     130 </span><span class="lineNoCov">          0 :     for (const int i : values.index_range()) {</span></a>
+<a name="131"><span class="lineNum">     131 </span><span class="lineNoCov">          0 :       float3 value = values[i];</span></a>
+<a name="132"><span class="lineNum">     132 </span><span class="lineNoCov">          0 :       x_vals[i] = value.x;</span></a>
+<a name="133"><span class="lineNum">     133 </span><span class="lineNoCov">          0 :       y_vals[i] = value.y;</span></a>
+<a name="134"><span class="lineNum">     134 </span><span class="lineNoCov">          0 :       z_vals[i] = value.z;</span></a>
+<a name="135"><span class="lineNum">     135 </span>            :     }</a>
+<a name="136"><span class="lineNum">     136 </span>            : </a>
+<a name="137"><span class="lineNum">     137 </span><span class="lineNoCov">          0 :     return float3(calculate_median&lt;float&gt;(x_vals),</span></a>
+<a name="138"><span class="lineNum">     138 </span>            :                   calculate_median&lt;float&gt;(y_vals),</a>
+<a name="139"><span class="lineNum">     139 </span><span class="lineNoCov">          0 :                   calculate_median&lt;float&gt;(z_vals));</span></a>
+<a name="140"><span class="lineNum">     140 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="141"><span class="lineNum">     141 </span>            :   else {</a>
+<a name="142"><span class="lineNum">     142 </span><span class="lineNoCov">          0 :     const auto middle_itr = values.begin() + values.size() / 2;</span></a>
+<a name="143"><span class="lineNum">     143 </span><span class="lineNoCov">          0 :     std::nth_element(values.begin(), middle_itr, values.end());</span></a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineNoCov">          0 :     if (values.size() % 2 == 0) {</span></a>
+<a name="145"><span class="lineNum">     145 </span><span class="lineNoCov">          0 :       auto *const left_middle_itr = std::max_element(values.begin(), middle_itr);</span></a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineNoCov">          0 :       return math::midpoint&lt;T&gt;(*left_middle_itr, *middle_itr);</span></a>
+<a name="147"><span class="lineNum">     147 </span>            :     }</a>
+<a name="148"><span class="lineNum">     148 </span><span class="lineNoCov">          0 :     return *middle_itr;</span></a>
+<a name="149"><span class="lineNum">     149 </span>            :   }</a>
+<a name="150"><span class="lineNum">     150 </span>            : }</a>
+<a name="151"><span class="lineNum">     151 </span>            : </a>
+<a name="152"><span class="lineNum">     152 </span>            : class FieldAverageInput final : public bke::GeometryFieldInput {</a>
+<a name="153"><span class="lineNum">     153 </span>            :  private:</a>
+<a name="154"><span class="lineNum">     154 </span>            :   GField input_;</a>
+<a name="155"><span class="lineNum">     155 </span>            :   Field&lt;int&gt; group_index_;</a>
+<a name="156"><span class="lineNum">     156 </span>            :   AttrDomain source_domain_;</a>
+<a name="157"><span class="lineNum">     157 </span>            :   Operation operation_;</a>
+<a name="158"><span class="lineNum">     158 </span>            : </a>
+<a name="159"><span class="lineNum">     159 </span>            :  public:</a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineCov">         28 :   FieldAverageInput(const AttrDomain source_domain,</span></a>
+<a name="161"><span class="lineNum">     161 </span>            :                     GField input,</a>
+<a name="162"><span class="lineNum">     162 </span>            :                     Field&lt;int&gt; group_index,</a>
+<a name="163"><span class="lineNum">     163 </span>            :                     Operation operation)</a>
+<a name="164"><span class="lineNum">     164 </span><span class="lineCov">         28 :       : bke::GeometryFieldInput(input.cpp_type(), &quot;Calculation&quot;),</span></a>
+<a name="165"><span class="lineNum">     165 </span><span class="lineCov">         28 :         input_(std::move(input)),</span></a>
+<a name="166"><span class="lineNum">     166 </span><span class="lineCov">         28 :         group_index_(std::move(group_index)),</span></a>
+<a name="167"><span class="lineNum">     167 </span><span class="lineCov">         28 :         source_domain_(source_domain),</span></a>
+<a name="168"><span class="lineNum">     168 </span><span class="lineCov">         84 :         operation_(operation)</span></a>
+<a name="169"><span class="lineNum">     169 </span>            :   {</a>
+<a name="170"><span class="lineNum">     170 </span><span class="lineCov">         28 :   }</span></a>
+<a name="171"><span class="lineNum">     171 </span>            : </a>
+<a name="172"><span class="lineNum">     172 </span><span class="lineCov">        217 :   GVArray get_varray_for_context(const bke::GeometryFieldContext &amp;context,</span></a>
+<a name="173"><span class="lineNum">     173 </span>            :                                  const IndexMask &amp; /*mask*/) const final</a>
+<a name="174"><span class="lineNum">     174 </span>            :   {</a>
+<a name="175"><span class="lineNum">     175 </span><span class="lineCov">        217 :     const AttributeAccessor attributes = *context.attributes();</span></a>
+<a name="176"><span class="lineNum">     176 </span><span class="lineCov">        217 :     const int64_t domain_size = attributes.domain_size(source_domain_);</span></a>
+<a name="177"><span class="lineNum">     177 </span><span class="lineCov">        217 :     if (domain_size == 0) {</span></a>
+<a name="178"><span class="lineNum">     178 </span><span class="lineNoCov">          0 :       return {};</span></a>
+<a name="179"><span class="lineNum">     179 </span>            :     }</a>
+<a name="180"><span class="lineNum">     180 </span>            : </a>
+<a name="181"><span class="lineNum">     181 </span><span class="lineCov">        217 :     const bke::GeometryFieldContext source_context{context, source_domain_};</span></a>
+<a name="182"><span class="lineNum">     182 </span><span class="lineCov">        217 :     fn::FieldEvaluator evaluator{source_context, domain_size};</span></a>
+<a name="183"><span class="lineNum">     183 </span><span class="lineCov">        217 :     evaluator.add(input_);</span></a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineCov">        217 :     evaluator.add(group_index_);</span></a>
+<a name="185"><span class="lineNum">     185 </span><span class="lineCov">        217 :     evaluator.evaluate();</span></a>
+<a name="186"><span class="lineNum">     186 </span><span class="lineCov">        217 :     const GVArray g_values = evaluator.get_evaluated(0);</span></a>
+<a name="187"><span class="lineNum">     187 </span><span class="lineCov">        217 :     const VArray&lt;int&gt; group_indices = evaluator.get_evaluated&lt;int&gt;(1);</span></a>
+<a name="188"><span class="lineNum">     188 </span>            : </a>
+<a name="189"><span class="lineNum">     189 </span><span class="lineCov">        217 :     GVArray g_outputs;</span></a>
+<a name="190"><span class="lineNum">     190 </span>            : </a>
+<a name="191"><span class="lineNum">     191 </span><span class="lineCov">        434 :     g_values.type().to_static_type&lt;int, float, float3&gt;([&amp;]&lt;typename T&gt;() {</span></a>
+<a name="192"><span class="lineNum">     192 </span><span class="lineCov">        217 :       const VArraySpan&lt;T&gt; values = g_values.typed&lt;T&gt;();</span></a>
+<a name="193"><span class="lineNum">     193 </span>            : </a>
+<a name="194"><span class="lineNum">     194 </span><span class="lineCov">        217 :       if (operation_ == Operation::Mean) {</span></a>
+<a name="195"><span class="lineNum">     195 </span><span class="lineCov">        217 :         if (group_indices.is_single()) {</span></a>
+<a name="196"><span class="lineNum">     196 </span><span class="lineCov">        217 :           const T mean = array_utils::compute_sum&lt;T&gt;(values) / domain_size;</span></a>
+<a name="197"><span class="lineNum">     197 </span><span class="lineCov">        216 :           g_outputs = VArray&lt;T&gt;::from_single(mean, domain_size);</span></a>
+<a name="198"><span class="lineNum">     198 </span>            :         }</a>
+<a name="199"><span class="lineNum">     199 </span>            :         else {</a>
+<a name="200"><span class="lineNum">     200 </span><span class="lineNoCov">          0 :           Map&lt;int, std::pair&lt;T, int&gt;&gt; sum_and_counts;</span></a>
+<a name="201"><span class="lineNum">     201 </span><span class="lineNoCov">          0 :           for (const int i : values.index_range()) {</span></a>
+<a name="202"><span class="lineNum">     202 </span><span class="lineNoCov">          0 :             auto &amp;pair = sum_and_counts.lookup_or_add(group_indices[i], std::make_pair(T(), 0));</span></a>
+<a name="203"><span class="lineNum">     203 </span><span class="lineNoCov">          0 :             pair.first = pair.first + values[i];</span></a>
+<a name="204"><span class="lineNum">     204 </span><span class="lineNoCov">          0 :             pair.second = pair.second + 1;</span></a>
+<a name="205"><span class="lineNum">     205 </span>            :           }</a>
+<a name="206"><span class="lineNum">     206 </span>            : </a>
+<a name="207"><span class="lineNum">     207 </span><span class="lineNoCov">          0 :           Array&lt;T&gt; outputs(domain_size);</span></a>
+<a name="208"><span class="lineNum">     208 </span><span class="lineNoCov">          0 :           for (const int i : values.index_range()) {</span></a>
+<a name="209"><span class="lineNum">     209 </span><span class="lineNoCov">          0 :             const auto &amp;pair = sum_and_counts.lookup(group_indices[i]);</span></a>
+<a name="210"><span class="lineNum">     210 </span><span class="lineNoCov">          0 :             outputs[i] = pair.first / pair.second;</span></a>
+<a name="211"><span class="lineNum">     211 </span>            :           }</a>
+<a name="212"><span class="lineNum">     212 </span><span class="lineNoCov">          0 :           g_outputs = VArray&lt;T&gt;::from_container(std::move(outputs));</span></a>
+<a name="213"><span class="lineNum">     213 </span><span class="lineNoCov">          0 :         }</span></a>
+<a name="214"><span class="lineNum">     214 </span>            :       }</a>
+<a name="215"><span class="lineNum">     215 </span>            :       else {</a>
+<a name="216"><span class="lineNum">     216 </span><span class="lineNoCov">          0 :         if (group_indices.is_single()) {</span></a>
+<a name="217"><span class="lineNum">     217 </span><span class="lineNoCov">          0 :           Array&lt;T&gt; sorted_values(values);</span></a>
+<a name="218"><span class="lineNum">     218 </span><span class="lineNoCov">          0 :           T median = calculate_median&lt;T&gt;(sorted_values);</span></a>
+<a name="219"><span class="lineNum">     219 </span><span class="lineNoCov">          0 :           g_outputs = VArray&lt;T&gt;::from_single(median, domain_size);</span></a>
+<a name="220"><span class="lineNum">     220 </span><span class="lineNoCov">          0 :         }</span></a>
+<a name="221"><span class="lineNum">     221 </span>            :         else {</a>
+<a name="222"><span class="lineNum">     222 </span><span class="lineNoCov">          0 :           Map&lt;int, Vector&lt;T&gt;&gt; groups;</span></a>
+<a name="223"><span class="lineNum">     223 </span><span class="lineNoCov">          0 :           for (const int i : values.index_range()) {</span></a>
+<a name="224"><span class="lineNum">     224 </span><span class="lineNoCov">          0 :             groups.lookup_or_add(group_indices[i], Vector&lt;T&gt;()).append(values[i]);</span></a>
+<a name="225"><span class="lineNum">     225 </span>            :           }</a>
+<a name="226"><span class="lineNum">     226 </span>            : </a>
+<a name="227"><span class="lineNum">     227 </span><span class="lineNoCov">          0 :           Map&lt;int, T&gt; medians;</span></a>
+<a name="228"><span class="lineNum">     228 </span><span class="lineNoCov">          0 :           for (MutableMapItem&lt;int, Vector&lt;T&gt;&gt; group : groups.items()) {</span></a>
+<a name="229"><span class="lineNum">     229 </span><span class="lineNoCov">          0 :             medians.add(group.key, calculate_median&lt;T&gt;(group.value));</span></a>
+<a name="230"><span class="lineNum">     230 </span>            :           }</a>
+<a name="231"><span class="lineNum">     231 </span>            : </a>
+<a name="232"><span class="lineNum">     232 </span><span class="lineNoCov">          0 :           Array&lt;T&gt; outputs(domain_size);</span></a>
+<a name="233"><span class="lineNum">     233 </span><span class="lineNoCov">          0 :           for (const int i : values.index_range()) {</span></a>
+<a name="234"><span class="lineNum">     234 </span><span class="lineNoCov">          0 :             outputs[i] = medians.lookup(group_indices[i]);</span></a>
+<a name="235"><span class="lineNum">     235 </span>            :           }</a>
+<a name="236"><span class="lineNum">     236 </span><span class="lineNoCov">          0 :           g_outputs = VArray&lt;T&gt;::from_container(std::move(outputs));</span></a>
+<a name="237"><span class="lineNum">     237 </span><span class="lineNoCov">          0 :         }</span></a>
+<a name="238"><span class="lineNum">     238 </span>            :       }</a>
+<a name="239"><span class="lineNum">     239 </span><span class="lineCov">        217 :     });</span></a>
+<a name="240"><span class="lineNum">     240 </span>            : </a>
+<a name="241"><span class="lineNum">     241 </span><span class="lineCov">        217 :     return attributes.adapt_domain(std::move(g_outputs), source_domain_, context.domain());</span></a>
+<a name="242"><span class="lineNum">     242 </span><span class="lineCov">        217 :   }</span></a>
+<a name="243"><span class="lineNum">     243 </span>            : </a>
+<a name="244"><span class="lineNum">     244 </span><span class="lineNoCov">          0 :   void foreach_recursive_field(FunctionRef&lt;void(const GField &amp;)&gt; fn) const final</span></a>
+<a name="245"><span class="lineNum">     245 </span>            :   {</a>
+<a name="246"><span class="lineNum">     246 </span><span class="lineNoCov">          0 :     fn(input_);</span></a>
+<a name="247"><span class="lineNum">     247 </span><span class="lineNoCov">          0 :     fn(group_index_);</span></a>
+<a name="248"><span class="lineNum">     248 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="249"><span class="lineNum">     249 </span>            : </a>
+<a name="250"><span class="lineNum">     250 </span><span class="lineCov">        546 :   void hash_unique(UniqueHashBytes &amp;hash, fn::FieldHashDeep &amp;deep_hash_cache) const override</span></a>
+<a name="251"><span class="lineNum">     251 </span>            :   {</a>
+<a name="252"><span class="lineNum">     252 </span>            :     static constexpr int8_t id = 0;</a>
+<a name="253"><span class="lineNum">     253 </span><span class="lineCov">        546 :     hash.add(&amp;id);</span></a>
+<a name="254"><span class="lineNum">     254 </span><span class="lineCov">        546 :     hash.add(deep_hash_cache.ensure(input_));</span></a>
+<a name="255"><span class="lineNum">     255 </span><span class="lineCov">        546 :     hash.add(deep_hash_cache.ensure(group_index_));</span></a>
+<a name="256"><span class="lineNum">     256 </span><span class="lineCov">        546 :     hash.add(source_domain_);</span></a>
+<a name="257"><span class="lineNum">     257 </span><span class="lineCov">        546 :     hash.add(operation_);</span></a>
+<a name="258"><span class="lineNum">     258 </span><span class="lineCov">        546 :   }</span></a>
+<a name="259"><span class="lineNum">     259 </span>            : </a>
+<a name="260"><span class="lineNum">     260 </span><span class="lineNoCov">          0 :   std::optional&lt;AttrDomain&gt; preferred_domain(</span></a>
+<a name="261"><span class="lineNum">     261 </span>            :       const GeometryComponent &amp; /*component*/) const override</a>
+<a name="262"><span class="lineNum">     262 </span>            :   {</a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineNoCov">          0 :     return source_domain_;</span></a>
+<a name="264"><span class="lineNum">     264 </span>            :   }</a>
+<a name="265"><span class="lineNum">     265 </span>            : };</a>
+<a name="266"><span class="lineNum">     266 </span>            : </a>
+<a name="267"><span class="lineNum">     267 </span><span class="lineCov">         28 : static void node_geo_exec(GeoNodeExecParams params)</span></a>
+<a name="268"><span class="lineNum">     268 </span>            : {</a>
+<a name="269"><span class="lineNum">     269 </span><span class="lineCov">         28 :   const AttrDomain source_domain = AttrDomain(params.node().custom2);</span></a>
+<a name="270"><span class="lineNum">     270 </span>            : </a>
+<a name="271"><span class="lineNum">     271 </span><span class="lineCov">         28 :   const Field&lt;int&gt; group_index_field = params.extract_input&lt;Field&lt;int&gt;&gt;(&quot;Group Index&quot;_ustr);</span></a>
+<a name="272"><span class="lineNum">     272 </span><span class="lineCov">         28 :   const GField input_field = params.extract_input&lt;GField&gt;(&quot;Value&quot;_ustr);</span></a>
+<a name="273"><span class="lineNum">     273 </span><span class="lineCov">         28 :   if (params.output_is_required(&quot;Mean&quot;_ustr)) {</span></a>
+<a name="274"><span class="lineNum">     274 </span><span class="lineCov">         28 :     params.set_output&lt;GField&gt;(&quot;Mean&quot;_ustr,</span></a>
+<a name="275"><span class="lineNum">     275 </span><span class="lineCov">         28 :                               GField::from_input&lt;FieldAverageInput&gt;(</span></a>
+<a name="276"><span class="lineNum">     276 </span><span class="lineCov">         56 :                                   source_domain, input_field, group_index_field, Operation::Mean));</span></a>
+<a name="277"><span class="lineNum">     277 </span>            :   }</a>
+<a name="278"><span class="lineNum">     278 </span><span class="lineCov">         28 :   if (params.output_is_required(&quot;Median&quot;_ustr)) {</span></a>
+<a name="279"><span class="lineNum">     279 </span><span class="lineNoCov">          0 :     params.set_output&lt;GField&gt;(</span></a>
+<a name="280"><span class="lineNum">     280 </span>            :         &quot;Median&quot;_ustr,</a>
+<a name="281"><span class="lineNum">     281 </span><span class="lineNoCov">          0 :         GField::from_input&lt;FieldAverageInput&gt;(</span></a>
+<a name="282"><span class="lineNum">     282 </span><span class="lineNoCov">          0 :             source_domain, input_field, group_index_field, Operation::Median));</span></a>
+<a name="283"><span class="lineNum">     283 </span>            :   }</a>
+<a name="284"><span class="lineNum">     284 </span><span class="lineCov">         28 : }</span></a>
+<a name="285"><span class="lineNum">     285 </span>            : </a>
+<a name="286"><span class="lineNum">     286 </span><span class="lineCov">        785 : static void node_rna(StructRNA *srna)</span></a>
+<a name="287"><span class="lineNum">     287 </span>            : {</a>
+<a name="288"><span class="lineNum">     288 </span>            :   static EnumPropertyItem items[] = {</a>
+<a name="289"><span class="lineNum">     289 </span>            :       {CD_PROP_FLOAT, &quot;FLOAT&quot;, ICON_NODE_SOCKET_FLOAT, &quot;Float&quot;, &quot;Floating-point value&quot;},</a>
+<a name="290"><span class="lineNum">     290 </span>            :       {CD_PROP_FLOAT3,</a>
+<a name="291"><span class="lineNum">     291 </span>            :        &quot;FLOAT_VECTOR&quot;,</a>
+<a name="292"><span class="lineNum">     292 </span>            :        ICON_NODE_SOCKET_VECTOR,</a>
+<a name="293"><span class="lineNum">     293 </span>            :        &quot;Vector&quot;,</a>
+<a name="294"><span class="lineNum">     294 </span>            :        &quot;3D vector with floating-point values&quot;},</a>
+<a name="295"><span class="lineNum">     295 </span>            :       {0, nullptr, 0, nullptr, nullptr},</a>
+<a name="296"><span class="lineNum">     296 </span>            :   };</a>
+<a name="297"><span class="lineNum">     297 </span>            : </a>
+<a name="298"><span class="lineNum">     298 </span><span class="lineCov">        785 :   RNA_def_node_enum(srna,</span></a>
+<a name="299"><span class="lineNum">     299 </span>            :                     &quot;data_type&quot;,</a>
+<a name="300"><span class="lineNum">     300 </span>            :                     &quot;Data Type&quot;,</a>
+<a name="301"><span class="lineNum">     301 </span>            :                     &quot;Type of data the outputs are calculated from&quot;,</a>
+<a name="302"><span class="lineNum">     302 </span>            :                     items,</a>
+<a name="303"><span class="lineNum">     303 </span><span class="lineCov">        785 :                     NOD_inline_enum_accessors(custom1),</span></a>
+<a name="304"><span class="lineNum">     304 </span><span class="lineCov">        785 :                     CD_PROP_FLOAT);</span></a>
+<a name="305"><span class="lineNum">     305 </span>            : </a>
+<a name="306"><span class="lineNum">     306 </span><span class="lineCov">        785 :   RNA_def_node_enum(srna,</span></a>
+<a name="307"><span class="lineNum">     307 </span>            :                     &quot;domain&quot;,</a>
+<a name="308"><span class="lineNum">     308 </span>            :                     &quot;Domain&quot;,</a>
+<a name="309"><span class="lineNum">     309 </span>            :                     &quot;&quot;,</a>
+<a name="310"><span class="lineNum">     310 </span>            :                     rna_enum_attribute_domain_items,</a>
+<a name="311"><span class="lineNum">     311 </span><span class="lineCov">        785 :                     NOD_inline_enum_accessors(custom2),</span></a>
+<a name="312"><span class="lineNum">     312 </span><span class="lineCov">        785 :                     int(AttrDomain::Point),</span></a>
+<a name="313"><span class="lineNum">     313 </span>            :                     nullptr,</a>
+<a name="314"><span class="lineNum">     314 </span>            :                     true);</a>
+<a name="315"><span class="lineNum">     315 </span><span class="lineCov">        785 : }</span></a>
+<a name="316"><span class="lineNum">     316 </span>            : </a>
+<a name="317"><span class="lineNum">     317 </span><span class="lineCov">        785 : static void node_register()</span></a>
+<a name="318"><span class="lineNum">     318 </span>            : {</a>
+<a name="319"><span class="lineNum">     319 </span><span class="lineCov">        785 :   static bke::bNodeType ntype;</span></a>
+<a name="320"><span class="lineNum">     320 </span>            : </a>
+<a name="321"><span class="lineNum">     321 </span><span class="lineCov">        785 :   geo_node_type_base(&amp;ntype, &quot;GeometryNodeFieldAverage&quot;_ustr);</span></a>
+<a name="322"><span class="lineNum">     322 </span><span class="lineCov">        785 :   ntype.ui_name = &quot;Field Average&quot;;</span></a>
+<a name="323"><span class="lineNum">     323 </span><span class="lineCov">        785 :   ntype.ui_description = &quot;Calculate the mean and median of a given field&quot;;</span></a>
+<a name="324"><span class="lineNum">     324 </span><span class="lineCov">        785 :   ntype.nclass = NODE_CLASS_CONVERTER;</span></a>
+<a name="325"><span class="lineNum">     325 </span><span class="lineCov">        785 :   ntype.geometry_node_execute = node_geo_exec;</span></a>
+<a name="326"><span class="lineNum">     326 </span><span class="lineCov">        785 :   ntype.initfunc = node_init;</span></a>
+<a name="327"><span class="lineNum">     327 </span><span class="lineCov">        785 :   ntype.draw_buttons = node_layout;</span></a>
+<a name="328"><span class="lineNum">     328 </span><span class="lineCov">        785 :   ntype.declare = node_declare;</span></a>
+<a name="329"><span class="lineNum">     329 </span><span class="lineCov">        785 :   ntype.gather_link_search_ops = node_gather_link_searches;</span></a>
+<a name="330"><span class="lineNum">     330 </span><span class="lineCov">        785 :   bke::node_register_type(ntype);</span></a>
+<a name="331"><span class="lineNum">     331 </span><span class="lineCov">        785 :   node_rna(ntype.rna_ext.srna);</span></a>
+<a name="332"><span class="lineNum">     332 </span><span class="lineCov">        785 : }</span></a>
+<a name="333"><span class="lineNum">     333 </span><span class="lineCov">        785 : NOD_REGISTER_NODE(node_register)</span></a>
+<a name="334"><span class="lineNum">     334 </span>            : </a>
+<a name="335"><span class="lineNum">     335 </span>            : }  // namespace blender::nodes::node_geo_field_average_cc</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

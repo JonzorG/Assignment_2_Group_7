@@ -1,0 +1,1033 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - makesdna/DNA_screen_types.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">makesdna</a> - DNA_screen_types.h<span style="font-size: 80%;"> (source / <a href="DNA_screen_types.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntryLo">45.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntry">71</td>
+            <td class="headerCovTableEntryLo">36.6 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2001-2002 NaN Holding BV. All rights reserved.</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup DNA</a>
+<a name="7"><span class="lineNum">       7 </span>            :  */</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #pragma once</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &quot;BLI_enum_flags.hh&quot;</a>
+<a name="12"><span class="lineNum">      12 </span>            : </a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;DNA_asset_types.h&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;DNA_defs.h&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;DNA_listBase.h&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &quot;DNA_vec_types.h&quot;</a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;DNA_view2d_types.h&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : </a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &quot;DNA_ID.h&quot;</a>
+<a name="20"><span class="lineNum">      20 </span>            : </a>
+<a name="21"><span class="lineNum">      21 </span>            : namespace blender {</a>
+<a name="22"><span class="lineNum">      22 </span>            : </a>
+<a name="23"><span class="lineNum">      23 </span>            : struct ARegion;</a>
+<a name="24"><span class="lineNum">      24 </span>            : struct ARegionType;</a>
+<a name="25"><span class="lineNum">      25 </span>            : struct PanelType;</a>
+<a name="26"><span class="lineNum">      26 </span>            : struct PointerRNA;</a>
+<a name="27"><span class="lineNum">      27 </span>            : struct Scene;</a>
+<a name="28"><span class="lineNum">      28 </span>            : struct SpaceLink;</a>
+<a name="29"><span class="lineNum">      29 </span>            : struct SpaceType;</a>
+<a name="30"><span class="lineNum">      30 </span>            : struct uiList;</a>
+<a name="31"><span class="lineNum">      31 </span>            : struct uiListType;</a>
+<a name="32"><span class="lineNum">      32 </span>            : struct wmDrawBuffer;</a>
+<a name="33"><span class="lineNum">      33 </span>            : struct wmTimer;</a>
+<a name="34"><span class="lineNum">      34 </span>            : struct wmTooltipState;</a>
+<a name="35"><span class="lineNum">      35 </span>            : struct Panel_Runtime;</a>
+<a name="36"><span class="lineNum">      36 </span>            : namespace bke {</a>
+<a name="37"><span class="lineNum">      37 </span>            : struct ARegionRuntime;</a>
+<a name="38"><span class="lineNum">      38 </span>            : struct FileHandlerType;</a>
+<a name="39"><span class="lineNum">      39 </span>            : }  // namespace bke</a>
+<a name="40"><span class="lineNum">      40 </span>            : namespace ui {</a>
+<a name="41"><span class="lineNum">      41 </span>            : struct Layout;</a>
+<a name="42"><span class="lineNum">      42 </span>            : }  // namespace ui</a>
+<a name="43"><span class="lineNum">      43 </span>            : </a>
+<a name="44"><span class="lineNum">      44 </span>            : /** #bScreen.flag */</a>
+<a name="45"><span class="lineNum">      45 </span>            : enum eScreen_Flag : short {</a>
+<a name="46"><span class="lineNum">      46 </span>            :   SCREEN_DEPRECATED = 1,</a>
+<a name="47"><span class="lineNum">      47 </span>            :   SCREEN_COLLAPSE_STATUSBAR = 2,</a>
+<a name="48"><span class="lineNum">      48 </span>            : };</a>
+<a name="49"><span class="lineNum">      49 </span><span class="lineNoCov">          0 : ENUM_OPERATORS(eScreen_Flag)</span></a>
+<a name="50"><span class="lineNum">      50 </span>            : </a>
+<a name="51"><span class="lineNum">      51 </span>            : /** #bScreen.state */</a>
+<a name="52"><span class="lineNum">      52 </span>            : enum eScreen_State : char {</a>
+<a name="53"><span class="lineNum">      53 </span>            :   SCREENNORMAL = 0,</a>
+<a name="54"><span class="lineNum">      54 </span>            :   /** One editor taking over the screen. */</a>
+<a name="55"><span class="lineNum">      55 </span>            :   SCREENMAXIMIZED = 1,</a>
+<a name="56"><span class="lineNum">      56 </span>            :   /**</a>
+<a name="57"><span class="lineNum">      57 </span>            :    * One editor taking over the screen with no bare-minimum UI elements.</a>
+<a name="58"><span class="lineNum">      58 </span>            :    *</a>
+<a name="59"><span class="lineNum">      59 </span>            :    * Besides making the area full-screen this disables navigation &amp; statistics because</a>
+<a name="60"><span class="lineNum">      60 </span>            :    * this is part of a stereo 3D pipeline where these elements would interfere, see: !142418.</a>
+<a name="61"><span class="lineNum">      61 </span>            :    */</a>
+<a name="62"><span class="lineNum">      62 </span>            :   SCREENFULL = 2,</a>
+<a name="63"><span class="lineNum">      63 </span>            : };</a>
+<a name="64"><span class="lineNum">      64 </span>            : </a>
+<a name="65"><span class="lineNum">      65 </span>            : /** #bScreen.fullscreen_flag */</a>
+<a name="66"><span class="lineNum">      66 </span>            : enum eScreen_Fullscreen_Flag : short {</a>
+<a name="67"><span class="lineNum">      67 </span>            :   FULLSCREEN_RESTORE_GIZMO_NAVIGATE = (1 &lt;&lt; 0),</a>
+<a name="68"><span class="lineNum">      68 </span>            :   FULLSCREEN_RESTORE_TEXT = (1 &lt;&lt; 1),</a>
+<a name="69"><span class="lineNum">      69 </span>            :   FULLSCREEN_RESTORE_STATS = (1 &lt;&lt; 2),</a>
+<a name="70"><span class="lineNum">      70 </span>            : };</a>
+<a name="71"><span class="lineNum">      71 </span><span class="lineNoCov">          0 : ENUM_OPERATORS(eScreen_Fullscreen_Flag)</span></a>
+<a name="72"><span class="lineNum">      72 </span>            : </a>
+<a name="73"><span class="lineNum">      73 </span>            : /** #bScreen.redraws_flag */</a>
+<a name="74"><span class="lineNum">      74 </span>            : enum eScreen_Redraws_Flag : short {</a>
+<a name="75"><span class="lineNum">      75 </span>            :   TIME_REGION = (1 &lt;&lt; 0),</a>
+<a name="76"><span class="lineNum">      76 </span>            :   TIME_ALL_3D_WIN = (1 &lt;&lt; 1),</a>
+<a name="77"><span class="lineNum">      77 </span>            :   TIME_ALL_ANIM_WIN = (1 &lt;&lt; 2),</a>
+<a name="78"><span class="lineNum">      78 </span>            :   TIME_ALL_BUTS_WIN = (1 &lt;&lt; 3),</a>
+<a name="79"><span class="lineNum">      79 </span>            :   // TIME_WITH_SEQ_AUDIO    = (1 &lt;&lt; 4), /* DEPRECATED */</a>
+<a name="80"><span class="lineNum">      80 </span>            :   TIME_SEQ = (1 &lt;&lt; 5),</a>
+<a name="81"><span class="lineNum">      81 </span>            :   TIME_ALL_IMAGE_WIN = (1 &lt;&lt; 6),</a>
+<a name="82"><span class="lineNum">      82 </span>            :   // TIME_CONTINUE_PHYSICS  = (1 &lt;&lt; 7), /* UNUSED */</a>
+<a name="83"><span class="lineNum">      83 </span>            :   TIME_NODES = (1 &lt;&lt; 8),</a>
+<a name="84"><span class="lineNum">      84 </span>            :   TIME_CLIPS = (1 &lt;&lt; 9),</a>
+<a name="85"><span class="lineNum">      85 </span>            :   TIME_SPREADSHEETS = (1 &lt;&lt; 10),</a>
+<a name="86"><span class="lineNum">      86 </span>            : </a>
+<a name="87"><span class="lineNum">      87 </span>            :   TIME_FOLLOW = static_cast&lt;short&gt;(1 &lt;&lt; 15),</a>
+<a name="88"><span class="lineNum">      88 </span>            : };</a>
+<a name="89"><span class="lineNum">      89 </span><span class="lineCov">         28 : ENUM_OPERATORS(eScreen_Redraws_Flag)</span></a>
+<a name="90"><span class="lineNum">      90 </span>            : </a>
+<a name="91"><span class="lineNum">      91 </span>            : /* TODO: Doing this is quite ugly :)</a>
+<a name="92"><span class="lineNum">      92 </span>            :  * Once the top-bar is merged bScreen should be refactored to use ScrAreaMap. */</a>
+<a name="93"><span class="lineNum">      93 </span>            : #define AREAMAP_FROM_SCREEN(screen) ((ScrAreaMap *)&amp;(screen)-&gt;vertbase)</a>
+<a name="94"><span class="lineNum">      94 </span>            : </a>
+<a name="95"><span class="lineNum">      95 </span>            : struct bScreen {</a>
+<a name="96"><span class="lineNum">      96 </span>            : #ifdef __cplusplus</a>
+<a name="97"><span class="lineNum">      97 </span>            :   /** See #ID_Type comment for why this is here. */</a>
+<a name="98"><span class="lineNum">      98 </span>            :   static constexpr ID_Type id_type = ID_SCR;</a>
+<a name="99"><span class="lineNum">      99 </span>            : #endif</a>
+<a name="100"><span class="lineNum">     100 </span>            : </a>
+<a name="101"><span class="lineNum">     101 </span>            :   ID id;</a>
+<a name="102"><span class="lineNum">     102 </span>            : </a>
+<a name="103"><span class="lineNum">     103 </span>            :   /* TODO: Should become ScrAreaMap now.</a>
+<a name="104"><span class="lineNum">     104 </span>            :    * NOTE: KEEP ORDER IN SYNC WITH #ScrAreaMap! (see AREAMAP_FROM_SCREEN macro above). */</a>
+<a name="105"><span class="lineNum">     105 </span>            :   /** Screens have vertices/edges to define areas. */</a>
+<a name="106"><span class="lineNum">     106 </span>            :   ListBaseT&lt;struct ScrVert&gt; vertbase = {nullptr, nullptr};</a>
+<a name="107"><span class="lineNum">     107 </span>            :   ListBaseT&lt;struct ScrEdge&gt; edgebase = {nullptr, nullptr};</a>
+<a name="108"><span class="lineNum">     108 </span>            :   ListBaseT&lt;struct ScrArea&gt; areabase = {nullptr, nullptr};</a>
+<a name="109"><span class="lineNum">     109 </span>            :   /* End variables that must be in sync with #ScrAreaMap. */</a>
+<a name="110"><span class="lineNum">     110 </span>            : </a>
+<a name="111"><span class="lineNum">     111 </span>            :   /** Screen level regions (menus), runtime only. */</a>
+<a name="112"><span class="lineNum">     112 </span>            :   ListBaseT&lt;ARegion&gt; regionbase = {nullptr, nullptr};</a>
+<a name="113"><span class="lineNum">     113 </span>            : </a>
+<a name="114"><span class="lineNum">     114 </span>            :   DNA_DEPRECATED struct Scene *scene = nullptr;</a>
+<a name="115"><span class="lineNum">     115 </span>            : </a>
+<a name="116"><span class="lineNum">     116 </span>            :   /** General flags. */</a>
+<a name="117"><span class="lineNum">     117 </span>            :   eScreen_Flag flag = {};</a>
+<a name="118"><span class="lineNum">     118 </span>            :   /** Window-ID from WM, starts with 1. */</a>
+<a name="119"><span class="lineNum">     119 </span>            :   short winid = 0;</a>
+<a name="120"><span class="lineNum">     120 </span>            :   /** User-setting for which editors get redrawn during animation playback. */</a>
+<a name="121"><span class="lineNum">     121 </span>            :   eScreen_Redraws_Flag redraws_flag = {};</a>
+<a name="122"><span class="lineNum">     122 </span>            : </a>
+<a name="123"><span class="lineNum">     123 </span>            :   /** Temp screen in a temp window, don't save (like user-preferences). */</a>
+<a name="124"><span class="lineNum">     124 </span>            :   char temp = 0;</a>
+<a name="125"><span class="lineNum">     125 </span>            :   /** Temp screen for image render display or file-select. */</a>
+<a name="126"><span class="lineNum">     126 </span>            :   eScreen_State state = SCREENNORMAL;</a>
+<a name="127"><span class="lineNum">     127 </span>            :   /** Notifier for drawing edges. */</a>
+<a name="128"><span class="lineNum">     128 </span>            :   char do_draw = 0;</a>
+<a name="129"><span class="lineNum">     129 </span>            :   /** Notifier for scale screen, changed screen, etc. */</a>
+<a name="130"><span class="lineNum">     130 </span>            :   char do_refresh = 0;</a>
+<a name="131"><span class="lineNum">     131 </span>            :   /** Notifier for gesture draw. */</a>
+<a name="132"><span class="lineNum">     132 </span>            :   char do_draw_gesture = 0;</a>
+<a name="133"><span class="lineNum">     133 </span>            :   /** Notifier for paint cursor draw. */</a>
+<a name="134"><span class="lineNum">     134 </span>            :   char do_draw_paintcursor = 0;</a>
+<a name="135"><span class="lineNum">     135 </span>            :   /** Notifier for dragging draw. */</a>
+<a name="136"><span class="lineNum">     136 </span>            :   char do_draw_drag = 0;</a>
+<a name="137"><span class="lineNum">     137 </span>            :   /** Set to delay screen handling after switching back from maximized area. */</a>
+<a name="138"><span class="lineNum">     138 </span>            :   char skip_handling = 0;</a>
+<a name="139"><span class="lineNum">     139 </span>            :   /** Set when scrubbing to avoid some costly updates. */</a>
+<a name="140"><span class="lineNum">     140 </span>            :   char scrubbing = 0;</a>
+<a name="141"><span class="lineNum">     141 </span>            :   char _pad[1] = {};</a>
+<a name="142"><span class="lineNum">     142 </span>            : </a>
+<a name="143"><span class="lineNum">     143 </span>            :   /** Active region that has mouse focus. */</a>
+<a name="144"><span class="lineNum">     144 </span>            :   struct ARegion *active_region = nullptr;</a>
+<a name="145"><span class="lineNum">     145 </span>            : </a>
+<a name="146"><span class="lineNum">     146 </span>            :   /** If set, screen has timer handler added in window. */</a>
+<a name="147"><span class="lineNum">     147 </span>            :   struct wmTimer *animtimer = nullptr;</a>
+<a name="148"><span class="lineNum">     148 </span>            :   /** Context callback. */</a>
+<a name="149"><span class="lineNum">     149 </span>            :   void /*bContextDataCallback*/ *context = nullptr;</a>
+<a name="150"><span class="lineNum">     150 </span>            : </a>
+<a name="151"><span class="lineNum">     151 </span>            :   /* Used to restore after SCREENFULL state. */</a>
+<a name="152"><span class="lineNum">     152 </span>            :   eScreen_Fullscreen_Flag fullscreen_flag = {};</a>
+<a name="153"><span class="lineNum">     153 </span>            :   char _pad2[6] = {};</a>
+<a name="154"><span class="lineNum">     154 </span>            : </a>
+<a name="155"><span class="lineNum">     155 </span>            :   /** Runtime. */</a>
+<a name="156"><span class="lineNum">     156 </span>            :   struct wmTooltipState *tool_tip = nullptr;</a>
+<a name="157"><span class="lineNum">     157 </span>            : </a>
+<a name="158"><span class="lineNum">     158 </span>            :   PreviewImage *preview = nullptr;</a>
+<a name="159"><span class="lineNum">     159 </span>            : };</a>
+<a name="160"><span class="lineNum">     160 </span>            : </a>
+<a name="161"><span class="lineNum">     161 </span>            : struct ScrVert {</a>
+<a name="162"><span class="lineNum">     162 </span>            :   struct ScrVert *next = nullptr, *prev = nullptr, *newv = nullptr;</a>
+<a name="163"><span class="lineNum">     163 </span>            :   vec2s vec = {};</a>
+<a name="164"><span class="lineNum">     164 </span>            :   /* first one used internally, second one for tools */</a>
+<a name="165"><span class="lineNum">     165 </span>            :   short flag = 0, editflag = 0;</a>
+<a name="166"><span class="lineNum">     166 </span>            : };</a>
+<a name="167"><span class="lineNum">     167 </span>            : </a>
+<a name="168"><span class="lineNum">     168 </span>            : struct ScrEdge {</a>
+<a name="169"><span class="lineNum">     169 </span>            :   struct ScrEdge *next = nullptr, *prev = nullptr;</a>
+<a name="170"><span class="lineNum">     170 </span>            :   ScrVert *v1 = nullptr, *v2 = nullptr;</a>
+<a name="171"><span class="lineNum">     171 </span>            :   /** 1 when at edge of screen. */</a>
+<a name="172"><span class="lineNum">     172 </span>            :   short border = 0;</a>
+<a name="173"><span class="lineNum">     173 </span>            :   short flag = 0;</a>
+<a name="174"><span class="lineNum">     174 </span>            :   char _pad[4] = {};</a>
+<a name="175"><span class="lineNum">     175 </span>            : };</a>
+<a name="176"><span class="lineNum">     176 </span>            : </a>
+<a name="177"><span class="lineNum">     177 </span>            : struct ScrAreaMap {</a>
+<a name="178"><span class="lineNum">     178 </span>            :   /* ** NOTE: KEEP ORDER IN SYNC WITH LISTBASES IN bScreen! ** */</a>
+<a name="179"><span class="lineNum">     179 </span>            : </a>
+<a name="180"><span class="lineNum">     180 </span>            :   /** Screens have vertices/edges to define areas. */</a>
+<a name="181"><span class="lineNum">     181 </span>            :   ListBaseT&lt;ScrVert&gt; vertbase = {nullptr, nullptr};</a>
+<a name="182"><span class="lineNum">     182 </span>            :   ListBaseT&lt;ScrEdge&gt; edgebase = {nullptr, nullptr};</a>
+<a name="183"><span class="lineNum">     183 </span>            :   ListBaseT&lt;ScrArea&gt; areabase = {nullptr, nullptr};</a>
+<a name="184"><span class="lineNum">     184 </span>            : };</a>
+<a name="185"><span class="lineNum">     185 </span>            : </a>
+<a name="186"><span class="lineNum">     186 </span>            : enum LayoutPanelStateFlag : uchar {</a>
+<a name="187"><span class="lineNum">     187 </span>            :   /** If set, the panel is currently open. Otherwise it is collapsed. */</a>
+<a name="188"><span class="lineNum">     188 </span>            :   LAYOUT_PANEL_STATE_FLAG_OPEN = (1 &lt;&lt; 0),</a>
+<a name="189"><span class="lineNum">     189 </span>            : };</a>
+<a name="190"><span class="lineNum">     190 </span><span class="lineNoCov">          0 : ENUM_OPERATORS(LayoutPanelStateFlag)</span></a>
+<a name="191"><span class="lineNum">     191 </span>            : </a>
+<a name="192"><span class="lineNum">     192 </span>            : /**</a>
+<a name="193"><span class="lineNum">     193 </span>            :  * Used for passing expansion between instanced panel data and the panels themselves.</a>
+<a name="194"><span class="lineNum">     194 </span>            :  * There are 16 defines because the expansion data is typically stored in a short.</a>
+<a name="195"><span class="lineNum">     195 </span>            :  *</a>
+<a name="196"><span class="lineNum">     196 </span>            :  * \note Expansion for instanced panels is stored in depth first order. For example, the value of</a>
+<a name="197"><span class="lineNum">     197 </span>            :  * UI_SUBPANEL_DATA_EXPAND_2 correspond to mean the expansion of the second sub-panel or the first</a>
+<a name="198"><span class="lineNum">     198 </span>            :  * sub-panel's first sub-panel.</a>
+<a name="199"><span class="lineNum">     199 </span>            :  */</a>
+<a name="200"><span class="lineNum">     200 </span>            : enum uiPanelDataExpansion : ushort {</a>
+<a name="201"><span class="lineNum">     201 </span>            :   UI_PANEL_DATA_EXPAND_ROOT = (1 &lt;&lt; 0),</a>
+<a name="202"><span class="lineNum">     202 </span>            :   UI_SUBPANEL_DATA_EXPAND_1 = (1 &lt;&lt; 1),</a>
+<a name="203"><span class="lineNum">     203 </span>            :   UI_SUBPANEL_DATA_EXPAND_2 = (1 &lt;&lt; 2),</a>
+<a name="204"><span class="lineNum">     204 </span>            :   UI_SUBPANEL_DATA_EXPAND_3 = (1 &lt;&lt; 3),</a>
+<a name="205"><span class="lineNum">     205 </span>            :   UI_SUBPANEL_DATA_EXPAND_4 = (1 &lt;&lt; 4),</a>
+<a name="206"><span class="lineNum">     206 </span>            :   UI_SUBPANEL_DATA_EXPAND_5 = (1 &lt;&lt; 5),</a>
+<a name="207"><span class="lineNum">     207 </span>            :   UI_SUBPANEL_DATA_EXPAND_6 = (1 &lt;&lt; 6),</a>
+<a name="208"><span class="lineNum">     208 </span>            :   UI_SUBPANEL_DATA_EXPAND_7 = (1 &lt;&lt; 7),</a>
+<a name="209"><span class="lineNum">     209 </span>            :   UI_SUBPANEL_DATA_EXPAND_8 = (1 &lt;&lt; 8),</a>
+<a name="210"><span class="lineNum">     210 </span>            :   UI_SUBPANEL_DATA_EXPAND_9 = (1 &lt;&lt; 9),</a>
+<a name="211"><span class="lineNum">     211 </span>            :   UI_SUBPANEL_DATA_EXPAND_10 = (1 &lt;&lt; 10),</a>
+<a name="212"><span class="lineNum">     212 </span>            :   UI_SUBPANEL_DATA_EXPAND_11 = (1 &lt;&lt; 11),</a>
+<a name="213"><span class="lineNum">     213 </span>            :   UI_SUBPANEL_DATA_EXPAND_12 = (1 &lt;&lt; 12),</a>
+<a name="214"><span class="lineNum">     214 </span>            :   UI_SUBPANEL_DATA_EXPAND_13 = (1 &lt;&lt; 13),</a>
+<a name="215"><span class="lineNum">     215 </span>            :   UI_SUBPANEL_DATA_EXPAND_14 = (1 &lt;&lt; 14),</a>
+<a name="216"><span class="lineNum">     216 </span>            :   UI_SUBPANEL_DATA_EXPAND_15 = (1 &lt;&lt; 15),</a>
+<a name="217"><span class="lineNum">     217 </span>            : };</a>
+<a name="218"><span class="lineNum">     218 </span><span class="lineCov">       1180 : ENUM_OPERATORS(uiPanelDataExpansion)</span></a>
+<a name="219"><span class="lineNum">     219 </span>            : </a>
+<a name="220"><span class="lineNum">     220 </span>            : /** #Panel.flag */</a>
+<a name="221"><span class="lineNum">     221 </span>            : enum ePanel_Flag : short {</a>
+<a name="222"><span class="lineNum">     222 </span>            :   PNL_SELECT = (1 &lt;&lt; 0),</a>
+<a name="223"><span class="lineNum">     223 </span>            :   PNL_UNUSED_1 = (1 &lt;&lt; 1), /* Cleared */</a>
+<a name="224"><span class="lineNum">     224 </span>            :   PNL_CLOSED = (1 &lt;&lt; 2),</a>
+<a name="225"><span class="lineNum">     225 </span>            :   // PNL_TABBED = (1 &lt;&lt; 3),  /* UNUSED */</a>
+<a name="226"><span class="lineNum">     226 </span>            :   // PNL_OVERLAP = (1 &lt;&lt; 4), /* UNUSED */</a>
+<a name="227"><span class="lineNum">     227 </span>            :   PNL_PIN = (1 &lt;&lt; 5),</a>
+<a name="228"><span class="lineNum">     228 </span>            :   PNL_POPOVER = (1 &lt;&lt; 6),</a>
+<a name="229"><span class="lineNum">     229 </span>            :   /** The panel has been drag-drop reordered and the instanced panel list needs to be rebuilt. */</a>
+<a name="230"><span class="lineNum">     230 </span>            :   PNL_INSTANCED_LIST_ORDER_CHANGED = (1 &lt;&lt; 7),</a>
+<a name="231"><span class="lineNum">     231 </span>            : };</a>
+<a name="232"><span class="lineNum">     232 </span><span class="lineCov">     904819 : ENUM_OPERATORS(ePanel_Flag)</span></a>
+<a name="233"><span class="lineNum">     233 </span>            : </a>
+<a name="234"><span class="lineNum">     234 </span>            : /** Fallback panel category (only for old scripts which need updating). */</a>
+<a name="235"><span class="lineNum">     235 </span>            : #define PNL_CATEGORY_FALLBACK &quot;Misc&quot;</a>
+<a name="236"><span class="lineNum">     236 </span>            : </a>
+<a name="237"><span class="lineNum">     237 </span>            : struct LayoutPanelState {</a>
+<a name="238"><span class="lineNum">     238 </span>            :   struct LayoutPanelState *next = nullptr, *prev = nullptr;</a>
+<a name="239"><span class="lineNum">     239 </span>            :   /** Identifier of the panel. */</a>
+<a name="240"><span class="lineNum">     240 </span>            :   char *idname = nullptr;</a>
+<a name="241"><span class="lineNum">     241 </span>            :   LayoutPanelStateFlag flag = {};</a>
+<a name="242"><span class="lineNum">     242 </span>            :   char _pad[3] = {};</a>
+<a name="243"><span class="lineNum">     243 </span>            :   /**</a>
+<a name="244"><span class="lineNum">     244 </span>            :    * A logical time set from #layout_panel_states_clock when the panel is used by the UI. This is</a>
+<a name="245"><span class="lineNum">     245 </span>            :    * used to detect the least-recently-used panel states when some panel states should be removed.</a>
+<a name="246"><span class="lineNum">     246 </span>            :    */</a>
+<a name="247"><span class="lineNum">     247 </span>            :   uint32_t last_used = 0;</a>
+<a name="248"><span class="lineNum">     248 </span>            : };</a>
+<a name="249"><span class="lineNum">     249 </span>            : </a>
+<a name="250"><span class="lineNum">     250 </span>            : struct Panel {</a>
+<a name="251"><span class="lineNum">     251 </span>            :   struct Panel *next = nullptr, *prev = nullptr;</a>
+<a name="252"><span class="lineNum">     252 </span>            : </a>
+<a name="253"><span class="lineNum">     253 </span>            :   /** Runtime. */</a>
+<a name="254"><span class="lineNum">     254 </span>            :   struct PanelType *type = nullptr;</a>
+<a name="255"><span class="lineNum">     255 </span>            :   /** Runtime for drawing. */</a>
+<a name="256"><span class="lineNum">     256 </span>            :   ui::Layout *layout = nullptr;</a>
+<a name="257"><span class="lineNum">     257 </span>            : </a>
+<a name="258"><span class="lineNum">     258 </span>            :   char panelname[/*BKE_ST_MAXNAME*/ 64] = &quot;&quot;;</a>
+<a name="259"><span class="lineNum">     259 </span>            :   /** Panel name is identifier for restoring location. */</a>
+<a name="260"><span class="lineNum">     260 </span>            :   char *drawname = nullptr;</a>
+<a name="261"><span class="lineNum">     261 </span>            :   /** Offset within the region. */</a>
+<a name="262"><span class="lineNum">     262 </span>            :   int ofsx = 0, ofsy = 0;</a>
+<a name="263"><span class="lineNum">     263 </span>            :   /** Panel size including children. */</a>
+<a name="264"><span class="lineNum">     264 </span>            :   int sizex = 0, sizey = 0;</a>
+<a name="265"><span class="lineNum">     265 </span>            :   /** Panel size excluding children. */</a>
+<a name="266"><span class="lineNum">     266 </span>            :   int blocksizex = 0, blocksizey = 0;</a>
+<a name="267"><span class="lineNum">     267 </span>            :   short labelofs = 0;</a>
+<a name="268"><span class="lineNum">     268 </span>            :   ePanel_Flag flag = {};</a>
+<a name="269"><span class="lineNum">     269 </span>            :   short runtime_flag = 0;</a>
+<a name="270"><span class="lineNum">     270 </span>            :   char _pad[6] = {};</a>
+<a name="271"><span class="lineNum">     271 </span>            :   /** Panels are aligned according to increasing sort-order. */</a>
+<a name="272"><span class="lineNum">     272 </span>            :   int sortorder = 0;</a>
+<a name="273"><span class="lineNum">     273 </span>            :   /** Runtime for panel manipulation. */</a>
+<a name="274"><span class="lineNum">     274 </span>            :   void *activedata = nullptr;</a>
+<a name="275"><span class="lineNum">     275 </span>            :   /** Sub panels. */</a>
+<a name="276"><span class="lineNum">     276 </span>            :   ListBaseT&lt;Panel&gt; children = {nullptr, nullptr};</a>
+<a name="277"><span class="lineNum">     277 </span>            : </a>
+<a name="278"><span class="lineNum">     278 </span>            :   /**</a>
+<a name="279"><span class="lineNum">     279 </span>            :    *  This stores the open-close-state of layout-panels created with</a>
+<a name="280"><span class="lineNum">     280 </span>            :    * `layout.panel(...)` in Python. For more information on layout-panels, see</a>
+<a name="281"><span class="lineNum">     281 </span>            :    * `ui::Layout::panel_prop`.</a>
+<a name="282"><span class="lineNum">     282 </span>            :    */</a>
+<a name="283"><span class="lineNum">     283 </span>            :   ListBaseT&lt;LayoutPanelState&gt; layout_panel_states = {nullptr, nullptr};</a>
+<a name="284"><span class="lineNum">     284 </span>            :   /**</a>
+<a name="285"><span class="lineNum">     285 </span>            :    * This is increased whenever a layout panel state is used by the UI. This is used to allow for</a>
+<a name="286"><span class="lineNum">     286 </span>            :    * some garbage collection of panel states when #layout_panel_states becomes large. It works by</a>
+<a name="287"><span class="lineNum">     287 </span>            :    * removing all least-recently-used panel states up to a certain threshold.</a>
+<a name="288"><span class="lineNum">     288 </span>            :    */</a>
+<a name="289"><span class="lineNum">     289 </span>            :   uint32_t layout_panel_states_clock = 0;</a>
+<a name="290"><span class="lineNum">     290 </span>            :   char _pad2[4] = {};</a>
+<a name="291"><span class="lineNum">     291 </span>            : </a>
+<a name="292"><span class="lineNum">     292 </span>            :   struct Panel_Runtime *runtime = nullptr;</a>
+<a name="293"><span class="lineNum">     293 </span>            : };</a>
+<a name="294"><span class="lineNum">     294 </span>            : </a>
+<a name="295"><span class="lineNum">     295 </span>            : /**</a>
+<a name="296"><span class="lineNum">     296 </span>            :  * Notes on Panel Categories:</a>
+<a name="297"><span class="lineNum">     297 </span>            :  *</a>
+<a name="298"><span class="lineNum">     298 </span>            :  * - #ARegion.panels_category (#PanelCategoryDyn)</a>
+<a name="299"><span class="lineNum">     299 </span>            :  *   is a runtime only list of categories collected during draw.</a>
+<a name="300"><span class="lineNum">     300 </span>            :  *</a>
+<a name="301"><span class="lineNum">     301 </span>            :  * - #ARegion.panels_category_active (#PanelCategoryStack)</a>
+<a name="302"><span class="lineNum">     302 </span>            :  *   is basically a list of strings (category id's).</a>
+<a name="303"><span class="lineNum">     303 </span>            :  *</a>
+<a name="304"><span class="lineNum">     304 </span>            :  * Clicking on a tab moves it to the front of region-&gt;panels_category_active,</a>
+<a name="305"><span class="lineNum">     305 </span>            :  * If the context changes so this tab is no longer displayed,</a>
+<a name="306"><span class="lineNum">     306 </span>            :  * then the first-most tab in #ARegion.panels_category_active is used.</a>
+<a name="307"><span class="lineNum">     307 </span>            :  *</a>
+<a name="308"><span class="lineNum">     308 </span>            :  * This way you can change modes and always have the tab you last clicked on.</a>
+<a name="309"><span class="lineNum">     309 </span>            :  */</a>
+<a name="310"><span class="lineNum">     310 </span>            : </a>
+<a name="311"><span class="lineNum">     311 </span>            : /* region level tabs */</a>
+<a name="312"><span class="lineNum">     312 </span>            : #</a>
+<a name="313"><span class="lineNum">     313 </span>            : #</a>
+<a name="314"><span class="lineNum">     314 </span>            : struct PanelCategoryDyn {</a>
+<a name="315"><span class="lineNum">     315 </span>            :   struct PanelCategoryDyn *next = nullptr, *prev = nullptr;</a>
+<a name="316"><span class="lineNum">     316 </span>            :   char idname[64] = &quot;&quot;;</a>
+<a name="317"><span class="lineNum">     317 </span>            :   int icon = 0;</a>
+<a name="318"><span class="lineNum">     318 </span>            : };</a>
+<a name="319"><span class="lineNum">     319 </span>            : </a>
+<a name="320"><span class="lineNum">     320 </span>            : /** Region stack of active tabs. */</a>
+<a name="321"><span class="lineNum">     321 </span>            : struct PanelCategoryStack {</a>
+<a name="322"><span class="lineNum">     322 </span>            :   struct PanelCategoryStack *next = nullptr, *prev = nullptr;</a>
+<a name="323"><span class="lineNum">     323 </span>            :   char idname[64] = &quot;&quot;;</a>
+<a name="324"><span class="lineNum">     324 </span>            : };</a>
+<a name="325"><span class="lineNum">     325 </span>            : </a>
+<a name="326"><span class="lineNum">     326 </span>            : /** #uiList.layout_type */</a>
+<a name="327"><span class="lineNum">     327 </span>            : enum euiList_LayoutType : int {</a>
+<a name="328"><span class="lineNum">     328 </span>            :   UILST_LAYOUT_DEFAULT = 0,</a>
+<a name="329"><span class="lineNum">     329 </span>            :   UILST_LAYOUT_COMPACT = 1,</a>
+<a name="330"><span class="lineNum">     330 </span>            : };</a>
+<a name="331"><span class="lineNum">     331 </span>            : </a>
+<a name="332"><span class="lineNum">     332 </span>            : /** #uiList.flag */</a>
+<a name="333"><span class="lineNum">     333 </span>            : enum euiList_Flag : int {</a>
+<a name="334"><span class="lineNum">     334 </span>            :   /** Scroll list to make active item visible. */</a>
+<a name="335"><span class="lineNum">     335 </span>            :   UILST_SCROLL_TO_ACTIVE_ITEM = 1 &lt;&lt; 0,</a>
+<a name="336"><span class="lineNum">     336 </span>            : };</a>
+<a name="337"><span class="lineNum">     337 </span><span class="lineNoCov">          0 : ENUM_OPERATORS(euiList_Flag)</span></a>
+<a name="338"><span class="lineNum">     338 </span>            : </a>
+<a name="339"><span class="lineNum">     339 </span>            : /** Value (in number of items) we have to go below minimum shown items to enable auto size. */</a>
+<a name="340"><span class="lineNum">     340 </span>            : #define UI_LIST_AUTO_SIZE_THRESHOLD 1</a>
+<a name="341"><span class="lineNum">     341 </span>            : </a>
+<a name="342"><span class="lineNum">     342 </span>            : /** uiList filter flags (dyn_data)</a>
+<a name="343"><span class="lineNum">     343 </span>            :  *</a>
+<a name="344"><span class="lineNum">     344 </span>            :  * \warning Lower 16 bits are meant for custom use in Python, don't use them here! Only use the</a>
+<a name="345"><span class="lineNum">     345 </span>            :  *          higher 16 bits.</a>
+<a name="346"><span class="lineNum">     346 </span>            :  * \warning Those values are used by integer RNA too, which does not handle well values &gt; INT_MAX.</a>
+<a name="347"><span class="lineNum">     347 </span>            :  *          So please do not use 32nd bit here.</a>
+<a name="348"><span class="lineNum">     348 </span>            :  */</a>
+<a name="349"><span class="lineNum">     349 </span>            : enum euiList_Filter : int {</a>
+<a name="350"><span class="lineNum">     350 </span>            :   /* Don't use (1 &lt;&lt; 0) to (1 &lt;&lt; 15) here! See warning above. */</a>
+<a name="351"><span class="lineNum">     351 </span>            : </a>
+<a name="352"><span class="lineNum">     352 </span>            :   /* Filtering returned #UI_LIST_ITEM_NEVER_SHOW. */</a>
+<a name="353"><span class="lineNum">     353 </span>            :   UILST_FLT_ITEM_NEVER_SHOW = (1 &lt;&lt; 16),</a>
+<a name="354"><span class="lineNum">     354 </span>            :   UILST_FLT_ITEM = 1 &lt;&lt; 30, /* This item has passed the filter process successfully. */</a>
+<a name="355"><span class="lineNum">     355 </span>            : };</a>
+<a name="356"><span class="lineNum">     356 </span>            : ENUM_OPERATORS(euiList_Filter)</a>
+<a name="357"><span class="lineNum">     357 </span>            : </a>
+<a name="358"><span class="lineNum">     358 </span>            : /** #uiList.filter_flag */</a>
+<a name="359"><span class="lineNum">     359 </span>            : enum euiList_FilterFlag : int {</a>
+<a name="360"><span class="lineNum">     360 </span>            :   UILST_FLT_SHOW = 1 &lt;&lt; 0,            /* Show filtering UI. */</a>
+<a name="361"><span class="lineNum">     361 </span>            :   UILST_FLT_EXCLUDE = UILST_FLT_ITEM, /* Exclude filtered items, *must* use this same value. */</a>
+<a name="362"><span class="lineNum">     362 </span>            : };</a>
+<a name="363"><span class="lineNum">     363 </span><span class="lineNoCov">          0 : ENUM_OPERATORS(euiList_FilterFlag)</span></a>
+<a name="364"><span class="lineNum">     364 </span>            : </a>
+<a name="365"><span class="lineNum">     365 </span>            : /** #uiList.filter_sort_flag */</a>
+<a name="366"><span class="lineNum">     366 </span>            : enum euiList_FilterSortFlag : int {</a>
+<a name="367"><span class="lineNum">     367 </span>            :   /* Plain values (only one is valid at a time, once masked with UILST_FLT_SORT_MASK). */</a>
+<a name="368"><span class="lineNum">     368 </span>            :   /** Just for sake of consistency. */</a>
+<a name="369"><span class="lineNum">     369 </span>            :   /* UILST_FLT_SORT_INDEX = 0, */ /* UNUSED */</a>
+<a name="370"><span class="lineNum">     370 </span>            :   UILST_FLT_SORT_ALPHA = 1,</a>
+<a name="371"><span class="lineNum">     371 </span>            : </a>
+<a name="372"><span class="lineNum">     372 </span>            :   /* Bitflags affecting behavior of any kind of sorting. */</a>
+<a name="373"><span class="lineNum">     373 </span>            :   /** Special flag to indicate that order is locked (not user-changeable). */</a>
+<a name="374"><span class="lineNum">     374 </span>            :   UILST_FLT_SORT_LOCK = int(1u &lt;&lt; 30),</a>
+<a name="375"><span class="lineNum">     375 </span>            :   /** Special value, bit-flag used to reverse order! */</a>
+<a name="376"><span class="lineNum">     376 </span>            :   UILST_FLT_SORT_REVERSE = int(1u &lt;&lt; 31),</a>
+<a name="377"><span class="lineNum">     377 </span>            : };</a>
+<a name="378"><span class="lineNum">     378 </span><span class="lineNoCov">          0 : ENUM_OPERATORS(euiList_FilterSortFlag)</span></a>
+<a name="379"><span class="lineNum">     379 </span>            : </a>
+<a name="380"><span class="lineNum">     380 </span>            : #define UILST_FLT_SORT_MASK (((unsigned int)(UILST_FLT_SORT_REVERSE | UILST_FLT_SORT_LOCK)) - 1)</a>
+<a name="381"><span class="lineNum">     381 </span>            : </a>
+<a name="382"><span class="lineNum">     382 </span>            : typedef void (*uiListFreeRuntimeDataFunc)(struct uiList *ui_list);</a>
+<a name="383"><span class="lineNum">     383 </span>            : </a>
+<a name="384"><span class="lineNum">     384 </span>            : /* uiList dynamic data... */</a>
+<a name="385"><span class="lineNum">     385 </span>            : /* These two lines with # tell `makesdna` this struct can be excluded. */</a>
+<a name="386"><span class="lineNum">     386 </span>            : #</a>
+<a name="387"><span class="lineNum">     387 </span>            : #</a>
+<a name="388"><span class="lineNum">     388 </span>            : struct uiListDyn {</a>
+<a name="389"><span class="lineNum">     389 </span>            :   /** Callback to free UI data when freeing UI-Lists in BKE. */</a>
+<a name="390"><span class="lineNum">     390 </span>            :   uiListFreeRuntimeDataFunc free_runtime_data_fn = {};</a>
+<a name="391"><span class="lineNum">     391 </span>            : </a>
+<a name="392"><span class="lineNum">     392 </span>            :   /** Number of rows needed to draw all elements. */</a>
+<a name="393"><span class="lineNum">     393 </span>            :   int height = 0;</a>
+<a name="394"><span class="lineNum">     394 </span>            :   /** Actual visual height of the list (in rows). */</a>
+<a name="395"><span class="lineNum">     395 </span>            :   int visual_height = 0;</a>
+<a name="396"><span class="lineNum">     396 </span>            :   /** Minimal visual height of the list (in rows). */</a>
+<a name="397"><span class="lineNum">     397 </span>            :   int visual_height_min = 0;</a>
+<a name="398"><span class="lineNum">     398 </span>            : </a>
+<a name="399"><span class="lineNum">     399 </span>            :   /** Number of items in collection. */</a>
+<a name="400"><span class="lineNum">     400 </span>            :   int items_len = 0;</a>
+<a name="401"><span class="lineNum">     401 </span>            :   /** Number of items actually visible after filtering. */</a>
+<a name="402"><span class="lineNum">     402 </span>            :   int items_shown = 0;</a>
+<a name="403"><span class="lineNum">     403 </span>            : </a>
+<a name="404"><span class="lineNum">     404 </span>            :   /* Those are temp data used during drag-resize with GRIP button</a>
+<a name="405"><span class="lineNum">     405 </span>            :    * (they are in pixels, the meaningful data is the</a>
+<a name="406"><span class="lineNum">     406 </span>            :    * difference between resize_prev and resize)...</a>
+<a name="407"><span class="lineNum">     407 </span>            :    */</a>
+<a name="408"><span class="lineNum">     408 </span>            :   int resize = 0;</a>
+<a name="409"><span class="lineNum">     409 </span>            :   int resize_prev = 0;</a>
+<a name="410"><span class="lineNum">     410 </span>            : </a>
+<a name="411"><span class="lineNum">     411 </span>            :   /** Allocated custom data. Freed together with the #uiList (and when re-assigning). */</a>
+<a name="412"><span class="lineNum">     412 </span>            :   void *customdata = nullptr;</a>
+<a name="413"><span class="lineNum">     413 </span>            : </a>
+<a name="414"><span class="lineNum">     414 </span>            :   /* Filtering data. */</a>
+<a name="415"><span class="lineNum">     415 </span>            :   /** This bit-field is effectively exposed in Python, and scripts are explicitly allowed to assign</a>
+<a name="416"><span class="lineNum">     416 </span>            :    * any own meaning to the lower 16 ones.</a>
+<a name="417"><span class="lineNum">     417 </span>            :    * #items_len length. */</a>
+<a name="418"><span class="lineNum">     418 </span>            :   int *items_filter_flags = nullptr;</a>
+<a name="419"><span class="lineNum">     419 </span>            :   /** Org_idx -&gt; new_idx, items_len length. */</a>
+<a name="420"><span class="lineNum">     420 </span>            :   int *items_filter_neworder = nullptr;</a>
+<a name="421"><span class="lineNum">     421 </span>            : </a>
+<a name="422"><span class="lineNum">     422 </span>            :   struct wmOperatorType *custom_drag_optype = nullptr;</a>
+<a name="423"><span class="lineNum">     423 </span>            : };</a>
+<a name="424"><span class="lineNum">     424 </span>            : </a>
+<a name="425"><span class="lineNum">     425 </span>            : struct uiList { /* some list UI data need to be saved in file */</a>
+<a name="426"><span class="lineNum">     426 </span>            :   struct uiList *next = nullptr, *prev = nullptr;</a>
+<a name="427"><span class="lineNum">     427 </span>            : </a>
+<a name="428"><span class="lineNum">     428 </span>            :   /** Runtime. */</a>
+<a name="429"><span class="lineNum">     429 </span>            :   struct uiListType *type = nullptr;</a>
+<a name="430"><span class="lineNum">     430 </span>            : </a>
+<a name="431"><span class="lineNum">     431 </span>            :   char list_id[/*UI_MAX_NAME_STR*/ 256] = &quot;&quot;;</a>
+<a name="432"><span class="lineNum">     432 </span>            : </a>
+<a name="433"><span class="lineNum">     433 </span>            :   /** How items are laid out in the list. */</a>
+<a name="434"><span class="lineNum">     434 </span>            :   euiList_LayoutType layout_type = UILST_LAYOUT_DEFAULT;</a>
+<a name="435"><span class="lineNum">     435 </span>            :   euiList_Flag flag = {};</a>
+<a name="436"><span class="lineNum">     436 </span>            : </a>
+<a name="437"><span class="lineNum">     437 </span>            :   int list_scroll = 0;</a>
+<a name="438"><span class="lineNum">     438 </span>            :   int list_grip = 0;</a>
+<a name="439"><span class="lineNum">     439 </span>            :   int list_last_len = 0;</a>
+<a name="440"><span class="lineNum">     440 </span>            :   int list_last_activei = 0;</a>
+<a name="441"><span class="lineNum">     441 </span>            : </a>
+<a name="442"><span class="lineNum">     442 </span>            :   /* Filtering data. */</a>
+<a name="443"><span class="lineNum">     443 </span>            :   /** Defined as . */</a>
+<a name="444"><span class="lineNum">     444 </span>            :   char filter_byname[/*UI_MAX_NAME_STR*/ 256] = &quot;&quot;;</a>
+<a name="445"><span class="lineNum">     445 </span>            :   euiList_FilterFlag filter_flag = {};</a>
+<a name="446"><span class="lineNum">     446 </span>            :   euiList_FilterSortFlag filter_sort_flag = {};</a>
+<a name="447"><span class="lineNum">     447 </span>            : </a>
+<a name="448"><span class="lineNum">     448 </span>            :   /** Custom sub-classes properties. */</a>
+<a name="449"><span class="lineNum">     449 </span>            :   IDProperty *properties = nullptr;</a>
+<a name="450"><span class="lineNum">     450 </span>            : </a>
+<a name="451"><span class="lineNum">     451 </span>            :   /** Dynamic data (runtime). */</a>
+<a name="452"><span class="lineNum">     452 </span>            :   uiListDyn *dyn_data = nullptr;</a>
+<a name="453"><span class="lineNum">     453 </span>            : };</a>
+<a name="454"><span class="lineNum">     454 </span>            : </a>
+<a name="455"><span class="lineNum">     455 </span>            : enum uiViewStateFlag : uint16_t {</a>
+<a name="456"><span class="lineNum">     456 </span>            :   UI_VIEW_SHOW_FILTER_OPTIONS = (1 &lt;&lt; 0),</a>
+<a name="457"><span class="lineNum">     457 </span>            :   UI_VIEW_SORT_ALPHA = (1 &lt;&lt; 1),</a>
+<a name="458"><span class="lineNum">     458 </span>            :   UI_VIEW_FILTER_INVERT = (1 &lt;&lt; 2),</a>
+<a name="459"><span class="lineNum">     459 </span>            : };</a>
+<a name="460"><span class="lineNum">     460 </span><span class="lineNoCov">          0 : ENUM_OPERATORS(uiViewStateFlag)</span></a>
+<a name="461"><span class="lineNum">     461 </span>            : </a>
+<a name="462"><span class="lineNum">     462 </span>            : /** See #uiViewStateLink. */</a>
+<a name="463"><span class="lineNum">     463 </span>            : struct uiViewState {</a>
+<a name="464"><span class="lineNum">     464 </span>            :   /**</a>
+<a name="465"><span class="lineNum">     465 </span>            :    * User set height of the view in unscaled pixels. A value of 0 means no custom height was set</a>
+<a name="466"><span class="lineNum">     466 </span>            :    * and the default should be used.</a>
+<a name="467"><span class="lineNum">     467 </span>            :    */</a>
+<a name="468"><span class="lineNum">     468 </span>            :   int custom_height = 0;</a>
+<a name="469"><span class="lineNum">     469 </span>            :   /**</a>
+<a name="470"><span class="lineNum">     470 </span>            :    * Amount of vertical scrolling. View types decide on the unit:</a>
+<a name="471"><span class="lineNum">     471 </span>            :    * - Tree views: Number of items scrolled out of view (#scroll_offset of 5 means 5 items are</a>
+<a name="472"><span class="lineNum">     472 </span>            :    *   scrolled out of view).</a>
+<a name="473"><span class="lineNum">     473 </span>            :    */</a>
+<a name="474"><span class="lineNum">     474 </span>            :   int scroll_offset = 0;</a>
+<a name="475"><span class="lineNum">     475 </span>            :   uiViewStateFlag flag = {};</a>
+<a name="476"><span class="lineNum">     476 </span>            :   char _pad[5] = {};</a>
+<a name="477"><span class="lineNum">     477 </span>            :   uint8_t invert_sort_type = 0;</a>
+<a name="478"><span class="lineNum">     478 </span>            :   char search_string[/*UI_MAX_NAME_STR*/ 256] = &quot;&quot;;</a>
+<a name="479"><span class="lineNum">     479 </span>            : };</a>
+<a name="480"><span class="lineNum">     480 </span>            : </a>
+<a name="481"><span class="lineNum">     481 </span>            : /**</a>
+<a name="482"><span class="lineNum">     482 </span>            :  * Persistent storage for some state of views (#ui::AbstractView), for storage in a region. The</a>
+<a name="483"><span class="lineNum">     483 </span>            :  * view state is matched to the view using the view's idname.</a>
+<a name="484"><span class="lineNum">     484 </span>            :  *</a>
+<a name="485"><span class="lineNum">     485 </span>            :  * The actual state is stored in #uiViewState, so views can manage this conveniently without having</a>
+<a name="486"><span class="lineNum">     486 </span>            :  * to care about the idname and listbase pointers themselves.</a>
+<a name="487"><span class="lineNum">     487 </span>            :  */</a>
+<a name="488"><span class="lineNum">     488 </span>            : struct uiViewStateLink {</a>
+<a name="489"><span class="lineNum">     489 </span>            :   struct uiViewStateLink *next = nullptr, *prev = nullptr;</a>
+<a name="490"><span class="lineNum">     490 </span>            : </a>
+<a name="491"><span class="lineNum">     491 </span>            :   char idname[/*BKE_ST_MAXNAME*/ 64] = &quot;&quot;;</a>
+<a name="492"><span class="lineNum">     492 </span>            : </a>
+<a name="493"><span class="lineNum">     493 </span>            :   uiViewState state;</a>
+<a name="494"><span class="lineNum">     494 </span>            : };</a>
+<a name="495"><span class="lineNum">     495 </span>            : </a>
+<a name="496"><span class="lineNum">     496 </span>            : struct TransformOrientation {</a>
+<a name="497"><span class="lineNum">     497 </span>            :   struct TransformOrientation *next = nullptr, *prev = nullptr;</a>
+<a name="498"><span class="lineNum">     498 </span>            :   char name[/*MAX_NAME*/ 64] = &quot;&quot;;</a>
+<a name="499"><span class="lineNum">     499 </span>            :   float mat[3][3] = {};</a>
+<a name="500"><span class="lineNum">     500 </span>            :   char _pad[4] = {};</a>
+<a name="501"><span class="lineNum">     501 </span>            : };</a>
+<a name="502"><span class="lineNum">     502 </span>            : </a>
+<a name="503"><span class="lineNum">     503 </span>            : enum uiPreviewTag : short {</a>
+<a name="504"><span class="lineNum">     504 </span>            :   /** Preview needs re-rendering, handled in #ED_preview_draw(). */</a>
+<a name="505"><span class="lineNum">     505 </span>            :   UI_PREVIEW_TAG_DIRTY = (1 &lt;&lt; 0),</a>
+<a name="506"><span class="lineNum">     506 </span>            : };</a>
+<a name="507"><span class="lineNum">     507 </span><span class="lineNoCov">          0 : ENUM_OPERATORS(uiPreviewTag)</span></a>
+<a name="508"><span class="lineNum">     508 </span>            : </a>
+<a name="509"><span class="lineNum">     509 </span>            : /** Some preview UI data need to be saved in file. */</a>
+<a name="510"><span class="lineNum">     510 </span>            : struct uiPreview {</a>
+<a name="511"><span class="lineNum">     511 </span>            :   struct uiPreview *next = nullptr, *prev = nullptr;</a>
+<a name="512"><span class="lineNum">     512 </span>            : </a>
+<a name="513"><span class="lineNum">     513 </span>            :   char preview_id[/*BKE_ST_MAXNAME*/ 64] = &quot;&quot;;</a>
+<a name="514"><span class="lineNum">     514 </span>            :   short height = 0;</a>
+<a name="515"><span class="lineNum">     515 </span>            : </a>
+<a name="516"><span class="lineNum">     516 </span>            :   /* Unset on file read. */</a>
+<a name="517"><span class="lineNum">     517 </span>            :   uiPreviewTag tag = {};</a>
+<a name="518"><span class="lineNum">     518 </span>            : </a>
+<a name="519"><span class="lineNum">     519 </span>            :   /** #ID.session_uid of the ID this preview is made for. Unset on file read. */</a>
+<a name="520"><span class="lineNum">     520 </span>            :   unsigned int id_session_uid = 0;</a>
+<a name="521"><span class="lineNum">     521 </span>            : };</a>
+<a name="522"><span class="lineNum">     522 </span>            : </a>
+<a name="523"><span class="lineNum">     523 </span>            : /**</a>
+<a name="524"><span class="lineNum">     524 </span>            :  * State storage for text-boxes (#ui::ButtonTextBox).</a>
+<a name="525"><span class="lineNum">     525 </span>            :  */</a>
+<a name="526"><span class="lineNum">     526 </span>            : struct TextboxState {</a>
+<a name="527"><span class="lineNum">     527 </span>            :   int visible_lines = 3;</a>
+<a name="528"><span class="lineNum">     528 </span>            :   int scroll = 0;</a>
+<a name="529"><span class="lineNum">     529 </span>            : };</a>
+<a name="530"><span class="lineNum">     530 </span>            : </a>
+<a name="531"><span class="lineNum">     531 </span>            : /**</a>
+<a name="532"><span class="lineNum">     532 </span>            :  * Persistent storage for text-boxes (#ui::ButtonTextBox) in a region. The state is matched to the</a>
+<a name="533"><span class="lineNum">     533 </span>            :  * textbox buttons using the RNA struct identifier + property name.</a>
+<a name="534"><span class="lineNum">     534 </span>            :  *</a>
+<a name="535"><span class="lineNum">     535 </span>            :  * The actual state is stored in #uiTextboxState, so textbox buttons can manage this conveniently</a>
+<a name="536"><span class="lineNum">     536 </span>            :  * without having to care about the idname and listbase pointers themselves.</a>
+<a name="537"><span class="lineNum">     537 </span>            :  */</a>
+<a name="538"><span class="lineNum">     538 </span>            : struct uiTextboxStateLink {</a>
+<a name="539"><span class="lineNum">     539 </span>            :   struct uiTextboxStateLink *next = nullptr, *prev = nullptr;</a>
+<a name="540"><span class="lineNum">     540 </span>            :   char *idname = nullptr;</a>
+<a name="541"><span class="lineNum">     541 </span>            :   TextboxState state;</a>
+<a name="542"><span class="lineNum">     542 </span>            : };</a>
+<a name="543"><span class="lineNum">     543 </span>            : </a>
+<a name="544"><span class="lineNum">     544 </span>            : enum GlobalAreaFlag : short {</a>
+<a name="545"><span class="lineNum">     545 </span>            :   GLOBAL_AREA_IS_HIDDEN = (1 &lt;&lt; 0),</a>
+<a name="546"><span class="lineNum">     546 </span>            : };</a>
+<a name="547"><span class="lineNum">     547 </span><span class="lineCov">      55672 : ENUM_OPERATORS(GlobalAreaFlag)</span></a>
+<a name="548"><span class="lineNum">     548 </span>            : </a>
+<a name="549"><span class="lineNum">     549 </span>            : enum GlobalAreaAlign : short {</a>
+<a name="550"><span class="lineNum">     550 </span>            :   GLOBAL_AREA_ALIGN_TOP = 0,</a>
+<a name="551"><span class="lineNum">     551 </span>            :   GLOBAL_AREA_ALIGN_BOTTOM = 1,</a>
+<a name="552"><span class="lineNum">     552 </span>            : };</a>
+<a name="553"><span class="lineNum">     553 </span>            : </a>
+<a name="554"><span class="lineNum">     554 </span>            : struct ScrGlobalAreaData {</a>
+<a name="555"><span class="lineNum">     555 </span>            :   /**</a>
+<a name="556"><span class="lineNum">     556 </span>            :    * Global areas have a non-dynamic size. That means, changing the window size doesn't</a>
+<a name="557"><span class="lineNum">     557 </span>            :    * affect their size at all. However, they can still be 'collapsed', by changing this value.</a>
+<a name="558"><span class="lineNum">     558 </span>            :    * Ignores DPI (#ED_area_global_size_y and winx/winy don't).</a>
+<a name="559"><span class="lineNum">     559 </span>            :    */</a>
+<a name="560"><span class="lineNum">     560 </span>            :   short cur_fixed_height = 0;</a>
+<a name="561"><span class="lineNum">     561 </span>            :   /**</a>
+<a name="562"><span class="lineNum">     562 </span>            :    * For global areas, this is the min and max size they can use depending on</a>
+<a name="563"><span class="lineNum">     563 </span>            :    * if they are 'collapsed' or not.</a>
+<a name="564"><span class="lineNum">     564 </span>            :    */</a>
+<a name="565"><span class="lineNum">     565 </span>            :   short size_min = 0, size_max = 0;</a>
+<a name="566"><span class="lineNum">     566 </span>            :   GlobalAreaAlign align = GLOBAL_AREA_ALIGN_TOP;</a>
+<a name="567"><span class="lineNum">     567 </span>            : </a>
+<a name="568"><span class="lineNum">     568 </span>            :   GlobalAreaFlag flag = {};</a>
+<a name="569"><span class="lineNum">     569 </span>            :   char _pad[2] = {};</a>
+<a name="570"><span class="lineNum">     570 </span>            : };</a>
+<a name="571"><span class="lineNum">     571 </span>            : </a>
+<a name="572"><span class="lineNum">     572 </span>            : /** #ScrArea.flag */</a>
+<a name="573"><span class="lineNum">     573 </span>            : enum eScrArea_Flag : short {</a>
+<a name="574"><span class="lineNum">     574 </span>            :   HEADER_NO_PULLDOWN = (1 &lt;&lt; 0),</a>
+<a name="575"><span class="lineNum">     575 </span>            : //  AREA_FLAG_UNUSED_1           = (1 &lt;&lt; 1),</a>
+<a name="576"><span class="lineNum">     576 </span>            : //  AREA_FLAG_UNUSED_2           = (1 &lt;&lt; 2),</a>
+<a name="577"><span class="lineNum">     577 </span>            : #ifdef DNA_DEPRECATED_ALLOW</a>
+<a name="578"><span class="lineNum">     578 </span>            :   AREA_TEMP_INFO = (1 &lt;&lt; 3), /* versioned to make slot reusable */</a>
+<a name="579"><span class="lineNum">     579 </span>            : #endif</a>
+<a name="580"><span class="lineNum">     580 </span>            :   /** Update size of regions within the area. */</a>
+<a name="581"><span class="lineNum">     581 </span>            :   AREA_FLAG_REGION_SIZE_UPDATE = (1 &lt;&lt; 3),</a>
+<a name="582"><span class="lineNum">     582 </span>            :   AREA_FLAG_ACTIVE_TOOL_UPDATE = (1 &lt;&lt; 4),</a>
+<a name="583"><span class="lineNum">     583 </span>            :   // AREA_FLAG_UNUSED_5 = (1 &lt;&lt; 5),</a>
+<a name="584"><span class="lineNum">     584 </span>            : </a>
+<a name="585"><span class="lineNum">     585 </span>            :   AREA_FLAG_UNUSED_6 = (1 &lt;&lt; 6), /* cleared */</a>
+<a name="586"><span class="lineNum">     586 </span>            : </a>
+<a name="587"><span class="lineNum">     587 </span>            :   /**</a>
+<a name="588"><span class="lineNum">     588 </span>            :    * For temporary full-screens (file browser, image editor render)</a>
+<a name="589"><span class="lineNum">     589 </span>            :    * that are opened above user set full-screens.</a>
+<a name="590"><span class="lineNum">     590 </span>            :    */</a>
+<a name="591"><span class="lineNum">     591 </span>            :   AREA_FLAG_STACKED_FULLSCREEN = (1 &lt;&lt; 7),</a>
+<a name="592"><span class="lineNum">     592 </span>            :   /** Update action zones (even if the mouse is not intersecting them). */</a>
+<a name="593"><span class="lineNum">     593 </span>            :   AREA_FLAG_ACTIONZONES_UPDATE = (1 &lt;&lt; 8),</a>
+<a name="594"><span class="lineNum">     594 </span>            :   /** For off-screen areas. */</a>
+<a name="595"><span class="lineNum">     595 </span>            :   AREA_FLAG_OFFSCREEN = (1 &lt;&lt; 9),</a>
+<a name="596"><span class="lineNum">     596 </span>            : };</a>
+<a name="597"><span class="lineNum">     597 </span><span class="lineCov">    5264694 : ENUM_OPERATORS(eScrArea_Flag)</span></a>
+<a name="598"><span class="lineNum">     598 </span>            : </a>
+<a name="599"><span class="lineNum">     599 </span>            : #define AREAGRID 1</a>
+<a name="600"><span class="lineNum">     600 </span>            : #define AREAMINX 29</a>
+<a name="601"><span class="lineNum">     601 </span>            : #define HEADER_PADDING_Y 6</a>
+<a name="602"><span class="lineNum">     602 </span>            : #define HEADERY (20 + HEADER_PADDING_Y)</a>
+<a name="603"><span class="lineNum">     603 </span>            : </a>
+<a name="604"><span class="lineNum">     604 </span>            : struct ScrArea_Runtime {</a>
+<a name="605"><span class="lineNum">     605 </span>            :   struct bToolRef *tool = nullptr;</a>
+<a name="606"><span class="lineNum">     606 </span>            :   char is_tool_set = 0;</a>
+<a name="607"><span class="lineNum">     607 </span>            :   char _pad0[7] = {};</a>
+<a name="608"><span class="lineNum">     608 </span>            : };</a>
+<a name="609"><span class="lineNum">     609 </span>            : </a>
+<a name="610"><span class="lineNum">     610 </span>            : struct ScrArea {</a>
+<a name="611"><span class="lineNum">     611 </span><span class="lineNoCov">          0 :   DNA_DEFINE_CXX_METHODS(ScrArea)</span></a>
+<a name="612"><span class="lineNum">     612 </span>            : </a>
+<a name="613"><span class="lineNum">     613 </span>            :   struct ScrArea *next = nullptr, *prev = nullptr;</a>
+<a name="614"><span class="lineNum">     614 </span>            : </a>
+<a name="615"><span class="lineNum">     615 </span>            :   /** Ordered (bottom-left, top-left, top-right, bottom-right). */</a>
+<a name="616"><span class="lineNum">     616 </span>            :   ScrVert *v1 = nullptr, *v2 = nullptr, *v3 = nullptr, *v4 = nullptr;</a>
+<a name="617"><span class="lineNum">     617 </span>            :   /** If area==full, this is the parent. */</a>
+<a name="618"><span class="lineNum">     618 </span>            :   bScreen *full = nullptr;</a>
+<a name="619"><span class="lineNum">     619 </span>            : </a>
+<a name="620"><span class="lineNum">     620 </span>            :   /** Rect bound by v1 v2 v3 v4. */</a>
+<a name="621"><span class="lineNum">     621 </span>            :   rcti totrct = {};</a>
+<a name="622"><span class="lineNum">     622 </span>            : </a>
+<a name="623"><span class="lineNum">     623 </span>            :   /** eSpace_Type (SPACE_FOO). */</a>
+<a name="624"><span class="lineNum">     624 </span>            :   char spacetype = 0;</a>
+<a name="625"><span class="lineNum">     625 </span>            :   /**</a>
+<a name="626"><span class="lineNum">     626 </span>            :    * eSpace_Type (SPACE_FOO).</a>
+<a name="627"><span class="lineNum">     627 </span>            :    *</a>
+<a name="628"><span class="lineNum">     628 </span>            :    * Temporarily used while switching area type, otherwise this should be SPACE_EMPTY.</a>
+<a name="629"><span class="lineNum">     629 </span>            :    * Also, versioning uses it to nicely replace deprecated editors.</a>
+<a name="630"><span class="lineNum">     630 </span>            :    * It's been there for ages, name doesn't fit any more.</a>
+<a name="631"><span class="lineNum">     631 </span>            :    */</a>
+<a name="632"><span class="lineNum">     632 </span>            :   char butspacetype = 0;</a>
+<a name="633"><span class="lineNum">     633 </span>            :   short butspacetype_subtype = 0;</a>
+<a name="634"><span class="lineNum">     634 </span>            : </a>
+<a name="635"><span class="lineNum">     635 </span>            :   /** Size. */</a>
+<a name="636"><span class="lineNum">     636 </span>            :   short winx = 0, winy = 0;</a>
+<a name="637"><span class="lineNum">     637 </span>            : </a>
+<a name="638"><span class="lineNum">     638 </span>            :   /** OLD! 0=no header, 1= down, 2= up. */</a>
+<a name="639"><span class="lineNum">     639 </span>            :   DNA_DEPRECATED char headertype = 0;</a>
+<a name="640"><span class="lineNum">     640 </span>            :   /** Private, for spacetype refresh callback. */</a>
+<a name="641"><span class="lineNum">     641 </span>            :   char do_refresh = 0;</a>
+<a name="642"><span class="lineNum">     642 </span>            :   eScrArea_Flag flag = {};</a>
+<a name="643"><span class="lineNum">     643 </span>            :   /**</a>
+<a name="644"><span class="lineNum">     644 </span>            :    * Index of last used region of 'RGN_TYPE_WINDOW'</a>
+<a name="645"><span class="lineNum">     645 </span>            :    * runtime variable, updated by executing operators.</a>
+<a name="646"><span class="lineNum">     646 </span>            :    */</a>
+<a name="647"><span class="lineNum">     647 </span>            :   short region_active_win = 0;</a>
+<a name="648"><span class="lineNum">     648 </span>            :   char _pad[2] = {};</a>
+<a name="649"><span class="lineNum">     649 </span>            : </a>
+<a name="650"><span class="lineNum">     650 </span>            :   /** Callbacks for this space type. */</a>
+<a name="651"><span class="lineNum">     651 </span>            :   struct SpaceType *type = nullptr;</a>
+<a name="652"><span class="lineNum">     652 </span>            : </a>
+<a name="653"><span class="lineNum">     653 </span>            :   /** Non-NULL if this area is global. */</a>
+<a name="654"><span class="lineNum">     654 </span>            :   ScrGlobalAreaData *global = nullptr;</a>
+<a name="655"><span class="lineNum">     655 </span>            : </a>
+<a name="656"><span class="lineNum">     656 </span>            :   float quadview_ratio[2] = {};</a>
+<a name="657"><span class="lineNum">     657 </span>            : </a>
+<a name="658"><span class="lineNum">     658 </span>            :   /**</a>
+<a name="659"><span class="lineNum">     659 </span>            :    * A list of space links (editors) that were open in this area before. When</a>
+<a name="660"><span class="lineNum">     660 </span>            :    * changing the editor type, we try to reuse old editor data from this list.</a>
+<a name="661"><span class="lineNum">     661 </span>            :    * The first item is the active/visible one.</a>
+<a name="662"><span class="lineNum">     662 </span>            :    */</a>
+<a name="663"><span class="lineNum">     663 </span>            :   ListBaseT&lt;SpaceLink&gt; spacedata = {nullptr, nullptr};</a>
+<a name="664"><span class="lineNum">     664 </span>            :   /**</a>
+<a name="665"><span class="lineNum">     665 </span>            :    * \note This region list is the one from the active/visible editor (first item in</a>
+<a name="666"><span class="lineNum">     666 </span>            :    * spacedata list). Use SpaceLink.regionbase if it's inactive (but only then)!</a>
+<a name="667"><span class="lineNum">     667 </span>            :    */</a>
+<a name="668"><span class="lineNum">     668 </span>            :   ListBaseT&lt;ARegion&gt; regionbase = {nullptr, nullptr};</a>
+<a name="669"><span class="lineNum">     669 </span>            :   ListBaseT&lt;struct wmEventHandler&gt; handlers = {nullptr, nullptr};</a>
+<a name="670"><span class="lineNum">     670 </span>            : </a>
+<a name="671"><span class="lineNum">     671 </span>            :   ListBaseT&lt;struct AZone&gt; actionzones = {nullptr, nullptr};</a>
+<a name="672"><span class="lineNum">     672 </span>            : </a>
+<a name="673"><span class="lineNum">     673 </span>            :   ScrArea_Runtime runtime;</a>
+<a name="674"><span class="lineNum">     674 </span>            : };</a>
+<a name="675"><span class="lineNum">     675 </span>            : </a>
+<a name="676"><span class="lineNum">     676 </span>            : /**</a>
+<a name="677"><span class="lineNum">     677 </span>            :  * regiontype, first two are the default set.</a>
+<a name="678"><span class="lineNum">     678 </span>            :  * \warning Do NOT change order, append on end. Types are hard-coded needed.</a>
+<a name="679"><span class="lineNum">     679 </span>            :  */</a>
+<a name="680"><span class="lineNum">     680 </span>            : enum eRegion_Type : short {</a>
+<a name="681"><span class="lineNum">     681 </span>            :   RGN_TYPE_WINDOW = 0,</a>
+<a name="682"><span class="lineNum">     682 </span>            :   RGN_TYPE_HEADER = 1,</a>
+<a name="683"><span class="lineNum">     683 </span>            :   RGN_TYPE_CHANNELS = 2,</a>
+<a name="684"><span class="lineNum">     684 </span>            :   RGN_TYPE_TEMPORARY = 3,</a>
+<a name="685"><span class="lineNum">     685 </span>            :   RGN_TYPE_UI = 4,</a>
+<a name="686"><span class="lineNum">     686 </span>            :   RGN_TYPE_TOOLS = 5,</a>
+<a name="687"><span class="lineNum">     687 </span>            :   RGN_TYPE_TOOL_PROPS = 6,</a>
+<a name="688"><span class="lineNum">     688 </span>            :   RGN_TYPE_PREVIEW = 7,</a>
+<a name="689"><span class="lineNum">     689 </span>            :   RGN_TYPE_HUD = 8,</a>
+<a name="690"><span class="lineNum">     690 </span>            :   /* Region to navigate the main region from (RGN_TYPE_WINDOW). */</a>
+<a name="691"><span class="lineNum">     691 </span>            :   RGN_TYPE_NAV_BAR = 9,</a>
+<a name="692"><span class="lineNum">     692 </span>            :   /* A place for buttons to trigger execution of something that was set up in other regions. */</a>
+<a name="693"><span class="lineNum">     693 </span>            :   RGN_TYPE_EXECUTE = 10,</a>
+<a name="694"><span class="lineNum">     694 </span>            :   RGN_TYPE_FOOTER = 11,</a>
+<a name="695"><span class="lineNum">     695 </span>            :   RGN_TYPE_TOOL_HEADER = 12,</a>
+<a name="696"><span class="lineNum">     696 </span>            :   /* Region type used exclusively by internal code and add-ons to register draw callbacks to the XR</a>
+<a name="697"><span class="lineNum">     697 </span>            :    * context (surface, mirror view). Does not represent any real region. */</a>
+<a name="698"><span class="lineNum">     698 </span>            :   RGN_TYPE_XR = 13,</a>
+<a name="699"><span class="lineNum">     699 </span>            :   RGN_TYPE_ASSET_SHELF = 14,</a>
+<a name="700"><span class="lineNum">     700 </span>            :   RGN_TYPE_ASSET_SHELF_HEADER = 15,</a>
+<a name="701"><span class="lineNum">     701 </span>            :   RGN_TYPE_SCRUBBING = 16,</a>
+<a name="702"><span class="lineNum">     702 </span>            : </a>
+<a name="703"><span class="lineNum">     703 </span>            : #define RGN_TYPE_NUM (RGN_TYPE_SCRUBBING + 1)</a>
+<a name="704"><span class="lineNum">     704 </span>            : };</a>
+<a name="705"><span class="lineNum">     705 </span>            : </a>
+<a name="706"><span class="lineNum">     706 </span>            : /** Use for function args. */</a>
+<a name="707"><span class="lineNum">     707 </span>            : #define RGN_TYPE_ANY -1</a>
+<a name="708"><span class="lineNum">     708 </span>            : </a>
+<a name="709"><span class="lineNum">     709 </span>            : /** Check for any kind of header region. */</a>
+<a name="710"><span class="lineNum">     710 </span>            : #define RGN_TYPE_IS_HEADER_ANY(regiontype) \</a>
+<a name="711"><span class="lineNum">     711 </span>            :   (((1 &lt;&lt; (regiontype)) &amp; \</a>
+<a name="712"><span class="lineNum">     712 </span>            :     ((1 &lt;&lt; RGN_TYPE_HEADER) | 1 &lt;&lt; (RGN_TYPE_TOOL_HEADER) | (1 &lt;&lt; RGN_TYPE_FOOTER) | \</a>
+<a name="713"><span class="lineNum">     713 </span>            :      (1 &lt;&lt; RGN_TYPE_ASSET_SHELF_HEADER) | (1 &lt;&lt; RGN_TYPE_SCRUBBING))) != 0)</a>
+<a name="714"><span class="lineNum">     714 </span>            : </a>
+<a name="715"><span class="lineNum">     715 </span>            : /** #ARegion.alignment */</a>
+<a name="716"><span class="lineNum">     716 </span>            : enum eRegion_Alignment : short {</a>
+<a name="717"><span class="lineNum">     717 </span>            :   RGN_ALIGN_NONE = 0,</a>
+<a name="718"><span class="lineNum">     718 </span>            :   RGN_ALIGN_TOP = 1,</a>
+<a name="719"><span class="lineNum">     719 </span>            :   RGN_ALIGN_BOTTOM = 2,</a>
+<a name="720"><span class="lineNum">     720 </span>            :   RGN_ALIGN_LEFT = 3,</a>
+<a name="721"><span class="lineNum">     721 </span>            :   RGN_ALIGN_RIGHT = 4,</a>
+<a name="722"><span class="lineNum">     722 </span>            :   RGN_ALIGN_HSPLIT = 5,</a>
+<a name="723"><span class="lineNum">     723 </span>            :   RGN_ALIGN_VSPLIT = 6,</a>
+<a name="724"><span class="lineNum">     724 </span>            :   RGN_ALIGN_FLOAT = 7,</a>
+<a name="725"><span class="lineNum">     725 </span>            :   RGN_ALIGN_QSPLIT = 8,</a>
+<a name="726"><span class="lineNum">     726 </span>            :   /* Maximum 15. */</a>
+<a name="727"><span class="lineNum">     727 </span>            : </a>
+<a name="728"><span class="lineNum">     728 </span>            :   /* Flags start here. */</a>
+<a name="729"><span class="lineNum">     729 </span>            :   /** Region is split into the previous one, they share the same space along a common edge.</a>
+<a name="730"><span class="lineNum">     730 </span>            :    * Includes the #RGN_ALIGN_HIDE_WITH_PREV behavior. */</a>
+<a name="731"><span class="lineNum">     731 </span>            :   RGN_SPLIT_PREV = 1 &lt;&lt; 5,</a>
+<a name="732"><span class="lineNum">     732 </span>            :   /** Always let scaling this region scale the previous region instead. Useful to let regions</a>
+<a name="733"><span class="lineNum">     733 </span>            :    * appear like they are one (while having independent layout, scrolling, etc.). */</a>
+<a name="734"><span class="lineNum">     734 </span>            :   RGN_SPLIT_SCALE_PREV = 1 &lt;&lt; 6,</a>
+<a name="735"><span class="lineNum">     735 </span>            :   /** Whenever the previous region is hidden, this region becomes invisible too. #RGN_FLAG_HIDDEN</a>
+<a name="736"><span class="lineNum">     736 </span>            :    * should only be set for the previous region, not this. The evaluated visibility respecting this</a>
+<a name="737"><span class="lineNum">     737 </span>            :    * flag can be queried via #ARegion.visible */</a>
+<a name="738"><span class="lineNum">     738 </span>            :   RGN_ALIGN_HIDE_WITH_PREV = 1 &lt;&lt; 7,</a>
+<a name="739"><span class="lineNum">     739 </span>            :   /** Region scaling is handed off when reaching limits. When the previous region is at maximum</a>
+<a name="740"><span class="lineNum">     740 </span>            :    * size, drag-outs are forwarded to this region, and when this region is at minimum size,</a>
+<a name="741"><span class="lineNum">     741 </span>            :    * drag-ins are forwarded to the previous region. */</a>
+<a name="742"><span class="lineNum">     742 </span>            :   RGN_STACK_ON_PREV = 1 &lt;&lt; 8,</a>
+<a name="743"><span class="lineNum">     743 </span>            : };</a>
+<a name="744"><span class="lineNum">     744 </span><span class="lineCov">     104751 : ENUM_OPERATORS(eRegion_Alignment)</span></a>
+<a name="745"><span class="lineNum">     745 </span>            : </a>
+<a name="746"><span class="lineNum">     746 </span>            : /** Mask out flags so we can check the alignment. */</a>
+<a name="747"><span class="lineNum">     747 </span>            : #define RGN_ALIGN_ENUM_FROM_MASK(align) ((align) &amp; eRegion_Alignment((1 &lt;&lt; 4) - 1))</a>
+<a name="748"><span class="lineNum">     748 </span>            : #define RGN_ALIGN_FLAG_FROM_MASK(align) ((align) &amp; ~eRegion_Alignment((1 &lt;&lt; 4) - 1))</a>
+<a name="749"><span class="lineNum">     749 </span>            : </a>
+<a name="750"><span class="lineNum">     750 </span>            : /** #ARegion.flag */</a>
+<a name="751"><span class="lineNum">     751 </span>            : enum eRegion_Flag : short {</a>
+<a name="752"><span class="lineNum">     752 </span>            :   RGN_FLAG_HIDDEN = (1 &lt;&lt; 0),</a>
+<a name="753"><span class="lineNum">     753 </span>            :   RGN_FLAG_TOO_SMALL = (1 &lt;&lt; 1),</a>
+<a name="754"><span class="lineNum">     754 </span>            :   /** Enable dynamically changing the region size in the #ARegionType::layout() callback. */</a>
+<a name="755"><span class="lineNum">     755 </span>            :   RGN_FLAG_DYNAMIC_SIZE = (1 &lt;&lt; 2),</a>
+<a name="756"><span class="lineNum">     756 </span>            :   /** Region data is NULL'd on read, never written. */</a>
+<a name="757"><span class="lineNum">     757 </span>            :   RGN_FLAG_TEMP_REGIONDATA = (1 &lt;&lt; 3),</a>
+<a name="758"><span class="lineNum">     758 </span>            :   /** Region resizing by the user is disabled, but the region edge can still be dragged to</a>
+<a name="759"><span class="lineNum">     759 </span>            :    * hide/unhide the region. */</a>
+<a name="760"><span class="lineNum">     760 </span>            :   RGN_FLAG_NO_USER_RESIZE = (1 &lt;&lt; 4),</a>
+<a name="761"><span class="lineNum">     761 </span>            :   /** Size has been clamped (floating regions only). */</a>
+<a name="762"><span class="lineNum">     762 </span>            :   RGN_FLAG_SIZE_CLAMP_X = (1 &lt;&lt; 5),</a>
+<a name="763"><span class="lineNum">     763 </span>            :   RGN_FLAG_SIZE_CLAMP_Y = (1 &lt;&lt; 6),</a>
+<a name="764"><span class="lineNum">     764 </span>            :   /** When the user sets the region is hidden,</a>
+<a name="765"><span class="lineNum">     765 </span>            :    * needed for floating regions that may be hidden for other reasons. */</a>
+<a name="766"><span class="lineNum">     766 </span>            :   RGN_FLAG_HIDDEN_BY_USER = (1 &lt;&lt; 7),</a>
+<a name="767"><span class="lineNum">     767 </span>            :   /** Property search filter is active. */</a>
+<a name="768"><span class="lineNum">     768 </span>            :   RGN_FLAG_SEARCH_FILTER_ACTIVE = (1 &lt;&lt; 8),</a>
+<a name="769"><span class="lineNum">     769 </span>            :   /**</a>
+<a name="770"><span class="lineNum">     770 </span>            :    * Update the expansion of the region's panels and switch contexts. Only Set</a>
+<a name="771"><span class="lineNum">     771 </span>            :    * temporarily when the search filter is updated and cleared at the end of the</a>
+<a name="772"><span class="lineNum">     772 </span>            :    * region's layout pass. so that expansion is still interactive,</a>
+<a name="773"><span class="lineNum">     773 </span>            :    */</a>
+<a name="774"><span class="lineNum">     774 </span>            :   RGN_FLAG_SEARCH_FILTER_UPDATE = (1 &lt;&lt; 9),</a>
+<a name="775"><span class="lineNum">     775 </span>            :   /** #ARegionType.poll() failed for the current context, and the region should be treated as if it</a>
+<a name="776"><span class="lineNum">     776 </span>            :    * wouldn't exist. Runtime only flag. */</a>
+<a name="777"><span class="lineNum">     777 </span>            :   RGN_FLAG_POLL_FAILED = (1 &lt;&lt; 10),</a>
+<a name="778"><span class="lineNum">     778 </span>            :   RGN_FLAG_RESIZE_RESPECT_BUTTON_SECTIONS = (1 &lt;&lt; 11),</a>
+<a name="779"><span class="lineNum">     779 </span>            :   RGN_FLAG_INDICATE_OVERFLOW = (1 &lt;&lt; 12),</a>
+<a name="780"><span class="lineNum">     780 </span>            : </a>
+<a name="781"><span class="lineNum">     781 </span>            :   RGN_FLAG_SEARCH_FILTER_SHOW = (1 &lt;&lt; 13),</a>
+<a name="782"><span class="lineNum">     782 </span>            : };</a>
+<a name="783"><span class="lineNum">     783 </span><span class="lineCov">   47484585 : ENUM_OPERATORS(eRegion_Flag)</span></a>
+<a name="784"><span class="lineNum">     784 </span>            : </a>
+<a name="785"><span class="lineNum">     785 </span>            : /** #ARegion.do_draw */</a>
+<a name="786"><span class="lineNum">     786 </span>            : enum eRegion_DrawFlag : int {</a>
+<a name="787"><span class="lineNum">     787 </span>            :   /** Region must be fully redrawn. */</a>
+<a name="788"><span class="lineNum">     788 </span>            :   RGN_DRAW = 1,</a>
+<a name="789"><span class="lineNum">     789 </span>            :   /**</a>
+<a name="790"><span class="lineNum">     790 </span>            :    * Redraw only part of region, for sculpting and painting to get smoother</a>
+<a name="791"><span class="lineNum">     791 </span>            :    * stroke painting on heavy meshes.</a>
+<a name="792"><span class="lineNum">     792 </span>            :    */</a>
+<a name="793"><span class="lineNum">     793 </span>            :   RGN_DRAW_PARTIAL = 2,</a>
+<a name="794"><span class="lineNum">     794 </span>            :   /**</a>
+<a name="795"><span class="lineNum">     795 </span>            :    * For outliner, to do faster redraw without rebuilding outliner tree.</a>
+<a name="796"><span class="lineNum">     796 </span>            :    * For 3D viewport, to display a new progressive render sample without</a>
+<a name="797"><span class="lineNum">     797 </span>            :    * while other buffers and overlays remain unchanged.</a>
+<a name="798"><span class="lineNum">     798 </span>            :    */</a>
+<a name="799"><span class="lineNum">     799 </span>            :   RGN_DRAW_NO_REBUILD = 4,</a>
+<a name="800"><span class="lineNum">     800 </span>            : </a>
+<a name="801"><span class="lineNum">     801 </span>            :   /** Set while region is being drawn. */</a>
+<a name="802"><span class="lineNum">     802 </span>            :   RGN_DRAWING = 8,</a>
+<a name="803"><span class="lineNum">     803 </span>            :   /** For popups, to refresh UI layout along with drawing. */</a>
+<a name="804"><span class="lineNum">     804 </span>            :   RGN_REFRESH_UI = 16,</a>
+<a name="805"><span class="lineNum">     805 </span>            : </a>
+<a name="806"><span class="lineNum">     806 </span>            :   /** Only editor overlays (currently gizmos only!) should be redrawn. */</a>
+<a name="807"><span class="lineNum">     807 </span>            :   RGN_DRAW_EDITOR_OVERLAYS = 32,</a>
+<a name="808"><span class="lineNum">     808 </span>            : };</a>
+<a name="809"><span class="lineNum">     809 </span><span class="lineCov">    1898295 : ENUM_OPERATORS(eRegion_DrawFlag)</span></a>
+<a name="810"><span class="lineNum">     810 </span>            : </a>
+<a name="811"><span class="lineNum">     811 </span>            : struct ARegion {</a>
+<a name="812"><span class="lineNum">     812 </span>            :   struct ARegion *next = nullptr, *prev = nullptr;</a>
+<a name="813"><span class="lineNum">     813 </span>            : </a>
+<a name="814"><span class="lineNum">     814 </span>            :   /** 2D-View scrolling/zoom info (most regions are 2d anyways). */</a>
+<a name="815"><span class="lineNum">     815 </span>            :   View2D v2d;</a>
+<a name="816"><span class="lineNum">     816 </span>            :   /** Coordinates of region. */</a>
+<a name="817"><span class="lineNum">     817 </span>            :   rcti winrct = {};</a>
+<a name="818"><span class="lineNum">     818 </span>            :   /** Size. */</a>
+<a name="819"><span class="lineNum">     819 </span>            :   short winx = 0, winy = 0;</a>
+<a name="820"><span class="lineNum">     820 </span>            :   /**</a>
+<a name="821"><span class="lineNum">     821 </span>            :    * This is a Y offset on the panel tabs that represents pixels,</a>
+<a name="822"><span class="lineNum">     822 </span>            :    * where zero represents no scroll - the first category always shows first at the top.</a>
+<a name="823"><span class="lineNum">     823 </span>            :    */</a>
+<a name="824"><span class="lineNum">     824 </span>            :   int category_scroll = 0;</a>
+<a name="825"><span class="lineNum">     825 </span>            : </a>
+<a name="826"><span class="lineNum">     826 </span>            :   /** Window, header, etc. identifier for drawing. */</a>
+<a name="827"><span class="lineNum">     827 </span>            :   eRegion_Type regiontype = RGN_TYPE_WINDOW;</a>
+<a name="828"><span class="lineNum">     828 </span>            :   /** How it should split. */</a>
+<a name="829"><span class="lineNum">     829 </span>            :   eRegion_Alignment alignment = RGN_ALIGN_NONE;</a>
+<a name="830"><span class="lineNum">     830 </span>            :   /** Hide, .... */</a>
+<a name="831"><span class="lineNum">     831 </span>            :   eRegion_Flag flag = {};</a>
+<a name="832"><span class="lineNum">     832 </span>            : </a>
+<a name="833"><span class="lineNum">     833 </span>            :   /** Current split size in unscaled pixels (if zero it uses regiontype).</a>
+<a name="834"><span class="lineNum">     834 </span>            :    * To convert to pixels use: `UI_SCALE_FAC * region-&gt;sizex + 0.5f`.</a>
+<a name="835"><span class="lineNum">     835 </span>            :    * However to get the current region size, you should usually use winx/winy from above, not this!</a>
+<a name="836"><span class="lineNum">     836 </span>            :    */</a>
+<a name="837"><span class="lineNum">     837 </span>            :   short sizex = 0, sizey = 0;</a>
+<a name="838"><span class="lineNum">     838 </span>            : </a>
+<a name="839"><span class="lineNum">     839 </span>            :   /** Private, set for indicate drawing overlapped. */</a>
+<a name="840"><span class="lineNum">     840 </span>            :   short overlap = 0;</a>
+<a name="841"><span class="lineNum">     841 </span>            :   /** Temporary copy of flag settings for clean full-screen. */</a>
+<a name="842"><span class="lineNum">     842 </span>            :   short flagfullscreen = 0;</a>
+<a name="843"><span class="lineNum">     843 </span>            : </a>
+<a name="844"><span class="lineNum">     844 </span>            :   char _pad[2] = {};</a>
+<a name="845"><span class="lineNum">     845 </span>            : </a>
+<a name="846"><span class="lineNum">     846 </span>            :   ListBaseT&lt;Panel&gt; panels = {nullptr, nullptr};</a>
+<a name="847"><span class="lineNum">     847 </span>            :   /** Stack of panel categories. */</a>
+<a name="848"><span class="lineNum">     848 </span>            :   ListBaseT&lt;PanelCategoryStack&gt; panels_category_active = {nullptr, nullptr};</a>
+<a name="849"><span class="lineNum">     849 </span>            :   ListBaseT&lt;uiList&gt; ui_lists = {nullptr, nullptr};</a>
+<a name="850"><span class="lineNum">     850 </span>            :   ListBaseT&lt;uiPreview&gt; ui_previews = {nullptr, nullptr};</a>
+<a name="851"><span class="lineNum">     851 </span>            :   /**</a>
+<a name="852"><span class="lineNum">     852 </span>            :    * Permanent state storage of #ui::AbstractView instances, so hiding regions with views or</a>
+<a name="853"><span class="lineNum">     853 </span>            :    * loading files remembers the view state.</a>
+<a name="854"><span class="lineNum">     854 </span>            :    */</a>
+<a name="855"><span class="lineNum">     855 </span>            :   ListBaseT&lt;uiViewStateLink&gt; view_states = {nullptr, nullptr};</a>
+<a name="856"><span class="lineNum">     856 </span>            :   /**</a>
+<a name="857"><span class="lineNum">     857 </span>            :    * Permanent state storage of #ui::ButtonTextBox instances, so hiding regions with textbox</a>
+<a name="858"><span class="lineNum">     858 </span>            :    * buttons or loading files remembers the textbox state.</a>
+<a name="859"><span class="lineNum">     859 </span>            :    */</a>
+<a name="860"><span class="lineNum">     860 </span>            :   ListBaseT&lt;uiTextboxStateLink&gt; textbox_states = {nullptr, nullptr};</a>
+<a name="861"><span class="lineNum">     861 </span>            : </a>
+<a name="862"><span class="lineNum">     862 </span>            :   /** XXX 2.50, need spacedata equivalent? */</a>
+<a name="863"><span class="lineNum">     863 </span>            :   void *regiondata = nullptr;</a>
+<a name="864"><span class="lineNum">     864 </span>            : </a>
+<a name="865"><span class="lineNum">     865 </span>            :   bke::ARegionRuntime *runtime = nullptr;</a>
+<a name="866"><span class="lineNum">     866 </span>            : };</a>
+<a name="867"><span class="lineNum">     867 </span>            : </a>
+<a name="868"><span class="lineNum">     868 </span>            : /* #AssetShelfSettings.display_flag */</a>
+<a name="869"><span class="lineNum">     869 </span>            : enum AssetShelfSettings_DisplayFlag : short {</a>
+<a name="870"><span class="lineNum">     870 </span>            :   ASSETSHELF_SHOW_NAMES = (1 &lt;&lt; 0),</a>
+<a name="871"><span class="lineNum">     871 </span>            : };</a>
+<a name="872"><span class="lineNum">     872 </span><span class="lineNoCov">          0 : ENUM_OPERATORS(AssetShelfSettings_DisplayFlag)</span></a>
+<a name="873"><span class="lineNum">     873 </span>            : </a>
+<a name="874"><span class="lineNum">     874 </span>            : /* #AssetShelfSettings.instance_flag */</a>
+<a name="875"><span class="lineNum">     875 </span>            : enum AssetShelf_InstanceFlag : short {</a>
+<a name="876"><span class="lineNum">     876 </span>            :   /**</a>
+<a name="877"><span class="lineNum">     877 </span>            :    * Remember the last known region visibility state or this shelf, so it can be restored if the</a>
+<a name="878"><span class="lineNum">     878 </span>            :    * shelf is reactivated. Practically this makes the shelf visibility be remembered per mode.</a>
+<a name="879"><span class="lineNum">     879 </span>            :    * Continuously updated for the visible region.</a>
+<a name="880"><span class="lineNum">     880 </span>            :    */</a>
+<a name="881"><span class="lineNum">     881 </span>            :   ASSETSHELF_REGION_IS_HIDDEN = (1 &lt;&lt; 0),</a>
+<a name="882"><span class="lineNum">     882 </span>            : };</a>
+<a name="883"><span class="lineNum">     883 </span><span class="lineNoCov">          0 : ENUM_OPERATORS(AssetShelf_InstanceFlag);</span></a>
+<a name="884"><span class="lineNum">     884 </span>            : </a>
+<a name="885"><span class="lineNum">     885 </span>            : struct AssetShelfSettings {</a>
+<a name="886"><span class="lineNum">     886 </span>            :   AssetLibraryReference asset_library_reference;</a>
+<a name="887"><span class="lineNum">     887 </span>            : </a>
+<a name="888"><span class="lineNum">     888 </span>            :   ListBaseT&lt;AssetCatalogPathLink&gt; enabled_catalog_paths = {nullptr, nullptr};</a>
+<a name="889"><span class="lineNum">     889 </span>            :   /** If not set (null or empty string), all assets will be displayed (&quot;All&quot; catalog behavior). */</a>
+<a name="890"><span class="lineNum">     890 </span>            :   const char *active_catalog_path = nullptr;</a>
+<a name="891"><span class="lineNum">     891 </span>            : </a>
+<a name="892"><span class="lineNum">     892 </span>            :   /** For filtering assets displayed in the asset view. */</a>
+<a name="893"><span class="lineNum">     893 </span>            :   char search_string[64] = &quot;&quot;;</a>
+<a name="894"><span class="lineNum">     894 </span>            : </a>
+<a name="895"><span class="lineNum">     895 </span>            :   short preview_size = 0;</a>
+<a name="896"><span class="lineNum">     896 </span>            :   AssetShelfSettings_DisplayFlag display_flag = {};</a>
+<a name="897"><span class="lineNum">     897 </span>            :   char _pad1[4] = {};</a>
+<a name="898"><span class="lineNum">     898 </span>            : </a>
+<a name="899"><span class="lineNum">     899 </span>            : #if defined(__cplusplus) &amp;&amp; !defined(DNA_NO_EXTERNAL_CONSTRUCTORS)</a>
+<a name="900"><span class="lineNum">     900 </span>            :   /* Zero initializes. */</a>
+<a name="901"><span class="lineNum">     901 </span>            :   AssetShelfSettings();</a>
+<a name="902"><span class="lineNum">     902 </span>            :   /* Proper deep copy. */</a>
+<a name="903"><span class="lineNum">     903 </span>            :   AssetShelfSettings(const AssetShelfSettings &amp;other);</a>
+<a name="904"><span class="lineNum">     904 </span>            :   AssetShelfSettings &amp;operator=(const AssetShelfSettings &amp;other);</a>
+<a name="905"><span class="lineNum">     905 </span>            :   ~AssetShelfSettings();</a>
+<a name="906"><span class="lineNum">     906 </span>            : #endif</a>
+<a name="907"><span class="lineNum">     907 </span>            : };</a>
+<a name="908"><span class="lineNum">     908 </span>            : </a>
+<a name="909"><span class="lineNum">     909 </span>            : struct AssetShelf {</a>
+<a name="910"><span class="lineNum">     910 </span><span class="lineCov">     269216 :   DNA_DEFINE_CXX_METHODS(AssetShelf)</span></a>
+<a name="911"><span class="lineNum">     911 </span>            : </a>
+<a name="912"><span class="lineNum">     912 </span>            :   struct AssetShelf *next = nullptr, *prev = nullptr;</a>
+<a name="913"><span class="lineNum">     913 </span>            : </a>
+<a name="914"><span class="lineNum">     914 </span>            :   /** Identifier that matches the #AssetShelfType.idname this shelf was created with. Used to</a>
+<a name="915"><span class="lineNum">     915 </span>            :    * restore the #AssetShelf.type pointer below on file read. */</a>
+<a name="916"><span class="lineNum">     916 </span>            :   char idname[/*MAX_NAME*/ 64] = &quot;&quot;;</a>
+<a name="917"><span class="lineNum">     917 </span>            :   /** Runtime. */</a>
+<a name="918"><span class="lineNum">     918 </span>            :   struct AssetShelfType *type = nullptr;</a>
+<a name="919"><span class="lineNum">     919 </span>            : </a>
+<a name="920"><span class="lineNum">     920 </span>            :   AssetShelfSettings settings;</a>
+<a name="921"><span class="lineNum">     921 </span>            : </a>
+<a name="922"><span class="lineNum">     922 </span>            :   /** Only for the permanent asset shelf regions, not asset shelves in temporary popups. */</a>
+<a name="923"><span class="lineNum">     923 </span>            :   short preferred_row_count = 0;</a>
+<a name="924"><span class="lineNum">     924 </span>            :   AssetShelf_InstanceFlag instance_flag = {};</a>
+<a name="925"><span class="lineNum">     925 </span>            :   char _pad[4] = {};</a>
+<a name="926"><span class="lineNum">     926 </span>            : };</a>
+<a name="927"><span class="lineNum">     927 </span>            : </a>
+<a name="928"><span class="lineNum">     928 </span>            : /**</a>
+<a name="929"><span class="lineNum">     929 </span>            :  * Region-data for the main asset shelf region (#RGN_TYPE_ASSET_SHELF). Managed by the asset shelf</a>
+<a name="930"><span class="lineNum">     930 </span>            :  * internals.</a>
+<a name="931"><span class="lineNum">     931 </span>            :  *</a>
+<a name="932"><span class="lineNum">     932 </span>            :  * Contains storage for all previously activated asset shelf instances plus info on the currently</a>
+<a name="933"><span class="lineNum">     933 </span>            :  * active one (only one can be active at any time).</a>
+<a name="934"><span class="lineNum">     934 </span>            :  */</a>
+<a name="935"><span class="lineNum">     935 </span>            : struct RegionAssetShelf {</a>
+<a name="936"><span class="lineNum">     936 </span>            :   /** Owning list of previously activated asset shelves. */</a>
+<a name="937"><span class="lineNum">     937 </span>            :   ListBaseT&lt;AssetShelf&gt; shelves = {nullptr, nullptr};</a>
+<a name="938"><span class="lineNum">     938 </span>            :   /**</a>
+<a name="939"><span class="lineNum">     939 </span>            :    * The currently active shelf, if any. Updated on redraw, so that context changes are reflected.</a>
+<a name="940"><span class="lineNum">     940 </span>            :    * Note that this may still be set even though the shelf isn't available anymore</a>
+<a name="941"><span class="lineNum">     941 </span>            :    * (#AssetShelfType.poll() fails). The pointer isn't necessarily unset when polling.</a>
+<a name="942"><span class="lineNum">     942 </span>            :    */</a>
+<a name="943"><span class="lineNum">     943 </span>            :   AssetShelf *active_shelf = nullptr; /* Non-owning. */</a>
+<a name="944"><span class="lineNum">     944 </span>            : #ifdef __cplusplus</a>
+<a name="945"><span class="lineNum">     945 </span>            :   static RegionAssetShelf *get_from_asset_shelf_region(const ARegion &amp;region);</a>
+<a name="946"><span class="lineNum">     946 </span>            :   /** Creates the asset shelf region data if necessary, and returns it. */</a>
+<a name="947"><span class="lineNum">     947 </span>            :   static RegionAssetShelf *ensure_from_asset_shelf_region(ARegion &amp;region);</a>
+<a name="948"><span class="lineNum">     948 </span>            : #endif</a>
+<a name="949"><span class="lineNum">     949 </span>            : };</a>
+<a name="950"><span class="lineNum">     950 </span>            : </a>
+<a name="951"><span class="lineNum">     951 </span>            : struct FileHandler {</a>
+<a name="952"><span class="lineNum">     952 </span>            :   DNA_DEFINE_CXX_METHODS(FileHandler)</a>
+<a name="953"><span class="lineNum">     953 </span>            :   /** Runtime. */</a>
+<a name="954"><span class="lineNum">     954 </span>            :   bke::FileHandlerType *type = nullptr;</a>
+<a name="955"><span class="lineNum">     955 </span>            : };</a>
+<a name="956"><span class="lineNum">     956 </span>            : </a>
+<a name="957"><span class="lineNum">     957 </span>            : }  // namespace blender</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

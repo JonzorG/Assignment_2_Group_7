@@ -1,0 +1,453 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - modifiers/intern/MOD_uvproject.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">modifiers/intern</a> - MOD_uvproject.cc<span style="font-size: 80%;"> (source / <a href="MOD_uvproject.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">162</td>
+            <td class="headerCovTableEntryLo">1.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntryLo">11.1 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2005 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup modifiers</a>
+<a name="7"><span class="lineNum">       7 </span>            :  */</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : /* UV Project modifier: Generates UVs projected from an object */</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &quot;BLI_utildefines.hh&quot;</a>
+<a name="12"><span class="lineNum">      12 </span>            : </a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;BLI_math_matrix_c.hh&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;BLI_math_vector_c.hh&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : </a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &quot;BLT_translation.hh&quot;</a>
+<a name="17"><span class="lineNum">      17 </span>            : </a>
+<a name="18"><span class="lineNum">      18 </span>            : #include &quot;DNA_camera_types.h&quot;</a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &quot;DNA_mesh_types.h&quot;</a>
+<a name="20"><span class="lineNum">      20 </span>            : #include &quot;DNA_object_types.h&quot;</a>
+<a name="21"><span class="lineNum">      21 </span>            : #include &quot;DNA_screen_types.h&quot;</a>
+<a name="22"><span class="lineNum">      22 </span>            : </a>
+<a name="23"><span class="lineNum">      23 </span>            : #include &quot;BKE_attribute.h&quot;</a>
+<a name="24"><span class="lineNum">      24 </span>            : #include &quot;BKE_attribute.hh&quot;</a>
+<a name="25"><span class="lineNum">      25 </span>            : #include &quot;BKE_camera.h&quot;</a>
+<a name="26"><span class="lineNum">      26 </span>            : #include &quot;BKE_customdata.hh&quot;</a>
+<a name="27"><span class="lineNum">      27 </span>            : #include &quot;BKE_lib_query.hh&quot;</a>
+<a name="28"><span class="lineNum">      28 </span>            : #include &quot;BKE_mesh.hh&quot;</a>
+<a name="29"><span class="lineNum">      29 </span>            : #include &quot;BKE_uvproject.h&quot;</a>
+<a name="30"><span class="lineNum">      30 </span>            : </a>
+<a name="31"><span class="lineNum">      31 </span>            : #include &quot;UI_interface_layout.hh&quot;</a>
+<a name="32"><span class="lineNum">      32 </span>            : #include &quot;UI_resources.hh&quot;</a>
+<a name="33"><span class="lineNum">      33 </span>            : </a>
+<a name="34"><span class="lineNum">      34 </span>            : #include &quot;RNA_access.hh&quot;</a>
+<a name="35"><span class="lineNum">      35 </span>            : #include &quot;RNA_prototypes.hh&quot;</a>
+<a name="36"><span class="lineNum">      36 </span>            : </a>
+<a name="37"><span class="lineNum">      37 </span>            : #include &quot;MOD_modifiertypes.hh&quot;</a>
+<a name="38"><span class="lineNum">      38 </span>            : #include &quot;MOD_ui_common.hh&quot;</a>
+<a name="39"><span class="lineNum">      39 </span>            : </a>
+<a name="40"><span class="lineNum">      40 </span>            : #include &quot;MEM_guardedalloc.h&quot;</a>
+<a name="41"><span class="lineNum">      41 </span>            : </a>
+<a name="42"><span class="lineNum">      42 </span>            : #include &quot;DEG_depsgraph_build.hh&quot;</a>
+<a name="43"><span class="lineNum">      43 </span>            : </a>
+<a name="44"><span class="lineNum">      44 </span>            : namespace blender {</a>
+<a name="45"><span class="lineNum">      45 </span>            : </a>
+<a name="46"><span class="lineNum">      46 </span><span class="lineNoCov">          0 : static void init_data(ModifierData *md)</span></a>
+<a name="47"><span class="lineNum">      47 </span>            : {</a>
+<a name="48"><span class="lineNum">      48 </span><span class="lineNoCov">          0 :   UVProjectModifierData *umd = reinterpret_cast&lt;UVProjectModifierData *&gt;(md);</span></a>
+<a name="49"><span class="lineNum">      49 </span>            : </a>
+<a name="50"><span class="lineNum">      50 </span><span class="lineNoCov">          0 :   INIT_DEFAULT_STRUCT_AFTER(umd, modifier);</span></a>
+<a name="51"><span class="lineNum">      51 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="52"><span class="lineNum">      52 </span>            : </a>
+<a name="53"><span class="lineNum">      53 </span><span class="lineNoCov">          0 : static void required_data_mask(ModifierData * /*md*/, CustomData_MeshMasks *r_cddata_masks)</span></a>
+<a name="54"><span class="lineNum">      54 </span>            : {</a>
+<a name="55"><span class="lineNum">      55 </span>            :   /* ask for UV coordinates */</a>
+<a name="56"><span class="lineNum">      56 </span><span class="lineNoCov">          0 :   r_cddata_masks-&gt;lmask |= CD_MASK_PROP_FLOAT2;</span></a>
+<a name="57"><span class="lineNum">      57 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="58"><span class="lineNum">      58 </span>            : </a>
+<a name="59"><span class="lineNum">      59 </span><span class="lineNoCov">          0 : static void foreach_ID_link(ModifierData *md, Object *ob, IDWalkFunc walk, void *user_data)</span></a>
+<a name="60"><span class="lineNum">      60 </span>            : {</a>
+<a name="61"><span class="lineNum">      61 </span><span class="lineNoCov">          0 :   UVProjectModifierData *umd = reinterpret_cast&lt;UVProjectModifierData *&gt;(md);</span></a>
+<a name="62"><span class="lineNum">      62 </span><span class="lineNoCov">          0 :   for (int i = 0; i &lt; MOD_UVPROJECT_MAXPROJECTORS; i++) {</span></a>
+<a name="63"><span class="lineNum">      63 </span><span class="lineNoCov">          0 :     walk(user_data, ob, reinterpret_cast&lt;ID **&gt;(&amp;umd-&gt;projectors[i]), IDWALK_CB_NOP);</span></a>
+<a name="64"><span class="lineNum">      64 </span>            :   }</a>
+<a name="65"><span class="lineNum">      65 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="66"><span class="lineNum">      66 </span>            : </a>
+<a name="67"><span class="lineNum">      67 </span><span class="lineNoCov">          0 : static void update_depsgraph(ModifierData *md, const ModifierUpdateDepsgraphContext *ctx)</span></a>
+<a name="68"><span class="lineNum">      68 </span>            : {</a>
+<a name="69"><span class="lineNum">      69 </span><span class="lineNoCov">          0 :   UVProjectModifierData *umd = reinterpret_cast&lt;UVProjectModifierData *&gt;(md);</span></a>
+<a name="70"><span class="lineNum">      70 </span><span class="lineNoCov">          0 :   bool do_add_own_transform = false;</span></a>
+<a name="71"><span class="lineNum">      71 </span><span class="lineNoCov">          0 :   for (int i = 0; i &lt; umd-&gt;projectors_num; i++) {</span></a>
+<a name="72"><span class="lineNum">      72 </span><span class="lineNoCov">          0 :     if (umd-&gt;projectors[i] != nullptr) {</span></a>
+<a name="73"><span class="lineNum">      73 </span><span class="lineNoCov">          0 :       DEG_add_object_relation(</span></a>
+<a name="74"><span class="lineNum">      74 </span><span class="lineNoCov">          0 :           ctx-&gt;node, umd-&gt;projectors[i], DEG_OB_COMP_TRANSFORM, &quot;UV Project Modifier&quot;);</span></a>
+<a name="75"><span class="lineNum">      75 </span><span class="lineNoCov">          0 :       do_add_own_transform = true;</span></a>
+<a name="76"><span class="lineNum">      76 </span>            :     }</a>
+<a name="77"><span class="lineNum">      77 </span>            :   }</a>
+<a name="78"><span class="lineNum">      78 </span><span class="lineNoCov">          0 :   if (do_add_own_transform) {</span></a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineNoCov">          0 :     DEG_add_depends_on_transform_relation(ctx-&gt;node, &quot;UV Project Modifier&quot;);</span></a>
+<a name="80"><span class="lineNum">      80 </span>            :   }</a>
+<a name="81"><span class="lineNum">      81 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="82"><span class="lineNum">      82 </span>            : </a>
+<a name="83"><span class="lineNum">      83 </span>            : struct Projector {</a>
+<a name="84"><span class="lineNum">      84 </span>            :   Object *ob;          /* object this projector is derived from */</a>
+<a name="85"><span class="lineNum">      85 </span>            :   float projmat[4][4]; /* projection matrix */</a>
+<a name="86"><span class="lineNum">      86 </span>            :   float normal[3];     /* projector normal in world space */</a>
+<a name="87"><span class="lineNum">      87 </span>            :   void *uci;           /* optional uv-project info (panorama projection) */</a>
+<a name="88"><span class="lineNum">      88 </span>            : };</a>
+<a name="89"><span class="lineNum">      89 </span>            : </a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineNoCov">          0 : static bke::SpanAttributeWriter&lt;float2&gt; get_uv_attribute(Mesh &amp;mesh, const StringRef md_name)</span></a>
+<a name="91"><span class="lineNum">      91 </span>            : {</a>
+<a name="92"><span class="lineNum">      92 </span><span class="lineNoCov">          0 :   bke::MutableAttributeAccessor attributes = mesh.attributes_for_write();</span></a>
+<a name="93"><span class="lineNum">      93 </span><span class="lineNoCov">          0 :   if (md_name.is_empty()) {</span></a>
+<a name="94"><span class="lineNum">      94 </span><span class="lineNoCov">          0 :     const StringRef name = mesh.active_uv_map_name();</span></a>
+<a name="95"><span class="lineNum">      95 </span><span class="lineNoCov">          0 :     return attributes.lookup_or_add_for_write_span&lt;float2&gt;(name.is_empty() ? &quot;Float2&quot; : name,</span></a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineNoCov">          0 :                                                            bke::AttrDomain::Corner);</span></a>
+<a name="97"><span class="lineNum">      97 </span>            :   }</a>
+<a name="98"><span class="lineNum">      98 </span><span class="lineNoCov">          0 :   if (bke::SpanAttributeWriter&lt;float2&gt; attribute = attributes.lookup_or_add_for_write_span&lt;float2&gt;(</span></a>
+<a name="99"><span class="lineNum">      99 </span><span class="lineNoCov">          0 :           md_name, bke::AttrDomain::Corner))</span></a>
+<a name="100"><span class="lineNum">     100 </span>            :   {</a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineNoCov">          0 :     return attribute;</span></a>
+<a name="102"><span class="lineNum">     102 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="103"><span class="lineNum">     103 </span><span class="lineNoCov">          0 :   AttributeOwner owner = AttributeOwner::from_id(&amp;mesh.id);</span></a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineNoCov">          0 :   const std::string name = BKE_attribute_calc_unique_name(owner, md_name);</span></a>
+<a name="105"><span class="lineNum">     105 </span><span class="lineNoCov">          0 :   return attributes.lookup_or_add_for_write_span&lt;float2&gt;(name, bke::AttrDomain::Corner);</span></a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="107"><span class="lineNum">     107 </span>            : </a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineNoCov">          0 : static Mesh *uvprojectModifier_do(UVProjectModifierData *umd,</span></a>
+<a name="109"><span class="lineNum">     109 </span>            :                                   const ModifierEvalContext * /*ctx*/,</a>
+<a name="110"><span class="lineNum">     110 </span>            :                                   Object *ob,</a>
+<a name="111"><span class="lineNum">     111 </span>            :                                   Mesh *mesh)</a>
+<a name="112"><span class="lineNum">     112 </span>            : {</a>
+<a name="113"><span class="lineNum">     113 </span>            :   Projector projectors[MOD_UVPROJECT_MAXPROJECTORS];</a>
+<a name="114"><span class="lineNum">     114 </span><span class="lineNoCov">          0 :   int projectors_num = 0;</span></a>
+<a name="115"><span class="lineNum">     115 </span><span class="lineNoCov">          0 :   float aspx = umd-&gt;aspectx ? umd-&gt;aspectx : 1.0f;</span></a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineNoCov">          0 :   float aspy = umd-&gt;aspecty ? umd-&gt;aspecty : 1.0f;</span></a>
+<a name="117"><span class="lineNum">     117 </span><span class="lineNoCov">          0 :   float scax = umd-&gt;scalex ? umd-&gt;scalex : 1.0f;</span></a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineNoCov">          0 :   float scay = umd-&gt;scaley ? umd-&gt;scaley : 1.0f;</span></a>
+<a name="119"><span class="lineNum">     119 </span><span class="lineNoCov">          0 :   bool free_uci = false;</span></a>
+<a name="120"><span class="lineNum">     120 </span>            : </a>
+<a name="121"><span class="lineNum">     121 </span><span class="lineNoCov">          0 :   for (int i = 0; i &lt; umd-&gt;projectors_num; i++) {</span></a>
+<a name="122"><span class="lineNum">     122 </span><span class="lineNoCov">          0 :     if (umd-&gt;projectors[i] != nullptr) {</span></a>
+<a name="123"><span class="lineNum">     123 </span><span class="lineNoCov">          0 :       projectors[projectors_num++].ob = umd-&gt;projectors[i];</span></a>
+<a name="124"><span class="lineNum">     124 </span>            :     }</a>
+<a name="125"><span class="lineNum">     125 </span>            :   }</a>
+<a name="126"><span class="lineNum">     126 </span>            : </a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineNoCov">          0 :   if (projectors_num == 0) {</span></a>
+<a name="128"><span class="lineNum">     128 </span><span class="lineNoCov">          0 :     return mesh;</span></a>
+<a name="129"><span class="lineNum">     129 </span>            :   }</a>
+<a name="130"><span class="lineNum">     130 </span>            : </a>
+<a name="131"><span class="lineNum">     131 </span><span class="lineNoCov">          0 :   bke::SpanAttributeWriter uv_attribute = get_uv_attribute(*mesh, umd-&gt;uvlayer_name);</span></a>
+<a name="132"><span class="lineNum">     132 </span><span class="lineNoCov">          0 :   if (!uv_attribute) {</span></a>
+<a name="133"><span class="lineNum">     133 </span><span class="lineNoCov">          0 :     return mesh;</span></a>
+<a name="134"><span class="lineNum">     134 </span>            :   }</a>
+<a name="135"><span class="lineNum">     135 </span>            : </a>
+<a name="136"><span class="lineNum">     136 </span>            :   /* calculate a projection matrix and normal for each projector */</a>
+<a name="137"><span class="lineNum">     137 </span><span class="lineNoCov">          0 :   for (int i = 0; i &lt; projectors_num; i++) {</span></a>
+<a name="138"><span class="lineNum">     138 </span>            :     float tmpmat[4][4];</a>
+<a name="139"><span class="lineNum">     139 </span>            :     float offsetmat[4][4];</a>
+<a name="140"><span class="lineNum">     140 </span>            :     /* calculate projection matrix */</a>
+<a name="141"><span class="lineNum">     141 </span><span class="lineNoCov">          0 :     invert_m4_m4(projectors[i].projmat, projectors[i].ob-&gt;object_to_world().ptr());</span></a>
+<a name="142"><span class="lineNum">     142 </span>            : </a>
+<a name="143"><span class="lineNum">     143 </span><span class="lineNoCov">          0 :     projectors[i].uci = nullptr;</span></a>
+<a name="144"><span class="lineNum">     144 </span>            : </a>
+<a name="145"><span class="lineNum">     145 </span><span class="lineNoCov">          0 :     if (projectors[i].ob-&gt;type == OB_CAMERA) {</span></a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineNoCov">          0 :       const Camera *cam = id_cast&lt;const Camera *&gt;(projectors[i].ob-&gt;data);</span></a>
+<a name="147"><span class="lineNum">     147 </span><span class="lineNoCov">          0 :       if (cam-&gt;type == CAM_PANO) {</span></a>
+<a name="148"><span class="lineNum">     148 </span><span class="lineNoCov">          0 :         projectors[i].uci = BKE_uvproject_camera_info(projectors[i].ob, nullptr, aspx, aspy);</span></a>
+<a name="149"><span class="lineNum">     149 </span><span class="lineNoCov">          0 :         BKE_uvproject_camera_info_scale(</span></a>
+<a name="150"><span class="lineNum">     150 </span><span class="lineNoCov">          0 :             static_cast&lt;ProjCameraInfo *&gt;(projectors[i].uci), scax, scay);</span></a>
+<a name="151"><span class="lineNum">     151 </span><span class="lineNoCov">          0 :         free_uci = true;</span></a>
+<a name="152"><span class="lineNum">     152 </span>            :       }</a>
+<a name="153"><span class="lineNum">     153 </span>            :       else {</a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineNoCov">          0 :         CameraParams params;</span></a>
+<a name="155"><span class="lineNum">     155 </span>            : </a>
+<a name="156"><span class="lineNum">     156 </span>            :         /* setup parameters */</a>
+<a name="157"><span class="lineNum">     157 </span><span class="lineNoCov">          0 :         BKE_camera_params_init(&amp;params);</span></a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineNoCov">          0 :         BKE_camera_params_from_object(&amp;params, projectors[i].ob);</span></a>
+<a name="159"><span class="lineNum">     159 </span>            : </a>
+<a name="160"><span class="lineNum">     160 </span>            :         /* Compute matrix, view-plane, etc. */</a>
+<a name="161"><span class="lineNum">     161 </span><span class="lineNoCov">          0 :         BKE_camera_params_compute_viewplane(&amp;params, 1, 1, aspx, aspy);</span></a>
+<a name="162"><span class="lineNum">     162 </span>            : </a>
+<a name="163"><span class="lineNum">     163 </span>            :         /* scale the view-plane */</a>
+<a name="164"><span class="lineNum">     164 </span><span class="lineNoCov">          0 :         params.viewplane.xmin *= scax;</span></a>
+<a name="165"><span class="lineNum">     165 </span><span class="lineNoCov">          0 :         params.viewplane.xmax *= scax;</span></a>
+<a name="166"><span class="lineNum">     166 </span><span class="lineNoCov">          0 :         params.viewplane.ymin *= scay;</span></a>
+<a name="167"><span class="lineNum">     167 </span><span class="lineNoCov">          0 :         params.viewplane.ymax *= scay;</span></a>
+<a name="168"><span class="lineNum">     168 </span>            : </a>
+<a name="169"><span class="lineNum">     169 </span><span class="lineNoCov">          0 :         BKE_camera_params_compute_matrix(&amp;params);</span></a>
+<a name="170"><span class="lineNum">     170 </span><span class="lineNoCov">          0 :         mul_m4_m4m4(tmpmat, params.winmat, projectors[i].projmat);</span></a>
+<a name="171"><span class="lineNum">     171 </span>            :       }</a>
+<a name="172"><span class="lineNum">     172 </span>            :     }</a>
+<a name="173"><span class="lineNum">     173 </span>            :     else {</a>
+<a name="174"><span class="lineNum">     174 </span><span class="lineNoCov">          0 :       copy_m4_m4(tmpmat, projectors[i].projmat);</span></a>
+<a name="175"><span class="lineNum">     175 </span>            :     }</a>
+<a name="176"><span class="lineNum">     176 </span>            : </a>
+<a name="177"><span class="lineNum">     177 </span><span class="lineNoCov">          0 :     unit_m4(offsetmat);</span></a>
+<a name="178"><span class="lineNum">     178 </span><span class="lineNoCov">          0 :     mul_mat3_m4_fl(offsetmat, 0.5);</span></a>
+<a name="179"><span class="lineNum">     179 </span><span class="lineNoCov">          0 :     offsetmat[3][0] = offsetmat[3][1] = offsetmat[3][2] = 0.5;</span></a>
+<a name="180"><span class="lineNum">     180 </span>            : </a>
+<a name="181"><span class="lineNum">     181 </span><span class="lineNoCov">          0 :     mul_m4_m4m4(projectors[i].projmat, offsetmat, tmpmat);</span></a>
+<a name="182"><span class="lineNum">     182 </span>            : </a>
+<a name="183"><span class="lineNum">     183 </span>            :     /* Calculate world-space projector normal (for best projector test). */</a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineNoCov">          0 :     projectors[i].normal[0] = 0;</span></a>
+<a name="185"><span class="lineNum">     185 </span><span class="lineNoCov">          0 :     projectors[i].normal[1] = 0;</span></a>
+<a name="186"><span class="lineNum">     186 </span><span class="lineNoCov">          0 :     projectors[i].normal[2] = 1;</span></a>
+<a name="187"><span class="lineNum">     187 </span><span class="lineNoCov">          0 :     mul_mat3_m4_v3(projectors[i].ob-&gt;object_to_world().ptr(), projectors[i].normal);</span></a>
+<a name="188"><span class="lineNum">     188 </span>            :   }</a>
+<a name="189"><span class="lineNum">     189 </span>            : </a>
+<a name="190"><span class="lineNum">     190 </span><span class="lineNoCov">          0 :   const Span&lt;float3&gt; positions = mesh-&gt;vert_positions();</span></a>
+<a name="191"><span class="lineNum">     191 </span><span class="lineNoCov">          0 :   const OffsetIndices faces = mesh-&gt;faces();</span></a>
+<a name="192"><span class="lineNum">     192 </span><span class="lineNoCov">          0 :   const Span&lt;int&gt; corner_verts = mesh-&gt;corner_verts();</span></a>
+<a name="193"><span class="lineNum">     193 </span><span class="lineNoCov">          0 :   MutableSpan&lt;float2&gt; mloop_uv = uv_attribute.span;</span></a>
+<a name="194"><span class="lineNum">     194 </span>            : </a>
+<a name="195"><span class="lineNum">     195 </span>            :   /* Convert coords to world-space. */</a>
+<a name="196"><span class="lineNum">     196 </span><span class="lineNoCov">          0 :   Array&lt;float3&gt; coords(positions.size());</span></a>
+<a name="197"><span class="lineNum">     197 </span><span class="lineNoCov">          0 :   for (int64_t i = 0; i &lt; positions.size(); i++) {</span></a>
+<a name="198"><span class="lineNum">     198 </span><span class="lineNoCov">          0 :     mul_v3_m4v3(coords[i], ob-&gt;object_to_world().ptr(), positions[i]);</span></a>
+<a name="199"><span class="lineNum">     199 </span>            :   }</a>
+<a name="200"><span class="lineNum">     200 </span>            : </a>
+<a name="201"><span class="lineNum">     201 </span>            :   /* if only one projector, project coords to UVs */</a>
+<a name="202"><span class="lineNum">     202 </span><span class="lineNoCov">          0 :   if (projectors_num == 1 &amp;&amp; projectors[0].uci == nullptr) {</span></a>
+<a name="203"><span class="lineNum">     203 </span><span class="lineNoCov">          0 :     for (int64_t i = 0; i &lt; coords.size(); i++) {</span></a>
+<a name="204"><span class="lineNum">     204 </span><span class="lineNoCov">          0 :       mul_project_m4_v3(projectors[0].projmat, coords[i]);</span></a>
+<a name="205"><span class="lineNum">     205 </span>            :     }</a>
+<a name="206"><span class="lineNum">     206 </span>            :   }</a>
+<a name="207"><span class="lineNum">     207 </span>            : </a>
+<a name="208"><span class="lineNum">     208 </span>            :   /* apply coords as UVs */</a>
+<a name="209"><span class="lineNum">     209 </span><span class="lineNoCov">          0 :   for (const int i : faces.index_range()) {</span></a>
+<a name="210"><span class="lineNum">     210 </span><span class="lineNoCov">          0 :     const IndexRange face = faces[i];</span></a>
+<a name="211"><span class="lineNum">     211 </span><span class="lineNoCov">          0 :     if (projectors_num == 1) {</span></a>
+<a name="212"><span class="lineNum">     212 </span><span class="lineNoCov">          0 :       if (projectors[0].uci) {</span></a>
+<a name="213"><span class="lineNum">     213 </span><span class="lineNoCov">          0 :         for (const int corner : face) {</span></a>
+<a name="214"><span class="lineNum">     214 </span><span class="lineNoCov">          0 :           const int vert = corner_verts[corner];</span></a>
+<a name="215"><span class="lineNum">     215 </span><span class="lineNoCov">          0 :           BKE_uvproject_from_camera(</span></a>
+<a name="216"><span class="lineNum">     216 </span><span class="lineNoCov">          0 :               mloop_uv[corner], coords[vert], static_cast&lt;ProjCameraInfo *&gt;(projectors[0].uci));</span></a>
+<a name="217"><span class="lineNum">     217 </span>            :         }</a>
+<a name="218"><span class="lineNum">     218 </span>            :       }</a>
+<a name="219"><span class="lineNum">     219 </span>            :       else {</a>
+<a name="220"><span class="lineNum">     220 </span>            :         /* apply transformed coords as UVs */</a>
+<a name="221"><span class="lineNum">     221 </span><span class="lineNoCov">          0 :         for (const int corner : face) {</span></a>
+<a name="222"><span class="lineNum">     222 </span><span class="lineNoCov">          0 :           const int vert = corner_verts[corner];</span></a>
+<a name="223"><span class="lineNum">     223 </span><span class="lineNoCov">          0 :           copy_v2_v2(mloop_uv[corner], coords[vert]);</span></a>
+<a name="224"><span class="lineNum">     224 </span>            :         }</a>
+<a name="225"><span class="lineNum">     225 </span>            :       }</a>
+<a name="226"><span class="lineNum">     226 </span>            :     }</a>
+<a name="227"><span class="lineNum">     227 </span>            :     else {</a>
+<a name="228"><span class="lineNum">     228 </span>            :       /* multiple projectors, select the closest to face normal direction */</a>
+<a name="229"><span class="lineNum">     229 </span>            :       int j;</a>
+<a name="230"><span class="lineNum">     230 </span>            :       Projector *best_projector;</a>
+<a name="231"><span class="lineNum">     231 </span>            :       float best_dot;</a>
+<a name="232"><span class="lineNum">     232 </span>            : </a>
+<a name="233"><span class="lineNum">     233 </span>            :       /* get the untransformed face normal */</a>
+<a name="234"><span class="lineNum">     234 </span><span class="lineNoCov">          0 :       const float3 face_no = bke::mesh::face_normal_calc(positions, corner_verts.slice(face));</span></a>
+<a name="235"><span class="lineNum">     235 </span>            : </a>
+<a name="236"><span class="lineNum">     236 </span>            :       /* find the projector which the face points at most directly</a>
+<a name="237"><span class="lineNum">     237 </span>            :        * (projector normal with largest dot product is best)</a>
+<a name="238"><span class="lineNum">     238 </span>            :        */</a>
+<a name="239"><span class="lineNum">     239 </span><span class="lineNoCov">          0 :       best_dot = dot_v3v3(projectors[0].normal, face_no);</span></a>
+<a name="240"><span class="lineNum">     240 </span><span class="lineNoCov">          0 :       best_projector = &amp;projectors[0];</span></a>
+<a name="241"><span class="lineNum">     241 </span>            : </a>
+<a name="242"><span class="lineNum">     242 </span><span class="lineNoCov">          0 :       for (j = 1; j &lt; projectors_num; j++) {</span></a>
+<a name="243"><span class="lineNum">     243 </span><span class="lineNoCov">          0 :         float tmp_dot = dot_v3v3(projectors[j].normal, face_no);</span></a>
+<a name="244"><span class="lineNum">     244 </span><span class="lineNoCov">          0 :         if (tmp_dot &gt; best_dot) {</span></a>
+<a name="245"><span class="lineNum">     245 </span><span class="lineNoCov">          0 :           best_dot = tmp_dot;</span></a>
+<a name="246"><span class="lineNum">     246 </span><span class="lineNoCov">          0 :           best_projector = &amp;projectors[j];</span></a>
+<a name="247"><span class="lineNum">     247 </span>            :         }</a>
+<a name="248"><span class="lineNum">     248 </span>            :       }</a>
+<a name="249"><span class="lineNum">     249 </span>            : </a>
+<a name="250"><span class="lineNum">     250 </span><span class="lineNoCov">          0 :       if (best_projector-&gt;uci) {</span></a>
+<a name="251"><span class="lineNum">     251 </span><span class="lineNoCov">          0 :         for (const int corner : face) {</span></a>
+<a name="252"><span class="lineNum">     252 </span><span class="lineNoCov">          0 :           const int vert = corner_verts[corner];</span></a>
+<a name="253"><span class="lineNum">     253 </span><span class="lineNoCov">          0 :           BKE_uvproject_from_camera(</span></a>
+<a name="254"><span class="lineNum">     254 </span><span class="lineNoCov">          0 :               mloop_uv[corner], coords[vert], static_cast&lt;ProjCameraInfo *&gt;(best_projector-&gt;uci));</span></a>
+<a name="255"><span class="lineNum">     255 </span>            :         }</a>
+<a name="256"><span class="lineNum">     256 </span>            :       }</a>
+<a name="257"><span class="lineNum">     257 </span>            :       else {</a>
+<a name="258"><span class="lineNum">     258 </span><span class="lineNoCov">          0 :         for (const int corner : face) {</span></a>
+<a name="259"><span class="lineNum">     259 </span><span class="lineNoCov">          0 :           const int vert = corner_verts[corner];</span></a>
+<a name="260"><span class="lineNum">     260 </span><span class="lineNoCov">          0 :           mul_v2_project_m4_v3(mloop_uv[corner], best_projector-&gt;projmat, coords[vert]);</span></a>
+<a name="261"><span class="lineNum">     261 </span>            :         }</a>
+<a name="262"><span class="lineNum">     262 </span>            :       }</a>
+<a name="263"><span class="lineNum">     263 </span>            :     }</a>
+<a name="264"><span class="lineNum">     264 </span>            :   }</a>
+<a name="265"><span class="lineNum">     265 </span>            : </a>
+<a name="266"><span class="lineNum">     266 </span><span class="lineNoCov">          0 :   if (free_uci) {</span></a>
+<a name="267"><span class="lineNum">     267 </span>            :     int j;</a>
+<a name="268"><span class="lineNum">     268 </span><span class="lineNoCov">          0 :     for (j = 0; j &lt; projectors_num; j++) {</span></a>
+<a name="269"><span class="lineNum">     269 </span><span class="lineNoCov">          0 :       if (projectors[j].uci) {</span></a>
+<a name="270"><span class="lineNum">     270 </span><span class="lineNoCov">          0 :         MEM_delete_void(projectors[j].uci);</span></a>
+<a name="271"><span class="lineNum">     271 </span>            :       }</a>
+<a name="272"><span class="lineNum">     272 </span>            :     }</a>
+<a name="273"><span class="lineNum">     273 </span>            :   }</a>
+<a name="274"><span class="lineNum">     274 </span>            : </a>
+<a name="275"><span class="lineNum">     275 </span><span class="lineNoCov">          0 :   uv_attribute.finish();</span></a>
+<a name="276"><span class="lineNum">     276 </span>            : </a>
+<a name="277"><span class="lineNum">     277 </span><span class="lineNoCov">          0 :   mesh-&gt;runtime-&gt;is_original_bmesh = false;</span></a>
+<a name="278"><span class="lineNum">     278 </span>            : </a>
+<a name="279"><span class="lineNum">     279 </span><span class="lineNoCov">          0 :   return mesh;</span></a>
+<a name="280"><span class="lineNum">     280 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="281"><span class="lineNum">     281 </span>            : </a>
+<a name="282"><span class="lineNum">     282 </span><span class="lineNoCov">          0 : static Mesh *modify_mesh(ModifierData *md, const ModifierEvalContext *ctx, Mesh *mesh)</span></a>
+<a name="283"><span class="lineNum">     283 </span>            : {</a>
+<a name="284"><span class="lineNum">     284 </span>            :   Mesh *result;</a>
+<a name="285"><span class="lineNum">     285 </span><span class="lineNoCov">          0 :   UVProjectModifierData *umd = reinterpret_cast&lt;UVProjectModifierData *&gt;(md);</span></a>
+<a name="286"><span class="lineNum">     286 </span>            : </a>
+<a name="287"><span class="lineNum">     287 </span><span class="lineNoCov">          0 :   result = uvprojectModifier_do(umd, ctx, ctx-&gt;object, mesh);</span></a>
+<a name="288"><span class="lineNum">     288 </span>            : </a>
+<a name="289"><span class="lineNum">     289 </span><span class="lineNoCov">          0 :   return result;</span></a>
+<a name="290"><span class="lineNum">     290 </span>            : }</a>
+<a name="291"><span class="lineNum">     291 </span>            : </a>
+<a name="292"><span class="lineNum">     292 </span><span class="lineNoCov">          0 : static void panel_draw(const bContext * /*C*/, Panel *panel)</span></a>
+<a name="293"><span class="lineNum">     293 </span>            : {</a>
+<a name="294"><span class="lineNum">     294 </span><span class="lineNoCov">          0 :   ui::Layout &amp;layout = *panel-&gt;layout;</span></a>
+<a name="295"><span class="lineNum">     295 </span>            : </a>
+<a name="296"><span class="lineNum">     296 </span><span class="lineNoCov">          0 :   PointerRNA ob_ptr;</span></a>
+<a name="297"><span class="lineNum">     297 </span><span class="lineNoCov">          0 :   PointerRNA *ptr = modifier_panel_get_property_pointers(panel, &amp;ob_ptr);</span></a>
+<a name="298"><span class="lineNum">     298 </span>            : </a>
+<a name="299"><span class="lineNum">     299 </span><span class="lineNoCov">          0 :   PointerRNA obj_data_ptr = RNA_pointer_get(&amp;ob_ptr, &quot;data&quot;);</span></a>
+<a name="300"><span class="lineNum">     300 </span>            : </a>
+<a name="301"><span class="lineNum">     301 </span><span class="lineNoCov">          0 :   layout.use_property_split_set(true);</span></a>
+<a name="302"><span class="lineNum">     302 </span>            : </a>
+<a name="303"><span class="lineNum">     303 </span><span class="lineNoCov">          0 :   layout.prop_search(ptr, &quot;uv_layer&quot;, &amp;obj_data_ptr, &quot;uv_layers&quot;, std::nullopt, ICON_GROUP_UVS);</span></a>
+<a name="304"><span class="lineNum">     304 </span>            : </a>
+<a name="305"><span class="lineNum">     305 </span>            :   /* Aspect and Scale are only used for camera projectors. */</a>
+<a name="306"><span class="lineNum">     306 </span><span class="lineNoCov">          0 :   bool has_camera = false;</span></a>
+<a name="307"><span class="lineNum">     307 </span><span class="lineNoCov">          0 :   RNA_BEGIN (ptr, projector_ptr, &quot;projectors&quot;) {</span></a>
+<a name="308"><span class="lineNum">     308 </span><span class="lineNoCov">          0 :     PointerRNA ob_projector = RNA_pointer_get(&amp;projector_ptr, &quot;object&quot;);</span></a>
+<a name="309"><span class="lineNum">     309 </span><span class="lineNoCov">          0 :     if (ob_projector &amp;&amp; RNA_enum_get(&amp;ob_projector, &quot;type&quot;) == OB_CAMERA) {</span></a>
+<a name="310"><span class="lineNum">     310 </span><span class="lineNoCov">          0 :       has_camera = true;</span></a>
+<a name="311"><span class="lineNum">     311 </span><span class="lineNoCov">          0 :       break;</span></a>
+<a name="312"><span class="lineNum">     312 </span>            :     }</a>
+<a name="313"><span class="lineNum">     313 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="314"><span class="lineNum">     314 </span><span class="lineNoCov">          0 :   RNA_END;</span></a>
+<a name="315"><span class="lineNum">     315 </span>            : </a>
+<a name="316"><span class="lineNum">     316 </span><span class="lineNoCov">          0 :   ui::Layout *sub = &amp;layout.column(true);</span></a>
+<a name="317"><span class="lineNum">     317 </span><span class="lineNoCov">          0 :   sub-&gt;active_set(has_camera);</span></a>
+<a name="318"><span class="lineNum">     318 </span><span class="lineNoCov">          0 :   sub-&gt;prop(ptr, &quot;aspect_x&quot;, UI_ITEM_NONE, std::nullopt, ICON_NONE);</span></a>
+<a name="319"><span class="lineNum">     319 </span><span class="lineNoCov">          0 :   sub-&gt;prop(ptr, &quot;aspect_y&quot;, UI_ITEM_NONE, IFACE_(&quot;Y&quot;), ICON_NONE);</span></a>
+<a name="320"><span class="lineNum">     320 </span>            : </a>
+<a name="321"><span class="lineNum">     321 </span><span class="lineNoCov">          0 :   sub = &amp;layout.column(true);</span></a>
+<a name="322"><span class="lineNum">     322 </span><span class="lineNoCov">          0 :   sub-&gt;active_set(has_camera);</span></a>
+<a name="323"><span class="lineNum">     323 </span><span class="lineNoCov">          0 :   sub-&gt;prop(ptr, &quot;scale_x&quot;, UI_ITEM_NONE, std::nullopt, ICON_NONE);</span></a>
+<a name="324"><span class="lineNum">     324 </span><span class="lineNoCov">          0 :   sub-&gt;prop(ptr, &quot;scale_y&quot;, UI_ITEM_NONE, IFACE_(&quot;Y&quot;), ICON_NONE);</span></a>
+<a name="325"><span class="lineNum">     325 </span>            : </a>
+<a name="326"><span class="lineNum">     326 </span><span class="lineNoCov">          0 :   layout.prop(ptr, &quot;projector_count&quot;, UI_ITEM_NONE, IFACE_(&quot;Projectors&quot;), ICON_NONE);</span></a>
+<a name="327"><span class="lineNum">     327 </span><span class="lineNoCov">          0 :   RNA_BEGIN (ptr, projector_ptr, &quot;projectors&quot;) {</span></a>
+<a name="328"><span class="lineNum">     328 </span><span class="lineNoCov">          0 :     layout.prop(&amp;projector_ptr, &quot;object&quot;, UI_ITEM_NONE, std::nullopt, ICON_NONE);</span></a>
+<a name="329"><span class="lineNum">     329 </span>            :   }</a>
+<a name="330"><span class="lineNum">     330 </span><span class="lineNoCov">          0 :   RNA_END;</span></a>
+<a name="331"><span class="lineNum">     331 </span>            : </a>
+<a name="332"><span class="lineNum">     332 </span><span class="lineNoCov">          0 :   modifier_error_message_draw(layout, ptr);</span></a>
+<a name="333"><span class="lineNum">     333 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="334"><span class="lineNum">     334 </span>            : </a>
+<a name="335"><span class="lineNum">     335 </span><span class="lineCov">        785 : static void panel_register(ARegionType *region_type)</span></a>
+<a name="336"><span class="lineNum">     336 </span>            : {</a>
+<a name="337"><span class="lineNum">     337 </span><span class="lineCov">        785 :   modifier_panel_register(region_type, eModifierType_UVProject, panel_draw);</span></a>
+<a name="338"><span class="lineNum">     338 </span><span class="lineCov">        785 : }</span></a>
+<a name="339"><span class="lineNum">     339 </span>            : </a>
+<a name="340"><span class="lineNum">     340 </span>            : ModifierTypeInfo modifierType_UVProject = {</a>
+<a name="341"><span class="lineNum">     341 </span>            :     /*idname*/ &quot;UVProject&quot;,</a>
+<a name="342"><span class="lineNum">     342 </span>            :     /*name*/ N_(&quot;UVProject&quot;),</a>
+<a name="343"><span class="lineNum">     343 </span>            :     /*struct_name*/ &quot;UVProjectModifierData&quot;,</a>
+<a name="344"><span class="lineNum">     344 </span>            :     /*struct_size*/ sizeof(UVProjectModifierData),</a>
+<a name="345"><span class="lineNum">     345 </span>            :     /*srna*/ &amp;RNA_UVProjectModifier,</a>
+<a name="346"><span class="lineNum">     346 </span>            :     /*type*/ ModifierTypeType::NonGeometrical,</a>
+<a name="347"><span class="lineNum">     347 </span>            :     /*flags*/ eModifierTypeFlag_AcceptsMesh | eModifierTypeFlag_SupportsMapping |</a>
+<a name="348"><span class="lineNum">     348 </span>            :         eModifierTypeFlag_SupportsEditmode | eModifierTypeFlag_EnableInEditmode,</a>
+<a name="349"><span class="lineNum">     349 </span>            :     /*icon*/ ICON_MOD_UVPROJECT,</a>
+<a name="350"><span class="lineNum">     350 </span>            : </a>
+<a name="351"><span class="lineNum">     351 </span>            :     /*copy_data*/ BKE_modifier_copydata_generic,</a>
+<a name="352"><span class="lineNum">     352 </span>            : </a>
+<a name="353"><span class="lineNum">     353 </span>            :     /*deform_verts*/ nullptr,</a>
+<a name="354"><span class="lineNum">     354 </span>            :     /*deform_matrices*/ nullptr,</a>
+<a name="355"><span class="lineNum">     355 </span>            :     /*deform_verts_EM*/ nullptr,</a>
+<a name="356"><span class="lineNum">     356 </span>            :     /*deform_matrices_EM*/ nullptr,</a>
+<a name="357"><span class="lineNum">     357 </span>            :     /*modify_mesh*/ modify_mesh,</a>
+<a name="358"><span class="lineNum">     358 </span>            :     /*modify_geometry_set*/ nullptr,</a>
+<a name="359"><span class="lineNum">     359 </span>            : </a>
+<a name="360"><span class="lineNum">     360 </span>            :     /*init_data*/ init_data,</a>
+<a name="361"><span class="lineNum">     361 </span>            :     /*required_data_mask*/ required_data_mask,</a>
+<a name="362"><span class="lineNum">     362 </span>            :     /*free_data*/ nullptr,</a>
+<a name="363"><span class="lineNum">     363 </span>            :     /*is_disabled*/ nullptr,</a>
+<a name="364"><span class="lineNum">     364 </span>            :     /*update_depsgraph*/ update_depsgraph,</a>
+<a name="365"><span class="lineNum">     365 </span>            :     /*depends_on_time*/ nullptr,</a>
+<a name="366"><span class="lineNum">     366 </span>            :     /*depends_on_normals*/ nullptr,</a>
+<a name="367"><span class="lineNum">     367 </span>            :     /*foreach_ID_link*/ foreach_ID_link,</a>
+<a name="368"><span class="lineNum">     368 </span>            :     /*foreach_tex_link*/ nullptr,</a>
+<a name="369"><span class="lineNum">     369 </span>            :     /*free_runtime_data*/ nullptr,</a>
+<a name="370"><span class="lineNum">     370 </span>            :     /*panel_register*/ panel_register,</a>
+<a name="371"><span class="lineNum">     371 </span>            :     /*blend_write*/ nullptr,</a>
+<a name="372"><span class="lineNum">     372 </span>            :     /*blend_read*/ nullptr,</a>
+<a name="373"><span class="lineNum">     373 </span>            :     /*foreach_cache*/ nullptr,</a>
+<a name="374"><span class="lineNum">     374 </span>            :     /*foreach_working_space_color*/ nullptr,</a>
+<a name="375"><span class="lineNum">     375 </span>            : };</a>
+<a name="376"><span class="lineNum">     376 </span>            : </a>
+<a name="377"><span class="lineNum">     377 </span>            : }  // namespace blender</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,425 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - editors/animation/anim_ipo_utils.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">editors/animation</a> - anim_ipo_utils.cc<span style="font-size: 80%;"> (source / <a href="anim_ipo_utils.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">124</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2001-2002 NaN Holding BV. All rights reserved.</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup edanimation</a>
+<a name="7"><span class="lineNum">       7 </span>            :  */</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : /* This file contains code for presenting F-Curves and other animation data</a>
+<a name="10"><span class="lineNum">      10 </span>            :  * in the UI (especially for use in the Animation Editors).</a>
+<a name="11"><span class="lineNum">      11 </span>            :  *</a>
+<a name="12"><span class="lineNum">      12 </span>            :  * -- Joshua Leung, Dec 2008</a>
+<a name="13"><span class="lineNum">      13 </span>            :  */</a>
+<a name="14"><span class="lineNum">      14 </span>            : </a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;MEM_guardedalloc.h&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : </a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;BLI_math_color_c.hh&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : #include &quot;BLI_string.hh&quot;</a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &quot;BLI_string_utf8.hh&quot;</a>
+<a name="20"><span class="lineNum">      20 </span>            : </a>
+<a name="21"><span class="lineNum">      21 </span>            : #include &quot;BLT_translation.hh&quot;</a>
+<a name="22"><span class="lineNum">      22 </span>            : </a>
+<a name="23"><span class="lineNum">      23 </span>            : #include &quot;DNA_anim_types.h&quot;</a>
+<a name="24"><span class="lineNum">      24 </span>            : #include &quot;DNA_modifier_types.h&quot;</a>
+<a name="25"><span class="lineNum">      25 </span>            : #include &quot;DNA_node_types.h&quot;</a>
+<a name="26"><span class="lineNum">      26 </span>            : </a>
+<a name="27"><span class="lineNum">      27 </span>            : #include &quot;BKE_node.hh&quot;</a>
+<a name="28"><span class="lineNum">      28 </span>            : #include &quot;BKE_node_runtime.hh&quot;</a>
+<a name="29"><span class="lineNum">      29 </span>            : </a>
+<a name="30"><span class="lineNum">      30 </span>            : #include &quot;RNA_access.hh&quot;</a>
+<a name="31"><span class="lineNum">      31 </span>            : #include &quot;RNA_path.hh&quot;</a>
+<a name="32"><span class="lineNum">      32 </span>            : #include &quot;RNA_prototypes.hh&quot;</a>
+<a name="33"><span class="lineNum">      33 </span>            : </a>
+<a name="34"><span class="lineNum">      34 </span>            : #include &quot;ED_anim_api.hh&quot;</a>
+<a name="35"><span class="lineNum">      35 </span>            : </a>
+<a name="36"><span class="lineNum">      36 </span>            : #include &quot;ANIM_action.hh&quot;</a>
+<a name="37"><span class="lineNum">      37 </span>            : </a>
+<a name="38"><span class="lineNum">      38 </span>            : #include &lt;fmt/format.h&gt;</a>
+<a name="39"><span class="lineNum">      39 </span>            : </a>
+<a name="40"><span class="lineNum">      40 </span>            : #include &lt;cstring&gt;</a>
+<a name="41"><span class="lineNum">      41 </span>            : </a>
+<a name="42"><span class="lineNum">      42 </span>            : namespace blender {</a>
+<a name="43"><span class="lineNum">      43 </span>            : </a>
+<a name="44"><span class="lineNum">      44 </span>            : struct StructRNA;</a>
+<a name="45"><span class="lineNum">      45 </span>            : </a>
+<a name="46"><span class="lineNum">      46 </span>            : /* ----------------------- Getter functions ----------------------- */</a>
+<a name="47"><span class="lineNum">      47 </span>            : </a>
+<a name="48"><span class="lineNum">      48 </span><span class="lineNoCov">          0 : std::optional&lt;int&gt; getname_anim_fcurve(char *name, ID *id, FCurve *fcu)</span></a>
+<a name="49"><span class="lineNum">      49 </span>            : {</a>
+<a name="50"><span class="lineNum">      50 </span>            :   /* Could make an argument, it's a documented limit at the moment. */</a>
+<a name="51"><span class="lineNum">      51 </span><span class="lineNoCov">          0 :   constexpr size_t name_maxncpy = 256;</span></a>
+<a name="52"><span class="lineNum">      52 </span>            : </a>
+<a name="53"><span class="lineNum">      53 </span>            :   /* Handle some nullptr cases. */</a>
+<a name="54"><span class="lineNum">      54 </span><span class="lineNoCov">          0 :   if (name == nullptr) {</span></a>
+<a name="55"><span class="lineNum">      55 </span>            :     /* A 'get name' function should be able to get the name, otherwise it's a bug. */</a>
+<a name="56"><span class="lineNum">      56 </span><span class="lineNoCov">          0 :     BLI_assert_unreachable();</span></a>
+<a name="57"><span class="lineNum">      57 </span><span class="lineNoCov">          0 :     return {};</span></a>
+<a name="58"><span class="lineNum">      58 </span>            :   }</a>
+<a name="59"><span class="lineNum">      59 </span><span class="lineNoCov">          0 :   if (fcu == nullptr) {</span></a>
+<a name="60"><span class="lineNum">      60 </span><span class="lineNoCov">          0 :     BLI_strncpy_utf8(name, RPT_(&quot;&lt;invalid&gt;&quot;), name_maxncpy);</span></a>
+<a name="61"><span class="lineNum">      61 </span><span class="lineNoCov">          0 :     return {};</span></a>
+<a name="62"><span class="lineNum">      62 </span>            :   }</a>
+<a name="63"><span class="lineNum">      63 </span><span class="lineNoCov">          0 :   const StringRefNull rna_path = fcu-&gt;rna_path();</span></a>
+<a name="64"><span class="lineNum">      64 </span><span class="lineNoCov">          0 :   if (rna_path.is_empty()) {</span></a>
+<a name="65"><span class="lineNum">      65 </span><span class="lineNoCov">          0 :     BLI_strncpy_utf8(name, RPT_(&quot;&lt;no path&gt;&quot;), name_maxncpy);</span></a>
+<a name="66"><span class="lineNum">      66 </span><span class="lineNoCov">          0 :     return {};</span></a>
+<a name="67"><span class="lineNum">      67 </span>            :   }</a>
+<a name="68"><span class="lineNum">      68 </span><span class="lineNoCov">          0 :   if (id == nullptr) {</span></a>
+<a name="69"><span class="lineNum">      69 </span><span class="lineNoCov">          0 :     BLI_snprintf_utf8(name, name_maxncpy, &quot;%s[%d]&quot;, rna_path.c_str(), fcu-&gt;array_index);</span></a>
+<a name="70"><span class="lineNum">      70 </span><span class="lineNoCov">          0 :     return {};</span></a>
+<a name="71"><span class="lineNum">      71 </span>            :   }</a>
+<a name="72"><span class="lineNum">      72 </span>            : </a>
+<a name="73"><span class="lineNum">      73 </span><span class="lineNoCov">          0 :   PointerRNA id_ptr = RNA_id_pointer_create(id);</span></a>
+<a name="74"><span class="lineNum">      74 </span>            : </a>
+<a name="75"><span class="lineNum">      75 </span><span class="lineNoCov">          0 :   PointerRNA ptr;</span></a>
+<a name="76"><span class="lineNum">      76 </span>            :   PropertyRNA *prop;</a>
+<a name="77"><span class="lineNum">      77 </span>            : </a>
+<a name="78"><span class="lineNum">      78 </span><span class="lineNoCov">          0 :   if (!RNA_path_resolve_property(&amp;id_ptr, rna_path.c_str(), &amp;ptr, &amp;prop)) {</span></a>
+<a name="79"><span class="lineNum">      79 </span>            :     /* Could not resolve the path, so just use the path itself as 'name'. */</a>
+<a name="80"><span class="lineNum">      80 </span><span class="lineNoCov">          0 :     BLI_snprintf_utf8(name, name_maxncpy, &quot;\&quot;%s[%d]\&quot;&quot;, rna_path.c_str(), fcu-&gt;array_index);</span></a>
+<a name="81"><span class="lineNum">      81 </span>            : </a>
+<a name="82"><span class="lineNum">      82 </span>            :     /* Tag F-Curve as disabled - as not usable path. */</a>
+<a name="83"><span class="lineNum">      83 </span><span class="lineNoCov">          0 :     fcu-&gt;flag |= FCURVE_DISABLED;</span></a>
+<a name="84"><span class="lineNum">      84 </span><span class="lineNoCov">          0 :     return {};</span></a>
+<a name="85"><span class="lineNum">      85 </span>            :   }</a>
+<a name="86"><span class="lineNum">      86 </span>            : </a>
+<a name="87"><span class="lineNum">      87 </span><span class="lineNoCov">          0 :   const char *structname = nullptr, *propname = nullptr;</span></a>
+<a name="88"><span class="lineNum">      88 </span>            :   char arrayindbuf[16];</a>
+<a name="89"><span class="lineNum">      89 </span><span class="lineNoCov">          0 :   const char *arrayname = nullptr;</span></a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineNoCov">          0 :   bool free_structname = false;</span></a>
+<a name="91"><span class="lineNum">      91 </span>            : </a>
+<a name="92"><span class="lineNum">      92 </span>            :   /* For now, name will consist of 3 parts: struct-name, property name, array index</a>
+<a name="93"><span class="lineNum">      93 </span>            :    * There are several options possible:</a>
+<a name="94"><span class="lineNum">      94 </span>            :    * 1) &lt;struct-name&gt;.&lt;property-name&gt;.&lt;array-index&gt;</a>
+<a name="95"><span class="lineNum">      95 </span>            :    *     i.e. Bone1.Location.X, or Object.Location.X</a>
+<a name="96"><span class="lineNum">      96 </span>            :    * 2) &lt;array-index&gt; &lt;property-name&gt; (&lt;struct name&gt;)</a>
+<a name="97"><span class="lineNum">      97 </span>            :    *     i.e. X Location (Bone1), or X Location (Object)</a>
+<a name="98"><span class="lineNum">      98 </span>            :    *</a>
+<a name="99"><span class="lineNum">      99 </span>            :    * Currently, option 2 is in use, to try and make it easier to quickly identify F-Curves</a>
+<a name="100"><span class="lineNum">     100 </span>            :    * (it does have problems with looking rather odd though).</a>
+<a name="101"><span class="lineNum">     101 </span>            :    * Option 1 is better in terms of revealing a consistent sense of hierarchy though,</a>
+<a name="102"><span class="lineNum">     102 </span>            :    * which isn't so clear with option 2.</a>
+<a name="103"><span class="lineNum">     103 </span>            :    */</a>
+<a name="104"><span class="lineNum">     104 </span>            : </a>
+<a name="105"><span class="lineNum">     105 </span>            :   /* For struct-name:</a>
+<a name="106"><span class="lineNum">     106 </span>            :    * - As base, we use a custom name from the structs if one is available</a>
+<a name="107"><span class="lineNum">     107 </span>            :    * - However, if we're showing sub-data of bones</a>
+<a name="108"><span class="lineNum">     108 </span>            :    *   (probably there will be other exceptions later).</a>
+<a name="109"><span class="lineNum">     109 </span>            :    *   need to include that info too since it gets confusing otherwise.</a>
+<a name="110"><span class="lineNum">     110 </span>            :    * - If a pointer just refers to the ID-block, then don't repeat this info</a>
+<a name="111"><span class="lineNum">     111 </span>            :    *   since this just introduces clutter.</a>
+<a name="112"><span class="lineNum">     112 </span>            :    */</a>
+<a name="113"><span class="lineNum">     113 </span>            : </a>
+<a name="114"><span class="lineNum">     114 </span>            :   char pchanName[name_maxncpy], constName[name_maxncpy];</a>
+<a name="115"><span class="lineNum">     115 </span><span class="lineNoCov">          0 :   if (BLI_str_quoted_substr(rna_path.c_str(), &quot;bones[&quot;, pchanName, sizeof(pchanName)) &amp;&amp;</span></a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineNoCov">          0 :       BLI_str_quoted_substr(rna_path.c_str(), &quot;constraints[&quot;, constName, sizeof(constName)))</span></a>
+<a name="117"><span class="lineNum">     117 </span>            :   {</a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineNoCov">          0 :     structname = BLI_sprintfN(&quot;%s : %s&quot;, pchanName, constName);</span></a>
+<a name="119"><span class="lineNum">     119 </span><span class="lineNoCov">          0 :     free_structname = true;</span></a>
+<a name="120"><span class="lineNum">     120 </span>            :   }</a>
+<a name="121"><span class="lineNum">     121 </span><span class="lineNoCov">          0 :   else if (ptr.data != ptr.owner_id) {</span></a>
+<a name="122"><span class="lineNum">     122 </span><span class="lineNoCov">          0 :     PropertyRNA *nameprop = RNA_struct_name_property(ptr.type);</span></a>
+<a name="123"><span class="lineNum">     123 </span><span class="lineNoCov">          0 :     if (nameprop) {</span></a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineNoCov">          0 :       structname = RNA_property_string_get_alloc(&amp;ptr, nameprop, nullptr, 0, nullptr);</span></a>
+<a name="125"><span class="lineNum">     125 </span><span class="lineNoCov">          0 :       free_structname = true;</span></a>
+<a name="126"><span class="lineNum">     126 </span>            :     }</a>
+<a name="127"><span class="lineNum">     127 </span>            :     else {</a>
+<a name="128"><span class="lineNum">     128 </span><span class="lineNoCov">          0 :       structname = RNA_struct_ui_name(ptr.type);</span></a>
+<a name="129"><span class="lineNum">     129 </span>            :     }</a>
+<a name="130"><span class="lineNum">     130 </span>            : </a>
+<a name="131"><span class="lineNum">     131 </span>            :     /* For the sequencer, a strip's 'Transform' or 'Crop' is a nested (under Strip)</a>
+<a name="132"><span class="lineNum">     132 </span>            :      * struct, but displaying the struct name alone is no meaningful information</a>
+<a name="133"><span class="lineNum">     133 </span>            :      * (and also cannot be filtered well), same for modifiers.</a>
+<a name="134"><span class="lineNum">     134 </span>            :      * So display strip name alongside as well. */</a>
+<a name="135"><span class="lineNum">     135 </span><span class="lineNoCov">          0 :     if (GS(ptr.owner_id-&gt;name) == ID_SCE) {</span></a>
+<a name="136"><span class="lineNum">     136 </span>            :       char stripname[name_maxncpy];</a>
+<a name="137"><span class="lineNum">     137 </span><span class="lineNoCov">          0 :       if (BLI_str_quoted_substr(</span></a>
+<a name="138"><span class="lineNum">     138 </span>            :               rna_path.c_str(), &quot;sequence_editor.strips_all[&quot;, stripname, sizeof(stripname)))</a>
+<a name="139"><span class="lineNum">     139 </span>            :       {</a>
+<a name="140"><span class="lineNum">     140 </span><span class="lineNoCov">          0 :         if (strstr(rna_path.c_str(), &quot;.transform.&quot;) || strstr(rna_path.c_str(), &quot;.crop.&quot;) ||</span></a>
+<a name="141"><span class="lineNum">     141 </span><span class="lineNoCov">          0 :             strstr(rna_path.c_str(), &quot;.modifiers[&quot;))</span></a>
+<a name="142"><span class="lineNum">     142 </span>            :         {</a>
+<a name="143"><span class="lineNum">     143 </span><span class="lineNoCov">          0 :           const char *structname_all = BLI_sprintfN(&quot;%s : %s&quot;, stripname, structname);</span></a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineNoCov">          0 :           if (free_structname) {</span></a>
+<a name="145"><span class="lineNum">     145 </span><span class="lineNoCov">          0 :             MEM_delete(structname);</span></a>
+<a name="146"><span class="lineNum">     146 </span>            :           }</a>
+<a name="147"><span class="lineNum">     147 </span><span class="lineNoCov">          0 :           structname = structname_all;</span></a>
+<a name="148"><span class="lineNum">     148 </span><span class="lineNoCov">          0 :           free_structname = true;</span></a>
+<a name="149"><span class="lineNum">     149 </span>            :         }</a>
+<a name="150"><span class="lineNum">     150 </span>            :       }</a>
+<a name="151"><span class="lineNum">     151 </span>            :     }</a>
+<a name="152"><span class="lineNum">     152 </span>            : </a>
+<a name="153"><span class="lineNum">     153 </span><span class="lineNoCov">          0 :     if (RNA_struct_is_a(ptr.type, RNA_NodeSocket)) {</span></a>
+<a name="154"><span class="lineNum">     154 </span>            :       /* Display the name/label of a node socket's node to allow distinguishing multiple nodes. */</a>
+<a name="155"><span class="lineNum">     155 </span><span class="lineNoCov">          0 :       BLI_assert(GS(ptr.owner_id-&gt;name) == ID_NT);</span></a>
+<a name="156"><span class="lineNum">     156 </span><span class="lineNoCov">          0 :       const bNodeTree *ntree = reinterpret_cast&lt;const bNodeTree *&gt;(ptr.owner_id);</span></a>
+<a name="157"><span class="lineNum">     157 </span><span class="lineNoCov">          0 :       const bNodeSocket *socket = static_cast&lt;const bNodeSocket *&gt;(ptr.data);</span></a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineNoCov">          0 :       const bNode &amp;node = bke::node_find_node(*ntree, *socket);</span></a>
+<a name="159"><span class="lineNum">     159 </span><span class="lineNoCov">          0 :       if (free_structname) {</span></a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineNoCov">          0 :         MEM_delete(structname);</span></a>
+<a name="161"><span class="lineNum">     161 </span>            :       }</a>
+<a name="162"><span class="lineNum">     162 </span><span class="lineNoCov">          0 :       structname = node.label_or_name().c_str();</span></a>
+<a name="163"><span class="lineNum">     163 </span><span class="lineNoCov">          0 :       free_structname = false;</span></a>
+<a name="164"><span class="lineNum">     164 </span>            :     }</a>
+<a name="165"><span class="lineNum">     165 </span><span class="lineNoCov">          0 :     else if (RNA_struct_is_a(ptr.type, RNA_Node)) {</span></a>
+<a name="166"><span class="lineNum">     166 </span>            :       /* Display the label of the node if available to distinguish nodes like &quot;Value&quot;. */</a>
+<a name="167"><span class="lineNum">     167 </span><span class="lineNoCov">          0 :       BLI_assert(GS(ptr.owner_id-&gt;name) == ID_NT);</span></a>
+<a name="168"><span class="lineNum">     168 </span><span class="lineNoCov">          0 :       const bNode *node = static_cast&lt;const bNode *&gt;(ptr.data);</span></a>
+<a name="169"><span class="lineNum">     169 </span><span class="lineNoCov">          0 :       if (free_structname) {</span></a>
+<a name="170"><span class="lineNum">     170 </span><span class="lineNoCov">          0 :         MEM_delete(structname);</span></a>
+<a name="171"><span class="lineNum">     171 </span>            :       }</a>
+<a name="172"><span class="lineNum">     172 </span><span class="lineNoCov">          0 :       structname = node-&gt;label_or_name().c_str();</span></a>
+<a name="173"><span class="lineNum">     173 </span><span class="lineNoCov">          0 :       free_structname = false;</span></a>
+<a name="174"><span class="lineNum">     174 </span>            :     }</a>
+<a name="175"><span class="lineNum">     175 </span>            :   }</a>
+<a name="176"><span class="lineNum">     176 </span>            : </a>
+<a name="177"><span class="lineNum">     177 </span><span class="lineNoCov">          0 :   propname = RNA_property_ui_name(prop);</span></a>
+<a name="178"><span class="lineNum">     178 </span>            : </a>
+<a name="179"><span class="lineNum">     179 </span><span class="lineNoCov">          0 :   if (RNA_struct_is_a(ptr.type, RNA_NodesModifier)) {</span></a>
+<a name="180"><span class="lineNum">     180 </span>            :     /* Display geometry node properties with node-tree socket labels. */</a>
+<a name="181"><span class="lineNum">     181 </span><span class="lineNoCov">          0 :     const NodesModifierData *nmd = static_cast&lt;const NodesModifierData *&gt;(ptr.data);</span></a>
+<a name="182"><span class="lineNum">     182 </span><span class="lineNoCov">          0 :     if (nmd-&gt;node_group &amp;&amp; !ID_MISSING(nmd-&gt;node_group)) {</span></a>
+<a name="183"><span class="lineNum">     183 </span><span class="lineNoCov">          0 :       if (const bNodeTreeInterfaceSocket *input = bke::node_find_interface_input_by_identifier(</span></a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineNoCov">          0 :               *nmd-&gt;node_group, propname))</span></a>
+<a name="185"><span class="lineNum">     185 </span>            :       {</a>
+<a name="186"><span class="lineNum">     186 </span><span class="lineNoCov">          0 :         propname = input-&gt;name().c_str();</span></a>
+<a name="187"><span class="lineNum">     187 </span>            :       }</a>
+<a name="188"><span class="lineNum">     188 </span>            :     }</a>
+<a name="189"><span class="lineNum">     189 </span>            :   }</a>
+<a name="190"><span class="lineNum">     190 </span><span class="lineNoCov">          0 :   else if (RNA_struct_is_a(ptr.type, RNA_NodeSocket)) {</span></a>
+<a name="191"><span class="lineNum">     191 </span>            :     /* Use the socket's name rather than the &quot;Default Value&quot; name of the socket's RNA property. */</a>
+<a name="192"><span class="lineNum">     192 </span><span class="lineNoCov">          0 :     const bNodeSocket *socket = static_cast&lt;const bNodeSocket *&gt;(ptr.data);</span></a>
+<a name="193"><span class="lineNum">     193 </span><span class="lineNoCov">          0 :     propname = socket-&gt;name;</span></a>
+<a name="194"><span class="lineNum">     194 </span>            :   }</a>
+<a name="195"><span class="lineNum">     195 </span>            : </a>
+<a name="196"><span class="lineNum">     196 </span>            :   /* Array Index - only if applicable */</a>
+<a name="197"><span class="lineNum">     197 </span><span class="lineNoCov">          0 :   if (RNA_property_array_check(prop)) {</span></a>
+<a name="198"><span class="lineNum">     198 </span><span class="lineNoCov">          0 :     char c = RNA_property_array_item_char(prop, fcu-&gt;array_index);</span></a>
+<a name="199"><span class="lineNum">     199 </span>            : </a>
+<a name="200"><span class="lineNum">     200 </span>            :     /* we need to write the index to a temp buffer (in py syntax) */</a>
+<a name="201"><span class="lineNum">     201 </span><span class="lineNoCov">          0 :     if (c) {</span></a>
+<a name="202"><span class="lineNum">     202 </span><span class="lineNoCov">          0 :       SNPRINTF_UTF8(arrayindbuf, &quot;%c &quot;, c);</span></a>
+<a name="203"><span class="lineNum">     203 </span>            :     }</a>
+<a name="204"><span class="lineNum">     204 </span>            :     else {</a>
+<a name="205"><span class="lineNum">     205 </span><span class="lineNoCov">          0 :       SNPRINTF_UTF8(arrayindbuf, &quot;[%d]&quot;, fcu-&gt;array_index);</span></a>
+<a name="206"><span class="lineNum">     206 </span>            :     }</a>
+<a name="207"><span class="lineNum">     207 </span>            : </a>
+<a name="208"><span class="lineNum">     208 </span><span class="lineNoCov">          0 :     arrayname = &amp;arrayindbuf[0];</span></a>
+<a name="209"><span class="lineNum">     209 </span>            :   }</a>
+<a name="210"><span class="lineNum">     210 </span>            :   else {</a>
+<a name="211"><span class="lineNum">     211 </span>            :     /* no array index */</a>
+<a name="212"><span class="lineNum">     212 </span><span class="lineNoCov">          0 :     arrayname = &quot;&quot;;</span></a>
+<a name="213"><span class="lineNum">     213 </span>            :   }</a>
+<a name="214"><span class="lineNum">     214 </span>            : </a>
+<a name="215"><span class="lineNum">     215 </span>            :   /* putting this all together into the buffer */</a>
+<a name="216"><span class="lineNum">     216 </span>            :   /* XXX we need to check for invalid names...</a>
+<a name="217"><span class="lineNum">     217 </span>            :    * XXX the name length limit needs to be passed in or as some define */</a>
+<a name="218"><span class="lineNum">     218 </span><span class="lineNoCov">          0 :   if (structname) {</span></a>
+<a name="219"><span class="lineNum">     219 </span><span class="lineNoCov">          0 :     BLI_snprintf_utf8(name, name_maxncpy, &quot;%s%s (%s)&quot;, arrayname, propname, structname);</span></a>
+<a name="220"><span class="lineNum">     220 </span>            :   }</a>
+<a name="221"><span class="lineNum">     221 </span>            :   else {</a>
+<a name="222"><span class="lineNum">     222 </span><span class="lineNoCov">          0 :     BLI_snprintf_utf8(name, name_maxncpy, &quot;%s%s&quot;, arrayname, propname);</span></a>
+<a name="223"><span class="lineNum">     223 </span>            :   }</a>
+<a name="224"><span class="lineNum">     224 </span>            : </a>
+<a name="225"><span class="lineNum">     225 </span>            :   /* free temp name if nameprop is set */</a>
+<a name="226"><span class="lineNum">     226 </span><span class="lineNoCov">          0 :   if (free_structname) {</span></a>
+<a name="227"><span class="lineNum">     227 </span><span class="lineNoCov">          0 :     MEM_delete(structname);</span></a>
+<a name="228"><span class="lineNum">     228 </span>            :   }</a>
+<a name="229"><span class="lineNum">     229 </span>            : </a>
+<a name="230"><span class="lineNum">     230 </span>            :   /* Use the property's owner struct icon. */</a>
+<a name="231"><span class="lineNum">     231 </span><span class="lineNoCov">          0 :   return RNA_struct_ui_icon(ptr.type);</span></a>
+<a name="232"><span class="lineNum">     232 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="233"><span class="lineNum">     233 </span>            : </a>
+<a name="234"><span class="lineNum">     234 </span><span class="lineNoCov">          0 : std::string getname_anim_fcurve_for_slot(Main &amp;bmain, const animrig::Slot &amp;slot, FCurve &amp;fcurve)</span></a>
+<a name="235"><span class="lineNum">     235 </span>            : {</a>
+<a name="236"><span class="lineNum">     236 </span>            :   /* TODO: Refactor to avoid this variable. */</a>
+<a name="237"><span class="lineNum">     237 </span><span class="lineNoCov">          0 :   constexpr size_t name_maxncpy = 256;</span></a>
+<a name="238"><span class="lineNum">     238 </span>            :   char name_buffer[name_maxncpy];</a>
+<a name="239"><span class="lineNum">     239 </span><span class="lineNoCov">          0 :   name_buffer[0] = '\0';</span></a>
+<a name="240"><span class="lineNum">     240 </span>            : </a>
+<a name="241"><span class="lineNum">     241 </span>            :   /* Check the Slot's users to see if we can find an ID* that can resolve the F-Curve. */</a>
+<a name="242"><span class="lineNum">     242 </span><span class="lineNoCov">          0 :   for (ID *user : slot.users(bmain)) {</span></a>
+<a name="243"><span class="lineNum">     243 </span><span class="lineNoCov">          0 :     const std::optional&lt;int&gt; icon = getname_anim_fcurve(name_buffer, user, &amp;fcurve);</span></a>
+<a name="244"><span class="lineNum">     244 </span><span class="lineNoCov">          0 :     if (icon.has_value()) {</span></a>
+<a name="245"><span class="lineNum">     245 </span>            :       /* Managed to find a name! */</a>
+<a name="246"><span class="lineNum">     246 </span><span class="lineNoCov">          0 :       return name_buffer;</span></a>
+<a name="247"><span class="lineNum">     247 </span>            :     }</a>
+<a name="248"><span class="lineNum">     248 </span>            :   }</a>
+<a name="249"><span class="lineNum">     249 </span>            : </a>
+<a name="250"><span class="lineNum">     250 </span><span class="lineNoCov">          0 :   if (!slot.users(bmain).is_empty()) {</span></a>
+<a name="251"><span class="lineNum">     251 </span>            :     /* This slot is assigned to at least one ID, and still the property it animates could not be</a>
+<a name="252"><span class="lineNum">     252 </span>            :      * found. There is no use in continuing. */</a>
+<a name="253"><span class="lineNum">     253 </span><span class="lineNoCov">          0 :     fcurve.flag |= FCURVE_DISABLED;</span></a>
+<a name="254"><span class="lineNum">     254 </span><span class="lineNoCov">          0 :     return fmt::format(&quot;\&quot;{}[{}]\&quot;&quot;, fcurve.rna_path().c_str(), fcurve.array_index);</span></a>
+<a name="255"><span class="lineNum">     255 </span>            :   }</a>
+<a name="256"><span class="lineNum">     256 </span>            : </a>
+<a name="257"><span class="lineNum">     257 </span>            :   /* If this part of the code is hit, the slot is not assigned to anything. The remainder of</a>
+<a name="258"><span class="lineNum">     258 </span>            :    * this function is all a best-effort attempt. Because of that, it will not set the</a>
+<a name="259"><span class="lineNum">     259 </span>            :    * FCURVE_DISABLED flag on the F-Curve, as having unassigned animation data is not an error (and</a>
+<a name="260"><span class="lineNum">     260 </span>            :    * that flag indicates an error). */</a>
+<a name="261"><span class="lineNum">     261 </span>            : </a>
+<a name="262"><span class="lineNum">     262 </span>            :   /* Fall back to the ID type of the slot for simple properties. */</a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineNoCov">          0 :   if (!slot.has_idtype()) {</span></a>
+<a name="264"><span class="lineNum">     264 </span>            :     /* The Slot has never been assigned to any ID, so we don't even know what type of ID it is</a>
+<a name="265"><span class="lineNum">     265 </span>            :      * meant for. */</a>
+<a name="266"><span class="lineNum">     266 </span><span class="lineNoCov">          0 :     return fmt::format(&quot;\&quot;{}[{}]\&quot;&quot;, fcurve.rna_path().c_str(), fcurve.array_index);</span></a>
+<a name="267"><span class="lineNum">     267 </span>            :   }</a>
+<a name="268"><span class="lineNum">     268 </span>            : </a>
+<a name="269"><span class="lineNum">     269 </span><span class="lineNoCov">          0 :   if (fcurve.rna_path().find(&quot;.&quot;) != StringRef::not_found) {</span></a>
+<a name="270"><span class="lineNum">     270 </span>            :     /* Not a simple property, so bail out. This needs path resolution, which needs an ID*. */</a>
+<a name="271"><span class="lineNum">     271 </span><span class="lineNoCov">          0 :     return fmt::format(&quot;\&quot;{}[{}]\&quot;&quot;, fcurve.rna_path().c_str(), fcurve.array_index);</span></a>
+<a name="272"><span class="lineNum">     272 </span>            :   }</a>
+<a name="273"><span class="lineNum">     273 </span>            : </a>
+<a name="274"><span class="lineNum">     274 </span>            :   /* Find the StructRNA for this Slot's ID type. */</a>
+<a name="275"><span class="lineNum">     275 </span><span class="lineNoCov">          0 :   StructRNA *srna = ID_code_to_RNA_type(slot.idtype);</span></a>
+<a name="276"><span class="lineNum">     276 </span><span class="lineNoCov">          0 :   if (!srna) {</span></a>
+<a name="277"><span class="lineNum">     277 </span><span class="lineNoCov">          0 :     return fmt::format(&quot;\&quot;{}[{}]\&quot;&quot;, fcurve.rna_path().c_str(), fcurve.array_index);</span></a>
+<a name="278"><span class="lineNum">     278 </span>            :   }</a>
+<a name="279"><span class="lineNum">     279 </span>            : </a>
+<a name="280"><span class="lineNum">     280 </span>            :   /* Find the property. */</a>
+<a name="281"><span class="lineNum">     281 </span><span class="lineNoCov">          0 :   PropertyRNA *prop = RNA_struct_type_find_property(srna, fcurve.rna_path().c_str());</span></a>
+<a name="282"><span class="lineNum">     282 </span><span class="lineNoCov">          0 :   if (!prop) {</span></a>
+<a name="283"><span class="lineNum">     283 </span><span class="lineNoCov">          0 :     return fmt::format(&quot;\&quot;{}[{}]\&quot;&quot;, fcurve.rna_path().c_str(), fcurve.array_index);</span></a>
+<a name="284"><span class="lineNum">     284 </span>            :   }</a>
+<a name="285"><span class="lineNum">     285 </span>            : </a>
+<a name="286"><span class="lineNum">     286 </span>            :   /* Property Name is straightforward */</a>
+<a name="287"><span class="lineNum">     287 </span><span class="lineNoCov">          0 :   const char *propname = RNA_property_ui_name(prop);</span></a>
+<a name="288"><span class="lineNum">     288 </span>            : </a>
+<a name="289"><span class="lineNum">     289 </span>            :   /* Array Index - only if applicable */</a>
+<a name="290"><span class="lineNum">     290 </span><span class="lineNoCov">          0 :   if (!RNA_property_array_check(prop)) {</span></a>
+<a name="291"><span class="lineNum">     291 </span><span class="lineNoCov">          0 :     return propname;</span></a>
+<a name="292"><span class="lineNum">     292 </span>            :   }</a>
+<a name="293"><span class="lineNum">     293 </span>            : </a>
+<a name="294"><span class="lineNum">     294 </span><span class="lineNoCov">          0 :   std::string arrayname;</span></a>
+<a name="295"><span class="lineNum">     295 </span><span class="lineNoCov">          0 :   char c = RNA_property_array_item_char(prop, fcurve.array_index);</span></a>
+<a name="296"><span class="lineNum">     296 </span><span class="lineNoCov">          0 :   if (c) {</span></a>
+<a name="297"><span class="lineNum">     297 </span><span class="lineNoCov">          0 :     arrayname = std::string(1, c);</span></a>
+<a name="298"><span class="lineNum">     298 </span>            :   }</a>
+<a name="299"><span class="lineNum">     299 </span>            :   else {</a>
+<a name="300"><span class="lineNum">     300 </span><span class="lineNoCov">          0 :     arrayname = fmt::format(&quot;[{}]&quot;, fcurve.array_index);</span></a>
+<a name="301"><span class="lineNum">     301 </span>            :   }</a>
+<a name="302"><span class="lineNum">     302 </span><span class="lineNoCov">          0 :   return arrayname + &quot; &quot; + propname;</span></a>
+<a name="303"><span class="lineNum">     303 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="304"><span class="lineNum">     304 </span>            : </a>
+<a name="305"><span class="lineNum">     305 </span>            : /* ------------------------------- Color Codes for F-Curve Channels ---------------------------- */</a>
+<a name="306"><span class="lineNum">     306 </span>            : </a>
+<a name="307"><span class="lineNum">     307 </span>            : /* step between the major distinguishable color bands of the primary colors */</a>
+<a name="308"><span class="lineNum">     308 </span>            : #define HSV_BANDWIDTH 0.3f</a>
+<a name="309"><span class="lineNum">     309 </span>            : </a>
+<a name="310"><span class="lineNum">     310 </span>            : /* used to determine the color of F-Curves with FCURVE_COLOR_AUTO_RAINBOW set */</a>
+<a name="311"><span class="lineNum">     311 </span>            : // void fcurve_rainbow(uint cur, uint tot, float *out)</a>
+<a name="312"><span class="lineNum">     312 </span><span class="lineNoCov">          0 : void getcolor_fcurve_rainbow(int cur, int tot, float out[3])</span></a>
+<a name="313"><span class="lineNum">     313 </span>            : {</a>
+<a name="314"><span class="lineNum">     314 </span>            :   float hsv[3], fac;</a>
+<a name="315"><span class="lineNum">     315 </span>            :   int grouping;</a>
+<a name="316"><span class="lineNum">     316 </span>            : </a>
+<a name="317"><span class="lineNum">     317 </span>            :   /* we try to divide the color into groupings of n colors,</a>
+<a name="318"><span class="lineNum">     318 </span>            :    * where n is:</a>
+<a name="319"><span class="lineNum">     319 </span>            :    * 3 - for 'odd' numbers of curves - there should be a majority of triplets of curves</a>
+<a name="320"><span class="lineNum">     320 </span>            :    * 4 - for 'even' numbers of curves - there should be a majority of quartets of curves</a>
+<a name="321"><span class="lineNum">     321 </span>            :    * so the base color is simply one of the three primary colors</a>
+<a name="322"><span class="lineNum">     322 </span>            :    */</a>
+<a name="323"><span class="lineNum">     323 </span><span class="lineNoCov">          0 :   grouping = (4 - (tot % 2));</span></a>
+<a name="324"><span class="lineNum">     324 </span><span class="lineNoCov">          0 :   hsv[0] = HSV_BANDWIDTH * float(cur % grouping);</span></a>
+<a name="325"><span class="lineNum">     325 </span>            : </a>
+<a name="326"><span class="lineNum">     326 </span>            :   /* 'Value' (i.e. darkness) needs to vary so that larger sets of three will be</a>
+<a name="327"><span class="lineNum">     327 </span>            :    * 'darker' (i.e. smaller value), so that they don't look that similar to previous ones.</a>
+<a name="328"><span class="lineNum">     328 </span>            :    * However, only a range of 0.3 to 1.0 is really usable to avoid clashing</a>
+<a name="329"><span class="lineNum">     329 </span>            :    * with some other stuff</a>
+<a name="330"><span class="lineNum">     330 </span>            :    */</a>
+<a name="331"><span class="lineNum">     331 </span><span class="lineNoCov">          0 :   fac = (float(cur) / float(tot)) * 0.7f;</span></a>
+<a name="332"><span class="lineNum">     332 </span>            : </a>
+<a name="333"><span class="lineNum">     333 </span>            :   /* the base color can get offset a bit so that the colors aren't so identical */</a>
+<a name="334"><span class="lineNum">     334 </span><span class="lineNoCov">          0 :   hsv[0] += fac * HSV_BANDWIDTH;</span></a>
+<a name="335"><span class="lineNum">     335 </span><span class="lineNoCov">          0 :   if (hsv[0] &gt; 1.0f) {</span></a>
+<a name="336"><span class="lineNum">     336 </span><span class="lineNoCov">          0 :     hsv[0] = fmod(hsv[0], 1.0f);</span></a>
+<a name="337"><span class="lineNum">     337 </span>            :   }</a>
+<a name="338"><span class="lineNum">     338 </span>            : </a>
+<a name="339"><span class="lineNum">     339 </span>            :   /* saturation adjustments for more visible range */</a>
+<a name="340"><span class="lineNum">     340 </span><span class="lineNoCov">          0 :   hsv[1] = ((hsv[0] &gt; 0.5f) &amp;&amp; (hsv[0] &lt; 0.8f)) ? 0.5f : 0.6f;</span></a>
+<a name="341"><span class="lineNum">     341 </span>            : </a>
+<a name="342"><span class="lineNum">     342 </span>            :   /* value is fixed at 1.0f, otherwise we cannot clearly see the curves... */</a>
+<a name="343"><span class="lineNum">     343 </span><span class="lineNoCov">          0 :   hsv[2] = 1.0f;</span></a>
+<a name="344"><span class="lineNum">     344 </span>            : </a>
+<a name="345"><span class="lineNum">     345 </span>            :   /* finally, convert this to RGB colors */</a>
+<a name="346"><span class="lineNum">     346 </span><span class="lineNoCov">          0 :   hsv_to_rgb_v(hsv, out);</span></a>
+<a name="347"><span class="lineNum">     347 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="348"><span class="lineNum">     348 </span>            : </a>
+<a name="349"><span class="lineNum">     349 </span>            : }  // namespace blender</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

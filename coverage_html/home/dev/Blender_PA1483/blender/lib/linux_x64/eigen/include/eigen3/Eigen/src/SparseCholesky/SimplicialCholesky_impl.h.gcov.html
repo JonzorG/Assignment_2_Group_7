@@ -1,0 +1,464 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - /home/dev/Blender_PA1483/blender/lib/linux_x64/eigen/include/eigen3/Eigen/src/SparseCholesky/SimplicialCholesky_impl.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../../../../../../../index.html">top level</a> - <a href="index.html">home/dev/Blender_PA1483/blender/lib/linux_x64/eigen/include/eigen3/Eigen/src/SparseCholesky</a> - SimplicialCholesky_impl.h<span style="font-size: 80%;"> (source / <a href="SimplicialCholesky_impl.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">195</td>
+            <td class="headerCovTableEntry">204</td>
+            <td class="headerCovTableEntryHi">95.6 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">21</td>
+            <td class="headerCovTableEntry">23</td>
+            <td class="headerCovTableEntryHi">91.3 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // This file is part of Eigen, a lightweight C++ template library</a>
+<a name="2"><span class="lineNum">       2 </span>            : // for linear algebra.</a>
+<a name="3"><span class="lineNum">       3 </span>            : //</a>
+<a name="4"><span class="lineNum">       4 </span>            : // Copyright (C) 2008-2012 Gael Guennebaud &lt;gael.guennebaud@inria.fr&gt;</a>
+<a name="5"><span class="lineNum">       5 </span>            : //</a>
+<a name="6"><span class="lineNum">       6 </span>            : // This Source Code Form is subject to the terms of the Mozilla</a>
+<a name="7"><span class="lineNum">       7 </span>            : // Public License v. 2.0. If a copy of the MPL was not distributed</a>
+<a name="8"><span class="lineNum">       8 </span>            : // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.</a>
+<a name="9"><span class="lineNum">       9 </span>            : </a>
+<a name="10"><span class="lineNum">      10 </span>            : /*</a>
+<a name="11"><span class="lineNum">      11 </span>            : NOTE: these functions have been adapted from the LDL library:</a>
+<a name="12"><span class="lineNum">      12 </span>            : </a>
+<a name="13"><span class="lineNum">      13 </span>            : LDL Copyright (c) 2005 by Timothy A. Davis.  All Rights Reserved.</a>
+<a name="14"><span class="lineNum">      14 </span>            : </a>
+<a name="15"><span class="lineNum">      15 </span>            : The author of LDL, Timothy A. Davis., has executed a license with Google LLC</a>
+<a name="16"><span class="lineNum">      16 </span>            : to permit distribution of this code and derivative works as part of Eigen under</a>
+<a name="17"><span class="lineNum">      17 </span>            : the Mozilla Public License v. 2.0, as stated at the top of this file.</a>
+<a name="18"><span class="lineNum">      18 </span>            :  */</a>
+<a name="19"><span class="lineNum">      19 </span>            : </a>
+<a name="20"><span class="lineNum">      20 </span>            : #ifndef EIGEN_SIMPLICIAL_CHOLESKY_IMPL_H</a>
+<a name="21"><span class="lineNum">      21 </span>            : #define EIGEN_SIMPLICIAL_CHOLESKY_IMPL_H</a>
+<a name="22"><span class="lineNum">      22 </span>            : </a>
+<a name="23"><span class="lineNum">      23 </span>            : // IWYU pragma: private</a>
+<a name="24"><span class="lineNum">      24 </span>            : #include &quot;./InternalHeaderCheck.h&quot;</a>
+<a name="25"><span class="lineNum">      25 </span>            : </a>
+<a name="26"><span class="lineNum">      26 </span>            : namespace Eigen {</a>
+<a name="27"><span class="lineNum">      27 </span>            : </a>
+<a name="28"><span class="lineNum">      28 </span>            : namespace internal {</a>
+<a name="29"><span class="lineNum">      29 </span>            : </a>
+<a name="30"><span class="lineNum">      30 </span>            : template &lt;typename Scalar, typename StorageIndex&gt;</a>
+<a name="31"><span class="lineNum">      31 </span>            : struct simpl_chol_helper {</a>
+<a name="32"><span class="lineNum">      32 </span>            :   using CholMatrixType = SparseMatrix&lt;Scalar, ColMajor, StorageIndex&gt;;</a>
+<a name="33"><span class="lineNum">      33 </span>            :   using InnerIterator = typename CholMatrixType::InnerIterator;</a>
+<a name="34"><span class="lineNum">      34 </span>            :   using VectorI = Matrix&lt;StorageIndex, Dynamic, 1&gt;;</a>
+<a name="35"><span class="lineNum">      35 </span>            :   static constexpr StorageIndex kEmpty = -1;</a>
+<a name="36"><span class="lineNum">      36 </span>            : </a>
+<a name="37"><span class="lineNum">      37 </span>            :   // Implementation of a stack or last-in first-out structure with some debugging machinery.</a>
+<a name="38"><span class="lineNum">      38 </span>            :   struct Stack {</a>
+<a name="39"><span class="lineNum">      39 </span>            :     StorageIndex* m_data;</a>
+<a name="40"><span class="lineNum">      40 </span>            :     Index m_size;</a>
+<a name="41"><span class="lineNum">      41 </span>            : #ifndef EIGEN_NO_DEBUG</a>
+<a name="42"><span class="lineNum">      42 </span>            :     const Index m_maxSize;</a>
+<a name="43"><span class="lineNum">      43 </span><span class="lineCov">        980 :     Stack(StorageIndex* data, StorageIndex size, StorageIndex maxSize)</span></a>
+<a name="44"><span class="lineNum">      44 </span><span class="lineCov">        980 :         : m_data(data), m_size(size), m_maxSize(maxSize) {</span></a>
+<a name="45"><span class="lineNum">      45 </span><span class="lineCov">        980 :       eigen_assert(size &gt;= 0);</span></a>
+<a name="46"><span class="lineNum">      46 </span><span class="lineCov">        980 :       eigen_assert(maxSize &gt;= size);</span></a>
+<a name="47"><span class="lineNum">      47 </span><span class="lineCov">        980 :     }</span></a>
+<a name="48"><span class="lineNum">      48 </span>            : #else</a>
+<a name="49"><span class="lineNum">      49 </span>            :     Stack(StorageIndex* data, StorageIndex size, StorageIndex /*maxSize*/) : m_data(data), m_size(size) {}</a>
+<a name="50"><span class="lineNum">      50 </span>            : #endif</a>
+<a name="51"><span class="lineNum">      51 </span><span class="lineCov">      94360 :     bool empty() const { return m_size == 0; }</span></a>
+<a name="52"><span class="lineNum">      52 </span><span class="lineCov">        490 :     Index size() const { return m_size; }</span></a>
+<a name="53"><span class="lineNum">      53 </span><span class="lineCov">      93870 :     StorageIndex back() const {</span></a>
+<a name="54"><span class="lineNum">      54 </span><span class="lineCov">      93870 :       eigen_assert(m_size &gt; 0);</span></a>
+<a name="55"><span class="lineNum">      55 </span><span class="lineCov">      93870 :       return m_data[m_size - 1];</span></a>
+<a name="56"><span class="lineNum">      56 </span>            :     }</a>
+<a name="57"><span class="lineNum">      57 </span><span class="lineCov">      94360 :     void push(const StorageIndex&amp; value) {</span></a>
+<a name="58"><span class="lineNum">      58 </span>            : #ifndef EIGEN_NO_DEBUG</a>
+<a name="59"><span class="lineNum">      59 </span><span class="lineCov">      94360 :       eigen_assert(m_size &lt; m_maxSize);</span></a>
+<a name="60"><span class="lineNum">      60 </span>            : #endif</a>
+<a name="61"><span class="lineNum">      61 </span><span class="lineCov">      94360 :       m_data[m_size] = value;</span></a>
+<a name="62"><span class="lineNum">      62 </span><span class="lineCov">      94360 :       m_size++;</span></a>
+<a name="63"><span class="lineNum">      63 </span><span class="lineCov">      94360 :     }</span></a>
+<a name="64"><span class="lineNum">      64 </span><span class="lineCov">      47180 :     void pop() {</span></a>
+<a name="65"><span class="lineNum">      65 </span><span class="lineCov">      47180 :       eigen_assert(m_size &gt; 0);</span></a>
+<a name="66"><span class="lineNum">      66 </span><span class="lineCov">      47180 :       m_size--;</span></a>
+<a name="67"><span class="lineNum">      67 </span><span class="lineCov">      47180 :     }</span></a>
+<a name="68"><span class="lineNum">      68 </span>            :   };</a>
+<a name="69"><span class="lineNum">      69 </span>            : </a>
+<a name="70"><span class="lineNum">      70 </span>            :   // Implementation of a disjoint-set or union-find structure with path compression.</a>
+<a name="71"><span class="lineNum">      71 </span>            :   struct DisjointSet {</a>
+<a name="72"><span class="lineNum">      72 </span>            :     StorageIndex* m_set;</a>
+<a name="73"><span class="lineNum">      73 </span><span class="lineCov">        980 :     DisjointSet(StorageIndex* set, StorageIndex size) : m_set(set) { std::iota(set, set + size, 0); }</span></a>
+<a name="74"><span class="lineNum">      74 </span>            :     // Find the set representative or root of `u`.</a>
+<a name="75"><span class="lineNum">      75 </span><span class="lineCov">     471520 :     StorageIndex find(StorageIndex u) const {</span></a>
+<a name="76"><span class="lineNum">      76 </span><span class="lineCov">     471520 :       eigen_assert(u != kEmpty);</span></a>
+<a name="77"><span class="lineNum">      77 </span><span class="lineCov">     966630 :       while (m_set[u] != u) {</span></a>
+<a name="78"><span class="lineNum">      78 </span>            :         // manually unroll the loop by a factor of 2 to improve performance</a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineCov">     495110 :         u = m_set[m_set[u]];</span></a>
+<a name="80"><span class="lineNum">      80 </span>            :       }</a>
+<a name="81"><span class="lineNum">      81 </span><span class="lineCov">     471520 :       return u;</span></a>
+<a name="82"><span class="lineNum">      82 </span>            :     }</a>
+<a name="83"><span class="lineNum">      83 </span>            :     // Perform full path compression such that each node from `u` to `v` points to `v`.</a>
+<a name="84"><span class="lineNum">      84 </span><span class="lineCov">     518210 :     void compress(StorageIndex u, StorageIndex v) {</span></a>
+<a name="85"><span class="lineNum">      85 </span><span class="lineCov">     518210 :       eigen_assert(u != kEmpty);</span></a>
+<a name="86"><span class="lineNum">      86 </span><span class="lineCov">     518210 :       eigen_assert(v != kEmpty);</span></a>
+<a name="87"><span class="lineNum">      87 </span><span class="lineCov">     879760 :       while (m_set[u] != v) {</span></a>
+<a name="88"><span class="lineNum">      88 </span><span class="lineCov">     361550 :         StorageIndex next = m_set[u];</span></a>
+<a name="89"><span class="lineNum">      89 </span><span class="lineCov">     361550 :         m_set[u] = v;</span></a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineCov">     361550 :         u = next;</span></a>
+<a name="91"><span class="lineNum">      91 </span>            :       }</a>
+<a name="92"><span class="lineNum">      92 </span><span class="lineCov">     518210 :     }</span></a>
+<a name="93"><span class="lineNum">      93 </span>            :   };</a>
+<a name="94"><span class="lineNum">      94 </span>            : </a>
+<a name="95"><span class="lineNum">      95 </span>            :   // Computes the higher adjacency pattern by transposing the input lower adjacency matrix.</a>
+<a name="96"><span class="lineNum">      96 </span>            :   // Only the index arrays are calculated, as the values are not needed for the symbolic factorization.</a>
+<a name="97"><span class="lineNum">      97 </span>            :   // The outer index array provides the size requirements of the inner index array.</a>
+<a name="98"><span class="lineNum">      98 </span>            : </a>
+<a name="99"><span class="lineNum">      99 </span>            :   // Computes the outer index array of the higher adjacency matrix.</a>
+<a name="100"><span class="lineNum">     100 </span><span class="lineCov">        490 :   static void calc_hadj_outer(const StorageIndex size, const CholMatrixType&amp; ap, StorageIndex* outerIndex) {</span></a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineCov">      47180 :     for (StorageIndex j = 1; j &lt; size; j++) {</span></a>
+<a name="102"><span class="lineNum">     102 </span><span class="lineCov">     349930 :       for (InnerIterator it(ap, j); it; ++it) {</span></a>
+<a name="103"><span class="lineNum">     103 </span><span class="lineCov">     303240 :         StorageIndex i = it.index();</span></a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineCov">     303240 :         if (i &lt; j) outerIndex[i + 1]++;</span></a>
+<a name="105"><span class="lineNum">     105 </span>            :       }</a>
+<a name="106"><span class="lineNum">     106 </span>            :     }</a>
+<a name="107"><span class="lineNum">     107 </span><span class="lineCov">        490 :     std::partial_sum(outerIndex, outerIndex + size + 1, outerIndex);</span></a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineCov">        490 :   }</span></a>
+<a name="109"><span class="lineNum">     109 </span>            : </a>
+<a name="110"><span class="lineNum">     110 </span>            :   // inner index array</a>
+<a name="111"><span class="lineNum">     111 </span><span class="lineCov">        490 :   static void calc_hadj_inner(const StorageIndex size, const CholMatrixType&amp; ap, const StorageIndex* outerIndex,</span></a>
+<a name="112"><span class="lineNum">     112 </span>            :                               StorageIndex* innerIndex, StorageIndex* tmp) {</a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineCov">        490 :     std::fill_n(tmp, size, 0);</span></a>
+<a name="114"><span class="lineNum">     114 </span>            : </a>
+<a name="115"><span class="lineNum">     115 </span><span class="lineCov">      47180 :     for (StorageIndex j = 1; j &lt; size; j++) {</span></a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineCov">     349930 :       for (InnerIterator it(ap, j); it; ++it) {</span></a>
+<a name="117"><span class="lineNum">     117 </span><span class="lineCov">     303240 :         StorageIndex i = it.index();</span></a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineCov">     303240 :         if (i &lt; j) {</span></a>
+<a name="119"><span class="lineNum">     119 </span><span class="lineCov">     256550 :           StorageIndex b = outerIndex[i] + tmp[i];</span></a>
+<a name="120"><span class="lineNum">     120 </span><span class="lineCov">     256550 :           innerIndex[b] = j;</span></a>
+<a name="121"><span class="lineNum">     121 </span><span class="lineCov">     256550 :           tmp[i]++;</span></a>
+<a name="122"><span class="lineNum">     122 </span>            :         }</a>
+<a name="123"><span class="lineNum">     123 </span>            :       }</a>
+<a name="124"><span class="lineNum">     124 </span>            :     }</a>
+<a name="125"><span class="lineNum">     125 </span><span class="lineCov">        490 :   }</span></a>
+<a name="126"><span class="lineNum">     126 </span>            : </a>
+<a name="127"><span class="lineNum">     127 </span>            :   // Adapted from:</a>
+<a name="128"><span class="lineNum">     128 </span>            :   // Joseph W. Liu. (1986).</a>
+<a name="129"><span class="lineNum">     129 </span>            :   // A compact row storage scheme for Cholesky factors using elimination trees.</a>
+<a name="130"><span class="lineNum">     130 </span>            :   // ACM Trans. Math. Softw. 12, 2 (June 1986), 127-148. https://doi.org/10.1145/6497.6499</a>
+<a name="131"><span class="lineNum">     131 </span>            : </a>
+<a name="132"><span class="lineNum">     132 </span>            :   // Computes the elimination forest of the lower adjacency matrix, a compact representation of the sparse L factor.</a>
+<a name="133"><span class="lineNum">     133 </span>            :   // The L factor may contain multiple elimination trees if a column contains only its diagonal element.</a>
+<a name="134"><span class="lineNum">     134 </span>            :   // Each elimination tree is an n-ary tree in which each node points to its parent.</a>
+<a name="135"><span class="lineNum">     135 </span><span class="lineCov">        490 :   static void calc_etree(const StorageIndex size, const CholMatrixType&amp; ap, StorageIndex* parent, StorageIndex* tmp) {</span></a>
+<a name="136"><span class="lineNum">     136 </span><span class="lineCov">        490 :     std::fill_n(parent, size, kEmpty);</span></a>
+<a name="137"><span class="lineNum">     137 </span>            : </a>
+<a name="138"><span class="lineNum">     138 </span><span class="lineCov">        490 :     DisjointSet ancestor(tmp, size);</span></a>
+<a name="139"><span class="lineNum">     139 </span>            : </a>
+<a name="140"><span class="lineNum">     140 </span><span class="lineCov">      47180 :     for (StorageIndex j = 1; j &lt; size; j++) {</span></a>
+<a name="141"><span class="lineNum">     141 </span><span class="lineCov">     349930 :       for (InnerIterator it(ap, j); it; ++it) {</span></a>
+<a name="142"><span class="lineNum">     142 </span><span class="lineCov">     303240 :         StorageIndex i = it.index();</span></a>
+<a name="143"><span class="lineNum">     143 </span><span class="lineCov">     303240 :         if (i &lt; j) {</span></a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineCov">     256550 :           StorageIndex r = ancestor.find(i);</span></a>
+<a name="145"><span class="lineNum">     145 </span><span class="lineCov">     256550 :           if (r != j) parent[r] = j;</span></a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineCov">     256550 :           ancestor.compress(i, j);</span></a>
+<a name="147"><span class="lineNum">     147 </span>            :         }</a>
+<a name="148"><span class="lineNum">     148 </span>            :       }</a>
+<a name="149"><span class="lineNum">     149 </span>            :     }</a>
+<a name="150"><span class="lineNum">     150 </span><span class="lineCov">        490 :   }</span></a>
+<a name="151"><span class="lineNum">     151 </span>            : </a>
+<a name="152"><span class="lineNum">     152 </span>            :   // Computes the child pointers of the parent tree to facilitate a depth-first search traversal.</a>
+<a name="153"><span class="lineNum">     153 </span><span class="lineCov">        490 :   static void calc_lineage(const StorageIndex size, const StorageIndex* parent, StorageIndex* firstChild,</span></a>
+<a name="154"><span class="lineNum">     154 </span>            :                            StorageIndex* firstSibling) {</a>
+<a name="155"><span class="lineNum">     155 </span><span class="lineCov">        490 :     std::fill_n(firstChild, size, kEmpty);</span></a>
+<a name="156"><span class="lineNum">     156 </span><span class="lineCov">        490 :     std::fill_n(firstSibling, size, kEmpty);</span></a>
+<a name="157"><span class="lineNum">     157 </span>            : </a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineCov">      47670 :     for (StorageIndex j = 0; j &lt; size; j++) {</span></a>
+<a name="159"><span class="lineNum">     159 </span><span class="lineCov">      47180 :       StorageIndex p = parent[j];</span></a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineCov">      47180 :       if (p == kEmpty) continue;</span></a>
+<a name="161"><span class="lineNum">     161 </span><span class="lineCov">      46690 :       StorageIndex c = firstChild[p];</span></a>
+<a name="162"><span class="lineNum">     162 </span><span class="lineCov">      46690 :       if (c == kEmpty)</span></a>
+<a name="163"><span class="lineNum">     163 </span><span class="lineCov">      41580 :         firstChild[p] = j;</span></a>
+<a name="164"><span class="lineNum">     164 </span>            :       else {</a>
+<a name="165"><span class="lineNum">     165 </span><span class="lineCov">       5250 :         while (firstSibling[c] != kEmpty) c = firstSibling[c];</span></a>
+<a name="166"><span class="lineNum">     166 </span><span class="lineCov">       5110 :         firstSibling[c] = j;</span></a>
+<a name="167"><span class="lineNum">     167 </span>            :       }</a>
+<a name="168"><span class="lineNum">     168 </span>            :     }</a>
+<a name="169"><span class="lineNum">     169 </span><span class="lineCov">        490 :   }</span></a>
+<a name="170"><span class="lineNum">     170 </span>            : </a>
+<a name="171"><span class="lineNum">     171 </span>            :   // Computes a post-ordered traversal of the elimination tree.</a>
+<a name="172"><span class="lineNum">     172 </span><span class="lineCov">        490 :   static void calc_post(const StorageIndex size, const StorageIndex* parent, StorageIndex* firstChild,</span></a>
+<a name="173"><span class="lineNum">     173 </span>            :                         const StorageIndex* firstSibling, StorageIndex* post, StorageIndex* dfs) {</a>
+<a name="174"><span class="lineNum">     174 </span><span class="lineCov">        490 :     Stack post_stack(post, 0, size);</span></a>
+<a name="175"><span class="lineNum">     175 </span><span class="lineCov">      47670 :     for (StorageIndex j = 0; j &lt; size; j++) {</span></a>
+<a name="176"><span class="lineNum">     176 </span><span class="lineCov">      47180 :       if (parent[j] != kEmpty) continue;</span></a>
+<a name="177"><span class="lineNum">     177 </span>            :       // Begin at a root</a>
+<a name="178"><span class="lineNum">     178 </span><span class="lineCov">        490 :       Stack dfs_stack(dfs, 0, size);</span></a>
+<a name="179"><span class="lineNum">     179 </span><span class="lineCov">        490 :       dfs_stack.push(j);</span></a>
+<a name="180"><span class="lineNum">     180 </span><span class="lineCov">      94360 :       while (!dfs_stack.empty()) {</span></a>
+<a name="181"><span class="lineNum">     181 </span><span class="lineCov">      93870 :         StorageIndex i = dfs_stack.back();</span></a>
+<a name="182"><span class="lineNum">     182 </span><span class="lineCov">      93870 :         StorageIndex c = firstChild[i];</span></a>
+<a name="183"><span class="lineNum">     183 </span><span class="lineCov">      93870 :         if (c == kEmpty) {</span></a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineCov">      47180 :           post_stack.push(i);</span></a>
+<a name="185"><span class="lineNum">     185 </span><span class="lineCov">      47180 :           dfs_stack.pop();</span></a>
+<a name="186"><span class="lineNum">     186 </span>            :         } else {</a>
+<a name="187"><span class="lineNum">     187 </span><span class="lineCov">      46690 :           dfs_stack.push(c);</span></a>
+<a name="188"><span class="lineNum">     188 </span>            :           // Remove the path from `i` to `c` for future traversals.</a>
+<a name="189"><span class="lineNum">     189 </span><span class="lineCov">      46690 :           firstChild[i] = firstSibling[c];</span></a>
+<a name="190"><span class="lineNum">     190 </span>            :         }</a>
+<a name="191"><span class="lineNum">     191 </span>            :       }</a>
+<a name="192"><span class="lineNum">     192 </span>            :     }</a>
+<a name="193"><span class="lineNum">     193 </span><span class="lineCov">        490 :     eigen_assert(post_stack.size() == size);</span></a>
+<a name="194"><span class="lineNum">     194 </span><span class="lineCov">      47670 :     eigen_assert(std::all_of(firstChild, firstChild + size, [](StorageIndex a) { return a == kEmpty; }));</span></a>
+<a name="195"><span class="lineNum">     195 </span><span class="lineCov">        490 :   }</span></a>
+<a name="196"><span class="lineNum">     196 </span>            : </a>
+<a name="197"><span class="lineNum">     197 </span>            :   // Adapted from:</a>
+<a name="198"><span class="lineNum">     198 </span>            :   // Gilbert, J. R., Ng, E., &amp; Peyton, B. W. (1994).</a>
+<a name="199"><span class="lineNum">     199 </span>            :   // An efficient algorithm to compute row and column counts for sparse Cholesky factorization.</a>
+<a name="200"><span class="lineNum">     200 </span>            :   // SIAM Journal on Matrix Analysis and Applications, 15(4), 1075-1091.</a>
+<a name="201"><span class="lineNum">     201 </span>            : </a>
+<a name="202"><span class="lineNum">     202 </span>            :   // Computes the non-zero pattern of the L factor.</a>
+<a name="203"><span class="lineNum">     203 </span><span class="lineCov">        490 :   static void calc_colcount(const StorageIndex size, const StorageIndex* hadjOuter, const StorageIndex* hadjInner,</span></a>
+<a name="204"><span class="lineNum">     204 </span>            :                             const StorageIndex* parent, StorageIndex* prevLeaf, StorageIndex* tmp,</a>
+<a name="205"><span class="lineNum">     205 </span>            :                             const StorageIndex* post, StorageIndex* nonZerosPerCol, bool doLDLT) {</a>
+<a name="206"><span class="lineNum">     206 </span>            :     // initialize nonZerosPerCol with 1 for leaves, 0 for non-leaves</a>
+<a name="207"><span class="lineNum">     207 </span><span class="lineCov">        490 :     std::fill_n(nonZerosPerCol, size, 1);</span></a>
+<a name="208"><span class="lineNum">     208 </span><span class="lineCov">      47670 :     for (StorageIndex j = 0; j &lt; size; j++) {</span></a>
+<a name="209"><span class="lineNum">     209 </span><span class="lineCov">      47180 :       StorageIndex p = parent[j];</span></a>
+<a name="210"><span class="lineNum">     210 </span>            :       // p is not a leaf</a>
+<a name="211"><span class="lineNum">     211 </span><span class="lineCov">      47180 :       if (p != kEmpty) nonZerosPerCol[p] = 0;</span></a>
+<a name="212"><span class="lineNum">     212 </span>            :     }</a>
+<a name="213"><span class="lineNum">     213 </span>            : </a>
+<a name="214"><span class="lineNum">     214 </span><span class="lineCov">        490 :     DisjointSet parentSet(tmp, size);</span></a>
+<a name="215"><span class="lineNum">     215 </span>            :     // prevLeaf is already initialized</a>
+<a name="216"><span class="lineNum">     216 </span><span class="lineCov">      47670 :     eigen_assert(std::all_of(prevLeaf, prevLeaf + size, [](StorageIndex a) { return a == kEmpty; }));</span></a>
+<a name="217"><span class="lineNum">     217 </span>            : </a>
+<a name="218"><span class="lineNum">     218 </span><span class="lineCov">      47670 :     for (StorageIndex j_ = 0; j_ &lt; size; j_++) {</span></a>
+<a name="219"><span class="lineNum">     219 </span><span class="lineCov">      47180 :       StorageIndex j = post[j_];</span></a>
+<a name="220"><span class="lineNum">     220 </span><span class="lineCov">      47180 :       nonZerosPerCol[j] += hadjOuter[j + 1] - hadjOuter[j];</span></a>
+<a name="221"><span class="lineNum">     221 </span><span class="lineCov">     303730 :       for (StorageIndex k = hadjOuter[j]; k &lt; hadjOuter[j + 1]; k++) {</span></a>
+<a name="222"><span class="lineNum">     222 </span><span class="lineCov">     256550 :         StorageIndex i = hadjInner[k];</span></a>
+<a name="223"><span class="lineNum">     223 </span><span class="lineCov">     256550 :         eigen_assert(i &gt; j);</span></a>
+<a name="224"><span class="lineNum">     224 </span><span class="lineCov">     256550 :         StorageIndex prev = prevLeaf[i];</span></a>
+<a name="225"><span class="lineNum">     225 </span><span class="lineCov">     256550 :         if (prev != kEmpty) {</span></a>
+<a name="226"><span class="lineNum">     226 </span><span class="lineCov">     214970 :           StorageIndex q = parentSet.find(prev);</span></a>
+<a name="227"><span class="lineNum">     227 </span><span class="lineCov">     214970 :           parentSet.compress(prev, q);</span></a>
+<a name="228"><span class="lineNum">     228 </span><span class="lineCov">     214970 :           nonZerosPerCol[q]--;</span></a>
+<a name="229"><span class="lineNum">     229 </span>            :         }</a>
+<a name="230"><span class="lineNum">     230 </span><span class="lineCov">     256550 :         prevLeaf[i] = j;</span></a>
+<a name="231"><span class="lineNum">     231 </span>            :       }</a>
+<a name="232"><span class="lineNum">     232 </span><span class="lineCov">      47180 :       StorageIndex p = parent[j];</span></a>
+<a name="233"><span class="lineNum">     233 </span><span class="lineCov">      47180 :       if (p != kEmpty) parentSet.compress(j, p);</span></a>
+<a name="234"><span class="lineNum">     234 </span>            :     }</a>
+<a name="235"><span class="lineNum">     235 </span>            : </a>
+<a name="236"><span class="lineNum">     236 </span><span class="lineCov">      47670 :     for (StorageIndex j = 0; j &lt; size; j++) {</span></a>
+<a name="237"><span class="lineNum">     237 </span><span class="lineCov">      47180 :       StorageIndex p = parent[j];</span></a>
+<a name="238"><span class="lineNum">     238 </span><span class="lineCov">      47180 :       if (p != kEmpty) nonZerosPerCol[p] += nonZerosPerCol[j] - 1;</span></a>
+<a name="239"><span class="lineNum">     239 </span><span class="lineCov">      47180 :       if (doLDLT) nonZerosPerCol[j]--;</span></a>
+<a name="240"><span class="lineNum">     240 </span>            :     }</a>
+<a name="241"><span class="lineNum">     241 </span><span class="lineCov">        490 :   }</span></a>
+<a name="242"><span class="lineNum">     242 </span>            : </a>
+<a name="243"><span class="lineNum">     243 </span>            :   // Finalizes the non zero pattern of the L factor and allocates the memory for the factorization.</a>
+<a name="244"><span class="lineNum">     244 </span><span class="lineCov">        490 :   static void init_matrix(const StorageIndex size, const StorageIndex* nonZerosPerCol, CholMatrixType&amp; L) {</span></a>
+<a name="245"><span class="lineNum">     245 </span><span class="lineCov">        490 :     eigen_assert(L.outerIndexPtr()[0] == 0);</span></a>
+<a name="246"><span class="lineNum">     246 </span><span class="lineCov">        490 :     std::partial_sum(nonZerosPerCol, nonZerosPerCol + size, L.outerIndexPtr() + 1);</span></a>
+<a name="247"><span class="lineNum">     247 </span><span class="lineCov">        490 :     L.resizeNonZeros(L.outerIndexPtr()[size]);</span></a>
+<a name="248"><span class="lineNum">     248 </span><span class="lineCov">        490 :   }</span></a>
+<a name="249"><span class="lineNum">     249 </span>            : </a>
+<a name="250"><span class="lineNum">     250 </span>            :   // Driver routine for the symbolic sparse Cholesky factorization.</a>
+<a name="251"><span class="lineNum">     251 </span><span class="lineCov">        490 :   static void run(const StorageIndex size, const CholMatrixType&amp; ap, CholMatrixType&amp; L, VectorI&amp; parent,</span></a>
+<a name="252"><span class="lineNum">     252 </span>            :                   VectorI&amp; workSpace, bool doLDLT) {</a>
+<a name="253"><span class="lineNum">     253 </span><span class="lineCov">        490 :     parent.resize(size);</span></a>
+<a name="254"><span class="lineNum">     254 </span><span class="lineCov">        490 :     workSpace.resize(4 * size);</span></a>
+<a name="255"><span class="lineNum">     255 </span><span class="lineCov">        490 :     L.resize(size, size);</span></a>
+<a name="256"><span class="lineNum">     256 </span>            : </a>
+<a name="257"><span class="lineNum">     257 </span><span class="lineCov">        490 :     StorageIndex* tmp1 = workSpace.data();</span></a>
+<a name="258"><span class="lineNum">     258 </span><span class="lineCov">        490 :     StorageIndex* tmp2 = workSpace.data() + size;</span></a>
+<a name="259"><span class="lineNum">     259 </span><span class="lineCov">        490 :     StorageIndex* tmp3 = workSpace.data() + 2 * size;</span></a>
+<a name="260"><span class="lineNum">     260 </span><span class="lineCov">        490 :     StorageIndex* tmp4 = workSpace.data() + 3 * size;</span></a>
+<a name="261"><span class="lineNum">     261 </span>            : </a>
+<a name="262"><span class="lineNum">     262 </span>            :     // Borrow L's outer index array for the higher adjacency pattern.</a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineCov">        490 :     StorageIndex* hadj_outer = L.outerIndexPtr();</span></a>
+<a name="264"><span class="lineNum">     264 </span><span class="lineCov">        490 :     calc_hadj_outer(size, ap, hadj_outer);</span></a>
+<a name="265"><span class="lineNum">     265 </span>            :     // Request additional temporary storage for the inner indices of the higher adjacency pattern.</a>
+<a name="266"><span class="lineNum">     266 </span><span class="lineCov">        980 :     ei_declare_aligned_stack_constructed_variable(StorageIndex, hadj_inner, hadj_outer[size], nullptr);</span></a>
+<a name="267"><span class="lineNum">     267 </span><span class="lineCov">        490 :     calc_hadj_inner(size, ap, hadj_outer, hadj_inner, tmp1);</span></a>
+<a name="268"><span class="lineNum">     268 </span>            : </a>
+<a name="269"><span class="lineNum">     269 </span><span class="lineCov">        490 :     calc_etree(size, ap, parent.data(), tmp1);</span></a>
+<a name="270"><span class="lineNum">     270 </span><span class="lineCov">        490 :     calc_lineage(size, parent.data(), tmp1, tmp2);</span></a>
+<a name="271"><span class="lineNum">     271 </span><span class="lineCov">        490 :     calc_post(size, parent.data(), tmp1, tmp2, tmp3, tmp4);</span></a>
+<a name="272"><span class="lineNum">     272 </span><span class="lineCov">        490 :     calc_colcount(size, hadj_outer, hadj_inner, parent.data(), tmp1, tmp2, tmp3, tmp4, doLDLT);</span></a>
+<a name="273"><span class="lineNum">     273 </span><span class="lineCov">        490 :     init_matrix(size, tmp4, L);</span></a>
+<a name="274"><span class="lineNum">     274 </span><span class="lineCov">        490 :   }</span></a>
+<a name="275"><span class="lineNum">     275 </span>            : };</a>
+<a name="276"><span class="lineNum">     276 </span>            : </a>
+<a name="277"><span class="lineNum">     277 </span>            : // Symbol is ODR-used, so we need a definition.</a>
+<a name="278"><span class="lineNum">     278 </span>            : template &lt;typename Scalar, typename StorageIndex&gt;</a>
+<a name="279"><span class="lineNum">     279 </span>            : constexpr StorageIndex simpl_chol_helper&lt;Scalar, StorageIndex&gt;::kEmpty;</a>
+<a name="280"><span class="lineNum">     280 </span>            : </a>
+<a name="281"><span class="lineNum">     281 </span>            : }  // namespace internal</a>
+<a name="282"><span class="lineNum">     282 </span>            : </a>
+<a name="283"><span class="lineNum">     283 </span>            : template &lt;typename Derived&gt;</a>
+<a name="284"><span class="lineNum">     284 </span><span class="lineCov">        490 : void SimplicialCholeskyBase&lt;Derived&gt;::analyzePattern_preordered(const CholMatrixType&amp; ap, bool doLDLT) {</span></a>
+<a name="285"><span class="lineNum">     285 </span>            :   using Helper = internal::simpl_chol_helper&lt;Scalar, StorageIndex&gt;;</a>
+<a name="286"><span class="lineNum">     286 </span>            : </a>
+<a name="287"><span class="lineNum">     287 </span><span class="lineCov">        490 :   eigen_assert(ap.innerSize() == ap.outerSize());</span></a>
+<a name="288"><span class="lineNum">     288 </span><span class="lineCov">        490 :   const StorageIndex size = internal::convert_index&lt;StorageIndex&gt;(ap.outerSize());</span></a>
+<a name="289"><span class="lineNum">     289 </span>            : </a>
+<a name="290"><span class="lineNum">     290 </span><span class="lineCov">        490 :   Helper::run(size, ap, m_matrix, m_parent, m_workSpace, doLDLT);</span></a>
+<a name="291"><span class="lineNum">     291 </span>            : </a>
+<a name="292"><span class="lineNum">     292 </span><span class="lineCov">        490 :   m_isInitialized = true;</span></a>
+<a name="293"><span class="lineNum">     293 </span><span class="lineCov">        490 :   m_info = Success;</span></a>
+<a name="294"><span class="lineNum">     294 </span><span class="lineCov">        490 :   m_analysisIsOk = true;</span></a>
+<a name="295"><span class="lineNum">     295 </span><span class="lineCov">        490 :   m_factorizationIsOk = false;</span></a>
+<a name="296"><span class="lineNum">     296 </span><span class="lineCov">        490 : }</span></a>
+<a name="297"><span class="lineNum">     297 </span>            : </a>
+<a name="298"><span class="lineNum">     298 </span>            : template &lt;typename Derived&gt;</a>
+<a name="299"><span class="lineNum">     299 </span>            : template &lt;bool DoLDLT, bool NonHermitian&gt;</a>
+<a name="300"><span class="lineNum">     300 </span><span class="lineCov">        490 : void SimplicialCholeskyBase&lt;Derived&gt;::factorize_preordered(const CholMatrixType&amp; ap) {</span></a>
+<a name="301"><span class="lineNum">     301 </span>            :   using std::sqrt;</a>
+<a name="302"><span class="lineNum">     302 </span><span class="lineCov">        490 :   const StorageIndex size = StorageIndex(ap.rows());</span></a>
+<a name="303"><span class="lineNum">     303 </span>            : </a>
+<a name="304"><span class="lineNum">     304 </span><span class="lineCov">        490 :   eigen_assert(m_analysisIsOk &amp;&amp; &quot;You must first call analyzePattern()&quot;);</span></a>
+<a name="305"><span class="lineNum">     305 </span><span class="lineCov">        490 :   eigen_assert(ap.rows() == ap.cols());</span></a>
+<a name="306"><span class="lineNum">     306 </span><span class="lineCov">        490 :   eigen_assert(m_parent.size() == size);</span></a>
+<a name="307"><span class="lineNum">     307 </span><span class="lineCov">        490 :   eigen_assert(m_workSpace.size() &gt;= 3 * size);</span></a>
+<a name="308"><span class="lineNum">     308 </span>            : </a>
+<a name="309"><span class="lineNum">     309 </span><span class="lineCov">        490 :   const StorageIndex* Lp = m_matrix.outerIndexPtr();</span></a>
+<a name="310"><span class="lineNum">     310 </span><span class="lineCov">        490 :   StorageIndex* Li = m_matrix.innerIndexPtr();</span></a>
+<a name="311"><span class="lineNum">     311 </span><span class="lineCov">        490 :   Scalar* Lx = m_matrix.valuePtr();</span></a>
+<a name="312"><span class="lineNum">     312 </span>            : </a>
+<a name="313"><span class="lineNum">     313 </span><span class="lineCov">        980 :   ei_declare_aligned_stack_constructed_variable(Scalar, y, size, 0);</span></a>
+<a name="314"><span class="lineNum">     314 </span><span class="lineCov">        490 :   StorageIndex* nonZerosPerCol = m_workSpace.data();</span></a>
+<a name="315"><span class="lineNum">     315 </span><span class="lineCov">        490 :   StorageIndex* pattern = m_workSpace.data() + size;</span></a>
+<a name="316"><span class="lineNum">     316 </span><span class="lineCov">        490 :   StorageIndex* tags = m_workSpace.data() + 2 * size;</span></a>
+<a name="317"><span class="lineNum">     317 </span>            : </a>
+<a name="318"><span class="lineNum">     318 </span><span class="lineCov">        490 :   bool ok = true;</span></a>
+<a name="319"><span class="lineNum">     319 </span><span class="lineCov">        490 :   m_diag.resize(DoLDLT ? size : 0);</span></a>
+<a name="320"><span class="lineNum">     320 </span>            : </a>
+<a name="321"><span class="lineNum">     321 </span><span class="lineCov">      47649 :   for (StorageIndex k = 0; k &lt; size; ++k) {</span></a>
+<a name="322"><span class="lineNum">     322 </span>            :     // compute nonzero pattern of kth row of L, in topological order</a>
+<a name="323"><span class="lineNum">     323 </span><span class="lineCov">      47161 :     y[k] = Scalar(0);         // Y(0:k) is now all zero</span></a>
+<a name="324"><span class="lineNum">     324 </span><span class="lineCov">      47161 :     StorageIndex top = size;  // stack for pattern is empty</span></a>
+<a name="325"><span class="lineNum">     325 </span><span class="lineCov">      47161 :     tags[k] = k;              // mark node k as visited</span></a>
+<a name="326"><span class="lineNum">     326 </span><span class="lineCov">      47161 :     nonZerosPerCol[k] = 0;    // count of nonzeros in column k of L</span></a>
+<a name="327"><span class="lineNum">     327 </span><span class="lineCov">     350612 :     for (typename CholMatrixType::InnerIterator it(ap, k); it; ++it) {</span></a>
+<a name="328"><span class="lineNum">     328 </span><span class="lineCov">     303510 :       StorageIndex i = it.index();</span></a>
+<a name="329"><span class="lineNum">     329 </span><span class="lineCov">     303508 :       if (i &lt;= k) {</span></a>
+<a name="330"><span class="lineNum">     330 </span><span class="lineCov">     303508 :         y[i] += getSymm(it.value()); /* scatter A(i,k) into Y (sum duplicates) */</span></a>
+<a name="331"><span class="lineNum">     331 </span>            :         Index len;</a>
+<a name="332"><span class="lineNum">     332 </span><span class="lineCov">     757392 :         for (len = 0; tags[i] != k; i = m_parent[i]) {</span></a>
+<a name="333"><span class="lineNum">     333 </span><span class="lineCov">     453941 :           pattern[len++] = i; /* L(k,i) is nonzero */</span></a>
+<a name="334"><span class="lineNum">     334 </span><span class="lineCov">     453941 :           tags[i] = k;        /* mark i as visited */</span></a>
+<a name="335"><span class="lineNum">     335 </span>            :         }</a>
+<a name="336"><span class="lineNum">     336 </span><span class="lineCov">     757934 :         while (len &gt; 0) pattern[--top] = pattern[--len];</span></a>
+<a name="337"><span class="lineNum">     337 </span>            :       }</a>
+<a name="338"><span class="lineNum">     338 </span>            :     }</a>
+<a name="339"><span class="lineNum">     339 </span>            : </a>
+<a name="340"><span class="lineNum">     340 </span>            :     /* compute numerical values kth row of L (a sparse triangular solve) */</a>
+<a name="341"><span class="lineNum">     341 </span>            : </a>
+<a name="342"><span class="lineNum">     342 </span><span class="lineCov">      47164 :     DiagonalScalar d =</span></a>
+<a name="343"><span class="lineNum">     343 </span><span class="lineCov">      47131 :         getDiag(y[k]) * m_shiftScale + m_shiftOffset;  // get D(k,k), apply the shift function, and clear Y(k)</span></a>
+<a name="344"><span class="lineNum">     344 </span><span class="lineCov">      47164 :     y[k] = Scalar(0);</span></a>
+<a name="345"><span class="lineNum">     345 </span><span class="lineCov">     501180 :     for (; top &lt; size; ++top) {</span></a>
+<a name="346"><span class="lineNum">     346 </span><span class="lineCov">     453941 :       Index i = pattern[top]; /* pattern[top:n-1] is pattern of L(:,k) */</span></a>
+<a name="347"><span class="lineNum">     347 </span><span class="lineCov">     453941 :       Scalar yi = y[i];       /* get and clear Y(i) */</span></a>
+<a name="348"><span class="lineNum">     348 </span><span class="lineCov">     453941 :       y[i] = Scalar(0);</span></a>
+<a name="349"><span class="lineNum">     349 </span>            : </a>
+<a name="350"><span class="lineNum">     350 </span>            :       /* the nonzero entry L(k,i) */</a>
+<a name="351"><span class="lineNum">     351 </span>            :       Scalar l_ki;</a>
+<a name="352"><span class="lineNum">     352 </span>            :       if (DoLDLT)</a>
+<a name="353"><span class="lineNum">     353 </span><span class="lineCov">     453941 :         l_ki = yi / getDiag(m_diag[i]);</span></a>
+<a name="354"><span class="lineNum">     354 </span>            :       else</a>
+<a name="355"><span class="lineNum">     355 </span><span class="lineNoCov">          0 :         yi = l_ki = yi / Lx[Lp[i]];</span></a>
+<a name="356"><span class="lineNum">     356 </span>            : </a>
+<a name="357"><span class="lineNum">     357 </span><span class="lineCov">     453055 :       Index p2 = Lp[i] + nonZerosPerCol[i];</span></a>
+<a name="358"><span class="lineNum">     358 </span>            :       Index p;</a>
+<a name="359"><span class="lineNum">     359 </span><span class="lineCov">    2889950 :       for (p = Lp[i] + (DoLDLT ? 0 : 1); p &lt; p2; ++p) y[Li[p]] -= getSymm(Lx[p]) * yi;</span></a>
+<a name="360"><span class="lineNum">     360 </span><span class="lineCov">     452928 :       d -= getDiag(l_ki * getSymm(yi));</span></a>
+<a name="361"><span class="lineNum">     361 </span><span class="lineCov">     454016 :       Li[p] = k; /* store L(k,i) in column form of L */</span></a>
+<a name="362"><span class="lineNum">     362 </span><span class="lineCov">     454016 :       Lx[p] = l_ki;</span></a>
+<a name="363"><span class="lineNum">     363 </span><span class="lineCov">     454016 :       ++nonZerosPerCol[i]; /* increment count of nonzeros in col i */</span></a>
+<a name="364"><span class="lineNum">     364 </span>            :     }</a>
+<a name="365"><span class="lineNum">     365 </span>            :     if (DoLDLT) {</a>
+<a name="366"><span class="lineNum">     366 </span><span class="lineCov">      47239 :       m_diag[k] = d;</span></a>
+<a name="367"><span class="lineNum">     367 </span><span class="lineCov">      47159 :       if (d == RealScalar(0)) {</span></a>
+<a name="368"><span class="lineNum">     368 </span><span class="lineNoCov">          0 :         ok = false; /* failure, D(k,k) is zero */</span></a>
+<a name="369"><span class="lineNum">     369 </span><span class="lineNoCov">          0 :         break;</span></a>
+<a name="370"><span class="lineNum">     370 </span>            :       }</a>
+<a name="371"><span class="lineNum">     371 </span>            :     } else {</a>
+<a name="372"><span class="lineNum">     372 </span><span class="lineNoCov">          0 :       Index p = Lp[k] + nonZerosPerCol[k]++;</span></a>
+<a name="373"><span class="lineNum">     373 </span><span class="lineNoCov">          0 :       Li[p] = k; /* store L(k,k) = sqrt (d) in column k */</span></a>
+<a name="374"><span class="lineNum">     374 </span><span class="lineNoCov">          0 :       if (NonHermitian ? d == RealScalar(0) : numext::real(d) &lt;= RealScalar(0)) {</span></a>
+<a name="375"><span class="lineNum">     375 </span><span class="lineNoCov">          0 :         ok = false; /* failure, matrix is not positive definite */</span></a>
+<a name="376"><span class="lineNum">     376 </span><span class="lineNoCov">          0 :         break;</span></a>
+<a name="377"><span class="lineNum">     377 </span>            :       }</a>
+<a name="378"><span class="lineNum">     378 </span><span class="lineNoCov">          0 :       Lx[p] = sqrt(d);</span></a>
+<a name="379"><span class="lineNum">     379 </span>            :     }</a>
+<a name="380"><span class="lineNum">     380 </span>            :   }</a>
+<a name="381"><span class="lineNum">     381 </span>            : </a>
+<a name="382"><span class="lineNum">     382 </span><span class="lineCov">        488 :   m_info = ok ? Success : NumericalIssue;</span></a>
+<a name="383"><span class="lineNum">     383 </span><span class="lineCov">        488 :   m_factorizationIsOk = true;</span></a>
+<a name="384"><span class="lineNum">     384 </span><span class="lineCov">        488 : }</span></a>
+<a name="385"><span class="lineNum">     385 </span>            : </a>
+<a name="386"><span class="lineNum">     386 </span>            : }  // end namespace Eigen</a>
+<a name="387"><span class="lineNum">     387 </span>            : </a>
+<a name="388"><span class="lineNum">     388 </span>            : #endif  // EIGEN_SIMPLICIAL_CHOLESKY_IMPL_H</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

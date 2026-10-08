@@ -1,0 +1,198 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - /home/dev/Blender_PA1483/build_coverage/source/blender/draw/glsl_overlay_source_list.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../../index.html">top level</a> - <a href="index.html">home/dev/Blender_PA1483/build_coverage/source/blender/draw</a> - glsl_overlay_source_list.h<span style="font-size: 80%;"> (source / <a href="glsl_overlay_source_list.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">122</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_armature_infos_hh_tmp, &quot;overlay_armature_infos.hh&quot;, &quot;engines/overlay/shaders/infos/overlay_armature_infos.hh&quot;)</span></a>
+<a name="2"><span class="lineNum">       2 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_background_infos_hh_tmp, &quot;overlay_background_infos.hh&quot;, &quot;engines/overlay/shaders/infos/overlay_background_infos.hh&quot;)</span></a>
+<a name="3"><span class="lineNum">       3 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_common_infos_hh_tmp, &quot;overlay_common_infos.hh&quot;, &quot;engines/overlay/shaders/infos/overlay_common_infos.hh&quot;)</span></a>
+<a name="4"><span class="lineNum">       4 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_mode_infos_hh_tmp, &quot;overlay_edit_mode_infos.hh&quot;, &quot;engines/overlay/shaders/infos/overlay_edit_mode_infos.hh&quot;)</span></a>
+<a name="5"><span class="lineNum">       5 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_extra_infos_hh_tmp, &quot;overlay_extra_infos.hh&quot;, &quot;engines/overlay/shaders/infos/overlay_extra_infos.hh&quot;)</span></a>
+<a name="6"><span class="lineNum">       6 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_facing_infos_hh_tmp, &quot;overlay_facing_infos.hh&quot;, &quot;engines/overlay/shaders/infos/overlay_facing_infos.hh&quot;)</span></a>
+<a name="7"><span class="lineNum">       7 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_fullscreen_infos_hh_tmp, &quot;overlay_fullscreen_infos.hh&quot;, &quot;engines/overlay/shaders/infos/overlay_fullscreen_infos.hh&quot;)</span></a>
+<a name="8"><span class="lineNum">       8 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_grid_infos_hh_tmp, &quot;overlay_grid_infos.hh&quot;, &quot;engines/overlay/shaders/infos/overlay_grid_infos.hh&quot;)</span></a>
+<a name="9"><span class="lineNum">       9 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_outline_infos_hh_tmp, &quot;overlay_outline_infos.hh&quot;, &quot;engines/overlay/shaders/infos/overlay_outline_infos.hh&quot;)</span></a>
+<a name="10"><span class="lineNum">      10 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_paint_infos_hh_tmp, &quot;overlay_paint_infos.hh&quot;, &quot;engines/overlay/shaders/infos/overlay_paint_infos.hh&quot;)</span></a>
+<a name="11"><span class="lineNum">      11 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_sculpt_curves_infos_hh_tmp, &quot;overlay_sculpt_curves_infos.hh&quot;, &quot;engines/overlay/shaders/infos/overlay_sculpt_curves_infos.hh&quot;)</span></a>
+<a name="12"><span class="lineNum">      12 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_sculpt_infos_hh_tmp, &quot;overlay_sculpt_infos.hh&quot;, &quot;engines/overlay/shaders/infos/overlay_sculpt_infos.hh&quot;)</span></a>
+<a name="13"><span class="lineNum">      13 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_viewer_attribute_infos_hh_tmp, &quot;overlay_viewer_attribute_infos.hh&quot;, &quot;engines/overlay/shaders/infos/overlay_viewer_attribute_infos.hh&quot;)</span></a>
+<a name="14"><span class="lineNum">      14 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_volume_infos_hh_tmp, &quot;overlay_volume_infos.hh&quot;, &quot;engines/overlay/shaders/infos/overlay_volume_infos.hh&quot;)</span></a>
+<a name="15"><span class="lineNum">      15 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_wireframe_infos_hh_tmp, &quot;overlay_wireframe_infos.hh&quot;, &quot;engines/overlay/shaders/infos/overlay_wireframe_infos.hh&quot;)</span></a>
+<a name="16"><span class="lineNum">      16 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_antialiasing_bsl_hh_tmp, &quot;overlay_antialiasing.bsl.hh&quot;, &quot;engines/overlay/shaders/overlay_antialiasing.bsl.hh&quot;)</span></a>
+<a name="17"><span class="lineNum">      17 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_armature_bsl_hh_tmp, &quot;overlay_armature.bsl.hh&quot;, &quot;engines/overlay/shaders/overlay_armature.bsl.hh&quot;)</span></a>
+<a name="18"><span class="lineNum">      18 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_background_frag_glsl_tmp, &quot;overlay_background_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_background_frag.glsl&quot;)</span></a>
+<a name="19"><span class="lineNum">      19 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_clipbound_vert_glsl_tmp, &quot;overlay_clipbound_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_clipbound_vert.glsl&quot;)</span></a>
+<a name="20"><span class="lineNum">      20 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_common_lib_glsl_tmp, &quot;overlay_common_lib.glsl&quot;, &quot;engines/overlay/shaders/overlay_common_lib.glsl&quot;)</span></a>
+<a name="21"><span class="lineNum">      21 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_common_bsl_hh_tmp, &quot;overlay_common.bsl.hh&quot;, &quot;engines/overlay/shaders/overlay_common.bsl.hh&quot;)</span></a>
+<a name="22"><span class="lineNum">      22 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_depth_only_curves_vert_glsl_tmp, &quot;overlay_depth_only_curves_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_depth_only_curves_vert.glsl&quot;)</span></a>
+<a name="23"><span class="lineNum">      23 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_depth_only_frag_glsl_tmp, &quot;overlay_depth_only_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_depth_only_frag.glsl&quot;)</span></a>
+<a name="24"><span class="lineNum">      24 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_depth_only_gpencil_frag_glsl_tmp, &quot;overlay_depth_only_gpencil_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_depth_only_gpencil_frag.glsl&quot;)</span></a>
+<a name="25"><span class="lineNum">      25 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_depth_only_gpencil_vert_glsl_tmp, &quot;overlay_depth_only_gpencil_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_depth_only_gpencil_vert.glsl&quot;)</span></a>
+<a name="26"><span class="lineNum">      26 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_depth_only_mesh_conservative_vert_glsl_tmp, &quot;overlay_depth_only_mesh_conservative_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_depth_only_mesh_conservative_vert.glsl&quot;)</span></a>
+<a name="27"><span class="lineNum">      27 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_depth_only_pointcloud_vert_glsl_tmp, &quot;overlay_depth_only_pointcloud_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_depth_only_pointcloud_vert.glsl&quot;)</span></a>
+<a name="28"><span class="lineNum">      28 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_depth_only_vert_glsl_tmp, &quot;overlay_depth_only_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_depth_only_vert.glsl&quot;)</span></a>
+<a name="29"><span class="lineNum">      29 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_curve_handle_vert_glsl_tmp, &quot;overlay_edit_curve_handle_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_curve_handle_vert.glsl&quot;)</span></a>
+<a name="30"><span class="lineNum">      30 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_curve_normals_vert_glsl_tmp, &quot;overlay_edit_curve_normals_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_curve_normals_vert.glsl&quot;)</span></a>
+<a name="31"><span class="lineNum">      31 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_curve_point_vert_glsl_tmp, &quot;overlay_edit_curve_point_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_curve_point_vert.glsl&quot;)</span></a>
+<a name="32"><span class="lineNum">      32 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_curve_wire_vert_glsl_tmp, &quot;overlay_edit_curve_wire_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_curve_wire_vert.glsl&quot;)</span></a>
+<a name="33"><span class="lineNum">      33 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_curves_handle_vert_glsl_tmp, &quot;overlay_edit_curves_handle_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_curves_handle_vert.glsl&quot;)</span></a>
+<a name="34"><span class="lineNum">      34 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_gpencil_canvas_vert_glsl_tmp, &quot;overlay_edit_gpencil_canvas_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_gpencil_canvas_vert.glsl&quot;)</span></a>
+<a name="35"><span class="lineNum">      35 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_lattice_point_vert_glsl_tmp, &quot;overlay_edit_lattice_point_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_lattice_point_vert.glsl&quot;)</span></a>
+<a name="36"><span class="lineNum">      36 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_lattice_wire_vert_glsl_tmp, &quot;overlay_edit_lattice_wire_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_lattice_wire_vert.glsl&quot;)</span></a>
+<a name="37"><span class="lineNum">      37 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_mesh_analysis_frag_glsl_tmp, &quot;overlay_edit_mesh_analysis_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_mesh_analysis_frag.glsl&quot;)</span></a>
+<a name="38"><span class="lineNum">      38 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_mesh_analysis_vert_glsl_tmp, &quot;overlay_edit_mesh_analysis_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_mesh_analysis_vert.glsl&quot;)</span></a>
+<a name="39"><span class="lineNum">      39 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_mesh_common_lib_glsl_tmp, &quot;overlay_edit_mesh_common_lib.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_mesh_common_lib.glsl&quot;)</span></a>
+<a name="40"><span class="lineNum">      40 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_mesh_depth_vert_glsl_tmp, &quot;overlay_edit_mesh_depth_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_mesh_depth_vert.glsl&quot;)</span></a>
+<a name="41"><span class="lineNum">      41 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_mesh_frag_glsl_tmp, &quot;overlay_edit_mesh_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_mesh_frag.glsl&quot;)</span></a>
+<a name="42"><span class="lineNum">      42 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_mesh_normal_vert_glsl_tmp, &quot;overlay_edit_mesh_normal_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_mesh_normal_vert.glsl&quot;)</span></a>
+<a name="43"><span class="lineNum">      43 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_mesh_skin_root_vert_glsl_tmp, &quot;overlay_edit_mesh_skin_root_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_mesh_skin_root_vert.glsl&quot;)</span></a>
+<a name="44"><span class="lineNum">      44 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_mesh_vert_glsl_tmp, &quot;overlay_edit_mesh_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_mesh_vert.glsl&quot;)</span></a>
+<a name="45"><span class="lineNum">      45 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_mesh_lib_glsl_tmp, &quot;overlay_edit_mesh_lib.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_mesh_lib.glsl&quot;)</span></a>
+<a name="46"><span class="lineNum">      46 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_mesh_edge_vert_glsl_tmp, &quot;overlay_edit_mesh_edge_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_mesh_edge_vert.glsl&quot;)</span></a>
+<a name="47"><span class="lineNum">      47 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_mesh_facedot_vert_glsl_tmp, &quot;overlay_edit_mesh_facedot_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_mesh_facedot_vert.glsl&quot;)</span></a>
+<a name="48"><span class="lineNum">      48 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_particle_point_vert_glsl_tmp, &quot;overlay_edit_particle_point_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_particle_point_vert.glsl&quot;)</span></a>
+<a name="49"><span class="lineNum">      49 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_particle_strand_vert_glsl_tmp, &quot;overlay_edit_particle_strand_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_particle_strand_vert.glsl&quot;)</span></a>
+<a name="50"><span class="lineNum">      50 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_pointcloud_vert_glsl_tmp, &quot;overlay_edit_pointcloud_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_pointcloud_vert.glsl&quot;)</span></a>
+<a name="51"><span class="lineNum">      51 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_uv_edges_frag_glsl_tmp, &quot;overlay_edit_uv_edges_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_uv_edges_frag.glsl&quot;)</span></a>
+<a name="52"><span class="lineNum">      52 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_uv_edges_vert_glsl_tmp, &quot;overlay_edit_uv_edges_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_uv_edges_vert.glsl&quot;)</span></a>
+<a name="53"><span class="lineNum">      53 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_uv_face_dots_vert_glsl_tmp, &quot;overlay_edit_uv_face_dots_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_uv_face_dots_vert.glsl&quot;)</span></a>
+<a name="54"><span class="lineNum">      54 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_uv_faces_vert_glsl_tmp, &quot;overlay_edit_uv_faces_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_uv_faces_vert.glsl&quot;)</span></a>
+<a name="55"><span class="lineNum">      55 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_uv_image_mask_frag_glsl_tmp, &quot;overlay_edit_uv_image_mask_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_uv_image_mask_frag.glsl&quot;)</span></a>
+<a name="56"><span class="lineNum">      56 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_uv_image_vert_glsl_tmp, &quot;overlay_edit_uv_image_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_uv_image_vert.glsl&quot;)</span></a>
+<a name="57"><span class="lineNum">      57 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_uv_stretching_vert_glsl_tmp, &quot;overlay_edit_uv_stretching_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_uv_stretching_vert.glsl&quot;)</span></a>
+<a name="58"><span class="lineNum">      58 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_uv_tiled_image_borders_vert_glsl_tmp, &quot;overlay_edit_uv_tiled_image_borders_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_uv_tiled_image_borders_vert.glsl&quot;)</span></a>
+<a name="59"><span class="lineNum">      59 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_uv_verts_frag_glsl_tmp, &quot;overlay_edit_uv_verts_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_uv_verts_frag.glsl&quot;)</span></a>
+<a name="60"><span class="lineNum">      60 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_edit_uv_verts_vert_glsl_tmp, &quot;overlay_edit_uv_verts_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_edit_uv_verts_vert.glsl&quot;)</span></a>
+<a name="61"><span class="lineNum">      61 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_extra_frag_glsl_tmp, &quot;overlay_extra_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_extra_frag.glsl&quot;)</span></a>
+<a name="62"><span class="lineNum">      62 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_extra_groundline_vert_glsl_tmp, &quot;overlay_extra_groundline_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_extra_groundline_vert.glsl&quot;)</span></a>
+<a name="63"><span class="lineNum">      63 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_extra_lightprobe_grid_vert_glsl_tmp, &quot;overlay_extra_lightprobe_grid_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_extra_lightprobe_grid_vert.glsl&quot;)</span></a>
+<a name="64"><span class="lineNum">      64 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_extra_loose_point_frag_glsl_tmp, &quot;overlay_extra_loose_point_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_extra_loose_point_frag.glsl&quot;)</span></a>
+<a name="65"><span class="lineNum">      65 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_extra_loose_point_vert_glsl_tmp, &quot;overlay_extra_loose_point_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_extra_loose_point_vert.glsl&quot;)</span></a>
+<a name="66"><span class="lineNum">      66 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_extra_point_vert_glsl_tmp, &quot;overlay_extra_point_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_extra_point_vert.glsl&quot;)</span></a>
+<a name="67"><span class="lineNum">      67 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_extra_vert_glsl_tmp, &quot;overlay_extra_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_extra_vert.glsl&quot;)</span></a>
+<a name="68"><span class="lineNum">      68 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_extra_wire_frag_glsl_tmp, &quot;overlay_extra_wire_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_extra_wire_frag.glsl&quot;)</span></a>
+<a name="69"><span class="lineNum">      69 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_extra_wire_vert_glsl_tmp, &quot;overlay_extra_wire_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_extra_wire_vert.glsl&quot;)</span></a>
+<a name="70"><span class="lineNum">      70 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_facing_frag_glsl_tmp, &quot;overlay_facing_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_facing_frag.glsl&quot;)</span></a>
+<a name="71"><span class="lineNum">      71 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_facing_vert_glsl_tmp, &quot;overlay_facing_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_facing_vert.glsl&quot;)</span></a>
+<a name="72"><span class="lineNum">      72 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_fullscreen_vert_glsl_tmp, &quot;overlay_fullscreen_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_fullscreen_vert.glsl&quot;)</span></a>
+<a name="73"><span class="lineNum">      73 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_grid_frag_glsl_tmp, &quot;overlay_grid_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_grid_frag.glsl&quot;)</span></a>
+<a name="74"><span class="lineNum">      74 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_grid_vert_glsl_tmp, &quot;overlay_grid_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_grid_vert.glsl&quot;)</span></a>
+<a name="75"><span class="lineNum">      75 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_grid_common_lib_glsl_tmp, &quot;overlay_grid_common_lib.glsl&quot;, &quot;engines/overlay/shaders/overlay_grid_common_lib.glsl&quot;)</span></a>
+<a name="76"><span class="lineNum">      76 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_gsplat_bsl_hh_tmp, &quot;overlay_gsplat.bsl.hh&quot;, &quot;engines/overlay/shaders/overlay_gsplat.bsl.hh&quot;)</span></a>
+<a name="77"><span class="lineNum">      77 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_image_frag_glsl_tmp, &quot;overlay_image_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_image_frag.glsl&quot;)</span></a>
+<a name="78"><span class="lineNum">      78 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_image_vert_glsl_tmp, &quot;overlay_image_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_image_vert.glsl&quot;)</span></a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_line_packing_bsl_hh_tmp, &quot;overlay_line_packing.bsl.hh&quot;, &quot;engines/overlay/shaders/overlay_line_packing.bsl.hh&quot;)</span></a>
+<a name="80"><span class="lineNum">      80 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_motion_path_line_frag_glsl_tmp, &quot;overlay_motion_path_line_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_motion_path_line_frag.glsl&quot;)</span></a>
+<a name="81"><span class="lineNum">      81 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_motion_path_line_vert_glsl_tmp, &quot;overlay_motion_path_line_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_motion_path_line_vert.glsl&quot;)</span></a>
+<a name="82"><span class="lineNum">      82 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_motion_path_point_vert_glsl_tmp, &quot;overlay_motion_path_point_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_motion_path_point_vert.glsl&quot;)</span></a>
+<a name="83"><span class="lineNum">      83 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_outline_detect_frag_glsl_tmp, &quot;overlay_outline_detect_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_outline_detect_frag.glsl&quot;)</span></a>
+<a name="84"><span class="lineNum">      84 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_outline_prepass_curves_vert_glsl_tmp, &quot;overlay_outline_prepass_curves_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_outline_prepass_curves_vert.glsl&quot;)</span></a>
+<a name="85"><span class="lineNum">      85 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_outline_prepass_frag_glsl_tmp, &quot;overlay_outline_prepass_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_outline_prepass_frag.glsl&quot;)</span></a>
+<a name="86"><span class="lineNum">      86 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_outline_prepass_gpencil_frag_glsl_tmp, &quot;overlay_outline_prepass_gpencil_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_outline_prepass_gpencil_frag.glsl&quot;)</span></a>
+<a name="87"><span class="lineNum">      87 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_outline_prepass_gpencil_vert_glsl_tmp, &quot;overlay_outline_prepass_gpencil_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_outline_prepass_gpencil_vert.glsl&quot;)</span></a>
+<a name="88"><span class="lineNum">      88 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_outline_prepass_pointcloud_vert_glsl_tmp, &quot;overlay_outline_prepass_pointcloud_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_outline_prepass_pointcloud_vert.glsl&quot;)</span></a>
+<a name="89"><span class="lineNum">      89 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_outline_prepass_vert_glsl_tmp, &quot;overlay_outline_prepass_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_outline_prepass_vert.glsl&quot;)</span></a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_outline_prepass_wire_vert_glsl_tmp, &quot;overlay_outline_prepass_wire_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_outline_prepass_wire_vert.glsl&quot;)</span></a>
+<a name="91"><span class="lineNum">      91 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_paint_face_vert_glsl_tmp, &quot;overlay_paint_face_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_paint_face_vert.glsl&quot;)</span></a>
+<a name="92"><span class="lineNum">      92 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_paint_point_vert_glsl_tmp, &quot;overlay_paint_point_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_paint_point_vert.glsl&quot;)</span></a>
+<a name="93"><span class="lineNum">      93 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_paint_texture_frag_glsl_tmp, &quot;overlay_paint_texture_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_paint_texture_frag.glsl&quot;)</span></a>
+<a name="94"><span class="lineNum">      94 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_paint_texture_vert_glsl_tmp, &quot;overlay_paint_texture_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_paint_texture_vert.glsl&quot;)</span></a>
+<a name="95"><span class="lineNum">      95 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_paint_weight_frag_glsl_tmp, &quot;overlay_paint_weight_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_paint_weight_frag.glsl&quot;)</span></a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_paint_weight_vert_glsl_tmp, &quot;overlay_paint_weight_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_paint_weight_vert.glsl&quot;)</span></a>
+<a name="97"><span class="lineNum">      97 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_paint_wire_vert_glsl_tmp, &quot;overlay_paint_wire_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_paint_wire_vert.glsl&quot;)</span></a>
+<a name="98"><span class="lineNum">      98 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_particle_frag_glsl_tmp, &quot;overlay_particle_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_particle_frag.glsl&quot;)</span></a>
+<a name="99"><span class="lineNum">      99 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_particle_vert_glsl_tmp, &quot;overlay_particle_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_particle_vert.glsl&quot;)</span></a>
+<a name="100"><span class="lineNum">     100 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_particle_hair_vert_glsl_tmp, &quot;overlay_particle_hair_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_particle_hair_vert.glsl&quot;)</span></a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_particle_shape_vert_glsl_tmp, &quot;overlay_particle_shape_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_particle_shape_vert.glsl&quot;)</span></a>
+<a name="102"><span class="lineNum">     102 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_particle_shape_frag_glsl_tmp, &quot;overlay_particle_shape_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_particle_shape_frag.glsl&quot;)</span></a>
+<a name="103"><span class="lineNum">     103 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_point_varying_color_frag_glsl_tmp, &quot;overlay_point_varying_color_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_point_varying_color_frag.glsl&quot;)</span></a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_point_varying_color_varying_outline_aa_frag_glsl_tmp, &quot;overlay_point_varying_color_varying_outline_aa_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_point_varying_color_varying_outline_aa_frag.glsl&quot;)</span></a>
+<a name="105"><span class="lineNum">     105 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_sculpt_curves_cage_vert_glsl_tmp, &quot;overlay_sculpt_curves_cage_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_sculpt_curves_cage_vert.glsl&quot;)</span></a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_sculpt_curves_selection_frag_glsl_tmp, &quot;overlay_sculpt_curves_selection_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_sculpt_curves_selection_frag.glsl&quot;)</span></a>
+<a name="107"><span class="lineNum">     107 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_sculpt_curves_selection_vert_glsl_tmp, &quot;overlay_sculpt_curves_selection_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_sculpt_curves_selection_vert.glsl&quot;)</span></a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_sculpt_mask_frag_glsl_tmp, &quot;overlay_sculpt_mask_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_sculpt_mask_frag.glsl&quot;)</span></a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_sculpt_mask_vert_glsl_tmp, &quot;overlay_sculpt_mask_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_sculpt_mask_vert.glsl&quot;)</span></a>
+<a name="110"><span class="lineNum">     110 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_uniform_color_frag_glsl_tmp, &quot;overlay_uniform_color_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_uniform_color_frag.glsl&quot;)</span></a>
+<a name="111"><span class="lineNum">     111 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_varying_color_glsl_tmp, &quot;overlay_varying_color.glsl&quot;, &quot;engines/overlay/shaders/overlay_varying_color.glsl&quot;)</span></a>
+<a name="112"><span class="lineNum">     112 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_viewer_attribute_curve_vert_glsl_tmp, &quot;overlay_viewer_attribute_curve_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_viewer_attribute_curve_vert.glsl&quot;)</span></a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_viewer_attribute_curves_vert_glsl_tmp, &quot;overlay_viewer_attribute_curves_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_viewer_attribute_curves_vert.glsl&quot;)</span></a>
+<a name="114"><span class="lineNum">     114 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_viewer_attribute_frag_glsl_tmp, &quot;overlay_viewer_attribute_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_viewer_attribute_frag.glsl&quot;)</span></a>
+<a name="115"><span class="lineNum">     115 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_viewer_attribute_mesh_vert_glsl_tmp, &quot;overlay_viewer_attribute_mesh_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_viewer_attribute_mesh_vert.glsl&quot;)</span></a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_viewer_attribute_pointcloud_vert_glsl_tmp, &quot;overlay_viewer_attribute_pointcloud_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_viewer_attribute_pointcloud_vert.glsl&quot;)</span></a>
+<a name="117"><span class="lineNum">     117 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_volume_gridlines_vert_glsl_tmp, &quot;overlay_volume_gridlines_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_volume_gridlines_vert.glsl&quot;)</span></a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_volume_velocity_vert_glsl_tmp, &quot;overlay_volume_velocity_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_volume_velocity_vert.glsl&quot;)</span></a>
+<a name="119"><span class="lineNum">     119 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_wireframe_frag_glsl_tmp, &quot;overlay_wireframe_frag.glsl&quot;, &quot;engines/overlay/shaders/overlay_wireframe_frag.glsl&quot;)</span></a>
+<a name="120"><span class="lineNum">     120 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_wireframe_vert_glsl_tmp, &quot;overlay_wireframe_vert.glsl&quot;, &quot;engines/overlay/shaders/overlay_wireframe_vert.glsl&quot;)</span></a>
+<a name="121"><span class="lineNum">     121 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_xray_fade_bsl_hh_tmp, &quot;overlay_xray_fade.bsl.hh&quot;, &quot;engines/overlay/shaders/overlay_xray_fade.bsl.hh&quot;)</span></a>
+<a name="122"><span class="lineNum">     122 </span><span class="lineNoCov">          0 : SHADER_SOURCE(overlay_shader_shared_hh_tmp, &quot;overlay_shader_shared.hh&quot;, &quot;engines/overlay/overlay_shader_shared.hh&quot;)</span></a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

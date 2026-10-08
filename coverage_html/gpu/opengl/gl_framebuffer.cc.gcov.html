@@ -1,0 +1,700 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - gpu/opengl/gl_framebuffer.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">gpu/opengl</a> - gl_framebuffer.cc<span style="font-size: 80%;"> (source / <a href="gl_framebuffer.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">316</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2020 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup gpu</a>
+<a name="7"><span class="lineNum">       7 </span>            :  */</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &quot;BLI_string.hh&quot;</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &quot;BKE_global.hh&quot;</a>
+<a name="12"><span class="lineNum">      12 </span>            : </a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;gl_backend.hh&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;gl_debug.hh&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;gl_state.hh&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &quot;gl_texture.hh&quot;</a>
+<a name="17"><span class="lineNum">      17 </span>            : </a>
+<a name="18"><span class="lineNum">      18 </span>            : #include &quot;gl_framebuffer.hh&quot;</a>
+<a name="19"><span class="lineNum">      19 </span>            : </a>
+<a name="20"><span class="lineNum">      20 </span>            : namespace blender::gpu {</a>
+<a name="21"><span class="lineNum">      21 </span>            : </a>
+<a name="22"><span class="lineNum">      22 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="23"><span class="lineNum">      23 </span>            : /** \name Creation &amp; Deletion</a>
+<a name="24"><span class="lineNum">      24 </span>            :  * \{ */</a>
+<a name="25"><span class="lineNum">      25 </span>            : </a>
+<a name="26"><span class="lineNum">      26 </span><span class="lineNoCov">          0 : GLFrameBuffer::GLFrameBuffer(const char *name) : FrameBuffer(name)</span></a>
+<a name="27"><span class="lineNum">      27 </span>            : {</a>
+<a name="28"><span class="lineNum">      28 </span>            :   /* Just-In-Time init. See #GLFrameBuffer::init(). */</a>
+<a name="29"><span class="lineNum">      29 </span><span class="lineNoCov">          0 :   immutable_ = false;</span></a>
+<a name="30"><span class="lineNum">      30 </span><span class="lineNoCov">          0 :   fbo_id_ = 0;</span></a>
+<a name="31"><span class="lineNum">      31 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="32"><span class="lineNum">      32 </span>            : </a>
+<a name="33"><span class="lineNum">      33 </span><span class="lineNoCov">          0 : GLFrameBuffer::GLFrameBuffer(</span></a>
+<a name="34"><span class="lineNum">      34 </span><span class="lineNoCov">          0 :     const char *name, GLContext *ctx, GLenum target, GLuint fbo, int w, int h)</span></a>
+<a name="35"><span class="lineNum">      35 </span><span class="lineNoCov">          0 :     : FrameBuffer(name)</span></a>
+<a name="36"><span class="lineNum">      36 </span>            : {</a>
+<a name="37"><span class="lineNum">      37 </span><span class="lineNoCov">          0 :   context_ = ctx;</span></a>
+<a name="38"><span class="lineNum">      38 </span><span class="lineNoCov">          0 :   context_id_ = context_-&gt;context_id;</span></a>
+<a name="39"><span class="lineNum">      39 </span><span class="lineNoCov">          0 :   state_manager_ = static_cast&lt;GLStateManager *&gt;(ctx-&gt;state_manager);</span></a>
+<a name="40"><span class="lineNum">      40 </span><span class="lineNoCov">          0 :   immutable_ = true;</span></a>
+<a name="41"><span class="lineNum">      41 </span><span class="lineNoCov">          0 :   fbo_id_ = fbo;</span></a>
+<a name="42"><span class="lineNum">      42 </span><span class="lineNoCov">          0 :   gl_attachments_[0] = target;</span></a>
+<a name="43"><span class="lineNum">      43 </span><span class="lineNoCov">          0 :   set_color_attachment_bit(GPU_FB_COLOR_ATTACHMENT0, true);</span></a>
+<a name="44"><span class="lineNum">      44 </span>            :   /* Never update an internal frame-buffer. */</a>
+<a name="45"><span class="lineNum">      45 </span><span class="lineNoCov">          0 :   dirty_attachments_ = false;</span></a>
+<a name="46"><span class="lineNum">      46 </span><span class="lineNoCov">          0 :   width_ = w;</span></a>
+<a name="47"><span class="lineNum">      47 </span><span class="lineNoCov">          0 :   height_ = h;</span></a>
+<a name="48"><span class="lineNum">      48 </span><span class="lineNoCov">          0 :   srgb_ = false;</span></a>
+<a name="49"><span class="lineNum">      49 </span>            : </a>
+<a name="50"><span class="lineNum">      50 </span><span class="lineNoCov">          0 :   viewport_[0][0] = scissor_[0] = 0;</span></a>
+<a name="51"><span class="lineNum">      51 </span><span class="lineNoCov">          0 :   viewport_[0][1] = scissor_[1] = 0;</span></a>
+<a name="52"><span class="lineNum">      52 </span><span class="lineNoCov">          0 :   viewport_[0][2] = scissor_[2] = w;</span></a>
+<a name="53"><span class="lineNum">      53 </span><span class="lineNoCov">          0 :   viewport_[0][3] = scissor_[3] = h;</span></a>
+<a name="54"><span class="lineNum">      54 </span>            : </a>
+<a name="55"><span class="lineNum">      55 </span><span class="lineNoCov">          0 :   if (fbo_id_) {</span></a>
+<a name="56"><span class="lineNum">      56 </span><span class="lineNoCov">          0 :     debug::object_label(GL_FRAMEBUFFER, fbo_id_, name_);</span></a>
+<a name="57"><span class="lineNum">      57 </span>            :   }</a>
+<a name="58"><span class="lineNum">      58 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="59"><span class="lineNum">      59 </span>            : </a>
+<a name="60"><span class="lineNum">      60 </span><span class="lineNoCov">          0 : GLFrameBuffer::~GLFrameBuffer()</span></a>
+<a name="61"><span class="lineNum">      61 </span>            : {</a>
+<a name="62"><span class="lineNum">      62 </span><span class="lineNoCov">          0 :   if (context_ == nullptr) {</span></a>
+<a name="63"><span class="lineNum">      63 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="64"><span class="lineNum">      64 </span>            :   }</a>
+<a name="65"><span class="lineNum">      65 </span>            : </a>
+<a name="66"><span class="lineNum">      66 </span><span class="lineNoCov">          0 :   if (!GLBackend::get()-&gt;is_valid_context_id(context_id_)) {</span></a>
+<a name="67"><span class="lineNum">      67 </span>            :     /* Context was freed. It can happen for GLTexture::framebuffer_. */</a>
+<a name="68"><span class="lineNum">      68 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="69"><span class="lineNum">      69 </span>            :   }</a>
+<a name="70"><span class="lineNum">      70 </span>            : </a>
+<a name="71"><span class="lineNum">      71 </span>            :   /* Context might be partially freed. This happens when destroying the window frame-buffers. */</a>
+<a name="72"><span class="lineNum">      72 </span><span class="lineNoCov">          0 :   if (context_ == Context::get()) {</span></a>
+<a name="73"><span class="lineNum">      73 </span><span class="lineNoCov">          0 :     glDeleteFramebuffers(1, &amp;fbo_id_);</span></a>
+<a name="74"><span class="lineNum">      74 </span>            :   }</a>
+<a name="75"><span class="lineNum">      75 </span>            :   else {</a>
+<a name="76"><span class="lineNum">      76 </span><span class="lineNoCov">          0 :     context_-&gt;fbo_free(fbo_id_);</span></a>
+<a name="77"><span class="lineNum">      77 </span>            :   }</a>
+<a name="78"><span class="lineNum">      78 </span>            :   /* Restore default frame-buffer if this frame-buffer was bound. */</a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineNoCov">          0 :   if (context_-&gt;active_fb == this &amp;&amp; context_-&gt;back_left != this) {</span></a>
+<a name="80"><span class="lineNum">      80 </span>            :     /* If this assert triggers it means the frame-buffer is being freed while in use by another</a>
+<a name="81"><span class="lineNum">      81 </span>            :      * context which, by the way, is TOTALLY UNSAFE! */</a>
+<a name="82"><span class="lineNum">      82 </span><span class="lineNoCov">          0 :     BLI_assert(context_ == Context::get());</span></a>
+<a name="83"><span class="lineNum">      83 </span><span class="lineNoCov">          0 :     GPU_framebuffer_restore();</span></a>
+<a name="84"><span class="lineNum">      84 </span>            :   }</a>
+<a name="85"><span class="lineNum">      85 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="86"><span class="lineNum">      86 </span>            : </a>
+<a name="87"><span class="lineNum">      87 </span><span class="lineNoCov">          0 : void GLFrameBuffer::init()</span></a>
+<a name="88"><span class="lineNum">      88 </span>            : {</a>
+<a name="89"><span class="lineNum">      89 </span><span class="lineNoCov">          0 :   context_ = GLContext::get();</span></a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineNoCov">          0 :   context_id_ = context_-&gt;context_id;</span></a>
+<a name="91"><span class="lineNum">      91 </span><span class="lineNoCov">          0 :   state_manager_ = static_cast&lt;GLStateManager *&gt;(context_-&gt;state_manager);</span></a>
+<a name="92"><span class="lineNum">      92 </span><span class="lineNoCov">          0 :   glGenFramebuffers(1, &amp;fbo_id_);</span></a>
+<a name="93"><span class="lineNum">      93 </span>            :   /* Binding before setting the label is needed on some drivers.</a>
+<a name="94"><span class="lineNum">      94 </span>            :    * This is not an issue since we call this function only before binding. */</a>
+<a name="95"><span class="lineNum">      95 </span><span class="lineNoCov">          0 :   glBindFramebuffer(GL_FRAMEBUFFER, fbo_id_);</span></a>
+<a name="96"><span class="lineNum">      96 </span>            : </a>
+<a name="97"><span class="lineNum">      97 </span><span class="lineNoCov">          0 :   debug::object_label(GL_FRAMEBUFFER, fbo_id_, name_);</span></a>
+<a name="98"><span class="lineNum">      98 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="99"><span class="lineNum">      99 </span>            : </a>
+<a name="100"><span class="lineNum">     100 </span>            : /** \} */</a>
+<a name="101"><span class="lineNum">     101 </span>            : </a>
+<a name="102"><span class="lineNum">     102 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="103"><span class="lineNum">     103 </span>            : /** \name Config</a>
+<a name="104"><span class="lineNum">     104 </span>            :  * \{ */</a>
+<a name="105"><span class="lineNum">     105 </span>            : </a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineNoCov">          0 : bool GLFrameBuffer::check(char err_out[256])</span></a>
+<a name="107"><span class="lineNum">     107 </span>            : {</a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineNoCov">          0 :   this-&gt;bind(true);</span></a>
+<a name="109"><span class="lineNum">     109 </span>            : </a>
+<a name="110"><span class="lineNum">     110 </span><span class="lineNoCov">          0 :   GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);</span></a>
+<a name="111"><span class="lineNum">     111 </span>            : </a>
+<a name="112"><span class="lineNum">     112 </span>            : #define FORMAT_STATUS(X) \</a>
+<a name="113"><span class="lineNum">     113 </span>            :   case X: { \</a>
+<a name="114"><span class="lineNum">     114 </span>            :     err = #X; \</a>
+<a name="115"><span class="lineNum">     115 </span>            :     break; \</a>
+<a name="116"><span class="lineNum">     116 </span>            :   }</a>
+<a name="117"><span class="lineNum">     117 </span>            : </a>
+<a name="118"><span class="lineNum">     118 </span>            :   const char *err;</a>
+<a name="119"><span class="lineNum">     119 </span><span class="lineNoCov">          0 :   switch (status) {</span></a>
+<a name="120"><span class="lineNum">     120 </span><span class="lineNoCov">          0 :     FORMAT_STATUS(GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT);</span></a>
+<a name="121"><span class="lineNum">     121 </span><span class="lineNoCov">          0 :     FORMAT_STATUS(GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT);</span></a>
+<a name="122"><span class="lineNum">     122 </span><span class="lineNoCov">          0 :     FORMAT_STATUS(GL_FRAMEBUFFER_UNSUPPORTED);</span></a>
+<a name="123"><span class="lineNum">     123 </span><span class="lineNoCov">          0 :     FORMAT_STATUS(GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER);</span></a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineNoCov">          0 :     FORMAT_STATUS(GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER);</span></a>
+<a name="125"><span class="lineNum">     125 </span><span class="lineNoCov">          0 :     FORMAT_STATUS(GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE);</span></a>
+<a name="126"><span class="lineNum">     126 </span><span class="lineNoCov">          0 :     FORMAT_STATUS(GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS);</span></a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineNoCov">          0 :     FORMAT_STATUS(GL_FRAMEBUFFER_UNDEFINED);</span></a>
+<a name="128"><span class="lineNum">     128 </span><span class="lineNoCov">          0 :     case GL_FRAMEBUFFER_COMPLETE:</span></a>
+<a name="129"><span class="lineNum">     129 </span><span class="lineNoCov">          0 :       return true;</span></a>
+<a name="130"><span class="lineNum">     130 </span><span class="lineNoCov">          0 :     default:</span></a>
+<a name="131"><span class="lineNum">     131 </span><span class="lineNoCov">          0 :       err = &quot;unknown&quot;;</span></a>
+<a name="132"><span class="lineNum">     132 </span><span class="lineNoCov">          0 :       break;</span></a>
+<a name="133"><span class="lineNum">     133 </span>            :   }</a>
+<a name="134"><span class="lineNum">     134 </span>            : </a>
+<a name="135"><span class="lineNum">     135 </span>            : #undef FORMAT_STATUS</a>
+<a name="136"><span class="lineNum">     136 </span>            : </a>
+<a name="137"><span class="lineNum">     137 </span><span class="lineNoCov">          0 :   const char *format = &quot;gpu::FrameBuffer: %s status %s\n&quot;;</span></a>
+<a name="138"><span class="lineNum">     138 </span>            : </a>
+<a name="139"><span class="lineNum">     139 </span><span class="lineNoCov">          0 :   if (err_out) {</span></a>
+<a name="140"><span class="lineNum">     140 </span><span class="lineNoCov">          0 :     BLI_snprintf(err_out, 256, format, this-&gt;name_, err);</span></a>
+<a name="141"><span class="lineNum">     141 </span>            :   }</a>
+<a name="142"><span class="lineNum">     142 </span>            :   else {</a>
+<a name="143"><span class="lineNum">     143 </span><span class="lineNoCov">          0 :     fprintf(stderr, format, this-&gt;name_, err);</span></a>
+<a name="144"><span class="lineNum">     144 </span>            :   }</a>
+<a name="145"><span class="lineNum">     145 </span>            : </a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineNoCov">          0 :   return false;</span></a>
+<a name="147"><span class="lineNum">     147 </span>            : }</a>
+<a name="148"><span class="lineNum">     148 </span>            : </a>
+<a name="149"><span class="lineNum">     149 </span><span class="lineNoCov">          0 : void GLFrameBuffer::update_attachments()</span></a>
+<a name="150"><span class="lineNum">     150 </span>            : {</a>
+<a name="151"><span class="lineNum">     151 </span>            :   /* Default frame-buffers cannot have attachments. */</a>
+<a name="152"><span class="lineNum">     152 </span><span class="lineNoCov">          0 :   BLI_assert(immutable_ == false);</span></a>
+<a name="153"><span class="lineNum">     153 </span>            : </a>
+<a name="154"><span class="lineNum">     154 </span>            :   /* First color texture OR the depth texture if no color is attached.</a>
+<a name="155"><span class="lineNum">     155 </span>            :    * Used to determine frame-buffer color-space and dimensions. */</a>
+<a name="156"><span class="lineNum">     156 </span><span class="lineNoCov">          0 :   GPUAttachmentType first_attachment = GPU_FB_MAX_ATTACHMENT;</span></a>
+<a name="157"><span class="lineNum">     157 </span>            :   /* NOTE: Inverse iteration to get the first color texture. */</a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineNoCov">          0 :   for (GPUAttachmentType type = GPU_FB_MAX_ATTACHMENT - 1; type &gt;= 0; --type) {</span></a>
+<a name="159"><span class="lineNum">     159 </span><span class="lineNoCov">          0 :     GPUAttachment &amp;attach = attachments_[type];</span></a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineNoCov">          0 :     GLenum gl_attachment = to_gl(type);</span></a>
+<a name="161"><span class="lineNum">     161 </span>            : </a>
+<a name="162"><span class="lineNum">     162 </span><span class="lineNoCov">          0 :     if (type &gt;= GPU_FB_COLOR_ATTACHMENT0) {</span></a>
+<a name="163"><span class="lineNum">     163 </span><span class="lineNoCov">          0 :       gl_attachments_[type - GPU_FB_COLOR_ATTACHMENT0] = (attach.tex) ? gl_attachment : GL_NONE;</span></a>
+<a name="164"><span class="lineNum">     164 </span><span class="lineNoCov">          0 :       first_attachment = (attach.tex) ? type : first_attachment;</span></a>
+<a name="165"><span class="lineNum">     165 </span>            :     }</a>
+<a name="166"><span class="lineNum">     166 </span><span class="lineNoCov">          0 :     else if (first_attachment == GPU_FB_MAX_ATTACHMENT) {</span></a>
+<a name="167"><span class="lineNum">     167 </span>            :       /* Only use depth texture to get information if there is no color attachment. */</a>
+<a name="168"><span class="lineNum">     168 </span><span class="lineNoCov">          0 :       first_attachment = (attach.tex) ? type : first_attachment;</span></a>
+<a name="169"><span class="lineNum">     169 </span>            :     }</a>
+<a name="170"><span class="lineNum">     170 </span>            : </a>
+<a name="171"><span class="lineNum">     171 </span><span class="lineNoCov">          0 :     if (attach.tex == nullptr) {</span></a>
+<a name="172"><span class="lineNum">     172 </span><span class="lineNoCov">          0 :       glFramebufferTexture(GL_FRAMEBUFFER, gl_attachment, 0, 0);</span></a>
+<a name="173"><span class="lineNum">     173 </span><span class="lineNoCov">          0 :       continue;</span></a>
+<a name="174"><span class="lineNum">     174 </span>            :     }</a>
+<a name="175"><span class="lineNum">     175 </span><span class="lineNoCov">          0 :     GLuint gl_tex = static_cast&lt;GLTexture *&gt;(attach.tex)-&gt;tex_id_;</span></a>
+<a name="176"><span class="lineNum">     176 </span><span class="lineNoCov">          0 :     if (attach.layer &gt; -1 &amp;&amp; GPU_texture_is_cube(attach.tex) &amp;&amp; !GPU_texture_is_array(attach.tex))</span></a>
+<a name="177"><span class="lineNum">     177 </span>            :     {</a>
+<a name="178"><span class="lineNum">     178 </span>            :       /* Could be avoided if ARB_direct_state_access is required. In this case</a>
+<a name="179"><span class="lineNum">     179 </span>            :        * #glFramebufferTextureLayer would bind the correct face. */</a>
+<a name="180"><span class="lineNum">     180 </span><span class="lineNoCov">          0 :       GLenum gl_target = GL_TEXTURE_CUBE_MAP_POSITIVE_X + attach.layer;</span></a>
+<a name="181"><span class="lineNum">     181 </span><span class="lineNoCov">          0 :       glFramebufferTexture2D(GL_FRAMEBUFFER, gl_attachment, gl_target, gl_tex, attach.mip);</span></a>
+<a name="182"><span class="lineNum">     182 </span>            :     }</a>
+<a name="183"><span class="lineNum">     183 </span><span class="lineNoCov">          0 :     else if (attach.layer &gt; -1) {</span></a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineNoCov">          0 :       glFramebufferTextureLayer(GL_FRAMEBUFFER, gl_attachment, gl_tex, attach.mip, attach.layer);</span></a>
+<a name="185"><span class="lineNum">     185 </span>            :     }</a>
+<a name="186"><span class="lineNum">     186 </span>            :     else {</a>
+<a name="187"><span class="lineNum">     187 </span>            :       /* The whole texture level is attached. The frame-buffer is potentially layered. */</a>
+<a name="188"><span class="lineNum">     188 </span><span class="lineNoCov">          0 :       glFramebufferTexture(GL_FRAMEBUFFER, gl_attachment, gl_tex, attach.mip);</span></a>
+<a name="189"><span class="lineNum">     189 </span>            :     }</a>
+<a name="190"><span class="lineNum">     190 </span>            :     /* We found one depth buffer type. Stop here, otherwise we would</a>
+<a name="191"><span class="lineNum">     191 </span>            :      * override it by setting GPU_FB_DEPTH_ATTACHMENT */</a>
+<a name="192"><span class="lineNum">     192 </span><span class="lineNoCov">          0 :     if (type == GPU_FB_DEPTH_STENCIL_ATTACHMENT) {</span></a>
+<a name="193"><span class="lineNum">     193 </span><span class="lineNoCov">          0 :       break;</span></a>
+<a name="194"><span class="lineNum">     194 </span>            :     }</a>
+<a name="195"><span class="lineNum">     195 </span>            :   }</a>
+<a name="196"><span class="lineNum">     196 </span>            : </a>
+<a name="197"><span class="lineNum">     197 </span><span class="lineNoCov">          0 :   if (GLContext::unused_fb_slot_workaround) {</span></a>
+<a name="198"><span class="lineNum">     198 </span>            :     /* Fill normally un-occupied slots to avoid rendering artifacts on some hardware. */</a>
+<a name="199"><span class="lineNum">     199 </span><span class="lineNoCov">          0 :     GLuint gl_tex = 0;</span></a>
+<a name="200"><span class="lineNum">     200 </span>            :     /* NOTE: Inverse iteration to get the first color texture. */</a>
+<a name="201"><span class="lineNum">     201 </span><span class="lineNoCov">          0 :     for (int i = ARRAY_SIZE(gl_attachments_) - 1; i &gt;= 0; --i) {</span></a>
+<a name="202"><span class="lineNum">     202 </span><span class="lineNoCov">          0 :       GPUAttachmentType type = GPU_FB_COLOR_ATTACHMENT0 + i;</span></a>
+<a name="203"><span class="lineNum">     203 </span><span class="lineNoCov">          0 :       GPUAttachment &amp;attach = attachments_[type];</span></a>
+<a name="204"><span class="lineNum">     204 </span><span class="lineNoCov">          0 :       if (attach.tex != nullptr) {</span></a>
+<a name="205"><span class="lineNum">     205 </span><span class="lineNoCov">          0 :         gl_tex = static_cast&lt;GLTexture *&gt;(attach.tex)-&gt;tex_id_;</span></a>
+<a name="206"><span class="lineNum">     206 </span>            :       }</a>
+<a name="207"><span class="lineNum">     207 </span><span class="lineNoCov">          0 :       else if (gl_tex != 0) {</span></a>
+<a name="208"><span class="lineNum">     208 </span><span class="lineNoCov">          0 :         GLenum gl_attachment = to_gl(type);</span></a>
+<a name="209"><span class="lineNum">     209 </span><span class="lineNoCov">          0 :         gl_attachments_[i] = gl_attachment;</span></a>
+<a name="210"><span class="lineNum">     210 </span><span class="lineNoCov">          0 :         glFramebufferTexture(GL_FRAMEBUFFER, gl_attachment, gl_tex, 0);</span></a>
+<a name="211"><span class="lineNum">     211 </span>            :       }</a>
+<a name="212"><span class="lineNum">     212 </span>            :     }</a>
+<a name="213"><span class="lineNum">     213 </span>            :   }</a>
+<a name="214"><span class="lineNum">     214 </span>            : </a>
+<a name="215"><span class="lineNum">     215 </span><span class="lineNoCov">          0 :   if (first_attachment != GPU_FB_MAX_ATTACHMENT) {</span></a>
+<a name="216"><span class="lineNum">     216 </span><span class="lineNoCov">          0 :     GPUAttachment &amp;attach = attachments_[first_attachment];</span></a>
+<a name="217"><span class="lineNum">     217 </span>            :     int size[3];</a>
+<a name="218"><span class="lineNum">     218 </span><span class="lineNoCov">          0 :     GPU_texture_get_mipmap_size(attach.tex, attach.mip, size);</span></a>
+<a name="219"><span class="lineNum">     219 </span><span class="lineNoCov">          0 :     this-&gt;size_set(size[0], size[1]);</span></a>
+<a name="220"><span class="lineNum">     220 </span><span class="lineNoCov">          0 :     srgb_ = (GPU_texture_format(attach.tex) == TextureFormat::SRGBA_8_8_8_8);</span></a>
+<a name="221"><span class="lineNum">     221 </span>            :   }</a>
+<a name="222"><span class="lineNum">     222 </span>            :   else {</a>
+<a name="223"><span class="lineNum">     223 </span>            :     /* Empty frame-buffer. */</a>
+<a name="224"><span class="lineNum">     224 </span><span class="lineNoCov">          0 :     glFramebufferParameteri(GL_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_WIDTH, width_);</span></a>
+<a name="225"><span class="lineNum">     225 </span><span class="lineNoCov">          0 :     glFramebufferParameteri(GL_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_HEIGHT, height_);</span></a>
+<a name="226"><span class="lineNum">     226 </span>            :   }</a>
+<a name="227"><span class="lineNum">     227 </span>            : </a>
+<a name="228"><span class="lineNum">     228 </span><span class="lineNoCov">          0 :   dirty_attachments_ = false;</span></a>
+<a name="229"><span class="lineNum">     229 </span>            : </a>
+<a name="230"><span class="lineNum">     230 </span><span class="lineNoCov">          0 :   glDrawBuffers(ARRAY_SIZE(gl_attachments_), gl_attachments_);</span></a>
+<a name="231"><span class="lineNum">     231 </span>            : </a>
+<a name="232"><span class="lineNum">     232 </span><span class="lineNoCov">          0 :   if (G.debug &amp; G_DEBUG_GPU) {</span></a>
+<a name="233"><span class="lineNum">     233 </span><span class="lineNoCov">          0 :     BLI_assert(this-&gt;check(nullptr));</span></a>
+<a name="234"><span class="lineNum">     234 </span>            :   }</a>
+<a name="235"><span class="lineNum">     235 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="236"><span class="lineNum">     236 </span>            : </a>
+<a name="237"><span class="lineNum">     237 </span><span class="lineNoCov">          0 : void GLFrameBuffer::subpass_transition_impl(const GPUAttachmentState depth_attachment_state,</span></a>
+<a name="238"><span class="lineNum">     238 </span>            :                                             Span&lt;GPUAttachmentState&gt; color_attachment_states)</a>
+<a name="239"><span class="lineNum">     239 </span>            : {</a>
+<a name="240"><span class="lineNum">     240 </span><span class="lineNoCov">          0 :   GPU_depth_mask(depth_attachment_state == GPU_ATTACHMENT_WRITE);</span></a>
+<a name="241"><span class="lineNum">     241 </span>            : </a>
+<a name="242"><span class="lineNum">     242 </span><span class="lineNoCov">          0 :   bool any_read = false;</span></a>
+<a name="243"><span class="lineNum">     243 </span><span class="lineNoCov">          0 :   for (auto attachment : color_attachment_states.index_range()) {</span></a>
+<a name="244"><span class="lineNum">     244 </span><span class="lineNoCov">          0 :     if (attachment == GPU_ATTACHMENT_READ) {</span></a>
+<a name="245"><span class="lineNum">     245 </span><span class="lineNoCov">          0 :       any_read = true;</span></a>
+<a name="246"><span class="lineNum">     246 </span><span class="lineNoCov">          0 :       break;</span></a>
+<a name="247"><span class="lineNum">     247 </span>            :     }</a>
+<a name="248"><span class="lineNum">     248 </span>            :   }</a>
+<a name="249"><span class="lineNum">     249 </span>            : </a>
+<a name="250"><span class="lineNum">     250 </span><span class="lineNoCov">          0 :   if (GLContext::framebuffer_fetch_support) {</span></a>
+<a name="251"><span class="lineNum">     251 </span><span class="lineNoCov">          0 :     if (any_read) {</span></a>
+<a name="252"><span class="lineNum">     252 </span><span class="lineNoCov">          0 :       glFramebufferFetchBarrierEXT();</span></a>
+<a name="253"><span class="lineNum">     253 </span>            :     }</a>
+<a name="254"><span class="lineNum">     254 </span>            :   }</a>
+<a name="255"><span class="lineNum">     255 </span><span class="lineNoCov">          0 :   else if (GLContext::texture_barrier_support) {</span></a>
+<a name="256"><span class="lineNum">     256 </span><span class="lineNoCov">          0 :     if (any_read) {</span></a>
+<a name="257"><span class="lineNum">     257 </span><span class="lineNoCov">          0 :       glTextureBarrier();</span></a>
+<a name="258"><span class="lineNum">     258 </span>            :     }</a>
+<a name="259"><span class="lineNum">     259 </span>            : </a>
+<a name="260"><span class="lineNum">     260 </span><span class="lineNoCov">          0 :     GLenum attachments[GPU_FB_MAX_COLOR_ATTACHMENT] = {GL_NONE};</span></a>
+<a name="261"><span class="lineNum">     261 </span><span class="lineNoCov">          0 :     for (int i : color_attachment_states.index_range()) {</span></a>
+<a name="262"><span class="lineNum">     262 </span><span class="lineNoCov">          0 :       GPUAttachmentType type = GPU_FB_COLOR_ATTACHMENT0 + i;</span></a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineNoCov">          0 :       gpu::Texture *attach_tex = this-&gt;attachments_[type].tex;</span></a>
+<a name="264"><span class="lineNum">     264 </span><span class="lineNoCov">          0 :       if (color_attachment_states[i] == GPU_ATTACHMENT_READ) {</span></a>
+<a name="265"><span class="lineNum">     265 </span><span class="lineNoCov">          0 :         tmp_detached_[type] = this-&gt;attachments_[type]; /* Bypass feedback loop check. */</span></a>
+<a name="266"><span class="lineNum">     266 </span><span class="lineNoCov">          0 :         GPU_texture_bind_ex(attach_tex, GPUSamplerState::default_sampler(), i);</span></a>
+<a name="267"><span class="lineNum">     267 </span>            :       }</a>
+<a name="268"><span class="lineNum">     268 </span>            :       else {</a>
+<a name="269"><span class="lineNum">     269 </span><span class="lineNoCov">          0 :         tmp_detached_[type] = GPU_ATTACHMENT_NONE;</span></a>
+<a name="270"><span class="lineNum">     270 </span>            :       }</a>
+<a name="271"><span class="lineNum">     271 </span><span class="lineNoCov">          0 :       bool attach_write = color_attachment_states[i] == GPU_ATTACHMENT_WRITE;</span></a>
+<a name="272"><span class="lineNum">     272 </span><span class="lineNoCov">          0 :       attachments[i] = (attach_tex &amp;&amp; attach_write) ? to_gl(type) : GL_NONE;</span></a>
+<a name="273"><span class="lineNum">     273 </span>            :     }</a>
+<a name="274"><span class="lineNum">     274 </span>            :     /* We have to use `glDrawBuffers` instead of `glColorMaski` because the later is overwritten</a>
+<a name="275"><span class="lineNum">     275 </span>            :      * by the `GLStateManager`. */</a>
+<a name="276"><span class="lineNum">     276 </span>            :     /* WATCH(fclem): This modifies the frame-buffer state without setting `dirty_attachments_`. */</a>
+<a name="277"><span class="lineNum">     277 </span><span class="lineNoCov">          0 :     glDrawBuffers(ARRAY_SIZE(attachments), attachments);</span></a>
+<a name="278"><span class="lineNum">     278 </span>            :   }</a>
+<a name="279"><span class="lineNum">     279 </span>            :   else {</a>
+<a name="280"><span class="lineNum">     280 </span>            :     /* The only way to have correct visibility without extensions and ensure defined behavior, is</a>
+<a name="281"><span class="lineNum">     281 </span>            :      * to unbind the textures and update the frame-buffer. This is a slow operation but that's all</a>
+<a name="282"><span class="lineNum">     282 </span>            :      * we can do to emulate the sub-pass input. */</a>
+<a name="283"><span class="lineNum">     283 </span>            :     /* TODO(@fclem): Could avoid the frame-buffer reconfiguration by creating multiple</a>
+<a name="284"><span class="lineNum">     284 </span>            :      * frame-buffers internally. */</a>
+<a name="285"><span class="lineNum">     285 </span><span class="lineNoCov">          0 :     for (int i : color_attachment_states.index_range()) {</span></a>
+<a name="286"><span class="lineNum">     286 </span><span class="lineNoCov">          0 :       GPUAttachmentType type = GPU_FB_COLOR_ATTACHMENT0 + i;</span></a>
+<a name="287"><span class="lineNum">     287 </span>            : </a>
+<a name="288"><span class="lineNum">     288 </span><span class="lineNoCov">          0 :       if (color_attachment_states[i] == GPU_ATTACHMENT_WRITE) {</span></a>
+<a name="289"><span class="lineNum">     289 </span><span class="lineNoCov">          0 :         if (tmp_detached_[type].tex != nullptr) {</span></a>
+<a name="290"><span class="lineNum">     290 </span>            :           /* Re-attach previous read attachments. */</a>
+<a name="291"><span class="lineNum">     291 </span><span class="lineNoCov">          0 :           this-&gt;attachment_set(type, tmp_detached_[type]);</span></a>
+<a name="292"><span class="lineNum">     292 </span><span class="lineNoCov">          0 :           tmp_detached_[type] = GPU_ATTACHMENT_NONE;</span></a>
+<a name="293"><span class="lineNum">     293 </span>            :         }</a>
+<a name="294"><span class="lineNum">     294 </span>            :       }</a>
+<a name="295"><span class="lineNum">     295 </span><span class="lineNoCov">          0 :       else if (color_attachment_states[i] == GPU_ATTACHMENT_READ) {</span></a>
+<a name="296"><span class="lineNum">     296 </span><span class="lineNoCov">          0 :         tmp_detached_[type] = this-&gt;attachments_[type];</span></a>
+<a name="297"><span class="lineNum">     297 </span><span class="lineNoCov">          0 :         tmp_detached_[type].tex-&gt;detach_from(this);</span></a>
+<a name="298"><span class="lineNum">     298 </span><span class="lineNoCov">          0 :         GPU_texture_bind_ex(tmp_detached_[type].tex, GPUSamplerState::default_sampler(), i);</span></a>
+<a name="299"><span class="lineNum">     299 </span>            :       }</a>
+<a name="300"><span class="lineNum">     300 </span>            :     }</a>
+<a name="301"><span class="lineNum">     301 </span><span class="lineNoCov">          0 :     if (dirty_attachments_) {</span></a>
+<a name="302"><span class="lineNum">     302 </span><span class="lineNoCov">          0 :       this-&gt;update_attachments();</span></a>
+<a name="303"><span class="lineNum">     303 </span>            :     }</a>
+<a name="304"><span class="lineNum">     304 </span>            :   }</a>
+<a name="305"><span class="lineNum">     305 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="306"><span class="lineNum">     306 </span>            : </a>
+<a name="307"><span class="lineNum">     307 </span><span class="lineNoCov">          0 : void GLFrameBuffer::attachment_set_loadstore_op(GPUAttachmentType type, GPULoadStore ls)</span></a>
+<a name="308"><span class="lineNum">     308 </span>            : {</a>
+<a name="309"><span class="lineNum">     309 </span><span class="lineNoCov">          0 :   BLI_assert(context_-&gt;active_fb == this);</span></a>
+<a name="310"><span class="lineNum">     310 </span>            : </a>
+<a name="311"><span class="lineNum">     311 </span>            :   /* TODO(fclem): Add support for other ops. */</a>
+<a name="312"><span class="lineNum">     312 </span><span class="lineNoCov">          0 :   if (ls.load_action == GPULoadOp::GPU_LOADACTION_CLEAR) {</span></a>
+<a name="313"><span class="lineNum">     313 </span><span class="lineNoCov">          0 :     if (tmp_detached_[type].tex != nullptr) {</span></a>
+<a name="314"><span class="lineNum">     314 </span>            :       /* #GPULoadStore is used to define the frame-buffer before it is used for rendering.</a>
+<a name="315"><span class="lineNum">     315 </span>            :        * Binding back unattached attachment makes its state undefined. This is described by the</a>
+<a name="316"><span class="lineNum">     316 </span>            :        * documentation and the user-land code should specify a sub-pass at the start of the drawing</a>
+<a name="317"><span class="lineNum">     317 </span>            :        * to explicitly set attachment state. */</a>
+<a name="318"><span class="lineNum">     318 </span><span class="lineNoCov">          0 :       if (GLContext::framebuffer_fetch_support) {</span></a>
+<a name="319"><span class="lineNum">     319 </span>            :         /* NOOP. */</a>
+<a name="320"><span class="lineNum">     320 </span>            :       }</a>
+<a name="321"><span class="lineNum">     321 </span><span class="lineNoCov">          0 :       else if (GLContext::texture_barrier_support) {</span></a>
+<a name="322"><span class="lineNum">     322 </span>            :         /* Reset default attachment state. */</a>
+<a name="323"><span class="lineNum">     323 </span><span class="lineNoCov">          0 :         for (int i : IndexRange(ARRAY_SIZE(tmp_detached_))) {</span></a>
+<a name="324"><span class="lineNum">     324 </span><span class="lineNoCov">          0 :           tmp_detached_[i] = GPU_ATTACHMENT_NONE;</span></a>
+<a name="325"><span class="lineNum">     325 </span>            :         }</a>
+<a name="326"><span class="lineNum">     326 </span><span class="lineNoCov">          0 :         glDrawBuffers(ARRAY_SIZE(gl_attachments_), gl_attachments_);</span></a>
+<a name="327"><span class="lineNum">     327 </span>            :       }</a>
+<a name="328"><span class="lineNum">     328 </span>            :       else {</a>
+<a name="329"><span class="lineNum">     329 </span><span class="lineNoCov">          0 :         tmp_detached_[type] = GPU_ATTACHMENT_NONE;</span></a>
+<a name="330"><span class="lineNum">     330 </span><span class="lineNoCov">          0 :         this-&gt;attachment_set(type, tmp_detached_[type]);</span></a>
+<a name="331"><span class="lineNum">     331 </span><span class="lineNoCov">          0 :         this-&gt;update_attachments();</span></a>
+<a name="332"><span class="lineNum">     332 </span>            :       }</a>
+<a name="333"><span class="lineNum">     333 </span>            :     }</a>
+<a name="334"><span class="lineNum">     334 </span><span class="lineNoCov">          0 :     clear_attachment(type, ls.clear_value);</span></a>
+<a name="335"><span class="lineNum">     335 </span>            :   }</a>
+<a name="336"><span class="lineNum">     336 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="337"><span class="lineNum">     337 </span>            : </a>
+<a name="338"><span class="lineNum">     338 </span><span class="lineNoCov">          0 : void GLFrameBuffer::apply_state()</span></a>
+<a name="339"><span class="lineNum">     339 </span>            : {</a>
+<a name="340"><span class="lineNum">     340 </span><span class="lineNoCov">          0 :   if (dirty_state_ == false) {</span></a>
+<a name="341"><span class="lineNum">     341 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="342"><span class="lineNum">     342 </span>            :   }</a>
+<a name="343"><span class="lineNum">     343 </span>            : </a>
+<a name="344"><span class="lineNum">     344 </span><span class="lineNoCov">          0 :   if (multi_viewport_ == false) {</span></a>
+<a name="345"><span class="lineNum">     345 </span><span class="lineNoCov">          0 :     glViewport(UNPACK4(viewport_[0]));</span></a>
+<a name="346"><span class="lineNum">     346 </span>            :   }</a>
+<a name="347"><span class="lineNum">     347 </span>            :   else {</a>
+<a name="348"><span class="lineNum">     348 </span>            :     /* Great API you have there! You have to convert to float values for setting int viewport</a>
+<a name="349"><span class="lineNum">     349 </span>            :      * values. **Audible Facepalm** */</a>
+<a name="350"><span class="lineNum">     350 </span>            :     float viewports_f[GPU_MAX_VIEWPORTS][4];</a>
+<a name="351"><span class="lineNum">     351 </span><span class="lineNoCov">          0 :     for (int i = 0; i &lt; GPU_MAX_VIEWPORTS; i++) {</span></a>
+<a name="352"><span class="lineNum">     352 </span><span class="lineNoCov">          0 :       for (int j = 0; j &lt; 4; j++) {</span></a>
+<a name="353"><span class="lineNum">     353 </span><span class="lineNoCov">          0 :         viewports_f[i][j] = viewport_[i][j];</span></a>
+<a name="354"><span class="lineNum">     354 </span>            :       }</a>
+<a name="355"><span class="lineNum">     355 </span>            :     }</a>
+<a name="356"><span class="lineNum">     356 </span><span class="lineNoCov">          0 :     glViewportArrayv(0, GPU_MAX_VIEWPORTS, viewports_f[0]);</span></a>
+<a name="357"><span class="lineNum">     357 </span>            :   }</a>
+<a name="358"><span class="lineNum">     358 </span><span class="lineNoCov">          0 :   glScissor(UNPACK4(scissor_));</span></a>
+<a name="359"><span class="lineNum">     359 </span>            : </a>
+<a name="360"><span class="lineNum">     360 </span><span class="lineNoCov">          0 :   if (scissor_test_) {</span></a>
+<a name="361"><span class="lineNum">     361 </span><span class="lineNoCov">          0 :     glEnable(GL_SCISSOR_TEST);</span></a>
+<a name="362"><span class="lineNum">     362 </span>            :   }</a>
+<a name="363"><span class="lineNum">     363 </span>            :   else {</a>
+<a name="364"><span class="lineNum">     364 </span><span class="lineNoCov">          0 :     glDisable(GL_SCISSOR_TEST);</span></a>
+<a name="365"><span class="lineNum">     365 </span>            :   }</a>
+<a name="366"><span class="lineNum">     366 </span>            : </a>
+<a name="367"><span class="lineNum">     367 </span><span class="lineNoCov">          0 :   dirty_state_ = false;</span></a>
+<a name="368"><span class="lineNum">     368 </span>            : }</a>
+<a name="369"><span class="lineNum">     369 </span>            : </a>
+<a name="370"><span class="lineNum">     370 </span>            : /** \} */</a>
+<a name="371"><span class="lineNum">     371 </span>            : </a>
+<a name="372"><span class="lineNum">     372 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="373"><span class="lineNum">     373 </span>            : /** \name Binding</a>
+<a name="374"><span class="lineNum">     374 </span>            :  * \{ */</a>
+<a name="375"><span class="lineNum">     375 </span>            : </a>
+<a name="376"><span class="lineNum">     376 </span><span class="lineNoCov">          0 : void GLFrameBuffer::bind(bool enabled_srgb)</span></a>
+<a name="377"><span class="lineNum">     377 </span>            : {</a>
+<a name="378"><span class="lineNum">     378 </span><span class="lineNoCov">          0 :   if (!immutable_ &amp;&amp; fbo_id_ == 0) {</span></a>
+<a name="379"><span class="lineNum">     379 </span><span class="lineNoCov">          0 :     this-&gt;init();</span></a>
+<a name="380"><span class="lineNum">     380 </span>            :   }</a>
+<a name="381"><span class="lineNum">     381 </span>            : </a>
+<a name="382"><span class="lineNum">     382 </span><span class="lineNoCov">          0 :   if (context_ != GLContext::get()) {</span></a>
+<a name="383"><span class="lineNum">     383 </span><span class="lineNoCov">          0 :     BLI_assert_msg(0, &quot;Trying to use the same frame-buffer in multiple context&quot;);</span></a>
+<a name="384"><span class="lineNum">     384 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="385"><span class="lineNum">     385 </span>            :   }</a>
+<a name="386"><span class="lineNum">     386 </span>            : </a>
+<a name="387"><span class="lineNum">     387 </span><span class="lineNoCov">          0 :   if (context_-&gt;active_fb != this) {</span></a>
+<a name="388"><span class="lineNum">     388 </span><span class="lineNoCov">          0 :     glBindFramebuffer(GL_FRAMEBUFFER, fbo_id_);</span></a>
+<a name="389"><span class="lineNum">     389 </span>            :     /* Internal frame-buffers have only one color output and needs to be set every time. */</a>
+<a name="390"><span class="lineNum">     390 </span><span class="lineNoCov">          0 :     if (immutable_ &amp;&amp; fbo_id_ == 0) {</span></a>
+<a name="391"><span class="lineNum">     391 </span><span class="lineNoCov">          0 :       glDrawBuffer(gl_attachments_[0]);</span></a>
+<a name="392"><span class="lineNum">     392 </span>            :     }</a>
+<a name="393"><span class="lineNum">     393 </span>            :   }</a>
+<a name="394"><span class="lineNum">     394 </span>            : </a>
+<a name="395"><span class="lineNum">     395 </span><span class="lineNoCov">          0 :   if (!GLContext::texture_barrier_support &amp;&amp; !GLContext::framebuffer_fetch_support) {</span></a>
+<a name="396"><span class="lineNum">     396 </span><span class="lineNoCov">          0 :     for (int index : IndexRange(GPU_FB_MAX_ATTACHMENT)) {</span></a>
+<a name="397"><span class="lineNum">     397 </span><span class="lineNoCov">          0 :       tmp_detached_[index] = GPU_ATTACHMENT_NONE;</span></a>
+<a name="398"><span class="lineNum">     398 </span>            :     }</a>
+<a name="399"><span class="lineNum">     399 </span>            :   }</a>
+<a name="400"><span class="lineNum">     400 </span>            : </a>
+<a name="401"><span class="lineNum">     401 </span><span class="lineNoCov">          0 :   if (dirty_attachments_) {</span></a>
+<a name="402"><span class="lineNum">     402 </span><span class="lineNoCov">          0 :     this-&gt;update_attachments();</span></a>
+<a name="403"><span class="lineNum">     403 </span><span class="lineNoCov">          0 :     this-&gt;viewport_reset();</span></a>
+<a name="404"><span class="lineNum">     404 </span><span class="lineNoCov">          0 :     this-&gt;scissor_reset();</span></a>
+<a name="405"><span class="lineNum">     405 </span>            :   }</a>
+<a name="406"><span class="lineNum">     406 </span>            : </a>
+<a name="407"><span class="lineNum">     407 </span><span class="lineNoCov">          0 :   if (context_-&gt;active_fb != this || enabled_srgb_ != enabled_srgb) {</span></a>
+<a name="408"><span class="lineNum">     408 </span><span class="lineNoCov">          0 :     enabled_srgb_ = enabled_srgb;</span></a>
+<a name="409"><span class="lineNum">     409 </span><span class="lineNoCov">          0 :     if (enabled_srgb &amp;&amp; srgb_) {</span></a>
+<a name="410"><span class="lineNum">     410 </span><span class="lineNoCov">          0 :       glEnable(GL_FRAMEBUFFER_SRGB);</span></a>
+<a name="411"><span class="lineNum">     411 </span>            :     }</a>
+<a name="412"><span class="lineNum">     412 </span>            :     else {</a>
+<a name="413"><span class="lineNum">     413 </span><span class="lineNoCov">          0 :       glDisable(GL_FRAMEBUFFER_SRGB);</span></a>
+<a name="414"><span class="lineNum">     414 </span>            :     }</a>
+<a name="415"><span class="lineNum">     415 </span><span class="lineNoCov">          0 :     Shader::set_framebuffer_srgb_target(enabled_srgb &amp;&amp; srgb_);</span></a>
+<a name="416"><span class="lineNum">     416 </span>            :   }</a>
+<a name="417"><span class="lineNum">     417 </span>            : </a>
+<a name="418"><span class="lineNum">     418 </span><span class="lineNoCov">          0 :   if (context_-&gt;active_fb != this) {</span></a>
+<a name="419"><span class="lineNum">     419 </span><span class="lineNoCov">          0 :     context_-&gt;active_fb = this;</span></a>
+<a name="420"><span class="lineNum">     420 </span><span class="lineNoCov">          0 :     state_manager_-&gt;active_fb = this;</span></a>
+<a name="421"><span class="lineNum">     421 </span><span class="lineNoCov">          0 :     dirty_state_ = true;</span></a>
+<a name="422"><span class="lineNum">     422 </span>            :   }</a>
+<a name="423"><span class="lineNum">     423 </span>            : }</a>
+<a name="424"><span class="lineNum">     424 </span>            : </a>
+<a name="425"><span class="lineNum">     425 </span>            : /** \} */</a>
+<a name="426"><span class="lineNum">     426 </span>            : </a>
+<a name="427"><span class="lineNum">     427 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="428"><span class="lineNum">     428 </span>            : /** \name Operations.</a>
+<a name="429"><span class="lineNum">     429 </span>            :  * \{ */</a>
+<a name="430"><span class="lineNum">     430 </span>            : </a>
+<a name="431"><span class="lineNum">     431 </span><span class="lineNoCov">          0 : void GLFrameBuffer::clear(GPUFrameBufferBits buffers,</span></a>
+<a name="432"><span class="lineNum">     432 </span>            :                           const double4 clear_col,</a>
+<a name="433"><span class="lineNum">     433 </span>            :                           float clear_depth,</a>
+<a name="434"><span class="lineNum">     434 </span>            :                           uint clear_stencil)</a>
+<a name="435"><span class="lineNum">     435 </span>            : {</a>
+<a name="436"><span class="lineNum">     436 </span><span class="lineNoCov">          0 :   BLI_assert(GLContext::get() == context_);</span></a>
+<a name="437"><span class="lineNum">     437 </span><span class="lineNoCov">          0 :   BLI_assert(context_-&gt;active_fb == this);</span></a>
+<a name="438"><span class="lineNum">     438 </span>            : </a>
+<a name="439"><span class="lineNum">     439 </span>            :   /* Save and restore the state. */</a>
+<a name="440"><span class="lineNum">     440 </span><span class="lineNoCov">          0 :   GPUWriteMask write_mask = GPU_write_mask_get();</span></a>
+<a name="441"><span class="lineNum">     441 </span><span class="lineNoCov">          0 :   uint stencil_mask = GPU_stencil_mask_get();</span></a>
+<a name="442"><span class="lineNum">     442 </span><span class="lineNoCov">          0 :   GPUStencilTest stencil_test = GPU_stencil_test_get();</span></a>
+<a name="443"><span class="lineNum">     443 </span>            : </a>
+<a name="444"><span class="lineNum">     444 </span><span class="lineNoCov">          0 :   if (buffers &amp; GPU_COLOR_BIT) {</span></a>
+<a name="445"><span class="lineNum">     445 </span><span class="lineNoCov">          0 :     if (immutable_) {</span></a>
+<a name="446"><span class="lineNum">     446 </span>            :       /* Immutable frame-buffers (default/window) have no texture attachments,</a>
+<a name="447"><span class="lineNum">     447 </span>            :        * clear via #glClearColor + #glClear (included in the mask below). */</a>
+<a name="448"><span class="lineNum">     448 </span><span class="lineNoCov">          0 :       GPU_color_mask(true, true, true, true);</span></a>
+<a name="449"><span class="lineNum">     449 </span><span class="lineNoCov">          0 :       glClearColor(</span></a>
+<a name="450"><span class="lineNum">     450 </span><span class="lineNoCov">          0 :           float(clear_col[0]), float(clear_col[1]), float(clear_col[2]), float(clear_col[3]));</span></a>
+<a name="451"><span class="lineNum">     451 </span>            :     }</a>
+<a name="452"><span class="lineNum">     452 </span>            :     else {</a>
+<a name="453"><span class="lineNum">     453 </span><span class="lineNoCov">          0 :       int type = GPU_FB_COLOR_ATTACHMENT0;</span></a>
+<a name="454"><span class="lineNum">     454 </span><span class="lineNoCov">          0 :       for (int i = 0; type &lt; GPU_FB_MAX_ATTACHMENT; i++, type++) {</span></a>
+<a name="455"><span class="lineNum">     455 </span><span class="lineNoCov">          0 :         if (attachments_[type].tex != nullptr) {</span></a>
+<a name="456"><span class="lineNum">     456 </span><span class="lineNoCov">          0 :           this-&gt;clear_attachment(GPU_FB_COLOR_ATTACHMENT0 + i, clear_col);</span></a>
+<a name="457"><span class="lineNum">     457 </span>            :         }</a>
+<a name="458"><span class="lineNum">     458 </span>            :       }</a>
+<a name="459"><span class="lineNum">     459 </span>            :     }</a>
+<a name="460"><span class="lineNum">     460 </span>            :   }</a>
+<a name="461"><span class="lineNum">     461 </span><span class="lineNoCov">          0 :   if (buffers &amp; GPU_DEPTH_BIT) {</span></a>
+<a name="462"><span class="lineNum">     462 </span><span class="lineNoCov">          0 :     GPU_depth_mask(true);</span></a>
+<a name="463"><span class="lineNum">     463 </span><span class="lineNoCov">          0 :     glClearDepth(clear_depth);</span></a>
+<a name="464"><span class="lineNum">     464 </span>            :   }</a>
+<a name="465"><span class="lineNum">     465 </span><span class="lineNoCov">          0 :   if (buffers &amp; GPU_STENCIL_BIT) {</span></a>
+<a name="466"><span class="lineNum">     466 </span><span class="lineNoCov">          0 :     GPU_stencil_write_mask_set(0xFFu);</span></a>
+<a name="467"><span class="lineNum">     467 </span><span class="lineNoCov">          0 :     GPU_stencil_test(GPU_STENCIL_ALWAYS);</span></a>
+<a name="468"><span class="lineNum">     468 </span><span class="lineNoCov">          0 :     glClearStencil(clear_stencil);</span></a>
+<a name="469"><span class="lineNum">     469 </span>            :   }</a>
+<a name="470"><span class="lineNum">     470 </span>            : </a>
+<a name="471"><span class="lineNum">     471 </span><span class="lineNoCov">          0 :   context_-&gt;state_manager-&gt;apply_state();</span></a>
+<a name="472"><span class="lineNum">     472 </span>            : </a>
+<a name="473"><span class="lineNum">     473 </span>            :   /* Mutable frame-buffers clear color via per-attachment calls above,</a>
+<a name="474"><span class="lineNum">     474 </span>            :    * exclude color from the #glClear mask in that case. */</a>
+<a name="475"><span class="lineNum">     475 </span><span class="lineNoCov">          0 :   GPUFrameBufferBits glclear_buffers = immutable_ ? buffers :</span></a>
+<a name="476"><span class="lineNum">     476 </span><span class="lineNoCov">          0 :                                                     GPUFrameBufferBits(buffers &amp; ~GPU_COLOR_BIT);</span></a>
+<a name="477"><span class="lineNum">     477 </span><span class="lineNoCov">          0 :   GLbitfield mask = to_gl(glclear_buffers);</span></a>
+<a name="478"><span class="lineNum">     478 </span><span class="lineNoCov">          0 :   glClear(mask);</span></a>
+<a name="479"><span class="lineNum">     479 </span>            : </a>
+<a name="480"><span class="lineNum">     480 </span><span class="lineNoCov">          0 :   if (buffers &amp; (GPU_COLOR_BIT | GPU_DEPTH_BIT)) {</span></a>
+<a name="481"><span class="lineNum">     481 </span><span class="lineNoCov">          0 :     GPU_write_mask(write_mask);</span></a>
+<a name="482"><span class="lineNum">     482 </span>            :   }</a>
+<a name="483"><span class="lineNum">     483 </span><span class="lineNoCov">          0 :   if (buffers &amp; GPU_STENCIL_BIT) {</span></a>
+<a name="484"><span class="lineNum">     484 </span><span class="lineNoCov">          0 :     GPU_stencil_write_mask_set(stencil_mask);</span></a>
+<a name="485"><span class="lineNum">     485 </span><span class="lineNoCov">          0 :     GPU_stencil_test(stencil_test);</span></a>
+<a name="486"><span class="lineNum">     486 </span>            :   }</a>
+<a name="487"><span class="lineNum">     487 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="488"><span class="lineNum">     488 </span>            : </a>
+<a name="489"><span class="lineNum">     489 </span><span class="lineNoCov">          0 : void GLFrameBuffer::clear_attachment(GPUAttachmentType type, const double4 clear_value)</span></a>
+<a name="490"><span class="lineNum">     490 </span>            : {</a>
+<a name="491"><span class="lineNum">     491 </span><span class="lineNoCov">          0 :   BLI_assert(GLContext::get() == context_);</span></a>
+<a name="492"><span class="lineNum">     492 </span><span class="lineNoCov">          0 :   BLI_assert(context_-&gt;active_fb == this);</span></a>
+<a name="493"><span class="lineNum">     493 </span>            : </a>
+<a name="494"><span class="lineNum">     494 </span>            :   /* Save and restore the state. */</a>
+<a name="495"><span class="lineNum">     495 </span><span class="lineNoCov">          0 :   GPUWriteMask write_mask = GPU_write_mask_get();</span></a>
+<a name="496"><span class="lineNum">     496 </span>            : </a>
+<a name="497"><span class="lineNum">     497 </span><span class="lineNoCov">          0 :   GPU_depth_mask(true);</span></a>
+<a name="498"><span class="lineNum">     498 </span><span class="lineNoCov">          0 :   GPU_color_mask(true, true, true, true);</span></a>
+<a name="499"><span class="lineNum">     499 </span>            : </a>
+<a name="500"><span class="lineNum">     500 </span><span class="lineNoCov">          0 :   context_-&gt;state_manager-&gt;apply_state();</span></a>
+<a name="501"><span class="lineNum">     501 </span>            : </a>
+<a name="502"><span class="lineNum">     502 </span><span class="lineNoCov">          0 :   if (ELEM(type, GPU_FB_DEPTH_ATTACHMENT, GPU_FB_DEPTH_STENCIL_ATTACHMENT)) {</span></a>
+<a name="503"><span class="lineNum">     503 </span><span class="lineNoCov">          0 :     glClearDepth(float(clear_value.x));</span></a>
+<a name="504"><span class="lineNum">     504 </span><span class="lineNoCov">          0 :     glClear(to_gl(GPU_DEPTH_BIT));</span></a>
+<a name="505"><span class="lineNum">     505 </span>            :   }</a>
+<a name="506"><span class="lineNum">     506 </span>            :   else {</a>
+<a name="507"><span class="lineNum">     507 </span><span class="lineNoCov">          0 :     int slot = type - GPU_FB_COLOR_ATTACHMENT0;</span></a>
+<a name="508"><span class="lineNum">     508 </span><span class="lineNoCov">          0 :     GPUTextureFormatFlag flag = attachments_[type].tex-&gt;format_flag_get();</span></a>
+<a name="509"><span class="lineNum">     509 </span><span class="lineNoCov">          0 :     if (flag &amp; GPU_FORMAT_FLOAT || flag &amp; GPU_FORMAT_NORMALIZED_INTEGER) {</span></a>
+<a name="510"><span class="lineNum">     510 </span><span class="lineNoCov">          0 :       float4 data = float4(clear_value);</span></a>
+<a name="511"><span class="lineNum">     511 </span><span class="lineNoCov">          0 :       glClearBufferfv(GL_COLOR, slot, &amp;data.x);</span></a>
+<a name="512"><span class="lineNum">     512 </span>            :     }</a>
+<a name="513"><span class="lineNum">     513 </span><span class="lineNoCov">          0 :     else if (flag &amp; GPU_FORMAT_INTEGER &amp;&amp; flag &amp; GPU_FORMAT_SIGNED) {</span></a>
+<a name="514"><span class="lineNum">     514 </span><span class="lineNoCov">          0 :       int4 data = int4(clear_value);</span></a>
+<a name="515"><span class="lineNum">     515 </span><span class="lineNoCov">          0 :       glClearBufferiv(GL_COLOR, slot, &amp;data.x);</span></a>
+<a name="516"><span class="lineNum">     516 </span>            :     }</a>
+<a name="517"><span class="lineNum">     517 </span><span class="lineNoCov">          0 :     else if (flag &amp; GPU_FORMAT_INTEGER &amp;&amp; !(flag &amp; GPU_FORMAT_SIGNED)) {</span></a>
+<a name="518"><span class="lineNum">     518 </span><span class="lineNoCov">          0 :       uint4 data = uint4(clear_value);</span></a>
+<a name="519"><span class="lineNum">     519 </span><span class="lineNoCov">          0 :       glClearBufferuiv(GL_COLOR, slot, &amp;data.x);</span></a>
+<a name="520"><span class="lineNum">     520 </span>            :     }</a>
+<a name="521"><span class="lineNum">     521 </span>            :     else {</a>
+<a name="522"><span class="lineNum">     522 </span><span class="lineNoCov">          0 :       BLI_assert_msg(0, &quot;Unhandled data format&quot;);</span></a>
+<a name="523"><span class="lineNum">     523 </span>            :     }</a>
+<a name="524"><span class="lineNum">     524 </span>            :   }</a>
+<a name="525"><span class="lineNum">     525 </span>            : </a>
+<a name="526"><span class="lineNum">     526 </span><span class="lineNoCov">          0 :   GPU_write_mask(write_mask);</span></a>
+<a name="527"><span class="lineNum">     527 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="528"><span class="lineNum">     528 </span>            : </a>
+<a name="529"><span class="lineNum">     529 </span><span class="lineNoCov">          0 : void GLFrameBuffer::clear_multi(Span&lt;double4&gt; clear_cols)</span></a>
+<a name="530"><span class="lineNum">     530 </span>            : {</a>
+<a name="531"><span class="lineNum">     531 </span><span class="lineNoCov">          0 :   int type = GPU_FB_COLOR_ATTACHMENT0;</span></a>
+<a name="532"><span class="lineNum">     532 </span><span class="lineNoCov">          0 :   for (int i = 0; type &lt; GPU_FB_MAX_ATTACHMENT; i++, type++) {</span></a>
+<a name="533"><span class="lineNum">     533 </span><span class="lineNoCov">          0 :     if (attachments_[type].tex != nullptr) {</span></a>
+<a name="534"><span class="lineNum">     534 </span><span class="lineNoCov">          0 :       this-&gt;clear_attachment(GPU_FB_COLOR_ATTACHMENT0 + i, clear_cols[i]);</span></a>
+<a name="535"><span class="lineNum">     535 </span>            :     }</a>
+<a name="536"><span class="lineNum">     536 </span>            :   }</a>
+<a name="537"><span class="lineNum">     537 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="538"><span class="lineNum">     538 </span>            : </a>
+<a name="539"><span class="lineNum">     539 </span><span class="lineNoCov">          0 : void GLFrameBuffer::read(GPUFrameBufferBits plane,</span></a>
+<a name="540"><span class="lineNum">     540 </span>            :                          eGPUDataFormat data_format,</a>
+<a name="541"><span class="lineNum">     541 </span>            :                          const int area[4],</a>
+<a name="542"><span class="lineNum">     542 </span>            :                          int channel_len,</a>
+<a name="543"><span class="lineNum">     543 </span>            :                          int slot,</a>
+<a name="544"><span class="lineNum">     544 </span>            :                          void *r_data)</a>
+<a name="545"><span class="lineNum">     545 </span>            : {</a>
+<a name="546"><span class="lineNum">     546 </span>            :   GLenum format, type, mode;</a>
+<a name="547"><span class="lineNum">     547 </span><span class="lineNoCov">          0 :   mode = gl_attachments_[slot];</span></a>
+<a name="548"><span class="lineNum">     548 </span><span class="lineNoCov">          0 :   type = to_gl(data_format);</span></a>
+<a name="549"><span class="lineNum">     549 </span>            : </a>
+<a name="550"><span class="lineNum">     550 </span><span class="lineNoCov">          0 :   switch (plane) {</span></a>
+<a name="551"><span class="lineNum">     551 </span><span class="lineNoCov">          0 :     case GPU_DEPTH_BIT:</span></a>
+<a name="552"><span class="lineNum">     552 </span><span class="lineNoCov">          0 :       format = GL_DEPTH_COMPONENT;</span></a>
+<a name="553"><span class="lineNum">     553 </span><span class="lineNoCov">          0 :       BLI_assert_msg(</span></a>
+<a name="554"><span class="lineNum">     554 </span>            :           this-&gt;attachments_[GPU_FB_DEPTH_ATTACHMENT].tex != nullptr ||</a>
+<a name="555"><span class="lineNum">     555 </span>            :               this-&gt;attachments_[GPU_FB_DEPTH_STENCIL_ATTACHMENT].tex != nullptr,</a>
+<a name="556"><span class="lineNum">     556 </span>            :           &quot;GPUFramebuffer: Error: Trying to read depth without a depth buffer attached.&quot;);</a>
+<a name="557"><span class="lineNum">     557 </span><span class="lineNoCov">          0 :       break;</span></a>
+<a name="558"><span class="lineNum">     558 </span><span class="lineNoCov">          0 :     case GPU_COLOR_BIT:</span></a>
+<a name="559"><span class="lineNum">     559 </span><span class="lineNoCov">          0 :       BLI_assert_msg(</span></a>
+<a name="560"><span class="lineNum">     560 </span>            :           mode != GL_NONE,</a>
+<a name="561"><span class="lineNum">     561 </span>            :           &quot;GPUFramebuffer: Error: Trying to read a color slot without valid attachment.&quot;);</a>
+<a name="562"><span class="lineNum">     562 </span><span class="lineNoCov">          0 :       format = channel_len_to_gl(channel_len);</span></a>
+<a name="563"><span class="lineNum">     563 </span>            :       /* TODO: needed for selection buffers to work properly, this should be handled better. */</a>
+<a name="564"><span class="lineNum">     564 </span><span class="lineNoCov">          0 :       if (format == GL_RED &amp;&amp; type == GL_UNSIGNED_INT) {</span></a>
+<a name="565"><span class="lineNum">     565 </span><span class="lineNoCov">          0 :         format = GL_RED_INTEGER;</span></a>
+<a name="566"><span class="lineNum">     566 </span>            :       }</a>
+<a name="567"><span class="lineNum">     567 </span><span class="lineNoCov">          0 :       break;</span></a>
+<a name="568"><span class="lineNum">     568 </span><span class="lineNoCov">          0 :     case GPU_STENCIL_BIT:</span></a>
+<a name="569"><span class="lineNum">     569 </span><span class="lineNoCov">          0 :       fprintf(stderr, &quot;GPUFramebuffer: Error: Trying to read stencil bit. Unsupported.&quot;);</span></a>
+<a name="570"><span class="lineNum">     570 </span><span class="lineNoCov">          0 :       return;</span></a>
+<a name="571"><span class="lineNum">     571 </span><span class="lineNoCov">          0 :     default:</span></a>
+<a name="572"><span class="lineNum">     572 </span><span class="lineNoCov">          0 :       fprintf(stderr, &quot;GPUFramebuffer: Error: Trying to read more than one frame-buffer plane.&quot;);</span></a>
+<a name="573"><span class="lineNum">     573 </span><span class="lineNoCov">          0 :       return;</span></a>
+<a name="574"><span class="lineNum">     574 </span>            :   }</a>
+<a name="575"><span class="lineNum">     575 </span>            : </a>
+<a name="576"><span class="lineNum">     576 </span><span class="lineNoCov">          0 :   glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo_id_);</span></a>
+<a name="577"><span class="lineNum">     577 </span><span class="lineNoCov">          0 :   glReadBuffer(mode);</span></a>
+<a name="578"><span class="lineNum">     578 </span><span class="lineNoCov">          0 :   glReadPixels(UNPACK4(area), format, type, r_data);</span></a>
+<a name="579"><span class="lineNum">     579 </span>            : }</a>
+<a name="580"><span class="lineNum">     580 </span>            : </a>
+<a name="581"><span class="lineNum">     581 </span><span class="lineNoCov">          0 : void GLFrameBuffer::blit_to(</span></a>
+<a name="582"><span class="lineNum">     582 </span>            :     GPUFrameBufferBits planes, int src_slot, FrameBuffer *dst_, int dst_slot, int x, int y)</a>
+<a name="583"><span class="lineNum">     583 </span>            : {</a>
+<a name="584"><span class="lineNum">     584 </span><span class="lineNoCov">          0 :   GLFrameBuffer *src = this;</span></a>
+<a name="585"><span class="lineNum">     585 </span><span class="lineNoCov">          0 :   GLFrameBuffer *dst = static_cast&lt;GLFrameBuffer *&gt;(dst_);</span></a>
+<a name="586"><span class="lineNum">     586 </span>            : </a>
+<a name="587"><span class="lineNum">     587 </span>            :   /* Frame-buffers must be up to date. This simplify this function. */</a>
+<a name="588"><span class="lineNum">     588 </span><span class="lineNoCov">          0 :   if (src-&gt;dirty_attachments_) {</span></a>
+<a name="589"><span class="lineNum">     589 </span><span class="lineNoCov">          0 :     src-&gt;bind(true);</span></a>
+<a name="590"><span class="lineNum">     590 </span>            :   }</a>
+<a name="591"><span class="lineNum">     591 </span><span class="lineNoCov">          0 :   if (dst-&gt;dirty_attachments_) {</span></a>
+<a name="592"><span class="lineNum">     592 </span><span class="lineNoCov">          0 :     dst-&gt;bind(true);</span></a>
+<a name="593"><span class="lineNum">     593 </span>            :   }</a>
+<a name="594"><span class="lineNum">     594 </span>            : </a>
+<a name="595"><span class="lineNum">     595 </span><span class="lineNoCov">          0 :   glBindFramebuffer(GL_READ_FRAMEBUFFER, src-&gt;fbo_id_);</span></a>
+<a name="596"><span class="lineNum">     596 </span><span class="lineNoCov">          0 :   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dst-&gt;fbo_id_);</span></a>
+<a name="597"><span class="lineNum">     597 </span>            : </a>
+<a name="598"><span class="lineNum">     598 </span><span class="lineNoCov">          0 :   if (planes &amp; GPU_COLOR_BIT) {</span></a>
+<a name="599"><span class="lineNum">     599 </span><span class="lineNoCov">          0 :     BLI_assert(src-&gt;immutable_ == false || src_slot == 0);</span></a>
+<a name="600"><span class="lineNum">     600 </span><span class="lineNoCov">          0 :     BLI_assert(dst-&gt;immutable_ == false || dst_slot == 0);</span></a>
+<a name="601"><span class="lineNum">     601 </span><span class="lineNoCov">          0 :     BLI_assert(src-&gt;gl_attachments_[src_slot] != GL_NONE);</span></a>
+<a name="602"><span class="lineNum">     602 </span><span class="lineNoCov">          0 :     BLI_assert(dst-&gt;gl_attachments_[dst_slot] != GL_NONE);</span></a>
+<a name="603"><span class="lineNum">     603 </span><span class="lineNoCov">          0 :     glReadBuffer(src-&gt;gl_attachments_[src_slot]);</span></a>
+<a name="604"><span class="lineNum">     604 </span><span class="lineNoCov">          0 :     glDrawBuffer(dst-&gt;gl_attachments_[dst_slot]);</span></a>
+<a name="605"><span class="lineNum">     605 </span>            :   }</a>
+<a name="606"><span class="lineNum">     606 </span>            : </a>
+<a name="607"><span class="lineNum">     607 </span><span class="lineNoCov">          0 :   context_-&gt;state_manager-&gt;apply_state();</span></a>
+<a name="608"><span class="lineNum">     608 </span>            : </a>
+<a name="609"><span class="lineNum">     609 </span><span class="lineNoCov">          0 :   int w = src-&gt;width_;</span></a>
+<a name="610"><span class="lineNum">     610 </span><span class="lineNoCov">          0 :   int h = src-&gt;height_;</span></a>
+<a name="611"><span class="lineNum">     611 </span><span class="lineNoCov">          0 :   GLbitfield mask = to_gl(planes);</span></a>
+<a name="612"><span class="lineNum">     612 </span><span class="lineNoCov">          0 :   glBlitFramebuffer(0, 0, w, h, x, y, x + w, y + h, mask, GL_NEAREST);</span></a>
+<a name="613"><span class="lineNum">     613 </span>            : </a>
+<a name="614"><span class="lineNum">     614 </span><span class="lineNoCov">          0 :   if (!dst-&gt;immutable_) {</span></a>
+<a name="615"><span class="lineNum">     615 </span>            :     /* Restore the draw buffers. */</a>
+<a name="616"><span class="lineNum">     616 </span><span class="lineNoCov">          0 :     glDrawBuffers(ARRAY_SIZE(dst-&gt;gl_attachments_), dst-&gt;gl_attachments_);</span></a>
+<a name="617"><span class="lineNum">     617 </span>            :   }</a>
+<a name="618"><span class="lineNum">     618 </span>            :   /* Ensure previous buffer is restored. */</a>
+<a name="619"><span class="lineNum">     619 </span><span class="lineNoCov">          0 :   context_-&gt;active_fb = dst;</span></a>
+<a name="620"><span class="lineNum">     620 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="621"><span class="lineNum">     621 </span>            : </a>
+<a name="622"><span class="lineNum">     622 </span>            : /** \} */</a>
+<a name="623"><span class="lineNum">     623 </span>            : </a>
+<a name="624"><span class="lineNum">     624 </span>            : }  // namespace blender::gpu</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

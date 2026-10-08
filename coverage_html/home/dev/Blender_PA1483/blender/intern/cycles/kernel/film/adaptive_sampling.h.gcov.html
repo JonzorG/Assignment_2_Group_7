@@ -1,0 +1,237 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - /home/dev/Blender_PA1483/blender/intern/cycles/kernel/film/adaptive_sampling.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../../../index.html">top level</a> - <a href="index.html">home/dev/Blender_PA1483/blender/intern/cycles/kernel/film</a> - adaptive_sampling.h<span style="font-size: 80%;"> (source / <a href="adaptive_sampling.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">49</td>
+            <td class="headerCovTableEntry">61</td>
+            <td class="headerCovTableEntryMed">80.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2019-2022 Blender Foundation</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: Apache-2.0 */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : #pragma once</a>
+<a name="6"><span class="lineNum">       6 </span>            : </a>
+<a name="7"><span class="lineNum">       7 </span>            : #include &quot;kernel/film/write.h&quot;</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : CCL_NAMESPACE_BEGIN</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : /* Check whether the pixel has converged and should not be sampled anymore. */</a>
+<a name="12"><span class="lineNum">      12 </span>            : </a>
+<a name="13"><span class="lineNum">      13 </span>            : ccl_device_forceinline bool film_need_sample_pixel(KernelGlobals kg,</a>
+<a name="14"><span class="lineNum">      14 </span>            :                                                    ConstIntegratorState state,</a>
+<a name="15"><span class="lineNum">      15 </span>            :                                                    ccl_global float *render_buffer)</a>
+<a name="16"><span class="lineNum">      16 </span>            : {</a>
+<a name="17"><span class="lineNum">      17 </span><span class="lineCov">  468666551 :   if (kernel_data.film.pass_adaptive_aux_buffer == PASS_UNUSED) {</span></a>
+<a name="18"><span class="lineNum">      18 </span><span class="lineCov">  424875406 :     return true;</span></a>
+<a name="19"><span class="lineNum">      19 </span>            :   }</a>
+<a name="20"><span class="lineNum">      20 </span>            : </a>
+<a name="21"><span class="lineNum">      21 </span><span class="lineCov">   43791145 :   ccl_global float *buffer = film_pass_pixel_render_buffer(kg, state, render_buffer);</span></a>
+<a name="22"><span class="lineNum">      22 </span>            : </a>
+<a name="23"><span class="lineNum">      23 </span><span class="lineCov">   43791145 :   const uint aux_w_offset = kernel_data.film.pass_adaptive_aux_buffer + 3;</span></a>
+<a name="24"><span class="lineNum">      24 </span><span class="lineCov">   43791145 :   return buffer[aux_w_offset] == 0.0f;</span></a>
+<a name="25"><span class="lineNum">      25 </span>            : }</a>
+<a name="26"><span class="lineNum">      26 </span>            : </a>
+<a name="27"><span class="lineNum">      27 </span>            : /* Determines whether to continue sampling a given pixel or if it has sufficiently converged. */</a>
+<a name="28"><span class="lineNum">      28 </span>            : </a>
+<a name="29"><span class="lineNum">      29 </span><span class="lineCov">     604647 : ccl_device bool film_adaptive_sampling_convergence_check(KernelGlobals kg,</span></a>
+<a name="30"><span class="lineNum">      30 </span>            :                                                          ccl_global float *render_buffer,</a>
+<a name="31"><span class="lineNum">      31 </span>            :                                                          const int x,</a>
+<a name="32"><span class="lineNum">      32 </span>            :                                                          const int y,</a>
+<a name="33"><span class="lineNum">      33 </span>            :                                                          const float threshold,</a>
+<a name="34"><span class="lineNum">      34 </span>            :                                                          const int reset,</a>
+<a name="35"><span class="lineNum">      35 </span>            :                                                          const int offset,</a>
+<a name="36"><span class="lineNum">      36 </span>            :                                                          const int stride)</a>
+<a name="37"><span class="lineNum">      37 </span>            : {</a>
+<a name="38"><span class="lineNum">      38 </span><span class="lineCov">     604647 :   kernel_assert(kernel_data.film.pass_adaptive_aux_buffer != PASS_UNUSED);</span></a>
+<a name="39"><span class="lineNum">      39 </span><span class="lineCov">     604647 :   kernel_assert(kernel_data.film.pass_sample_count != PASS_UNUSED);</span></a>
+<a name="40"><span class="lineNum">      40 </span>            : </a>
+<a name="41"><span class="lineNum">      41 </span><span class="lineCov">     604647 :   const int render_pixel_index = offset + x + y * stride;</span></a>
+<a name="42"><span class="lineNum">      42 </span><span class="lineCov">     604647 :   ccl_global float *buffer = render_buffer +</span></a>
+<a name="43"><span class="lineNum">      43 </span><span class="lineCov">     604647 :                              (uint64_t)render_pixel_index * kernel_data.film.pass_stride;</span></a>
+<a name="44"><span class="lineNum">      44 </span>            : </a>
+<a name="45"><span class="lineNum">      45 </span>            :   /* TODO(Stefan): Is this better in linear, sRGB or something else? */</a>
+<a name="46"><span class="lineNum">      46 </span>            : </a>
+<a name="47"><span class="lineNum">      47 </span><span class="lineCov">     604647 :   const float4 A = kernel_read_pass_float4(buffer + kernel_data.film.pass_adaptive_aux_buffer);</span></a>
+<a name="48"><span class="lineNum">      48 </span><span class="lineCov">     604647 :   if (!reset &amp;&amp; A.w != 0.0f) {</span></a>
+<a name="49"><span class="lineNum">      49 </span>            :     /* If the pixel was considered converged, its state will not change in this kernel. Early</a>
+<a name="50"><span class="lineNum">      50 </span>            :      * output before doing any math.</a>
+<a name="51"><span class="lineNum">      51 </span>            :      *</a>
+<a name="52"><span class="lineNum">      52 </span>            :      * TODO(sergey): On a GPU it might be better to keep thread alive for better coherency? */</a>
+<a name="53"><span class="lineNum">      53 </span><span class="lineCov">     690165 :     return true;</span></a>
+<a name="54"><span class="lineNum">      54 </span>            :   }</a>
+<a name="55"><span class="lineNum">      55 </span>            : </a>
+<a name="56"><span class="lineNum">      56 </span><span class="lineNoCov">          0 :   const float4 I = kernel_read_pass_float4(buffer + kernel_data.film.pass_combined);</span></a>
+<a name="57"><span class="lineNum">      57 </span>            : </a>
+<a name="58"><span class="lineNum">      58 </span><span class="lineNoCov">          0 :   const float sample = __float_as_uint(buffer[kernel_data.film.pass_sample_count]);</span></a>
+<a name="59"><span class="lineNum">      59 </span><span class="lineNoCov">          0 :   const float intensity_scale = kernel_data.film.exposure / sample;</span></a>
+<a name="60"><span class="lineNum">      60 </span>            : </a>
+<a name="61"><span class="lineNum">      61 </span>            :   /* The per pixel error as seen in section 2.1 of</a>
+<a name="62"><span class="lineNum">      62 </span>            :    * &quot;A hierarchical automatic stopping condition for Monte Carlo global illumination&quot; */</a>
+<a name="63"><span class="lineNum">      63 </span><span class="lineNoCov">          0 :   const float error_difference = (fabsf(I.x - A.x) + fabsf(I.y - A.y) + fabsf(I.z - A.z)) *</span></a>
+<a name="64"><span class="lineNum">      64 </span>            :                                  intensity_scale;</a>
+<a name="65"><span class="lineNum">      65 </span><span class="lineNoCov">          0 :   const float intensity = (I.x + I.y + I.z) * intensity_scale;</span></a>
+<a name="66"><span class="lineNum">      66 </span>            : </a>
+<a name="67"><span class="lineNum">      67 </span>            :   /* Anything with R+G+B &gt; 1 is highly exposed - even in sRGB it's a range that</a>
+<a name="68"><span class="lineNum">      68 </span>            :    * some displays aren't even able to display without significant losses in</a>
+<a name="69"><span class="lineNum">      69 </span>            :    * detalization. Everything with R+G+B &gt; 3 is overexposed and should receive</a>
+<a name="70"><span class="lineNum">      70 </span>            :    * even less samples. Filmic-like curves need maximum sampling rate at</a>
+<a name="71"><span class="lineNum">      71 </span>            :    * intensity near 0.1-0.2, so threshold of 1 for R+G+B leaves an additional</a>
+<a name="72"><span class="lineNum">      72 </span>            :    * fstop in case it is needed for compositing.</a>
+<a name="73"><span class="lineNum">      73 </span>            :    */</a>
+<a name="74"><span class="lineNum">      74 </span>            :   float error_normalize;</a>
+<a name="75"><span class="lineNum">      75 </span><span class="lineNoCov">          0 :   if (intensity &lt; 1.0f) {</span></a>
+<a name="76"><span class="lineNum">      76 </span><span class="lineCov">     870193 :     error_normalize = sqrtf(intensity);</span></a>
+<a name="77"><span class="lineNum">      77 </span>            :   }</a>
+<a name="78"><span class="lineNum">      78 </span>            :   else {</a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineNoCov">          0 :     error_normalize = intensity;</span></a>
+<a name="80"><span class="lineNum">      80 </span>            :   }</a>
+<a name="81"><span class="lineNum">      81 </span>            : </a>
+<a name="82"><span class="lineNum">      82 </span>            :   /* A small epsilon is added to the divisor to prevent division by zero. */</a>
+<a name="83"><span class="lineNum">      83 </span><span class="lineNoCov">          0 :   const float error = error_difference / (0.0001f + error_normalize);</span></a>
+<a name="84"><span class="lineNum">      84 </span><span class="lineNoCov">          0 :   const bool did_converge = (error &lt; threshold);</span></a>
+<a name="85"><span class="lineNum">      85 </span>            : </a>
+<a name="86"><span class="lineNum">      86 </span><span class="lineNoCov">          0 :   const uint aux_w_offset = kernel_data.film.pass_adaptive_aux_buffer + 3;</span></a>
+<a name="87"><span class="lineNum">      87 </span><span class="lineNoCov">          0 :   buffer[aux_w_offset] = did_converge;</span></a>
+<a name="88"><span class="lineNum">      88 </span>            : </a>
+<a name="89"><span class="lineNum">      89 </span><span class="lineNoCov">          0 :   return did_converge;</span></a>
+<a name="90"><span class="lineNum">      90 </span>            : }</a>
+<a name="91"><span class="lineNum">      91 </span>            : </a>
+<a name="92"><span class="lineNum">      92 </span>            : /* This is a simple box filter in two passes.</a>
+<a name="93"><span class="lineNum">      93 </span>            :  * When a pixel demands more adaptive samples, let its neighboring pixels draw more samples too. */</a>
+<a name="94"><span class="lineNum">      94 </span>            : </a>
+<a name="95"><span class="lineNum">      95 </span><span class="lineCov">      21537 : ccl_device void film_adaptive_sampling_filter_x(KernelGlobals kg,</span></a>
+<a name="96"><span class="lineNum">      96 </span>            :                                                 ccl_global float *render_buffer,</a>
+<a name="97"><span class="lineNum">      97 </span>            :                                                 const int y,</a>
+<a name="98"><span class="lineNum">      98 </span>            :                                                 const int start_x,</a>
+<a name="99"><span class="lineNum">      99 </span>            :                                                 const int width,</a>
+<a name="100"><span class="lineNum">     100 </span>            :                                                 const int offset,</a>
+<a name="101"><span class="lineNum">     101 </span>            :                                                 const int stride)</a>
+<a name="102"><span class="lineNum">     102 </span>            : {</a>
+<a name="103"><span class="lineNum">     103 </span><span class="lineCov">      21537 :   kernel_assert(kernel_data.film.pass_adaptive_aux_buffer != PASS_UNUSED);</span></a>
+<a name="104"><span class="lineNum">     104 </span>            : </a>
+<a name="105"><span class="lineNum">     105 </span><span class="lineCov">      21537 :   bool prev = false;</span></a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineCov">    1922707 :   for (int x = start_x; x &lt; start_x + width; ++x) {</span></a>
+<a name="107"><span class="lineNum">     107 </span><span class="lineCov">    1901170 :     int index = offset + x + y * stride;</span></a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineCov">    1901170 :     ccl_global float *buffer = render_buffer + (uint64_t)index * kernel_data.film.pass_stride;</span></a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineCov">    1901170 :     const uint aux_w_offset = kernel_data.film.pass_adaptive_aux_buffer + 3;</span></a>
+<a name="110"><span class="lineNum">     110 </span>            : </a>
+<a name="111"><span class="lineNum">     111 </span><span class="lineCov">    1901170 :     if (buffer[aux_w_offset] == 0.0f) {</span></a>
+<a name="112"><span class="lineNum">     112 </span><span class="lineCov">     438490 :       if (x &gt; start_x &amp;&amp; !prev) {</span></a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineCov">     199212 :         index = index - 1;</span></a>
+<a name="114"><span class="lineNum">     114 </span><span class="lineCov">     199212 :         buffer = render_buffer + (uint64_t)index * kernel_data.film.pass_stride;</span></a>
+<a name="115"><span class="lineNum">     115 </span><span class="lineCov">     199212 :         buffer[aux_w_offset] = 0.0f;</span></a>
+<a name="116"><span class="lineNum">     116 </span>            :       }</a>
+<a name="117"><span class="lineNum">     117 </span><span class="lineCov">     438490 :       prev = true;</span></a>
+<a name="118"><span class="lineNum">     118 </span>            :     }</a>
+<a name="119"><span class="lineNum">     119 </span>            :     else {</a>
+<a name="120"><span class="lineNum">     120 </span><span class="lineCov">    1462680 :       if (prev) {</span></a>
+<a name="121"><span class="lineNum">     121 </span><span class="lineCov">     192815 :         buffer[aux_w_offset] = 0.0f;</span></a>
+<a name="122"><span class="lineNum">     122 </span>            :       }</a>
+<a name="123"><span class="lineNum">     123 </span><span class="lineCov">    1462680 :       prev = false;</span></a>
+<a name="124"><span class="lineNum">     124 </span>            :     }</a>
+<a name="125"><span class="lineNum">     125 </span>            :   }</a>
+<a name="126"><span class="lineNum">     126 </span><span class="lineCov">      21537 : }</span></a>
+<a name="127"><span class="lineNum">     127 </span>            : </a>
+<a name="128"><span class="lineNum">     128 </span><span class="lineCov">      22975 : ccl_device void film_adaptive_sampling_filter_y(KernelGlobals kg,</span></a>
+<a name="129"><span class="lineNum">     129 </span>            :                                                 ccl_global float *render_buffer,</a>
+<a name="130"><span class="lineNum">     130 </span>            :                                                 const int x,</a>
+<a name="131"><span class="lineNum">     131 </span>            :                                                 const int start_y,</a>
+<a name="132"><span class="lineNum">     132 </span>            :                                                 const int height,</a>
+<a name="133"><span class="lineNum">     133 </span>            :                                                 const int offset,</a>
+<a name="134"><span class="lineNum">     134 </span>            :                                                 const int stride)</a>
+<a name="135"><span class="lineNum">     135 </span>            : {</a>
+<a name="136"><span class="lineNum">     136 </span><span class="lineCov">      22975 :   kernel_assert(kernel_data.film.pass_adaptive_aux_buffer != PASS_UNUSED);</span></a>
+<a name="137"><span class="lineNum">     137 </span>            : </a>
+<a name="138"><span class="lineNum">     138 </span><span class="lineCov">      22975 :   bool prev = false;</span></a>
+<a name="139"><span class="lineNum">     139 </span><span class="lineCov">     474542 :   for (int y = start_y; y &lt; start_y + height; ++y) {</span></a>
+<a name="140"><span class="lineNum">     140 </span><span class="lineCov">     451567 :     int index = offset + x + y * stride;</span></a>
+<a name="141"><span class="lineNum">     141 </span><span class="lineCov">     451567 :     ccl_global float *buffer = render_buffer + (uint64_t)index * kernel_data.film.pass_stride;</span></a>
+<a name="142"><span class="lineNum">     142 </span><span class="lineCov">     451567 :     const uint aux_w_offset = kernel_data.film.pass_adaptive_aux_buffer + 3;</span></a>
+<a name="143"><span class="lineNum">     143 </span>            : </a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineCov">     451567 :     if (buffer[aux_w_offset] == 0.0f) {</span></a>
+<a name="145"><span class="lineNum">     145 </span><span class="lineCov">     118003 :       if (y &gt; start_y &amp;&amp; !prev) {</span></a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineCov">      49505 :         index = index - stride;</span></a>
+<a name="147"><span class="lineNum">     147 </span><span class="lineCov">      49505 :         buffer = render_buffer + (uint64_t)index * kernel_data.film.pass_stride;</span></a>
+<a name="148"><span class="lineNum">     148 </span><span class="lineCov">      49505 :         buffer[aux_w_offset] = 0.0f;</span></a>
+<a name="149"><span class="lineNum">     149 </span>            :       }</a>
+<a name="150"><span class="lineNum">     150 </span><span class="lineCov">     118003 :       prev = true;</span></a>
+<a name="151"><span class="lineNum">     151 </span>            :     }</a>
+<a name="152"><span class="lineNum">     152 </span>            :     else {</a>
+<a name="153"><span class="lineNum">     153 </span><span class="lineCov">     333564 :       if (prev) {</span></a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineCov">      40874 :         buffer[aux_w_offset] = 0.0f;</span></a>
+<a name="155"><span class="lineNum">     155 </span>            :       }</a>
+<a name="156"><span class="lineNum">     156 </span><span class="lineCov">     333564 :       prev = false;</span></a>
+<a name="157"><span class="lineNum">     157 </span>            :     }</a>
+<a name="158"><span class="lineNum">     158 </span>            :   }</a>
+<a name="159"><span class="lineNum">     159 </span><span class="lineCov">      22975 : }</span></a>
+<a name="160"><span class="lineNum">     160 </span>            : </a>
+<a name="161"><span class="lineNum">     161 </span>            : CCL_NAMESPACE_END</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

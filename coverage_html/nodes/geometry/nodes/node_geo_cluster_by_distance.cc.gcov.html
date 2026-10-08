@@ -1,0 +1,275 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - nodes/geometry/nodes/node_geo_cluster_by_distance.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">nodes/geometry/nodes</a> - node_geo_cluster_by_distance.cc<span style="font-size: 80%;"> (source / <a href="node_geo_cluster_by_distance.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">107</td>
+            <td class="headerCovTableEntry">117</td>
+            <td class="headerCovTableEntryHi">91.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntryMed">85.7 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2026 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : #include &quot;BLI_array.hh&quot;</a>
+<a name="6"><span class="lineNum">       6 </span>            : #include &quot;BLI_array_utils.hh&quot;</a>
+<a name="7"><span class="lineNum">       7 </span>            : #include &quot;BLI_index_mask.hh&quot;</a>
+<a name="8"><span class="lineNum">       8 </span>            : #include &quot;BLI_kdtree_new.hh&quot;</a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &quot;BLI_linear_allocator.hh&quot;</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &quot;BKE_geometry_fields.hh&quot;</a>
+<a name="12"><span class="lineNum">      12 </span>            : </a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;node_geometry_util.hh&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : </a>
+<a name="15"><span class="lineNum">      15 </span>            : namespace blender::nodes::node_geo_cluster_by_distance_cc {</a>
+<a name="16"><span class="lineNum">      16 </span>            : </a>
+<a name="17"><span class="lineNum">      17 </span><span class="lineCov">        785 : static void node_declare(NodeDeclarationBuilder &amp;b)</span></a>
+<a name="18"><span class="lineNum">      18 </span>            : {</a>
+<a name="19"><span class="lineNum">      19 </span><span class="lineCov">        785 :   b.add_input&lt;decl::Bool&gt;(&quot;Selection&quot;_ustr)</span></a>
+<a name="20"><span class="lineNum">      20 </span><span class="lineCov">        785 :       .default_value(true)</span></a>
+<a name="21"><span class="lineNum">      21 </span><span class="lineCov">        785 :       .structure_type(StructureType::Field)</span></a>
+<a name="22"><span class="lineNum">      22 </span><span class="lineCov">        785 :       .hide_value();</span></a>
+<a name="23"><span class="lineNum">      23 </span><span class="lineCov">        785 :   b.add_input&lt;decl::Int&gt;(&quot;Group ID&quot;_ustr).structure_type(StructureType::Field).hide_value();</span></a>
+<a name="24"><span class="lineNum">      24 </span><span class="lineCov">        785 :   b.add_input&lt;decl::Vector&gt;(&quot;Position&quot;_ustr)</span></a>
+<a name="25"><span class="lineNum">      25 </span><span class="lineCov">        785 :       .default_input_type(NODE_DEFAULT_INPUT_POSITION_FIELD)</span></a>
+<a name="26"><span class="lineNum">      26 </span><span class="lineCov">        785 :       .structure_type(StructureType::Field);</span></a>
+<a name="27"><span class="lineNum">      27 </span><span class="lineCov">        785 :   b.add_input&lt;decl::Float&gt;(&quot;Distance&quot;_ustr).default_value(0.001f).min(0.0f).subtype(PROP_DISTANCE);</span></a>
+<a name="28"><span class="lineNum">      28 </span>            : </a>
+<a name="29"><span class="lineNum">      29 </span><span class="lineCov">        785 :   b.add_output&lt;decl::Int&gt;(&quot;Cluster ID&quot;_ustr)</span></a>
+<a name="30"><span class="lineNum">      30 </span><span class="lineCov">        785 :       .structure_type(StructureType::Field)</span></a>
+<a name="31"><span class="lineNum">      31 </span><span class="lineCov">        785 :       .propagate_references();</span></a>
+<a name="32"><span class="lineNum">      32 </span><span class="lineCov">        785 : }</span></a>
+<a name="33"><span class="lineNum">      33 </span>            : </a>
+<a name="34"><span class="lineNum">      34 </span>            : constexpr int NO_CLUSTER_VALUE = -1;</a>
+<a name="35"><span class="lineNum">      35 </span>            : </a>
+<a name="36"><span class="lineNum">      36 </span><span class="lineCov">         28 : static void set_no_cluster_value(MutableSpan&lt;int&gt; r_cluster_ids, const IndexMask &amp;mask)</span></a>
+<a name="37"><span class="lineNum">      37 </span>            : {</a>
+<a name="38"><span class="lineNum">      38 </span><span class="lineCov">         28 :   mask.foreach_index_optimized&lt;int&gt;(</span></a>
+<a name="39"><span class="lineNum">      39 </span><span class="lineCov">         28 :       [&amp;](const int i) {</span></a>
+<a name="40"><span class="lineNum">      40 </span><span class="lineCov">      13055 :         if (r_cluster_ids[i] == NO_CLUSTER_VALUE) {</span></a>
+<a name="41"><span class="lineNum">      41 </span><span class="lineCov">         84 :           r_cluster_ids[i] = i;</span></a>
+<a name="42"><span class="lineNum">      42 </span>            :         }</a>
+<a name="43"><span class="lineNum">      43 </span><span class="lineCov">      13055 :       },</span></a>
+<a name="44"><span class="lineNum">      44 </span>            :       exec_mode::grain_size(4096));</a>
+<a name="45"><span class="lineNum">      45 </span><span class="lineCov">         28 : }</span></a>
+<a name="46"><span class="lineNum">      46 </span>            : </a>
+<a name="47"><span class="lineNum">      47 </span>            : class ClusterByDistanceFieldInput final : public bke::GeometryFieldInput {</a>
+<a name="48"><span class="lineNum">      48 </span>            :  private:</a>
+<a name="49"><span class="lineNum">      49 </span>            :   Field&lt;float3&gt; positions_field_;</a>
+<a name="50"><span class="lineNum">      50 </span>            :   Field&lt;int&gt; group_field_;</a>
+<a name="51"><span class="lineNum">      51 </span>            :   Field&lt;bool&gt; selection_field_;</a>
+<a name="52"><span class="lineNum">      52 </span>            :   float distance_;</a>
+<a name="53"><span class="lineNum">      53 </span>            : </a>
+<a name="54"><span class="lineNum">      54 </span>            :  public:</a>
+<a name="55"><span class="lineNum">      55 </span><span class="lineCov">         35 :   ClusterByDistanceFieldInput(Field&lt;float3&gt; positions_field,</span></a>
+<a name="56"><span class="lineNum">      56 </span>            :                               Field&lt;int&gt; group_field,</a>
+<a name="57"><span class="lineNum">      57 </span>            :                               Field&lt;bool&gt; selection_field,</a>
+<a name="58"><span class="lineNum">      58 </span>            :                               const float distance)</a>
+<a name="59"><span class="lineNum">      59 </span><span class="lineCov">         35 :       : bke::GeometryFieldInput(CPPType::get&lt;int&gt;(), &quot;Cluster by Distance&quot;),</span></a>
+<a name="60"><span class="lineNum">      60 </span><span class="lineCov">         35 :         positions_field_(std::move(positions_field)),</span></a>
+<a name="61"><span class="lineNum">      61 </span><span class="lineCov">         35 :         group_field_(std::move(group_field)),</span></a>
+<a name="62"><span class="lineNum">      62 </span><span class="lineCov">         35 :         selection_field_(std::move(selection_field)),</span></a>
+<a name="63"><span class="lineNum">      63 </span><span class="lineCov">        105 :         distance_(distance)</span></a>
+<a name="64"><span class="lineNum">      64 </span>            :   {</a>
+<a name="65"><span class="lineNum">      65 </span><span class="lineCov">         35 :   }</span></a>
+<a name="66"><span class="lineNum">      66 </span>            : </a>
+<a name="67"><span class="lineNum">      67 </span><span class="lineCov">         35 :   GVArray get_varray_for_context(const bke::GeometryFieldContext &amp;context,</span></a>
+<a name="68"><span class="lineNum">      68 </span>            :                                  const IndexMask &amp;mask) const final</a>
+<a name="69"><span class="lineNum">      69 </span>            :   {</a>
+<a name="70"><span class="lineNum">      70 </span><span class="lineCov">         35 :     if (!context.attributes()) {</span></a>
+<a name="71"><span class="lineNum">      71 </span><span class="lineNoCov">          0 :       return {};</span></a>
+<a name="72"><span class="lineNum">      72 </span>            :     }</a>
+<a name="73"><span class="lineNum">      73 </span>            : </a>
+<a name="74"><span class="lineNum">      74 </span><span class="lineCov">         35 :     const int domain_size = context.attributes()-&gt;domain_size(context.domain());</span></a>
+<a name="75"><span class="lineNum">      75 </span><span class="lineCov">         35 :     fn::FieldEvaluator evaluator{context, domain_size};</span></a>
+<a name="76"><span class="lineNum">      76 </span><span class="lineCov">         35 :     evaluator.add(positions_field_);</span></a>
+<a name="77"><span class="lineNum">      77 </span><span class="lineCov">         35 :     evaluator.add(group_field_);</span></a>
+<a name="78"><span class="lineNum">      78 </span><span class="lineCov">         35 :     evaluator.set_selection(selection_field_);</span></a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineCov">         35 :     evaluator.evaluate();</span></a>
+<a name="80"><span class="lineNum">      80 </span><span class="lineCov">         35 :     const VArraySpan&lt;float3&gt; positions = evaluator.get_evaluated&lt;float3&gt;(0);</span></a>
+<a name="81"><span class="lineNum">      81 </span><span class="lineCov">         35 :     const VArray&lt;int&gt; group_ids = evaluator.get_evaluated&lt;int&gt;(1);</span></a>
+<a name="82"><span class="lineNum">      82 </span><span class="lineCov">         35 :     const IndexMask selection = evaluator.get_evaluated_selection_as_mask();</span></a>
+<a name="83"><span class="lineNum">      83 </span>            : </a>
+<a name="84"><span class="lineNum">      84 </span><span class="lineCov">         35 :     IndexMaskMemory memory;</span></a>
+<a name="85"><span class="lineNum">      85 </span>            :     /* With context info about mask to compute we can skip processing of the rest of the values.</a>
+<a name="86"><span class="lineNum">      86 </span>            :      * But in current case this will affect result values since some cluster might have lowest ID</a>
+<a name="87"><span class="lineNum">      87 </span>            :      * of element outside of visible mask. */</a>
+<a name="88"><span class="lineNum">      88 </span><span class="lineCov">         35 :     const IndexMask mask_to_cluster = IndexMask::from_intersection(mask, selection, memory);</span></a>
+<a name="89"><span class="lineNum">      89 </span><span class="lineCov">         35 :     if (mask_to_cluster.is_empty()) {</span></a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineNoCov">          0 :       return fn::IndexFieldInput::get_index_varray(mask);</span></a>
+<a name="91"><span class="lineNum">      91 </span>            :     }</a>
+<a name="92"><span class="lineNum">      92 </span>            : </a>
+<a name="93"><span class="lineNum">      93 </span><span class="lineCov">         35 :     Array&lt;int&gt; cluster_ids(mask.min_array_size());</span></a>
+<a name="94"><span class="lineNum">      94 </span>            : </a>
+<a name="95"><span class="lineNum">      95 </span><span class="lineCov">         35 :     const IndexMask mask_to_fallback = IndexMask::from_difference(mask, mask_to_cluster, memory);</span></a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineCov">         35 :     array_utils::fill_index_range&lt;int&gt;(mask_to_fallback, cluster_ids);</span></a>
+<a name="97"><span class="lineNum">      97 </span>            : </a>
+<a name="98"><span class="lineNum">      98 </span><span class="lineCov">         35 :     Array&lt;int&gt; point_groups;</span></a>
+<a name="99"><span class="lineNum">      99 </span><span class="lineCov">         35 :     int groups_num = 1;</span></a>
+<a name="100"><span class="lineNum">     100 </span><span class="lineCov">         35 :     if (!group_ids.is_single()) {</span></a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineCov">          7 :       point_groups.reinitialize(mask_to_cluster.size());</span></a>
+<a name="102"><span class="lineNum">     102 </span><span class="lineCov">         14 :       groups_num = array_utils::group_ids_to_indices(</span></a>
+<a name="103"><span class="lineNum">     103 </span><span class="lineCov">         14 :           VArraySpan&lt;int&gt;(group_ids), mask_to_cluster, point_groups);</span></a>
+<a name="104"><span class="lineNum">     104 </span>            :     }</a>
+<a name="105"><span class="lineNum">     105 </span><span class="lineCov">         35 :     if (groups_num == 1) {</span></a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineCov">         28 :       index_mask::masked_fill&lt;int&gt;(cluster_ids, NO_CLUSTER_VALUE, mask_to_cluster);</span></a>
+<a name="107"><span class="lineNum">     107 </span><span class="lineCov">         28 :       const KDTreeNew&lt;float3&gt; tree(positions, mask_to_cluster);</span></a>
+<a name="108"><span class="lineNum">     108 </span>            :       /* Visiting the points in index order keeps the result from depending on the tree's</a>
+<a name="109"><span class="lineNum">     109 </span>            :        * layout, which changes as points move. See #calc_duplicates. */</a>
+<a name="110"><span class="lineNum">     110 </span><span class="lineCov">         28 :       kdtree::calc_duplicates(tree, distance_, mask_to_cluster, cluster_ids);</span></a>
+<a name="111"><span class="lineNum">     111 </span><span class="lineCov">         28 :       set_no_cluster_value(cluster_ids, mask_to_cluster);</span></a>
+<a name="112"><span class="lineNum">     112 </span><span class="lineCov">         28 :       return VArray&lt;int&gt;::from_container(std::move(cluster_ids));</span></a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineCov">         28 :     }</span></a>
+<a name="114"><span class="lineNum">     114 </span>            : </a>
+<a name="115"><span class="lineNum">     115 </span><span class="lineCov">          7 :     Array&lt;int&gt; group_offset_data;</span></a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineCov">          7 :     Array&lt;int&gt; indices_by_group_data;</span></a>
+<a name="117"><span class="lineNum">     117 </span><span class="lineCov">          7 :     const GroupedSpan&lt;int&gt; indices_by_group = offset_indices::build_groups_from_indices(</span></a>
+<a name="118"><span class="lineNum">     118 </span>            :         point_groups, groups_num, group_offset_data, indices_by_group_data, mask_to_cluster);</a>
+<a name="119"><span class="lineNum">     119 </span><span class="lineCov">          7 :     const OffsetIndices&lt;int&gt; group_offsets = indices_by_group.offsets;</span></a>
+<a name="120"><span class="lineNum">     120 </span>            : </a>
+<a name="121"><span class="lineNum">     121 </span><span class="lineCov">          7 :     threading::parallel_for(</span></a>
+<a name="122"><span class="lineNum">     122 </span><span class="lineCov">          7 :         IndexRange(groups_num),</span></a>
+<a name="123"><span class="lineNum">     123 </span>            :         1024,</a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineCov">          7 :         [&amp;](const IndexRange range) {</span></a>
+<a name="125"><span class="lineNum">     125 </span>            :           AlignedBuffer&lt;4096, 8&gt; tree_buffer;</a>
+<a name="126"><span class="lineNum">     126 </span><span class="lineCov">         28 :           for (const int group_i : range) {</span></a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineCov">         21 :             const Span&lt;int&gt; group = indices_by_group[group_i];</span></a>
+<a name="128"><span class="lineNum">     128 </span>            :             /* Groups don't share indices, so the shared array can be written to directly. */</a>
+<a name="129"><span class="lineNum">     129 </span><span class="lineCov">         21 :             cluster_ids.as_mutable_span().fill_indices(group, NO_CLUSTER_VALUE);</span></a>
+<a name="130"><span class="lineNum">     130 </span><span class="lineCov">         21 :             LinearAllocator&lt;&gt; tree_memory;</span></a>
+<a name="131"><span class="lineNum">     131 </span><span class="lineCov">         21 :             tree_memory.provide_buffer(tree_buffer);</span></a>
+<a name="132"><span class="lineNum">     132 </span><span class="lineCov">         21 :             const KDTreeNew&lt;float3&gt; tree(positions, group, tree_memory);</span></a>
+<a name="133"><span class="lineNum">     133 </span>            :             /* The group's indices are sorted, so this visits the points in index order. */</a>
+<a name="134"><span class="lineNum">     134 </span><span class="lineCov">         21 :             kdtree::calc_duplicates(tree, distance_, group, cluster_ids);</span></a>
+<a name="135"><span class="lineNum">     135 </span><span class="lineCov">         70 :             for (const int i : group) {</span></a>
+<a name="136"><span class="lineNum">     136 </span><span class="lineCov">         49 :               if (cluster_ids[i] == NO_CLUSTER_VALUE) {</span></a>
+<a name="137"><span class="lineNum">     137 </span><span class="lineCov">         14 :                 cluster_ids[i] = i;</span></a>
+<a name="138"><span class="lineNum">     138 </span>            :               }</a>
+<a name="139"><span class="lineNum">     139 </span>            :             }</a>
+<a name="140"><span class="lineNum">     140 </span><span class="lineCov">         21 :           }</span></a>
+<a name="141"><span class="lineNum">     141 </span><span class="lineCov">          7 :         },</span></a>
+<a name="142"><span class="lineNum">     142 </span><span class="lineNoCov">          0 :         threading::accumulated_task_sizes(</span></a>
+<a name="143"><span class="lineNum">     143 </span><span class="lineCov">         14 :             [&amp;](const IndexRange range) { return group_offsets[range].size(); }));</span></a>
+<a name="144"><span class="lineNum">     144 </span>            : </a>
+<a name="145"><span class="lineNum">     145 </span>            : #ifndef NDEBUG</a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineCov">         63 :     mask.foreach_index([&amp;](const int i) { BLI_assert(cluster_ids[i] != NO_CLUSTER_VALUE); });</span></a>
+<a name="147"><span class="lineNum">     147 </span>            : #endif</a>
+<a name="148"><span class="lineNum">     148 </span>            : </a>
+<a name="149"><span class="lineNum">     149 </span><span class="lineCov">          7 :     return VArray&lt;int&gt;::from_container(std::move(cluster_ids));</span></a>
+<a name="150"><span class="lineNum">     150 </span><span class="lineCov">         35 :   }</span></a>
+<a name="151"><span class="lineNum">     151 </span>            : </a>
+<a name="152"><span class="lineNum">     152 </span><span class="lineNoCov">          0 :   void foreach_recursive_field(FunctionRef&lt;void(const GField &amp;)&gt; fn) const override</span></a>
+<a name="153"><span class="lineNum">     153 </span>            :   {</a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineNoCov">          0 :     fn(positions_field_);</span></a>
+<a name="155"><span class="lineNum">     155 </span><span class="lineNoCov">          0 :     fn(group_field_);</span></a>
+<a name="156"><span class="lineNum">     156 </span><span class="lineNoCov">          0 :     fn(selection_field_);</span></a>
+<a name="157"><span class="lineNum">     157 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="158"><span class="lineNum">     158 </span>            : </a>
+<a name="159"><span class="lineNum">     159 </span><span class="lineCov">         77 :   void hash_unique(UniqueHashBytes &amp;hash, fn::FieldHashDeep &amp;deep_hash_cache) const override</span></a>
+<a name="160"><span class="lineNum">     160 </span>            :   {</a>
+<a name="161"><span class="lineNum">     161 </span>            :     static constexpr int8_t id = 0;</a>
+<a name="162"><span class="lineNum">     162 </span><span class="lineCov">         77 :     hash.add(&amp;id);</span></a>
+<a name="163"><span class="lineNum">     163 </span><span class="lineCov">         77 :     hash.add(deep_hash_cache.ensure(positions_field_));</span></a>
+<a name="164"><span class="lineNum">     164 </span><span class="lineCov">         77 :     hash.add(deep_hash_cache.ensure(group_field_));</span></a>
+<a name="165"><span class="lineNum">     165 </span><span class="lineCov">         77 :     hash.add(deep_hash_cache.ensure(selection_field_));</span></a>
+<a name="166"><span class="lineNum">     166 </span><span class="lineCov">         77 :     hash.add(distance_);</span></a>
+<a name="167"><span class="lineNum">     167 </span><span class="lineCov">         77 :   }</span></a>
+<a name="168"><span class="lineNum">     168 </span>            : </a>
+<a name="169"><span class="lineNum">     169 </span><span class="lineNoCov">          0 :   std::optional&lt;AttrDomain&gt; preferred_domain(const GeometryComponent &amp;component) const final</span></a>
+<a name="170"><span class="lineNum">     170 </span>            :   {</a>
+<a name="171"><span class="lineNum">     171 </span><span class="lineNoCov">          0 :     return bke::try_detect_field_domain(component, positions_field_);</span></a>
+<a name="172"><span class="lineNum">     172 </span>            :   }</a>
+<a name="173"><span class="lineNum">     173 </span>            : };</a>
+<a name="174"><span class="lineNum">     174 </span>            : </a>
+<a name="175"><span class="lineNum">     175 </span><span class="lineCov">         35 : static void node_geo_exec(GeoNodeExecParams params)</span></a>
+<a name="176"><span class="lineNum">     176 </span>            : {</a>
+<a name="177"><span class="lineNum">     177 </span><span class="lineCov">         35 :   params.set_output(&quot;Cluster ID&quot;_ustr,</span></a>
+<a name="178"><span class="lineNum">     178 </span><span class="lineCov">         70 :                     Field&lt;int&gt;::from_input&lt;ClusterByDistanceFieldInput&gt;(</span></a>
+<a name="179"><span class="lineNum">     179 </span><span class="lineCov">         70 :                         params.extract_input&lt;Field&lt;float3&gt;&gt;(&quot;Position&quot;_ustr),</span></a>
+<a name="180"><span class="lineNum">     180 </span><span class="lineCov">         70 :                         params.extract_input&lt;Field&lt;int&gt;&gt;(&quot;Group ID&quot;_ustr),</span></a>
+<a name="181"><span class="lineNum">     181 </span><span class="lineCov">         70 :                         params.extract_input&lt;Field&lt;bool&gt;&gt;(&quot;Selection&quot;_ustr),</span></a>
+<a name="182"><span class="lineNum">     182 </span><span class="lineCov">         35 :                         params.extract_input&lt;float&gt;(&quot;Distance&quot;_ustr)));</span></a>
+<a name="183"><span class="lineNum">     183 </span><span class="lineCov">         35 : }</span></a>
+<a name="184"><span class="lineNum">     184 </span>            : </a>
+<a name="185"><span class="lineNum">     185 </span><span class="lineCov">        785 : static void node_register()</span></a>
+<a name="186"><span class="lineNum">     186 </span>            : {</a>
+<a name="187"><span class="lineNum">     187 </span><span class="lineCov">        785 :   static bke::bNodeType ntype;</span></a>
+<a name="188"><span class="lineNum">     188 </span>            : </a>
+<a name="189"><span class="lineNum">     189 </span><span class="lineCov">        785 :   geo_node_type_base(&amp;ntype, &quot;GeometryNodeClusterByDistance&quot;_ustr);</span></a>
+<a name="190"><span class="lineNum">     190 </span><span class="lineCov">        785 :   ntype.ui_name = &quot;Cluster by Distance&quot;;</span></a>
+<a name="191"><span class="lineNum">     191 </span><span class="lineCov">        785 :   ntype.ui_description = &quot;Group elements into integer IDs based on proximity of vector values&quot;;</span></a>
+<a name="192"><span class="lineNum">     192 </span><span class="lineCov">        785 :   ntype.nclass = NODE_CLASS_CONVERTER;</span></a>
+<a name="193"><span class="lineNum">     193 </span><span class="lineCov">        785 :   ntype.declare = node_declare;</span></a>
+<a name="194"><span class="lineNum">     194 </span><span class="lineCov">        785 :   ntype.geometry_node_execute = node_geo_exec;</span></a>
+<a name="195"><span class="lineNum">     195 </span><span class="lineCov">        785 :   bke::node_register_type(ntype);</span></a>
+<a name="196"><span class="lineNum">     196 </span><span class="lineCov">        785 : }</span></a>
+<a name="197"><span class="lineNum">     197 </span><span class="lineCov">        785 : NOD_REGISTER_NODE(node_register)</span></a>
+<a name="198"><span class="lineNum">     198 </span>            : </a>
+<a name="199"><span class="lineNum">     199 </span>            : }  // namespace blender::nodes::node_geo_cluster_by_distance_cc</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

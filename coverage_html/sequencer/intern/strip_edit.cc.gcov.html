@@ -1,0 +1,592 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - sequencer/intern/strip_edit.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">sequencer/intern</a> - strip_edit.cc<span style="font-size: 80%;"> (source / <a href="strip_edit.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">43</td>
+            <td class="headerCovTableEntry">251</td>
+            <td class="headerCovTableEntryLo">17.1 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntryLo">35.3 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2001-2002 NaN Holding BV. All rights reserved.</a>
+<a name="2"><span class="lineNum">       2 </span>            :  * SPDX-FileCopyrightText: 2003-2009 Blender Authors</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-FileCopyrightText: 2005-2006 Peter Schlaile &lt;peter [at] schlaile [dot] de&gt;</a>
+<a name="4"><span class="lineNum">       4 </span>            :  *</a>
+<a name="5"><span class="lineNum">       5 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="6"><span class="lineNum">       6 </span>            : </a>
+<a name="7"><span class="lineNum">       7 </span>            : /** \file</a>
+<a name="8"><span class="lineNum">       8 </span>            :  * \ingroup sequencer</a>
+<a name="9"><span class="lineNum">       9 </span>            :  */</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &quot;DNA_scene_types.h&quot;</a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &quot;DNA_sequence_types.h&quot;</a>
+<a name="13"><span class="lineNum">      13 </span>            : </a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;BLI_listbase.hh&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;BLI_math_base_c.hh&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &quot;BLI_string.hh&quot;</a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;BLI_string_utf8.hh&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : </a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &quot;BLT_translation.hh&quot;</a>
+<a name="20"><span class="lineNum">      20 </span>            : </a>
+<a name="21"><span class="lineNum">      21 </span>            : #include &quot;BKE_animsys.hh&quot;</a>
+<a name="22"><span class="lineNum">      22 </span>            : #include &quot;BKE_sound.hh&quot;</a>
+<a name="23"><span class="lineNum">      23 </span>            : </a>
+<a name="24"><span class="lineNum">      24 </span>            : #include &quot;strip_time.hh&quot;</a>
+<a name="25"><span class="lineNum">      25 </span>            : </a>
+<a name="26"><span class="lineNum">      26 </span>            : #include &quot;SEQ_add.hh&quot;</a>
+<a name="27"><span class="lineNum">      27 </span>            : #include &quot;SEQ_animation.hh&quot;</a>
+<a name="28"><span class="lineNum">      28 </span>            : #include &quot;SEQ_channels.hh&quot;</a>
+<a name="29"><span class="lineNum">      29 </span>            : #include &quot;SEQ_connect.hh&quot;</a>
+<a name="30"><span class="lineNum">      30 </span>            : </a>
+<a name="31"><span class="lineNum">      31 </span>            : #include &quot;SEQ_edit.hh&quot;</a>
+<a name="32"><span class="lineNum">      32 </span>            : #include &quot;SEQ_effects.hh&quot;</a>
+<a name="33"><span class="lineNum">      33 </span>            : #include &quot;SEQ_iterator.hh&quot;</a>
+<a name="34"><span class="lineNum">      34 </span>            : #include &quot;SEQ_relations.hh&quot;</a>
+<a name="35"><span class="lineNum">      35 </span>            : #include &quot;SEQ_render.hh&quot;</a>
+<a name="36"><span class="lineNum">      36 </span>            : #include &quot;SEQ_sequencer.hh&quot;</a>
+<a name="37"><span class="lineNum">      37 </span>            : #include &quot;SEQ_time.hh&quot;</a>
+<a name="38"><span class="lineNum">      38 </span>            : #include &quot;SEQ_transform.hh&quot;</a>
+<a name="39"><span class="lineNum">      39 </span>            : #include &quot;SEQ_utils.hh&quot;</a>
+<a name="40"><span class="lineNum">      40 </span>            : </a>
+<a name="41"><span class="lineNum">      41 </span>            : #include &lt;cstring&gt;</a>
+<a name="42"><span class="lineNum">      42 </span>            : </a>
+<a name="43"><span class="lineNum">      43 </span>            : namespace blender::seq {</a>
+<a name="44"><span class="lineNum">      44 </span>            : </a>
+<a name="45"><span class="lineNum">      45 </span><span class="lineNoCov">          0 : bool edit_strip_swap(Scene *scene, Strip *strip_a, Strip *strip_b, const char **r_error_str)</span></a>
+<a name="46"><span class="lineNum">      46 </span>            : {</a>
+<a name="47"><span class="lineNum">      47 </span>            :   char name[sizeof(strip_a-&gt;name)];</a>
+<a name="48"><span class="lineNum">      48 </span>            : </a>
+<a name="49"><span class="lineNum">      49 </span><span class="lineNoCov">          0 :   if (strip_a-&gt;length(scene) != strip_b-&gt;length(scene)) {</span></a>
+<a name="50"><span class="lineNum">      50 </span><span class="lineNoCov">          0 :     *r_error_str = N_(&quot;Strips must be the same length&quot;);</span></a>
+<a name="51"><span class="lineNum">      51 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="52"><span class="lineNum">      52 </span>            :   }</a>
+<a name="53"><span class="lineNum">      53 </span>            : </a>
+<a name="54"><span class="lineNum">      54 </span>            :   /* type checking, could be more advanced but disallow sound vs non-sound copy */</a>
+<a name="55"><span class="lineNum">      55 </span><span class="lineNoCov">          0 :   if (strip_a-&gt;type != strip_b-&gt;type) {</span></a>
+<a name="56"><span class="lineNum">      56 </span><span class="lineNoCov">          0 :     if (strip_a-&gt;type == STRIP_TYPE_SOUND || strip_b-&gt;type == STRIP_TYPE_SOUND) {</span></a>
+<a name="57"><span class="lineNum">      57 </span><span class="lineNoCov">          0 :       *r_error_str = N_(&quot;Strips were not compatible&quot;);</span></a>
+<a name="58"><span class="lineNum">      58 </span><span class="lineNoCov">          0 :       return false;</span></a>
+<a name="59"><span class="lineNum">      59 </span>            :     }</a>
+<a name="60"><span class="lineNum">      60 </span>            : </a>
+<a name="61"><span class="lineNum">      61 </span>            :     /* disallow effects to swap with non-effects strips */</a>
+<a name="62"><span class="lineNum">      62 </span><span class="lineNoCov">          0 :     if (strip_a-&gt;is_effect() != strip_b-&gt;is_effect()) {</span></a>
+<a name="63"><span class="lineNum">      63 </span><span class="lineNoCov">          0 :       *r_error_str = N_(&quot;Strips were not compatible&quot;);</span></a>
+<a name="64"><span class="lineNum">      64 </span><span class="lineNoCov">          0 :       return false;</span></a>
+<a name="65"><span class="lineNum">      65 </span>            :     }</a>
+<a name="66"><span class="lineNum">      66 </span>            : </a>
+<a name="67"><span class="lineNum">      67 </span><span class="lineNoCov">          0 :     if (strip_a-&gt;is_effect() &amp;&amp; strip_b-&gt;is_effect()) {</span></a>
+<a name="68"><span class="lineNum">      68 </span><span class="lineNoCov">          0 :       if (strip_a-&gt;effect_num_inputs_get() != strip_b-&gt;effect_num_inputs_get()) {</span></a>
+<a name="69"><span class="lineNum">      69 </span><span class="lineNoCov">          0 :         *r_error_str = N_(&quot;Strips must have the same number of inputs&quot;);</span></a>
+<a name="70"><span class="lineNum">      70 </span><span class="lineNoCov">          0 :         return false;</span></a>
+<a name="71"><span class="lineNum">      71 </span>            :       }</a>
+<a name="72"><span class="lineNum">      72 </span>            :     }</a>
+<a name="73"><span class="lineNum">      73 </span>            :   }</a>
+<a name="74"><span class="lineNum">      74 </span>            : </a>
+<a name="75"><span class="lineNum">      75 </span><span class="lineNoCov">          0 :   dna::shallow_swap(*strip_a, *strip_b);</span></a>
+<a name="76"><span class="lineNum">      76 </span>            : </a>
+<a name="77"><span class="lineNum">      77 </span>            :   /* swap back names so animation fcurves don't get swapped */</a>
+<a name="78"><span class="lineNum">      78 </span><span class="lineNoCov">          0 :   STRNCPY(name, strip_a-&gt;name + 2);</span></a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineNoCov">          0 :   BLI_strncpy(strip_a-&gt;name + 2, strip_b-&gt;name + 2, sizeof(strip_b-&gt;name) - 2);</span></a>
+<a name="80"><span class="lineNum">      80 </span><span class="lineNoCov">          0 :   BLI_strncpy(strip_b-&gt;name + 2, name, sizeof(strip_b-&gt;name) - 2);</span></a>
+<a name="81"><span class="lineNum">      81 </span>            : </a>
+<a name="82"><span class="lineNum">      82 </span>            :   /* swap back opacity, and overlay mode */</a>
+<a name="83"><span class="lineNum">      83 </span><span class="lineNoCov">          0 :   std::swap(strip_a-&gt;blend_mode, strip_b-&gt;blend_mode);</span></a>
+<a name="84"><span class="lineNum">      84 </span><span class="lineNoCov">          0 :   std::swap(strip_a-&gt;blend_opacity, strip_b-&gt;blend_opacity);</span></a>
+<a name="85"><span class="lineNum">      85 </span>            : </a>
+<a name="86"><span class="lineNum">      86 </span><span class="lineNoCov">          0 :   std::swap(strip_a-&gt;prev, strip_b-&gt;prev);</span></a>
+<a name="87"><span class="lineNum">      87 </span><span class="lineNoCov">          0 :   std::swap(strip_a-&gt;next, strip_b-&gt;next);</span></a>
+<a name="88"><span class="lineNum">      88 </span><span class="lineNoCov">          0 :   std::swap(strip_a-&gt;start, strip_b-&gt;start);</span></a>
+<a name="89"><span class="lineNum">      89 </span><span class="lineNoCov">          0 :   std::swap(strip_a-&gt;startofs, strip_b-&gt;startofs);</span></a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineNoCov">          0 :   const float tmp_offset = strip_a-&gt;end_offset();</span></a>
+<a name="91"><span class="lineNum">      91 </span><span class="lineNoCov">          0 :   strip_a-&gt;end_offset_set(strip_b-&gt;end_offset());</span></a>
+<a name="92"><span class="lineNum">      92 </span><span class="lineNoCov">          0 :   strip_b-&gt;end_offset_set(tmp_offset);</span></a>
+<a name="93"><span class="lineNum">      93 </span><span class="lineNoCov">          0 :   std::swap(strip_a-&gt;channel, strip_b-&gt;channel);</span></a>
+<a name="94"><span class="lineNum">      94 </span><span class="lineNoCov">          0 :   strip_time_effect_range_set(scene, strip_a);</span></a>
+<a name="95"><span class="lineNum">      95 </span><span class="lineNoCov">          0 :   strip_time_effect_range_set(scene, strip_b);</span></a>
+<a name="96"><span class="lineNum">      96 </span>            : </a>
+<a name="97"><span class="lineNum">      97 </span><span class="lineNoCov">          0 :   strip_lookup_invalidate(editing_get(scene));</span></a>
+<a name="98"><span class="lineNum">      98 </span>            : </a>
+<a name="99"><span class="lineNum">      99 </span><span class="lineNoCov">          0 :   return true;</span></a>
+<a name="100"><span class="lineNum">     100 </span>            : }</a>
+<a name="101"><span class="lineNum">     101 </span>            : </a>
+<a name="102"><span class="lineNum">     102 </span><span class="lineCov">      37952 : static void strip_update_muting_recursive(ListBaseT&lt;SeqTimelineChannel&gt; *channels,</span></a>
+<a name="103"><span class="lineNum">     103 </span>            :                                           ListBaseT&lt;Strip&gt; *seqbasep,</a>
+<a name="104"><span class="lineNum">     104 </span>            :                                           Strip *strip_meta,</a>
+<a name="105"><span class="lineNum">     105 </span>            :                                           const bool mute)</a>
+<a name="106"><span class="lineNum">     106 </span>            : {</a>
+<a name="107"><span class="lineNum">     107 </span>            :   /* For sound we go over full meta tree to update muted state,</a>
+<a name="108"><span class="lineNum">     108 </span>            :    * since sound is played outside of evaluating the imbufs. */</a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineCov">      44101 :   for (Strip &amp;strip : *seqbasep) {</span></a>
+<a name="110"><span class="lineNum">     110 </span><span class="lineCov">       6149 :     bool strip_mute = (mute || render_is_muted(channels, &amp;strip));</span></a>
+<a name="111"><span class="lineNum">     111 </span>            : </a>
+<a name="112"><span class="lineNum">     112 </span><span class="lineCov">       6149 :     if (strip.type == STRIP_TYPE_META) {</span></a>
+<a name="113"><span class="lineNum">     113 </span>            :       /* if this is the current meta-strip, unmute because</a>
+<a name="114"><span class="lineNum">     114 </span>            :        * all strips above this were set to mute */</a>
+<a name="115"><span class="lineNum">     115 </span><span class="lineCov">        178 :       if (&amp;strip == strip_meta) {</span></a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineNoCov">          0 :         strip_mute = false;</span></a>
+<a name="117"><span class="lineNum">     117 </span>            :       }</a>
+<a name="118"><span class="lineNum">     118 </span>            : </a>
+<a name="119"><span class="lineNum">     119 </span><span class="lineCov">        178 :       strip_update_muting_recursive(&amp;strip.channels, &amp;strip.seqbase, strip_meta, strip_mute);</span></a>
+<a name="120"><span class="lineNum">     120 </span>            :     }</a>
+<a name="121"><span class="lineNum">     121 </span><span class="lineCov">       5971 :     else if (ELEM(strip.type, STRIP_TYPE_SOUND, STRIP_TYPE_SCENE)) {</span></a>
+<a name="122"><span class="lineNum">     122 </span><span class="lineCov">        114 :       if (strip.runtime-&gt;scene_sound) {</span></a>
+<a name="123"><span class="lineNum">     123 </span><span class="lineCov">         76 :         BKE_sound_mute_scene_sound(strip.runtime-&gt;scene_sound, strip_mute);</span></a>
+<a name="124"><span class="lineNum">     124 </span>            :       }</a>
+<a name="125"><span class="lineNum">     125 </span>            :     }</a>
+<a name="126"><span class="lineNum">     126 </span>            :   }</a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineCov">      37952 : }</span></a>
+<a name="128"><span class="lineNum">     128 </span>            : </a>
+<a name="129"><span class="lineNum">     129 </span><span class="lineCov">      37774 : void edit_update_muting(Editing *ed)</span></a>
+<a name="130"><span class="lineNum">     130 </span>            : {</a>
+<a name="131"><span class="lineNum">     131 </span><span class="lineCov">      37774 :   if (ed) {</span></a>
+<a name="132"><span class="lineNum">     132 </span>            :     /* mute all sounds up to current metastack list */</a>
+<a name="133"><span class="lineNum">     133 </span><span class="lineCov">      37774 :     MetaStack *ms = ed-&gt;metastack.last();</span></a>
+<a name="134"><span class="lineNum">     134 </span>            : </a>
+<a name="135"><span class="lineNum">     135 </span><span class="lineCov">      37774 :     if (ms) {</span></a>
+<a name="136"><span class="lineNum">     136 </span><span class="lineNoCov">          0 :       strip_update_muting_recursive(&amp;ed-&gt;channels, &amp;ed-&gt;seqbase, ms-&gt;parent_strip, true);</span></a>
+<a name="137"><span class="lineNum">     137 </span>            :     }</a>
+<a name="138"><span class="lineNum">     138 </span>            :     else {</a>
+<a name="139"><span class="lineNum">     139 </span><span class="lineCov">      37774 :       strip_update_muting_recursive(&amp;ed-&gt;channels, &amp;ed-&gt;seqbase, nullptr, false);</span></a>
+<a name="140"><span class="lineNum">     140 </span>            :     }</a>
+<a name="141"><span class="lineNum">     141 </span>            :   }</a>
+<a name="142"><span class="lineNum">     142 </span><span class="lineCov">      37774 : }</span></a>
+<a name="143"><span class="lineNum">     143 </span>            : </a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineCov">          3 : void edit_flag_for_removal(Scene *scene, Strip *strip)</span></a>
+<a name="145"><span class="lineNum">     145 </span>            : {</a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineCov">          3 :   Editing *ed = editing_get(scene);</span></a>
+<a name="147"><span class="lineNum">     147 </span><span class="lineCov">          6 :   if (strip == nullptr || ed == nullptr ||</span></a>
+<a name="148"><span class="lineNum">     148 </span><span class="lineCov">          3 :       flag_is_set(strip-&gt;runtime-&gt;flag, StripRuntimeFlag::MarkForDelete))</span></a>
+<a name="149"><span class="lineNum">     149 </span>            :   {</a>
+<a name="150"><span class="lineNum">     150 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="151"><span class="lineNum">     151 </span>            :   }</a>
+<a name="152"><span class="lineNum">     152 </span>            : </a>
+<a name="153"><span class="lineNum">     153 </span><span class="lineCov">          3 :   VectorSet&lt;Strip *&gt; strips_to_delete;</span></a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineCov">          3 :   strips_to_delete.add_new(strip);</span></a>
+<a name="155"><span class="lineNum">     155 </span>            : </a>
+<a name="156"><span class="lineNum">     156 </span>            :   /* Delete effects that use `strip` as an input (either directly or through another effect), and</a>
+<a name="157"><span class="lineNum">     157 </span>            :    * the contents of any meta strip. Effect inputs are always in the same seqbase as the effect. */</a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineCov">          3 :   expand_strips(ed, strips_to_delete, StripRelation::Effects | StripRelation::MetaContents);</span></a>
+<a name="159"><span class="lineNum">     159 </span>            : </a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineCov">          6 :   for (Strip *strip_to_mark : strips_to_delete) {</span></a>
+<a name="161"><span class="lineNum">     161 </span><span class="lineCov">          3 :     strip_to_mark-&gt;runtime-&gt;flag |= StripRuntimeFlag::MarkForDelete;</span></a>
+<a name="162"><span class="lineNum">     162 </span>            :   }</a>
+<a name="163"><span class="lineNum">     163 </span>            : </a>
+<a name="164"><span class="lineNum">     164 </span>            :   /* Clear deleted strips from modifiers. The user strip can be in a different seqbase. */</a>
+<a name="165"><span class="lineNum">     165 </span><span class="lineCov">          3 :   foreach_strip(&amp;ed-&gt;seqbase, [&amp;](Strip *user_strip) {</span></a>
+<a name="166"><span class="lineNum">     166 </span><span class="lineCov">          3 :     for (StripModifierData &amp;smd : user_strip-&gt;modifiers) {</span></a>
+<a name="167"><span class="lineNum">     167 </span><span class="lineNoCov">          0 :       if (strips_to_delete.contains(smd.mask_strip)) {</span></a>
+<a name="168"><span class="lineNum">     168 </span><span class="lineNoCov">          0 :         smd.mask_strip = nullptr;</span></a>
+<a name="169"><span class="lineNum">     169 </span>            :       }</a>
+<a name="170"><span class="lineNum">     170 </span>            :     }</a>
+<a name="171"><span class="lineNum">     171 </span><span class="lineCov">          3 :     return true;</span></a>
+<a name="172"><span class="lineNum">     172 </span>            :   });</a>
+<a name="173"><span class="lineNum">     173 </span><span class="lineCov">          3 : }</span></a>
+<a name="174"><span class="lineNum">     174 </span>            : </a>
+<a name="175"><span class="lineNum">     175 </span><span class="lineCov">          3 : void edit_remove_flagged_strips(Scene *scene, ListBaseT&lt;Strip&gt; *seqbase)</span></a>
+<a name="176"><span class="lineNum">     176 </span>            : {</a>
+<a name="177"><span class="lineNum">     177 </span><span class="lineCov">          6 :   for (Strip &amp;strip : seqbase-&gt;items_mutable()) {</span></a>
+<a name="178"><span class="lineNum">     178 </span><span class="lineCov">          3 :     if (flag_is_set(strip.runtime-&gt;flag, StripRuntimeFlag::MarkForDelete)) {</span></a>
+<a name="179"><span class="lineNum">     179 </span><span class="lineCov">          3 :       if (strip.type == STRIP_TYPE_META) {</span></a>
+<a name="180"><span class="lineNum">     180 </span><span class="lineNoCov">          0 :         edit_remove_flagged_strips(scene, &amp;strip.seqbase);</span></a>
+<a name="181"><span class="lineNum">     181 </span>            :       }</a>
+<a name="182"><span class="lineNum">     182 </span><span class="lineCov">          3 :       free_animdata(scene, &amp;strip);</span></a>
+<a name="183"><span class="lineNum">     183 </span><span class="lineCov">          3 :       BLI_remlink(seqbase, &amp;strip);</span></a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineCov">          3 :       strip_free(scene, &amp;strip);</span></a>
+<a name="185"><span class="lineNum">     185 </span><span class="lineCov">          3 :       strip_lookup_invalidate(scene-&gt;ed);</span></a>
+<a name="186"><span class="lineNum">     186 </span>            :     }</a>
+<a name="187"><span class="lineNum">     187 </span>            :   }</a>
+<a name="188"><span class="lineNum">     188 </span><span class="lineCov">          3 : }</span></a>
+<a name="189"><span class="lineNum">     189 </span>            : </a>
+<a name="190"><span class="lineNum">     190 </span><span class="lineNoCov">          0 : bool edit_move_strip_to_seqbase(Scene *scene,</span></a>
+<a name="191"><span class="lineNum">     191 </span>            :                                 ListBaseT&lt;Strip&gt; *seqbase,</a>
+<a name="192"><span class="lineNum">     192 </span>            :                                 Strip *strip,</a>
+<a name="193"><span class="lineNum">     193 </span>            :                                 ListBaseT&lt;Strip&gt; *dst_seqbase)</a>
+<a name="194"><span class="lineNum">     194 </span>            : {</a>
+<a name="195"><span class="lineNum">     195 </span>            :   /* Move to meta. */</a>
+<a name="196"><span class="lineNum">     196 </span><span class="lineNoCov">          0 :   BLI_remlink(seqbase, strip);</span></a>
+<a name="197"><span class="lineNum">     197 </span><span class="lineNoCov">          0 :   BLI_addtail(dst_seqbase, strip);</span></a>
+<a name="198"><span class="lineNum">     198 </span><span class="lineNoCov">          0 :   relations_invalidate_cache(scene, strip);</span></a>
+<a name="199"><span class="lineNum">     199 </span>            : </a>
+<a name="200"><span class="lineNum">     200 </span>            :   /* Update meta. */</a>
+<a name="201"><span class="lineNum">     201 </span><span class="lineNoCov">          0 :   transform_shuffle_vertical(dst_seqbase, {strip}, scene);</span></a>
+<a name="202"><span class="lineNum">     202 </span>            : </a>
+<a name="203"><span class="lineNum">     203 </span><span class="lineNoCov">          0 :   return true;</span></a>
+<a name="204"><span class="lineNum">     204 </span>            : }</a>
+<a name="205"><span class="lineNum">     205 </span>            : </a>
+<a name="206"><span class="lineNum">     206 </span><span class="lineNoCov">          0 : bool edit_move_strip_to_meta(Scene *scene,</span></a>
+<a name="207"><span class="lineNum">     207 </span>            :                              Strip *src_strip,</a>
+<a name="208"><span class="lineNum">     208 </span>            :                              Strip *dst_stripm,</a>
+<a name="209"><span class="lineNum">     209 </span>            :                              const char **r_error_str)</a>
+<a name="210"><span class="lineNum">     210 </span>            : {</a>
+<a name="211"><span class="lineNum">     211 </span>            :   /* Find the appropriate seqbase */</a>
+<a name="212"><span class="lineNum">     212 </span><span class="lineNoCov">          0 :   Editing *ed = editing_get(scene);</span></a>
+<a name="213"><span class="lineNum">     213 </span><span class="lineNoCov">          0 :   ListBaseT&lt;Strip&gt; *seqbase = get_seqbase_by_strip(scene, src_strip);</span></a>
+<a name="214"><span class="lineNum">     214 </span>            : </a>
+<a name="215"><span class="lineNum">     215 </span><span class="lineNoCov">          0 :   if (dst_stripm-&gt;type != STRIP_TYPE_META) {</span></a>
+<a name="216"><span class="lineNum">     216 </span><span class="lineNoCov">          0 :     *r_error_str = N_(&quot;Cannot move strip to non-meta strip&quot;);</span></a>
+<a name="217"><span class="lineNum">     217 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="218"><span class="lineNum">     218 </span>            :   }</a>
+<a name="219"><span class="lineNum">     219 </span>            : </a>
+<a name="220"><span class="lineNum">     220 </span><span class="lineNoCov">          0 :   if (src_strip == dst_stripm) {</span></a>
+<a name="221"><span class="lineNum">     221 </span><span class="lineNoCov">          0 :     *r_error_str = N_(&quot;Strip cannot be moved into itself&quot;);</span></a>
+<a name="222"><span class="lineNum">     222 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="223"><span class="lineNum">     223 </span>            :   }</a>
+<a name="224"><span class="lineNum">     224 </span>            : </a>
+<a name="225"><span class="lineNum">     225 </span><span class="lineNoCov">          0 :   if (seqbase == &amp;dst_stripm-&gt;seqbase) {</span></a>
+<a name="226"><span class="lineNum">     226 </span><span class="lineNoCov">          0 :     *r_error_str = N_(&quot;Moved strip is already inside provided meta strip&quot;);</span></a>
+<a name="227"><span class="lineNum">     227 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="228"><span class="lineNum">     228 </span>            :   }</a>
+<a name="229"><span class="lineNum">     229 </span>            : </a>
+<a name="230"><span class="lineNum">     230 </span><span class="lineNoCov">          0 :   if (src_strip-&gt;type == STRIP_TYPE_META &amp;&amp; exists_in_seqbase(dst_stripm, &amp;src_strip-&gt;seqbase)) {</span></a>
+<a name="231"><span class="lineNum">     231 </span><span class="lineNoCov">          0 :     *r_error_str = N_(&quot;Moved strip is parent of provided meta strip&quot;);</span></a>
+<a name="232"><span class="lineNum">     232 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="233"><span class="lineNum">     233 </span>            :   }</a>
+<a name="234"><span class="lineNum">     234 </span>            : </a>
+<a name="235"><span class="lineNum">     235 </span><span class="lineNoCov">          0 :   if (!exists_in_seqbase(dst_stripm, &amp;ed-&gt;seqbase)) {</span></a>
+<a name="236"><span class="lineNum">     236 </span><span class="lineNoCov">          0 :     *r_error_str = N_(&quot;Cannot move strip to different scene&quot;);</span></a>
+<a name="237"><span class="lineNum">     237 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="238"><span class="lineNum">     238 </span>            :   }</a>
+<a name="239"><span class="lineNum">     239 </span>            : </a>
+<a name="240"><span class="lineNum">     240 </span><span class="lineNoCov">          0 :   VectorSet&lt;Strip *&gt; strips;</span></a>
+<a name="241"><span class="lineNum">     241 </span><span class="lineNoCov">          0 :   strips.add(src_strip);</span></a>
+<a name="242"><span class="lineNum">     242 </span><span class="lineNoCov">          0 :   expand_strips(ed, strips, StripRelation::EffectChain);</span></a>
+<a name="243"><span class="lineNum">     243 </span>            : </a>
+<a name="244"><span class="lineNum">     244 </span><span class="lineNoCov">          0 :   for (Strip *strip : strips) {</span></a>
+<a name="245"><span class="lineNum">     245 </span>            :     /* Move to meta. */</a>
+<a name="246"><span class="lineNum">     246 </span><span class="lineNoCov">          0 :     edit_move_strip_to_seqbase(scene, seqbase, strip, &amp;dst_stripm-&gt;seqbase);</span></a>
+<a name="247"><span class="lineNum">     247 </span>            :   }</a>
+<a name="248"><span class="lineNum">     248 </span>            : </a>
+<a name="249"><span class="lineNum">     249 </span><span class="lineNoCov">          0 :   time_update_meta_strip_range(scene, dst_stripm);</span></a>
+<a name="250"><span class="lineNum">     250 </span>            : </a>
+<a name="251"><span class="lineNum">     251 </span><span class="lineNoCov">          0 :   return true;</span></a>
+<a name="252"><span class="lineNum">     252 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="253"><span class="lineNum">     253 </span>            : </a>
+<a name="254"><span class="lineNum">     254 </span><span class="lineNoCov">          0 : static void seq_split_set_right_hold_offset(Main *bmain,</span></a>
+<a name="255"><span class="lineNum">     255 </span>            :                                             Scene *scene,</a>
+<a name="256"><span class="lineNum">     256 </span>            :                                             Strip *strip,</a>
+<a name="257"><span class="lineNum">     257 </span>            :                                             int timeline_frame)</a>
+<a name="258"><span class="lineNum">     258 </span>            : {</a>
+<a name="259"><span class="lineNum">     259 </span><span class="lineNoCov">          0 :   const float content_start = strip-&gt;content_start();</span></a>
+<a name="260"><span class="lineNum">     260 </span><span class="lineNoCov">          0 :   const float content_end = strip-&gt;content_end(scene);</span></a>
+<a name="261"><span class="lineNum">     261 </span>            : </a>
+<a name="262"><span class="lineNum">     262 </span>            :   /* Adjust within range of extended still-frames before strip. */</a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineNoCov">          0 :   if (timeline_frame &lt; content_start) {</span></a>
+<a name="264"><span class="lineNum">     264 </span><span class="lineNoCov">          0 :     const float offset = content_start + 1 - timeline_frame;</span></a>
+<a name="265"><span class="lineNum">     265 </span><span class="lineNoCov">          0 :     strip-&gt;start -= offset;</span></a>
+<a name="266"><span class="lineNum">     266 </span><span class="lineNoCov">          0 :     strip-&gt;startofs += offset;</span></a>
+<a name="267"><span class="lineNum">     267 </span>            :   }</a>
+<a name="268"><span class="lineNum">     268 </span>            :   /* Adjust within range of strip contents. */</a>
+<a name="269"><span class="lineNum">     269 </span><span class="lineNoCov">          0 :   else if ((timeline_frame &gt;= content_start) &amp;&amp; (timeline_frame &lt;= content_end)) {</span></a>
+<a name="270"><span class="lineNum">     270 </span><span class="lineNoCov">          0 :     strip-&gt;end_offset_set(0);</span></a>
+<a name="271"><span class="lineNum">     271 </span><span class="lineNoCov">          0 :     const float scene_fps = float(scene-&gt;r.frs_sec) / float(scene-&gt;r.frs_sec_base);</span></a>
+<a name="272"><span class="lineNum">     272 </span><span class="lineNoCov">          0 :     const float speed_factor = strip-&gt;media_playback_rate_factor(scene_fps);</span></a>
+<a name="273"><span class="lineNum">     273 </span><span class="lineNoCov">          0 :     strip-&gt;anim_endofs += round_fl_to_int((content_end - timeline_frame) * speed_factor);</span></a>
+<a name="274"><span class="lineNum">     274 </span>            :   }</a>
+<a name="275"><span class="lineNum">     275 </span>            : </a>
+<a name="276"><span class="lineNum">     276 </span><span class="lineNoCov">          0 :   add_update_content_length(bmain, scene, strip);</span></a>
+<a name="277"><span class="lineNum">     277 </span><span class="lineNoCov">          0 :   strip-&gt;right_handle_set(scene, timeline_frame);</span></a>
+<a name="278"><span class="lineNum">     278 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="279"><span class="lineNum">     279 </span>            : </a>
+<a name="280"><span class="lineNum">     280 </span><span class="lineNoCov">          0 : static void seq_split_set_left_hold_offset(Main *bmain,</span></a>
+<a name="281"><span class="lineNum">     281 </span>            :                                            Scene *scene,</a>
+<a name="282"><span class="lineNum">     282 </span>            :                                            Strip *strip,</a>
+<a name="283"><span class="lineNum">     283 </span>            :                                            int timeline_frame)</a>
+<a name="284"><span class="lineNum">     284 </span>            : {</a>
+<a name="285"><span class="lineNum">     285 </span><span class="lineNoCov">          0 :   const float content_start = strip-&gt;content_start();</span></a>
+<a name="286"><span class="lineNum">     286 </span><span class="lineNoCov">          0 :   const float content_end = strip-&gt;content_end(scene);</span></a>
+<a name="287"><span class="lineNum">     287 </span>            : </a>
+<a name="288"><span class="lineNum">     288 </span>            :   /* Adjust within range of strip contents. */</a>
+<a name="289"><span class="lineNum">     289 </span><span class="lineNoCov">          0 :   if ((timeline_frame &gt;= content_start) &amp;&amp; (timeline_frame &lt;= content_end)) {</span></a>
+<a name="290"><span class="lineNum">     290 </span><span class="lineNoCov">          0 :     const float scene_fps = float(scene-&gt;r.frs_sec) / float(scene-&gt;r.frs_sec_base);</span></a>
+<a name="291"><span class="lineNum">     291 </span><span class="lineNoCov">          0 :     const float speed_factor = strip-&gt;media_playback_rate_factor(scene_fps);</span></a>
+<a name="292"><span class="lineNum">     292 </span><span class="lineNoCov">          0 :     strip-&gt;anim_startofs += round_fl_to_int((timeline_frame - content_start) * speed_factor);</span></a>
+<a name="293"><span class="lineNum">     293 </span><span class="lineNoCov">          0 :     strip-&gt;start = timeline_frame;</span></a>
+<a name="294"><span class="lineNum">     294 </span><span class="lineNoCov">          0 :     strip-&gt;startofs = 0;</span></a>
+<a name="295"><span class="lineNum">     295 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="296"><span class="lineNum">     296 </span>            :   /* Adjust within range of extended still-frames after strip. */</a>
+<a name="297"><span class="lineNum">     297 </span><span class="lineNoCov">          0 :   else if (timeline_frame &gt; content_end) {</span></a>
+<a name="298"><span class="lineNum">     298 </span><span class="lineNoCov">          0 :     const float offset = timeline_frame - content_end + 1;</span></a>
+<a name="299"><span class="lineNum">     299 </span><span class="lineNoCov">          0 :     strip-&gt;start += offset;</span></a>
+<a name="300"><span class="lineNum">     300 </span><span class="lineNoCov">          0 :     strip-&gt;end_offset_set(strip-&gt;end_offset() + offset);</span></a>
+<a name="301"><span class="lineNum">     301 </span>            :   }</a>
+<a name="302"><span class="lineNum">     302 </span>            : </a>
+<a name="303"><span class="lineNum">     303 </span><span class="lineNoCov">          0 :   add_update_content_length(bmain, scene, strip);</span></a>
+<a name="304"><span class="lineNum">     304 </span><span class="lineNoCov">          0 :   strip-&gt;left_handle_set(scene, timeline_frame);</span></a>
+<a name="305"><span class="lineNum">     305 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="306"><span class="lineNum">     306 </span>            : </a>
+<a name="307"><span class="lineNum">     307 </span><span class="lineNoCov">          0 : static bool seq_edit_split_intersect_check(const Scene *scene,</span></a>
+<a name="308"><span class="lineNum">     308 </span>            :                                            const Strip *strip,</a>
+<a name="309"><span class="lineNum">     309 </span>            :                                            const int timeline_frame)</a>
+<a name="310"><span class="lineNum">     310 </span>            : {</a>
+<a name="311"><span class="lineNum">     311 </span><span class="lineNoCov">          0 :   return timeline_frame &gt; strip-&gt;left_handle() &amp;&amp; timeline_frame &lt; strip-&gt;right_handle(scene);</span></a>
+<a name="312"><span class="lineNum">     312 </span>            : }</a>
+<a name="313"><span class="lineNum">     313 </span>            : </a>
+<a name="314"><span class="lineNum">     314 </span><span class="lineNoCov">          0 : static void seq_edit_split_handle_strip_offsets(Main *bmain,</span></a>
+<a name="315"><span class="lineNum">     315 </span>            :                                                 Scene *scene,</a>
+<a name="316"><span class="lineNum">     316 </span>            :                                                 Strip *left_strip,</a>
+<a name="317"><span class="lineNum">     317 </span>            :                                                 Strip *right_strip,</a>
+<a name="318"><span class="lineNum">     318 </span>            :                                                 const int timeline_frame,</a>
+<a name="319"><span class="lineNum">     319 </span>            :                                                 const eSplitMethod method)</a>
+<a name="320"><span class="lineNum">     320 </span>            : {</a>
+<a name="321"><span class="lineNum">     321 </span><span class="lineNoCov">          0 :   if (seq_edit_split_intersect_check(scene, right_strip, timeline_frame)) {</span></a>
+<a name="322"><span class="lineNum">     322 </span><span class="lineNoCov">          0 :     switch (method) {</span></a>
+<a name="323"><span class="lineNum">     323 </span><span class="lineNoCov">          0 :       case SPLIT_SOFT:</span></a>
+<a name="324"><span class="lineNum">     324 </span><span class="lineNoCov">          0 :         right_strip-&gt;left_handle_set(scene, timeline_frame);</span></a>
+<a name="325"><span class="lineNum">     325 </span><span class="lineNoCov">          0 :         break;</span></a>
+<a name="326"><span class="lineNum">     326 </span><span class="lineNoCov">          0 :       case SPLIT_HARD:</span></a>
+<a name="327"><span class="lineNum">     327 </span><span class="lineNoCov">          0 :         seq_split_set_left_hold_offset(bmain, scene, right_strip, timeline_frame);</span></a>
+<a name="328"><span class="lineNum">     328 </span><span class="lineNoCov">          0 :         break;</span></a>
+<a name="329"><span class="lineNum">     329 </span>            :     }</a>
+<a name="330"><span class="lineNum">     330 </span>            :   }</a>
+<a name="331"><span class="lineNum">     331 </span>            : </a>
+<a name="332"><span class="lineNum">     332 </span><span class="lineNoCov">          0 :   if (seq_edit_split_intersect_check(scene, left_strip, timeline_frame)) {</span></a>
+<a name="333"><span class="lineNum">     333 </span><span class="lineNoCov">          0 :     switch (method) {</span></a>
+<a name="334"><span class="lineNum">     334 </span><span class="lineNoCov">          0 :       case SPLIT_SOFT:</span></a>
+<a name="335"><span class="lineNum">     335 </span><span class="lineNoCov">          0 :         left_strip-&gt;right_handle_set(scene, timeline_frame);</span></a>
+<a name="336"><span class="lineNum">     336 </span><span class="lineNoCov">          0 :         break;</span></a>
+<a name="337"><span class="lineNum">     337 </span><span class="lineNoCov">          0 :       case SPLIT_HARD:</span></a>
+<a name="338"><span class="lineNum">     338 </span><span class="lineNoCov">          0 :         seq_split_set_right_hold_offset(bmain, scene, left_strip, timeline_frame);</span></a>
+<a name="339"><span class="lineNum">     339 </span><span class="lineNoCov">          0 :         break;</span></a>
+<a name="340"><span class="lineNum">     340 </span>            :     }</a>
+<a name="341"><span class="lineNum">     341 </span>            :   }</a>
+<a name="342"><span class="lineNum">     342 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="343"><span class="lineNum">     343 </span>            : </a>
+<a name="344"><span class="lineNum">     344 </span><span class="lineNoCov">          0 : static bool seq_edit_split_effect_inputs_intersect(const Scene *scene,</span></a>
+<a name="345"><span class="lineNum">     345 </span>            :                                                    const Strip *strip,</a>
+<a name="346"><span class="lineNum">     346 </span>            :                                                    const int timeline_frame)</a>
+<a name="347"><span class="lineNum">     347 </span>            : {</a>
+<a name="348"><span class="lineNum">     348 </span><span class="lineNoCov">          0 :   bool input_does_intersect = false;</span></a>
+<a name="349"><span class="lineNum">     349 </span><span class="lineNoCov">          0 :   if (strip-&gt;input1) {</span></a>
+<a name="350"><span class="lineNum">     350 </span><span class="lineNoCov">          0 :     input_does_intersect |= seq_edit_split_intersect_check(scene, strip-&gt;input1, timeline_frame);</span></a>
+<a name="351"><span class="lineNum">     351 </span><span class="lineNoCov">          0 :     if (strip-&gt;input1-&gt;is_effect()) {</span></a>
+<a name="352"><span class="lineNum">     352 </span><span class="lineNoCov">          0 :       input_does_intersect |= seq_edit_split_effect_inputs_intersect(</span></a>
+<a name="353"><span class="lineNum">     353 </span><span class="lineNoCov">          0 :           scene, strip-&gt;input1, timeline_frame);</span></a>
+<a name="354"><span class="lineNum">     354 </span>            :     }</a>
+<a name="355"><span class="lineNum">     355 </span>            :   }</a>
+<a name="356"><span class="lineNum">     356 </span><span class="lineNoCov">          0 :   if (strip-&gt;input2) {</span></a>
+<a name="357"><span class="lineNum">     357 </span><span class="lineNoCov">          0 :     input_does_intersect |= seq_edit_split_intersect_check(scene, strip-&gt;input2, timeline_frame);</span></a>
+<a name="358"><span class="lineNum">     358 </span><span class="lineNoCov">          0 :     if (strip-&gt;input2-&gt;is_effect()) {</span></a>
+<a name="359"><span class="lineNum">     359 </span><span class="lineNoCov">          0 :       input_does_intersect |= seq_edit_split_effect_inputs_intersect(</span></a>
+<a name="360"><span class="lineNum">     360 </span><span class="lineNoCov">          0 :           scene, strip-&gt;input2, timeline_frame);</span></a>
+<a name="361"><span class="lineNum">     361 </span>            :     }</a>
+<a name="362"><span class="lineNum">     362 </span>            :   }</a>
+<a name="363"><span class="lineNum">     363 </span><span class="lineNoCov">          0 :   return input_does_intersect;</span></a>
+<a name="364"><span class="lineNum">     364 </span>            : }</a>
+<a name="365"><span class="lineNum">     365 </span>            : </a>
+<a name="366"><span class="lineNum">     366 </span><span class="lineNoCov">          0 : static bool seq_edit_split_operation_permitted_check(const Scene *scene,</span></a>
+<a name="367"><span class="lineNum">     367 </span>            :                                                      Span&lt;Strip *&gt; strips,</a>
+<a name="368"><span class="lineNum">     368 </span>            :                                                      const int timeline_frame,</a>
+<a name="369"><span class="lineNum">     369 </span>            :                                                      const char **r_error)</a>
+<a name="370"><span class="lineNum">     370 </span>            : {</a>
+<a name="371"><span class="lineNum">     371 </span><span class="lineNoCov">          0 :   for (Strip *strip : strips) {</span></a>
+<a name="372"><span class="lineNum">     372 </span><span class="lineNoCov">          0 :     const ListBaseT&lt;SeqTimelineChannel&gt; *channels = channels_displayed_get(editing_get(scene));</span></a>
+<a name="373"><span class="lineNum">     373 </span><span class="lineNoCov">          0 :     if (transform_is_locked(channels, strip)) {</span></a>
+<a name="374"><span class="lineNum">     374 </span><span class="lineNoCov">          0 :       *r_error = &quot;Strip is locked.&quot;;</span></a>
+<a name="375"><span class="lineNum">     375 </span><span class="lineNoCov">          0 :       return false;</span></a>
+<a name="376"><span class="lineNum">     376 </span>            :     }</a>
+<a name="377"><span class="lineNum">     377 </span><span class="lineNoCov">          0 :     if (!strip-&gt;is_effect()) {</span></a>
+<a name="378"><span class="lineNum">     378 </span><span class="lineNoCov">          0 :       continue;</span></a>
+<a name="379"><span class="lineNum">     379 </span>            :     }</a>
+<a name="380"><span class="lineNum">     380 </span><span class="lineNoCov">          0 :     if (!seq_edit_split_intersect_check(scene, strip, timeline_frame)) {</span></a>
+<a name="381"><span class="lineNum">     381 </span><span class="lineNoCov">          0 :       continue;</span></a>
+<a name="382"><span class="lineNum">     382 </span>            :     }</a>
+<a name="383"><span class="lineNum">     383 </span><span class="lineNoCov">          0 :     if (strip-&gt;effect_num_inputs_get() &lt;= 1) {</span></a>
+<a name="384"><span class="lineNum">     384 </span><span class="lineNoCov">          0 :       continue;</span></a>
+<a name="385"><span class="lineNum">     385 </span>            :     }</a>
+<a name="386"><span class="lineNum">     386 </span><span class="lineNoCov">          0 :     if (effect_is_transition(strip-&gt;type)) {</span></a>
+<a name="387"><span class="lineNum">     387 </span><span class="lineNoCov">          0 :       *r_error = &quot;Splitting transition effect is not permitted.&quot;;</span></a>
+<a name="388"><span class="lineNum">     388 </span><span class="lineNoCov">          0 :       return false;</span></a>
+<a name="389"><span class="lineNum">     389 </span>            :     }</a>
+<a name="390"><span class="lineNum">     390 </span><span class="lineNoCov">          0 :     if (!seq_edit_split_effect_inputs_intersect(scene, strip, timeline_frame)) {</span></a>
+<a name="391"><span class="lineNum">     391 </span><span class="lineNoCov">          0 :       *r_error = &quot;Effect inputs don't overlap. Can not split such effect.&quot;;</span></a>
+<a name="392"><span class="lineNum">     392 </span><span class="lineNoCov">          0 :       return false;</span></a>
+<a name="393"><span class="lineNum">     393 </span>            :     }</a>
+<a name="394"><span class="lineNum">     394 </span>            :   }</a>
+<a name="395"><span class="lineNum">     395 </span><span class="lineNoCov">          0 :   return true;</span></a>
+<a name="396"><span class="lineNum">     396 </span>            : }</a>
+<a name="397"><span class="lineNum">     397 </span>            : </a>
+<a name="398"><span class="lineNum">     398 </span><span class="lineNoCov">          0 : Strip *edit_strip_split(Main *bmain,</span></a>
+<a name="399"><span class="lineNum">     399 </span>            :                         Scene *scene,</a>
+<a name="400"><span class="lineNum">     400 </span>            :                         ListBaseT&lt;Strip&gt; *seqbase,</a>
+<a name="401"><span class="lineNum">     401 </span>            :                         Strip *strip,</a>
+<a name="402"><span class="lineNum">     402 </span>            :                         const int timeline_frame,</a>
+<a name="403"><span class="lineNum">     403 </span>            :                         const eSplitMethod method,</a>
+<a name="404"><span class="lineNum">     404 </span>            :                         const bool ignore_connections,</a>
+<a name="405"><span class="lineNum">     405 </span>            :                         const char **r_error)</a>
+<a name="406"><span class="lineNum">     406 </span>            : {</a>
+<a name="407"><span class="lineNum">     407 </span><span class="lineNoCov">          0 :   if (!seq_edit_split_intersect_check(scene, strip, timeline_frame)) {</span></a>
+<a name="408"><span class="lineNum">     408 </span><span class="lineNoCov">          0 :     return nullptr;</span></a>
+<a name="409"><span class="lineNum">     409 </span>            :   }</a>
+<a name="410"><span class="lineNum">     410 </span>            : </a>
+<a name="411"><span class="lineNum">     411 </span>            :   /* Whole strip effect chain must be duplicated in order to preserve relationships. */</a>
+<a name="412"><span class="lineNum">     412 </span><span class="lineNoCov">          0 :   VectorSet&lt;Strip *&gt; strips;</span></a>
+<a name="413"><span class="lineNum">     413 </span><span class="lineNoCov">          0 :   strips.add(strip);</span></a>
+<a name="414"><span class="lineNum">     414 </span><span class="lineNoCov">          0 :   const StripRelation include = ignore_connections ? StripRelation::EffectChain :</span></a>
+<a name="415"><span class="lineNum">     415 </span>            :                                                      StripRelation::ConnectedEffectChain;</a>
+<a name="416"><span class="lineNum">     416 </span><span class="lineNoCov">          0 :   expand_strips(editing_get(scene), strips, include);</span></a>
+<a name="417"><span class="lineNum">     417 </span>            : </a>
+<a name="418"><span class="lineNum">     418 </span><span class="lineNoCov">          0 :   if (!seq_edit_split_operation_permitted_check(scene, strips, timeline_frame, r_error)) {</span></a>
+<a name="419"><span class="lineNum">     419 </span><span class="lineNoCov">          0 :     return nullptr;</span></a>
+<a name="420"><span class="lineNum">     420 </span>            :   }</a>
+<a name="421"><span class="lineNum">     421 </span>            : </a>
+<a name="422"><span class="lineNum">     422 </span>            :   /* Store `F-Curves`, so original ones aren't renamed. */</a>
+<a name="423"><span class="lineNum">     423 </span><span class="lineNoCov">          0 :   AnimationBackup animation_backup{};</span></a>
+<a name="424"><span class="lineNum">     424 </span><span class="lineNoCov">          0 :   animation_backup_original(scene, &amp;animation_backup);</span></a>
+<a name="425"><span class="lineNum">     425 </span>            : </a>
+<a name="426"><span class="lineNum">     426 </span><span class="lineNoCov">          0 :   ListBaseT&lt;Strip&gt; left_strips = {nullptr, nullptr};</span></a>
+<a name="427"><span class="lineNum">     427 </span><span class="lineNoCov">          0 :   for (Strip *strip_iter : strips) {</span></a>
+<a name="428"><span class="lineNum">     428 </span>            :     /* Move strips in collection from seqbase to new ListBase. */</a>
+<a name="429"><span class="lineNum">     429 </span><span class="lineNoCov">          0 :     BLI_remlink(seqbase, strip_iter);</span></a>
+<a name="430"><span class="lineNum">     430 </span><span class="lineNoCov">          0 :     BLI_addtail(&amp;left_strips, strip_iter);</span></a>
+<a name="431"><span class="lineNum">     431 </span>            : </a>
+<a name="432"><span class="lineNum">     432 </span><span class="lineNoCov">          0 :     if (ignore_connections) {</span></a>
+<a name="433"><span class="lineNum">     433 </span><span class="lineNoCov">          0 :       disconnect(strip_iter);</span></a>
+<a name="434"><span class="lineNum">     434 </span>            :     }</a>
+<a name="435"><span class="lineNum">     435 </span>            : </a>
+<a name="436"><span class="lineNum">     436 </span>            :     /* Duplicate curves from backup, so they can be renamed along with split strips. */</a>
+<a name="437"><span class="lineNum">     437 </span><span class="lineNoCov">          0 :     animation_duplicate_backup_to_scene(scene, strip_iter, &amp;animation_backup);</span></a>
+<a name="438"><span class="lineNum">     438 </span>            :   }</a>
+<a name="439"><span class="lineNum">     439 </span>            : </a>
+<a name="440"><span class="lineNum">     440 </span>            :   /* Duplicate ListBase. */</a>
+<a name="441"><span class="lineNum">     441 </span><span class="lineNoCov">          0 :   ListBaseT&lt;Strip&gt; right_strips = {nullptr, nullptr};</span></a>
+<a name="442"><span class="lineNum">     442 </span><span class="lineNoCov">          0 :   seqbase_duplicate_recursive(</span></a>
+<a name="443"><span class="lineNum">     443 </span>            :       bmain, scene, scene, &amp;right_strips, &amp;left_strips, StripDuplicate::All, 0);</a>
+<a name="444"><span class="lineNum">     444 </span>            : </a>
+<a name="445"><span class="lineNum">     445 </span><span class="lineNoCov">          0 :   Strip *left_strip = left_strips.first();</span></a>
+<a name="446"><span class="lineNum">     446 </span><span class="lineNoCov">          0 :   Strip *right_strip = right_strips.first();</span></a>
+<a name="447"><span class="lineNum">     447 </span><span class="lineNoCov">          0 :   Strip *return_strip = nullptr;</span></a>
+<a name="448"><span class="lineNum">     448 </span>            : </a>
+<a name="449"><span class="lineNum">     449 </span>            :   /* Move strips from detached `ListBase`, otherwise they can't be flagged for removal. */</a>
+<a name="450"><span class="lineNum">     450 </span><span class="lineNoCov">          0 :   BLI_movelisttolist(seqbase, &amp;left_strips);</span></a>
+<a name="451"><span class="lineNum">     451 </span><span class="lineNoCov">          0 :   BLI_movelisttolist(seqbase, &amp;right_strips);</span></a>
+<a name="452"><span class="lineNum">     452 </span>            : </a>
+<a name="453"><span class="lineNum">     453 </span>            :   /* Rename duplicated strips. This has to be done immediately after adding</a>
+<a name="454"><span class="lineNum">     454 </span>            :    * strips to seqbase, for lookup cache to work correctly. */</a>
+<a name="455"><span class="lineNum">     455 </span><span class="lineNoCov">          0 :   Strip *strip_rename = right_strip;</span></a>
+<a name="456"><span class="lineNum">     456 </span><span class="lineNoCov">          0 :   for (; strip_rename; strip_rename = strip_rename-&gt;next) {</span></a>
+<a name="457"><span class="lineNum">     457 </span><span class="lineNoCov">          0 :     ensure_unique_name(strip_rename, scene, {});</span></a>
+<a name="458"><span class="lineNum">     458 </span>            :   }</a>
+<a name="459"><span class="lineNum">     459 </span>            : </a>
+<a name="460"><span class="lineNum">     460 </span>            :   /* Split strips. */</a>
+<a name="461"><span class="lineNum">     461 </span><span class="lineNoCov">          0 :   while (left_strip &amp;&amp; right_strip) {</span></a>
+<a name="462"><span class="lineNum">     462 </span><span class="lineNoCov">          0 :     if (left_strip-&gt;left_handle() &gt;= timeline_frame) {</span></a>
+<a name="463"><span class="lineNum">     463 </span><span class="lineNoCov">          0 :       edit_flag_for_removal(scene, left_strip);</span></a>
+<a name="464"><span class="lineNum">     464 </span>            :     }</a>
+<a name="465"><span class="lineNum">     465 </span><span class="lineNoCov">          0 :     else if (right_strip-&gt;right_handle(scene) &lt;= timeline_frame) {</span></a>
+<a name="466"><span class="lineNum">     466 </span><span class="lineNoCov">          0 :       edit_flag_for_removal(scene, right_strip);</span></a>
+<a name="467"><span class="lineNum">     467 </span>            :     }</a>
+<a name="468"><span class="lineNum">     468 </span><span class="lineNoCov">          0 :     else if (return_strip == nullptr) {</span></a>
+<a name="469"><span class="lineNum">     469 </span>            :       /* Store return value - pointer to strip that will not be removed. */</a>
+<a name="470"><span class="lineNum">     470 </span><span class="lineNoCov">          0 :       return_strip = right_strip;</span></a>
+<a name="471"><span class="lineNum">     471 </span>            :     }</a>
+<a name="472"><span class="lineNum">     472 </span>            : </a>
+<a name="473"><span class="lineNum">     473 </span><span class="lineNoCov">          0 :     seq_edit_split_handle_strip_offsets(</span></a>
+<a name="474"><span class="lineNum">     474 </span>            :         bmain, scene, left_strip, right_strip, timeline_frame, method);</a>
+<a name="475"><span class="lineNum">     475 </span><span class="lineNoCov">          0 :     left_strip = left_strip-&gt;next;</span></a>
+<a name="476"><span class="lineNum">     476 </span><span class="lineNoCov">          0 :     right_strip = right_strip-&gt;next;</span></a>
+<a name="477"><span class="lineNum">     477 </span>            :   }</a>
+<a name="478"><span class="lineNum">     478 </span>            : </a>
+<a name="479"><span class="lineNum">     479 </span><span class="lineNoCov">          0 :   edit_remove_flagged_strips(scene, seqbase);</span></a>
+<a name="480"><span class="lineNum">     480 </span><span class="lineNoCov">          0 :   animation_restore_original(scene, &amp;animation_backup);</span></a>
+<a name="481"><span class="lineNum">     481 </span>            : </a>
+<a name="482"><span class="lineNum">     482 </span><span class="lineNoCov">          0 :   return return_strip;</span></a>
+<a name="483"><span class="lineNum">     483 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="484"><span class="lineNum">     484 </span>            : </a>
+<a name="485"><span class="lineNum">     485 </span><span class="lineNoCov">          0 : bool edit_remove_gaps(Scene *scene,</span></a>
+<a name="486"><span class="lineNum">     486 </span>            :                       ListBaseT&lt;Strip&gt; *seqbase,</a>
+<a name="487"><span class="lineNum">     487 </span>            :                       const int initial_frame,</a>
+<a name="488"><span class="lineNum">     488 </span>            :                       const bool remove_all_gaps)</a>
+<a name="489"><span class="lineNum">     489 </span>            : {</a>
+<a name="490"><span class="lineNum">     490 </span><span class="lineNoCov">          0 :   GapInfo gap_info = {0};</span></a>
+<a name="491"><span class="lineNum">     491 </span><span class="lineNoCov">          0 :   seq_time_gap_info_get(scene, seqbase, initial_frame, &amp;gap_info);</span></a>
+<a name="492"><span class="lineNum">     492 </span>            : </a>
+<a name="493"><span class="lineNum">     493 </span><span class="lineNoCov">          0 :   if (!gap_info.gap_exists) {</span></a>
+<a name="494"><span class="lineNum">     494 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="495"><span class="lineNum">     495 </span>            :   }</a>
+<a name="496"><span class="lineNum">     496 </span>            : </a>
+<a name="497"><span class="lineNum">     497 </span><span class="lineNoCov">          0 :   if (remove_all_gaps) {</span></a>
+<a name="498"><span class="lineNum">     498 </span><span class="lineNoCov">          0 :     while (gap_info.gap_exists) {</span></a>
+<a name="499"><span class="lineNum">     499 </span><span class="lineNoCov">          0 :       transform_strips_after_frame(scene, seqbase, gap_info.gap_start_frame, -gap_info.gap_length);</span></a>
+<a name="500"><span class="lineNum">     500 </span><span class="lineNoCov">          0 :       seq_time_gap_info_get(scene, seqbase, initial_frame, &amp;gap_info);</span></a>
+<a name="501"><span class="lineNum">     501 </span>            :     }</a>
+<a name="502"><span class="lineNum">     502 </span>            :   }</a>
+<a name="503"><span class="lineNum">     503 </span>            :   else {</a>
+<a name="504"><span class="lineNum">     504 </span><span class="lineNoCov">          0 :     transform_strips_after_frame(scene, seqbase, gap_info.gap_start_frame, -gap_info.gap_length);</span></a>
+<a name="505"><span class="lineNum">     505 </span>            :   }</a>
+<a name="506"><span class="lineNum">     506 </span><span class="lineNoCov">          0 :   return true;</span></a>
+<a name="507"><span class="lineNum">     507 </span>            : }</a>
+<a name="508"><span class="lineNum">     508 </span>            : </a>
+<a name="509"><span class="lineNum">     509 </span><span class="lineCov">        150 : void edit_strip_name_set(Scene *scene, Strip *strip, const char *new_name)</span></a>
+<a name="510"><span class="lineNum">     510 </span>            : {</a>
+<a name="511"><span class="lineNum">     511 </span><span class="lineCov">        150 :   BLI_strncpy_utf8(strip-&gt;name + 2, new_name, MAX_NAME - 2);</span></a>
+<a name="512"><span class="lineNum">     512 </span><span class="lineCov">        150 :   BLI_str_utf8_invalid_strip(strip-&gt;name + 2, strlen(strip-&gt;name + 2));</span></a>
+<a name="513"><span class="lineNum">     513 </span><span class="lineCov">        150 :   strip_lookup_invalidate(scene-&gt;ed);</span></a>
+<a name="514"><span class="lineNum">     514 </span><span class="lineCov">        150 : }</span></a>
+<a name="515"><span class="lineNum">     515 </span>            : </a>
+<a name="516"><span class="lineNum">     516 </span>            : }  // namespace blender::seq</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

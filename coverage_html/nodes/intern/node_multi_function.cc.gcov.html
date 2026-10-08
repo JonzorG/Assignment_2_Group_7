@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - nodes/intern/node_multi_function.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">nodes/intern</a> - node_multi_function.cc<span style="font-size: 80%;"> (source / <a href="node_multi_function.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2023 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup nodes</a>
+<a name="7"><span class="lineNum">       7 </span>            :  */</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &quot;NOD_multi_function.hh&quot;</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &quot;BKE_node_runtime.hh&quot;</a>
+<a name="12"><span class="lineNum">      12 </span>            : </a>
+<a name="13"><span class="lineNum">      13 </span>            : namespace blender::nodes {</a>
+<a name="14"><span class="lineNum">      14 </span>            : </a>
+<a name="15"><span class="lineNum">      15 </span><span class="lineCov">      13358 : NodeMultiFunctions::NodeMultiFunctions(const bNodeTree &amp;tree,</span></a>
+<a name="16"><span class="lineNum">      16 </span><span class="lineCov">      13358 :                                        const std::shared_ptr&lt;const bNodeTree&gt; &amp;shared_tree)</span></a>
+<a name="17"><span class="lineNum">      17 </span>            : {</a>
+<a name="18"><span class="lineNum">      18 </span><span class="lineCov">      13370 :   tree.ensure_topology_cache();</span></a>
+<a name="19"><span class="lineNum">      19 </span><span class="lineCov">     156031 :   for (const bNode *bnode : tree.all_nodes()) {</span></a>
+<a name="20"><span class="lineNum">      20 </span><span class="lineCov">     142663 :     if (bnode-&gt;typeinfo-&gt;build_multi_function == nullptr) {</span></a>
+<a name="21"><span class="lineNum">      21 </span><span class="lineCov">     119215 :       continue;</span></a>
+<a name="22"><span class="lineNum">      22 </span>            :     }</a>
+<a name="23"><span class="lineNum">      23 </span><span class="lineCov">      23448 :     NodeMultiFunctionBuilder builder{*bnode, tree, shared_tree};</span></a>
+<a name="24"><span class="lineNum">      24 </span><span class="lineCov">      23447 :     bnode-&gt;typeinfo-&gt;build_multi_function(builder);</span></a>
+<a name="25"><span class="lineNum">      25 </span><span class="lineCov">      23442 :     if (builder.built_fn_ != nullptr) {</span></a>
+<a name="26"><span class="lineNum">      26 </span><span class="lineCov">      23443 :       map_.add_new(bnode, {builder.built_fn_, std::move(builder.owned_built_fn_)});</span></a>
+<a name="27"><span class="lineNum">      27 </span>            :     }</a>
+<a name="28"><span class="lineNum">      28 </span><span class="lineCov">      23438 :   }</span></a>
+<a name="29"><span class="lineNum">      29 </span><span class="lineCov">      36810 : }</span></a>
+<a name="30"><span class="lineNum">      30 </span>            : </a>
+<a name="31"><span class="lineNum">      31 </span>            : }  // namespace blender::nodes</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

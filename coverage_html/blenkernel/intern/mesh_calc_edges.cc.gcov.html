@@ -1,0 +1,659 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - blenkernel/intern/mesh_calc_edges.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">blenkernel/intern</a> - mesh_calc_edges.cc<span style="font-size: 80%;"> (source / <a href="mesh_calc_edges.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">284</td>
+            <td class="headerCovTableEntry">307</td>
+            <td class="headerCovTableEntryHi">92.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">31</td>
+            <td class="headerCovTableEntry">31</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2023 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup bke</a>
+<a name="7"><span class="lineNum">       7 </span>            :  */</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &quot;BLI_array_utils.hh&quot;</a>
+<a name="10"><span class="lineNum">      10 </span>            : #include &quot;BLI_implicit_sharing.hh&quot;</a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &quot;BLI_math_base_c.hh&quot;</a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &quot;BLI_ordered_edge.hh&quot;</a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;BLI_task.hh&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;BLI_threads.hh&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;BLI_vector_set.hh&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : </a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;BKE_attribute.hh&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : #include &quot;BKE_attribute_filter.hh&quot;</a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &quot;BKE_attribute_legacy_convert.hh&quot;</a>
+<a name="20"><span class="lineNum">      20 </span>            : #include &quot;BKE_attribute_math.hh&quot;</a>
+<a name="21"><span class="lineNum">      21 </span>            : #include &quot;BKE_customdata.hh&quot;</a>
+<a name="22"><span class="lineNum">      22 </span>            : #include &quot;BKE_mesh.hh&quot;</a>
+<a name="23"><span class="lineNum">      23 </span>            : </a>
+<a name="24"><span class="lineNum">      24 </span>            : namespace blender::bke {</a>
+<a name="25"><span class="lineNum">      25 </span>            : </a>
+<a name="26"><span class="lineNum">      26 </span>            : namespace calc_edges {</a>
+<a name="27"><span class="lineNum">      27 </span>            : </a>
+<a name="28"><span class="lineNum">      28 </span>            : /**</a>
+<a name="29"><span class="lineNum">      29 </span>            :  * Return a hash value that is likely to be different in the low bits from the normal `hash()`</a>
+<a name="30"><span class="lineNum">      30 </span>            :  * function. This is necessary to avoid collisions in #mesh_calc_edges.</a>
+<a name="31"><span class="lineNum">      31 </span>            :  */</a>
+<a name="32"><span class="lineNum">      32 </span><span class="lineCov">   91346512 : static uint64_t edge_hash_2(const OrderedEdge &amp;edge)</span></a>
+<a name="33"><span class="lineNum">      33 </span>            : {</a>
+<a name="34"><span class="lineNum">      34 </span><span class="lineCov">   91346512 :   return edge.v_low;</span></a>
+<a name="35"><span class="lineNum">      35 </span>            : }</a>
+<a name="36"><span class="lineNum">      36 </span>            : </a>
+<a name="37"><span class="lineNum">      37 </span>            : using EdgeMap = VectorSet&lt;OrderedEdge,</a>
+<a name="38"><span class="lineNum">      38 </span>            :                           16,</a>
+<a name="39"><span class="lineNum">      39 </span>            :                           DefaultProbingStrategy,</a>
+<a name="40"><span class="lineNum">      40 </span>            :                           DefaultHash&lt;OrderedEdge&gt;,</a>
+<a name="41"><span class="lineNum">      41 </span>            :                           DefaultEquality&lt;OrderedEdge&gt;,</a>
+<a name="42"><span class="lineNum">      42 </span>            :                           SimpleVectorSetSlot&lt;OrderedEdge, int&gt;,</a>
+<a name="43"><span class="lineNum">      43 </span>            :                           GuardedAllocator&gt;;</a>
+<a name="44"><span class="lineNum">      44 </span>            : </a>
+<a name="45"><span class="lineNum">      45 </span><span class="lineCov">       9658 : static void reserve_hash_maps(const Mesh &amp;mesh,</span></a>
+<a name="46"><span class="lineNum">      46 </span>            :                               const bool keep_existing_edges,</a>
+<a name="47"><span class="lineNum">      47 </span>            :                               MutableSpan&lt;EdgeMap&gt; edge_maps)</a>
+<a name="48"><span class="lineNum">      48 </span>            : {</a>
+<a name="49"><span class="lineNum">      49 </span><span class="lineCov">       9658 :   const int totedge_guess = std::max(keep_existing_edges ? mesh.edges_num : 0, mesh.faces_num * 2);</span></a>
+<a name="50"><span class="lineNum">      50 </span><span class="lineCov">       9658 :   threading::parallel_for_each(</span></a>
+<a name="51"><span class="lineNum">      51 </span><span class="lineCov">      24374 :       edge_maps, [&amp;](EdgeMap &amp;edge_map) { edge_map.reserve(totedge_guess / edge_maps.size()); });</span></a>
+<a name="52"><span class="lineNum">      52 </span><span class="lineCov">       9636 : }</span></a>
+<a name="53"><span class="lineNum">      53 </span>            : </a>
+<a name="54"><span class="lineNum">      54 </span><span class="lineCov">      17951 : static OffsetIndices&lt;int&gt; edge_map_offsets(const Span&lt;EdgeMap&gt; maps, Array&lt;int&gt; &amp;r_sizes)</span></a>
+<a name="55"><span class="lineNum">      55 </span>            : {</a>
+<a name="56"><span class="lineNum">      56 </span><span class="lineCov">      17951 :   r_sizes.reinitialize(maps.size() + 1);</span></a>
+<a name="57"><span class="lineNum">      57 </span><span class="lineCov">      45137 :   for (const int map_i : maps.index_range()) {</span></a>
+<a name="58"><span class="lineNum">      58 </span><span class="lineCov">      27175 :     r_sizes[map_i] = maps[map_i].size();</span></a>
+<a name="59"><span class="lineNum">      59 </span>            :   }</a>
+<a name="60"><span class="lineNum">      60 </span><span class="lineCov">      17768 :   return offset_indices::accumulate_counts_to_offsets(r_sizes);</span></a>
+<a name="61"><span class="lineNum">      61 </span>            : }</a>
+<a name="62"><span class="lineNum">      62 </span>            : </a>
+<a name="63"><span class="lineNum">      63 </span><span class="lineCov">   92368575 : static int edge_to_hash_map_i(const OrderedEdge edge, const uint32_t parallel_mask)</span></a>
+<a name="64"><span class="lineNum">      64 </span>            : {</a>
+<a name="65"><span class="lineNum">      65 </span><span class="lineCov">   92368575 :   return parallel_mask &amp; edge_hash_2(edge);</span></a>
+<a name="66"><span class="lineNum">      66 </span>            : }</a>
+<a name="67"><span class="lineNum">      67 </span>            : </a>
+<a name="68"><span class="lineNum">      68 </span><span class="lineCov">       8403 : static void add_existing_edges_to_hash_maps(const Mesh &amp;mesh,</span></a>
+<a name="69"><span class="lineNum">      69 </span>            :                                             const uint32_t parallel_mask,</a>
+<a name="70"><span class="lineNum">      70 </span>            :                                             MutableSpan&lt;EdgeMap&gt; edge_maps)</a>
+<a name="71"><span class="lineNum">      71 </span>            : {</a>
+<a name="72"><span class="lineNum">      72 </span>            :   /* Assume existing edges are valid. */</a>
+<a name="73"><span class="lineNum">      73 </span><span class="lineCov">       8403 :   const Span&lt;int2&gt; edges = mesh.edges();</span></a>
+<a name="74"><span class="lineNum">      74 </span><span class="lineCov">       8384 :   threading::parallel_for_each(edge_maps, [&amp;](EdgeMap &amp;edge_map) {</span></a>
+<a name="75"><span class="lineNum">      75 </span><span class="lineCov">      12204 :     const int task_index = &amp;edge_map - edge_maps.data();</span></a>
+<a name="76"><span class="lineNum">      76 </span><span class="lineCov">     574897 :     for (const int2 edge : edges) {</span></a>
+<a name="77"><span class="lineNum">      77 </span><span class="lineCov">     547553 :       const OrderedEdge ordered_edge(edge);</span></a>
+<a name="78"><span class="lineNum">      78 </span>            :       /* Only add the edge when it belongs into this map. */</a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineCov">     391697 :       if (task_index == edge_to_hash_map_i(ordered_edge, parallel_mask)) {</span></a>
+<a name="80"><span class="lineNum">      80 </span><span class="lineCov">     260044 :         edge_map.add(ordered_edge);</span></a>
+<a name="81"><span class="lineNum">      81 </span>            :       }</a>
+<a name="82"><span class="lineNum">      82 </span>            :     }</a>
+<a name="83"><span class="lineNum">      83 </span><span class="lineCov">      12282 :   });</span></a>
+<a name="84"><span class="lineNum">      84 </span><span class="lineCov">       8390 : }</span></a>
+<a name="85"><span class="lineNum">      85 </span>            : </a>
+<a name="86"><span class="lineNum">      86 </span><span class="lineCov">       9550 : static void add_face_edges_to_hash_maps(const Mesh &amp;mesh,</span></a>
+<a name="87"><span class="lineNum">      87 </span>            :                                         const uint32_t parallel_mask,</a>
+<a name="88"><span class="lineNum">      88 </span>            :                                         MutableSpan&lt;EdgeMap&gt; edge_maps)</a>
+<a name="89"><span class="lineNum">      89 </span>            : {</a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineCov">       9550 :   const OffsetIndices&lt;int&gt; faces = mesh.faces();</span></a>
+<a name="91"><span class="lineNum">      91 </span><span class="lineCov">       9639 :   const Span&lt;int&gt; corner_verts = mesh.corner_verts();</span></a>
+<a name="92"><span class="lineNum">      92 </span><span class="lineCov">       9554 :   threading::parallel_for_each(edge_maps, [&amp;](EdgeMap &amp;edge_map) {</span></a>
+<a name="93"><span class="lineNum">      93 </span><span class="lineCov">      14524 :     const int task_index = &amp;edge_map - edge_maps.data();</span></a>
+<a name="94"><span class="lineNum">      94 </span><span class="lineCov">    3400190 :     for (const int face_i : faces.index_range()) {</span></a>
+<a name="95"><span class="lineNum">      95 </span><span class="lineCov">   16367384 :       const IndexRange face = faces[face_i];</span></a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineCov">   90879976 :       for (const int corner : face) {</span></a>
+<a name="97"><span class="lineNum">      97 </span><span class="lineCov">   35111891 :         const int vert = corner_verts[corner];</span></a>
+<a name="98"><span class="lineNum">      98 </span><span class="lineCov">   33563465 :         const int vert_prev = corner_verts[bke::mesh::face_corner_prev(face, corner)];</span></a>
+<a name="99"><span class="lineNum">      99 </span><span class="lineCov">   31532330 :         const OrderedEdge ordered_edge(vert_prev, vert);</span></a>
+<a name="100"><span class="lineNum">     100 </span>            :         /* Only add the edge when it belongs into this map. */</a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineCov">   33452247 :         if (task_index == edge_to_hash_map_i(ordered_edge, parallel_mask)) {</span></a>
+<a name="102"><span class="lineNum">     102 </span><span class="lineCov">   15781826 :           edge_map.add(ordered_edge);</span></a>
+<a name="103"><span class="lineNum">     103 </span>            :         }</a>
+<a name="104"><span class="lineNum">     104 </span>            :       }</a>
+<a name="105"><span class="lineNum">     105 </span>            :     }</a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineNoCov">          0 :   });</span></a>
+<a name="107"><span class="lineNum">     107 </span><span class="lineCov">       9600 : }</span></a>
+<a name="108"><span class="lineNum">     108 </span>            : </a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineCov">       8279 : static void serialize_and_initialize_deduplicated_edges(</span></a>
+<a name="110"><span class="lineNum">     110 </span>            :     MutableSpan&lt;EdgeMap&gt; edge_maps,</a>
+<a name="111"><span class="lineNum">     111 </span>            :     const OffsetIndices&lt;int&gt; edge_offsets,</a>
+<a name="112"><span class="lineNum">     112 </span>            :     const OffsetIndices&lt;int&gt; prefix_skip_offsets,</a>
+<a name="113"><span class="lineNum">     113 </span>            :     MutableSpan&lt;int2&gt; new_edges)</a>
+<a name="114"><span class="lineNum">     114 </span>            : {</a>
+<a name="115"><span class="lineNum">     115 </span><span class="lineCov">       8279 :   threading::parallel_for_each(edge_maps, [&amp;](EdgeMap &amp;edge_map) {</span></a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineCov">      12973 :     const int task_index = &amp;edge_map - edge_maps.data();</span></a>
+<a name="117"><span class="lineNum">     117 </span><span class="lineCov">      12958 :     if (edge_offsets[task_index].is_empty()) {</span></a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineCov">          1 :       return;</span></a>
+<a name="119"><span class="lineNum">     119 </span>            :     }</a>
+<a name="120"><span class="lineNum">     120 </span>            : </a>
+<a name="121"><span class="lineNum">     121 </span><span class="lineCov">      12863 :     if (prefix_skip_offsets[task_index].size() == edge_offsets[task_index].size()) {</span></a>
+<a name="122"><span class="lineNum">     122 </span><span class="lineCov">          1 :       return;</span></a>
+<a name="123"><span class="lineNum">     123 </span>            :     }</a>
+<a name="124"><span class="lineNum">     124 </span>            : </a>
+<a name="125"><span class="lineNum">     125 </span><span class="lineCov">      12859 :     const IndexRange all_map_edges = edge_offsets[task_index];</span></a>
+<a name="126"><span class="lineNum">     126 </span><span class="lineCov">      12911 :     const IndexRange prefix_to_skip = prefix_skip_offsets[task_index];</span></a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineCov">      12885 :     const IndexRange map_edges = IndexRange::from_begin_size(</span></a>
+<a name="128"><span class="lineNum">     128 </span><span class="lineCov">      12891 :         all_map_edges.start() - prefix_to_skip.start(),</span></a>
+<a name="129"><span class="lineNum">     129 </span><span class="lineCov">      12906 :         all_map_edges.size() - prefix_to_skip.size());</span></a>
+<a name="130"><span class="lineNum">     130 </span>            : </a>
+<a name="131"><span class="lineNum">     131 </span><span class="lineCov">      12947 :     MutableSpan&lt;int2&gt; result_edges = new_edges.slice(map_edges);</span></a>
+<a name="132"><span class="lineNum">     132 </span><span class="lineCov">      12980 :     result_edges.copy_from(edge_map.as_span().drop_front(prefix_to_skip.size()).cast&lt;int2&gt;());</span></a>
+<a name="133"><span class="lineNum">     133 </span>            :   });</a>
+<a name="134"><span class="lineNum">     134 </span><span class="lineCov">       8271 : }</span></a>
+<a name="135"><span class="lineNum">     135 </span>            : </a>
+<a name="136"><span class="lineNum">     136 </span><span class="lineCov">       9585 : static void update_edge_indices_in_face_loops(const OffsetIndices&lt;int&gt; faces,</span></a>
+<a name="137"><span class="lineNum">     137 </span>            :                                               const Span&lt;int&gt; corner_verts,</a>
+<a name="138"><span class="lineNum">     138 </span>            :                                               const Span&lt;EdgeMap&gt; edge_maps,</a>
+<a name="139"><span class="lineNum">     139 </span>            :                                               const uint32_t parallel_mask,</a>
+<a name="140"><span class="lineNum">     140 </span>            :                                               const OffsetIndices&lt;int&gt; edge_offsets,</a>
+<a name="141"><span class="lineNum">     141 </span>            :                                               MutableSpan&lt;int&gt; corner_edges)</a>
+<a name="142"><span class="lineNum">     142 </span>            : {</a>
+<a name="143"><span class="lineNum">     143 </span><span class="lineCov">       9585 :   threading::parallel_for(faces.index_range(), 100, [&amp;](IndexRange range) {</span></a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineCov">    1477308 :     for (const int face_index : range) {</span></a>
+<a name="145"><span class="lineNum">     145 </span><span class="lineCov">    3705440 :       const IndexRange face = faces[face_index];</span></a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineCov">   13158886 :       for (const int corner : face) {</span></a>
+<a name="147"><span class="lineNum">     147 </span><span class="lineCov">    8864324 :         const int vert = corner_verts[corner];</span></a>
+<a name="148"><span class="lineNum">     148 </span><span class="lineCov">    8965932 :         const int vert_prev = corner_verts[bke::mesh::face_corner_next(face, corner)];</span></a>
+<a name="149"><span class="lineNum">     149 </span><span class="lineCov">   10573473 :         const OrderedEdge ordered_edge(vert_prev, vert);</span></a>
+<a name="150"><span class="lineNum">     150 </span><span class="lineCov">   10135704 :         const int task_index = edge_to_hash_map_i(ordered_edge, parallel_mask);</span></a>
+<a name="151"><span class="lineNum">     151 </span><span class="lineCov">   12306016 :         const EdgeMap &amp;edge_map = edge_maps[task_index];</span></a>
+<a name="152"><span class="lineNum">     152 </span><span class="lineCov">   11469109 :         const int edge_i = edge_map.index_of(ordered_edge);</span></a>
+<a name="153"><span class="lineNum">     153 </span><span class="lineCov">   10200005 :         const int edge_index = edge_offsets[task_index][edge_i];</span></a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineCov">   10282213 :         corner_edges[corner] = edge_index;</span></a>
+<a name="155"><span class="lineNum">     155 </span>            :       }</a>
+<a name="156"><span class="lineNum">     156 </span>            :     }</a>
+<a name="157"><span class="lineNum">     157 </span><span class="lineCov">      31849 :   });</span></a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineCov">       9605 : }</span></a>
+<a name="159"><span class="lineNum">     159 </span>            : </a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineCov">       9600 : static int get_parallel_maps_count(const Mesh &amp;mesh)</span></a>
+<a name="161"><span class="lineNum">     161 </span>            : {</a>
+<a name="162"><span class="lineNum">     162 </span>            :   /* Don't use parallelization when the mesh is small. */</a>
+<a name="163"><span class="lineNum">     163 </span><span class="lineCov">       9600 :   if (mesh.faces_num &lt; 1000) {</span></a>
+<a name="164"><span class="lineNum">     164 </span><span class="lineCov">       8866 :     return 1;</span></a>
+<a name="165"><span class="lineNum">     165 </span>            :   }</a>
+<a name="166"><span class="lineNum">     166 </span>            :   /* Use at most 8 separate hash tables. Using more threads has diminishing returns. These threads</a>
+<a name="167"><span class="lineNum">     167 </span>            :    * are better off doing something more useful instead. */</a>
+<a name="168"><span class="lineNum">     168 </span><span class="lineCov">        734 :   const int system_thread_count = BLI_system_thread_count();</span></a>
+<a name="169"><span class="lineNum">     169 </span><span class="lineCov">        750 :   return power_of_2_min_i(std::min(8, system_thread_count));</span></a>
+<a name="170"><span class="lineNum">     170 </span>            : }</a>
+<a name="171"><span class="lineNum">     171 </span>            : </a>
+<a name="172"><span class="lineNum">     172 </span><span class="lineCov">       8601 : static void clear_hash_tables(MutableSpan&lt;EdgeMap&gt; edge_maps)</span></a>
+<a name="173"><span class="lineNum">     173 </span>            : {</a>
+<a name="174"><span class="lineNum">     174 </span><span class="lineCov">      22158 :   threading::parallel_for_each(edge_maps, [](EdgeMap &amp;edge_map) { edge_map.clear(); });</span></a>
+<a name="175"><span class="lineNum">     175 </span><span class="lineCov">       8616 : }</span></a>
+<a name="176"><span class="lineNum">     176 </span>            : </a>
+<a name="177"><span class="lineNum">     177 </span><span class="lineCov">        332 : static IndexMask mask_first_distinct_edges(const Span&lt;int2&gt; edges,</span></a>
+<a name="178"><span class="lineNum">     178 </span>            :                                            const IndexMask &amp;edges_to_check,</a>
+<a name="179"><span class="lineNum">     179 </span>            :                                            const Span&lt;EdgeMap&gt; edge_maps,</a>
+<a name="180"><span class="lineNum">     180 </span>            :                                            const uint32_t parallel_mask,</a>
+<a name="181"><span class="lineNum">     181 </span>            :                                            const OffsetIndices&lt;int&gt; edge_offsets,</a>
+<a name="182"><span class="lineNum">     182 </span>            :                                            IndexMaskMemory &amp;memory)</a>
+<a name="183"><span class="lineNum">     183 </span>            : {</a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineCov">        332 :   if (edges_to_check.is_empty()) {</span></a>
+<a name="185"><span class="lineNum">     185 </span><span class="lineNoCov">          0 :     return {};</span></a>
+<a name="186"><span class="lineNum">     186 </span>            :   }</a>
+<a name="187"><span class="lineNum">     187 </span>            : </a>
+<a name="188"><span class="lineNum">     188 </span><span class="lineCov">        332 :   constexpr int no_original_edge = std::numeric_limits&lt;int&gt;::max();</span></a>
+<a name="189"><span class="lineNum">     189 </span><span class="lineCov">        332 :   Array&lt;int&gt; map_edge_to_first_original(edge_offsets.total_size());</span></a>
+<a name="190"><span class="lineNum">     190 </span><span class="lineCov">        339 :   map_edge_to_first_original.as_mutable_span().fill(no_original_edge);</span></a>
+<a name="191"><span class="lineNum">     191 </span>            : </a>
+<a name="192"><span class="lineNum">     192 </span>            :   /* TODO: Lock-free parallel version? BLI' &quot;atomic::min&lt;T&gt;(T&amp;, T);&quot; ? */</a>
+<a name="193"><span class="lineNum">     193 </span><span class="lineCov">        342 :   edges_to_check.foreach_index_optimized&lt;int&gt;([&amp;](const int edge_i) {</span></a>
+<a name="194"><span class="lineNum">     194 </span><span class="lineCov">       9224 :     const OrderedEdge edge = edges[edge_i];</span></a>
+<a name="195"><span class="lineNum">     195 </span><span class="lineCov">       9193 :     const int map_i = calc_edges::edge_to_hash_map_i(edge, parallel_mask);</span></a>
+<a name="196"><span class="lineNum">     196 </span><span class="lineCov">       9341 :     const int edge_index = edge_maps[map_i].index_of(edge);</span></a>
+<a name="197"><span class="lineNum">     197 </span>            : </a>
+<a name="198"><span class="lineNum">     198 </span><span class="lineCov">       9174 :     int &amp;original_edge = map_edge_to_first_original[edge_offsets[map_i][edge_index]];</span></a>
+<a name="199"><span class="lineNum">     199 </span><span class="lineCov">       9220 :     original_edge = math::min(original_edge, edge_i);</span></a>
+<a name="200"><span class="lineNum">     200 </span><span class="lineCov">       9229 :   });</span></a>
+<a name="201"><span class="lineNum">     201 </span>            : </a>
+<a name="202"><span class="lineNum">     202 </span>            :   /* Note: #map_edge_to_first_original might still contains #no_original_edge if edges was both non</a>
+<a name="203"><span class="lineNum">     203 </span>            :    * distinct and not full set. */</a>
+<a name="204"><span class="lineNum">     204 </span>            : </a>
+<a name="205"><span class="lineNum">     205 </span><span class="lineCov">        337 :   return IndexMask::from_predicate(edges_to_check, memory, [&amp;](const int srd_edge_i) {</span></a>
+<a name="206"><span class="lineNum">     206 </span><span class="lineCov">       9206 :     const OrderedEdge edge = edges[srd_edge_i];</span></a>
+<a name="207"><span class="lineNum">     207 </span><span class="lineCov">       9205 :     const int map_i = calc_edges::edge_to_hash_map_i(edge, parallel_mask);</span></a>
+<a name="208"><span class="lineNum">     208 </span><span class="lineCov">       9416 :     const int edge_index = edge_maps[map_i].index_of(edge);</span></a>
+<a name="209"><span class="lineNum">     209 </span><span class="lineCov">       9229 :     return map_edge_to_first_original[edge_offsets[map_i][edge_index]] == srd_edge_i;</span></a>
+<a name="210"><span class="lineNum">     210 </span><span class="lineCov">        333 :   });</span></a>
+<a name="211"><span class="lineNum">     211 </span><span class="lineCov">        333 : }</span></a>
+<a name="212"><span class="lineNum">     212 </span>            : </a>
+<a name="213"><span class="lineNum">     213 </span><span class="lineCov">       8405 : static void map_edge_to_span_index(const Span&lt;int2&gt; edges,</span></a>
+<a name="214"><span class="lineNum">     214 </span>            :                                    const Span&lt;EdgeMap&gt; edge_maps,</a>
+<a name="215"><span class="lineNum">     215 </span>            :                                    const uint32_t parallel_mask,</a>
+<a name="216"><span class="lineNum">     216 </span>            :                                    const OffsetIndices&lt;int&gt; edge_offsets,</a>
+<a name="217"><span class="lineNum">     217 </span>            :                                    MutableSpan&lt;int&gt; indices)</a>
+<a name="218"><span class="lineNum">     218 </span>            : {</a>
+<a name="219"><span class="lineNum">     219 </span><span class="lineCov">       8405 :   threading::parallel_for_each(edge_maps.index_range(), [&amp;](const int map_i) {</span></a>
+<a name="220"><span class="lineNum">     220 </span><span class="lineCov">      12175 :     int edge_map_iter = 0;</span></a>
+<a name="221"><span class="lineNum">     221 </span><span class="lineCov">     682990 :     for (const int edge_i : edges.index_range()) {</span></a>
+<a name="222"><span class="lineNum">     222 </span><span class="lineCov">     398817 :       const int edge_map = calc_edges::edge_to_hash_map_i(edges[edge_i], parallel_mask);</span></a>
+<a name="223"><span class="lineNum">     223 </span><span class="lineCov">     604267 :       if (map_i != edge_map) {</span></a>
+<a name="224"><span class="lineNum">     224 </span><span class="lineCov">     416799 :         continue;</span></a>
+<a name="225"><span class="lineNum">     225 </span>            :       }</a>
+<a name="226"><span class="lineNum">     226 </span><span class="lineCov">     187468 :       indices[edge_offsets[edge_map][edge_map_iter]] = edge_i;</span></a>
+<a name="227"><span class="lineNum">     227 </span><span class="lineCov">     254016 :       edge_map_iter++;</span></a>
+<a name="228"><span class="lineNum">     228 </span>            :     }</a>
+<a name="229"><span class="lineNum">     229 </span><span class="lineCov">       8398 :   });</span></a>
+<a name="230"><span class="lineNum">     230 </span><span class="lineCov">       8393 : }</span></a>
+<a name="231"><span class="lineNum">     231 </span>            : </a>
+<a name="232"><span class="lineNum">     232 </span>            : }  // namespace calc_edges</a>
+<a name="233"><span class="lineNum">     233 </span>            : </a>
+<a name="234"><span class="lineNum">     234 </span><span class="lineCov">       9661 : void mesh_calc_edges(Mesh &amp;mesh,</span></a>
+<a name="235"><span class="lineNum">     235 </span>            :                      bool keep_existing_edges,</a>
+<a name="236"><span class="lineNum">     236 </span>            :                      const bool select_new_edges,</a>
+<a name="237"><span class="lineNum">     237 </span>            :                      const AttributeFilter &amp;attribute_filter)</a>
+<a name="238"><span class="lineNum">     238 </span>            : {</a>
+<a name="239"><span class="lineNum">     239 </span>            : </a>
+<a name="240"><span class="lineNum">     240 </span><span class="lineCov">       9661 :   if (mesh.edges_num == 0 &amp;&amp; mesh.corners_num == 0) {</span></a>
+<a name="241"><span class="lineNum">     241 </span>            :     /* BLI_assert(mesh_is_valid(mesh)); */</a>
+<a name="242"><span class="lineNum">     242 </span><span class="lineCov">       1055 :     return;</span></a>
+<a name="243"><span class="lineNum">     243 </span>            :   }</a>
+<a name="244"><span class="lineNum">     244 </span>            : </a>
+<a name="245"><span class="lineNum">     245 </span><span class="lineCov">       9637 :   if (mesh.corners_num == 0 &amp;&amp; !keep_existing_edges) {</span></a>
+<a name="246"><span class="lineNum">     246 </span><span class="lineNoCov">          0 :     CustomData_free(&amp;mesh.edge_data);</span></a>
+<a name="247"><span class="lineNum">     247 </span><span class="lineNoCov">          0 :     mesh.edges_num = 0;</span></a>
+<a name="248"><span class="lineNum">     248 </span><span class="lineNoCov">          0 :     mesh.tag_loose_edges_none();</span></a>
+<a name="249"><span class="lineNum">     249 </span>            :     /* BLI_assert(mesh_is_valid(mesh)); */</a>
+<a name="250"><span class="lineNum">     250 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="251"><span class="lineNum">     251 </span>            :   }</a>
+<a name="252"><span class="lineNum">     252 </span>            : </a>
+<a name="253"><span class="lineNum">     253 </span><span class="lineCov">     293351 :   BLI_assert(std::all_of(mesh.edges().begin(), mesh.edges().end(), [&amp;](const int2 edge) {</span></a>
+<a name="254"><span class="lineNum">     254 </span>            :     return edge.x != edge.y;</a>
+<a name="255"><span class="lineNum">     255 </span>            :   }));</a>
+<a name="256"><span class="lineNum">     256 </span>            : </a>
+<a name="257"><span class="lineNum">     257 </span>            :   /* Parallelization is achieved by having multiple hash tables for different subsets of edges.</a>
+<a name="258"><span class="lineNum">     258 </span>            :    * Each edge is assigned to one of the hash maps based on the lower bits of a hash value. */</a>
+<a name="259"><span class="lineNum">     259 </span><span class="lineCov">       9622 :   const int parallel_maps = calc_edges::get_parallel_maps_count(mesh);</span></a>
+<a name="260"><span class="lineNum">     260 </span><span class="lineCov">       9617 :   BLI_assert(is_power_of_2_i(parallel_maps));</span></a>
+<a name="261"><span class="lineNum">     261 </span><span class="lineCov">       9606 :   const uint32_t parallel_mask = uint32_t(parallel_maps) - 1;</span></a>
+<a name="262"><span class="lineNum">     262 </span><span class="lineCov">       9606 :   Array&lt;calc_edges::EdgeMap&gt; edge_maps(parallel_maps);</span></a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineCov">       9667 :   calc_edges::reserve_hash_maps(mesh, keep_existing_edges, edge_maps);</span></a>
+<a name="264"><span class="lineNum">     264 </span>            : </a>
+<a name="265"><span class="lineNum">     265 </span><span class="lineCov">       9631 :   Array&lt;int&gt; original_edge_maps_prefix_size(edge_maps.size() + 1, 0);</span></a>
+<a name="266"><span class="lineNum">     266 </span><span class="lineCov">       9669 :   if (keep_existing_edges) {</span></a>
+<a name="267"><span class="lineNum">     267 </span><span class="lineCov">       8415 :     calc_edges::add_existing_edges_to_hash_maps(mesh, parallel_mask, edge_maps);</span></a>
+<a name="268"><span class="lineNum">     268 </span><span class="lineCov">       8390 :     calc_edges::edge_map_offsets(edge_maps, original_edge_maps_prefix_size);</span></a>
+<a name="269"><span class="lineNum">     269 </span>            :   }</a>
+<a name="270"><span class="lineNum">     270 </span><span class="lineCov">       9627 :   const OffsetIndices&lt;int&gt; original_edge_maps_prefix(original_edge_maps_prefix_size.as_span());</span></a>
+<a name="271"><span class="lineNum">     271 </span><span class="lineCov">       9648 :   const int original_unique_edge_num = original_edge_maps_prefix.total_size();</span></a>
+<a name="272"><span class="lineNum">     272 </span><span class="lineCov">       9585 :   const bool original_edges_are_distinct = original_unique_edge_num == mesh.edges_num;</span></a>
+<a name="273"><span class="lineNum">     273 </span>            : </a>
+<a name="274"><span class="lineNum">     274 </span><span class="lineCov">       9585 :   if (mesh.corners_num == 0 &amp;&amp; keep_existing_edges &amp;&amp; original_edges_are_distinct) {</span></a>
+<a name="275"><span class="lineNum">     275 </span>            :     /* BLI_assert(mesh_is_valid(&amp;mesh)); */</a>
+<a name="276"><span class="lineNum">     276 </span><span class="lineCov">         27 :     return;</span></a>
+<a name="277"><span class="lineNum">     277 </span>            :   }</a>
+<a name="278"><span class="lineNum">     278 </span>            : </a>
+<a name="279"><span class="lineNum">     279 </span><span class="lineCov">       9558 :   calc_edges::add_face_edges_to_hash_maps(mesh, parallel_mask, edge_maps);</span></a>
+<a name="280"><span class="lineNum">     280 </span><span class="lineCov">       9595 :   Array&lt;int&gt; edge_sizes;</span></a>
+<a name="281"><span class="lineNum">     281 </span><span class="lineCov">       9592 :   const OffsetIndices&lt;int&gt; edge_offsets = calc_edges::edge_map_offsets(edge_maps, edge_sizes);</span></a>
+<a name="282"><span class="lineNum">     282 </span><span class="lineCov">       9598 :   const bool no_new_edges = edge_offsets.total_size() == original_unique_edge_num;</span></a>
+<a name="283"><span class="lineNum">     283 </span>            : </a>
+<a name="284"><span class="lineNum">     284 </span><span class="lineCov">       9601 :   MutableAttributeAccessor dst_attributes = mesh.attributes_for_write();</span></a>
+<a name="285"><span class="lineNum">     285 </span><span class="lineCov">       9595 :   dst_attributes.add&lt;int&gt;(&quot;.corner_edge&quot;, AttrDomain::Corner, AttributeInitConstruct());</span></a>
+<a name="286"><span class="lineNum">     286 </span><span class="lineCov">       9611 :   MutableSpan&lt;int&gt; corner_edges = mesh.corner_edges_for_write();</span></a>
+<a name="287"><span class="lineNum">     287 </span>            : #ifndef NDEBUG</a>
+<a name="288"><span class="lineNum">     288 </span><span class="lineCov">       9588 :   corner_edges.fill(-1);</span></a>
+<a name="289"><span class="lineNum">     289 </span>            : #endif</a>
+<a name="290"><span class="lineNum">     290 </span>            : </a>
+<a name="291"><span class="lineNum">     291 </span><span class="lineCov">       9622 :   const int result_edges_num = edge_offsets.total_size();</span></a>
+<a name="292"><span class="lineNum">     292 </span>            : </a>
+<a name="293"><span class="lineNum">     293 </span><span class="lineCov">       9604 :   const OffsetIndices&lt;int&gt; faces = mesh.faces();</span></a>
+<a name="294"><span class="lineNum">     294 </span><span class="lineCov">       9644 :   const Span&lt;int2&gt; original_edges = mesh.edges();</span></a>
+<a name="295"><span class="lineNum">     295 </span><span class="lineCov">       9602 :   const Span&lt;int&gt; corner_verts = mesh.corner_verts();</span></a>
+<a name="296"><span class="lineNum">     296 </span><span class="lineCov">       9591 :   if (keep_existing_edges &amp;&amp; original_edges_are_distinct &amp;&amp; no_new_edges) {</span></a>
+<a name="297"><span class="lineNum">     297 </span>            :     /* We need a way to say from caller side if we should generate corner edge attribute even in</a>
+<a name="298"><span class="lineNum">     298 </span>            :      * that case. TODO: make this optional. */</a>
+<a name="299"><span class="lineNum">     299 </span><span class="lineCov">        999 :     calc_edges::update_edge_indices_in_face_loops(</span></a>
+<a name="300"><span class="lineNum">     300 </span>            :         faces, corner_verts, edge_maps, parallel_mask, edge_offsets, corner_edges);</a>
+<a name="301"><span class="lineNum">     301 </span>            : </a>
+<a name="302"><span class="lineNum">     302 </span><span class="lineCov">       1001 :     Array&lt;int&gt; edge_map_to_result_index(result_edges_num);</span></a>
+<a name="303"><span class="lineNum">     303 </span>            : #ifndef NDEBUG</a>
+<a name="304"><span class="lineNum">     304 </span><span class="lineCov">       1001 :     edge_map_to_result_index.as_mutable_span().fill(-1);</span></a>
+<a name="305"><span class="lineNum">     305 </span>            : #endif</a>
+<a name="306"><span class="lineNum">     306 </span><span class="lineCov">       1002 :     calc_edges::map_edge_to_span_index(</span></a>
+<a name="307"><span class="lineNum">     307 </span>            :         original_edges, edge_maps, parallel_mask, edge_offsets, edge_map_to_result_index);</a>
+<a name="308"><span class="lineNum">     308 </span><span class="lineCov">       1002 :     array_utils::gather(edge_map_to_result_index.as_span(), corner_edges.as_span(), corner_edges);</span></a>
+<a name="309"><span class="lineNum">     309 </span>            : </a>
+<a name="310"><span class="lineNum">     310 </span><span class="lineCov">       1003 :     BLI_assert(!corner_edges.contains(-1));</span></a>
+<a name="311"><span class="lineNum">     311 </span><span class="lineCov">       1004 :     BLI_assert(mesh_is_valid(mesh));</span></a>
+<a name="312"><span class="lineNum">     312 </span><span class="lineCov">       1003 :     return;</span></a>
+<a name="313"><span class="lineNum">     313 </span><span class="lineCov">       1003 :   }</span></a>
+<a name="314"><span class="lineNum">     314 </span>            : </a>
+<a name="315"><span class="lineNum">     315 </span><span class="lineCov">       8592 :   IndexMaskMemory memory;</span></a>
+<a name="316"><span class="lineNum">     316 </span><span class="lineCov">       8583 :   IndexRange back_range_of_new_edges;</span></a>
+<a name="317"><span class="lineNum">     317 </span><span class="lineCov">       8583 :   IndexMask src_to_dst_mask;</span></a>
+<a name="318"><span class="lineNum">     318 </span>            : </a>
+<a name="319"><span class="lineNum">     319 </span><span class="lineCov">       8585 :   auto *edge_verts_data = new ImplicitSharedValue&lt;Array&lt;int2&gt;&gt;(result_edges_num);</span></a>
+<a name="320"><span class="lineNum">     320 </span><span class="lineCov">       8651 :   MutableSpan&lt;int2&gt; edge_verts = edge_verts_data-&gt;data;</span></a>
+<a name="321"><span class="lineNum">     321 </span>            : #ifndef NDEBUG</a>
+<a name="322"><span class="lineNum">     322 </span><span class="lineCov">       8647 :   edge_verts.fill(int2(-1));</span></a>
+<a name="323"><span class="lineNum">     323 </span>            : #endif</a>
+<a name="324"><span class="lineNum">     324 </span>            : </a>
+<a name="325"><span class="lineNum">     325 </span><span class="lineCov">       8641 :   if (keep_existing_edges) {</span></a>
+<a name="326"><span class="lineNum">     326 </span><span class="lineCov">       7406 :     back_range_of_new_edges = IndexRange(result_edges_num).drop_front(original_unique_edge_num);</span></a>
+<a name="327"><span class="lineNum">     327 </span>            : </a>
+<a name="328"><span class="lineNum">     328 </span><span class="lineCov">       7404 :     if (original_edges_are_distinct) {</span></a>
+<a name="329"><span class="lineNum">     329 </span><span class="lineCov">       7403 :       src_to_dst_mask = IndexRange(original_unique_edge_num);</span></a>
+<a name="330"><span class="lineNum">     330 </span>            :     }</a>
+<a name="331"><span class="lineNum">     331 </span>            :     else {</a>
+<a name="332"><span class="lineNum">     332 </span><span class="lineCov">          1 :       src_to_dst_mask = calc_edges::mask_first_distinct_edges(original_edges,</span></a>
+<a name="333"><span class="lineNum">     333 </span>            :                                                               original_edges.index_range(),</a>
+<a name="334"><span class="lineNum">     334 </span>            :                                                               edge_maps,</a>
+<a name="335"><span class="lineNum">     335 </span>            :                                                               parallel_mask,</a>
+<a name="336"><span class="lineNum">     336 </span>            :                                                               edge_offsets,</a>
+<a name="337"><span class="lineNum">     337 </span>            :                                                               memory);</a>
+<a name="338"><span class="lineNum">     338 </span>            :     }</a>
+<a name="339"><span class="lineNum">     339 </span><span class="lineCov">       7400 :     BLI_assert(src_to_dst_mask.size() == original_unique_edge_num);</span></a>
+<a name="340"><span class="lineNum">     340 </span>            : </a>
+<a name="341"><span class="lineNum">     341 </span><span class="lineCov">       7400 :     array_utils::gather(</span></a>
+<a name="342"><span class="lineNum">     342 </span>            :         original_edges, src_to_dst_mask, edge_verts.take_front(original_unique_edge_num));</a>
+<a name="343"><span class="lineNum">     343 </span>            : </a>
+<a name="344"><span class="lineNum">     344 </span>            :     /* In order to reduce permutations of edge attributes we must provide result edge indices near</a>
+<a name="345"><span class="lineNum">     345 </span>            :      * to original. */</a>
+<a name="346"><span class="lineNum">     346 </span><span class="lineCov">       7397 :     Array&lt;int&gt; edge_map_to_result_index(result_edges_num);</span></a>
+<a name="347"><span class="lineNum">     347 </span>            : #ifndef NDEBUG</a>
+<a name="348"><span class="lineNum">     348 </span><span class="lineCov">       7422 :     edge_map_to_result_index.as_mutable_span().fill(-1);</span></a>
+<a name="349"><span class="lineNum">     349 </span>            : #endif</a>
+<a name="350"><span class="lineNum">     350 </span>            : </a>
+<a name="351"><span class="lineNum">     351 </span><span class="lineCov">       7420 :     if (original_edges_are_distinct) {</span></a>
+<a name="352"><span class="lineNum">     352 </span>            :       /* TODO: Do we can group edges by .low vertex? Or by hash, but with Span&lt;int&gt; of edges by</a>
+<a name="353"><span class="lineNum">     353 </span>            :        * group?... */</a>
+<a name="354"><span class="lineNum">     354 </span><span class="lineCov">       7419 :       calc_edges::map_edge_to_span_index(original_edges.take_front(mesh.edges_num),</span></a>
+<a name="355"><span class="lineNum">     355 </span>            :                                          edge_maps,</a>
+<a name="356"><span class="lineNum">     356 </span>            :                                          parallel_mask,</a>
+<a name="357"><span class="lineNum">     357 </span>            :                                          edge_offsets,</a>
+<a name="358"><span class="lineNum">     358 </span>            :                                          edge_map_to_result_index);</a>
+<a name="359"><span class="lineNum">     359 </span>            :     }</a>
+<a name="360"><span class="lineNum">     360 </span>            :     else {</a>
+<a name="361"><span class="lineNum">     361 </span><span class="lineCov">          1 :       src_to_dst_mask.foreach_index(</span></a>
+<a name="362"><span class="lineNum">     362 </span><span class="lineCov">          1 :           [&amp;](const int src_index, const int dst_index) {</span></a>
+<a name="363"><span class="lineNum">     363 </span><span class="lineCov">          4 :             const OrderedEdge edge = original_edges[src_index];</span></a>
+<a name="364"><span class="lineNum">     364 </span><span class="lineCov">          4 :             const int map_i = calc_edges::edge_to_hash_map_i(edge, parallel_mask);</span></a>
+<a name="365"><span class="lineNum">     365 </span><span class="lineCov">          4 :             const int edge_index = edge_maps[map_i].index_of(edge);</span></a>
+<a name="366"><span class="lineNum">     366 </span><span class="lineCov">          4 :             edge_map_to_result_index[edge_offsets[map_i][edge_index]] = dst_index;</span></a>
+<a name="367"><span class="lineNum">     367 </span><span class="lineCov">          4 :           },</span></a>
+<a name="368"><span class="lineNum">     368 </span>            :           exec_mode::grain_size(1024));</a>
+<a name="369"><span class="lineNum">     369 </span>            :     }</a>
+<a name="370"><span class="lineNum">     370 </span>            : </a>
+<a name="371"><span class="lineNum">     371 </span><span class="lineCov">       7387 :     if (!no_new_edges) {</span></a>
+<a name="372"><span class="lineNum">     372 </span><span class="lineCov">       7389 :       BLI_assert(edge_offsets.data().size() == original_edge_maps_prefix.data().size());</span></a>
+<a name="373"><span class="lineNum">     373 </span>            : </a>
+<a name="374"><span class="lineNum">     374 </span>            :       /* TODO: Check if all new edges are range. */</a>
+<a name="375"><span class="lineNum">     375 </span><span class="lineCov">       7392 :       const int new_edges_start = original_unique_edge_num;</span></a>
+<a name="376"><span class="lineNum">     376 </span><span class="lineCov">      18750 :       for (const int map_i : edge_maps.index_range()) {</span></a>
+<a name="377"><span class="lineNum">     377 </span><span class="lineCov">      11361 :         const IndexRange map_edges = edge_offsets[map_i];</span></a>
+<a name="378"><span class="lineNum">     378 </span><span class="lineCov">      11364 :         const IndexRange prefix_edges = original_edge_maps_prefix[map_i];</span></a>
+<a name="379"><span class="lineNum">     379 </span><span class="lineCov">      11362 :         const IndexRange new_edges_in_map = map_edges.drop_front(prefix_edges.size());</span></a>
+<a name="380"><span class="lineNum">     380 </span>            : </a>
+<a name="381"><span class="lineNum">     381 </span><span class="lineCov">      11365 :         const int new_edges_start_pos = map_edges.start() - prefix_edges.start();</span></a>
+<a name="382"><span class="lineNum">     382 </span><span class="lineCov">      11364 :         const int map_new_edges_start = new_edges_start + new_edges_start_pos;</span></a>
+<a name="383"><span class="lineNum">     383 </span><span class="lineCov">      11358 :         array_utils::fill_index_range(</span></a>
+<a name="384"><span class="lineNum">     384 </span><span class="lineCov">      22772 :             edge_map_to_result_index.as_mutable_span().slice(new_edges_in_map),</span></a>
+<a name="385"><span class="lineNum">     385 </span>            :             map_new_edges_start);</a>
+<a name="386"><span class="lineNum">     386 </span>            :       }</a>
+<a name="387"><span class="lineNum">     387 </span>            :     }</a>
+<a name="388"><span class="lineNum">     388 </span>            : </a>
+<a name="389"><span class="lineNum">     389 </span><span class="lineCov">       7359 :     BLI_assert(!edge_map_to_result_index.as_span().contains(-1));</span></a>
+<a name="390"><span class="lineNum">     390 </span><span class="lineCov">       7410 :     calc_edges::update_edge_indices_in_face_loops(</span></a>
+<a name="391"><span class="lineNum">     391 </span>            :         faces, corner_verts, edge_maps, parallel_mask, edge_offsets, corner_edges);</a>
+<a name="392"><span class="lineNum">     392 </span><span class="lineCov">       7372 :     array_utils::gather(edge_map_to_result_index.as_span(), corner_edges.as_span(), corner_edges);</span></a>
+<a name="393"><span class="lineNum">     393 </span>            : </a>
+<a name="394"><span class="lineNum">     394 </span><span class="lineCov">       7382 :     calc_edges::serialize_and_initialize_deduplicated_edges(</span></a>
+<a name="395"><span class="lineNum">     395 </span>            :         edge_maps,</a>
+<a name="396"><span class="lineNum">     396 </span>            :         edge_offsets,</a>
+<a name="397"><span class="lineNum">     397 </span>            :         original_edge_maps_prefix,</a>
+<a name="398"><span class="lineNum">     398 </span>            :         edge_verts.drop_front(original_unique_edge_num));</a>
+<a name="399"><span class="lineNum">     399 </span><span class="lineCov">       7384 :   }</span></a>
+<a name="400"><span class="lineNum">     400 </span>            :   else {</a>
+<a name="401"><span class="lineNum">     401 </span><span class="lineCov">       1235 :     if (mesh.edges_num != 0) {</span></a>
+<a name="402"><span class="lineNum">     402 </span><span class="lineCov">        338 :       const IndexMask original_corner_edges = IndexMask::from_predicate(</span></a>
+<a name="403"><span class="lineNum">     403 </span><span class="lineCov">        340 :           IndexRange(mesh.edges_num), memory, [&amp;](const int edge_i) {</span></a>
+<a name="404"><span class="lineNum">     404 </span><span class="lineCov">       9365 :             const OrderedEdge edge = original_edges[edge_i];</span></a>
+<a name="405"><span class="lineNum">     405 </span><span class="lineCov">       9403 :             const int map_i = calc_edges::edge_to_hash_map_i(edge, parallel_mask);</span></a>
+<a name="406"><span class="lineNum">     406 </span><span class="lineCov">      18861 :             return edge_maps[map_i].contains(edge);</span></a>
+<a name="407"><span class="lineNum">     407 </span>            :           });</a>
+<a name="408"><span class="lineNum">     408 </span><span class="lineCov">        338 :       src_to_dst_mask = calc_edges::mask_first_distinct_edges(</span></a>
+<a name="409"><span class="lineNum">     409 </span>            :           original_edges, original_corner_edges, edge_maps, parallel_mask, edge_offsets, memory);</a>
+<a name="410"><span class="lineNum">     410 </span>            : </a>
+<a name="411"><span class="lineNum">     411 </span><span class="lineCov">        333 :       const int old_corner_edges_num = src_to_dst_mask.size();</span></a>
+<a name="412"><span class="lineNum">     412 </span><span class="lineCov">        338 :       back_range_of_new_edges = IndexRange(result_edges_num).drop_front(old_corner_edges_num);</span></a>
+<a name="413"><span class="lineNum">     413 </span>            : </a>
+<a name="414"><span class="lineNum">     414 </span><span class="lineCov">        336 :       Array&lt;int&gt; edge_map_to_result_index;</span></a>
+<a name="415"><span class="lineNum">     415 </span><span class="lineCov">        340 :       if (!src_to_dst_mask.is_empty()) {</span></a>
+<a name="416"><span class="lineNum">     416 </span>            :         /* TODO: Check if mask is range. */</a>
+<a name="417"><span class="lineNum">     417 </span><span class="lineCov">        333 :         edge_map_to_result_index.reinitialize(result_edges_num);</span></a>
+<a name="418"><span class="lineNum">     418 </span><span class="lineCov">        341 :         edge_map_to_result_index.as_mutable_span().fill(1);</span></a>
+<a name="419"><span class="lineNum">     419 </span><span class="lineCov">        338 :         src_to_dst_mask.foreach_index([&amp;](const int original_edge_i) {</span></a>
+<a name="420"><span class="lineNum">     420 </span><span class="lineCov">       9175 :           const OrderedEdge edge = original_edges[original_edge_i];</span></a>
+<a name="421"><span class="lineNum">     421 </span><span class="lineCov">       9070 :           const int edge_map = calc_edges::edge_to_hash_map_i(edge, parallel_mask);</span></a>
+<a name="422"><span class="lineNum">     422 </span><span class="lineCov">       9331 :           const int edge_index = edge_maps[edge_map].index_of(edge);</span></a>
+<a name="423"><span class="lineNum">     423 </span><span class="lineCov">       9049 :           edge_map_to_result_index[edge_offsets[edge_map][edge_index]] = 0;</span></a>
+<a name="424"><span class="lineNum">     424 </span><span class="lineCov">       9011 :         });</span></a>
+<a name="425"><span class="lineNum">     425 </span>            : </a>
+<a name="426"><span class="lineNum">     426 </span><span class="lineCov">        335 :         offset_indices::accumulate_counts_to_offsets(edge_map_to_result_index.as_mutable_span(),</span></a>
+<a name="427"><span class="lineNum">     427 </span>            :                                                      old_corner_edges_num);</a>
+<a name="428"><span class="lineNum">     428 </span>            : </a>
+<a name="429"><span class="lineNum">     429 </span><span class="lineCov">        340 :         src_to_dst_mask.foreach_index([&amp;](const int original_edge_i, const int dst_edge_i) {</span></a>
+<a name="430"><span class="lineNum">     430 </span><span class="lineCov">       9130 :           const OrderedEdge edge = original_edges[original_edge_i];</span></a>
+<a name="431"><span class="lineNum">     431 </span><span class="lineCov">       9124 :           const int edge_map = calc_edges::edge_to_hash_map_i(edge, parallel_mask);</span></a>
+<a name="432"><span class="lineNum">     432 </span><span class="lineCov">       9388 :           const int edge_index = edge_maps[edge_map].index_of(edge);</span></a>
+<a name="433"><span class="lineNum">     433 </span><span class="lineCov">       9175 :           edge_map_to_result_index[edge_offsets[edge_map][edge_index]] = dst_edge_i;</span></a>
+<a name="434"><span class="lineNum">     434 </span><span class="lineCov">       9154 :         });</span></a>
+<a name="435"><span class="lineNum">     435 </span>            : </a>
+<a name="436"><span class="lineNum">     436 </span><span class="lineCov">        337 :         array_utils::gather(</span></a>
+<a name="437"><span class="lineNum">     437 </span>            :             original_edges, src_to_dst_mask, edge_verts.take_front(old_corner_edges_num));</a>
+<a name="438"><span class="lineNum">     438 </span>            : </a>
+<a name="439"><span class="lineNum">     439 </span><span class="lineCov">        341 :         threading::parallel_for_each(edge_maps, [&amp;](calc_edges::EdgeMap &amp;edge_map) {</span></a>
+<a name="440"><span class="lineNum">     440 </span><span class="lineCov">        336 :           const int task_index = &amp;edge_map - edge_maps.data();</span></a>
+<a name="441"><span class="lineNum">     441 </span><span class="lineCov">        340 :           if (edge_offsets[task_index].is_empty()) {</span></a>
+<a name="442"><span class="lineNum">     442 </span><span class="lineNoCov">          0 :             return;</span></a>
+<a name="443"><span class="lineNum">     443 </span>            :           }</a>
+<a name="444"><span class="lineNum">     444 </span>            : </a>
+<a name="445"><span class="lineNum">     445 </span><span class="lineCov">        670 :           array_utils::scatter&lt;int2&gt;(</span></a>
+<a name="446"><span class="lineNum">     446 </span><span class="lineCov">        337 :               edge_map.as_span().cast&lt;int2&gt;(),</span></a>
+<a name="447"><span class="lineNum">     447 </span><span class="lineCov">        675 :               edge_map_to_result_index.as_span().slice(edge_offsets[task_index]),</span></a>
+<a name="448"><span class="lineNum">     448 </span>            :               edge_verts);</a>
+<a name="449"><span class="lineNum">     449 </span>            :         });</a>
+<a name="450"><span class="lineNum">     450 </span>            : </a>
+<a name="451"><span class="lineNum">     451 </span><span class="lineCov">        332 :         calc_edges::update_edge_indices_in_face_loops(</span></a>
+<a name="452"><span class="lineNum">     452 </span>            :             faces, corner_verts, edge_maps, parallel_mask, edge_offsets, corner_edges);</a>
+<a name="453"><span class="lineNum">     453 </span>            : </a>
+<a name="454"><span class="lineNum">     454 </span><span class="lineCov">        342 :         array_utils::gather(</span></a>
+<a name="455"><span class="lineNum">     455 </span>            :             edge_map_to_result_index.as_span(), corner_edges.as_span(), corner_edges);</a>
+<a name="456"><span class="lineNum">     456 </span>            :       }</a>
+<a name="457"><span class="lineNum">     457 </span>            :       else {</a>
+<a name="458"><span class="lineNum">     458 </span><span class="lineNoCov">          0 :         calc_edges::update_edge_indices_in_face_loops(</span></a>
+<a name="459"><span class="lineNum">     459 </span>            :             faces, corner_verts, edge_maps, parallel_mask, edge_offsets, corner_edges);</a>
+<a name="460"><span class="lineNum">     460 </span><span class="lineNoCov">          0 :         calc_edges::serialize_and_initialize_deduplicated_edges(</span></a>
+<a name="461"><span class="lineNum">     461 </span>            :             edge_maps, edge_offsets, original_edge_maps_prefix, edge_verts);</a>
+<a name="462"><span class="lineNum">     462 </span>            :       }</a>
+<a name="463"><span class="lineNum">     463 </span><span class="lineCov">        333 :     }</span></a>
+<a name="464"><span class="lineNum">     464 </span>            :     else {</a>
+<a name="465"><span class="lineNum">     465 </span><span class="lineCov">        895 :       back_range_of_new_edges = IndexRange(result_edges_num);</span></a>
+<a name="466"><span class="lineNum">     466 </span><span class="lineCov">        885 :       BLI_assert(original_edge_maps_prefix.total_size() == 0);</span></a>
+<a name="467"><span class="lineNum">     467 </span><span class="lineCov">        886 :       calc_edges::update_edge_indices_in_face_loops(</span></a>
+<a name="468"><span class="lineNum">     468 </span>            :           faces, corner_verts, edge_maps, parallel_mask, edge_offsets, corner_edges);</a>
+<a name="469"><span class="lineNum">     469 </span><span class="lineCov">        885 :       calc_edges::serialize_and_initialize_deduplicated_edges(</span></a>
+<a name="470"><span class="lineNum">     470 </span>            :           edge_maps, edge_offsets, original_edge_maps_prefix, edge_verts);</a>
+<a name="471"><span class="lineNum">     471 </span>            :     }</a>
+<a name="472"><span class="lineNum">     472 </span>            :   }</a>
+<a name="473"><span class="lineNum">     473 </span>            : </a>
+<a name="474"><span class="lineNum">     474 </span><span class="lineCov">   10302134 :   BLI_assert(std::all_of(</span></a>
+<a name="475"><span class="lineNum">     475 </span>            :       edge_verts.begin(), edge_verts.end(), [&amp;](const int2 edge) { return edge.x != edge.y; }));</a>
+<a name="476"><span class="lineNum">     476 </span>            : </a>
+<a name="477"><span class="lineNum">     477 </span><span class="lineCov">       8638 :   BLI_assert(!corner_edges.contains(-1));</span></a>
+<a name="478"><span class="lineNum">     478 </span><span class="lineCov">       8641 :   BLI_assert(!edge_verts.contains(int2(-1)));</span></a>
+<a name="479"><span class="lineNum">     479 </span>            : </a>
+<a name="480"><span class="lineNum">     480 </span><span class="lineCov">       8657 :   BLI_assert(src_to_dst_mask.size() + back_range_of_new_edges.size() == result_edges_num);</span></a>
+<a name="481"><span class="lineNum">     481 </span><span class="lineCov">       8624 :   BLI_assert(back_range_of_new_edges.one_after_last() == result_edges_num);</span></a>
+<a name="482"><span class="lineNum">     482 </span>            : </a>
+<a name="483"><span class="lineNum">     483 </span><span class="lineCov">       8620 :   Vector&lt;std::string&gt; attributes_to_drop;</span></a>
+<a name="484"><span class="lineNum">     484 </span>            :   /* TODO: Need ::all_pass() on #attribute_filter to know if this loop can be skipped. */</a>
+<a name="485"><span class="lineNum">     485 </span><span class="lineCov">       8614 :   mesh.attributes().foreach_attribute([&amp;](const AttributeIter &amp;attribute) {</span></a>
+<a name="486"><span class="lineNum">     486 </span><span class="lineCov">      58562 :     if (attribute.data_type == AttrType::String) {</span></a>
+<a name="487"><span class="lineNum">     487 </span><span class="lineNoCov">          0 :       return;</span></a>
+<a name="488"><span class="lineNum">     488 </span>            :     }</a>
+<a name="489"><span class="lineNum">     489 </span><span class="lineCov">      58562 :     if (attribute.domain != AttrDomain::Edge) {</span></a>
+<a name="490"><span class="lineNum">     490 </span><span class="lineCov">      49724 :       return;</span></a>
+<a name="491"><span class="lineNum">     491 </span>            :     }</a>
+<a name="492"><span class="lineNum">     492 </span><span class="lineCov">       8838 :     if (!attribute_filter.allow_skip(attribute.name)) {</span></a>
+<a name="493"><span class="lineNum">     493 </span><span class="lineCov">       8838 :       return;</span></a>
+<a name="494"><span class="lineNum">     494 </span>            :     }</a>
+<a name="495"><span class="lineNum">     495 </span><span class="lineNoCov">          0 :     attributes_to_drop.append(attribute.name);</span></a>
+<a name="496"><span class="lineNum">     496 </span>            :   });</a>
+<a name="497"><span class="lineNum">     497 </span>            : </a>
+<a name="498"><span class="lineNum">     498 </span><span class="lineCov">       8600 :   for (const StringRef attribute : attributes_to_drop) {</span></a>
+<a name="499"><span class="lineNum">     499 </span><span class="lineNoCov">          0 :     dst_attributes.remove(attribute);</span></a>
+<a name="500"><span class="lineNum">     500 </span>            :   }</a>
+<a name="501"><span class="lineNum">     501 </span>            : </a>
+<a name="502"><span class="lineNum">     502 </span><span class="lineCov">       8602 :   mesh.attribute_storage.wrap().remove(&quot;.edge_verts&quot;);</span></a>
+<a name="503"><span class="lineNum">     503 </span><span class="lineCov">      58492 :   for (bke::Attribute &amp;attr : mesh.attribute_storage.wrap()) {</span></a>
+<a name="504"><span class="lineNum">     504 </span><span class="lineCov">      49831 :     if (attr.domain() != bke::AttrDomain::Edge) {</span></a>
+<a name="505"><span class="lineNum">     505 </span><span class="lineCov">      49558 :       continue;</span></a>
+<a name="506"><span class="lineNum">     506 </span>            :     }</a>
+<a name="507"><span class="lineNum">     507 </span><span class="lineCov">        278 :     switch (attr.storage_type()) {</span></a>
+<a name="508"><span class="lineNum">     508 </span><span class="lineCov">          3 :       case AttrStorageType::Single: {</span></a>
+<a name="509"><span class="lineNum">     509 </span><span class="lineCov">          3 :         break;</span></a>
+<a name="510"><span class="lineNum">     510 </span>            :       }</a>
+<a name="511"><span class="lineNum">     511 </span><span class="lineCov">        272 :       case AttrStorageType::Array: {</span></a>
+<a name="512"><span class="lineNum">     512 </span><span class="lineCov">        272 :         const CPPType &amp;type = bke::attribute_type_to_cpp_type(attr.data_type());</span></a>
+<a name="513"><span class="lineNum">     513 </span><span class="lineCov">        272 :         const auto &amp;src_data = std::get&lt;bke::Attribute::ArrayData&gt;(attr.data());</span></a>
+<a name="514"><span class="lineNum">     514 </span><span class="lineCov">        273 :         auto dst_data = bke::Attribute::ArrayData::from_uninitialized(type, result_edges_num);</span></a>
+<a name="515"><span class="lineNum">     515 </span><span class="lineCov">        275 :         const GSpan src(type, src_data.data, mesh.edges_num);</span></a>
+<a name="516"><span class="lineNum">     516 </span><span class="lineCov">        274 :         GMutableSpan dst(type, dst_data.data, result_edges_num);</span></a>
+<a name="517"><span class="lineNum">     517 </span><span class="lineCov">        275 :         array_utils::gather(src, src_to_dst_mask, dst.take_front(src_to_dst_mask.size()));</span></a>
+<a name="518"><span class="lineNum">     518 </span><span class="lineCov">        547 :         type.fill_construct_n(type.default_value(),</span></a>
+<a name="519"><span class="lineNum">     519 </span><span class="lineCov">        273 :                               dst.slice(back_range_of_new_edges).data(),</span></a>
+<a name="520"><span class="lineNum">     520 </span><span class="lineCov">        272 :                               dst.slice(back_range_of_new_edges).size());</span></a>
+<a name="521"><span class="lineNum">     521 </span><span class="lineCov">        272 :         attr.assign_data(std::move(dst_data));</span></a>
+<a name="522"><span class="lineNum">     522 </span><span class="lineCov">        275 :         break;</span></a>
+<a name="523"><span class="lineNum">     523 </span><span class="lineCov">        275 :       }</span></a>
+<a name="524"><span class="lineNum">     524 </span>            :     }</a>
+<a name="525"><span class="lineNum">     525 </span>            :   }</a>
+<a name="526"><span class="lineNum">     526 </span>            : </a>
+<a name="527"><span class="lineNum">     527 </span>            :   {</a>
+<a name="528"><span class="lineNum">     528 </span><span class="lineCov">       8588 :     const int orig_index_layer = CustomData_get_layer_index(&amp;mesh.edge_data, CD_ORIGINDEX);</span></a>
+<a name="529"><span class="lineNum">     529 </span><span class="lineCov">       8631 :     if (orig_index_layer != -1) {</span></a>
+<a name="530"><span class="lineNum">     530 </span><span class="lineNoCov">          0 :       CustomDataLayer &amp;layer = mesh.edge_data.layers[orig_index_layer];</span></a>
+<a name="531"><span class="lineNum">     531 </span><span class="lineNoCov">          0 :       const int *src_data = static_cast&lt;const int *&gt;(layer.data);</span></a>
+<a name="532"><span class="lineNum">     532 </span>            : </a>
+<a name="533"><span class="lineNum">     533 </span><span class="lineNoCov">          0 :       int *dst_data = MEM_new_array_uninitialized&lt;int&gt;(result_edges_num, __func__);</span></a>
+<a name="534"><span class="lineNum">     534 </span><span class="lineNoCov">          0 :       MutableSpan dst(dst_data, result_edges_num);</span></a>
+<a name="535"><span class="lineNum">     535 </span><span class="lineNoCov">          0 :       if (src_data != nullptr) {</span></a>
+<a name="536"><span class="lineNum">     536 </span><span class="lineNoCov">          0 :         const Span src(src_data, mesh.edges_num);</span></a>
+<a name="537"><span class="lineNum">     537 </span><span class="lineNoCov">          0 :         array_utils::gather(src, src_to_dst_mask, dst.take_front(src_to_dst_mask.size()));</span></a>
+<a name="538"><span class="lineNum">     538 </span>            :       }</a>
+<a name="539"><span class="lineNum">     539 </span><span class="lineNoCov">          0 :       dst.slice(back_range_of_new_edges).fill(-1);</span></a>
+<a name="540"><span class="lineNum">     540 </span><span class="lineNoCov">          0 :       layer.sharing_info-&gt;remove_user_and_delete_if_last();</span></a>
+<a name="541"><span class="lineNum">     541 </span><span class="lineNoCov">          0 :       layer.data = dst_data;</span></a>
+<a name="542"><span class="lineNum">     542 </span><span class="lineNoCov">          0 :       layer.sharing_info = implicit_sharing::info_for_mem_free(dst_data);</span></a>
+<a name="543"><span class="lineNum">     543 </span>            :     }</a>
+<a name="544"><span class="lineNum">     544 </span>            :   }</a>
+<a name="545"><span class="lineNum">     545 </span>            : </a>
+<a name="546"><span class="lineNum">     546 </span><span class="lineCov">       8631 :   mesh.edges_num = result_edges_num;</span></a>
+<a name="547"><span class="lineNum">     547 </span>            : </a>
+<a name="548"><span class="lineNum">     548 </span><span class="lineCov">       8615 :   dst_attributes.add&lt;int2&gt;(</span></a>
+<a name="549"><span class="lineNum">     549 </span><span class="lineCov">       8631 :       &quot;.edge_verts&quot;, AttrDomain::Edge, AttributeInitShared(edge_verts.data(), *edge_verts_data));</span></a>
+<a name="550"><span class="lineNum">     550 </span><span class="lineCov">       8590 :   edge_verts_data-&gt;remove_user_and_delete_if_last();</span></a>
+<a name="551"><span class="lineNum">     551 </span>            : </a>
+<a name="552"><span class="lineNum">     552 </span><span class="lineCov">       8651 :   if (select_new_edges) {</span></a>
+<a name="553"><span class="lineNum">     553 </span><span class="lineCov">         87 :     dst_attributes.remove(&quot;.select_edge&quot;);</span></a>
+<a name="554"><span class="lineNum">     554 </span><span class="lineCov">         87 :     if (ELEM(back_range_of_new_edges.size(), 0, mesh.edges_num)) {</span></a>
+<a name="555"><span class="lineNum">     555 </span><span class="lineCov">         85 :       const bool fill_value = back_range_of_new_edges.size() == mesh.edges_num;</span></a>
+<a name="556"><span class="lineNum">     556 </span><span class="lineCov">         85 :       dst_attributes.add&lt;bool&gt;(&quot;.select_edge&quot;, AttrDomain::Edge, AttributeInitValue(fill_value));</span></a>
+<a name="557"><span class="lineNum">     557 </span>            :     }</a>
+<a name="558"><span class="lineNum">     558 </span>            :     else {</a>
+<a name="559"><span class="lineNum">     559 </span><span class="lineCov">          2 :       SpanAttributeWriter&lt;bool&gt; select_edge = dst_attributes.lookup_or_add_for_write_span&lt;bool&gt;(</span></a>
+<a name="560"><span class="lineNum">     560 </span><span class="lineCov">          2 :           &quot;.select_edge&quot;, AttrDomain::Edge);</span></a>
+<a name="561"><span class="lineNum">     561 </span><span class="lineCov">          2 :       select_edge.span.drop_back(back_range_of_new_edges.size()).fill(false);</span></a>
+<a name="562"><span class="lineNum">     562 </span><span class="lineCov">          2 :       select_edge.span.take_back(back_range_of_new_edges.size()).fill(true);</span></a>
+<a name="563"><span class="lineNum">     563 </span><span class="lineCov">          2 :       select_edge.finish();</span></a>
+<a name="564"><span class="lineNum">     564 </span><span class="lineCov">          2 :     }</span></a>
+<a name="565"><span class="lineNum">     565 </span>            :   }</a>
+<a name="566"><span class="lineNum">     566 </span>            : </a>
+<a name="567"><span class="lineNum">     567 </span><span class="lineCov">       8651 :   if (!keep_existing_edges) {</span></a>
+<a name="568"><span class="lineNum">     568 </span>            :     /* All edges are rebuilt from the faces, so there are no loose edges. */</a>
+<a name="569"><span class="lineNum">     569 </span><span class="lineCov">       1228 :     mesh.tag_loose_edges_none();</span></a>
+<a name="570"><span class="lineNum">     570 </span>            :   }</a>
+<a name="571"><span class="lineNum">     571 </span>            : </a>
+<a name="572"><span class="lineNum">     572 </span>            :   /* Explicitly clear edge maps, because that way it can be parallelized. */</a>
+<a name="573"><span class="lineNum">     573 </span><span class="lineCov">       8642 :   calc_edges::clear_hash_tables(edge_maps);</span></a>
+<a name="574"><span class="lineNum">     574 </span>            : </a>
+<a name="575"><span class="lineNum">     575 </span>            :   /* BLI_assert(mesh_is_valid(mesh)); */</a>
+<a name="576"><span class="lineNum">     576 </span><span class="lineCov">      11670 : }</span></a>
+<a name="577"><span class="lineNum">     577 </span>            : </a>
+<a name="578"><span class="lineNum">     578 </span><span class="lineCov">       9600 : void mesh_calc_edges(Mesh &amp;mesh, bool keep_existing_edges, const bool select_new_edges)</span></a>
+<a name="579"><span class="lineNum">     579 </span>            : {</a>
+<a name="580"><span class="lineNum">     580 </span><span class="lineCov">       9600 :   mesh_calc_edges(mesh, keep_existing_edges, select_new_edges, AttributeFilter::default_filter());</span></a>
+<a name="581"><span class="lineNum">     581 </span><span class="lineCov">       9648 : }</span></a>
+<a name="582"><span class="lineNum">     582 </span>            : </a>
+<a name="583"><span class="lineNum">     583 </span>            : }  // namespace blender::bke</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

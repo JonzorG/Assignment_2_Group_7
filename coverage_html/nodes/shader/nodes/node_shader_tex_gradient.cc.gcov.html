@@ -1,0 +1,318 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - nodes/shader/nodes/node_shader_tex_gradient.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">nodes/shader/nodes</a> - node_shader_tex_gradient.cc<span style="font-size: 80%;"> (source / <a href="node_shader_tex_gradient.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">66</td>
+            <td class="headerCovTableEntry">147</td>
+            <td class="headerCovTableEntryLo">44.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2005 Blender Foundation. All rights reserved.</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup shdnodes</a>
+<a name="7"><span class="lineNum">       7 </span>            :  */</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &quot;node_shader_util.hh&quot;</a>
+<a name="10"><span class="lineNum">      10 </span>            : #include &quot;node_util.hh&quot;</a>
+<a name="11"><span class="lineNum">      11 </span>            : </a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &quot;BKE_texture.h&quot;</a>
+<a name="13"><span class="lineNum">      13 </span>            : </a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;BLI_math_constants.hh&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;BLI_math_vector.hh&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : </a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;NOD_multi_function.hh&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : </a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &quot;UI_interface_layout.hh&quot;</a>
+<a name="20"><span class="lineNum">      20 </span>            : #include &quot;UI_resources.hh&quot;</a>
+<a name="21"><span class="lineNum">      21 </span>            : </a>
+<a name="22"><span class="lineNum">      22 </span>            : namespace blender {</a>
+<a name="23"><span class="lineNum">      23 </span>            : </a>
+<a name="24"><span class="lineNum">      24 </span>            : namespace nodes::node_shader_tex_gradient_cc {</a>
+<a name="25"><span class="lineNum">      25 </span>            : </a>
+<a name="26"><span class="lineNum">      26 </span><span class="lineCov">       1546 : static void sh_node_tex_gradient_declare(NodeDeclarationBuilder &amp;b)</span></a>
+<a name="27"><span class="lineNum">      27 </span>            : {</a>
+<a name="28"><span class="lineNum">      28 </span><span class="lineCov">       1546 :   b.is_function_node();</span></a>
+<a name="29"><span class="lineNum">      29 </span>            : </a>
+<a name="30"><span class="lineNum">      30 </span><span class="lineCov">       1546 :   const bool is_compositor = b.tree_or_null() &amp;&amp; b.tree_or_null()-&gt;type == NTREE_COMPOSIT;</span></a>
+<a name="31"><span class="lineNum">      31 </span><span class="lineCov">       1547 :   const NodeDefaultInputType default_input_type =</span></a>
+<a name="32"><span class="lineNum">      32 </span><span class="lineCov">       1547 :       is_compositor ? NODE_DEFAULT_INPUT_UNIFORM_IMAGE_COORDINATES :</span></a>
+<a name="33"><span class="lineNum">      33 </span>            :                       NODE_DEFAULT_INPUT_POSITION_FIELD;</a>
+<a name="34"><span class="lineNum">      34 </span><span class="lineCov">       1547 :   b.add_input&lt;decl::Vector&gt;(&quot;Vector&quot;_ustr).default_input_type(default_input_type);</span></a>
+<a name="35"><span class="lineNum">      35 </span>            : </a>
+<a name="36"><span class="lineNum">      36 </span><span class="lineCov">       1546 :   b.add_output&lt;decl::Color&gt;(&quot;Color&quot;_ustr).no_muted_links();</span></a>
+<a name="37"><span class="lineNum">      37 </span><span class="lineCov">       1546 :   b.add_output&lt;decl::Float&gt;(&quot;Factor&quot;_ustr, &quot;Fac&quot;_ustr).no_muted_links();</span></a>
+<a name="38"><span class="lineNum">      38 </span><span class="lineCov">       1546 : }</span></a>
+<a name="39"><span class="lineNum">      39 </span>            : </a>
+<a name="40"><span class="lineNum">      40 </span><span class="lineNoCov">          0 : static void node_shader_buts_tex_gradient(ui::Layout &amp;layout, bContext * /*C*/, PointerRNA *ptr)</span></a>
+<a name="41"><span class="lineNum">      41 </span>            : {</a>
+<a name="42"><span class="lineNum">      42 </span><span class="lineNoCov">          0 :   layout.prop(ptr, &quot;gradient_type&quot;, ui::ITEM_R_SPLIT_EMPTY_NAME, &quot;&quot;, ICON_NONE);</span></a>
+<a name="43"><span class="lineNum">      43 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="44"><span class="lineNum">      44 </span>            : </a>
+<a name="45"><span class="lineNum">      45 </span><span class="lineCov">         64 : static void node_shader_init_tex_gradient(bNodeTree * /*ntree*/, bNode *node)</span></a>
+<a name="46"><span class="lineNum">      46 </span>            : {</a>
+<a name="47"><span class="lineNum">      47 </span><span class="lineCov">         64 :   NodeTexGradient *tex = MEM_new&lt;NodeTexGradient&gt;(__func__);</span></a>
+<a name="48"><span class="lineNum">      48 </span><span class="lineCov">         64 :   BKE_texture_mapping_default(&amp;tex-&gt;base.tex_mapping, TEXMAP_TYPE_POINT);</span></a>
+<a name="49"><span class="lineNum">      49 </span><span class="lineCov">         64 :   BKE_texture_colormapping_default(&amp;tex-&gt;base.color_mapping);</span></a>
+<a name="50"><span class="lineNum">      50 </span><span class="lineCov">         64 :   tex-&gt;gradient_type = SHD_BLEND_LINEAR;</span></a>
+<a name="51"><span class="lineNum">      51 </span>            : </a>
+<a name="52"><span class="lineNum">      52 </span><span class="lineCov">         64 :   node-&gt;storage = tex;</span></a>
+<a name="53"><span class="lineNum">      53 </span><span class="lineCov">         64 : }</span></a>
+<a name="54"><span class="lineNum">      54 </span>            : </a>
+<a name="55"><span class="lineNum">      55 </span><span class="lineNoCov">          0 : static int node_shader_gpu_tex_gradient(GPUMaterial *mat,</span></a>
+<a name="56"><span class="lineNum">      56 </span>            :                                         bNode *node,</a>
+<a name="57"><span class="lineNum">      57 </span>            :                                         bNodeExecData * /*execdata*/,</a>
+<a name="58"><span class="lineNum">      58 </span>            :                                         GPUNodeStack *in,</a>
+<a name="59"><span class="lineNum">      59 </span>            :                                         GPUNodeStack *out)</a>
+<a name="60"><span class="lineNum">      60 </span>            : {</a>
+<a name="61"><span class="lineNum">      61 </span><span class="lineNoCov">          0 :   node_shader_gpu_default_tex_coord(mat, node, &amp;in[0].link);</span></a>
+<a name="62"><span class="lineNum">      62 </span><span class="lineNoCov">          0 :   node_shader_gpu_tex_mapping(mat, node, in, out);</span></a>
+<a name="63"><span class="lineNum">      63 </span>            : </a>
+<a name="64"><span class="lineNum">      64 </span><span class="lineNoCov">          0 :   NodeTexGradient *tex = static_cast&lt;NodeTexGradient *&gt;(node-&gt;storage);</span></a>
+<a name="65"><span class="lineNum">      65 </span><span class="lineNoCov">          0 :   float gradient_type = tex-&gt;gradient_type;</span></a>
+<a name="66"><span class="lineNum">      66 </span><span class="lineNoCov">          0 :   return GPU_stack_link(mat, node, &quot;node_tex_gradient&quot;, in, out, GPU_constant(&amp;gradient_type));</span></a>
+<a name="67"><span class="lineNum">      67 </span>            : }</a>
+<a name="68"><span class="lineNum">      68 </span>            : </a>
+<a name="69"><span class="lineNum">      69 </span>            : class GradientFunction : public mf::MultiFunction {</a>
+<a name="70"><span class="lineNum">      70 </span>            :  private:</a>
+<a name="71"><span class="lineNum">      71 </span>            :   int gradient_type_;</a>
+<a name="72"><span class="lineNum">      72 </span>            : </a>
+<a name="73"><span class="lineNum">      73 </span>            :  public:</a>
+<a name="74"><span class="lineNum">      74 </span><span class="lineCov">          8 :   GradientFunction(int gradient_type) : gradient_type_(gradient_type)</span></a>
+<a name="75"><span class="lineNum">      75 </span>            :   {</a>
+<a name="76"><span class="lineNum">      76 </span><span class="lineCov">          4 :     static const mf::Signature signature = []() {</span></a>
+<a name="77"><span class="lineNum">      77 </span><span class="lineCov">          4 :       mf::Signature signature;</span></a>
+<a name="78"><span class="lineNum">      78 </span><span class="lineCov">          4 :       mf::SignatureBuilder builder{&quot;GradientFunction&quot;, signature};</span></a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineCov">          4 :       builder.single_input&lt;float3&gt;(&quot;Vector&quot;);</span></a>
+<a name="80"><span class="lineNum">      80 </span><span class="lineCov">          4 :       builder.single_output&lt;ColorGeometry4f&gt;(&quot;Color&quot;, mf::ParamFlag::SupportsUnusedOutput);</span></a>
+<a name="81"><span class="lineNum">      81 </span><span class="lineCov">          4 :       builder.single_output&lt;float&gt;(&quot;Fac&quot;);</span></a>
+<a name="82"><span class="lineNum">      82 </span><span class="lineCov">          4 :       return signature;</span></a>
+<a name="83"><span class="lineNum">      83 </span><span class="lineCov">          8 :     }();</span></a>
+<a name="84"><span class="lineNum">      84 </span><span class="lineCov">          8 :     this-&gt;set_signature(&amp;signature);</span></a>
+<a name="85"><span class="lineNum">      85 </span><span class="lineCov">          8 :   }</span></a>
+<a name="86"><span class="lineNum">      86 </span>            : </a>
+<a name="87"><span class="lineNum">      87 </span><span class="lineCov">         49 :   void call(const IndexMask &amp;mask, mf::Params params, mf::Context /*context*/) const override</span></a>
+<a name="88"><span class="lineNum">      88 </span>            :   {</a>
+<a name="89"><span class="lineNum">      89 </span><span class="lineCov">         49 :     const VArray&lt;float3&gt; &amp;vector = params.readonly_single_input&lt;float3&gt;(0, &quot;Vector&quot;);</span></a>
+<a name="90"><span class="lineNum">      90 </span>            : </a>
+<a name="91"><span class="lineNum">      91 </span>            :     MutableSpan&lt;ColorGeometry4f&gt; r_color =</a>
+<a name="92"><span class="lineNum">      92 </span><span class="lineCov">         49 :         params.uninitialized_single_output_if_required&lt;ColorGeometry4f&gt;(1, &quot;Color&quot;);</span></a>
+<a name="93"><span class="lineNum">      93 </span><span class="lineCov">         49 :     MutableSpan&lt;float&gt; fac = params.uninitialized_single_output&lt;float&gt;(2, &quot;Fac&quot;);</span></a>
+<a name="94"><span class="lineNum">      94 </span>            : </a>
+<a name="95"><span class="lineNum">      95 </span><span class="lineCov">         49 :     const bool compute_color = !r_color.is_empty();</span></a>
+<a name="96"><span class="lineNum">      96 </span>            : </a>
+<a name="97"><span class="lineNum">      97 </span><span class="lineCov">         49 :     switch (gradient_type_) {</span></a>
+<a name="98"><span class="lineNum">      98 </span><span class="lineCov">         49 :       case SHD_BLEND_LINEAR: {</span></a>
+<a name="99"><span class="lineNum">      99 </span><span class="lineCov">         49 :         mask.foreach_index_optimized&lt;int64_t&gt;(</span></a>
+<a name="100"><span class="lineNum">     100 </span><span class="lineCov">     263420 :             [&amp;](const int64_t i) { fac[i] = math::clamp(vector[i].x, 0.0f, 1.0f); });</span></a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineCov">         49 :         break;</span></a>
+<a name="102"><span class="lineNum">     102 </span>            :       }</a>
+<a name="103"><span class="lineNum">     103 </span><span class="lineNoCov">          0 :       case SHD_BLEND_QUADRATIC: {</span></a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineNoCov">          0 :         mask.foreach_index_optimized&lt;int64_t&gt;([&amp;](const int64_t i) {</span></a>
+<a name="105"><span class="lineNum">     105 </span><span class="lineNoCov">          0 :           const float r = std::max(vector[i].x, 0.0f);</span></a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineNoCov">          0 :           fac[i] = math::clamp(r * r, 0.0f, 1.0f);</span></a>
+<a name="107"><span class="lineNum">     107 </span><span class="lineNoCov">          0 :         });</span></a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineNoCov">          0 :         break;</span></a>
+<a name="109"><span class="lineNum">     109 </span>            :       }</a>
+<a name="110"><span class="lineNum">     110 </span><span class="lineNoCov">          0 :       case SHD_BLEND_EASING: {</span></a>
+<a name="111"><span class="lineNum">     111 </span><span class="lineNoCov">          0 :         mask.foreach_index_optimized&lt;int64_t&gt;([&amp;](const int64_t i) {</span></a>
+<a name="112"><span class="lineNum">     112 </span><span class="lineNoCov">          0 :           const float r = std::min(std::max(vector[i].x, 0.0f), 1.0f);</span></a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineNoCov">          0 :           const float t = r * r;</span></a>
+<a name="114"><span class="lineNum">     114 </span><span class="lineNoCov">          0 :           fac[i] = (3.0f * t - 2.0f * t * r);</span></a>
+<a name="115"><span class="lineNum">     115 </span><span class="lineNoCov">          0 :         });</span></a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineNoCov">          0 :         break;</span></a>
+<a name="117"><span class="lineNum">     117 </span>            :       }</a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineNoCov">          0 :       case SHD_BLEND_DIAGONAL: {</span></a>
+<a name="119"><span class="lineNum">     119 </span><span class="lineNoCov">          0 :         mask.foreach_index_optimized&lt;int64_t&gt;([&amp;](const int64_t i) {</span></a>
+<a name="120"><span class="lineNum">     120 </span><span class="lineNoCov">          0 :           fac[i] = (vector[i].x + vector[i].y) * 0.5f;</span></a>
+<a name="121"><span class="lineNum">     121 </span><span class="lineNoCov">          0 :           fac[i] = math::clamp(fac[i], 0.0f, 1.0f);</span></a>
+<a name="122"><span class="lineNum">     122 </span><span class="lineNoCov">          0 :         });</span></a>
+<a name="123"><span class="lineNum">     123 </span><span class="lineNoCov">          0 :         break;</span></a>
+<a name="124"><span class="lineNum">     124 </span>            :       }</a>
+<a name="125"><span class="lineNum">     125 </span><span class="lineNoCov">          0 :       case SHD_BLEND_RADIAL: {</span></a>
+<a name="126"><span class="lineNum">     126 </span><span class="lineNoCov">          0 :         mask.foreach_index_optimized&lt;int64_t&gt;([&amp;](const int64_t i) {</span></a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineNoCov">          0 :           fac[i] = atan2f(vector[i].y, vector[i].x) / (M_PI * 2.0f) + 0.5f;</span></a>
+<a name="128"><span class="lineNum">     128 </span><span class="lineNoCov">          0 :         });</span></a>
+<a name="129"><span class="lineNum">     129 </span><span class="lineNoCov">          0 :         break;</span></a>
+<a name="130"><span class="lineNum">     130 </span>            :       }</a>
+<a name="131"><span class="lineNum">     131 </span><span class="lineNoCov">          0 :       case SHD_BLEND_QUADRATIC_SPHERE: {</span></a>
+<a name="132"><span class="lineNum">     132 </span><span class="lineNoCov">          0 :         mask.foreach_index_optimized&lt;int64_t&gt;([&amp;](const int64_t i) {</span></a>
+<a name="133"><span class="lineNum">     133 </span>            :           /* Bias a little bit for the case where input is a unit length vector,</a>
+<a name="134"><span class="lineNum">     134 </span>            :            * to get exactly zero instead of a small random value depending</a>
+<a name="135"><span class="lineNum">     135 </span>            :            * on float precision. */</a>
+<a name="136"><span class="lineNum">     136 </span><span class="lineNoCov">          0 :           const float r = std::max(0.999999f - math::length(vector[i]), 0.0f);</span></a>
+<a name="137"><span class="lineNum">     137 </span><span class="lineNoCov">          0 :           fac[i] = r * r;</span></a>
+<a name="138"><span class="lineNum">     138 </span><span class="lineNoCov">          0 :         });</span></a>
+<a name="139"><span class="lineNum">     139 </span><span class="lineNoCov">          0 :         break;</span></a>
+<a name="140"><span class="lineNum">     140 </span>            :       }</a>
+<a name="141"><span class="lineNum">     141 </span><span class="lineNoCov">          0 :       case SHD_BLEND_SPHERICAL: {</span></a>
+<a name="142"><span class="lineNum">     142 </span><span class="lineNoCov">          0 :         mask.foreach_index_optimized&lt;int64_t&gt;([&amp;](const int64_t i) {</span></a>
+<a name="143"><span class="lineNum">     143 </span>            :           /* Bias a little bit for the case where input is a unit length vector,</a>
+<a name="144"><span class="lineNum">     144 </span>            :            * to get exactly zero instead of a small random value depending</a>
+<a name="145"><span class="lineNum">     145 </span>            :            * on float precision. */</a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineNoCov">          0 :           fac[i] = std::max(0.999999f - math::length(vector[i]), 0.0f);</span></a>
+<a name="147"><span class="lineNum">     147 </span><span class="lineNoCov">          0 :         });</span></a>
+<a name="148"><span class="lineNum">     148 </span><span class="lineNoCov">          0 :         break;</span></a>
+<a name="149"><span class="lineNum">     149 </span>            :       }</a>
+<a name="150"><span class="lineNum">     150 </span>            :     }</a>
+<a name="151"><span class="lineNum">     151 </span><span class="lineCov">         49 :     if (compute_color) {</span></a>
+<a name="152"><span class="lineNum">     152 </span><span class="lineCov">          9 :       mask.foreach_index_optimized&lt;int64_t&gt;(</span></a>
+<a name="153"><span class="lineNum">     153 </span><span class="lineCov">      60112 :           [&amp;](const int64_t i) { r_color[i] = ColorGeometry4f(fac[i], fac[i], fac[i], 1.0f); });</span></a>
+<a name="154"><span class="lineNum">     154 </span>            :     }</a>
+<a name="155"><span class="lineNum">     155 </span><span class="lineCov">         49 :   }</span></a>
+<a name="156"><span class="lineNum">     156 </span>            : </a>
+<a name="157"><span class="lineNum">     157 </span><span class="lineCov">          5 :   void hash_unique(UniqueHashBytes &amp;hash) const override</span></a>
+<a name="158"><span class="lineNum">     158 </span>            :   {</a>
+<a name="159"><span class="lineNum">     159 </span>            :     static constexpr int8_t id = 0;</a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineCov">          5 :     hash.add(&amp;id);</span></a>
+<a name="161"><span class="lineNum">     161 </span><span class="lineCov">          5 :     hash.add(gradient_type_);</span></a>
+<a name="162"><span class="lineNum">     162 </span><span class="lineCov">          5 :   }</span></a>
+<a name="163"><span class="lineNum">     163 </span>            : };</a>
+<a name="164"><span class="lineNum">     164 </span>            : </a>
+<a name="165"><span class="lineNum">     165 </span><span class="lineCov">          8 : static void sh_node_gradient_tex_build_multi_function(NodeMultiFunctionBuilder &amp;builder)</span></a>
+<a name="166"><span class="lineNum">     166 </span>            : {</a>
+<a name="167"><span class="lineNum">     167 </span><span class="lineCov">          8 :   const bNode &amp;node = builder.node();</span></a>
+<a name="168"><span class="lineNum">     168 </span><span class="lineCov">          8 :   NodeTexGradient *tex = static_cast&lt;NodeTexGradient *&gt;(node.storage);</span></a>
+<a name="169"><span class="lineNum">     169 </span><span class="lineCov">          8 :   builder.construct_and_set_matching_fn&lt;GradientFunction&gt;(tex-&gt;gradient_type);</span></a>
+<a name="170"><span class="lineNum">     170 </span><span class="lineCov">          8 : }</span></a>
+<a name="171"><span class="lineNum">     171 </span>            : </a>
+<a name="172"><span class="lineNum">     172 </span><span class="lineNoCov">          0 : NODE_SHADER_MATERIALX_BEGIN</span></a>
+<a name="173"><span class="lineNum">     173 </span>            : #ifdef WITH_MATERIALX</a>
+<a name="174"><span class="lineNum">     174 </span>            : {</a>
+<a name="175"><span class="lineNum">     175 </span><span class="lineNoCov">          0 :   NodeTexGradient *tex = (NodeTexGradient *)node_-&gt;storage;</span></a>
+<a name="176"><span class="lineNum">     176 </span><span class="lineNoCov">          0 :   const int gradient_type = tex-&gt;gradient_type;</span></a>
+<a name="177"><span class="lineNum">     177 </span><span class="lineNoCov">          0 :   NodeItem vector = get_input_link(&quot;Vector&quot;, NodeItem::Type::Vector2);</span></a>
+<a name="178"><span class="lineNum">     178 </span><span class="lineNoCov">          0 :   if (!vector) {</span></a>
+<a name="179"><span class="lineNum">     179 </span><span class="lineNoCov">          0 :     vector = texcoord_node();</span></a>
+<a name="180"><span class="lineNum">     180 </span>            :   }</a>
+<a name="181"><span class="lineNum">     181 </span><span class="lineNoCov">          0 :   NodeItem res = empty();</span></a>
+<a name="182"><span class="lineNum">     182 </span>            : </a>
+<a name="183"><span class="lineNum">     183 </span><span class="lineNoCov">          0 :   switch (gradient_type) {</span></a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineNoCov">          0 :     case SHD_BLEND_LINEAR:</span></a>
+<a name="185"><span class="lineNum">     185 </span><span class="lineNoCov">          0 :       res = vector[0];</span></a>
+<a name="186"><span class="lineNum">     186 </span><span class="lineNoCov">          0 :       break;</span></a>
+<a name="187"><span class="lineNum">     187 </span><span class="lineNoCov">          0 :     case SHD_BLEND_QUADRATIC:</span></a>
+<a name="188"><span class="lineNum">     188 </span><span class="lineNoCov">          0 :       res = vector[0];</span></a>
+<a name="189"><span class="lineNum">     189 </span><span class="lineNoCov">          0 :       res = res * res;</span></a>
+<a name="190"><span class="lineNum">     190 </span><span class="lineNoCov">          0 :       break;</span></a>
+<a name="191"><span class="lineNum">     191 </span><span class="lineNoCov">          0 :     case SHD_BLEND_EASING:</span></a>
+<a name="192"><span class="lineNum">     192 </span><span class="lineNoCov">          0 :       res = vector[0].clamp();</span></a>
+<a name="193"><span class="lineNum">     193 </span><span class="lineNoCov">          0 :       res = res * res * (val(3.0f) - val(2.0f) * res);</span></a>
+<a name="194"><span class="lineNum">     194 </span><span class="lineNoCov">          0 :       break;</span></a>
+<a name="195"><span class="lineNum">     195 </span><span class="lineNoCov">          0 :     case SHD_BLEND_DIAGONAL:</span></a>
+<a name="196"><span class="lineNum">     196 </span><span class="lineNoCov">          0 :       res = (vector[0] + vector[1]) * val(0.5f);</span></a>
+<a name="197"><span class="lineNum">     197 </span><span class="lineNoCov">          0 :       break;</span></a>
+<a name="198"><span class="lineNum">     198 </span><span class="lineNoCov">          0 :     case SHD_BLEND_RADIAL:</span></a>
+<a name="199"><span class="lineNum">     199 </span><span class="lineNoCov">          0 :       res = vector[1].atan2(vector[0]) / val(float(M_PI * 2.0f)) + val(0.5f);</span></a>
+<a name="200"><span class="lineNum">     200 </span><span class="lineNoCov">          0 :       break;</span></a>
+<a name="201"><span class="lineNum">     201 </span><span class="lineNoCov">          0 :     case SHD_BLEND_QUADRATIC_SPHERE:</span></a>
+<a name="202"><span class="lineNum">     202 </span><span class="lineNoCov">          0 :       res = (val(1.0f) - vector.dotproduct(vector).sqrt()).max(val(0.0f));</span></a>
+<a name="203"><span class="lineNum">     203 </span><span class="lineNoCov">          0 :       res = res * res;</span></a>
+<a name="204"><span class="lineNum">     204 </span><span class="lineNoCov">          0 :       break;</span></a>
+<a name="205"><span class="lineNum">     205 </span><span class="lineNoCov">          0 :     case SHD_BLEND_SPHERICAL:</span></a>
+<a name="206"><span class="lineNum">     206 </span><span class="lineNoCov">          0 :       res = (val(1.0f) - vector.dotproduct(vector).sqrt()).max(val(0.0f));</span></a>
+<a name="207"><span class="lineNum">     207 </span><span class="lineNoCov">          0 :       break;</span></a>
+<a name="208"><span class="lineNum">     208 </span><span class="lineNoCov">          0 :     default:</span></a>
+<a name="209"><span class="lineNum">     209 </span><span class="lineNoCov">          0 :       BLI_assert_unreachable();</span></a>
+<a name="210"><span class="lineNum">     210 </span>            :   }</a>
+<a name="211"><span class="lineNum">     211 </span><span class="lineNoCov">          0 :   return res;</span></a>
+<a name="212"><span class="lineNum">     212 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="213"><span class="lineNum">     213 </span>            : #endif</a>
+<a name="214"><span class="lineNum">     214 </span><span class="lineNoCov">          0 : NODE_SHADER_MATERIALX_END</span></a>
+<a name="215"><span class="lineNum">     215 </span>            : </a>
+<a name="216"><span class="lineNum">     216 </span>            : }  // namespace nodes::node_shader_tex_gradient_cc</a>
+<a name="217"><span class="lineNum">     217 </span>            : </a>
+<a name="218"><span class="lineNum">     218 </span><span class="lineCov">        785 : void register_node_type_sh_tex_gradient()</span></a>
+<a name="219"><span class="lineNum">     219 </span>            : {</a>
+<a name="220"><span class="lineNum">     220 </span>            :   namespace file_ns = nodes::node_shader_tex_gradient_cc;</a>
+<a name="221"><span class="lineNum">     221 </span>            : </a>
+<a name="222"><span class="lineNum">     222 </span><span class="lineCov">        785 :   static bke::bNodeType ntype;</span></a>
+<a name="223"><span class="lineNum">     223 </span>            : </a>
+<a name="224"><span class="lineNum">     224 </span><span class="lineCov">        785 :   common_node_type_base(&amp;ntype, &quot;ShaderNodeTexGradient&quot;_ustr, SH_NODE_TEX_GRADIENT);</span></a>
+<a name="225"><span class="lineNum">     225 </span><span class="lineCov">        785 :   ntype.ui_name = &quot;Gradient Texture&quot;;</span></a>
+<a name="226"><span class="lineNum">     226 </span>            :   ntype.ui_description =</a>
+<a name="227"><span class="lineNum">     227 </span><span class="lineCov">        785 :       &quot;Generate interpolated color and intensity values based on the input vector&quot;;</span></a>
+<a name="228"><span class="lineNum">     228 </span><span class="lineCov">        785 :   ntype.enum_name_legacy = &quot;TEX_GRADIENT&quot;;</span></a>
+<a name="229"><span class="lineNum">     229 </span><span class="lineCov">        785 :   ntype.nclass = NODE_CLASS_TEXTURE;</span></a>
+<a name="230"><span class="lineNum">     230 </span><span class="lineCov">        785 :   ntype.declare = file_ns::sh_node_tex_gradient_declare;</span></a>
+<a name="231"><span class="lineNum">     231 </span><span class="lineCov">        785 :   ntype.draw_buttons = file_ns::node_shader_buts_tex_gradient;</span></a>
+<a name="232"><span class="lineNum">     232 </span><span class="lineCov">        785 :   ntype.initfunc = file_ns::node_shader_init_tex_gradient;</span></a>
+<a name="233"><span class="lineNum">     233 </span><span class="lineCov">        785 :   bke::node_type_storage(</span></a>
+<a name="234"><span class="lineNum">     234 </span>            :       ntype, &quot;NodeTexGradient&quot;, node_free_standard_storage, node_copy_standard_storage);</a>
+<a name="235"><span class="lineNum">     235 </span><span class="lineCov">        785 :   ntype.gpu_fn = file_ns::node_shader_gpu_tex_gradient;</span></a>
+<a name="236"><span class="lineNum">     236 </span><span class="lineCov">        785 :   ntype.build_multi_function = file_ns::sh_node_gradient_tex_build_multi_function;</span></a>
+<a name="237"><span class="lineNum">     237 </span><span class="lineCov">        785 :   ntype.materialx_fn = file_ns::node_shader_materialx;</span></a>
+<a name="238"><span class="lineNum">     238 </span>            : </a>
+<a name="239"><span class="lineNum">     239 </span><span class="lineCov">        785 :   bke::node_register_type(ntype);</span></a>
+<a name="240"><span class="lineNum">     240 </span><span class="lineCov">        785 : }</span></a>
+<a name="241"><span class="lineNum">     241 </span>            : </a>
+<a name="242"><span class="lineNum">     242 </span>            : }  // namespace blender</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

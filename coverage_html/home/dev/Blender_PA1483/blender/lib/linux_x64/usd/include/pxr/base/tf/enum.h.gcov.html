@@ -1,0 +1,539 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - /home/dev/Blender_PA1483/blender/lib/linux_x64/usd/include/pxr/base/tf/enum.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../../../../../../index.html">top level</a> - <a href="index.html">home/dev/Blender_PA1483/blender/lib/linux_x64/usd/include/pxr/base/tf</a> - enum.h<span style="font-size: 80%;"> (source / <a href="enum.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : //</a>
+<a name="2"><span class="lineNum">       2 </span>            : // Copyright 2016 Pixar</a>
+<a name="3"><span class="lineNum">       3 </span>            : //</a>
+<a name="4"><span class="lineNum">       4 </span>            : // Licensed under the terms set forth in the LICENSE.txt file available at</a>
+<a name="5"><span class="lineNum">       5 </span>            : // https://openusd.org/license.</a>
+<a name="6"><span class="lineNum">       6 </span>            : //</a>
+<a name="7"><span class="lineNum">       7 </span>            : #ifndef PXR_BASE_TF_ENUM_H</a>
+<a name="8"><span class="lineNum">       8 </span>            : #define PXR_BASE_TF_ENUM_H</a>
+<a name="9"><span class="lineNum">       9 </span>            : </a>
+<a name="10"><span class="lineNum">      10 </span>            : /// \file tf/enum.h</a>
+<a name="11"><span class="lineNum">      11 </span>            : /// \ingroup group_tf_RuntimeTyping</a>
+<a name="12"><span class="lineNum">      12 </span>            : </a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;pxr/pxr.h&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;pxr/base/arch/defines.h&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;pxr/base/arch/demangle.h&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &quot;pxr/base/tf/hash.h&quot;</a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;pxr/base/tf/preprocessorUtilsLite.h&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : #include &quot;pxr/base/tf/safeTypeCompare.h&quot;</a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &quot;pxr/base/tf/api.h&quot;</a>
+<a name="20"><span class="lineNum">      20 </span>            : </a>
+<a name="21"><span class="lineNum">      21 </span>            : </a>
+<a name="22"><span class="lineNum">      22 </span>            : #include &lt;iosfwd&gt;</a>
+<a name="23"><span class="lineNum">      23 </span>            : #include &lt;string&gt;</a>
+<a name="24"><span class="lineNum">      24 </span>            : #include &lt;typeinfo&gt;</a>
+<a name="25"><span class="lineNum">      25 </span>            : #include &lt;type_traits&gt;</a>
+<a name="26"><span class="lineNum">      26 </span>            : #include &lt;vector&gt;</a>
+<a name="27"><span class="lineNum">      27 </span>            : </a>
+<a name="28"><span class="lineNum">      28 </span>            : PXR_NAMESPACE_OPEN_SCOPE</a>
+<a name="29"><span class="lineNum">      29 </span>            : </a>
+<a name="30"><span class="lineNum">      30 </span>            : /// \class TfEnum</a>
+<a name="31"><span class="lineNum">      31 </span>            : /// \ingroup group_tf_RuntimeTyping</a>
+<a name="32"><span class="lineNum">      32 </span>            : ///</a>
+<a name="33"><span class="lineNum">      33 </span>            : /// An enum class that records both enum type and enum value.</a>
+<a name="34"><span class="lineNum">      34 </span>            : ///</a>
+<a name="35"><span class="lineNum">      35 </span>            : /// \section cppcode_runtimeTyping Run-Time Typing </a>
+<a name="36"><span class="lineNum">      36 </span>            : ///</a>
+<a name="37"><span class="lineNum">      37 </span>            : /// A \c TfEnum can hold an enum variable of any enum type, while still</a>
+<a name="38"><span class="lineNum">      38 </span>            : /// being able to distinguish between various enum types.</a>
+<a name="39"><span class="lineNum">      39 </span>            : /// Here is an example:</a>
+<a name="40"><span class="lineNum">      40 </span>            : ///</a>
+<a name="41"><span class="lineNum">      41 </span>            : /// \code</a>
+<a name="42"><span class="lineNum">      42 </span>            : /// enum Monsters { SULLEY = 0, MIKE, ROZ };</a>
+<a name="43"><span class="lineNum">      43 </span>            : /// enum Fish { NEMO = 0, FATHER, DORY };</a>
+<a name="44"><span class="lineNum">      44 </span>            : ///</a>
+<a name="45"><span class="lineNum">      45 </span>            : /// TfEnum t1 = MIKE,</a>
+<a name="46"><span class="lineNum">      46 </span>            : ///        t2 = NEMO;</a>
+<a name="47"><span class="lineNum">      47 </span>            : ///</a>
+<a name="48"><span class="lineNum">      48 </span>            : /// t1 == MIKE;        // yields true</a>
+<a name="49"><span class="lineNum">      49 </span>            : /// t2 == NEMO;        // yields true</a>
+<a name="50"><span class="lineNum">      50 </span>            : /// t1 == t2;          // yields false</a>
+<a name="51"><span class="lineNum">      51 </span>            : /// t1 == SULLEY;      // yields false</a>
+<a name="52"><span class="lineNum">      52 </span>            : ///</a>
+<a name="53"><span class="lineNum">      53 </span>            : /// t1.IsA&lt;Monsters&gt;();        // yields true</a>
+<a name="54"><span class="lineNum">      54 </span>            : /// t1.IsA&lt;Fish&gt;();    // yields false</a>
+<a name="55"><span class="lineNum">      55 </span>            : /// \endcode</a>
+<a name="56"><span class="lineNum">      56 </span>            : ///</a>
+<a name="57"><span class="lineNum">      57 </span>            : /// Even though \c NEMO and \c SULLEY both are represented with integral</a>
+<a name="58"><span class="lineNum">      58 </span>            : /// value zero, \c t1 and \c t2 compare false.  A \c TfEnum can be passed</a>
+<a name="59"><span class="lineNum">      59 </span>            : /// by value, assigned, etc. just like a regular \c Enum variable.</a>
+<a name="60"><span class="lineNum">      60 </span>            : /// A \c TfEnum can also hold a plain integer, which will compare false against</a>
+<a name="61"><span class="lineNum">      61 </span>            : /// any other enum variable.</a>
+<a name="62"><span class="lineNum">      62 </span>            : ///</a>
+<a name="63"><span class="lineNum">      63 </span>            : /// \section cppcode_enumvals Associating Names with Enumerated Values </a>
+<a name="64"><span class="lineNum">      64 </span>            : ///</a>
+<a name="65"><span class="lineNum">      65 </span>            : /// The \c TfEnum class can also be used to represent enumerated values</a>
+<a name="66"><span class="lineNum">      66 </span>            : /// as strings. This can be useful for storing enum values in files for</a>
+<a name="67"><span class="lineNum">      67 </span>            : /// later retrieval.</a>
+<a name="68"><span class="lineNum">      68 </span>            : ///</a>
+<a name="69"><span class="lineNum">      69 </span>            : /// Use the \c TF_ADD_ENUM_NAME() macro to set up and enable strings</a>
+<a name="70"><span class="lineNum">      70 </span>            : /// for the values of an enum. Once this is done, several static </a>
+<a name="71"><span class="lineNum">      71 </span>            : /// \c TfEnum methods may be used to look up names corresponding to enum</a>
+<a name="72"><span class="lineNum">      72 </span>            : /// values and vice-versa.</a>
+<a name="73"><span class="lineNum">      73 </span>            : ///</a>
+<a name="74"><span class="lineNum">      74 </span>            : /// For example, see \c TfRegistryManager to understand the use of</a>
+<a name="75"><span class="lineNum">      75 </span>            : /// the \c TF_REGISTRY_FUNCTION() macro below:</a>
+<a name="76"><span class="lineNum">      76 </span>            : ///</a>
+<a name="77"><span class="lineNum">      77 </span>            : /// \section cppcode_enumRegMacro Enum Registration Macro</a>
+<a name="78"><span class="lineNum">      78 </span>            : ///</a>
+<a name="79"><span class="lineNum">      79 </span>            : /// \code</a>
+<a name="80"><span class="lineNum">      80 </span>            : /// // header file</a>
+<a name="81"><span class="lineNum">      81 </span>            : /// // Declare an enumerated type with some values</a>
+<a name="82"><span class="lineNum">      82 </span>            : /// enum Season {</a>
+<a name="83"><span class="lineNum">      83 </span>            : ///     SPRING,</a>
+<a name="84"><span class="lineNum">      84 </span>            : ///     SUMMER = 3, // It's ok to have initializers</a>
+<a name="85"><span class="lineNum">      85 </span>            : ///     AUTUMN,</a>
+<a name="86"><span class="lineNum">      86 </span>            : ///     WINTER</a>
+<a name="87"><span class="lineNum">      87 </span>            : /// };</a>
+<a name="88"><span class="lineNum">      88 </span>            : ///</a>
+<a name="89"><span class="lineNum">      89 </span>            : /// // source file</a>
+<a name="90"><span class="lineNum">      90 </span>            : /// #include &quot;pxr/base/tf/registryManager.h&quot;</a>
+<a name="91"><span class="lineNum">      91 </span>            : /// TF_REGISTRY_FUNCTION(TfEnum) {</a>
+<a name="92"><span class="lineNum">      92 </span>            : ///     // Register the names for the values:</a>
+<a name="93"><span class="lineNum">      93 </span>            : ///     TF_ADD_ENUM_NAME(SPRING);</a>
+<a name="94"><span class="lineNum">      94 </span>            : ///     TF_ADD_ENUM_NAME(SUMMER);</a>
+<a name="95"><span class="lineNum">      95 </span>            : ///     TF_ADD_ENUM_NAME(AUTUMN);</a>
+<a name="96"><span class="lineNum">      96 </span>            : ///     TF_ADD_ENUM_NAME(WINTER);</a>
+<a name="97"><span class="lineNum">      97 </span>            : /// }</a>
+<a name="98"><span class="lineNum">      98 </span>            : ///</a>
+<a name="99"><span class="lineNum">      99 </span>            : /// // another source file:</a>
+<a name="100"><span class="lineNum">     100 </span>            : ///</a>
+<a name="101"><span class="lineNum">     101 </span>            : /// // Look up the name for a value:</a>
+<a name="102"><span class="lineNum">     102 </span>            : /// string name1 = TfEnum::GetName(SUMMER);     // Returns &quot;SUMMER&quot;</a>
+<a name="103"><span class="lineNum">     103 </span>            : /// string name2 = TfEnum::GetFullName(SUMMER); // Returns &quot;Season::SUMMER&quot;</a>
+<a name="104"><span class="lineNum">     104 </span>            : ///</a>
+<a name="105"><span class="lineNum">     105 </span>            : /// // Look up the value for a name:</a>
+<a name="106"><span class="lineNum">     106 </span>            : /// bool found;</a>
+<a name="107"><span class="lineNum">     107 </span>            : /// Season s1 = TfEnum::GetValueFromName&lt;Season&gt;(&quot;AUTUMN&quot;, &amp;found);</a>
+<a name="108"><span class="lineNum">     108 </span>            : /// // Returns 4, sets found to true</a>
+<a name="109"><span class="lineNum">     109 </span>            : /// Season s2 = TfEnum::GetValueFromName&lt;Season&gt;(&quot;MONDAY&quot;, &amp;found);</a>
+<a name="110"><span class="lineNum">     110 </span>            : /// // Returns -1, sets found to false</a>
+<a name="111"><span class="lineNum">     111 </span>            : ///</a>
+<a name="112"><span class="lineNum">     112 </span>            : /// // Look up a fully-qualified name. Since this is not a templated</a>
+<a name="113"><span class="lineNum">     113 </span>            : /// // function, it has to return a generic value type, so we use</a>
+<a name="114"><span class="lineNum">     114 </span>            : /// // TfEnum.</a>
+<a name="115"><span class="lineNum">     115 </span>            : /// TfEnum s3 = TfEnum::GetValueFromFullName(&quot;Season::WINTER&quot;, &amp;found);</a>
+<a name="116"><span class="lineNum">     116 </span>            : /// // Returns 5, sets found to \c true</a>
+<a name="117"><span class="lineNum">     117 </span>            : /// \endcode</a>
+<a name="118"><span class="lineNum">     118 </span>            : ///</a>
+<a name="119"><span class="lineNum">     119 </span>            : class TfEnum</a>
+<a name="120"><span class="lineNum">     120 </span>            : {</a>
+<a name="121"><span class="lineNum">     121 </span>            : public:</a>
+<a name="122"><span class="lineNum">     122 </span>            :     /// Default constructor assigns integer value zero.</a>
+<a name="123"><span class="lineNum">     123 </span>            :     TfEnum()</a>
+<a name="124"><span class="lineNum">     124 </span>            :         : _typeInfo(&amp;typeid(int)), _value(0)</a>
+<a name="125"><span class="lineNum">     125 </span>            :     {</a>
+<a name="126"><span class="lineNum">     126 </span>            :     }</a>
+<a name="127"><span class="lineNum">     127 </span>            : </a>
+<a name="128"><span class="lineNum">     128 </span>            :     /// Initializes value to enum variable \c value of enum type \c T.</a>
+<a name="129"><span class="lineNum">     129 </span>            :     template &lt;class T&gt;</a>
+<a name="130"><span class="lineNum">     130 </span><span class="lineNoCov">          0 :     TfEnum(T value,</span></a>
+<a name="131"><span class="lineNum">     131 </span>            :            std::enable_if_t&lt;std::is_enum&lt;T&gt;::value&gt; * = 0)</a>
+<a name="132"><span class="lineNum">     132 </span><span class="lineNoCov">          0 :         : _typeInfo(&amp;typeid(T)), _value(int(value))</span></a>
+<a name="133"><span class="lineNum">     133 </span>            :     {</a>
+<a name="134"><span class="lineNum">     134 </span><span class="lineNoCov">          0 :     }</span></a>
+<a name="135"><span class="lineNum">     135 </span>            : </a>
+<a name="136"><span class="lineNum">     136 </span>            :     /// Initializes value to integral value \p value with enum type \c ti.</a>
+<a name="137"><span class="lineNum">     137 </span>            :     ///</a>
+<a name="138"><span class="lineNum">     138 </span>            :     /// \warning This is only for use in extreme circumstances; there is no</a>
+<a name="139"><span class="lineNum">     139 </span>            :     /// way for an implementation to guarantee that \p ti is really an enum</a>
+<a name="140"><span class="lineNum">     140 </span>            :     /// type, and/or that \p value is a valid value for that enum type.</a>
+<a name="141"><span class="lineNum">     141 </span>            :     TfEnum(const std::type_info&amp; ti, int value)</a>
+<a name="142"><span class="lineNum">     142 </span>            :         : _typeInfo(&amp;ti), _value(value)</a>
+<a name="143"><span class="lineNum">     143 </span>            :     {</a>
+<a name="144"><span class="lineNum">     144 </span>            :     }</a>
+<a name="145"><span class="lineNum">     145 </span>            : </a>
+<a name="146"><span class="lineNum">     146 </span>            :     /// True if \c *this and \c t have both the same type and value.</a>
+<a name="147"><span class="lineNum">     147 </span>            :     bool operator==(const TfEnum&amp; t) const {</a>
+<a name="148"><span class="lineNum">     148 </span>            :         return t._value == _value &amp;&amp;</a>
+<a name="149"><span class="lineNum">     149 </span>            :             TfSafeTypeCompare(*t._typeInfo, *_typeInfo);</a>
+<a name="150"><span class="lineNum">     150 </span>            :     }</a>
+<a name="151"><span class="lineNum">     151 </span>            : </a>
+<a name="152"><span class="lineNum">     152 </span>            :     /// Inequality operator</a>
+<a name="153"><span class="lineNum">     153 </span>            :     /// \sa TfEnum::operator==(const TfEnum&amp;)</a>
+<a name="154"><span class="lineNum">     154 </span>            :     bool operator!=(const TfEnum&amp; t) const {</a>
+<a name="155"><span class="lineNum">     155 </span>            :         return !(*this == t);</a>
+<a name="156"><span class="lineNum">     156 </span>            :     }</a>
+<a name="157"><span class="lineNum">     157 </span>            : </a>
+<a name="158"><span class="lineNum">     158 </span>            :     /// Less than comparison. Enum values belonging to the same type are</a>
+<a name="159"><span class="lineNum">     159 </span>            :     /// ordered according to their numeric value.  Enum values belonging to</a>
+<a name="160"><span class="lineNum">     160 </span>            :     /// different types are ordered in a consistent but arbitrary way which</a>
+<a name="161"><span class="lineNum">     161 </span>            :     /// may vary between program runs.</a>
+<a name="162"><span class="lineNum">     162 </span>            :     bool operator&lt;(const TfEnum&amp; t) const {</a>
+<a name="163"><span class="lineNum">     163 </span>            :         return _typeInfo-&gt;before(*t._typeInfo) ||</a>
+<a name="164"><span class="lineNum">     164 </span>            :             (!t._typeInfo-&gt;before(*_typeInfo) &amp;&amp; _value &lt; t._value);</a>
+<a name="165"><span class="lineNum">     165 </span>            :     }</a>
+<a name="166"><span class="lineNum">     166 </span>            : </a>
+<a name="167"><span class="lineNum">     167 </span>            :     /// Less than or equal operator</a>
+<a name="168"><span class="lineNum">     168 </span>            :     /// \sa TfEnum::operator&lt;(const TfEnum&amp;)</a>
+<a name="169"><span class="lineNum">     169 </span>            :     bool operator&lt;=(const TfEnum&amp; t) const {</a>
+<a name="170"><span class="lineNum">     170 </span>            :         return !(t &lt; *this);</a>
+<a name="171"><span class="lineNum">     171 </span>            :     }</a>
+<a name="172"><span class="lineNum">     172 </span>            : </a>
+<a name="173"><span class="lineNum">     173 </span>            :     /// Greater than operator</a>
+<a name="174"><span class="lineNum">     174 </span>            :     /// \sa TfEnum::operator&lt;(const TfEnum&amp;)</a>
+<a name="175"><span class="lineNum">     175 </span>            :     bool operator&gt;(const TfEnum&amp; t) const {</a>
+<a name="176"><span class="lineNum">     176 </span>            :         return t &lt; *this;</a>
+<a name="177"><span class="lineNum">     177 </span>            :     }</a>
+<a name="178"><span class="lineNum">     178 </span>            : </a>
+<a name="179"><span class="lineNum">     179 </span>            :     /// Greater than or equal operator</a>
+<a name="180"><span class="lineNum">     180 </span>            :     /// \sa TfEnum::operator&lt;(const TfEnum&amp;)</a>
+<a name="181"><span class="lineNum">     181 </span>            :     bool operator&gt;=(const TfEnum&amp; t) const {</a>
+<a name="182"><span class="lineNum">     182 </span>            :         return !(*this &lt; t);</a>
+<a name="183"><span class="lineNum">     183 </span>            :     }</a>
+<a name="184"><span class="lineNum">     184 </span>            : </a>
+<a name="185"><span class="lineNum">     185 </span>            :     /// True if \c *this has been assigned with \c value.</a>
+<a name="186"><span class="lineNum">     186 </span>            :     template &lt;class T&gt;</a>
+<a name="187"><span class="lineNum">     187 </span>            :     std::enable_if_t&lt;std::is_enum&lt;T&gt;::value, bool&gt;</a>
+<a name="188"><span class="lineNum">     188 </span>            :     operator==(T value) const {</a>
+<a name="189"><span class="lineNum">     189 </span>            :         return int(value) == _value &amp;&amp; IsA&lt;T&gt;();</a>
+<a name="190"><span class="lineNum">     190 </span>            :     }</a>
+<a name="191"><span class="lineNum">     191 </span>            : </a>
+<a name="192"><span class="lineNum">     192 </span>            :     /// False if \c *this has been assigned with \c value.</a>
+<a name="193"><span class="lineNum">     193 </span>            :     template &lt;class T&gt;</a>
+<a name="194"><span class="lineNum">     194 </span>            :     std::enable_if_t&lt;std::is_enum&lt;T&gt;::value, bool&gt;</a>
+<a name="195"><span class="lineNum">     195 </span>            :     operator!=(T value) const {</a>
+<a name="196"><span class="lineNum">     196 </span>            :         return int(value) != _value || !IsA&lt;T&gt;();</a>
+<a name="197"><span class="lineNum">     197 </span>            :     }</a>
+<a name="198"><span class="lineNum">     198 </span>            : </a>
+<a name="199"><span class="lineNum">     199 </span>            :     /// Compare a literal enum value \a val of enum type \a T with TfEnum \a e.</a>
+<a name="200"><span class="lineNum">     200 </span>            :     template &lt;class T&gt;</a>
+<a name="201"><span class="lineNum">     201 </span>            :     friend std::enable_if_t&lt;std::is_enum&lt;T&gt;::value, bool&gt;</a>
+<a name="202"><span class="lineNum">     202 </span>            :     operator==(T val, TfEnum const &amp;e) {</a>
+<a name="203"><span class="lineNum">     203 </span>            :         return e == val;</a>
+<a name="204"><span class="lineNum">     204 </span>            :     }</a>
+<a name="205"><span class="lineNum">     205 </span>            : </a>
+<a name="206"><span class="lineNum">     206 </span>            :     /// Compare a literal enum value \a val of enum type \a T with TfEnum \a e.</a>
+<a name="207"><span class="lineNum">     207 </span>            :     template &lt;class T&gt;</a>
+<a name="208"><span class="lineNum">     208 </span>            :     friend std::enable_if_t&lt;std::is_enum&lt;T&gt;::value, bool&gt;</a>
+<a name="209"><span class="lineNum">     209 </span>            :     operator!=(T val, TfEnum const &amp;e) {</a>
+<a name="210"><span class="lineNum">     210 </span>            :         return e != val;</a>
+<a name="211"><span class="lineNum">     211 </span>            :     }</a>
+<a name="212"><span class="lineNum">     212 </span>            : </a>
+<a name="213"><span class="lineNum">     213 </span>            :     /// True if \c *this has been assigned any enumerated value of type \c T.</a>
+<a name="214"><span class="lineNum">     214 </span>            :     template &lt;class T&gt;</a>
+<a name="215"><span class="lineNum">     215 </span>            :     bool IsA() const {</a>
+<a name="216"><span class="lineNum">     216 </span>            :         return TfSafeTypeCompare(*_typeInfo, typeid(T));</a>
+<a name="217"><span class="lineNum">     217 </span>            :     }</a>
+<a name="218"><span class="lineNum">     218 </span>            :     </a>
+<a name="219"><span class="lineNum">     219 </span>            :     /// True if \c *this has been assigned any enumerated value of type</a>
+<a name="220"><span class="lineNum">     220 </span>            :     /// \c T with \c typeid(T)==t.</a>
+<a name="221"><span class="lineNum">     221 </span>            :     bool IsA(const std::type_info&amp; t) const {</a>
+<a name="222"><span class="lineNum">     222 </span>            :         return TfSafeTypeCompare(*_typeInfo, t);</a>
+<a name="223"><span class="lineNum">     223 </span>            :     }</a>
+<a name="224"><span class="lineNum">     224 </span>            : </a>
+<a name="225"><span class="lineNum">     225 </span>            :     /// Returns the type of the enum value, as an \c std::type_info.</a>
+<a name="226"><span class="lineNum">     226 </span>            :     const std::type_info&amp; GetType() const {</a>
+<a name="227"><span class="lineNum">     227 </span>            :         return *_typeInfo;</a>
+<a name="228"><span class="lineNum">     228 </span>            :     }</a>
+<a name="229"><span class="lineNum">     229 </span>            : </a>
+<a name="230"><span class="lineNum">     230 </span>            :     /// Returns the integral value of the enum value.</a>
+<a name="231"><span class="lineNum">     231 </span>            :     const int&amp; GetValueAsInt() const {</a>
+<a name="232"><span class="lineNum">     232 </span>            :         return _value;</a>
+<a name="233"><span class="lineNum">     233 </span>            :     }</a>
+<a name="234"><span class="lineNum">     234 </span>            : </a>
+<a name="235"><span class="lineNum">     235 </span>            :     /// Returns the enum value for the enum type \c T.</a>
+<a name="236"><span class="lineNum">     236 </span>            :     ///</a>
+<a name="237"><span class="lineNum">     237 </span>            :     /// \warning This function can cause your program to abort if not used</a>
+<a name="238"><span class="lineNum">     238 </span>            :     /// properly.</a>
+<a name="239"><span class="lineNum">     239 </span>            :     ///</a>
+<a name="240"><span class="lineNum">     240 </span>            :     /// If it is possible that the enum value is not of type \c T, first use</a>
+<a name="241"><span class="lineNum">     241 </span>            :     /// \c IsA() to test whether the enum value is of type \c T before calling</a>
+<a name="242"><span class="lineNum">     242 </span>            :     /// \c GetValue&lt;T&gt;().</a>
+<a name="243"><span class="lineNum">     243 </span>            :     ///</a>
+<a name="244"><span class="lineNum">     244 </span>            :     /// Note that if \c IsA&lt;T&gt;() succeeds, then \c GetValue&lt;T&gt;() will also</a>
+<a name="245"><span class="lineNum">     245 </span>            :     /// succeed.</a>
+<a name="246"><span class="lineNum">     246 </span>            :     template &lt;typename T&gt;</a>
+<a name="247"><span class="lineNum">     247 </span>            :     T GetValue() const {</a>
+<a name="248"><span class="lineNum">     248 </span>            :         if (!IsA&lt;T&gt;())</a>
+<a name="249"><span class="lineNum">     249 </span>            :             _FatalGetValueError(typeid(T));</a>
+<a name="250"><span class="lineNum">     250 </span>            : </a>
+<a name="251"><span class="lineNum">     251 </span>            :         return T(_value);</a>
+<a name="252"><span class="lineNum">     252 </span>            :     }</a>
+<a name="253"><span class="lineNum">     253 </span>            : </a>
+<a name="254"><span class="lineNum">     254 </span>            :     /// Conversion operator for enum and integral types only.</a>
+<a name="255"><span class="lineNum">     255 </span>            :     template &lt;typename T,</a>
+<a name="256"><span class="lineNum">     256 </span>            :              typename = typename std::enable_if&lt;</a>
+<a name="257"><span class="lineNum">     257 </span>            :                  std::is_integral&lt;T&gt;::value ||</a>
+<a name="258"><span class="lineNum">     258 </span>            :                  std::is_enum&lt;T&gt;::value&gt;::type</a>
+<a name="259"><span class="lineNum">     259 </span>            :              &gt;</a>
+<a name="260"><span class="lineNum">     260 </span>            :     operator T() const</a>
+<a name="261"><span class="lineNum">     261 </span>            :     {</a>
+<a name="262"><span class="lineNum">     262 </span>            :         return T(_value);</a>
+<a name="263"><span class="lineNum">     263 </span>            :     }</a>
+<a name="264"><span class="lineNum">     264 </span>            : </a>
+<a name="265"><span class="lineNum">     265 </span>            :     /// \name Retrieving Corresponding Names and Enumerated Values</a>
+<a name="266"><span class="lineNum">     266 </span>            :     ///</a>
+<a name="267"><span class="lineNum">     267 </span>            :     /// The methods in this group can be used to retrieve corresponding names</a>
+<a name="268"><span class="lineNum">     268 </span>            :     /// and values. The correspondences are set up with the</a>
+<a name="269"><span class="lineNum">     269 </span>            :     /// \c TF_ADD_ENUM_NAME() macro.</a>
+<a name="270"><span class="lineNum">     270 </span>            :     ///</a>
+<a name="271"><span class="lineNum">     271 </span>            :     ///@{</a>
+<a name="272"><span class="lineNum">     272 </span>            : </a>
+<a name="273"><span class="lineNum">     273 </span>            :     /// Returns the name associated with an enumerated value.</a>
+<a name="274"><span class="lineNum">     274 </span>            :     ///</a>
+<a name="275"><span class="lineNum">     275 </span>            :     /// If there is no such name registered, an empty string is returned.</a>
+<a name="276"><span class="lineNum">     276 </span>            :     TF_API static std::string  GetName(TfEnum val);</a>
+<a name="277"><span class="lineNum">     277 </span>            : </a>
+<a name="278"><span class="lineNum">     278 </span>            :     /// Returns the fully-qualified name for an enumerated value.</a>
+<a name="279"><span class="lineNum">     279 </span>            :     ///</a>
+<a name="280"><span class="lineNum">     280 </span>            :     /// This returns a fully-qualified enumerated value name (e.g.,</a>
+<a name="281"><span class="lineNum">     281 </span>            :     /// \c &quot;Season::WINTER&quot;) associated with the given value. If there is no</a>
+<a name="282"><span class="lineNum">     282 </span>            :     /// such name registered, an empty string is returned.</a>
+<a name="283"><span class="lineNum">     283 </span>            :     TF_API static std::string  GetFullName(TfEnum val);</a>
+<a name="284"><span class="lineNum">     284 </span>            : </a>
+<a name="285"><span class="lineNum">     285 </span>            :     /// Returns the display name for an enumerated value.</a>
+<a name="286"><span class="lineNum">     286 </span>            :     ///</a>
+<a name="287"><span class="lineNum">     287 </span>            :     /// This returns a user interface-suitable string for the given enumerated</a>
+<a name="288"><span class="lineNum">     288 </span>            :     /// value.</a>
+<a name="289"><span class="lineNum">     289 </span>            :     TF_API static std::string  GetDisplayName(TfEnum val);</a>
+<a name="290"><span class="lineNum">     290 </span>            : </a>
+<a name="291"><span class="lineNum">     291 </span>            :     /// Returns a vector of all the names associated with an enum type.</a>
+<a name="292"><span class="lineNum">     292 </span>            :     ///</a>
+<a name="293"><span class="lineNum">     293 </span>            :     /// This returns a vector of all the names associated with the enum that</a>
+<a name="294"><span class="lineNum">     294 </span>            :     /// contains the type \p val.  The names are not fully qualified.  For</a>
+<a name="295"><span class="lineNum">     295 </span>            :     /// example, \c TfEnum::GetAllNames(WINTER) would return a vector</a>
+<a name="296"><span class="lineNum">     296 </span>            :     /// containing &quot;SPRING&quot;, &quot;SUMMER&quot;, &quot;AUTUMN&quot;, and &quot;WINTER&quot;.</a>
+<a name="297"><span class="lineNum">     297 </span>            :     ///</a>
+<a name="298"><span class="lineNum">     298 </span>            :     /// If there are no such names registered, an empty vector is returned.</a>
+<a name="299"><span class="lineNum">     299 </span>            :     static std::vector&lt;std::string&gt; GetAllNames(TfEnum val) {</a>
+<a name="300"><span class="lineNum">     300 </span>            :         return GetAllNames(val.GetType());</a>
+<a name="301"><span class="lineNum">     301 </span>            :     }</a>
+<a name="302"><span class="lineNum">     302 </span>            :     </a>
+<a name="303"><span class="lineNum">     303 </span>            :     /// \overload</a>
+<a name="304"><span class="lineNum">     304 </span>            :     TF_API static std::vector&lt;std::string&gt; GetAllNames(const std::type_info &amp;ti);</a>
+<a name="305"><span class="lineNum">     305 </span>            : </a>
+<a name="306"><span class="lineNum">     306 </span>            :     /// Returns a vector of all the names associated with an enum type.</a>
+<a name="307"><span class="lineNum">     307 </span>            :     ///</a>
+<a name="308"><span class="lineNum">     308 </span>            :     /// This returns a vector of all the names associated with the enum </a>
+<a name="309"><span class="lineNum">     309 </span>            :     /// type \c T.  The names are not fully qualified.  For</a>
+<a name="310"><span class="lineNum">     310 </span>            :     /// example, \c TfEnum::GetAllNames&lt;Season&gt;() would return a vector</a>
+<a name="311"><span class="lineNum">     311 </span>            :     /// containing &quot;SPRING&quot;, &quot;SUMMER&quot;, &quot;AUTUMN&quot;, and &quot;WINTER&quot;.</a>
+<a name="312"><span class="lineNum">     312 </span>            :     ///</a>
+<a name="313"><span class="lineNum">     313 </span>            :     /// If there are no such names registered, an empty vector is returned.</a>
+<a name="314"><span class="lineNum">     314 </span>            :     template &lt;class T&gt;</a>
+<a name="315"><span class="lineNum">     315 </span>            :     static std::vector&lt;std::string&gt; GetAllNames() {</a>
+<a name="316"><span class="lineNum">     316 </span>            :         return GetAllNames(typeid(T));</a>
+<a name="317"><span class="lineNum">     317 </span>            :     }</a>
+<a name="318"><span class="lineNum">     318 </span>            : </a>
+<a name="319"><span class="lineNum">     319 </span>            :     /// Returns the typeid for a given enum type name.</a>
+<a name="320"><span class="lineNum">     320 </span>            :     ///</a>
+<a name="321"><span class="lineNum">     321 </span>            :     /// This returns a pointer to the type_info associated with the enum that</a>
+<a name="322"><span class="lineNum">     322 </span>            :     /// has the type name \c typeName.  If no such enum is registered, returns</a>
+<a name="323"><span class="lineNum">     323 </span>            :     /// NULL.</a>
+<a name="324"><span class="lineNum">     324 </span>            :     TF_API</a>
+<a name="325"><span class="lineNum">     325 </span>            :     static const std::type_info *GetTypeFromName(const std::string&amp; typeName);</a>
+<a name="326"><span class="lineNum">     326 </span>            : </a>
+<a name="327"><span class="lineNum">     327 </span>            :     /// Returns the enumerated value for a name.</a>
+<a name="328"><span class="lineNum">     328 </span>            :     ///</a>
+<a name="329"><span class="lineNum">     329 </span>            :     /// If there is no such name registered, this returns -1. Since -1 can</a>
+<a name="330"><span class="lineNum">     330 </span>            :     /// sometimes be a valid value, the \p foundIt flag pointer, if not \c</a>
+<a name="331"><span class="lineNum">     331 </span>            :     /// NULL, is set to \c true if the name was found and \c false otherwise.</a>
+<a name="332"><span class="lineNum">     332 </span>            :     template &lt;class T&gt;</a>
+<a name="333"><span class="lineNum">     333 </span>            :     static T GetValueFromName(const std::string &amp;name, bool *foundIt = NULL) {</a>
+<a name="334"><span class="lineNum">     334 </span>            :         TfEnum e = GetValueFromName(typeid(T), name, foundIt);</a>
+<a name="335"><span class="lineNum">     335 </span>            :         return T(e.GetValueAsInt());</a>
+<a name="336"><span class="lineNum">     336 </span>            :     }</a>
+<a name="337"><span class="lineNum">     337 </span>            : </a>
+<a name="338"><span class="lineNum">     338 </span>            :     /// Returns the enumerated value for a name.</a>
+<a name="339"><span class="lineNum">     339 </span>            :     ///</a>
+<a name="340"><span class="lineNum">     340 </span>            :     /// This is a template-independent version of \c GetValueFromName().</a>
+<a name="341"><span class="lineNum">     341 </span>            :     TF_API</a>
+<a name="342"><span class="lineNum">     342 </span>            :     static TfEnum GetValueFromName(const std::type_info&amp; ti,</a>
+<a name="343"><span class="lineNum">     343 </span>            :                                    const std::string &amp;name,</a>
+<a name="344"><span class="lineNum">     344 </span>            :                                    bool *foundIt = NULL);</a>
+<a name="345"><span class="lineNum">     345 </span>            : </a>
+<a name="346"><span class="lineNum">     346 </span>            :     /// Returns the enumerated value for a fully-qualified name.</a>
+<a name="347"><span class="lineNum">     347 </span>            :     ///</a>
+<a name="348"><span class="lineNum">     348 </span>            :     /// This takes a fully-qualified enumerated value name (e.g.,</a>
+<a name="349"><span class="lineNum">     349 </span>            :     /// \c &quot;Season::WINTER&quot;) and returns the associated value. If there is</a>
+<a name="350"><span class="lineNum">     350 </span>            :     /// no such name, this returns -1. Since -1 can sometimes be a</a>
+<a name="351"><span class="lineNum">     351 </span>            :     /// valid value, the \p foundIt flag pointer, if not \c NULL, is</a>
+<a name="352"><span class="lineNum">     352 </span>            :     /// set to \c true if the name was found and \c false</a>
+<a name="353"><span class="lineNum">     353 </span>            :     /// otherwise. Also, since this is not a templated function, it has</a>
+<a name="354"><span class="lineNum">     354 </span>            :     /// to return a generic value type, so we use \c TfEnum.</a>
+<a name="355"><span class="lineNum">     355 </span>            :     TF_API</a>
+<a name="356"><span class="lineNum">     356 </span>            :     static TfEnum GetValueFromFullName(const std::string &amp;fullname,</a>
+<a name="357"><span class="lineNum">     357 </span>            :                                        bool *foundIt = NULL);</a>
+<a name="358"><span class="lineNum">     358 </span>            : </a>
+<a name="359"><span class="lineNum">     359 </span>            :     /// Returns true if \p typeName is a known enum type.</a>
+<a name="360"><span class="lineNum">     360 </span>            :     ///</a>
+<a name="361"><span class="lineNum">     361 </span>            :     /// If any enum whose demangled type name is \p typeName has been</a>
+<a name="362"><span class="lineNum">     362 </span>            :     /// added via \c TF_ADD_ENUM_NAME(), this function returns true.</a>
+<a name="363"><span class="lineNum">     363 </span>            :     TF_API</a>
+<a name="364"><span class="lineNum">     364 </span>            :     static bool IsKnownEnumType(const std::string&amp; typeName);</a>
+<a name="365"><span class="lineNum">     365 </span>            : </a>
+<a name="366"><span class="lineNum">     366 </span>            :     ///@}</a>
+<a name="367"><span class="lineNum">     367 </span>            : </a>
+<a name="368"><span class="lineNum">     368 </span>            :     /// Associates a name with an enumerated value.</a>
+<a name="369"><span class="lineNum">     369 </span>            :     ///</a>
+<a name="370"><span class="lineNum">     370 </span>            :     /// \warning This method is called by the \c TF_ADD_ENUM_NAME() macro, and</a>
+<a name="371"><span class="lineNum">     371 </span>            :     /// should NOT be called directly. Instead, call AddName(), which does</a>
+<a name="372"><span class="lineNum">     372 </span>            :     /// exactly the same thing.</a>
+<a name="373"><span class="lineNum">     373 </span>            :     TF_API</a>
+<a name="374"><span class="lineNum">     374 </span>            :     static void _AddName(TfEnum val, char const *valName,</a>
+<a name="375"><span class="lineNum">     375 </span>            :                          char const *displayName);</a>
+<a name="376"><span class="lineNum">     376 </span>            : </a>
+<a name="377"><span class="lineNum">     377 </span>            :     // Helper for TF_ADD_ENUM_NAME() dealing with empty vs nonempty __VA_ARGS__</a>
+<a name="378"><span class="lineNum">     378 </span>            :     static char const *</a>
+<a name="379"><span class="lineNum">     379 </span>            :     _NameIdent(char const *str = nullptr) { return str; }</a>
+<a name="380"><span class="lineNum">     380 </span>            : </a>
+<a name="381"><span class="lineNum">     381 </span>            :     /// Associates a name with an enumerated value.</a>
+<a name="382"><span class="lineNum">     382 </span>            :     /// \see _AddName().</a>
+<a name="383"><span class="lineNum">     383 </span>            :     static void AddName(TfEnum val, const std::string &amp;valName,</a>
+<a name="384"><span class="lineNum">     384 </span>            :                         const std::string &amp;displayName=&quot;&quot;)</a>
+<a name="385"><span class="lineNum">     385 </span>            :     {</a>
+<a name="386"><span class="lineNum">     386 </span>            :         _AddName(val, valName.c_str(), displayName.c_str());</a>
+<a name="387"><span class="lineNum">     387 </span>            :     }</a>
+<a name="388"><span class="lineNum">     388 </span>            :      </a>
+<a name="389"><span class="lineNum">     389 </span>            :     template &lt;typename T&gt;</a>
+<a name="390"><span class="lineNum">     390 </span>            :     static TfEnum IntegralEnum(T value) {</a>
+<a name="391"><span class="lineNum">     391 </span>            :         TfEnum e;</a>
+<a name="392"><span class="lineNum">     392 </span>            :         e._typeInfo = &amp;typeid(T);</a>
+<a name="393"><span class="lineNum">     393 </span>            :         e._value = int(value);</a>
+<a name="394"><span class="lineNum">     394 </span>            :         return e;</a>
+<a name="395"><span class="lineNum">     395 </span>            :     }</a>
+<a name="396"><span class="lineNum">     396 </span>            : </a>
+<a name="397"><span class="lineNum">     397 </span>            : private:</a>
+<a name="398"><span class="lineNum">     398 </span>            :     // Internal constructor for int values.</a>
+<a name="399"><span class="lineNum">     399 </span>            :     explicit TfEnum(int value)</a>
+<a name="400"><span class="lineNum">     400 </span>            :         : _typeInfo(&amp;typeid(int)), _value(value)</a>
+<a name="401"><span class="lineNum">     401 </span>            :     {</a>
+<a name="402"><span class="lineNum">     402 </span>            :     }</a>
+<a name="403"><span class="lineNum">     403 </span>            : </a>
+<a name="404"><span class="lineNum">     404 </span>            :     // Internal constructor for size_t values.</a>
+<a name="405"><span class="lineNum">     405 </span>            :     explicit TfEnum(size_t value)</a>
+<a name="406"><span class="lineNum">     406 </span>            :         : _typeInfo(&amp;typeid(size_t)), _value(static_cast&lt;int&gt;(value))</a>
+<a name="407"><span class="lineNum">     407 </span>            :     {</a>
+<a name="408"><span class="lineNum">     408 </span>            :     }</a>
+<a name="409"><span class="lineNum">     409 </span>            : </a>
+<a name="410"><span class="lineNum">     410 </span>            :     TF_API</a>
+<a name="411"><span class="lineNum">     411 </span>            :     void _FatalGetValueError(std::type_info const&amp; typeInfo) const;</a>
+<a name="412"><span class="lineNum">     412 </span>            : </a>
+<a name="413"><span class="lineNum">     413 </span>            :     const std::type_info* _typeInfo;</a>
+<a name="414"><span class="lineNum">     414 </span>            :     int _value;</a>
+<a name="415"><span class="lineNum">     415 </span>            : };</a>
+<a name="416"><span class="lineNum">     416 </span>            : </a>
+<a name="417"><span class="lineNum">     417 </span>            : // TfHash support.  Make the enum parameter be a deduced template type but</a>
+<a name="418"><span class="lineNum">     418 </span>            : // enable the overload only for TfEnum.  This disables implicit conversion from</a>
+<a name="419"><span class="lineNum">     419 </span>            : // ordinary enum types to TfEnum.</a>
+<a name="420"><span class="lineNum">     420 </span>            : template &lt;class HashState, class Enum&gt;</a>
+<a name="421"><span class="lineNum">     421 </span>            : std::enable_if_t&lt;std::is_same&lt;Enum, TfEnum&gt;::value&gt;</a>
+<a name="422"><span class="lineNum">     422 </span>            : TfHashAppend(HashState &amp;h, Enum const &amp;e)</a>
+<a name="423"><span class="lineNum">     423 </span>            : {</a>
+<a name="424"><span class="lineNum">     424 </span>            :     h.Append(TfHashAsCStr(e.GetType().name()));</a>
+<a name="425"><span class="lineNum">     425 </span>            :     h.Append(e.GetValueAsInt());</a>
+<a name="426"><span class="lineNum">     426 </span>            : }</a>
+<a name="427"><span class="lineNum">     427 </span>            : </a>
+<a name="428"><span class="lineNum">     428 </span>            : /// Output a TfEnum value.</a>
+<a name="429"><span class="lineNum">     429 </span>            : /// \ingroup group_tf_DebuggingOutput</a>
+<a name="430"><span class="lineNum">     430 </span>            : TF_API std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, const TfEnum &amp; e);</a>
+<a name="431"><span class="lineNum">     431 </span>            : </a>
+<a name="432"><span class="lineNum">     432 </span>            : /// Macro used to associate a name with an enumerated value.</a>
+<a name="433"><span class="lineNum">     433 </span>            : ///</a>
+<a name="434"><span class="lineNum">     434 </span>            : /// \c TF_ADD_ENUM_NAME() registers a name for an enumerated value so that the</a>
+<a name="435"><span class="lineNum">     435 </span>            : /// association can be accessed in calls to \c TfEnum::GetValueFromName(),</a>
+<a name="436"><span class="lineNum">     436 </span>            : /// \c TfEnum::GetValueFromFullName(), \c TfEnum::GetName(), and</a>
+<a name="437"><span class="lineNum">     437 </span>            : /// \c TfEnum::GetFullName(). It's first argument, \p VAL, is the symbolic</a>
+<a name="438"><span class="lineNum">     438 </span>            : /// name of the enumerated value or a \c TfEnum instance constructed from it.</a>
+<a name="439"><span class="lineNum">     439 </span>            : /// The name defined for the value is created by putting double quotes around</a>
+<a name="440"><span class="lineNum">     440 </span>            : /// the \p VAL argument.</a>
+<a name="441"><span class="lineNum">     441 </span>            : ///</a>
+<a name="442"><span class="lineNum">     442 </span>            : /// An optional second argument, \p DISPLAY, is a name to be used for display</a>
+<a name="443"><span class="lineNum">     443 </span>            : /// purposes (i.e. in a user interface). The display name can contain</a>
+<a name="444"><span class="lineNum">     444 </span>            : /// characters like spaces and punctuation, and does not need to be a unique</a>
+<a name="445"><span class="lineNum">     445 </span>            : /// string. If this argument is not specified, the display name will be</a>
+<a name="446"><span class="lineNum">     446 </span>            : /// derived from \p VAL.</a>
+<a name="447"><span class="lineNum">     447 </span>            : ///</a>
+<a name="448"><span class="lineNum">     448 </span>            : /// Only the names for which \c TF_ADD_ENUM_NAME() is called will be</a>
+<a name="449"><span class="lineNum">     449 </span>            : /// accessible with the name/value methods; you can hide values from this</a>
+<a name="450"><span class="lineNum">     450 </span>            : /// mechanism by not adding them.</a>
+<a name="451"><span class="lineNum">     451 </span>            : ///</a>
+<a name="452"><span class="lineNum">     452 </span>            : /// Please note that the best way to call \c TF_ADD_ENUM_NAME() is using the</a>
+<a name="453"><span class="lineNum">     453 </span>            : /// \c TfRegistryManager macro \c TF_REGISTRY_FUNCTION().</a>
+<a name="454"><span class="lineNum">     454 </span>            : ///</a>
+<a name="455"><span class="lineNum">     455 </span>            : /// \ingroup group_tf_RuntimeTyping</a>
+<a name="456"><span class="lineNum">     456 </span>            : /// \hideinitializer</a>
+<a name="457"><span class="lineNum">     457 </span>            : #define TF_ADD_ENUM_NAME(VAL, ...)                               \</a>
+<a name="458"><span class="lineNum">     458 </span>            :     TfEnum::_AddName(VAL, TF_PP_STRINGIZE(VAL),                  \</a>
+<a name="459"><span class="lineNum">     459 </span>            :                      TfEnum::_NameIdent(__VA_ARGS__));</a>
+<a name="460"><span class="lineNum">     460 </span>            : </a>
+<a name="461"><span class="lineNum">     461 </span>            : PXR_NAMESPACE_CLOSE_SCOPE</a>
+<a name="462"><span class="lineNum">     462 </span>            : </a>
+<a name="463"><span class="lineNum">     463 </span>            : #endif // PXR_BASE_TF_ENUM_H</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

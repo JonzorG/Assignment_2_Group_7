@@ -1,0 +1,467 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - blenkernel/intern/image_gen.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">blenkernel/intern</a> - image_gen.cc<span style="font-size: 80%;"> (source / <a href="image_gen.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">200</td>
+            <td class="headerCovTableEntry">210</td>
+            <td class="headerCovTableEntryHi">95.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2023 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup bke</a>
+<a name="7"><span class="lineNum">       7 </span>            :  */</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &lt;algorithm&gt;</a>
+<a name="10"><span class="lineNum">      10 </span>            : #include &lt;cmath&gt;</a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &lt;cstdlib&gt;</a>
+<a name="12"><span class="lineNum">      12 </span>            : </a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;BLI_math_base_c.hh&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;BLI_math_color_c.hh&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;BLI_math_vector_c.hh&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &quot;BLI_task.hh&quot;</a>
+<a name="17"><span class="lineNum">      17 </span>            : </a>
+<a name="18"><span class="lineNum">      18 </span>            : #include &quot;BKE_image.hh&quot;</a>
+<a name="19"><span class="lineNum">      19 </span>            : </a>
+<a name="20"><span class="lineNum">      20 </span>            : #include &quot;IMB_colormanagement.hh&quot;</a>
+<a name="21"><span class="lineNum">      21 </span>            : #include &quot;IMB_imbuf.hh&quot;</a>
+<a name="22"><span class="lineNum">      22 </span>            : #include &quot;IMB_imbuf_types.hh&quot;</a>
+<a name="23"><span class="lineNum">      23 </span>            : </a>
+<a name="24"><span class="lineNum">      24 </span>            : #include &quot;BLF_api.hh&quot;</a>
+<a name="25"><span class="lineNum">      25 </span>            : </a>
+<a name="26"><span class="lineNum">      26 </span>            : namespace blender {</a>
+<a name="27"><span class="lineNum">      27 </span>            : </a>
+<a name="28"><span class="lineNum">      28 </span><span class="lineCov">        117 : void BKE_image_buf_fill_color(</span></a>
+<a name="29"><span class="lineNum">      29 </span>            :     uchar *rect_byte, float *rect_float, int width, int height, const float color[4])</a>
+<a name="30"><span class="lineNum">      30 </span>            : {</a>
+<a name="31"><span class="lineNum">      31 </span><span class="lineCov">        234 :   threading::parallel_for(</span></a>
+<a name="32"><span class="lineNum">      32 </span><span class="lineCov">        117 :       IndexRange(int64_t(width) * height), 64 * 1024, [&amp;](const IndexRange i_range) {</span></a>
+<a name="33"><span class="lineNum">      33 </span><span class="lineCov">        632 :         if (rect_float != nullptr) {</span></a>
+<a name="34"><span class="lineNum">      34 </span><span class="lineCov">         72 :           float *dst = rect_float + i_range.first() * 4;</span></a>
+<a name="35"><span class="lineNum">      35 </span><span class="lineCov">    1575088 :           for ([[maybe_unused]] const int64_t i : i_range) {</span></a>
+<a name="36"><span class="lineNum">      36 </span><span class="lineCov">    1569730 :             copy_v4_v4(dst, color);</span></a>
+<a name="37"><span class="lineNum">      37 </span><span class="lineCov">    1573326 :             dst += 4;</span></a>
+<a name="38"><span class="lineNum">      38 </span>            :           }</a>
+<a name="39"><span class="lineNum">      39 </span>            :         }</a>
+<a name="40"><span class="lineNum">      40 </span><span class="lineCov">        633 :         if (rect_byte != nullptr) {</span></a>
+<a name="41"><span class="lineNum">      41 </span>            :           uchar ccol[4];</a>
+<a name="42"><span class="lineNum">      42 </span><span class="lineCov">        567 :           rgba_float_to_uchar(ccol, color);</span></a>
+<a name="43"><span class="lineNum">      43 </span><span class="lineCov">        566 :           uchar *dst = rect_byte + i_range.first() * 4;</span></a>
+<a name="44"><span class="lineNum">      44 </span><span class="lineCov">    5409422 :           for ([[maybe_unused]] const int64_t i : i_range) {</span></a>
+<a name="45"><span class="lineNum">      45 </span><span class="lineCov">    5379362 :             dst[0] = ccol[0];</span></a>
+<a name="46"><span class="lineNum">      46 </span><span class="lineCov">    5379362 :             dst[1] = ccol[1];</span></a>
+<a name="47"><span class="lineNum">      47 </span><span class="lineCov">    5379362 :             dst[2] = ccol[2];</span></a>
+<a name="48"><span class="lineNum">      48 </span><span class="lineCov">    5379362 :             dst[3] = ccol[3];</span></a>
+<a name="49"><span class="lineNum">      49 </span><span class="lineCov">    5379362 :             dst += 4;</span></a>
+<a name="50"><span class="lineNum">      50 </span>            :           }</a>
+<a name="51"><span class="lineNum">      51 </span>            :         }</a>
+<a name="52"><span class="lineNum">      52 </span><span class="lineCov">        657 :       });</span></a>
+<a name="53"><span class="lineNum">      53 </span><span class="lineCov">        117 : }</span></a>
+<a name="54"><span class="lineNum">      54 </span>            : </a>
+<a name="55"><span class="lineNum">      55 </span><span class="lineCov">         81 : static void image_buf_fill_checker_slice(</span></a>
+<a name="56"><span class="lineNum">      56 </span>            :     uchar *rect, float *rect_float, int width, int height, int offset)</a>
+<a name="57"><span class="lineNum">      57 </span>            : {</a>
+<a name="58"><span class="lineNum">      58 </span>            :   /* these two passes could be combined into one, but it's more readable and</a>
+<a name="59"><span class="lineNum">      59 </span>            :    * easy to tweak like this, speed isn't really that much of an issue in this situation... */</a>
+<a name="60"><span class="lineNum">      60 </span><span class="lineCov">         81 :   const int checker_size = 32;</span></a>
+<a name="61"><span class="lineNum">      61 </span><span class="lineCov">         81 :   const int checker_size_half = checker_size / 2;</span></a>
+<a name="62"><span class="lineNum">      62 </span>            : </a>
+<a name="63"><span class="lineNum">      63 </span><span class="lineCov">         81 :   uchar *rect_orig = rect;</span></a>
+<a name="64"><span class="lineNum">      64 </span><span class="lineCov">         81 :   float *rect_float_orig = rect_float;</span></a>
+<a name="65"><span class="lineNum">      65 </span>            : </a>
+<a name="66"><span class="lineNum">      66 </span><span class="lineCov">         81 :   float hsv[3] = {0.0f, 0.9f, 0.9f};</span></a>
+<a name="67"><span class="lineNum">      67 </span>            :   float rgb[3];</a>
+<a name="68"><span class="lineNum">      68 </span>            : </a>
+<a name="69"><span class="lineNum">      69 </span><span class="lineCov">         81 :   float dark_linear_color = 0.0f, bright_linear_color = 0.0f;</span></a>
+<a name="70"><span class="lineNum">      70 </span><span class="lineCov">         81 :   if (rect_float != nullptr) {</span></a>
+<a name="71"><span class="lineNum">      71 </span><span class="lineNoCov">          0 :     dark_linear_color = srgb_to_linearrgb(0.25f);</span></a>
+<a name="72"><span class="lineNum">      72 </span><span class="lineNoCov">          0 :     bright_linear_color = srgb_to_linearrgb(0.58f);</span></a>
+<a name="73"><span class="lineNum">      73 </span>            :   }</a>
+<a name="74"><span class="lineNum">      74 </span>            : </a>
+<a name="75"><span class="lineNum">      75 </span>            :   /* checkers */</a>
+<a name="76"><span class="lineNum">      76 </span><span class="lineCov">       5379 :   for (int y = offset; y &lt; height + offset; y++) {</span></a>
+<a name="77"><span class="lineNum">      77 </span><span class="lineCov">       5298 :     int dark = powf(-1.0f, floorf(y / checker_size));</span></a>
+<a name="78"><span class="lineNum">      78 </span>            : </a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineCov">     671927 :     for (int x = 0; x &lt; width; x++) {</span></a>
+<a name="80"><span class="lineNum">      80 </span><span class="lineCov">     666629 :       if (x % checker_size == 0) {</span></a>
+<a name="81"><span class="lineNum">      81 </span><span class="lineCov">      68313 :         dark = -dark;</span></a>
+<a name="82"><span class="lineNum">      82 </span>            :       }</a>
+<a name="83"><span class="lineNum">      83 </span>            : </a>
+<a name="84"><span class="lineNum">      84 </span><span class="lineCov">     666629 :       if (rect_float) {</span></a>
+<a name="85"><span class="lineNum">      85 </span><span class="lineNoCov">          0 :         if (dark &gt; 0) {</span></a>
+<a name="86"><span class="lineNum">      86 </span><span class="lineNoCov">          0 :           rect_float[0] = rect_float[1] = rect_float[2] = dark_linear_color;</span></a>
+<a name="87"><span class="lineNum">      87 </span><span class="lineNoCov">          0 :           rect_float[3] = 1.0f;</span></a>
+<a name="88"><span class="lineNum">      88 </span>            :         }</a>
+<a name="89"><span class="lineNum">      89 </span>            :         else {</a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineNoCov">          0 :           rect_float[0] = rect_float[1] = rect_float[2] = bright_linear_color;</span></a>
+<a name="91"><span class="lineNum">      91 </span><span class="lineNoCov">          0 :           rect_float[3] = 1.0f;</span></a>
+<a name="92"><span class="lineNum">      92 </span>            :         }</a>
+<a name="93"><span class="lineNum">      93 </span><span class="lineNoCov">          0 :         rect_float += 4;</span></a>
+<a name="94"><span class="lineNum">      94 </span>            :       }</a>
+<a name="95"><span class="lineNum">      95 </span>            :       else {</a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineCov">     666629 :         if (dark &gt; 0) {</span></a>
+<a name="97"><span class="lineNum">      97 </span><span class="lineCov">     454783 :           rect[0] = rect[1] = rect[2] = 64;</span></a>
+<a name="98"><span class="lineNum">      98 </span><span class="lineCov">     454783 :           rect[3] = 255;</span></a>
+<a name="99"><span class="lineNum">      99 </span>            :         }</a>
+<a name="100"><span class="lineNum">     100 </span>            :         else {</a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineCov">     211846 :           rect[0] = rect[1] = rect[2] = 150;</span></a>
+<a name="102"><span class="lineNum">     102 </span><span class="lineCov">     211846 :           rect[3] = 255;</span></a>
+<a name="103"><span class="lineNum">     103 </span>            :         }</a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineCov">     666629 :         rect += 4;</span></a>
+<a name="105"><span class="lineNum">     105 </span>            :       }</a>
+<a name="106"><span class="lineNum">     106 </span>            :     }</a>
+<a name="107"><span class="lineNum">     107 </span>            :   }</a>
+<a name="108"><span class="lineNum">     108 </span>            : </a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineCov">         81 :   rect = rect_orig;</span></a>
+<a name="110"><span class="lineNum">     110 </span><span class="lineCov">         81 :   rect_float = rect_float_orig;</span></a>
+<a name="111"><span class="lineNum">     111 </span>            : </a>
+<a name="112"><span class="lineNum">     112 </span>            :   /* 2nd pass, colored `+`. */</a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineCov">      10396 :   for (int y = offset; y &lt; height + offset; y++) {</span></a>
+<a name="114"><span class="lineNum">     114 </span><span class="lineCov">       5194 :     float hoffs = 0.125f * floorf(y / checker_size);</span></a>
+<a name="115"><span class="lineNum">     115 </span>            : </a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineCov">    1187984 :     for (int x = 0; x &lt; width; x++) {</span></a>
+<a name="117"><span class="lineNum">     117 </span><span class="lineCov">    1177669 :       float h = 0.125f * floorf(x / checker_size);</span></a>
+<a name="118"><span class="lineNum">     118 </span>            :       int test_x, test_y;</a>
+<a name="119"><span class="lineNum">     119 </span>            :       /* Note that this `+` is not exactly centered since it's a 1px wide line being</a>
+<a name="120"><span class="lineNum">     120 </span>            :        * drawn inside an even sized square, keep as-is since solving requires either</a>
+<a name="121"><span class="lineNum">     121 </span>            :        * using odd sized checkers or double-width lines, see #112653. */</a>
+<a name="122"><span class="lineNum">     122 </span><span class="lineCov">    2677195 :       if (((test_x = abs((x % checker_size) - checker_size_half)) &lt; 4) &amp;&amp;</span></a>
+<a name="123"><span class="lineNum">     123 </span><span class="lineCov">    1280323 :           ((test_y = abs((y % checker_size) - checker_size_half)) &lt; 4) &amp;&amp;</span></a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineCov">     102654 :           ((test_x &lt; 1) || (test_y &lt; 1)))</span></a>
+<a name="125"><span class="lineNum">     125 </span>            :       {</a>
+<a name="126"><span class="lineNum">     126 </span><span class="lineCov">      40642 :         hsv[0] = fmodf(fabsf(h - hoffs), 1.0f);</span></a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineCov">      40642 :         hsv_to_rgb_v(hsv, rgb);</span></a>
+<a name="128"><span class="lineNum">     128 </span>            : </a>
+<a name="129"><span class="lineNum">     129 </span><span class="lineCov">      45763 :         if (rect) {</span></a>
+<a name="130"><span class="lineNum">     130 </span><span class="lineCov">      46307 :           rect[0] = char(rgb[0] * 255.0f);</span></a>
+<a name="131"><span class="lineNum">     131 </span><span class="lineCov">      46307 :           rect[1] = char(rgb[1] * 255.0f);</span></a>
+<a name="132"><span class="lineNum">     132 </span><span class="lineCov">      46307 :           rect[2] = char(rgb[2] * 255.0f);</span></a>
+<a name="133"><span class="lineNum">     133 </span><span class="lineCov">      46307 :           rect[3] = 255;</span></a>
+<a name="134"><span class="lineNum">     134 </span>            :         }</a>
+<a name="135"><span class="lineNum">     135 </span>            : </a>
+<a name="136"><span class="lineNum">     136 </span><span class="lineCov">      45763 :         if (rect_float) {</span></a>
+<a name="137"><span class="lineNum">     137 </span>            :           IMB_colormanagement_srgb_to_scene_linear_v3(rect_float, rgb);</a>
+<a name="138"><span class="lineNum">     138 </span><span class="lineNoCov">          0 :           rect_float[3] = 1.0f;</span></a>
+<a name="139"><span class="lineNum">     139 </span>            :         }</a>
+<a name="140"><span class="lineNum">     140 </span>            :       }</a>
+<a name="141"><span class="lineNum">     141 </span>            : </a>
+<a name="142"><span class="lineNum">     142 </span><span class="lineCov">    1182790 :       if (rect_float) {</span></a>
+<a name="143"><span class="lineNum">     143 </span><span class="lineNoCov">          0 :         rect_float += 4;</span></a>
+<a name="144"><span class="lineNum">     144 </span>            :       }</a>
+<a name="145"><span class="lineNum">     145 </span><span class="lineCov">    1182790 :       if (rect) {</span></a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineCov">    1146125 :         rect += 4;</span></a>
+<a name="147"><span class="lineNum">     147 </span>            :       }</a>
+<a name="148"><span class="lineNum">     148 </span>            :     }</a>
+<a name="149"><span class="lineNum">     149 </span>            :   }</a>
+<a name="150"><span class="lineNum">     150 </span><span class="lineCov">       5202 : }</span></a>
+<a name="151"><span class="lineNum">     151 </span>            : </a>
+<a name="152"><span class="lineNum">     152 </span><span class="lineCov">         10 : void BKE_image_buf_fill_checker(uchar *rect, float *rect_float, int width, int height)</span></a>
+<a name="153"><span class="lineNum">     153 </span>            : {</a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineCov">         10 :   threading::parallel_for(IndexRange(height), 64, [&amp;](const IndexRange y_range) {</span></a>
+<a name="155"><span class="lineNum">     155 </span><span class="lineCov">         80 :     int64_t offset = y_range.first() * width * 4;</span></a>
+<a name="156"><span class="lineNum">     156 </span><span class="lineCov">         79 :     uchar *dst_byte = (rect != nullptr) ? (rect + offset) : nullptr;</span></a>
+<a name="157"><span class="lineNum">     157 </span><span class="lineCov">         79 :     float *dst_float = (rect_float != nullptr) ? (rect_float + offset) : nullptr;</span></a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineCov">         79 :     image_buf_fill_checker_slice(dst_byte, dst_float, width, y_range.size(), y_range.first());</span></a>
+<a name="159"><span class="lineNum">     159 </span><span class="lineCov">         86 :   });</span></a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineCov">         10 : }</span></a>
+<a name="161"><span class="lineNum">     161 </span>            : </a>
+<a name="162"><span class="lineNum">     162 </span>            : /* Utility functions for BKE_image_buf_fill_checker_color */</a>
+<a name="163"><span class="lineNum">     163 </span>            : </a>
+<a name="164"><span class="lineNum">     164 </span>            : #define BLEND_FLOAT(real, add) (real + add &lt;= 1.0f) ? (real + add) : 1.0f</a>
+<a name="165"><span class="lineNum">     165 </span>            : #define BLEND_CHAR(real, add) \</a>
+<a name="166"><span class="lineNum">     166 </span>            :   ((real + char(add * 255.0f)) &lt;= 255) ? (real + char(add * 255.0f)) : 255</a>
+<a name="167"><span class="lineNum">     167 </span>            : </a>
+<a name="168"><span class="lineNum">     168 </span><span class="lineCov">         88 : static void checker_board_color_fill(</span></a>
+<a name="169"><span class="lineNum">     169 </span>            :     uchar *rect, float *rect_float, int width, int height, int offset, int total_height)</a>
+<a name="170"><span class="lineNum">     170 </span>            : {</a>
+<a name="171"><span class="lineNum">     171 </span>            :   int hue_step, y, x;</a>
+<a name="172"><span class="lineNum">     172 </span>            :   float hsv[3], rgb[3];</a>
+<a name="173"><span class="lineNum">     173 </span>            : </a>
+<a name="174"><span class="lineNum">     174 </span><span class="lineCov">         88 :   hsv[1] = 1.0;</span></a>
+<a name="175"><span class="lineNum">     175 </span>            : </a>
+<a name="176"><span class="lineNum">     176 </span><span class="lineCov">         88 :   hue_step = power_of_2_max_i(width / 8);</span></a>
+<a name="177"><span class="lineNum">     177 </span><span class="lineCov">         86 :   hue_step = std::max(hue_step, 8);</span></a>
+<a name="178"><span class="lineNum">     178 </span>            : </a>
+<a name="179"><span class="lineNum">     179 </span><span class="lineCov">       6010 :   for (y = offset; y &lt; height + offset; y++) {</span></a>
+<a name="180"><span class="lineNum">     180 </span>            :     /* Use a number lower than 1.0 else its too bright. */</a>
+<a name="181"><span class="lineNum">     181 </span><span class="lineCov">       5916 :     hsv[2] = 0.1 + (y * (0.4 / total_height));</span></a>
+<a name="182"><span class="lineNum">     182 </span>            : </a>
+<a name="183"><span class="lineNum">     183 </span><span class="lineCov">     492578 :     for (x = 0; x &lt; width; x++) {</span></a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineCov">     493389 :       hsv[0] = float(double(x / hue_step) * 1.0 / width * hue_step);</span></a>
+<a name="185"><span class="lineNum">     185 </span><span class="lineCov">     493389 :       hsv_to_rgb_v(hsv, rgb);</span></a>
+<a name="186"><span class="lineNum">     186 </span>            : </a>
+<a name="187"><span class="lineNum">     187 </span><span class="lineCov">     489080 :       if (rect) {</span></a>
+<a name="188"><span class="lineNum">     188 </span><span class="lineCov">     315466 :         rect[0] = char(rgb[0] * 255.0f);</span></a>
+<a name="189"><span class="lineNum">     189 </span><span class="lineCov">     315466 :         rect[1] = char(rgb[1] * 255.0f);</span></a>
+<a name="190"><span class="lineNum">     190 </span><span class="lineCov">     315466 :         rect[2] = char(rgb[2] * 255.0f);</span></a>
+<a name="191"><span class="lineNum">     191 </span><span class="lineCov">     315466 :         rect[3] = 255;</span></a>
+<a name="192"><span class="lineNum">     192 </span>            : </a>
+<a name="193"><span class="lineNum">     193 </span><span class="lineCov">     315466 :         rect += 4;</span></a>
+<a name="194"><span class="lineNum">     194 </span>            :       }</a>
+<a name="195"><span class="lineNum">     195 </span>            : </a>
+<a name="196"><span class="lineNum">     196 </span><span class="lineCov">     489080 :       if (rect_float) {</span></a>
+<a name="197"><span class="lineNum">     197 </span>            :         IMB_colormanagement_rec709_to_scene_linear(rect_float, rgb);</a>
+<a name="198"><span class="lineNum">     198 </span><span class="lineCov">     179020 :         rect_float[3] = 1.0f;</span></a>
+<a name="199"><span class="lineNum">     199 </span>            : </a>
+<a name="200"><span class="lineNum">     200 </span><span class="lineCov">     179020 :         rect_float += 4;</span></a>
+<a name="201"><span class="lineNum">     201 </span>            :       }</a>
+<a name="202"><span class="lineNum">     202 </span>            :     }</a>
+<a name="203"><span class="lineNum">     203 </span>            :   }</a>
+<a name="204"><span class="lineNum">     204 </span><span class="lineCov">         94 : }</span></a>
+<a name="205"><span class="lineNum">     205 </span>            : </a>
+<a name="206"><span class="lineNum">     206 </span><span class="lineCov">        374 : static void checker_board_color_tint(</span></a>
+<a name="207"><span class="lineNum">     207 </span>            :     uchar *rect, float *rect_float, int width, int height, int size, float blend, int offset)</a>
+<a name="208"><span class="lineNum">     208 </span>            : {</a>
+<a name="209"><span class="lineNum">     209 </span>            :   int x, y;</a>
+<a name="210"><span class="lineNum">     210 </span><span class="lineCov">        374 :   float blend_half = blend * 0.5f;</span></a>
+<a name="211"><span class="lineNum">     211 </span>            : </a>
+<a name="212"><span class="lineNum">     212 </span><span class="lineCov">      23350 :   for (y = offset; y &lt; height + offset; y++) {</span></a>
+<a name="213"><span class="lineNum">     213 </span><span class="lineCov">    2170565 :     for (x = 0; x &lt; width; x++) {</span></a>
+<a name="214"><span class="lineNum">     214 </span><span class="lineCov">    2147589 :       if (((y / size) % 2 == 1 &amp;&amp; (x / size) % 2 == 1) ||</span></a>
+<a name="215"><span class="lineNum">     215 </span><span class="lineCov">    1538160 :           ((y / size) % 2 == 0 &amp;&amp; (x / size) % 2 == 0))</span></a>
+<a name="216"><span class="lineNum">     216 </span>            :       {</a>
+<a name="217"><span class="lineNum">     217 </span><span class="lineCov">    1478545 :         if (rect) {</span></a>
+<a name="218"><span class="lineNum">     218 </span><span class="lineCov">     853012 :           rect[0] = char(BLEND_CHAR(rect[0], blend));</span></a>
+<a name="219"><span class="lineNum">     219 </span><span class="lineCov">     853012 :           rect[1] = char(BLEND_CHAR(rect[1], blend));</span></a>
+<a name="220"><span class="lineNum">     220 </span><span class="lineCov">     853012 :           rect[2] = char(BLEND_CHAR(rect[2], blend));</span></a>
+<a name="221"><span class="lineNum">     221 </span><span class="lineCov">     853012 :           rect[3] = 255;</span></a>
+<a name="222"><span class="lineNum">     222 </span>            : </a>
+<a name="223"><span class="lineNum">     223 </span><span class="lineCov">     853012 :           rect += 4;</span></a>
+<a name="224"><span class="lineNum">     224 </span>            :         }</a>
+<a name="225"><span class="lineNum">     225 </span><span class="lineCov">    1478545 :         if (rect_float) {</span></a>
+<a name="226"><span class="lineNum">     226 </span><span class="lineCov">     620871 :           rect_float[0] = BLEND_FLOAT(rect_float[0], blend);</span></a>
+<a name="227"><span class="lineNum">     227 </span><span class="lineCov">     620871 :           rect_float[1] = BLEND_FLOAT(rect_float[1], blend);</span></a>
+<a name="228"><span class="lineNum">     228 </span><span class="lineCov">     620871 :           rect_float[2] = BLEND_FLOAT(rect_float[2], blend);</span></a>
+<a name="229"><span class="lineNum">     229 </span><span class="lineCov">     620871 :           rect_float[3] = 1.0f;</span></a>
+<a name="230"><span class="lineNum">     230 </span>            : </a>
+<a name="231"><span class="lineNum">     231 </span><span class="lineCov">     620871 :           rect_float += 4;</span></a>
+<a name="232"><span class="lineNum">     232 </span>            :         }</a>
+<a name="233"><span class="lineNum">     233 </span>            :       }</a>
+<a name="234"><span class="lineNum">     234 </span>            :       else {</a>
+<a name="235"><span class="lineNum">     235 </span><span class="lineCov">     669044 :         if (rect) {</span></a>
+<a name="236"><span class="lineNum">     236 </span><span class="lineCov">     834934 :           rect[0] = char(BLEND_CHAR(rect[0], blend_half));</span></a>
+<a name="237"><span class="lineNum">     237 </span><span class="lineCov">     834934 :           rect[1] = char(BLEND_CHAR(rect[1], blend_half));</span></a>
+<a name="238"><span class="lineNum">     238 </span><span class="lineCov">     834934 :           rect[2] = char(BLEND_CHAR(rect[2], blend_half));</span></a>
+<a name="239"><span class="lineNum">     239 </span><span class="lineCov">     834934 :           rect[3] = 255;</span></a>
+<a name="240"><span class="lineNum">     240 </span>            : </a>
+<a name="241"><span class="lineNum">     241 </span><span class="lineCov">     834934 :           rect += 4;</span></a>
+<a name="242"><span class="lineNum">     242 </span>            :         }</a>
+<a name="243"><span class="lineNum">     243 </span><span class="lineCov">     669044 :         if (rect_float) {</span></a>
+<a name="244"><span class="lineNum">     244 </span><span class="lineCov">     589165 :           rect_float[0] = BLEND_FLOAT(rect_float[0], blend_half);</span></a>
+<a name="245"><span class="lineNum">     245 </span><span class="lineCov">     589165 :           rect_float[1] = BLEND_FLOAT(rect_float[1], blend_half);</span></a>
+<a name="246"><span class="lineNum">     246 </span><span class="lineCov">     589165 :           rect_float[2] = BLEND_FLOAT(rect_float[2], blend_half);</span></a>
+<a name="247"><span class="lineNum">     247 </span><span class="lineCov">     589165 :           rect_float[3] = 1.0f;</span></a>
+<a name="248"><span class="lineNum">     248 </span>            : </a>
+<a name="249"><span class="lineNum">     249 </span><span class="lineCov">     589165 :           rect_float += 4;</span></a>
+<a name="250"><span class="lineNum">     250 </span>            :         }</a>
+<a name="251"><span class="lineNum">     251 </span>            :       }</a>
+<a name="252"><span class="lineNum">     252 </span>            :     }</a>
+<a name="253"><span class="lineNum">     253 </span>            :   }</a>
+<a name="254"><span class="lineNum">     254 </span><span class="lineCov">        374 : }</span></a>
+<a name="255"><span class="lineNum">     255 </span>            : </a>
+<a name="256"><span class="lineNum">     256 </span><span class="lineCov">         94 : static void checker_board_grid_fill(</span></a>
+<a name="257"><span class="lineNum">     257 </span>            :     uchar *rect, float *rect_float, int width, int height, float blend, int offset)</a>
+<a name="258"><span class="lineNum">     258 </span>            : {</a>
+<a name="259"><span class="lineNum">     259 </span>            :   int x, y;</a>
+<a name="260"><span class="lineNum">     260 </span><span class="lineCov">       6028 :   for (y = offset; y &lt; height + offset; y++) {</span></a>
+<a name="261"><span class="lineNum">     261 </span><span class="lineCov">    3760985 :     for (x = 0; x &lt; width; x++) {</span></a>
+<a name="262"><span class="lineNum">     262 </span><span class="lineCov">    3755051 :       if (((y % 32) == 0) || ((x % 32) == 0) || x == 0) {</span></a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineCov">     274413 :         if (rect) {</span></a>
+<a name="264"><span class="lineNum">     264 </span><span class="lineCov">     164756 :           rect[0] = BLEND_CHAR(rect[0], blend);</span></a>
+<a name="265"><span class="lineNum">     265 </span><span class="lineCov">     164756 :           rect[1] = BLEND_CHAR(rect[1], blend);</span></a>
+<a name="266"><span class="lineNum">     266 </span><span class="lineCov">     164756 :           rect[2] = BLEND_CHAR(rect[2], blend);</span></a>
+<a name="267"><span class="lineNum">     267 </span><span class="lineCov">     164756 :           rect[3] = 255;</span></a>
+<a name="268"><span class="lineNum">     268 </span>            : </a>
+<a name="269"><span class="lineNum">     269 </span><span class="lineCov">     164756 :           rect += 4;</span></a>
+<a name="270"><span class="lineNum">     270 </span>            :         }</a>
+<a name="271"><span class="lineNum">     271 </span><span class="lineCov">     274413 :         if (rect_float) {</span></a>
+<a name="272"><span class="lineNum">     272 </span><span class="lineCov">     109258 :           rect_float[0] = BLEND_FLOAT(rect_float[0], blend);</span></a>
+<a name="273"><span class="lineNum">     273 </span><span class="lineCov">     109258 :           rect_float[1] = BLEND_FLOAT(rect_float[1], blend);</span></a>
+<a name="274"><span class="lineNum">     274 </span><span class="lineCov">     109258 :           rect_float[2] = BLEND_FLOAT(rect_float[2], blend);</span></a>
+<a name="275"><span class="lineNum">     275 </span><span class="lineCov">     109258 :           rect_float[3] = 1.0f;</span></a>
+<a name="276"><span class="lineNum">     276 </span>            : </a>
+<a name="277"><span class="lineNum">     277 </span><span class="lineCov">     109258 :           rect_float += 4;</span></a>
+<a name="278"><span class="lineNum">     278 </span>            :         }</a>
+<a name="279"><span class="lineNum">     279 </span>            :       }</a>
+<a name="280"><span class="lineNum">     280 </span>            :       else {</a>
+<a name="281"><span class="lineNum">     281 </span><span class="lineCov">    3480638 :         if (rect_float) {</span></a>
+<a name="282"><span class="lineNum">     282 </span><span class="lineCov">    1388240 :           rect_float += 4;</span></a>
+<a name="283"><span class="lineNum">     283 </span>            :         }</a>
+<a name="284"><span class="lineNum">     284 </span><span class="lineCov">    3480638 :         if (rect) {</span></a>
+<a name="285"><span class="lineNum">     285 </span><span class="lineCov">    2092786 :           rect += 4;</span></a>
+<a name="286"><span class="lineNum">     286 </span>            :         }</a>
+<a name="287"><span class="lineNum">     287 </span>            :       }</a>
+<a name="288"><span class="lineNum">     288 </span>            :     }</a>
+<a name="289"><span class="lineNum">     289 </span>            :   }</a>
+<a name="290"><span class="lineNum">     290 </span><span class="lineCov">         94 : }</span></a>
+<a name="291"><span class="lineNum">     291 </span>            : </a>
+<a name="292"><span class="lineNum">     292 </span>            : /* Defined in `image.cc`. */</a>
+<a name="293"><span class="lineNum">     293 </span>            : </a>
+<a name="294"><span class="lineNum">     294 </span><span class="lineCov">         11 : static void checker_board_text(</span></a>
+<a name="295"><span class="lineNum">     295 </span>            :     uchar *rect, float *rect_float, int width, int height, int step, int outline)</a>
+<a name="296"><span class="lineNum">     296 </span>            : {</a>
+<a name="297"><span class="lineNum">     297 </span>            :   int x, y;</a>
+<a name="298"><span class="lineNum">     298 </span>            :   int pen_x, pen_y;</a>
+<a name="299"><span class="lineNum">     299 </span><span class="lineCov">         11 :   char text[3] = {'A', '1', '\0'};</span></a>
+<a name="300"><span class="lineNum">     300 </span><span class="lineCov">         11 :   const int mono = blf_mono_font_render;</span></a>
+<a name="301"><span class="lineNum">     301 </span>            : </a>
+<a name="302"><span class="lineNum">     302 </span><span class="lineCov">         11 :   BLF_size(mono, 54.0f); /* hard coded size! */</span></a>
+<a name="303"><span class="lineNum">     303 </span>            : </a>
+<a name="304"><span class="lineNum">     304 </span>            :   /* Using nullptr will assume the byte buffer has sRGB color-space, which currently</a>
+<a name="305"><span class="lineNum">     305 </span>            :    * matches the default color-space of new images. */</a>
+<a name="306"><span class="lineNum">     306 </span><span class="lineCov">         11 :   BLF_buffer(mono, rect_float, rect, width, height, 4, nullptr);</span></a>
+<a name="307"><span class="lineNum">     307 </span>            : </a>
+<a name="308"><span class="lineNum">     308 </span><span class="lineCov">         11 :   const float text_color[4] = {0.0, 0.0, 0.0, 1.0};</span></a>
+<a name="309"><span class="lineNum">     309 </span><span class="lineCov">         11 :   const float text_outline[4] = {1.0, 1.0, 1.0, 1.0};</span></a>
+<a name="310"><span class="lineNum">     310 </span>            : </a>
+<a name="311"><span class="lineNum">     311 </span><span class="lineCov">         11 :   const char char_array[] = &quot;ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&quot;;</span></a>
+<a name="312"><span class="lineNum">     312 </span>            :   /* Subtract one because of null termination. */</a>
+<a name="313"><span class="lineNum">     313 </span><span class="lineCov">         11 :   const int char_num = sizeof(char_array) - 1;</span></a>
+<a name="314"><span class="lineNum">     314 </span>            : </a>
+<a name="315"><span class="lineNum">     315 </span><span class="lineCov">         11 :   int first_char_index = 0;</span></a>
+<a name="316"><span class="lineNum">     316 </span><span class="lineCov">         59 :   for (y = 0; y &lt; height; y += step) {</span></a>
+<a name="317"><span class="lineNum">     317 </span><span class="lineCov">         48 :     text[0] = char_array[first_char_index];</span></a>
+<a name="318"><span class="lineNum">     318 </span>            : </a>
+<a name="319"><span class="lineNum">     319 </span><span class="lineCov">         48 :     int second_char_index = 27;</span></a>
+<a name="320"><span class="lineNum">     320 </span><span class="lineCov">        380 :     for (x = 0; x &lt; width; x += step) {</span></a>
+<a name="321"><span class="lineNum">     321 </span><span class="lineCov">        332 :       text[1] = char_array[second_char_index];</span></a>
+<a name="322"><span class="lineNum">     322 </span>            : </a>
+<a name="323"><span class="lineNum">     323 </span>            :       /* hard coded offset */</a>
+<a name="324"><span class="lineNum">     324 </span><span class="lineCov">        332 :       pen_x = x + 33;</span></a>
+<a name="325"><span class="lineNum">     325 </span><span class="lineCov">        332 :       pen_y = y + 44;</span></a>
+<a name="326"><span class="lineNum">     326 </span>            : </a>
+<a name="327"><span class="lineNum">     327 </span>            :       /* terribly crappy outline font! */</a>
+<a name="328"><span class="lineNum">     328 </span><span class="lineCov">        332 :       BLF_buffer_col(mono, text_outline);</span></a>
+<a name="329"><span class="lineNum">     329 </span>            : </a>
+<a name="330"><span class="lineNum">     330 </span><span class="lineCov">        332 :       BLF_position(mono, pen_x - outline, pen_y, 0.0);</span></a>
+<a name="331"><span class="lineNum">     331 </span><span class="lineCov">        332 :       BLF_draw_buffer(mono, text, 2);</span></a>
+<a name="332"><span class="lineNum">     332 </span><span class="lineCov">        332 :       BLF_position(mono, pen_x + outline, pen_y, 0.0);</span></a>
+<a name="333"><span class="lineNum">     333 </span><span class="lineCov">        332 :       BLF_draw_buffer(mono, text, 2);</span></a>
+<a name="334"><span class="lineNum">     334 </span><span class="lineCov">        332 :       BLF_position(mono, pen_x, pen_y - outline, 0.0);</span></a>
+<a name="335"><span class="lineNum">     335 </span><span class="lineCov">        332 :       BLF_draw_buffer(mono, text, 2);</span></a>
+<a name="336"><span class="lineNum">     336 </span><span class="lineCov">        332 :       BLF_position(mono, pen_x, pen_y + outline, 0.0);</span></a>
+<a name="337"><span class="lineNum">     337 </span><span class="lineCov">        332 :       BLF_draw_buffer(mono, text, 2);</span></a>
+<a name="338"><span class="lineNum">     338 </span>            : </a>
+<a name="339"><span class="lineNum">     339 </span><span class="lineCov">        332 :       BLF_position(mono, pen_x - outline, pen_y - outline, 0.0);</span></a>
+<a name="340"><span class="lineNum">     340 </span><span class="lineCov">        332 :       BLF_draw_buffer(mono, text, 2);</span></a>
+<a name="341"><span class="lineNum">     341 </span><span class="lineCov">        332 :       BLF_position(mono, pen_x + outline, pen_y + outline, 0.0);</span></a>
+<a name="342"><span class="lineNum">     342 </span><span class="lineCov">        332 :       BLF_draw_buffer(mono, text, 2);</span></a>
+<a name="343"><span class="lineNum">     343 </span><span class="lineCov">        332 :       BLF_position(mono, pen_x - outline, pen_y + outline, 0.0);</span></a>
+<a name="344"><span class="lineNum">     344 </span><span class="lineCov">        332 :       BLF_draw_buffer(mono, text, 2);</span></a>
+<a name="345"><span class="lineNum">     345 </span><span class="lineCov">        332 :       BLF_position(mono, pen_x + outline, pen_y - outline, 0.0);</span></a>
+<a name="346"><span class="lineNum">     346 </span><span class="lineCov">        332 :       BLF_draw_buffer(mono, text, 2);</span></a>
+<a name="347"><span class="lineNum">     347 </span>            : </a>
+<a name="348"><span class="lineNum">     348 </span><span class="lineCov">        332 :       BLF_buffer_col(mono, text_color);</span></a>
+<a name="349"><span class="lineNum">     349 </span><span class="lineCov">        332 :       BLF_position(mono, pen_x, pen_y, 0.0);</span></a>
+<a name="350"><span class="lineNum">     350 </span><span class="lineCov">        332 :       BLF_draw_buffer(mono, text, 2);</span></a>
+<a name="351"><span class="lineNum">     351 </span>            : </a>
+<a name="352"><span class="lineNum">     352 </span><span class="lineCov">        332 :       second_char_index = (second_char_index + 1) % char_num;</span></a>
+<a name="353"><span class="lineNum">     353 </span>            :     }</a>
+<a name="354"><span class="lineNum">     354 </span><span class="lineCov">         48 :     first_char_index = (first_char_index + 1) % char_num;</span></a>
+<a name="355"><span class="lineNum">     355 </span>            :   }</a>
+<a name="356"><span class="lineNum">     356 </span>            : </a>
+<a name="357"><span class="lineNum">     357 </span>            :   /* cleanup the buffer. */</a>
+<a name="358"><span class="lineNum">     358 </span><span class="lineCov">         11 :   BLF_buffer(mono, nullptr, nullptr, 0, 0, 4, nullptr);</span></a>
+<a name="359"><span class="lineNum">     359 </span><span class="lineCov">         11 : }</span></a>
+<a name="360"><span class="lineNum">     360 </span>            : </a>
+<a name="361"><span class="lineNum">     361 </span><span class="lineCov">         91 : static void checker_board_color_prepare_slice(</span></a>
+<a name="362"><span class="lineNum">     362 </span>            :     uchar *rect, float *rect_float, int width, int height, int offset, int total_height)</a>
+<a name="363"><span class="lineNum">     363 </span>            : {</a>
+<a name="364"><span class="lineNum">     364 </span><span class="lineCov">         91 :   checker_board_color_fill(rect, rect_float, width, height, offset, total_height);</span></a>
+<a name="365"><span class="lineNum">     365 </span><span class="lineCov">         94 :   checker_board_color_tint(rect, rect_float, width, height, 1, 0.03f, offset);</span></a>
+<a name="366"><span class="lineNum">     366 </span><span class="lineCov">         94 :   checker_board_color_tint(rect, rect_float, width, height, 4, 0.05f, offset);</span></a>
+<a name="367"><span class="lineNum">     367 </span><span class="lineCov">         94 :   checker_board_color_tint(rect, rect_float, width, height, 32, 0.07f, offset);</span></a>
+<a name="368"><span class="lineNum">     368 </span><span class="lineCov">         94 :   checker_board_color_tint(rect, rect_float, width, height, 128, 0.15f, offset);</span></a>
+<a name="369"><span class="lineNum">     369 </span><span class="lineCov">         94 :   checker_board_grid_fill(rect, rect_float, width, height, 1.0f / 4.0f, offset);</span></a>
+<a name="370"><span class="lineNum">     370 </span><span class="lineCov">         94 : }</span></a>
+<a name="371"><span class="lineNum">     371 </span>            : </a>
+<a name="372"><span class="lineNum">     372 </span><span class="lineCov">         11 : void BKE_image_buf_fill_checker_color(uchar *rect, float *rect_float, int width, int height)</span></a>
+<a name="373"><span class="lineNum">     373 </span>            : {</a>
+<a name="374"><span class="lineNum">     374 </span><span class="lineCov">         11 :   threading::parallel_for(IndexRange(height), 64, [&amp;](const IndexRange y_range) {</span></a>
+<a name="375"><span class="lineNum">     375 </span><span class="lineCov">         90 :     int64_t offset = y_range.first() * width * 4;</span></a>
+<a name="376"><span class="lineNum">     376 </span><span class="lineCov">         88 :     uchar *dst_byte = (rect != nullptr) ? (rect + offset) : nullptr;</span></a>
+<a name="377"><span class="lineNum">     377 </span><span class="lineCov">         88 :     float *dst_float = (rect_float != nullptr) ? (rect_float + offset) : nullptr;</span></a>
+<a name="378"><span class="lineNum">     378 </span><span class="lineCov">         89 :     checker_board_color_prepare_slice(</span></a>
+<a name="379"><span class="lineNum">     379 </span><span class="lineCov">         88 :         dst_byte, dst_float, width, y_range.size(), y_range.first(), height);</span></a>
+<a name="380"><span class="lineNum">     380 </span><span class="lineCov">         94 :   });</span></a>
+<a name="381"><span class="lineNum">     381 </span>            : </a>
+<a name="382"><span class="lineNum">     382 </span><span class="lineCov">         11 :   checker_board_text(rect, rect_float, width, height, 128, 2);</span></a>
+<a name="383"><span class="lineNum">     383 </span>            : </a>
+<a name="384"><span class="lineNum">     384 </span><span class="lineCov">         11 :   if (rect_float != nullptr) {</span></a>
+<a name="385"><span class="lineNum">     385 </span>            :     /* It is easier to fill the buffer in sRGB and linearize it afterwards.</a>
+<a name="386"><span class="lineNum">     386 </span>            :      * Maybe this could be optimized with some smart trickery around blending factors. */</a>
+<a name="387"><span class="lineNum">     387 </span><span class="lineCov">          3 :     IMB_buffer_float_rgba_srgb_to_linear(rect_float, width, height);</span></a>
+<a name="388"><span class="lineNum">     388 </span>            :   }</a>
+<a name="389"><span class="lineNum">     389 </span><span class="lineCov">         11 : }</span></a>
+<a name="390"><span class="lineNum">     390 </span>            : </a>
+<a name="391"><span class="lineNum">     391 </span>            : }  // namespace blender</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

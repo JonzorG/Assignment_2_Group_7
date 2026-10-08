@@ -1,0 +1,685 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - io/otio/importer/otio_import.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">io/otio/importer</a> - otio_import.cc<span style="font-size: 80%;"> (source / <a href="otio_import.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">307</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2026 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup otio</a>
+<a name="7"><span class="lineNum">       7 </span>            :  */</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &lt;cmath&gt;</a>
+<a name="10"><span class="lineNum">      10 </span>            : #include &lt;sstream&gt;</a>
+<a name="11"><span class="lineNum">      11 </span>            : </a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &quot;BKE_context.hh&quot;</a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;BKE_lib_id.hh&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;BKE_report.hh&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;BKE_scene.hh&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : </a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;BLI_index_range.hh&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : #include &quot;BLI_listbase.hh&quot;</a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &quot;BLI_path_utils.hh&quot;</a>
+<a name="20"><span class="lineNum">      20 </span>            : #include &quot;BLI_serialize.hh&quot;</a>
+<a name="21"><span class="lineNum">      21 </span>            : #include &quot;BLI_string.hh&quot;</a>
+<a name="22"><span class="lineNum">      22 </span>            : #include &quot;BLI_string_utf8.hh&quot;</a>
+<a name="23"><span class="lineNum">      23 </span>            : #include &quot;BLI_vector.hh&quot;</a>
+<a name="24"><span class="lineNum">      24 </span>            : </a>
+<a name="25"><span class="lineNum">      25 </span>            : #include &quot;BLT_translation.hh&quot;</a>
+<a name="26"><span class="lineNum">      26 </span>            : </a>
+<a name="27"><span class="lineNum">      27 </span>            : #include &quot;CLG_log.h&quot;</a>
+<a name="28"><span class="lineNum">      28 </span>            : </a>
+<a name="29"><span class="lineNum">      29 </span>            : #include &quot;DEG_depsgraph.hh&quot;</a>
+<a name="30"><span class="lineNum">      30 </span>            : #include &quot;DEG_depsgraph_build.hh&quot;</a>
+<a name="31"><span class="lineNum">      31 </span>            : </a>
+<a name="32"><span class="lineNum">      32 </span>            : #include &quot;DNA_scene_types.h&quot;</a>
+<a name="33"><span class="lineNum">      33 </span>            : #include &quot;DNA_sequence_types.h&quot;</a>
+<a name="34"><span class="lineNum">      34 </span>            : </a>
+<a name="35"><span class="lineNum">      35 </span>            : #include &quot;IMB_imbuf_types.hh&quot;</a>
+<a name="36"><span class="lineNum">      36 </span>            : </a>
+<a name="37"><span class="lineNum">      37 </span>            : #include &quot;RNA_access.hh&quot;</a>
+<a name="38"><span class="lineNum">      38 </span>            : #include &quot;RNA_prototypes.hh&quot;</a>
+<a name="39"><span class="lineNum">      39 </span>            : </a>
+<a name="40"><span class="lineNum">      40 </span>            : #include &quot;SEQ_add.hh&quot;</a>
+<a name="41"><span class="lineNum">      41 </span>            : #include &quot;SEQ_channels.hh&quot;</a>
+<a name="42"><span class="lineNum">      42 </span>            : #include &quot;SEQ_effects.hh&quot;</a>
+<a name="43"><span class="lineNum">      43 </span>            : #include &quot;SEQ_sequencer.hh&quot;</a>
+<a name="44"><span class="lineNum">      44 </span>            : #include &quot;SEQ_time.hh&quot;</a>
+<a name="45"><span class="lineNum">      45 </span>            : #include &quot;SEQ_transform.hh&quot;</a>
+<a name="46"><span class="lineNum">      46 </span>            : </a>
+<a name="47"><span class="lineNum">      47 </span>            : #include &quot;opentimelineio/clip.h&quot;</a>
+<a name="48"><span class="lineNum">      48 </span>            : #include &quot;opentimelineio/effect.h&quot;</a>
+<a name="49"><span class="lineNum">      49 </span>            : #include &quot;opentimelineio/externalReference.h&quot;</a>
+<a name="50"><span class="lineNum">      50 </span>            : #include &quot;opentimelineio/freezeFrame.h&quot;</a>
+<a name="51"><span class="lineNum">      51 </span>            : #include &quot;opentimelineio/gap.h&quot;</a>
+<a name="52"><span class="lineNum">      52 </span>            : #include &quot;opentimelineio/generatorReference.h&quot;</a>
+<a name="53"><span class="lineNum">      53 </span>            : #include &quot;opentimelineio/imageSequenceReference.h&quot;</a>
+<a name="54"><span class="lineNum">      54 </span>            : #include &quot;opentimelineio/linearTimeWarp.h&quot;</a>
+<a name="55"><span class="lineNum">      55 </span>            : #include &quot;opentimelineio/marker.h&quot;</a>
+<a name="56"><span class="lineNum">      56 </span>            : #include &quot;opentimelineio/stack.h&quot;</a>
+<a name="57"><span class="lineNum">      57 </span>            : #include &quot;opentimelineio/timeline.h&quot;</a>
+<a name="58"><span class="lineNum">      58 </span>            : #include &quot;opentimelineio/track.h&quot;</a>
+<a name="59"><span class="lineNum">      59 </span>            : #include &quot;opentimelineio/transition.h&quot;</a>
+<a name="60"><span class="lineNum">      60 </span>            : </a>
+<a name="61"><span class="lineNum">      61 </span>            : #include &quot;otio_import.hh&quot;</a>
+<a name="62"><span class="lineNum">      62 </span>            : #include &quot;otio_import_kdenlive.hh&quot;</a>
+<a name="63"><span class="lineNum">      63 </span>            : #include &quot;otio_import_resolve.hh&quot;</a>
+<a name="64"><span class="lineNum">      64 </span>            : #include &quot;otio_metadata.hh&quot;</a>
+<a name="65"><span class="lineNum">      65 </span>            : </a>
+<a name="66"><span class="lineNum">      66 </span>            : namespace blender::io::otio {</a>
+<a name="67"><span class="lineNum">      67 </span>            : </a>
+<a name="68"><span class="lineNum">      68 </span>            : static CLG_LogRef LOG = {&quot;io.otio&quot;};</a>
+<a name="69"><span class="lineNum">      69 </span>            : </a>
+<a name="70"><span class="lineNum">      70 </span>            : struct PendingEffect {</a>
+<a name="71"><span class="lineNum">      71 </span>            :   Clip *clip;</a>
+<a name="72"><span class="lineNum">      72 </span>            :   ListBaseT&lt;Strip&gt; *seqbase;</a>
+<a name="73"><span class="lineNum">      73 </span>            :   int channel;</a>
+<a name="74"><span class="lineNum">      74 </span>            :   int start;</a>
+<a name="75"><span class="lineNum">      75 </span>            :   int duration;</a>
+<a name="76"><span class="lineNum">      76 </span>            :   StripType type;</a>
+<a name="77"><span class="lineNum">      77 </span>            : };</a>
+<a name="78"><span class="lineNum">      78 </span>            : </a>
+<a name="79"><span class="lineNum">      79 </span>            : struct StripImportContext {</a>
+<a name="80"><span class="lineNum">      80 </span>            :   Main *bmain;</a>
+<a name="81"><span class="lineNum">      81 </span>            :   Scene *scene;</a>
+<a name="82"><span class="lineNum">      82 </span>            :   const OTIOImportParams &amp;params;</a>
+<a name="83"><span class="lineNum">      83 </span>            :   double fps;</a>
+<a name="84"><span class="lineNum">      84 </span>            :   Vector&lt;PendingEffect&gt; pending_effects;</a>
+<a name="85"><span class="lineNum">      85 </span>            :   Vector&lt;std::pair&lt;Strip *, SerializableObjectWithMetadata *&gt;&gt; strip_metadata;</a>
+<a name="86"><span class="lineNum">      86 </span>            : };</a>
+<a name="87"><span class="lineNum">      87 </span>            : </a>
+<a name="88"><span class="lineNum">      88 </span><span class="lineNoCov">          0 : static int to_frames(const StripImportContext &amp;ctx, const RationalTime &amp;time)</span></a>
+<a name="89"><span class="lineNum">      89 </span>            : {</a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineNoCov">          0 :   return int(std::round(time.value_rescaled_to(ctx.fps)));</span></a>
+<a name="91"><span class="lineNum">      91 </span>            : }</a>
+<a name="92"><span class="lineNum">      92 </span>            : </a>
+<a name="93"><span class="lineNum">      93 </span><span class="lineNoCov">          0 : static const std::any *blender_metadata(SerializableObjectWithMetadata &amp;object, const char *key)</span></a>
+<a name="94"><span class="lineNum">      94 </span>            : {</a>
+<a name="95"><span class="lineNum">      95 </span><span class="lineNoCov">          0 :   AnyDictionary &amp;metadata = object.metadata();</span></a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineNoCov">          0 :   auto blender = metadata.find(&quot;blender&quot;);</span></a>
+<a name="97"><span class="lineNum">      97 </span><span class="lineNoCov">          0 :   if (blender == metadata.end()) {</span></a>
+<a name="98"><span class="lineNum">      98 </span><span class="lineNoCov">          0 :     return nullptr;</span></a>
+<a name="99"><span class="lineNum">      99 </span>            :   }</a>
+<a name="100"><span class="lineNum">     100 </span><span class="lineNoCov">          0 :   AnyDictionary *dictionary = std::any_cast&lt;AnyDictionary&gt;(&amp;blender-&gt;second);</span></a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineNoCov">          0 :   if (!dictionary) {</span></a>
+<a name="102"><span class="lineNum">     102 </span><span class="lineNoCov">          0 :     return nullptr;</span></a>
+<a name="103"><span class="lineNum">     103 </span>            :   }</a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineNoCov">          0 :   auto value = dictionary-&gt;find(key);</span></a>
+<a name="105"><span class="lineNum">     105 </span><span class="lineNoCov">          0 :   return value != dictionary-&gt;end() ? &amp;value-&gt;second : nullptr;</span></a>
+<a name="106"><span class="lineNum">     106 </span>            : }</a>
+<a name="107"><span class="lineNum">     107 </span>            : </a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineNoCov">          0 : static const AnyDictionary *strip_metadata(SerializableObjectWithMetadata &amp;object)</span></a>
+<a name="109"><span class="lineNum">     109 </span>            : {</a>
+<a name="110"><span class="lineNum">     110 </span><span class="lineNoCov">          0 :   const std::any *value = blender_metadata(object, &quot;strip&quot;);</span></a>
+<a name="111"><span class="lineNum">     111 </span><span class="lineNoCov">          0 :   return value ? std::any_cast&lt;AnyDictionary&gt;(value) : nullptr;</span></a>
+<a name="112"><span class="lineNum">     112 </span>            : }</a>
+<a name="113"><span class="lineNum">     113 </span>            : </a>
+<a name="114"><span class="lineNum">     114 </span><span class="lineNoCov">          0 : static const std::string *strip_metadata_string(SerializableObjectWithMetadata &amp;object,</span></a>
+<a name="115"><span class="lineNum">     115 </span>            :                                                 const char *key)</a>
+<a name="116"><span class="lineNum">     116 </span>            : {</a>
+<a name="117"><span class="lineNum">     117 </span><span class="lineNoCov">          0 :   const AnyDictionary *metadata = strip_metadata(object);</span></a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineNoCov">          0 :   if (!metadata || !metadata-&gt;has_key(key)) {</span></a>
+<a name="119"><span class="lineNum">     119 </span><span class="lineNoCov">          0 :     return nullptr;</span></a>
+<a name="120"><span class="lineNum">     120 </span>            :   }</a>
+<a name="121"><span class="lineNum">     121 </span><span class="lineNoCov">          0 :   return std::any_cast&lt;std::string&gt;(&amp;metadata-&gt;at(key));</span></a>
+<a name="122"><span class="lineNum">     122 </span>            : }</a>
+<a name="123"><span class="lineNum">     123 </span>            : </a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineNoCov">          0 : static std::optional&lt;StripType&gt; strip_type_from_identifier(const std::string *identifier)</span></a>
+<a name="125"><span class="lineNum">     125 </span>            : {</a>
+<a name="126"><span class="lineNum">     126 </span><span class="lineNoCov">          0 :   PointerRNA ptr = RNA_pointer_create_discrete(nullptr, RNA_Strip, nullptr);</span></a>
+<a name="127"><span class="lineNum">     127 </span>            :   int type;</a>
+<a name="128"><span class="lineNum">     128 </span><span class="lineNoCov">          0 :   if (!identifier ||</span></a>
+<a name="129"><span class="lineNum">     129 </span><span class="lineNoCov">          0 :       !RNA_property_enum_value(</span></a>
+<a name="130"><span class="lineNum">     130 </span>            :           nullptr, &amp;ptr, RNA_struct_find_property(&amp;ptr, &quot;type&quot;), identifier-&gt;c_str(), &amp;type))</a>
+<a name="131"><span class="lineNum">     131 </span>            :   {</a>
+<a name="132"><span class="lineNum">     132 </span><span class="lineNoCov">          0 :     return std::nullopt;</span></a>
+<a name="133"><span class="lineNum">     133 </span>            :   }</a>
+<a name="134"><span class="lineNum">     134 </span><span class="lineNoCov">          0 :   return StripType(type);</span></a>
+<a name="135"><span class="lineNum">     135 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="136"><span class="lineNum">     136 </span>            : </a>
+<a name="137"><span class="lineNum">     137 </span><span class="lineNoCov">          0 : static std::string url_to_filepath(const std::string &amp;url)</span></a>
+<a name="138"><span class="lineNum">     138 </span>            : {</a>
+<a name="139"><span class="lineNum">     139 </span><span class="lineNoCov">          0 :   if (!url.starts_with(&quot;file://&quot;)) {</span></a>
+<a name="140"><span class="lineNum">     140 </span><span class="lineNoCov">          0 :     return url;</span></a>
+<a name="141"><span class="lineNum">     141 </span>            :   }</a>
+<a name="142"><span class="lineNum">     142 </span><span class="lineNoCov">          0 :   std::string filepath;</span></a>
+<a name="143"><span class="lineNum">     143 </span><span class="lineNoCov">          0 :   for (size_t i = strlen(&quot;file://&quot;); i &lt; url.size(); i++) {</span></a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineNoCov">          0 :     if (url[i] == '%' &amp;&amp; i + 2 &lt; url.size()) {</span></a>
+<a name="145"><span class="lineNum">     145 </span><span class="lineNoCov">          0 :       filepath += char(std::strtol(url.substr(i + 1, 2).c_str(), nullptr, 16));</span></a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineNoCov">          0 :       i += 2;</span></a>
+<a name="147"><span class="lineNum">     147 </span>            :     }</a>
+<a name="148"><span class="lineNum">     148 </span>            :     else {</a>
+<a name="149"><span class="lineNum">     149 </span><span class="lineNoCov">          0 :       filepath += url[i];</span></a>
+<a name="150"><span class="lineNum">     150 </span>            :     }</a>
+<a name="151"><span class="lineNum">     151 </span>            :   }</a>
+<a name="152"><span class="lineNum">     152 </span>            : #ifdef WIN32</a>
+<a name="153"><span class="lineNum">     153 </span>            :   if (filepath.size() &gt; 2 &amp;&amp; filepath[0] == '/' &amp;&amp; filepath[2] == ':') {</a>
+<a name="154"><span class="lineNum">     154 </span>            :     filepath.erase(0, 1);</a>
+<a name="155"><span class="lineNum">     155 </span>            :   }</a>
+<a name="156"><span class="lineNum">     156 </span>            : #endif</a>
+<a name="157"><span class="lineNum">     157 </span><span class="lineNoCov">          0 :   return filepath;</span></a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="159"><span class="lineNum">     159 </span>            : </a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineNoCov">          0 : static void place_strip(StripImportContext &amp;ctx,</span></a>
+<a name="161"><span class="lineNum">     161 </span>            :                         Strip *strip,</a>
+<a name="162"><span class="lineNum">     162 </span>            :                         ListBaseT&lt;Strip&gt; &amp;seqbase,</a>
+<a name="163"><span class="lineNum">     163 </span>            :                         const int start,</a>
+<a name="164"><span class="lineNum">     164 </span>            :                         const int duration,</a>
+<a name="165"><span class="lineNum">     165 </span>            :                         SerializableObjectWithMetadata &amp;object)</a>
+<a name="166"><span class="lineNum">     166 </span>            : {</a>
+<a name="167"><span class="lineNum">     167 </span><span class="lineNoCov">          0 :   strip-&gt;handles_set(ctx.scene, start, start + duration);</span></a>
+<a name="168"><span class="lineNum">     168 </span><span class="lineNoCov">          0 :   if (auto *item = dynamic_cast&lt;Item *&gt;(&amp;object); item &amp;&amp; !item-&gt;enabled()) {</span></a>
+<a name="169"><span class="lineNum">     169 </span><span class="lineNoCov">          0 :     strip-&gt;flag |= SEQ_MUTE;</span></a>
+<a name="170"><span class="lineNum">     170 </span>            :   }</a>
+<a name="171"><span class="lineNum">     171 </span><span class="lineNoCov">          0 :   seq::transform_shuffle_vertical(&amp;seqbase, {strip}, ctx.scene);</span></a>
+<a name="172"><span class="lineNum">     172 </span><span class="lineNoCov">          0 :   ctx.strip_metadata.append({strip, &amp;object});</span></a>
+<a name="173"><span class="lineNum">     173 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="174"><span class="lineNum">     174 </span>            : </a>
+<a name="175"><span class="lineNum">     175 </span><span class="lineNoCov">          0 : static Strip *add_image_strip(StripImportContext &amp;ctx,</span></a>
+<a name="176"><span class="lineNum">     176 </span>            :                               ListBaseT&lt;Strip&gt; &amp;seqbase,</a>
+<a name="177"><span class="lineNum">     177 </span>            :                               seq::LoadData &amp;load_data,</a>
+<a name="178"><span class="lineNum">     178 </span>            :                               const std::string &amp;dirpath,</a>
+<a name="179"><span class="lineNum">     179 </span>            :                               const Span&lt;std::string&gt; filenames)</a>
+<a name="180"><span class="lineNum">     180 </span>            : {</a>
+<a name="181"><span class="lineNum">     181 </span><span class="lineNoCov">          0 :   load_data.image.count = filenames.size();</span></a>
+<a name="182"><span class="lineNum">     182 </span><span class="lineNoCov">          0 :   Strip *strip = seq::add_image_strip(ctx.bmain, ctx.scene, &amp;seqbase, &amp;load_data);</span></a>
+<a name="183"><span class="lineNum">     183 </span><span class="lineNoCov">          0 :   seq::add_image_set_directory(strip, dirpath.c_str());</span></a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineNoCov">          0 :   for (const int i : filenames.index_range()) {</span></a>
+<a name="185"><span class="lineNum">     185 </span><span class="lineNoCov">          0 :     seq::add_image_load_file(ctx.scene, strip, i, filenames[i].c_str());</span></a>
+<a name="186"><span class="lineNum">     186 </span>            :   }</a>
+<a name="187"><span class="lineNum">     187 </span><span class="lineNoCov">          0 :   seq::add_image_init_alpha_mode(ctx.bmain, ctx.scene, strip);</span></a>
+<a name="188"><span class="lineNum">     188 </span><span class="lineNoCov">          0 :   return strip;</span></a>
+<a name="189"><span class="lineNum">     189 </span>            : }</a>
+<a name="190"><span class="lineNum">     190 </span>            : </a>
+<a name="191"><span class="lineNum">     191 </span><span class="lineNoCov">          0 : static Strip *clip_to_strip(StripImportContext &amp;ctx,</span></a>
+<a name="192"><span class="lineNum">     192 </span>            :                             Clip &amp;clip,</a>
+<a name="193"><span class="lineNum">     193 </span>            :                             ListBaseT&lt;Strip&gt; &amp;seqbase,</a>
+<a name="194"><span class="lineNum">     194 </span>            :                             const int channel,</a>
+<a name="195"><span class="lineNum">     195 </span>            :                             const int start,</a>
+<a name="196"><span class="lineNum">     196 </span>            :                             const int duration,</a>
+<a name="197"><span class="lineNum">     197 </span>            :                             const bool is_audio)</a>
+<a name="198"><span class="lineNum">     198 </span>            : {</a>
+<a name="199"><span class="lineNum">     199 </span><span class="lineNoCov">          0 :   MediaReference *reference = clip.media_reference();</span></a>
+<a name="200"><span class="lineNum">     200 </span><span class="lineNoCov">          0 :   const TimeRange range = clip.trimmed_range();</span></a>
+<a name="201"><span class="lineNum">     201 </span><span class="lineNoCov">          0 :   const std::optional&lt;TimeRange&gt; available_range = reference ? reference-&gt;available_range() :</span></a>
+<a name="202"><span class="lineNum">     202 </span><span class="lineNoCov">          0 :                                                                std::nullopt;</span></a>
+<a name="203"><span class="lineNum">     203 </span><span class="lineNoCov">          0 :   const bool has_available_start = available_range &amp;&amp;</span></a>
+<a name="204"><span class="lineNum">     204 </span><span class="lineNoCov">          0 :                                    available_range-&gt;start_time().is_valid_time();</span></a>
+<a name="205"><span class="lineNum">     205 </span>            :   const RationalTime media_time = range.start_time() - (has_available_start ?</a>
+<a name="206"><span class="lineNum">     206 </span><span class="lineNoCov">          0 :                                                             available_range-&gt;start_time() :</span></a>
+<a name="207"><span class="lineNum">     207 </span><span class="lineNoCov">          0 :                                                             RationalTime());</span></a>
+<a name="208"><span class="lineNum">     208 </span><span class="lineNoCov">          0 :   const int media_start = to_frames(ctx, media_time);</span></a>
+<a name="209"><span class="lineNum">     209 </span>            : </a>
+<a name="210"><span class="lineNum">     210 </span>            :   seq::LoadData load_data;</a>
+<a name="211"><span class="lineNum">     211 </span><span class="lineNoCov">          0 :   seq::add_load_data_init(&amp;load_data, clip.name().c_str(), nullptr, start - media_start, channel);</span></a>
+<a name="212"><span class="lineNum">     212 </span><span class="lineNoCov">          0 :   load_data.allow_invalid_file = true;</span></a>
+<a name="213"><span class="lineNum">     213 </span><span class="lineNoCov">          0 :   if (const std::optional&lt;eSeqImageFitMethod&gt; fit_method = resolve_fit_method(clip)) {</span></a>
+<a name="214"><span class="lineNum">     214 </span><span class="lineNoCov">          0 :     load_data.fit_method = *fit_method;</span></a>
+<a name="215"><span class="lineNum">     215 </span>            :   }</a>
+<a name="216"><span class="lineNum">     216 </span>            : </a>
+<a name="217"><span class="lineNum">     217 </span><span class="lineNoCov">          0 :   if (auto *external = dynamic_cast&lt;ExternalReference *&gt;(reference)) {</span></a>
+<a name="218"><span class="lineNum">     218 </span><span class="lineNoCov">          0 :     const std::string filepath = url_to_filepath(external-&gt;target_url());</span></a>
+<a name="219"><span class="lineNum">     219 </span><span class="lineNoCov">          0 :     STRNCPY(load_data.path, filepath.c_str());</span></a>
+<a name="220"><span class="lineNum">     220 </span><span class="lineNoCov">          0 :     if (is_audio) {</span></a>
+<a name="221"><span class="lineNum">     221 </span><span class="lineNoCov">          0 :       Strip *strip = seq::add_sound_strip(ctx.bmain, ctx.scene, &amp;seqbase, &amp;load_data);</span></a>
+<a name="222"><span class="lineNum">     222 </span><span class="lineNoCov">          0 :       if (strip) {</span></a>
+<a name="223"><span class="lineNum">     223 </span><span class="lineNoCov">          0 :         strip-&gt;sound_offset = media_start / ctx.fps - media_time.to_seconds();</span></a>
+<a name="224"><span class="lineNum">     224 </span>            :       }</a>
+<a name="225"><span class="lineNum">     225 </span><span class="lineNoCov">          0 :       return strip;</span></a>
+<a name="226"><span class="lineNum">     226 </span>            :     }</a>
+<a name="227"><span class="lineNum">     227 </span><span class="lineNoCov">          0 :     if (!BLI_path_extension_check_array(filepath.c_str(), imb_ext_image)) {</span></a>
+<a name="228"><span class="lineNum">     228 </span><span class="lineNoCov">          0 :       return seq::add_movie_strip(ctx.bmain, ctx.scene, &amp;seqbase, &amp;load_data);</span></a>
+<a name="229"><span class="lineNum">     229 </span>            :     }</a>
+<a name="230"><span class="lineNum">     230 </span>            :     char dirpath[FILE_MAX], filename[FILE_MAXFILE];</a>
+<a name="231"><span class="lineNum">     231 </span><span class="lineNoCov">          0 :     BLI_path_split_dir_file(</span></a>
+<a name="232"><span class="lineNum">     232 </span>            :         filepath.c_str(), dirpath, sizeof(dirpath), filename, sizeof(filename));</a>
+<a name="233"><span class="lineNum">     233 </span><span class="lineNoCov">          0 :     load_data.start_frame = start;</span></a>
+<a name="234"><span class="lineNum">     234 </span><span class="lineNoCov">          0 :     return add_image_strip(ctx, seqbase, load_data, dirpath, {filename});</span></a>
+<a name="235"><span class="lineNum">     235 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="236"><span class="lineNum">     236 </span>            : </a>
+<a name="237"><span class="lineNum">     237 </span><span class="lineNoCov">          0 :   if (auto *sequence = dynamic_cast&lt;ImageSequenceReference *&gt;(reference)) {</span></a>
+<a name="238"><span class="lineNum">     238 </span><span class="lineNoCov">          0 :     Vector&lt;std::string&gt; filenames;</span></a>
+<a name="239"><span class="lineNum">     239 </span><span class="lineNoCov">          0 :     for (const int i : IndexRange(sequence-&gt;number_of_images_in_sequence())) {</span></a>
+<a name="240"><span class="lineNum">     240 </span>            :       char filename[FILE_MAX];</a>
+<a name="241"><span class="lineNum">     241 </span><span class="lineNoCov">          0 :       BLI_path_sequence_encode(filename,</span></a>
+<a name="242"><span class="lineNum">     242 </span>            :                                sizeof(filename),</a>
+<a name="243"><span class="lineNum">     243 </span><span class="lineNoCov">          0 :                                sequence-&gt;name_prefix().c_str(),</span></a>
+<a name="244"><span class="lineNum">     244 </span><span class="lineNoCov">          0 :                                sequence-&gt;name_suffix().c_str(),</span></a>
+<a name="245"><span class="lineNum">     245 </span><span class="lineNoCov">          0 :                                sequence-&gt;frame_zero_padding(),</span></a>
+<a name="246"><span class="lineNum">     246 </span><span class="lineNoCov">          0 :                                sequence-&gt;start_frame() + i * sequence-&gt;frame_step());</span></a>
+<a name="247"><span class="lineNum">     247 </span><span class="lineNoCov">          0 :       filenames.append(filename);</span></a>
+<a name="248"><span class="lineNum">     248 </span>            :     }</a>
+<a name="249"><span class="lineNum">     249 </span><span class="lineNoCov">          0 :     return add_image_strip(</span></a>
+<a name="250"><span class="lineNum">     250 </span><span class="lineNoCov">          0 :         ctx, seqbase, load_data, url_to_filepath(sequence-&gt;target_url_base()), filenames);</span></a>
+<a name="251"><span class="lineNum">     251 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="252"><span class="lineNum">     252 </span>            : </a>
+<a name="253"><span class="lineNum">     253 </span><span class="lineNoCov">          0 :   std::optional&lt;StripType&gt; type;</span></a>
+<a name="254"><span class="lineNum">     254 </span><span class="lineNoCov">          0 :   if (auto *generator = dynamic_cast&lt;GeneratorReference *&gt;(reference)) {</span></a>
+<a name="255"><span class="lineNum">     255 </span><span class="lineNoCov">          0 :     const std::string kind = generator-&gt;generator_kind();</span></a>
+<a name="256"><span class="lineNum">     256 </span><span class="lineNoCov">          0 :     type = strip_type_from_identifier(&amp;kind);</span></a>
+<a name="257"><span class="lineNum">     257 </span><span class="lineNoCov">          0 :     if (!type) {</span></a>
+<a name="258"><span class="lineNum">     258 </span><span class="lineNoCov">          0 :       type = resolve_generator_type(*generator);</span></a>
+<a name="259"><span class="lineNum">     259 </span>            :     }</a>
+<a name="260"><span class="lineNum">     260 </span><span class="lineNoCov">          0 :     if (!type) {</span></a>
+<a name="261"><span class="lineNum">     261 </span><span class="lineNoCov">          0 :       type = kdenlive_generator_type(*generator);</span></a>
+<a name="262"><span class="lineNum">     262 </span>            :     }</a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="264"><span class="lineNum">     264 </span><span class="lineNoCov">          0 :   else if (resolve_is_adjustment_clip(clip)) {</span></a>
+<a name="265"><span class="lineNum">     265 </span><span class="lineNoCov">          0 :     type = STRIP_TYPE_ADJUSTMENT;</span></a>
+<a name="266"><span class="lineNum">     266 </span>            :   }</a>
+<a name="267"><span class="lineNum">     267 </span><span class="lineNoCov">          0 :   if (type &amp;&amp; seq::effect_type_get_min_num_inputs(*type) == 2) {</span></a>
+<a name="268"><span class="lineNum">     268 </span><span class="lineNoCov">          0 :     ctx.pending_effects.append({&amp;clip, &amp;seqbase, channel, start, duration, *type});</span></a>
+<a name="269"><span class="lineNum">     269 </span><span class="lineNoCov">          0 :     return nullptr;</span></a>
+<a name="270"><span class="lineNum">     270 </span>            :   }</a>
+<a name="271"><span class="lineNum">     271 </span><span class="lineNoCov">          0 :   if (type) {</span></a>
+<a name="272"><span class="lineNum">     272 </span><span class="lineNoCov">          0 :     load_data.start_frame = start;</span></a>
+<a name="273"><span class="lineNum">     273 </span><span class="lineNoCov">          0 :     load_data.effect.type = *type;</span></a>
+<a name="274"><span class="lineNum">     274 </span><span class="lineNoCov">          0 :     load_data.effect.length = duration;</span></a>
+<a name="275"><span class="lineNum">     275 </span><span class="lineNoCov">          0 :     return seq::add_effect_strip(ctx.scene, &amp;seqbase, &amp;load_data);</span></a>
+<a name="276"><span class="lineNum">     276 </span>            :   }</a>
+<a name="277"><span class="lineNum">     277 </span>            : </a>
+<a name="278"><span class="lineNum">     278 </span><span class="lineNoCov">          0 :   if (strip_type_from_identifier(strip_metadata_string(clip, &quot;type&quot;)) == STRIP_TYPE_SCENE) {</span></a>
+<a name="279"><span class="lineNum">     279 </span><span class="lineNoCov">          0 :     const std::string *scene_name = strip_metadata_string(clip, &quot;scene&quot;);</span></a>
+<a name="280"><span class="lineNum">     280 </span><span class="lineNoCov">          0 :     load_data.scene = scene_name ? reinterpret_cast&lt;Scene *&gt;(BKE_libblock_find_name(</span></a>
+<a name="281"><span class="lineNum">     281 </span>            :                                        ctx.bmain, ID_SCE, scene_name-&gt;c_str())) :</a>
+<a name="282"><span class="lineNum">     282 </span>            :                                    nullptr;</a>
+<a name="283"><span class="lineNum">     283 </span><span class="lineNoCov">          0 :     if (load_data.scene) {</span></a>
+<a name="284"><span class="lineNum">     284 </span><span class="lineNoCov">          0 :       return seq::add_scene_strip(ctx.scene, &amp;seqbase, &amp;load_data);</span></a>
+<a name="285"><span class="lineNum">     285 </span>            :     }</a>
+<a name="286"><span class="lineNum">     286 </span>            :   }</a>
+<a name="287"><span class="lineNum">     287 </span>            : </a>
+<a name="288"><span class="lineNum">     288 </span><span class="lineNoCov">          0 :   BKE_reportf(ctx.params.reports,</span></a>
+<a name="289"><span class="lineNum">     289 </span>            :               RPT_WARNING,</a>
+<a name="290"><span class="lineNum">     290 </span>            :               &quot;Clip '%s' was not imported, its media is not supported&quot;,</a>
+<a name="291"><span class="lineNum">     291 </span><span class="lineNoCov">          0 :               clip.name().c_str());</span></a>
+<a name="292"><span class="lineNum">     292 </span><span class="lineNoCov">          0 :   return nullptr;</span></a>
+<a name="293"><span class="lineNum">     293 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="294"><span class="lineNum">     294 </span>            : </a>
+<a name="295"><span class="lineNum">     295 </span><span class="lineNoCov">          0 : static void add_strip_effects(StripImportContext &amp;ctx,</span></a>
+<a name="296"><span class="lineNum">     296 </span>            :                               Item &amp;item,</a>
+<a name="297"><span class="lineNum">     297 </span>            :                               ListBaseT&lt;Strip&gt; &amp;seqbase,</a>
+<a name="298"><span class="lineNum">     298 </span>            :                               Strip &amp;input)</a>
+<a name="299"><span class="lineNum">     299 </span>            : {</a>
+<a name="300"><span class="lineNum">     300 </span><span class="lineNoCov">          0 :   for (SerializableObject::Retainer&lt;otio::Effect&gt; &amp;effect : item.effects()) {</span></a>
+<a name="301"><span class="lineNum">     301 </span><span class="lineNoCov">          0 :     std::optional&lt;StripType&gt; type = strip_type_from_identifier(</span></a>
+<a name="302"><span class="lineNum">     302 </span><span class="lineNoCov">          0 :         strip_metadata_string(*effect, &quot;type&quot;));</span></a>
+<a name="303"><span class="lineNum">     303 </span><span class="lineNoCov">          0 :     if (!type) {</span></a>
+<a name="304"><span class="lineNum">     304 </span><span class="lineNoCov">          0 :       const std::string name = effect-&gt;effect_name();</span></a>
+<a name="305"><span class="lineNum">     305 </span><span class="lineNoCov">          0 :       type = dynamic_cast&lt;LinearTimeWarp *&gt;(effect.value) ||</span></a>
+<a name="306"><span class="lineNum">     306 </span><span class="lineNoCov">          0 :                      dynamic_cast&lt;FreezeFrame *&gt;(effect.value) ?</span></a>
+<a name="307"><span class="lineNum">     307 </span><span class="lineNoCov">          0 :                  STRIP_TYPE_SPEED :</span></a>
+<a name="308"><span class="lineNum">     308 </span><span class="lineNoCov">          0 :                  strip_type_from_identifier(&amp;name);</span></a>
+<a name="309"><span class="lineNum">     309 </span><span class="lineNoCov">          0 :     }</span></a>
+<a name="310"><span class="lineNum">     310 </span><span class="lineNoCov">          0 :     if (!type || seq::effect_type_get_min_num_inputs(*type) != 1) {</span></a>
+<a name="311"><span class="lineNum">     311 </span><span class="lineNoCov">          0 :       continue;</span></a>
+<a name="312"><span class="lineNum">     312 </span>            :     }</a>
+<a name="313"><span class="lineNum">     313 </span><span class="lineNoCov">          0 :     auto *time_warp = dynamic_cast&lt;LinearTimeWarp *&gt;(effect.value);</span></a>
+<a name="314"><span class="lineNum">     314 </span><span class="lineNoCov">          0 :     if (time_warp &amp;&amp; time_warp-&gt;time_scalar() &lt; 0.0) {</span></a>
+<a name="315"><span class="lineNum">     315 </span><span class="lineNoCov">          0 :       input.flag |= SEQ_REVERSE_FRAMES;</span></a>
+<a name="316"><span class="lineNum">     316 </span><span class="lineNoCov">          0 :       if (time_warp-&gt;time_scalar() == -1.0) {</span></a>
+<a name="317"><span class="lineNum">     317 </span><span class="lineNoCov">          0 :         continue;</span></a>
+<a name="318"><span class="lineNum">     318 </span>            :       }</a>
+<a name="319"><span class="lineNum">     319 </span>            :     }</a>
+<a name="320"><span class="lineNum">     320 </span>            : </a>
+<a name="321"><span class="lineNum">     321 </span>            :     seq::LoadData load_data;</a>
+<a name="322"><span class="lineNum">     322 </span><span class="lineNoCov">          0 :     seq::add_load_data_init(</span></a>
+<a name="323"><span class="lineNum">     323 </span><span class="lineNoCov">          0 :         &amp;load_data, effect-&gt;name().c_str(), nullptr, input.left_handle(), input.channel + 1);</span></a>
+<a name="324"><span class="lineNum">     324 </span><span class="lineNoCov">          0 :     load_data.effect.type = *type;</span></a>
+<a name="325"><span class="lineNum">     325 </span><span class="lineNoCov">          0 :     load_data.effect.input1 = &amp;input;</span></a>
+<a name="326"><span class="lineNum">     326 </span><span class="lineNoCov">          0 :     Strip *strip = seq::add_effect_strip(ctx.scene, &amp;seqbase, &amp;load_data);</span></a>
+<a name="327"><span class="lineNum">     327 </span>            : </a>
+<a name="328"><span class="lineNum">     328 </span><span class="lineNoCov">          0 :     if (time_warp) {</span></a>
+<a name="329"><span class="lineNum">     329 </span><span class="lineNoCov">          0 :       SpeedControlVars *speed = static_cast&lt;SpeedControlVars *&gt;(strip-&gt;effectdata);</span></a>
+<a name="330"><span class="lineNum">     330 </span><span class="lineNoCov">          0 :       speed-&gt;speed_control_type = SEQ_SPEED_MULTIPLY;</span></a>
+<a name="331"><span class="lineNum">     331 </span><span class="lineNoCov">          0 :       speed-&gt;speed_fader = std::abs(time_warp-&gt;time_scalar());</span></a>
+<a name="332"><span class="lineNum">     332 </span>            :     }</a>
+<a name="333"><span class="lineNum">     333 </span><span class="lineNoCov">          0 :     place_strip(ctx,</span></a>
+<a name="334"><span class="lineNum">     334 </span>            :                 strip,</a>
+<a name="335"><span class="lineNum">     335 </span>            :                 seqbase,</a>
+<a name="336"><span class="lineNum">     336 </span>            :                 input.left_handle(),</a>
+<a name="337"><span class="lineNum">     337 </span><span class="lineNoCov">          0 :                 input.right_handle(ctx.scene) - input.left_handle(),</span></a>
+<a name="338"><span class="lineNum">     338 </span><span class="lineNoCov">          0 :                 *effect);</span></a>
+<a name="339"><span class="lineNum">     339 </span>            :   }</a>
+<a name="340"><span class="lineNum">     340 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="341"><span class="lineNum">     341 </span>            : </a>
+<a name="342"><span class="lineNum">     342 </span>            : static void import_stack(StripImportContext &amp;ctx,</a>
+<a name="343"><span class="lineNum">     343 </span>            :                          Stack &amp;stack,</a>
+<a name="344"><span class="lineNum">     344 </span>            :                          ListBaseT&lt;Strip&gt; &amp;seqbase,</a>
+<a name="345"><span class="lineNum">     345 </span>            :                          ListBaseT&lt;SeqTimelineChannel&gt; &amp;channels,</a>
+<a name="346"><span class="lineNum">     346 </span>            :                          int origin);</a>
+<a name="347"><span class="lineNum">     347 </span>            : </a>
+<a name="348"><span class="lineNum">     348 </span><span class="lineNoCov">          0 : static Strip *import_item(StripImportContext &amp;ctx,</span></a>
+<a name="349"><span class="lineNum">     349 </span>            :                           Item &amp;item,</a>
+<a name="350"><span class="lineNum">     350 </span>            :                           ListBaseT&lt;Strip&gt; &amp;seqbase,</a>
+<a name="351"><span class="lineNum">     351 </span>            :                           const int channel,</a>
+<a name="352"><span class="lineNum">     352 </span>            :                           const int start,</a>
+<a name="353"><span class="lineNum">     353 </span>            :                           const int duration,</a>
+<a name="354"><span class="lineNum">     354 </span>            :                           const bool is_audio)</a>
+<a name="355"><span class="lineNum">     355 </span>            : {</a>
+<a name="356"><span class="lineNum">     356 </span><span class="lineNoCov">          0 :   Strip *strip = nullptr;</span></a>
+<a name="357"><span class="lineNum">     357 </span><span class="lineNoCov">          0 :   if (auto *clip = dynamic_cast&lt;Clip *&gt;(&amp;item)) {</span></a>
+<a name="358"><span class="lineNum">     358 </span><span class="lineNoCov">          0 :     strip = clip_to_strip(ctx, *clip, seqbase, channel, start, duration, is_audio);</span></a>
+<a name="359"><span class="lineNum">     359 </span>            :   }</a>
+<a name="360"><span class="lineNum">     360 </span><span class="lineNoCov">          0 :   else if (auto *stack = dynamic_cast&lt;Stack *&gt;(&amp;item)) {</span></a>
+<a name="361"><span class="lineNum">     361 </span>            :     seq::LoadData load_data;</a>
+<a name="362"><span class="lineNum">     362 </span><span class="lineNoCov">          0 :     seq::add_load_data_init(&amp;load_data, stack-&gt;name().c_str(), nullptr, start, channel);</span></a>
+<a name="363"><span class="lineNum">     363 </span><span class="lineNoCov">          0 :     strip = seq::add_meta_strip(ctx.scene, &amp;seqbase, &amp;load_data);</span></a>
+<a name="364"><span class="lineNum">     364 </span><span class="lineNoCov">          0 :     import_stack(ctx,</span></a>
+<a name="365"><span class="lineNum">     365 </span>            :                  *stack,</a>
+<a name="366"><span class="lineNum">     366 </span><span class="lineNoCov">          0 :                  strip-&gt;seqbase,</span></a>
+<a name="367"><span class="lineNum">     367 </span><span class="lineNoCov">          0 :                  strip-&gt;channels,</span></a>
+<a name="368"><span class="lineNum">     368 </span><span class="lineNoCov">          0 :                  start - to_frames(ctx, item.trimmed_range().start_time()));</span></a>
+<a name="369"><span class="lineNum">     369 </span><span class="lineNoCov">          0 :     seq::time_update_meta_strip_range(ctx.scene, strip);</span></a>
+<a name="370"><span class="lineNum">     370 </span>            :   }</a>
+<a name="371"><span class="lineNum">     371 </span>            : </a>
+<a name="372"><span class="lineNum">     372 </span><span class="lineNoCov">          0 :   if (!strip) {</span></a>
+<a name="373"><span class="lineNum">     373 </span><span class="lineNoCov">          0 :     return nullptr;</span></a>
+<a name="374"><span class="lineNum">     374 </span>            :   }</a>
+<a name="375"><span class="lineNum">     375 </span><span class="lineNoCov">          0 :   place_strip(ctx, strip, seqbase, start, duration, item);</span></a>
+<a name="376"><span class="lineNum">     376 </span><span class="lineNoCov">          0 :   add_strip_effects(ctx, item, seqbase, *strip);</span></a>
+<a name="377"><span class="lineNum">     377 </span><span class="lineNoCov">          0 :   return strip;</span></a>
+<a name="378"><span class="lineNum">     378 </span>            : }</a>
+<a name="379"><span class="lineNum">     379 </span>            : </a>
+<a name="380"><span class="lineNum">     380 </span><span class="lineNoCov">          0 : static void add_transition(StripImportContext &amp;ctx,</span></a>
+<a name="381"><span class="lineNum">     381 </span>            :                            Transition &amp;transition,</a>
+<a name="382"><span class="lineNum">     382 </span>            :                            ListBaseT&lt;Strip&gt; &amp;seqbase,</a>
+<a name="383"><span class="lineNum">     383 </span>            :                            Strip &amp;from,</a>
+<a name="384"><span class="lineNum">     384 </span>            :                            Strip &amp;to)</a>
+<a name="385"><span class="lineNum">     385 </span>            : {</a>
+<a name="386"><span class="lineNum">     386 </span><span class="lineNoCov">          0 :   from.right_handle_set(ctx.scene,</span></a>
+<a name="387"><span class="lineNum">     387 </span><span class="lineNoCov">          0 :                         from.right_handle(ctx.scene) - to_frames(ctx, transition.in_offset()));</span></a>
+<a name="388"><span class="lineNum">     388 </span><span class="lineNoCov">          0 :   to.left_handle_set(ctx.scene, to.left_handle() + to_frames(ctx, transition.out_offset()));</span></a>
+<a name="389"><span class="lineNum">     389 </span>            : </a>
+<a name="390"><span class="lineNum">     390 </span>            :   seq::LoadData load_data;</a>
+<a name="391"><span class="lineNum">     391 </span><span class="lineNoCov">          0 :   seq::add_load_data_init(</span></a>
+<a name="392"><span class="lineNum">     392 </span><span class="lineNoCov">          0 :       &amp;load_data, transition.name().c_str(), nullptr, from.right_handle(ctx.scene), from.channel);</span></a>
+<a name="393"><span class="lineNum">     393 </span><span class="lineNoCov">          0 :   std::optional&lt;StripType&gt; type = strip_type_from_identifier(</span></a>
+<a name="394"><span class="lineNum">     394 </span>            :       strip_metadata_string(transition, &quot;type&quot;));</a>
+<a name="395"><span class="lineNum">     395 </span><span class="lineNoCov">          0 :   if (!type) {</span></a>
+<a name="396"><span class="lineNum">     396 </span><span class="lineNoCov">          0 :     type = resolve_transition_type(transition);</span></a>
+<a name="397"><span class="lineNum">     397 </span>            :   }</a>
+<a name="398"><span class="lineNum">     398 </span><span class="lineNoCov">          0 :   load_data.effect.type = type.value_or(STRIP_TYPE_CROSS);</span></a>
+<a name="399"><span class="lineNum">     399 </span><span class="lineNoCov">          0 :   load_data.effect.input1 = &amp;from;</span></a>
+<a name="400"><span class="lineNum">     400 </span><span class="lineNoCov">          0 :   load_data.effect.input2 = &amp;to;</span></a>
+<a name="401"><span class="lineNum">     401 </span><span class="lineNoCov">          0 :   Strip *strip = seq::add_effect_strip(ctx.scene, &amp;seqbase, &amp;load_data);</span></a>
+<a name="402"><span class="lineNum">     402 </span><span class="lineNoCov">          0 :   ctx.strip_metadata.append({strip, &amp;transition});</span></a>
+<a name="403"><span class="lineNum">     403 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="404"><span class="lineNum">     404 </span>            : </a>
+<a name="405"><span class="lineNum">     405 </span><span class="lineNoCov">          0 : static void import_track(StripImportContext &amp;ctx,</span></a>
+<a name="406"><span class="lineNum">     406 </span>            :                          Track &amp;track,</a>
+<a name="407"><span class="lineNum">     407 </span>            :                          ListBaseT&lt;Strip&gt; &amp;seqbase,</a>
+<a name="408"><span class="lineNum">     408 </span>            :                          const int channel,</a>
+<a name="409"><span class="lineNum">     409 </span>            :                          const int origin)</a>
+<a name="410"><span class="lineNum">     410 </span>            : {</a>
+<a name="411"><span class="lineNum">     411 </span><span class="lineNoCov">          0 :   const bool is_audio = track.kind() == Track::Kind::audio;</span></a>
+<a name="412"><span class="lineNum">     412 </span><span class="lineNoCov">          0 :   const std::vector&lt;SerializableObject::Retainer&lt;Composable&gt;&gt; &amp;children = track.children();</span></a>
+<a name="413"><span class="lineNum">     413 </span><span class="lineNoCov">          0 :   Vector&lt;Strip *&gt; strips;</span></a>
+<a name="414"><span class="lineNum">     414 </span>            : </a>
+<a name="415"><span class="lineNum">     415 </span><span class="lineNoCov">          0 :   int frame = origin;</span></a>
+<a name="416"><span class="lineNum">     416 </span><span class="lineNoCov">          0 :   for (const SerializableObject::Retainer&lt;Composable&gt; &amp;child : children) {</span></a>
+<a name="417"><span class="lineNum">     417 </span><span class="lineNoCov">          0 :     Strip *strip = nullptr;</span></a>
+<a name="418"><span class="lineNum">     418 </span><span class="lineNoCov">          0 :     if (auto *item = dynamic_cast&lt;Item *&gt;(child.value)) {</span></a>
+<a name="419"><span class="lineNum">     419 </span><span class="lineNoCov">          0 :       const int duration = to_frames(ctx, item-&gt;trimmed_range().duration());</span></a>
+<a name="420"><span class="lineNum">     420 </span><span class="lineNoCov">          0 :       if (!dynamic_cast&lt;Gap *&gt;(item)) {</span></a>
+<a name="421"><span class="lineNum">     421 </span><span class="lineNoCov">          0 :         strip = import_item(ctx, *item, seqbase, channel, frame, duration, is_audio);</span></a>
+<a name="422"><span class="lineNum">     422 </span>            :       }</a>
+<a name="423"><span class="lineNum">     423 </span><span class="lineNoCov">          0 :       frame += duration;</span></a>
+<a name="424"><span class="lineNum">     424 </span>            :     }</a>
+<a name="425"><span class="lineNum">     425 </span><span class="lineNoCov">          0 :     strips.append(strip);</span></a>
+<a name="426"><span class="lineNum">     426 </span>            :   }</a>
+<a name="427"><span class="lineNum">     427 </span>            : </a>
+<a name="428"><span class="lineNum">     428 </span><span class="lineNoCov">          0 :   for (const int i : strips.index_range().drop_front(1).drop_back(1)) {</span></a>
+<a name="429"><span class="lineNum">     429 </span><span class="lineNoCov">          0 :     auto *transition = dynamic_cast&lt;Transition *&gt;(children[i].value);</span></a>
+<a name="430"><span class="lineNum">     430 </span><span class="lineNoCov">          0 :     if (transition &amp;&amp; strips[i - 1] &amp;&amp; strips[i + 1]) {</span></a>
+<a name="431"><span class="lineNum">     431 </span><span class="lineNoCov">          0 :       add_transition(ctx, *transition, seqbase, *strips[i - 1], *strips[i + 1]);</span></a>
+<a name="432"><span class="lineNum">     432 </span>            :     }</a>
+<a name="433"><span class="lineNum">     433 </span>            :   }</a>
+<a name="434"><span class="lineNum">     434 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="435"><span class="lineNum">     435 </span>            : </a>
+<a name="436"><span class="lineNum">     436 </span><span class="lineNoCov">          0 : static void import_stack(StripImportContext &amp;ctx,</span></a>
+<a name="437"><span class="lineNum">     437 </span>            :                          Stack &amp;stack,</a>
+<a name="438"><span class="lineNum">     438 </span>            :                          ListBaseT&lt;Strip&gt; &amp;seqbase,</a>
+<a name="439"><span class="lineNum">     439 </span>            :                          ListBaseT&lt;SeqTimelineChannel&gt; &amp;channels,</a>
+<a name="440"><span class="lineNum">     440 </span>            :                          const int origin)</a>
+<a name="441"><span class="lineNum">     441 </span>            : {</a>
+<a name="442"><span class="lineNum">     442 </span><span class="lineNoCov">          0 :   int channel = 0;</span></a>
+<a name="443"><span class="lineNum">     443 </span><span class="lineNoCov">          0 :   for (const SerializableObject::Retainer&lt;Composable&gt; &amp;child : stack.children()) {</span></a>
+<a name="444"><span class="lineNum">     444 </span><span class="lineNoCov">          0 :     auto *track = dynamic_cast&lt;Track *&gt;(child.value);</span></a>
+<a name="445"><span class="lineNum">     445 </span><span class="lineNoCov">          0 :     if (!track) {</span></a>
+<a name="446"><span class="lineNum">     446 </span><span class="lineNoCov">          0 :       continue;</span></a>
+<a name="447"><span class="lineNum">     447 </span>            :     }</a>
+<a name="448"><span class="lineNum">     448 </span><span class="lineNoCov">          0 :     const std::any *track_channel = blender_metadata(*track, &quot;channel&quot;);</span></a>
+<a name="449"><span class="lineNum">     449 </span><span class="lineNoCov">          0 :     const int64_t *channel_index = track_channel ? std::any_cast&lt;int64_t&gt;(track_channel) : nullptr;</span></a>
+<a name="450"><span class="lineNum">     450 </span><span class="lineNoCov">          0 :     channel = channel_index ? int(*channel_index) : channel + 1;</span></a>
+<a name="451"><span class="lineNum">     451 </span><span class="lineNoCov">          0 :     if (SeqTimelineChannel *timeline_channel = seq::channel_get_by_index(&amp;channels, channel)) {</span></a>
+<a name="452"><span class="lineNum">     452 </span><span class="lineNoCov">          0 :       if (!track-&gt;name().empty()) {</span></a>
+<a name="453"><span class="lineNum">     453 </span><span class="lineNoCov">          0 :         STRNCPY_UTF8(timeline_channel-&gt;name, track-&gt;name().c_str());</span></a>
+<a name="454"><span class="lineNum">     454 </span>            :       }</a>
+<a name="455"><span class="lineNum">     455 </span><span class="lineNoCov">          0 :       SET_FLAG_FROM_TEST(timeline_channel-&gt;flag, !track-&gt;enabled(), SEQ_CHANNEL_MUTE);</span></a>
+<a name="456"><span class="lineNum">     456 </span><span class="lineNoCov">          0 :       SET_FLAG_FROM_TEST(timeline_channel-&gt;flag, resolve_track_locked(*track), SEQ_CHANNEL_LOCK);</span></a>
+<a name="457"><span class="lineNum">     457 </span>            :     }</a>
+<a name="458"><span class="lineNum">     458 </span><span class="lineNoCov">          0 :     import_track(ctx, *track, seqbase, channel, origin);</span></a>
+<a name="459"><span class="lineNum">     459 </span>            :   }</a>
+<a name="460"><span class="lineNum">     460 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="461"><span class="lineNum">     461 </span>            : </a>
+<a name="462"><span class="lineNum">     462 </span><span class="lineNoCov">          0 : static void add_pending_effects(StripImportContext &amp;ctx)</span></a>
+<a name="463"><span class="lineNum">     463 </span>            : {</a>
+<a name="464"><span class="lineNum">     464 </span><span class="lineNoCov">          0 :   Editing *editing = seq::editing_get(ctx.scene);</span></a>
+<a name="465"><span class="lineNum">     465 </span><span class="lineNoCov">          0 :   for (const PendingEffect &amp;pending : ctx.pending_effects) {</span></a>
+<a name="466"><span class="lineNum">     466 </span><span class="lineNoCov">          0 :     const std::string *input1 = strip_metadata_string(*pending.clip, &quot;input_1&quot;);</span></a>
+<a name="467"><span class="lineNum">     467 </span><span class="lineNoCov">          0 :     const std::string *input2 = strip_metadata_string(*pending.clip, &quot;input_2&quot;);</span></a>
+<a name="468"><span class="lineNum">     468 </span>            : </a>
+<a name="469"><span class="lineNum">     469 </span>            :     seq::LoadData load_data;</a>
+<a name="470"><span class="lineNum">     470 </span><span class="lineNoCov">          0 :     seq::add_load_data_init(</span></a>
+<a name="471"><span class="lineNum">     471 </span><span class="lineNoCov">          0 :         &amp;load_data, pending.clip-&gt;name().c_str(), nullptr, pending.start, pending.channel);</span></a>
+<a name="472"><span class="lineNum">     472 </span><span class="lineNoCov">          0 :     load_data.effect.type = pending.type;</span></a>
+<a name="473"><span class="lineNum">     473 </span><span class="lineNoCov">          0 :     load_data.effect.input1 = input1 ? seq::lookup_strip_by_name(editing, input1-&gt;c_str()) :</span></a>
+<a name="474"><span class="lineNum">     474 </span>            :                                        nullptr;</a>
+<a name="475"><span class="lineNum">     475 </span><span class="lineNoCov">          0 :     load_data.effect.input2 = input2 ? seq::lookup_strip_by_name(editing, input2-&gt;c_str()) :</span></a>
+<a name="476"><span class="lineNum">     476 </span>            :                                        nullptr;</a>
+<a name="477"><span class="lineNum">     477 </span><span class="lineNoCov">          0 :     if (!load_data.effect.input1 || !load_data.effect.input2) {</span></a>
+<a name="478"><span class="lineNum">     478 </span><span class="lineNoCov">          0 :       BKE_reportf(ctx.params.reports,</span></a>
+<a name="479"><span class="lineNum">     479 </span>            :                   RPT_WARNING,</a>
+<a name="480"><span class="lineNum">     480 </span>            :                   &quot;Effect '%s' was not imported, its inputs are missing&quot;,</a>
+<a name="481"><span class="lineNum">     481 </span><span class="lineNoCov">          0 :                   pending.clip-&gt;name().c_str());</span></a>
+<a name="482"><span class="lineNum">     482 </span><span class="lineNoCov">          0 :       continue;</span></a>
+<a name="483"><span class="lineNum">     483 </span>            :     }</a>
+<a name="484"><span class="lineNum">     484 </span><span class="lineNoCov">          0 :     Strip *strip = seq::add_effect_strip(ctx.scene, pending.seqbase, &amp;load_data);</span></a>
+<a name="485"><span class="lineNum">     485 </span><span class="lineNoCov">          0 :     place_strip(ctx, strip, *pending.seqbase, pending.start, pending.duration, *pending.clip);</span></a>
+<a name="486"><span class="lineNum">     486 </span>            :   }</a>
+<a name="487"><span class="lineNum">     487 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="488"><span class="lineNum">     488 </span>            : </a>
+<a name="489"><span class="lineNum">     489 </span><span class="lineNoCov">          0 : static void import_markers(StripImportContext &amp;ctx, Stack &amp;stack, const int origin)</span></a>
+<a name="490"><span class="lineNum">     490 </span>            : {</a>
+<a name="491"><span class="lineNum">     491 </span><span class="lineNoCov">          0 :   for (const SerializableObject::Retainer&lt;Marker&gt; &amp;otio_marker : stack.markers()) {</span></a>
+<a name="492"><span class="lineNum">     492 </span><span class="lineNoCov">          0 :     TimeMarker *marker = MEM_new&lt;TimeMarker&gt;(__func__);</span></a>
+<a name="493"><span class="lineNum">     493 </span><span class="lineNoCov">          0 :     marker-&gt;frame = origin + to_frames(ctx, otio_marker-&gt;marked_range().start_time());</span></a>
+<a name="494"><span class="lineNum">     494 </span><span class="lineNoCov">          0 :     STRNCPY(marker-&gt;name, otio_marker-&gt;name().c_str());</span></a>
+<a name="495"><span class="lineNum">     495 </span><span class="lineNoCov">          0 :     BLI_addtail(&amp;ctx.scene-&gt;markers, marker);</span></a>
+<a name="496"><span class="lineNum">     496 </span>            :   }</a>
+<a name="497"><span class="lineNum">     497 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="498"><span class="lineNum">     498 </span>            : </a>
+<a name="499"><span class="lineNum">     499 </span>            : /**</a>
+<a name="500"><span class="lineNum">     500 </span>            :  * TODO: Temporary workaround, will report upstream, and remove if fixed..</a>
+<a name="501"><span class="lineNum">     501 </span>            :  *</a>
+<a name="502"><span class="lineNum">     502 </span>            :  * When upgrading a `Marker.2` to `Marker.3`, OpenTimelineIO also runs the `Marker.1` to `Marker.2`</a>
+<a name="503"><span class="lineNum">     503 </span>            :  * upgrade function, which overwrites `marked_range` with the nonexistent `range` key and makes</a>
+<a name="504"><span class="lineNum">     504 </span>            :  * reading the whole file fail. Adding a copy of `marked_range` as `range` makes that upgrade</a>
+<a name="505"><span class="lineNum">     505 </span>            :  * function restore the original value.</a>
+<a name="506"><span class="lineNum">     506 </span>            :  */</a>
+<a name="507"><span class="lineNum">     507 </span><span class="lineNoCov">          0 : static void workaround_marker_v2_upgrade(serialize::Value &amp;value)</span></a>
+<a name="508"><span class="lineNum">     508 </span>            : {</a>
+<a name="509"><span class="lineNum">     509 </span><span class="lineNoCov">          0 :   if (value.type() == serialize::eValueType::Dictionary) {</span></a>
+<a name="510"><span class="lineNum">     510 </span><span class="lineNoCov">          0 :     auto &amp;dictionary = static_cast&lt;serialize::DictionaryValue &amp;&gt;(value);</span></a>
+<a name="511"><span class="lineNum">     511 </span><span class="lineNoCov">          0 :     const std::shared_ptr&lt;serialize::Value&gt; *marked_range = dictionary.lookup(&quot;marked_range&quot;);</span></a>
+<a name="512"><span class="lineNum">     512 </span><span class="lineNoCov">          0 :     if (marked_range &amp;&amp; dictionary.lookup_str(&quot;OTIO_SCHEMA&quot;) == &quot;Marker.2&quot;) {</span></a>
+<a name="513"><span class="lineNum">     513 </span><span class="lineNoCov">          0 :       dictionary.append(&quot;range&quot;, *marked_range);</span></a>
+<a name="514"><span class="lineNum">     514 </span>            :     }</a>
+<a name="515"><span class="lineNum">     515 </span><span class="lineNoCov">          0 :     for (const serialize::DictionaryValue::Item &amp;item : dictionary.elements()) {</span></a>
+<a name="516"><span class="lineNum">     516 </span><span class="lineNoCov">          0 :       workaround_marker_v2_upgrade(*item.second);</span></a>
+<a name="517"><span class="lineNum">     517 </span>            :     }</a>
+<a name="518"><span class="lineNum">     518 </span>            :   }</a>
+<a name="519"><span class="lineNum">     519 </span><span class="lineNoCov">          0 :   else if (const serialize::ArrayValue *array = value.as_array_value()) {</span></a>
+<a name="520"><span class="lineNum">     520 </span><span class="lineNoCov">          0 :     for (const std::shared_ptr&lt;serialize::Value&gt; &amp;item : array-&gt;elements()) {</span></a>
+<a name="521"><span class="lineNum">     521 </span><span class="lineNoCov">          0 :       workaround_marker_v2_upgrade(*item);</span></a>
+<a name="522"><span class="lineNum">     522 </span>            :     }</a>
+<a name="523"><span class="lineNum">     523 </span>            :   }</a>
+<a name="524"><span class="lineNum">     524 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="525"><span class="lineNum">     525 </span>            : </a>
+<a name="526"><span class="lineNum">     526 </span>            : /**</a>
+<a name="527"><span class="lineNum">     527 </span>            :  * TODO: Temporary workaround... replace with #SerializableObject::from_json_file once</a>
+<a name="528"><span class="lineNum">     528 </span>            :  * #workaround_marker_v2_upgrade is no longer needed.</a>
+<a name="529"><span class="lineNum">     529 </span>            :  *</a>
+<a name="530"><span class="lineNum">     530 </span>            :  * Reads the file as JSON first so it can be patched before OpenTimelineIO parses it. Falls back to</a>
+<a name="531"><span class="lineNum">     531 </span>            :  * reading it directly when Blender's JSON parser can't handle the file.</a>
+<a name="532"><span class="lineNum">     532 </span>            :  */</a>
+<a name="533"><span class="lineNum">     533 </span><span class="lineNoCov">          0 : SerializableObject *read_otio_file_with_workarounds(</span></a>
+<a name="534"><span class="lineNum">     534 </span>            :     const char *filepath, opentimelineio::OPENTIMELINEIO_VERSION_NS::ErrorStatus *error_status)</a>
+<a name="535"><span class="lineNum">     535 </span>            : {</a>
+<a name="536"><span class="lineNum">     536 </span><span class="lineNoCov">          0 :   const std::shared_ptr&lt;serialize::Value&gt; value = serialize::read_json_file(filepath);</span></a>
+<a name="537"><span class="lineNum">     537 </span><span class="lineNoCov">          0 :   if (!value) {</span></a>
+<a name="538"><span class="lineNum">     538 </span><span class="lineNoCov">          0 :     return SerializableObject::from_json_file(filepath, error_status);</span></a>
+<a name="539"><span class="lineNum">     539 </span>            :   }</a>
+<a name="540"><span class="lineNum">     540 </span><span class="lineNoCov">          0 :   workaround_marker_v2_upgrade(*value);</span></a>
+<a name="541"><span class="lineNum">     541 </span><span class="lineNoCov">          0 :   serialize::JsonFormatter formatter;</span></a>
+<a name="542"><span class="lineNum">     542 </span><span class="lineNoCov">          0 :   std::stringstream json;</span></a>
+<a name="543"><span class="lineNum">     543 </span><span class="lineNoCov">          0 :   formatter.serialize(json, *value);</span></a>
+<a name="544"><span class="lineNum">     544 </span><span class="lineNoCov">          0 :   return SerializableObject::from_json_string(json.str(), error_status);</span></a>
+<a name="545"><span class="lineNum">     545 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="546"><span class="lineNum">     546 </span>            : </a>
+<a name="547"><span class="lineNum">     547 </span><span class="lineNoCov">          0 : static Scene *import_scene(bContext *C, const std::string &amp;name)</span></a>
+<a name="548"><span class="lineNum">     548 </span>            : {</a>
+<a name="549"><span class="lineNum">     549 </span><span class="lineNoCov">          0 :   Scene *scene = CTX_data_sequencer_scene(C);</span></a>
+<a name="550"><span class="lineNum">     550 </span><span class="lineNoCov">          0 :   if (!scene || (scene-&gt;ed &amp;&amp; !BLI_listbase_is_empty(&amp;scene-&gt;ed-&gt;seqbase))) {</span></a>
+<a name="551"><span class="lineNum">     551 </span><span class="lineNoCov">          0 :     scene = BKE_scene_add(CTX_data_main(C), name.empty() ? DATA_(&quot;OTIO Import&quot;) : name.c_str());</span></a>
+<a name="552"><span class="lineNum">     552 </span>            :   }</a>
+<a name="553"><span class="lineNum">     553 </span><span class="lineNoCov">          0 :   seq::editing_ensure(scene);</span></a>
+<a name="554"><span class="lineNum">     554 </span><span class="lineNoCov">          0 :   return scene;</span></a>
+<a name="555"><span class="lineNum">     555 </span>            : }</a>
+<a name="556"><span class="lineNum">     556 </span>            : </a>
+<a name="557"><span class="lineNum">     557 </span><span class="lineNoCov">          0 : Scene *importer_main(bContext *C, const OTIOImportParams &amp;params)</span></a>
+<a name="558"><span class="lineNum">     558 </span>            : {</a>
+<a name="559"><span class="lineNum">     559 </span><span class="lineNoCov">          0 :   opentimelineio::OPENTIMELINEIO_VERSION_NS::ErrorStatus error_status;</span></a>
+<a name="560"><span class="lineNum">     560 </span>            :   SerializableObject::Retainer&lt;SerializableObject&gt; object(</a>
+<a name="561"><span class="lineNum">     561 </span><span class="lineNoCov">          0 :       read_otio_file_with_workarounds(params.filepath, &amp;error_status));</span></a>
+<a name="562"><span class="lineNum">     562 </span><span class="lineNoCov">          0 :   auto *timeline = dynamic_cast&lt;Timeline *&gt;(object.value);</span></a>
+<a name="563"><span class="lineNum">     563 </span><span class="lineNoCov">          0 :   if (!timeline) {</span></a>
+<a name="564"><span class="lineNum">     564 </span><span class="lineNoCov">          0 :     CLOG_ERROR(&amp;LOG,</span></a>
+<a name="565"><span class="lineNum">     565 </span>            :                &quot;Failed to read OTIO file '%s': %s&quot;,</a>
+<a name="566"><span class="lineNum">     566 </span>            :                params.filepath,</a>
+<a name="567"><span class="lineNum">     567 </span>            :                error_status.full_description.c_str());</a>
+<a name="568"><span class="lineNum">     568 </span><span class="lineNoCov">          0 :     BKE_reportf(params.reports, RPT_ERROR, &quot;Failed to read OTIO timeline '%s'&quot;, params.filepath);</span></a>
+<a name="569"><span class="lineNum">     569 </span><span class="lineNoCov">          0 :     return nullptr;</span></a>
+<a name="570"><span class="lineNum">     570 </span>            :   }</a>
+<a name="571"><span class="lineNum">     571 </span>            : </a>
+<a name="572"><span class="lineNum">     572 </span><span class="lineNoCov">          0 :   Main *bmain = CTX_data_main(C);</span></a>
+<a name="573"><span class="lineNum">     573 </span><span class="lineNoCov">          0 :   Scene *scene = import_scene(C, timeline-&gt;name());</span></a>
+<a name="574"><span class="lineNum">     574 </span>            : </a>
+<a name="575"><span class="lineNum">     575 </span><span class="lineNoCov">          0 :   const std::optional&lt;RationalTime&gt; global_start = timeline-&gt;global_start_time();</span></a>
+<a name="576"><span class="lineNum">     576 </span><span class="lineNoCov">          0 :   if (global_start) {</span></a>
+<a name="577"><span class="lineNum">     577 </span><span class="lineNoCov">          0 :     scene-&gt;r.frs_sec = short(std::round(global_start-&gt;rate()));</span></a>
+<a name="578"><span class="lineNum">     578 </span><span class="lineNoCov">          0 :     scene-&gt;r.frs_sec_base = float(scene-&gt;r.frs_sec / global_start-&gt;rate());</span></a>
+<a name="579"><span class="lineNum">     579 </span>            :   }</a>
+<a name="580"><span class="lineNum">     580 </span>            : </a>
+<a name="581"><span class="lineNum">     581 </span><span class="lineNoCov">          0 :   StripImportContext ctx{bmain, scene, params, scene-&gt;frames_per_second()};</span></a>
+<a name="582"><span class="lineNum">     582 </span><span class="lineNoCov">          0 :   const int origin = global_start ? to_frames(ctx, *global_start) : scene-&gt;r.sfra;</span></a>
+<a name="583"><span class="lineNum">     583 </span><span class="lineNoCov">          0 :   const int duration = to_frames(ctx, timeline-&gt;duration());</span></a>
+<a name="584"><span class="lineNum">     584 </span><span class="lineNoCov">          0 :   scene-&gt;r.sfra = origin;</span></a>
+<a name="585"><span class="lineNum">     585 </span><span class="lineNoCov">          0 :   scene-&gt;r.efra = origin + std::max(duration - 1, 0);</span></a>
+<a name="586"><span class="lineNum">     586 </span>            : </a>
+<a name="587"><span class="lineNum">     587 </span><span class="lineNoCov">          0 :   import_stack(ctx, *timeline-&gt;tracks(), scene-&gt;ed-&gt;seqbase, scene-&gt;ed-&gt;channels, origin);</span></a>
+<a name="588"><span class="lineNum">     588 </span><span class="lineNoCov">          0 :   add_pending_effects(ctx);</span></a>
+<a name="589"><span class="lineNum">     589 </span><span class="lineNoCov">          0 :   for (auto &amp;[strip, otio_object] : ctx.strip_metadata) {</span></a>
+<a name="590"><span class="lineNum">     590 </span><span class="lineNoCov">          0 :     PointerRNA ptr = RNA_pointer_create_discrete(&amp;scene-&gt;id, RNA_Strip, strip);</span></a>
+<a name="591"><span class="lineNum">     591 </span><span class="lineNoCov">          0 :     rna_from_dictionary(</span></a>
+<a name="592"><span class="lineNum">     592 </span><span class="lineNoCov">          0 :         bmain, scene-&gt;ed, resolve_strip_properties(*scene, *strip, *otio_object), ptr);</span></a>
+<a name="593"><span class="lineNum">     593 </span><span class="lineNoCov">          0 :     rna_from_dictionary(bmain, scene-&gt;ed, kdenlive_strip_properties(*otio_object), ptr);</span></a>
+<a name="594"><span class="lineNum">     594 </span><span class="lineNoCov">          0 :     if (const AnyDictionary *metadata = strip_metadata(*otio_object)) {</span></a>
+<a name="595"><span class="lineNum">     595 </span><span class="lineNoCov">          0 :       rna_from_dictionary(bmain, scene-&gt;ed, *metadata, ptr);</span></a>
+<a name="596"><span class="lineNum">     596 </span>            :     }</a>
+<a name="597"><span class="lineNum">     597 </span><span class="lineNoCov">          0 :     store_foreign_metadata(*otio_object, strip-&gt;prop);</span></a>
+<a name="598"><span class="lineNum">     598 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="599"><span class="lineNum">     599 </span><span class="lineNoCov">          0 :   resolve_connect_strips(ctx.strip_metadata);</span></a>
+<a name="600"><span class="lineNum">     600 </span><span class="lineNoCov">          0 :   import_markers(ctx, *timeline-&gt;tracks(), origin);</span></a>
+<a name="601"><span class="lineNum">     601 </span><span class="lineNoCov">          0 :   store_foreign_metadata(*timeline, scene-&gt;id.properties);</span></a>
+<a name="602"><span class="lineNum">     602 </span>            : </a>
+<a name="603"><span class="lineNum">     603 </span><span class="lineNoCov">          0 :   DEG_relations_tag_update(bmain);</span></a>
+<a name="604"><span class="lineNum">     604 </span><span class="lineNoCov">          0 :   DEG_id_tag_update(&amp;scene-&gt;id,</span></a>
+<a name="605"><span class="lineNum">     605 </span>            :                     ID_RECALC_AUDIO_FPS | ID_RECALC_SEQUENCER_STRIPS | ID_RECALC_ANIMATION);</a>
+<a name="606"><span class="lineNum">     606 </span><span class="lineNoCov">          0 :   return scene;</span></a>
+<a name="607"><span class="lineNum">     607 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="608"><span class="lineNum">     608 </span>            : </a>
+<a name="609"><span class="lineNum">     609 </span>            : }  // namespace blender::io::otio</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

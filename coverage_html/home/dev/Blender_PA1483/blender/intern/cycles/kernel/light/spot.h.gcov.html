@@ -1,0 +1,398 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - /home/dev/Blender_PA1483/blender/intern/cycles/kernel/light/spot.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../../../index.html">top level</a> - <a href="index.html">home/dev/Blender_PA1483/blender/intern/cycles/kernel/light</a> - spot.h<span style="font-size: 80%;"> (source / <a href="spot.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">95</td>
+            <td class="headerCovTableEntry">117</td>
+            <td class="headerCovTableEntryMed">81.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2011-2022 Blender Foundation</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: Apache-2.0 */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : #pragma once</a>
+<a name="6"><span class="lineNum">       6 </span>            : </a>
+<a name="7"><span class="lineNum">       7 </span>            : #include &quot;kernel/light/common.h&quot;</a>
+<a name="8"><span class="lineNum">       8 </span>            : #include &quot;kernel/light/point.h&quot;</a>
+<a name="9"><span class="lineNum">       9 </span>            : </a>
+<a name="10"><span class="lineNum">      10 </span>            : #include &quot;util/math_fast.h&quot;</a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &quot;util/math_intersect.h&quot;</a>
+<a name="12"><span class="lineNum">      12 </span>            : </a>
+<a name="13"><span class="lineNum">      13 </span>            : CCL_NAMESPACE_BEGIN</a>
+<a name="14"><span class="lineNum">      14 </span>            : </a>
+<a name="15"><span class="lineNum">      15 </span>            : /* Transform vector to spot light's local coordinate system. */</a>
+<a name="16"><span class="lineNum">      16 </span><span class="lineCov">   13500159 : ccl_device float3 spot_light_to_local(KernelGlobals kg,</span></a>
+<a name="17"><span class="lineNum">      17 </span>            :                                       const ccl_global KernelLight *klight,</a>
+<a name="18"><span class="lineNum">      18 </span>            :                                       const float3 ray)</a>
+<a name="19"><span class="lineNum">      19 </span>            : {</a>
+<a name="20"><span class="lineNum">      20 </span>            :   const Transform itfm = lamp_get_inverse_transform(kg, klight);</a>
+<a name="21"><span class="lineNum">      21 </span><span class="lineCov">   13644792 :   float3 transformed_ray = safe_normalize(transform_direction(&amp;itfm, ray));</span></a>
+<a name="22"><span class="lineNum">      22 </span><span class="lineCov">   13644792 :   transformed_ray.z = -transformed_ray.z;</span></a>
+<a name="23"><span class="lineNum">      23 </span>            : </a>
+<a name="24"><span class="lineNum">      24 </span><span class="lineCov">   13644792 :   return transformed_ray;</span></a>
+<a name="25"><span class="lineNum">      25 </span>            : }</a>
+<a name="26"><span class="lineNum">      26 </span>            : </a>
+<a name="27"><span class="lineNum">      27 </span>            : /* Compute spot light attenuation of a ray given in local coordinate system. */</a>
+<a name="28"><span class="lineNum">      28 </span><span class="lineCov">   10656892 : ccl_device float spot_light_attenuation(const ccl_global KernelSpotLight *spot, const float3 ray)</span></a>
+<a name="29"><span class="lineNum">      29 </span>            : {</a>
+<a name="30"><span class="lineNum">      30 </span><span class="lineCov">   21461945 :   return smoothstepf((ray.z - spot-&gt;cos_half_spot_angle) * spot-&gt;spot_smooth);</span></a>
+<a name="31"><span class="lineNum">      31 </span>            : }</a>
+<a name="32"><span class="lineNum">      32 </span>            : </a>
+<a name="33"><span class="lineNum">      33 </span><span class="lineCov">    3025228 : ccl_device float2 spot_light_uv(const float3 ray, const float half_cot_half_spot_angle)</span></a>
+<a name="34"><span class="lineNum">      34 </span>            : {</a>
+<a name="35"><span class="lineNum">      35 </span>            :   /* Ensures that the spot light projects the full image regardless of the spot angle. */</a>
+<a name="36"><span class="lineNum">      36 </span><span class="lineCov">    3025228 :   const float factor = half_cot_half_spot_angle / ray.z;</span></a>
+<a name="37"><span class="lineNum">      37 </span>            : </a>
+<a name="38"><span class="lineNum">      38 </span>            :   /* NOTE: Return barycentric coordinates in the same notation as Embree and OptiX. */</a>
+<a name="39"><span class="lineNum">      39 </span><span class="lineCov">    3025228 :   return make_float2(ray.y * factor + 0.5f, -(ray.x + ray.y) * factor);</span></a>
+<a name="40"><span class="lineNum">      40 </span>            : }</a>
+<a name="41"><span class="lineNum">      41 </span>            : </a>
+<a name="42"><span class="lineNum">      42 </span>            : template&lt;bool in_volume_segment&gt;</a>
+<a name="43"><span class="lineNum">      43 </span>            : ccl_device_inline bool spot_light_sample(KernelGlobals kg,</a>
+<a name="44"><span class="lineNum">      44 </span>            :                                          const ccl_global KernelLight *klight,</a>
+<a name="45"><span class="lineNum">      45 </span>            :                                          const float2 rand,</a>
+<a name="46"><span class="lineNum">      46 </span>            :                                          const float3 P,</a>
+<a name="47"><span class="lineNum">      47 </span>            :                                          const float3 N,</a>
+<a name="48"><span class="lineNum">      48 </span>            :                                          const int runtime_flags,</a>
+<a name="49"><span class="lineNum">      49 </span>            :                                          ccl_private LightSample *ls)</a>
+<a name="50"><span class="lineNum">      50 </span>            : {</a>
+<a name="51"><span class="lineNum">      51 </span><span class="lineCov">   10637216 :   const float r_sq = sqr(klight-&gt;spot.radius);</span></a>
+<a name="52"><span class="lineNum">      52 </span>            : </a>
+<a name="53"><span class="lineNum">      53 </span><span class="lineCov">   21274432 :   float3 lightN = P - klight-&gt;co;</span></a>
+<a name="54"><span class="lineNum">      54 </span><span class="lineCov">   10637216 :   const float d_sq = len_squared(lightN);</span></a>
+<a name="55"><span class="lineNum">      55 </span><span class="lineCov">   10637216 :   const float d = sqrtf(d_sq);</span></a>
+<a name="56"><span class="lineNum">      56 </span>            :   lightN /= d;</a>
+<a name="57"><span class="lineNum">      57 </span>            : </a>
+<a name="58"><span class="lineNum">      58 </span><span class="lineCov">   10637216 :   ls-&gt;eval_fac = klight-&gt;spot.eval_fac;</span></a>
+<a name="59"><span class="lineNum">      59 </span>            : </a>
+<a name="60"><span class="lineNum">      60 </span><span class="lineCov">   10637216 :   if (klight-&gt;spot.is_sphere) {</span></a>
+<a name="61"><span class="lineNum">      61 </span>            :     /* Spherical light geometry. */</a>
+<a name="62"><span class="lineNum">      62 </span>            :     float cos_theta;</a>
+<a name="63"><span class="lineNum">      63 </span><span class="lineCov">    2396511 :     ls-&gt;t = FLT_MAX;</span></a>
+<a name="64"><span class="lineNum">      64 </span><span class="lineCov">    2396511 :     if (d_sq &gt; r_sq) {</span></a>
+<a name="65"><span class="lineNum">      65 </span>            :       /* Outside sphere. */</a>
+<a name="66"><span class="lineNum">      66 </span><span class="lineCov">    2375351 :       const float one_minus_cos_half_spot_spread = 1.0f - klight-&gt;spot.cos_half_larger_spread;</span></a>
+<a name="67"><span class="lineNum">      67 </span><span class="lineCov">    3389021 :       const float one_minus_cos_half_angle = sin_sqr_to_one_minus_cos(r_sq / d_sq);</span></a>
+<a name="68"><span class="lineNum">      68 </span>            : </a>
+<a name="69"><span class="lineNum">      69 </span><span class="lineCov">    1361681 :       if (in_volume_segment || one_minus_cos_half_angle &lt; one_minus_cos_half_spot_spread) {</span></a>
+<a name="70"><span class="lineNum">      70 </span>            :         /* Sample visible part of the sphere. */</a>
+<a name="71"><span class="lineNum">      71 </span><span class="lineCov">    7026546 :         ls-&gt;D = sample_uniform_cone(-lightN, one_minus_cos_half_angle, rand, &amp;cos_theta, &amp;ls-&gt;pdf);</span></a>
+<a name="72"><span class="lineNum">      72 </span>            :       }</a>
+<a name="73"><span class="lineNum">      73 </span>            :       else {</a>
+<a name="74"><span class="lineNum">      74 </span>            :         /* Sample spread cone. */</a>
+<a name="75"><span class="lineNum">      75 </span><span class="lineNoCov">          0 :         ls-&gt;D = sample_uniform_cone(</span></a>
+<a name="76"><span class="lineNum">      76 </span><span class="lineCov">      61966 :             -klight-&gt;spot.dir, one_minus_cos_half_spot_spread, rand, &amp;cos_theta, &amp;ls-&gt;pdf);</span></a>
+<a name="77"><span class="lineNum">      77 </span>            : </a>
+<a name="78"><span class="lineNum">      78 </span><span class="lineCov">      20648 :         if (!ray_sphere_intersect(</span></a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineCov">      20648 :                 P, ls-&gt;D, 0.0f, FLT_MAX, klight-&gt;co, klight-&gt;spot.radius, &amp;ls-&gt;P, &amp;ls-&gt;t))</span></a>
+<a name="80"><span class="lineNum">      80 </span>            :         {</a>
+<a name="81"><span class="lineNum">      81 </span>            :           /* Sampled direction does not intersect with the light. */</a>
+<a name="82"><span class="lineNum">      82 </span><span class="lineCov">     370201 :           return false;</span></a>
+<a name="83"><span class="lineNum">      83 </span>            :         }</a>
+<a name="84"><span class="lineNum">      84 </span>            :       }</a>
+<a name="85"><span class="lineNum">      85 </span>            :     }</a>
+<a name="86"><span class="lineNum">      86 </span>            :     else {</a>
+<a name="87"><span class="lineNum">      87 </span>            :       /* Inside sphere. */</a>
+<a name="88"><span class="lineNum">      88 </span><span class="lineCov">      21160 :       const bool has_transmission = (runtime_flags &amp; SR_BSDF_HAS_TRANSMISSION);</span></a>
+<a name="89"><span class="lineNum">      89 </span><span class="lineCov">      21160 :       if (has_transmission) {</span></a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineCov">      24674 :         ls-&gt;D = sample_uniform_sphere(rand);</span></a>
+<a name="91"><span class="lineNum">      91 </span><span class="lineCov">      24676 :         ls-&gt;pdf = M_1_2PI_F * 0.5f;</span></a>
+<a name="92"><span class="lineNum">      92 </span>            :       }</a>
+<a name="93"><span class="lineNum">      93 </span>            :       else {</a>
+<a name="94"><span class="lineNum">      94 </span><span class="lineNoCov">          0 :         sample_cos_hemisphere(N, rand, &amp;ls-&gt;D, &amp;ls-&gt;pdf);</span></a>
+<a name="95"><span class="lineNum">      95 </span>            :       }</a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineCov">      24676 :       cos_theta = -dot(ls-&gt;D, lightN);</span></a>
+<a name="97"><span class="lineNum">      97 </span>            :     }</a>
+<a name="98"><span class="lineNum">      98 </span>            : </a>
+<a name="99"><span class="lineNum">      99 </span>            :     /* Attenuation. */</a>
+<a name="100"><span class="lineNum">     100 </span><span class="lineCov">    4731464 :     const float3 local_ray = spot_light_to_local(kg, klight, -ls-&gt;D);</span></a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineCov">    2377391 :     if (d_sq &gt; r_sq) {</span></a>
+<a name="102"><span class="lineNum">     102 </span><span class="lineCov">    2355568 :       ls-&gt;eval_fac *= spot_light_attenuation(&amp;klight-&gt;spot, local_ray);</span></a>
+<a name="103"><span class="lineNum">     103 </span>            :     }</a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineCov">    1346519 :     if (!in_volume_segment &amp;&amp; ls-&gt;eval_fac == 0.0f) {</span></a>
+<a name="105"><span class="lineNum">     105 </span><span class="lineCov">     355915 :       return false;</span></a>
+<a name="106"><span class="lineNum">     106 </span>            :     }</a>
+<a name="107"><span class="lineNum">     107 </span>            : </a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineCov">    2006070 :     if (ls-&gt;t == FLT_MAX) {</span></a>
+<a name="109"><span class="lineNum">     109 </span>            :       /* Law of cosines. */</a>
+<a name="110"><span class="lineNum">     110 </span><span class="lineCov">    2016780 :       ls-&gt;t = d * cos_theta -</span></a>
+<a name="111"><span class="lineNum">     111 </span><span class="lineCov">    6050340 :               copysignf(safe_sqrtf(r_sq - d_sq + d_sq * sqr(cos_theta)), d_sq - r_sq);</span></a>
+<a name="112"><span class="lineNum">     112 </span><span class="lineCov">    8067120 :       ls-&gt;P = P + ls-&gt;D * ls-&gt;t;</span></a>
+<a name="113"><span class="lineNum">     113 </span>            :     }</a>
+<a name="114"><span class="lineNum">     114 </span>            :     else {</a>
+<a name="115"><span class="lineNum">     115 </span>            :       /* Already computed when sampling the spread cone. */</a>
+<a name="116"><span class="lineNum">     116 </span>            :     }</a>
+<a name="117"><span class="lineNum">     117 </span>            : </a>
+<a name="118"><span class="lineNum">     118 </span>            :     /* Remap sampled point onto the sphere to prevent precision issues with small radius. */</a>
+<a name="119"><span class="lineNum">     119 </span><span class="lineCov">    6018210 :     ls-&gt;Ng = normalize(ls-&gt;P - klight-&gt;co);</span></a>
+<a name="120"><span class="lineNum">     120 </span><span class="lineCov">    8024280 :     ls-&gt;P = ls-&gt;Ng * klight-&gt;spot.radius + klight-&gt;co;</span></a>
+<a name="121"><span class="lineNum">     121 </span>            :   }</a>
+<a name="122"><span class="lineNum">     122 </span>            :   else {</a>
+<a name="123"><span class="lineNum">     123 </span>            :     /* Point light with ad-hoc radius based on oriented disk. */</a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineCov">   16481410 :     ls-&gt;P = klight-&gt;co;</span></a>
+<a name="125"><span class="lineNum">     125 </span><span class="lineCov">    8240705 :     if (r_sq &gt; 0.0f) {</span></a>
+<a name="126"><span class="lineNum">     126 </span><span class="lineCov">   14852477 :       ls-&gt;P += disk_light_sample(lightN, rand) * klight-&gt;spot.radius;</span></a>
+<a name="127"><span class="lineNum">     127 </span>            :     }</a>
+<a name="128"><span class="lineNum">     128 </span>            : </a>
+<a name="129"><span class="lineNum">     129 </span><span class="lineCov">   24686640 :     ls-&gt;D = safe_normalize_len(ls-&gt;P - P, &amp;ls-&gt;t);</span></a>
+<a name="130"><span class="lineNum">     130 </span><span class="lineCov">   16457760 :     ls-&gt;Ng = -ls-&gt;D;</span></a>
+<a name="131"><span class="lineNum">     131 </span>            : </a>
+<a name="132"><span class="lineNum">     132 </span>            :     /* Attenuation. */</a>
+<a name="133"><span class="lineNum">     133 </span><span class="lineCov">   16457760 :     const float3 local_ray = spot_light_to_local(kg, klight, -ls-&gt;D);</span></a>
+<a name="134"><span class="lineNum">     134 </span><span class="lineCov">    8376578 :     ls-&gt;eval_fac *= spot_light_attenuation(&amp;klight-&gt;spot, local_ray);</span></a>
+<a name="135"><span class="lineNum">     135 </span><span class="lineCov">    7426493 :     if (!in_volume_segment &amp;&amp; ls-&gt;eval_fac == 0.0f) {</span></a>
+<a name="136"><span class="lineNum">     136 </span><span class="lineCov">    1138877 :       return false;</span></a>
+<a name="137"><span class="lineNum">     137 </span>            :     }</a>
+<a name="138"><span class="lineNum">     138 </span>            : </a>
+<a name="139"><span class="lineNum">     139 </span>            :     /* PDF. */</a>
+<a name="140"><span class="lineNum">     140 </span><span class="lineCov">    7164675 :     const float invarea = (r_sq &gt; 0.0f) ? 1.0f / (r_sq * M_PI_F) : 1.0f;</span></a>
+<a name="141"><span class="lineNum">     141 </span><span class="lineCov">   14329350 :     ls-&gt;pdf = invarea * light_pdf_area_to_solid_angle(lightN, -ls-&gt;D, ls-&gt;t);</span></a>
+<a name="142"><span class="lineNum">     142 </span>            :   }</a>
+<a name="143"><span class="lineNum">     143 </span>            : </a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineCov">    9224276 :   return true;</span></a>
+<a name="145"><span class="lineNum">     145 </span>            : }</a>
+<a name="146"><span class="lineNum">     146 </span>            : </a>
+<a name="147"><span class="lineNum">     147 </span>            : ccl_device_forceinline float spot_light_pdf(const ccl_global KernelSpotLight *spot,</a>
+<a name="148"><span class="lineNum">     148 </span>            :                                             const float d_sq,</a>
+<a name="149"><span class="lineNum">     149 </span>            :                                             const float r_sq,</a>
+<a name="150"><span class="lineNum">     150 </span>            :                                             const float3 N,</a>
+<a name="151"><span class="lineNum">     151 </span>            :                                             const float3 D,</a>
+<a name="152"><span class="lineNum">     152 </span>            :                                             const uint32_t path_flag)</a>
+<a name="153"><span class="lineNum">     153 </span>            : {</a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineCov">       2953 :   if (d_sq &gt; r_sq) {</span></a>
+<a name="155"><span class="lineNum">     155 </span>            :     return M_1_2PI_F /</a>
+<a name="156"><span class="lineNum">     156 </span><span class="lineCov">       7593 :            min(sin_sqr_to_one_minus_cos(r_sq / d_sq), 1.0f - spot-&gt;cos_half_larger_spread);</span></a>
+<a name="157"><span class="lineNum">     157 </span>            :   }</a>
+<a name="158"><span class="lineNum">     158 </span>            : </a>
+<a name="159"><span class="lineNum">     159 </span><span class="lineCov">        422 :   const bool has_transmission = (path_flag &amp; PATH_RAY_MIS_HAD_TRANSMISSION);</span></a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineCov">        422 :   return has_transmission ? M_1_2PI_F * 0.5f : pdf_cos_hemisphere(N, D);</span></a>
+<a name="161"><span class="lineNum">     161 </span>            : }</a>
+<a name="162"><span class="lineNum">     162 </span>            : </a>
+<a name="163"><span class="lineNum">     163 </span>            : ccl_device_forceinline void spot_light_mnee_sample_update(KernelGlobals kg,</a>
+<a name="164"><span class="lineNum">     164 </span>            :                                                           const ccl_global KernelLight *klight,</a>
+<a name="165"><span class="lineNum">     165 </span>            :                                                           ccl_private LightSample *ls,</a>
+<a name="166"><span class="lineNum">     166 </span>            :                                                           const float3 P,</a>
+<a name="167"><span class="lineNum">     167 </span>            :                                                           const float3 N,</a>
+<a name="168"><span class="lineNum">     168 </span>            :                                                           const uint32_t path_flag)</a>
+<a name="169"><span class="lineNum">     169 </span>            : {</a>
+<a name="170"><span class="lineNum">     170 </span><span class="lineNoCov">          0 :   ls-&gt;D = safe_normalize_len(ls-&gt;P - P, &amp;ls-&gt;t);</span></a>
+<a name="171"><span class="lineNum">     171 </span>            : </a>
+<a name="172"><span class="lineNum">     172 </span><span class="lineNoCov">          0 :   ls-&gt;eval_fac = klight-&gt;spot.eval_fac;</span></a>
+<a name="173"><span class="lineNum">     173 </span>            : </a>
+<a name="174"><span class="lineNum">     174 </span><span class="lineNoCov">          0 :   const float radius = klight-&gt;spot.radius;</span></a>
+<a name="175"><span class="lineNum">     175 </span><span class="lineNoCov">          0 :   bool use_attenuation = true;</span></a>
+<a name="176"><span class="lineNum">     176 </span>            : </a>
+<a name="177"><span class="lineNum">     177 </span><span class="lineNoCov">          0 :   if (klight-&gt;spot.is_sphere) {</span></a>
+<a name="178"><span class="lineNum">     178 </span><span class="lineNoCov">          0 :     const float d_sq = len_squared(P - klight-&gt;co);</span></a>
+<a name="179"><span class="lineNum">     179 </span><span class="lineNoCov">          0 :     const float r_sq = sqr(radius);</span></a>
+<a name="180"><span class="lineNum">     180 </span><span class="lineNoCov">          0 :     const float t_sq = sqr(ls-&gt;t);</span></a>
+<a name="181"><span class="lineNum">     181 </span>            : </a>
+<a name="182"><span class="lineNum">     182 </span>            :     /* NOTE : preserve pdf in area measure. */</a>
+<a name="183"><span class="lineNum">     183 </span><span class="lineNoCov">          0 :     const float jacobian_solid_angle_to_area = 0.5f * fabsf(d_sq - r_sq - t_sq) /</span></a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineNoCov">          0 :                                                (radius * ls-&gt;t * t_sq);</span></a>
+<a name="185"><span class="lineNum">     185 </span><span class="lineNoCov">          0 :     ls-&gt;pdf = spot_light_pdf(&amp;klight-&gt;spot, d_sq, r_sq, N, ls-&gt;D, path_flag) *</span></a>
+<a name="186"><span class="lineNum">     186 </span>            :               jacobian_solid_angle_to_area;</a>
+<a name="187"><span class="lineNum">     187 </span>            : </a>
+<a name="188"><span class="lineNum">     188 </span><span class="lineNoCov">          0 :     ls-&gt;Ng = normalize(ls-&gt;P - klight-&gt;co);</span></a>
+<a name="189"><span class="lineNum">     189 </span>            : </a>
+<a name="190"><span class="lineNum">     190 </span><span class="lineNoCov">          0 :     use_attenuation = (d_sq &gt; r_sq);</span></a>
+<a name="191"><span class="lineNum">     191 </span>            :   }</a>
+<a name="192"><span class="lineNum">     192 </span>            :   else {</a>
+<a name="193"><span class="lineNum">     193 </span>            :     /* NOTE : preserve pdf in area measure. */</a>
+<a name="194"><span class="lineNum">     194 </span><span class="lineNoCov">          0 :     ls-&gt;pdf = ls-&gt;eval_fac * 4.0f * M_PI_F;</span></a>
+<a name="195"><span class="lineNum">     195 </span>            : </a>
+<a name="196"><span class="lineNum">     196 </span><span class="lineNoCov">          0 :     ls-&gt;Ng = -ls-&gt;D;</span></a>
+<a name="197"><span class="lineNum">     197 </span>            :   }</a>
+<a name="198"><span class="lineNum">     198 </span>            : </a>
+<a name="199"><span class="lineNum">     199 </span>            :   /* Attenuation. */</a>
+<a name="200"><span class="lineNum">     200 </span><span class="lineNoCov">          0 :   const float3 local_ray = spot_light_to_local(kg, klight, -ls-&gt;D);</span></a>
+<a name="201"><span class="lineNum">     201 </span><span class="lineNoCov">          0 :   if (use_attenuation) {</span></a>
+<a name="202"><span class="lineNum">     202 </span><span class="lineNoCov">          0 :     ls-&gt;eval_fac *= spot_light_attenuation(&amp;klight-&gt;spot, local_ray);</span></a>
+<a name="203"><span class="lineNum">     203 </span>            :   }</a>
+<a name="204"><span class="lineNum">     204 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="205"><span class="lineNum">     205 </span>            : </a>
+<a name="206"><span class="lineNum">     206 </span>            : ccl_device_inline bool spot_light_intersect(const ccl_global KernelLight *klight,</a>
+<a name="207"><span class="lineNum">     207 </span>            :                                             const ccl_private Ray *ccl_restrict ray,</a>
+<a name="208"><span class="lineNum">     208 </span>            :                                             ccl_private float *t)</a>
+<a name="209"><span class="lineNum">     209 </span>            : {</a>
+<a name="210"><span class="lineNum">     210 </span>            :   /* One sided. */</a>
+<a name="211"><span class="lineNum">     211 </span><span class="lineCov">   50214237 :   if (dot(ray-&gt;D, ray-&gt;P - klight-&gt;co) &gt;= 0.0f) {</span></a>
+<a name="212"><span class="lineNum">     212 </span><span class="lineCov">    7787617 :     return false;</span></a>
+<a name="213"><span class="lineNum">     213 </span>            :   }</a>
+<a name="214"><span class="lineNum">     214 </span>            : </a>
+<a name="215"><span class="lineNum">     215 </span><span class="lineCov">   10884974 :   return point_light_intersect(klight, ray, t);</span></a>
+<a name="216"><span class="lineNum">     216 </span>            : }</a>
+<a name="217"><span class="lineNum">     217 </span>            : </a>
+<a name="218"><span class="lineNum">     218 </span>            : ccl_device_inline LightEval spot_light_eval_from_intersection(KernelGlobals kg,</a>
+<a name="219"><span class="lineNum">     219 </span>            :                                                               const ccl_global KernelLight *klight,</a>
+<a name="220"><span class="lineNum">     220 </span>            :                                                               const float3 ray_P,</a>
+<a name="221"><span class="lineNum">     221 </span>            :                                                               const float3 ray_D,</a>
+<a name="222"><span class="lineNum">     222 </span>            :                                                               const float t,</a>
+<a name="223"><span class="lineNum">     223 </span>            :                                                               const float3 N,</a>
+<a name="224"><span class="lineNum">     224 </span>            :                                                               const uint32_t path_flag)</a>
+<a name="225"><span class="lineNum">     225 </span>            : {</a>
+<a name="226"><span class="lineNum">     226 </span><span class="lineCov">      59353 :   const float r_sq = sqr(klight-&gt;spot.radius);</span></a>
+<a name="227"><span class="lineNum">     227 </span><span class="lineCov">      59353 :   const float d_sq = len_squared(ray_P - klight-&gt;co);</span></a>
+<a name="228"><span class="lineNum">     228 </span>            : </a>
+<a name="229"><span class="lineNum">     229 </span><span class="lineCov">      59353 :   LightEval light_eval = {klight-&gt;spot.eval_fac, 0.0f};</span></a>
+<a name="230"><span class="lineNum">     230 </span>            : </a>
+<a name="231"><span class="lineNum">     231 </span><span class="lineCov">      59353 :   if (klight-&gt;spot.is_sphere) {</span></a>
+<a name="232"><span class="lineNum">     232 </span><span class="lineCov">       5906 :     light_eval.pdf = spot_light_pdf(&amp;klight-&gt;spot, d_sq, r_sq, N, ray_D, path_flag);</span></a>
+<a name="233"><span class="lineNum">     233 </span>            :   }</a>
+<a name="234"><span class="lineNum">     234 </span>            :   else {</a>
+<a name="235"><span class="lineNum">     235 </span><span class="lineCov">      56400 :     if (t != FLT_MAX) {</span></a>
+<a name="236"><span class="lineNum">     236 </span><span class="lineCov">      56402 :       const float3 lightN = normalize(ray_P - klight-&gt;co);</span></a>
+<a name="237"><span class="lineNum">     237 </span><span class="lineCov">      56402 :       const float invarea = (r_sq &gt; 0.0f) ? 1.0f / (r_sq * M_PI_F) : 1.0f;</span></a>
+<a name="238"><span class="lineNum">     238 </span><span class="lineCov">      56402 :       light_eval.pdf = invarea * light_pdf_area_to_solid_angle(lightN, -ray_D, t);</span></a>
+<a name="239"><span class="lineNum">     239 </span>            :     }</a>
+<a name="240"><span class="lineNum">     240 </span>            :   }</a>
+<a name="241"><span class="lineNum">     241 </span>            : </a>
+<a name="242"><span class="lineNum">     242 </span>            :   /* Attenuation. */</a>
+<a name="243"><span class="lineNum">     243 </span><span class="lineCov">      59347 :   const float3 local_ray = spot_light_to_local(kg, klight, -ray_D);</span></a>
+<a name="244"><span class="lineNum">     244 </span><span class="lineCov">      59361 :   if (!klight-&gt;spot.is_sphere || d_sq &gt; r_sq) {</span></a>
+<a name="245"><span class="lineNum">     245 </span><span class="lineCov">      58910 :     light_eval.eval_fac *= spot_light_attenuation(&amp;klight-&gt;spot, local_ray);</span></a>
+<a name="246"><span class="lineNum">     246 </span>            :   }</a>
+<a name="247"><span class="lineNum">     247 </span>            : </a>
+<a name="248"><span class="lineNum">     248 </span><span class="lineCov">      59366 :   return light_eval;</span></a>
+<a name="249"><span class="lineNum">     249 </span>            : }</a>
+<a name="250"><span class="lineNum">     250 </span>            : </a>
+<a name="251"><span class="lineNum">     251 </span>            : /* Find the ray segment lit by the spot light. */</a>
+<a name="252"><span class="lineNum">     252 </span>            : ccl_device_inline bool spot_light_valid_ray_segment(KernelGlobals kg,</a>
+<a name="253"><span class="lineNum">     253 </span>            :                                                     const ccl_global KernelLight *klight,</a>
+<a name="254"><span class="lineNum">     254 </span>            :                                                     const float3 P,</a>
+<a name="255"><span class="lineNum">     255 </span>            :                                                     const float3 D,</a>
+<a name="256"><span class="lineNum">     256 </span>            :                                                     ccl_private Interval&lt;float&gt; *t_range)</a>
+<a name="257"><span class="lineNum">     257 </span>            : {</a>
+<a name="258"><span class="lineNum">     258 </span>            :   /* Convert to local space of the spot light. */</a>
+<a name="259"><span class="lineNum">     259 </span>            :   const Transform itfm = lamp_get_inverse_transform(kg, klight);</a>
+<a name="260"><span class="lineNum">     260 </span><span class="lineCov">    3812012 :   float3 local_P = P + klight-&gt;spot.dir * klight-&gt;spot.ray_segment_dp;</span></a>
+<a name="261"><span class="lineNum">     261 </span><span class="lineCov">    3812012 :   local_P = transform_point(&amp;itfm, local_P);</span></a>
+<a name="262"><span class="lineNum">     262 </span><span class="lineCov">    1906006 :   const float3 local_D = transform_direction(&amp;itfm, D);</span></a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineCov">    1906006 :   const float3 axis = make_float3(0.0f, 0.0f, -1.0f);</span></a>
+<a name="264"><span class="lineNum">     264 </span>            : </a>
+<a name="265"><span class="lineNum">     265 </span>            :   /* Intersect the ray with the smallest enclosing cone of the light spread. */</a>
+<a name="266"><span class="lineNum">     266 </span><span class="lineCov">    1906006 :   return ray_cone_intersect(</span></a>
+<a name="267"><span class="lineNum">     267 </span><span class="lineCov">    5718018 :       axis, local_P, local_D, sqr(klight-&gt;spot.cos_half_spot_angle), t_range);</span></a>
+<a name="268"><span class="lineNum">     268 </span>            : }</a>
+<a name="269"><span class="lineNum">     269 </span>            : </a>
+<a name="270"><span class="lineNum">     270 </span>            : template&lt;bool in_volume_segment&gt;</a>
+<a name="271"><span class="lineNum">     271 </span>            : ccl_device_forceinline bool spot_light_tree_parameters(const ccl_global KernelLight *klight,</a>
+<a name="272"><span class="lineNum">     272 </span>            :                                                        const float3 centroid,</a>
+<a name="273"><span class="lineNum">     273 </span>            :                                                        const float3 P,</a>
+<a name="274"><span class="lineNum">     274 </span>            :                                                        const ccl_private KernelBoundingCone &amp;bcone,</a>
+<a name="275"><span class="lineNum">     275 </span>            :                                                        ccl_private float &amp;cos_theta_u,</a>
+<a name="276"><span class="lineNum">     276 </span>            :                                                        ccl_private float2 &amp;distance,</a>
+<a name="277"><span class="lineNum">     277 </span>            :                                                        ccl_private float3 &amp;point_to_centroid,</a>
+<a name="278"><span class="lineNum">     278 </span>            :                                                        ccl_private float &amp;energy)</a>
+<a name="279"><span class="lineNum">     279 </span>            : {</a>
+<a name="280"><span class="lineNum">     280 </span>            :   float min_distance;</a>
+<a name="281"><span class="lineNum">     281 </span><span class="lineCov">   38480600 :   point_to_centroid = safe_normalize_len(centroid - P, &amp;min_distance);</span></a>
+<a name="282"><span class="lineNum">     282 </span><span class="lineCov">   19240300 :   distance = min_distance * one_float2();</span></a>
+<a name="283"><span class="lineNum">     283 </span>            : </a>
+<a name="284"><span class="lineNum">     284 </span><span class="lineCov">   19240300 :   const float radius = klight-&gt;spot.radius;</span></a>
+<a name="285"><span class="lineNum">     285 </span>            : </a>
+<a name="286"><span class="lineNum">     286 </span><span class="lineCov">   19240300 :   if (klight-&gt;spot.is_sphere) {</span></a>
+<a name="287"><span class="lineNum">     287 </span><span class="lineCov">   10958291 :     cos_theta_u = (min_distance &gt; radius) ? cos_from_sin(radius / min_distance) : -1.0f;</span></a>
+<a name="288"><span class="lineNum">     288 </span>            : </a>
+<a name="289"><span class="lineNum">     289 </span>            :     if (in_volume_segment) {</a>
+<a name="290"><span class="lineNum">     290 </span><span class="lineCov">    3868686 :       return true;</span></a>
+<a name="291"><span class="lineNum">     291 </span>            :     }</a>
+<a name="292"><span class="lineNum">     292 </span>            : </a>
+<a name="293"><span class="lineNum">     293 </span><span class="lineCov">    4898782 :     distance = (min_distance &gt; radius) ? min_distance * make_float2(1.0f / cos_theta_u, 1.0f) :</span></a>
+<a name="294"><span class="lineNum">     294 </span><span class="lineNoCov">          0 :                                          one_float2() * radius / M_SQRT2_F;</span></a>
+<a name="295"><span class="lineNum">     295 </span>            :   }</a>
+<a name="296"><span class="lineNum">     296 </span>            :   else {</a>
+<a name="297"><span class="lineNum">     297 </span><span class="lineCov">   13742782 :     const float hypotenuse = sqrtf(sqr(radius) + sqr(min_distance));</span></a>
+<a name="298"><span class="lineNum">     298 </span><span class="lineCov">   11972885 :     cos_theta_u = min_distance / hypotenuse;</span></a>
+<a name="299"><span class="lineNum">     299 </span>            : </a>
+<a name="300"><span class="lineNum">     300 </span>            :     if (in_volume_segment) {</a>
+<a name="301"><span class="lineNum">     301 </span><span class="lineCov">    1769897 :       return true;</span></a>
+<a name="302"><span class="lineNum">     302 </span>            :     }</a>
+<a name="303"><span class="lineNum">     303 </span>            : </a>
+<a name="304"><span class="lineNum">     304 </span><span class="lineCov">   11972885 :     distance.x = hypotenuse;</span></a>
+<a name="305"><span class="lineNum">     305 </span>            :   }</a>
+<a name="306"><span class="lineNum">     306 </span>            : </a>
+<a name="307"><span class="lineNum">     307 </span>            :   /* Apply a similar scaling as in `spot_light_attenuation()` to account for spot blend. */</a>
+<a name="308"><span class="lineNum">     308 </span>            :   {</a>
+<a name="309"><span class="lineNum">     309 </span>            :     /* Minimum angle formed by the emitter axis and the direction to the shading point,</a>
+<a name="310"><span class="lineNum">     310 </span>            :      * cos(theta') in the paper. */</a>
+<a name="311"><span class="lineNum">     311 </span><span class="lineCov">   13576527 :     const float cos_min_outgoing_angle = cosf(</span></a>
+<a name="312"><span class="lineNum">     312 </span><span class="lineCov">   27203434 :         fmaxf(0.0f, fast_acosf(dot(bcone.axis, -point_to_centroid)) - fast_acosf(cos_theta_u)));</span></a>
+<a name="313"><span class="lineNum">     313 </span>            :     /* Use `cos(bcone.theta_e)` instead of `klight-&gt;spot.cos_half_spot_angle` to account for</a>
+<a name="314"><span class="lineNum">     314 </span>            :      * non-uniform scaling. */</a>
+<a name="315"><span class="lineNum">     315 </span><span class="lineCov">   27153225 :     energy *= smoothstepf((cos_min_outgoing_angle - cosf(bcone.theta_e)) *</span></a>
+<a name="316"><span class="lineNum">     316 </span><span class="lineCov">   13576527 :                           klight-&gt;spot.spot_smooth);</span></a>
+<a name="317"><span class="lineNum">     317 </span>            :   }</a>
+<a name="318"><span class="lineNum">     318 </span>            : </a>
+<a name="319"><span class="lineNum">     319 </span><span class="lineCov">   13576698 :   return true;</span></a>
+<a name="320"><span class="lineNum">     320 </span>            : }</a>
+<a name="321"><span class="lineNum">     321 </span>            : </a>
+<a name="322"><span class="lineNum">     322 </span>            : CCL_NAMESPACE_END</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

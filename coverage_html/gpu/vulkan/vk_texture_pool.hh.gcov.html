@@ -1,0 +1,264 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - gpu/vulkan/vk_texture_pool.hh</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">gpu/vulkan</a> - vk_texture_pool.hh<span style="font-size: 80%;"> (source / <a href="vk_texture_pool.hh.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">19</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2025 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup gpu</a>
+<a name="7"><span class="lineNum">       7 </span>            :  */</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #pragma once</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &quot;gpu_texture_pool_private.hh&quot;</a>
+<a name="12"><span class="lineNum">      12 </span>            : </a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;vk_texture.hh&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : </a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &lt;list&gt;</a>
+<a name="16"><span class="lineNum">      16 </span>            : </a>
+<a name="17"><span class="lineNum">      17 </span>            : namespace blender::gpu {</a>
+<a name="18"><span class="lineNum">      18 </span>            : </a>
+<a name="19"><span class="lineNum">      19 </span>            : /* Hashable struct describing a segment of allocated memory.. */</a>
+<a name="20"><span class="lineNum">      20 </span>            : struct VKMemorySegment {</a>
+<a name="21"><span class="lineNum">      21 </span><span class="lineNoCov">          0 :   VkDeviceSize offset;</span></a>
+<a name="22"><span class="lineNum">      22 </span><span class="lineNoCov">          0 :   VkDeviceSize size;</span></a>
+<a name="23"><span class="lineNum">      23 </span>            : </a>
+<a name="24"><span class="lineNum">      24 </span>            :   uint64_t hash() const;</a>
+<a name="25"><span class="lineNum">      25 </span><span class="lineNoCov">          0 :   bool operator==(const VKMemorySegment &amp;) const = default;</span></a>
+<a name="26"><span class="lineNum">      26 </span>            : };</a>
+<a name="27"><span class="lineNum">      27 </span>            : </a>
+<a name="28"><span class="lineNum">      28 </span>            : /* Hashable struct containing key information to identify or create a VkImage handle. */</a>
+<a name="29"><span class="lineNum">      29 </span>            : struct VKImageInfo {</a>
+<a name="30"><span class="lineNum">      30 </span>            :   VkImageCreateInfo create_info;</a>
+<a name="31"><span class="lineNum">      31 </span>            :   VmaAllocation allocation;</a>
+<a name="32"><span class="lineNum">      32 </span>            :   VKMemorySegment segment;</a>
+<a name="33"><span class="lineNum">      33 </span>            : </a>
+<a name="34"><span class="lineNum">      34 </span>            :   uint64_t hash() const;</a>
+<a name="35"><span class="lineNum">      35 </span>            :   bool operator==(const VKImageInfo &amp;) const;</a>
+<a name="36"><span class="lineNum">      36 </span>            : };</a>
+<a name="37"><span class="lineNum">      37 </span>            : </a>
+<a name="38"><span class="lineNum">      38 </span>            : /* Map to VkImage handles bound to segments of specific allocations. */</a>
+<a name="39"><span class="lineNum">      39 </span>            : class VKImageCache {</a>
+<a name="40"><span class="lineNum">      40 </span>            :   /* Unused VkImages are eventually passed to discard pool, unless they are reused. */</a>
+<a name="41"><span class="lineNum">      41 </span>            :   static constexpr int max_unused_cycles_ = 8;</a>
+<a name="42"><span class="lineNum">      42 </span>            : </a>
+<a name="43"><span class="lineNum">      43 </span>            :   struct VKImageHandle {</a>
+<a name="44"><span class="lineNum">      44 </span>            :     VkImage image = VK_NULL_HANDLE;</a>
+<a name="45"><span class="lineNum">      45 </span>            :     int unused_cycles_count = 0;</a>
+<a name="46"><span class="lineNum">      46 </span>            :   };</a>
+<a name="47"><span class="lineNum">      47 </span>            : </a>
+<a name="48"><span class="lineNum">      48 </span>            :   Map&lt;VKImageInfo, VKImageHandle&gt; cache_;</a>
+<a name="49"><span class="lineNum">      49 </span>            : </a>
+<a name="50"><span class="lineNum">      50 </span>            :  public:</a>
+<a name="51"><span class="lineNum">      51 </span>            :   /* Given key information identifying a particular VkImage, get or create it. */</a>
+<a name="52"><span class="lineNum">      52 </span>            :   VkImage get_or_create(const VKImageInfo &amp;info);</a>
+<a name="53"><span class="lineNum">      53 </span>            : </a>
+<a name="54"><span class="lineNum">      54 </span>            :   /* Remove unused images  and send them to the discard pool.</a>
+<a name="55"><span class="lineNum">      55 </span>            :    * If `force_free` is true, removes all images in the cache. */</a>
+<a name="56"><span class="lineNum">      56 </span>            :   void reset(bool force_reset = false);</a>
+<a name="57"><span class="lineNum">      57 </span>            : </a>
+<a name="58"><span class="lineNum">      58 </span>            :   /* Reset VKImageHandle internal counter. */</a>
+<a name="59"><span class="lineNum">      59 </span>            :   void reset_unused_cycles_count(const VKImageInfo &amp;info);</a>
+<a name="60"><span class="lineNum">      60 </span>            : </a>
+<a name="61"><span class="lineNum">      61 </span>            :   /* Discard cached images bound to an allocation. */</a>
+<a name="62"><span class="lineNum">      62 </span>            :   void discard_all_of(VmaAllocation allocation);</a>
+<a name="63"><span class="lineNum">      63 </span>            : </a>
+<a name="64"><span class="lineNum">      64 </span><span class="lineNoCov">          0 :   uint64_t size() const</span></a>
+<a name="65"><span class="lineNum">      65 </span>            :   {</a>
+<a name="66"><span class="lineNum">      66 </span><span class="lineNoCov">          0 :     return cache_.size();</span></a>
+<a name="67"><span class="lineNum">      67 </span>            :   }</a>
+<a name="68"><span class="lineNum">      68 </span>            : };</a>
+<a name="69"><span class="lineNum">      69 </span>            : </a>
+<a name="70"><span class="lineNum">      70 </span>            : class VKTexturePool : public TexturePoolBase {</a>
+<a name="71"><span class="lineNum">      71 </span>            :   /* Performed allocation size, current is 64mb. */</a>
+<a name="72"><span class="lineNum">      72 </span>            :   static constexpr VkDeviceSize allocation_size = 1 &lt;&lt; 26;</a>
+<a name="73"><span class="lineNum">      73 </span>            : </a>
+<a name="74"><span class="lineNum">      74 </span>            :   /* Defer deallocation enough cycles to avoid interleaved calls to different viewport render</a>
+<a name="75"><span class="lineNum">      75 </span>            :    * functions (selection / display) causing constant allocation / deallocation (See #113024). */</a>
+<a name="76"><span class="lineNum">      76 </span>            :   static constexpr int max_unused_cycles_ = 8;</a>
+<a name="77"><span class="lineNum">      77 </span>            : </a>
+<a name="78"><span class="lineNum">      78 </span>            :   /* Struct to manage a VmaAllocation. The allocation is segmented</a>
+<a name="79"><span class="lineNum">      79 </span>            :    * for binding to multiple images at a time, and allows aliasing. */</a>
+<a name="80"><span class="lineNum">      80 </span>            :   struct AllocationHandle {</a>
+<a name="81"><span class="lineNum">      81 </span>            :     VmaAllocation allocation = VK_NULL_HANDLE;</a>
+<a name="82"><span class="lineNum">      82 </span>            :     VmaAllocationInfo allocation_info = {};</a>
+<a name="83"><span class="lineNum">      83 </span>            : </a>
+<a name="84"><span class="lineNum">      84 </span>            :     /* Counter to track the number of unused cycles before deallocation in `pool_`. */</a>
+<a name="85"><span class="lineNum">      85 </span>            :     int unused_cycles_count = 0;</a>
+<a name="86"><span class="lineNum">      86 </span>            : </a>
+<a name="87"><span class="lineNum">      87 </span>            :     /* Linked list of unused segments of the allocation. */</a>
+<a name="88"><span class="lineNum">      88 </span>            :     std::list&lt;VKMemorySegment&gt; segments;</a>
+<a name="89"><span class="lineNum">      89 </span>            : </a>
+<a name="90"><span class="lineNum">      90 </span>            :     /* Allocate/deallocate the handle internals. */</a>
+<a name="91"><span class="lineNum">      91 </span>            :     void alloc(VkMemoryRequirements memory_requirements);</a>
+<a name="92"><span class="lineNum">      92 </span>            :     void free();</a>
+<a name="93"><span class="lineNum">      93 </span>            : </a>
+<a name="94"><span class="lineNum">      94 </span>            :     /* Extract a segment of the allocation for binding, if compatible. */</a>
+<a name="95"><span class="lineNum">      95 </span>            :     std::optional&lt;VKMemorySegment&gt; acquire(VkMemoryRequirements memory_requirements);</a>
+<a name="96"><span class="lineNum">      96 </span>            : </a>
+<a name="97"><span class="lineNum">      97 </span>            :     /* Return a segment to the allocation for reuse. */</a>
+<a name="98"><span class="lineNum">      98 </span>            :     void release(VKMemorySegment segment);</a>
+<a name="99"><span class="lineNum">      99 </span>            : </a>
+<a name="100"><span class="lineNum">     100 </span>            :     /* Check if no part of the allocation is acquired. */</a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineNoCov">          0 :     bool is_unused() const</span></a>
+<a name="102"><span class="lineNum">     102 </span>            :     {</a>
+<a name="103"><span class="lineNum">     103 </span><span class="lineNoCov">          0 :       return !segments.empty() &amp;&amp; segments.front().size == allocation_info.size;</span></a>
+<a name="104"><span class="lineNum">     104 </span>            :     }</a>
+<a name="105"><span class="lineNum">     105 </span>            : </a>
+<a name="106"><span class="lineNum">     106 </span>            :     /* We use the pointer as hash/comparator, as a VmaAllocation is unique.</a>
+<a name="107"><span class="lineNum">     107 </span>            :      * This means we can find the handle without knowing other internals. */</a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineNoCov">          0 :     uint64_t hash() const</span></a>
+<a name="109"><span class="lineNum">     109 </span>            :     {</a>
+<a name="110"><span class="lineNum">     110 </span><span class="lineNoCov">          0 :       return get_default_hash(allocation);</span></a>
+<a name="111"><span class="lineNum">     111 </span>            :     }</a>
+<a name="112"><span class="lineNum">     112 </span>            : </a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineNoCov">          0 :     bool operator==(const AllocationHandle &amp;o) const</span></a>
+<a name="114"><span class="lineNum">     114 </span>            :     {</a>
+<a name="115"><span class="lineNum">     115 </span><span class="lineNoCov">          0 :       return allocation == o.allocation;</span></a>
+<a name="116"><span class="lineNum">     116 </span>            :     }</a>
+<a name="117"><span class="lineNum">     117 </span>            :   };</a>
+<a name="118"><span class="lineNum">     118 </span>            : </a>
+<a name="119"><span class="lineNum">     119 </span>            :   /* Struct to manage an acquired texture. The texture has a backing image in</a>
+<a name="120"><span class="lineNum">     120 </span>            :    * the VKimageCache, which is bound to a segment of an allocation. */</a>
+<a name="121"><span class="lineNum">     121 </span>            :   struct TextureHandle {</a>
+<a name="122"><span class="lineNum">     122 </span>            :     VKTexture *texture = nullptr;</a>
+<a name="123"><span class="lineNum">     123 </span>            :     VKImageInfo image_info;</a>
+<a name="124"><span class="lineNum">     124 </span>            : </a>
+<a name="125"><span class="lineNum">     125 </span>            :     /* Counter to track texture acquire/retain mismatches in `acquire_`.  */</a>
+<a name="126"><span class="lineNum">     126 </span>            :     int users_count = 1;</a>
+<a name="127"><span class="lineNum">     127 </span>            : </a>
+<a name="128"><span class="lineNum">     128 </span>            :     /* We use the pointer as hash/comparator, as a TextureHandle cannot be acquired twice.</a>
+<a name="129"><span class="lineNum">     129 </span>            :      * This means we can find the handle without knowing other internals */</a>
+<a name="130"><span class="lineNum">     130 </span><span class="lineNoCov">          0 :     uint64_t hash() const</span></a>
+<a name="131"><span class="lineNum">     131 </span>            :     {</a>
+<a name="132"><span class="lineNum">     132 </span><span class="lineNoCov">          0 :       return get_default_hash(texture);</span></a>
+<a name="133"><span class="lineNum">     133 </span>            :     }</a>
+<a name="134"><span class="lineNum">     134 </span>            : </a>
+<a name="135"><span class="lineNum">     135 </span><span class="lineNoCov">          0 :     bool operator==(const TextureHandle &amp;o) const</span></a>
+<a name="136"><span class="lineNum">     136 </span>            :     {</a>
+<a name="137"><span class="lineNum">     137 </span><span class="lineNoCov">          0 :       return texture == o.texture;</span></a>
+<a name="138"><span class="lineNum">     138 </span>            :     }</a>
+<a name="139"><span class="lineNum">     139 </span>            :   };</a>
+<a name="140"><span class="lineNum">     140 </span>            : </a>
+<a name="141"><span class="lineNum">     141 </span>            :   /* Cache of VkImage handles to avoid repeated memory binding. */</a>
+<a name="142"><span class="lineNum">     142 </span>            :   std::optional&lt;VKImageCache&gt; image_cache_;</a>
+<a name="143"><span class="lineNum">     143 </span>            :   /* Allocated memory on which images are bound. */</a>
+<a name="144"><span class="lineNum">     144 </span>            :   Set&lt;AllocationHandle&gt; allocations_;</a>
+<a name="145"><span class="lineNum">     145 </span>            :   /* Texture handles currently in use. */</a>
+<a name="146"><span class="lineNum">     146 </span>            :   Set&lt;TextureHandle&gt; acquired_;</a>
+<a name="147"><span class="lineNum">     147 </span>            : </a>
+<a name="148"><span class="lineNum">     148 </span>            :   /* Debug storage to log memory usage. Log is only output</a>
+<a name="149"><span class="lineNum">     149 </span>            :    * if values have changed since the last `::reset()`. */</a>
+<a name="150"><span class="lineNum">     150 </span>            :   struct LogUsageData {</a>
+<a name="151"><span class="lineNum">     151 </span>            :     int64_t allocation_count = 0;</a>
+<a name="152"><span class="lineNum">     152 </span>            :     int64_t image_cache_size = 0;</a>
+<a name="153"><span class="lineNum">     153 </span>            :     VkDeviceSize acquired_segment_size = 0;</a>
+<a name="154"><span class="lineNum">     154 </span>            :     VkDeviceSize acquired_segment_size_max = 0;</a>
+<a name="155"><span class="lineNum">     155 </span>            : </a>
+<a name="156"><span class="lineNum">     156 </span><span class="lineNoCov">          0 :     bool operator==(const LogUsageData &amp;o) const</span></a>
+<a name="157"><span class="lineNum">     157 </span>            :     {</a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineNoCov">          0 :       return allocation_count == o.allocation_count &amp;&amp; image_cache_size == o.image_cache_size &amp;&amp;</span></a>
+<a name="159"><span class="lineNum">     159 </span><span class="lineNoCov">          0 :              acquired_segment_size == o.acquired_segment_size &amp;&amp;</span></a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineNoCov">          0 :              acquired_segment_size_max == o.acquired_segment_size_max;</span></a>
+<a name="161"><span class="lineNum">     161 </span>            :     }</a>
+<a name="162"><span class="lineNum">     162 </span>            :   };</a>
+<a name="163"><span class="lineNum">     163 </span>            :   LogUsageData previous_usage_data_ = {};</a>
+<a name="164"><span class="lineNum">     164 </span>            :   LogUsageData current_usage_data_ = {};</a>
+<a name="165"><span class="lineNum">     165 </span>            : </a>
+<a name="166"><span class="lineNum">     166 </span>            :   /* Output usage data to debug log. Called on `--debug-gpu` */</a>
+<a name="167"><span class="lineNum">     167 </span>            :   void log_usage_data();</a>
+<a name="168"><span class="lineNum">     168 </span>            : </a>
+<a name="169"><span class="lineNum">     169 </span>            :  protected:</a>
+<a name="170"><span class="lineNum">     170 </span>            :   Texture *acquire_texture_impl(int3 extent,</a>
+<a name="171"><span class="lineNum">     171 </span>            :                                 int mip_len,</a>
+<a name="172"><span class="lineNum">     172 </span>            :                                 GPUTextureType type,</a>
+<a name="173"><span class="lineNum">     173 </span>            :                                 TextureFormat format,</a>
+<a name="174"><span class="lineNum">     174 </span>            :                                 eGPUTextureUsage usage = GPU_TEXTURE_USAGE_GENERAL,</a>
+<a name="175"><span class="lineNum">     175 </span>            :                                 const char *name = nullptr) override;</a>
+<a name="176"><span class="lineNum">     176 </span>            : </a>
+<a name="177"><span class="lineNum">     177 </span>            :  public:</a>
+<a name="178"><span class="lineNum">     178 </span>            :   VKTexturePool();</a>
+<a name="179"><span class="lineNum">     179 </span>            :   ~VKTexturePool();</a>
+<a name="180"><span class="lineNum">     180 </span>            : </a>
+<a name="181"><span class="lineNum">     181 </span>            :   void release_texture(Texture *texture) override;</a>
+<a name="182"><span class="lineNum">     182 </span>            : </a>
+<a name="183"><span class="lineNum">     183 </span>            :   void reset(bool force_free = false) override;</a>
+<a name="184"><span class="lineNum">     184 </span>            : </a>
+<a name="185"><span class="lineNum">     185 </span>            :   void offset_users_count(Texture *texture, int offset) override;</a>
+<a name="186"><span class="lineNum">     186 </span>            : };</a>
+<a name="187"><span class="lineNum">     187 </span>            : </a>
+<a name="188"><span class="lineNum">     188 </span>            : }  // namespace blender::gpu</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

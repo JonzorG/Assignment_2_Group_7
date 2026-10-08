@@ -1,0 +1,476 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - blentranslation/msgfmt/msgfmt.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">blentranslation/msgfmt</a> - msgfmt.cc<span style="font-size: 80%;"> (source / <a href="msgfmt.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">164</td>
+            <td class="headerCovTableEntry">205</td>
+            <td class="headerCovTableEntryMed">80.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2017 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /*</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * Based on C++ version by `Sergey Sharybin &lt;sergey.vfx@gmail.com&gt;`.</a>
+<a name="7"><span class="lineNum">       7 </span>            :  * Based on Python script `msgfmt.py` from Python source code tree, which was written by</a>
+<a name="8"><span class="lineNum">       8 </span>            :  * `Martin v. Löwis &lt;loewis@informatik.hu-berlin.de&gt;`.</a>
+<a name="9"><span class="lineNum">       9 </span>            :  *</a>
+<a name="10"><span class="lineNum">      10 </span>            :  * Generate binary message catalog from textual translation description.</a>
+<a name="11"><span class="lineNum">      11 </span>            :  *</a>
+<a name="12"><span class="lineNum">      12 </span>            :  * This program converts a textual Uniform-style message catalog (.po file)</a>
+<a name="13"><span class="lineNum">      13 </span>            :  * into a binary GNU catalog (.mo file).</a>
+<a name="14"><span class="lineNum">      14 </span>            :  * This is essentially the same function as the GNU msgfmt program,</a>
+<a name="15"><span class="lineNum">      15 </span>            :  * however, it is a simpler implementation.</a>
+<a name="16"><span class="lineNum">      16 </span>            :  *</a>
+<a name="17"><span class="lineNum">      17 </span>            :  * Usage: msgfmt input.po output.po</a>
+<a name="18"><span class="lineNum">      18 </span>            :  */</a>
+<a name="19"><span class="lineNum">      19 </span>            : </a>
+<a name="20"><span class="lineNum">      20 </span>            : #include &lt;algorithm&gt;</a>
+<a name="21"><span class="lineNum">      21 </span>            : #include &lt;cstdlib&gt;</a>
+<a name="22"><span class="lineNum">      22 </span>            : #include &lt;cstring&gt;</a>
+<a name="23"><span class="lineNum">      23 </span>            : #include &lt;string&gt;</a>
+<a name="24"><span class="lineNum">      24 </span>            : #include &lt;utility&gt;</a>
+<a name="25"><span class="lineNum">      25 </span>            : </a>
+<a name="26"><span class="lineNum">      26 </span>            : #include &quot;BLI_fileops.hh&quot;</a>
+<a name="27"><span class="lineNum">      27 </span>            : #include &quot;BLI_linklist.hh&quot;</a>
+<a name="28"><span class="lineNum">      28 </span>            : #include &quot;BLI_map.hh&quot;</a>
+<a name="29"><span class="lineNum">      29 </span>            : #include &quot;BLI_string_ref.hh&quot;</a>
+<a name="30"><span class="lineNum">      30 </span>            : #include &quot;BLI_utildefines.hh&quot;</a>
+<a name="31"><span class="lineNum">      31 </span>            : #include &quot;BLI_vector.hh&quot;</a>
+<a name="32"><span class="lineNum">      32 </span>            : </a>
+<a name="33"><span class="lineNum">      33 </span>            : #include &quot;MEM_guardedalloc.h&quot;</a>
+<a name="34"><span class="lineNum">      34 </span>            : </a>
+<a name="35"><span class="lineNum">      35 </span>            : namespace blender {</a>
+<a name="36"><span class="lineNum">      36 </span>            : </a>
+<a name="37"><span class="lineNum">      37 </span>            : /* Stupid stub necessary because some BLI files includes winstuff.h, which uses G a bit... */</a>
+<a name="38"><span class="lineNum">      38 </span>            : #ifdef WIN32</a>
+<a name="39"><span class="lineNum">      39 </span>            : struct Global {</a>
+<a name="40"><span class="lineNum">      40 </span>            :   void *dummy;</a>
+<a name="41"><span class="lineNum">      41 </span>            : };</a>
+<a name="42"><span class="lineNum">      42 </span>            : </a>
+<a name="43"><span class="lineNum">      43 </span>            : Global G;</a>
+<a name="44"><span class="lineNum">      44 </span>            : #endif</a>
+<a name="45"><span class="lineNum">      45 </span>            : </a>
+<a name="46"><span class="lineNum">      46 </span>            : enum eSectionType {</a>
+<a name="47"><span class="lineNum">      47 </span>            :   SECTION_NONE = 0,</a>
+<a name="48"><span class="lineNum">      48 </span>            :   SECTION_CTX = 1,</a>
+<a name="49"><span class="lineNum">      49 </span>            :   SECTION_ID = 2,</a>
+<a name="50"><span class="lineNum">      50 </span>            :   SECTION_STR = 3,</a>
+<a name="51"><span class="lineNum">      51 </span>            : };</a>
+<a name="52"><span class="lineNum">      52 </span>            : </a>
+<a name="53"><span class="lineNum">      53 </span>            : struct Message {</a>
+<a name="54"><span class="lineNum">      54 </span>            :   std::string ctxt;</a>
+<a name="55"><span class="lineNum">      55 </span>            :   std::string id;</a>
+<a name="56"><span class="lineNum">      56 </span>            :   std::string str;</a>
+<a name="57"><span class="lineNum">      57 </span>            : </a>
+<a name="58"><span class="lineNum">      58 </span>            :   bool is_fuzzy = false;</a>
+<a name="59"><span class="lineNum">      59 </span>            : };</a>
+<a name="60"><span class="lineNum">      60 </span>            : </a>
+<a name="61"><span class="lineNum">      61 </span><span class="lineCov">    1828895 : static StringRef unescape(std::string &amp;str)</span></a>
+<a name="62"><span class="lineNum">      62 </span>            : {</a>
+<a name="63"><span class="lineNum">      63 </span>            :   int curr, next;</a>
+<a name="64"><span class="lineNum">      64 </span><span class="lineCov">   71688566 :   for (curr = next = 0; next &lt; str.size(); curr++, next++) {</span></a>
+<a name="65"><span class="lineNum">      65 </span><span class="lineCov">   69859671 :     if (str[next] == '\\') {</span></a>
+<a name="66"><span class="lineNum">      66 </span>            :       /* Get rid of trailing escape char. */</a>
+<a name="67"><span class="lineNum">      67 </span><span class="lineCov">      27043 :       if (next == str.size() - 1) {</span></a>
+<a name="68"><span class="lineNum">      68 </span><span class="lineNoCov">          0 :         curr--;</span></a>
+<a name="69"><span class="lineNum">      69 </span><span class="lineNoCov">          0 :         continue;</span></a>
+<a name="70"><span class="lineNum">      70 </span>            :       }</a>
+<a name="71"><span class="lineNum">      71 </span><span class="lineCov">      27043 :       switch (str[next + 1]) {</span></a>
+<a name="72"><span class="lineNum">      72 </span><span class="lineCov">        123 :         case '\\':</span></a>
+<a name="73"><span class="lineNum">      73 </span><span class="lineCov">        123 :           str[curr] = '\\';</span></a>
+<a name="74"><span class="lineNum">      74 </span><span class="lineCov">        123 :           next++;</span></a>
+<a name="75"><span class="lineNum">      75 </span><span class="lineCov">        123 :           break;</span></a>
+<a name="76"><span class="lineNum">      76 </span><span class="lineCov">       7030 :         case 'n':</span></a>
+<a name="77"><span class="lineNum">      77 </span><span class="lineCov">       7030 :           str[curr] = '\n';</span></a>
+<a name="78"><span class="lineNum">      78 </span><span class="lineCov">       7030 :           next++;</span></a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineCov">       7030 :           break;</span></a>
+<a name="80"><span class="lineNum">      80 </span><span class="lineNoCov">          0 :         case 't':</span></a>
+<a name="81"><span class="lineNum">      81 </span><span class="lineNoCov">          0 :           str[curr] = '\t';</span></a>
+<a name="82"><span class="lineNum">      82 </span><span class="lineNoCov">          0 :           next++;</span></a>
+<a name="83"><span class="lineNum">      83 </span><span class="lineNoCov">          0 :           break;</span></a>
+<a name="84"><span class="lineNum">      84 </span><span class="lineCov">      19890 :         default:</span></a>
+<a name="85"><span class="lineNum">      85 </span>            :           /* Get rid of useless escape char. */</a>
+<a name="86"><span class="lineNum">      86 </span><span class="lineCov">      19890 :           next++;</span></a>
+<a name="87"><span class="lineNum">      87 </span><span class="lineCov">      19890 :           str[curr] = str[next];</span></a>
+<a name="88"><span class="lineNum">      88 </span>            :       }</a>
+<a name="89"><span class="lineNum">      89 </span>            :     }</a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineCov">   69832628 :     else if (curr != next) {</span></a>
+<a name="91"><span class="lineNum">      91 </span><span class="lineCov">     348360 :       str[curr] = str[next];</span></a>
+<a name="92"><span class="lineNum">      92 </span>            :     }</a>
+<a name="93"><span class="lineNum">      93 </span>            :   }</a>
+<a name="94"><span class="lineNum">      94 </span><span class="lineCov">    1828895 :   StringRef ret_str = str;</span></a>
+<a name="95"><span class="lineNum">      95 </span><span class="lineCov">    1828895 :   BLI_assert(curr &lt;= str.size());</span></a>
+<a name="96"><span class="lineNum">      96 </span>            : </a>
+<a name="97"><span class="lineNum">      97 </span><span class="lineCov">    1828895 :   if (ret_str[0] == '&quot;' &amp;&amp; ret_str[curr - 1] == '&quot;') {</span></a>
+<a name="98"><span class="lineNum">      98 </span><span class="lineCov">    1828895 :     return ret_str.substr(1, curr - 2);</span></a>
+<a name="99"><span class="lineNum">      99 </span>            :   }</a>
+<a name="100"><span class="lineNum">     100 </span><span class="lineNoCov">          0 :   return ret_str.substr(0, curr);</span></a>
+<a name="101"><span class="lineNum">     101 </span>            : }</a>
+<a name="102"><span class="lineNum">     102 </span>            : </a>
+<a name="103"><span class="lineNum">     103 </span>            : BLI_INLINE size_t uint32_to_bytes(const int value, char *bytes)</a>
+<a name="104"><span class="lineNum">     104 </span>            : {</a>
+<a name="105"><span class="lineNum">     105 </span>            :   size_t i;</a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineCov">   16950375 :   for (i = 0; i &lt; sizeof(value); i++) {</span></a>
+<a name="107"><span class="lineNum">     107 </span><span class="lineCov">   13560300 :     bytes[i] = char((value &gt;&gt; (int(i) * 8)) &amp; 0xff);</span></a>
+<a name="108"><span class="lineNum">     108 </span>            :   }</a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineCov">    3390075 :   return i;</span></a>
+<a name="110"><span class="lineNum">     110 </span>            : }</a>
+<a name="111"><span class="lineNum">     111 </span>            : </a>
+<a name="112"><span class="lineNum">     112 </span>            : BLI_INLINE size_t msg_to_bytes(const std::string &amp;msg, char *bytes, uint32_t size)</a>
+<a name="113"><span class="lineNum">     113 </span>            : {</a>
+<a name="114"><span class="lineNum">     114 </span><span class="lineCov">    1694866 :   BLI_assert(msg.size() == size - 1);</span></a>
+<a name="115"><span class="lineNum">     115 </span><span class="lineCov">    1694866 :   memcpy(bytes, msg.c_str(), size);</span></a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineCov">    1694866 :   return size;</span></a>
+<a name="117"><span class="lineNum">     117 </span>            : }</a>
+<a name="118"><span class="lineNum">     118 </span>            : </a>
+<a name="119"><span class="lineNum">     119 </span>            : struct Offset {</a>
+<a name="120"><span class="lineNum">     120 </span>            :   uint32_t key_offset, key_len, val_offset, val_len;</a>
+<a name="121"><span class="lineNum">     121 </span>            : };</a>
+<a name="122"><span class="lineNum">     122 </span>            : </a>
+<a name="123"><span class="lineNum">     123 </span>            : /* Return the generated binary output. */</a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineCov">         49 : static char *generate(Map&lt;std::string, std::string&gt; &amp;messages, size_t *r_output_size)</span></a>
+<a name="125"><span class="lineNum">     125 </span>            : {</a>
+<a name="126"><span class="lineNum">     126 </span>            :   using MapItem = Map&lt;std::string, std::string&gt;::MutableItem;</a>
+<a name="127"><span class="lineNum">     127 </span>            :   struct Item {</a>
+<a name="128"><span class="lineNum">     128 </span>            :     StringRef key;</a>
+<a name="129"><span class="lineNum">     129 </span>            :     StringRef value;</a>
+<a name="130"><span class="lineNum">     130 </span>            : </a>
+<a name="131"><span class="lineNum">     131 </span><span class="lineCov">     847433 :     Item(const MapItem &amp;other) : key(other.key), value(other.value) {}</span></a>
+<a name="132"><span class="lineNum">     132 </span>            :     Item(const Item &amp;other) = default;</a>
+<a name="133"><span class="lineNum">     133 </span>            :     Item &amp;operator=(const Item &amp;other) = default;</a>
+<a name="134"><span class="lineNum">     134 </span>            :   };</a>
+<a name="135"><span class="lineNum">     135 </span><span class="lineCov">         49 :   const uint32_t num_keys = messages.size();</span></a>
+<a name="136"><span class="lineNum">     136 </span>            : </a>
+<a name="137"><span class="lineNum">     137 </span>            :   /* Get a vector of (key, value) pairs sorted by their keys. */</a>
+<a name="138"><span class="lineNum">     138 </span><span class="lineCov">         49 :   Vector&lt;Item&gt; items = {};</span></a>
+<a name="139"><span class="lineNum">     139 </span><span class="lineCov">     847482 :   for (const auto message_items_iter : messages.items()) {</span></a>
+<a name="140"><span class="lineNum">     140 </span><span class="lineCov">     847433 :     items.append(Item(message_items_iter));</span></a>
+<a name="141"><span class="lineNum">     141 </span>            :   }</a>
+<a name="142"><span class="lineNum">     142 </span><span class="lineCov">   15057847 :   std::ranges::sort(items, [](const Item &amp;a, const Item &amp;b) -&gt; bool { return a.key &lt; b.key; });</span></a>
+<a name="143"><span class="lineNum">     143 </span>            : </a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineCov">         49 :   Offset *offsets = MEM_new_array_zeroed&lt;Offset&gt;(num_keys, __func__);</span></a>
+<a name="145"><span class="lineNum">     145 </span><span class="lineCov">         49 :   uint32_t tot_keys_len = 0;</span></a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineCov">         49 :   uint32_t tot_vals_len = 0;</span></a>
+<a name="147"><span class="lineNum">     147 </span>            : </a>
+<a name="148"><span class="lineNum">     148 </span><span class="lineCov">     847482 :   for (int i = 0; i &lt; num_keys; i++) {</span></a>
+<a name="149"><span class="lineNum">     149 </span><span class="lineCov">     847433 :     Offset &amp;off = offsets[i];</span></a>
+<a name="150"><span class="lineNum">     150 </span>            : </a>
+<a name="151"><span class="lineNum">     151 </span>            :     /* For each string, we need size and file offset.</a>
+<a name="152"><span class="lineNum">     152 </span>            :      * Each string is null terminated; the null does not count into the size. */</a>
+<a name="153"><span class="lineNum">     153 </span><span class="lineCov">     847433 :     off.key_offset = tot_keys_len;</span></a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineCov">     847433 :     off.key_len = uint32_t(items[i].key.size());</span></a>
+<a name="155"><span class="lineNum">     155 </span><span class="lineCov">     847433 :     tot_keys_len += off.key_len + 1;</span></a>
+<a name="156"><span class="lineNum">     156 </span>            : </a>
+<a name="157"><span class="lineNum">     157 </span><span class="lineCov">     847433 :     off.val_offset = tot_vals_len;</span></a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineCov">     847433 :     off.val_len = uint32_t(items[i].value.size());</span></a>
+<a name="159"><span class="lineNum">     159 </span><span class="lineCov">     847433 :     tot_vals_len += off.val_len + 1;</span></a>
+<a name="160"><span class="lineNum">     160 </span>            :   }</a>
+<a name="161"><span class="lineNum">     161 </span>            : </a>
+<a name="162"><span class="lineNum">     162 </span>            :   /* The header is 7 32-bit unsigned integers.</a>
+<a name="163"><span class="lineNum">     163 </span>            :    * Then comes the keys index table, then the values index table. */</a>
+<a name="164"><span class="lineNum">     164 </span><span class="lineCov">         49 :   const uint32_t idx_keystart = 7 * 4;</span></a>
+<a name="165"><span class="lineNum">     165 </span><span class="lineCov">         49 :   const uint32_t idx_valstart = idx_keystart + 8 * num_keys;</span></a>
+<a name="166"><span class="lineNum">     166 </span>            :   /* We don't use hash tables, so the keys start right after the index tables. */</a>
+<a name="167"><span class="lineNum">     167 </span><span class="lineCov">         49 :   const uint32_t keystart = idx_valstart + 8 * num_keys;</span></a>
+<a name="168"><span class="lineNum">     168 </span>            :   /* and the values start after the keys */</a>
+<a name="169"><span class="lineNum">     169 </span><span class="lineCov">         49 :   const uint32_t valstart = keystart + tot_keys_len;</span></a>
+<a name="170"><span class="lineNum">     170 </span>            : </a>
+<a name="171"><span class="lineNum">     171 </span>            :   /* Final buffer representing the binary MO file. */</a>
+<a name="172"><span class="lineNum">     172 </span><span class="lineCov">         49 :   *r_output_size = valstart + tot_vals_len;</span></a>
+<a name="173"><span class="lineNum">     173 </span><span class="lineCov">         49 :   char *output = MEM_new_array_zeroed&lt;char&gt;(*r_output_size, __func__);</span></a>
+<a name="174"><span class="lineNum">     174 </span><span class="lineCov">         49 :   char *h = output;</span></a>
+<a name="175"><span class="lineNum">     175 </span><span class="lineCov">         49 :   char *ik = output + idx_keystart;</span></a>
+<a name="176"><span class="lineNum">     176 </span><span class="lineCov">         49 :   char *iv = output + idx_valstart;</span></a>
+<a name="177"><span class="lineNum">     177 </span><span class="lineCov">         49 :   char *k = output + keystart;</span></a>
+<a name="178"><span class="lineNum">     178 </span><span class="lineCov">         49 :   char *v = output + valstart;</span></a>
+<a name="179"><span class="lineNum">     179 </span>            : </a>
+<a name="180"><span class="lineNum">     180 </span><span class="lineCov">         49 :   h += uint32_to_bytes(0x950412de, h);   /* Magic */</span></a>
+<a name="181"><span class="lineNum">     181 </span><span class="lineCov">         49 :   h += uint32_to_bytes(0x0, h);          /* Version */</span></a>
+<a name="182"><span class="lineNum">     182 </span><span class="lineCov">         98 :   h += uint32_to_bytes(num_keys, h);     /* Number of entries */</span></a>
+<a name="183"><span class="lineNum">     183 </span><span class="lineCov">         49 :   h += uint32_to_bytes(idx_keystart, h); /* Start of key index */</span></a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineCov">         98 :   h += uint32_to_bytes(idx_valstart, h); /* Start of value index */</span></a>
+<a name="185"><span class="lineNum">     185 </span><span class="lineCov">         49 :   h += uint32_to_bytes(0, h);            /* Size of hash table */</span></a>
+<a name="186"><span class="lineNum">     186 </span><span class="lineCov">         49 :   h += uint32_to_bytes(0, h);            /* Offset of hash table */</span></a>
+<a name="187"><span class="lineNum">     187 </span>            : </a>
+<a name="188"><span class="lineNum">     188 </span><span class="lineCov">         49 :   BLI_assert(h == ik);</span></a>
+<a name="189"><span class="lineNum">     189 </span>            : </a>
+<a name="190"><span class="lineNum">     190 </span><span class="lineCov">     847482 :   for (int i = 0; i &lt; num_keys; i++) {</span></a>
+<a name="191"><span class="lineNum">     191 </span><span class="lineCov">     847433 :     const Offset &amp;off = offsets[i];</span></a>
+<a name="192"><span class="lineNum">     192 </span>            : </a>
+<a name="193"><span class="lineNum">     193 </span>            :     /* The index table first has the list of keys, then the list of values.</a>
+<a name="194"><span class="lineNum">     194 </span>            :      * Each entry has first the size of the string, then the file offset. */</a>
+<a name="195"><span class="lineNum">     195 </span><span class="lineCov">     847433 :     ik += uint32_to_bytes(off.key_len, ik);</span></a>
+<a name="196"><span class="lineNum">     196 </span><span class="lineCov">     847433 :     ik += uint32_to_bytes(off.key_offset + keystart, ik);</span></a>
+<a name="197"><span class="lineNum">     197 </span><span class="lineCov">     847433 :     iv += uint32_to_bytes(off.val_len, iv);</span></a>
+<a name="198"><span class="lineNum">     198 </span><span class="lineCov">     847433 :     iv += uint32_to_bytes(off.val_offset + valstart, iv);</span></a>
+<a name="199"><span class="lineNum">     199 </span>            : </a>
+<a name="200"><span class="lineNum">     200 </span><span class="lineCov">    1694866 :     k += msg_to_bytes(items[i].key, k, off.key_len + 1);</span></a>
+<a name="201"><span class="lineNum">     201 </span><span class="lineCov">    1694866 :     v += msg_to_bytes(items[i].value, v, off.val_len + 1);</span></a>
+<a name="202"><span class="lineNum">     202 </span>            :   }</a>
+<a name="203"><span class="lineNum">     203 </span>            : </a>
+<a name="204"><span class="lineNum">     204 </span><span class="lineCov">         49 :   BLI_assert(ik == output + idx_valstart);</span></a>
+<a name="205"><span class="lineNum">     205 </span><span class="lineCov">         49 :   BLI_assert(iv == output + keystart);</span></a>
+<a name="206"><span class="lineNum">     206 </span><span class="lineCov">         49 :   BLI_assert(k == output + valstart);</span></a>
+<a name="207"><span class="lineNum">     207 </span>            : </a>
+<a name="208"><span class="lineNum">     208 </span><span class="lineCov">         49 :   MEM_delete(offsets);</span></a>
+<a name="209"><span class="lineNum">     209 </span>            : </a>
+<a name="210"><span class="lineNum">     210 </span><span class="lineCov">         49 :   return output;</span></a>
+<a name="211"><span class="lineNum">     211 </span><span class="lineCov">         49 : }</span></a>
+<a name="212"><span class="lineNum">     212 </span>            : </a>
+<a name="213"><span class="lineNum">     213 </span><span class="lineCov">    1694866 : static void clear(Message &amp;msg)</span></a>
+<a name="214"><span class="lineNum">     214 </span>            : {</a>
+<a name="215"><span class="lineNum">     215 </span><span class="lineCov">    1694866 :   msg.ctxt.clear();</span></a>
+<a name="216"><span class="lineNum">     216 </span><span class="lineCov">    1694866 :   msg.id.clear();</span></a>
+<a name="217"><span class="lineNum">     217 </span><span class="lineCov">    1694866 :   msg.str.clear();</span></a>
+<a name="218"><span class="lineNum">     218 </span><span class="lineCov">    1694866 :   msg.is_fuzzy = false;</span></a>
+<a name="219"><span class="lineNum">     219 </span><span class="lineCov">    1694866 : }</span></a>
+<a name="220"><span class="lineNum">     220 </span>            : </a>
+<a name="221"><span class="lineNum">     221 </span>            : /* Add a non-fuzzy translation to the dictionary. */</a>
+<a name="222"><span class="lineNum">     222 </span><span class="lineCov">     847433 : static void add(Map&lt;std::string, std::string&gt; &amp;messages, Message &amp;msg)</span></a>
+<a name="223"><span class="lineNum">     223 </span>            : {</a>
+<a name="224"><span class="lineNum">     224 </span><span class="lineCov">     847433 :   if (!msg.is_fuzzy &amp;&amp; !msg.str.empty()) {</span></a>
+<a name="225"><span class="lineNum">     225 </span><span class="lineCov">     847433 :     std::string msgkey;</span></a>
+<a name="226"><span class="lineNum">     226 </span><span class="lineCov">     847433 :     if (msg.ctxt.empty()) {</span></a>
+<a name="227"><span class="lineNum">     227 </span><span class="lineCov">     725006 :       msgkey = std::move(msg.id);</span></a>
+<a name="228"><span class="lineNum">     228 </span>            :     }</a>
+<a name="229"><span class="lineNum">     229 </span>            :     else {</a>
+<a name="230"><span class="lineNum">     230 </span>            :       /* '\x04' is the context/msgid separator. */</a>
+<a name="231"><span class="lineNum">     231 </span><span class="lineCov">     122427 :       msgkey = msg.ctxt + &quot;\x04&quot; + msg.id;</span></a>
+<a name="232"><span class="lineNum">     232 </span>            :     }</a>
+<a name="233"><span class="lineNum">     233 </span>            : </a>
+<a name="234"><span class="lineNum">     234 </span><span class="lineCov">     847433 :     messages.add(std::move(msgkey), std::move(msg.str));</span></a>
+<a name="235"><span class="lineNum">     235 </span><span class="lineCov">     847433 :   }</span></a>
+<a name="236"><span class="lineNum">     236 </span><span class="lineCov">     847433 :   clear(msg);</span></a>
+<a name="237"><span class="lineNum">     237 </span><span class="lineCov">     847433 : }</span></a>
+<a name="238"><span class="lineNum">     238 </span>            : </a>
+<a name="239"><span class="lineNum">     239 </span><span class="lineCov">         49 : static int make(const char *input_file_name, const char *output_file_name)</span></a>
+<a name="240"><span class="lineNum">     240 </span>            : {</a>
+<a name="241"><span class="lineNum">     241 </span><span class="lineCov">         49 :   Map&lt;std::string, std::string&gt; messages;</span></a>
+<a name="242"><span class="lineNum">     242 </span>            : </a>
+<a name="243"><span class="lineNum">     243 </span><span class="lineCov">         49 :   const char *msgctxt_kw = &quot;msgctxt&quot;;</span></a>
+<a name="244"><span class="lineNum">     244 </span><span class="lineCov">         49 :   const char *msgid_kw = &quot;msgid&quot;;</span></a>
+<a name="245"><span class="lineNum">     245 </span><span class="lineCov">         49 :   const char *msgid_plural_kw = &quot;msgid_plural&quot;;</span></a>
+<a name="246"><span class="lineNum">     246 </span><span class="lineCov">         49 :   const char *msgstr_kw = &quot;msgstr&quot;;</span></a>
+<a name="247"><span class="lineNum">     247 </span><span class="lineCov">         49 :   const size_t msgctxt_len = strlen(msgctxt_kw);</span></a>
+<a name="248"><span class="lineNum">     248 </span><span class="lineCov">         49 :   const size_t msgid_len = strlen(msgid_kw);</span></a>
+<a name="249"><span class="lineNum">     249 </span><span class="lineCov">         49 :   const size_t msgid_plural_len = strlen(msgid_plural_kw);</span></a>
+<a name="250"><span class="lineNum">     250 </span><span class="lineCov">         49 :   const size_t msgstr_len = strlen(msgstr_kw);</span></a>
+<a name="251"><span class="lineNum">     251 </span>            : </a>
+<a name="252"><span class="lineNum">     252 </span>            :   /* NOTE: For now, we assume file encoding is always UTF8. */</a>
+<a name="253"><span class="lineNum">     253 </span>            : </a>
+<a name="254"><span class="lineNum">     254 </span><span class="lineCov">         49 :   eSectionType section = SECTION_NONE;</span></a>
+<a name="255"><span class="lineNum">     255 </span><span class="lineCov">         49 :   bool is_plural = false;</span></a>
+<a name="256"><span class="lineNum">     256 </span>            : </a>
+<a name="257"><span class="lineNum">     257 </span><span class="lineCov">         49 :   Message msg{};</span></a>
+<a name="258"><span class="lineNum">     258 </span>            : </a>
+<a name="259"><span class="lineNum">     259 </span><span class="lineCov">         49 :   LinkNode *input_file_lines = BLI_file_read_as_lines(input_file_name);</span></a>
+<a name="260"><span class="lineNum">     260 </span><span class="lineCov">         49 :   LinkNode *ifl = input_file_lines;</span></a>
+<a name="261"><span class="lineNum">     261 </span>            : </a>
+<a name="262"><span class="lineNum">     262 </span>            :   /* Parse the catalog. */</a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineCov">    3523859 :   for (int lno = 1; ifl; ifl = ifl-&gt;next, lno++) {</span></a>
+<a name="264"><span class="lineNum">     264 </span><span class="lineCov">    3523810 :     std::string line = static_cast&lt;char *&gt;(ifl-&gt;link);</span></a>
+<a name="265"><span class="lineNum">     265 </span><span class="lineCov">    3523810 :     StringRef l = line;</span></a>
+<a name="266"><span class="lineNum">     266 </span><span class="lineCov">    3523810 :     if (l.is_empty()) {</span></a>
+<a name="267"><span class="lineNum">     267 </span><span class="lineCov">    1694915 :       continue;</span></a>
+<a name="268"><span class="lineNum">     268 </span>            :     }</a>
+<a name="269"><span class="lineNum">     269 </span><span class="lineCov">    1828895 :     const bool is_comment = (l[0] == '#');</span></a>
+<a name="270"><span class="lineNum">     270 </span>            :     /* If we get a comment line after a msgstr, this is a new entry. */</a>
+<a name="271"><span class="lineNum">     271 </span><span class="lineCov">    1828895 :     if (is_comment) {</span></a>
+<a name="272"><span class="lineNum">     272 </span><span class="lineNoCov">          0 :       if (section == SECTION_STR) {</span></a>
+<a name="273"><span class="lineNum">     273 </span><span class="lineNoCov">          0 :         add(messages, msg);</span></a>
+<a name="274"><span class="lineNum">     274 </span><span class="lineNoCov">          0 :         section = SECTION_NONE;</span></a>
+<a name="275"><span class="lineNum">     275 </span>            :       }</a>
+<a name="276"><span class="lineNum">     276 </span>            :       /* Record a fuzzy mark. */</a>
+<a name="277"><span class="lineNum">     277 </span><span class="lineNoCov">          0 :       if (l[1] == ',' &amp;&amp; l.find(&quot;fuzzy&quot;) != StringRef::not_found) {</span></a>
+<a name="278"><span class="lineNum">     278 </span><span class="lineNoCov">          0 :         msg.is_fuzzy = true;</span></a>
+<a name="279"><span class="lineNum">     279 </span>            :       }</a>
+<a name="280"><span class="lineNum">     280 </span>            :       /* Skip comments */</a>
+<a name="281"><span class="lineNum">     281 </span><span class="lineNoCov">          0 :       continue;</span></a>
+<a name="282"><span class="lineNum">     282 </span>            :     }</a>
+<a name="283"><span class="lineNum">     283 </span><span class="lineCov">    1828895 :     if (l.startswith(msgctxt_kw)) {</span></a>
+<a name="284"><span class="lineNum">     284 </span><span class="lineCov">     122427 :       if (section == SECTION_STR) {</span></a>
+<a name="285"><span class="lineNum">     285 </span>            :         /* New message, output previous section. */</a>
+<a name="286"><span class="lineNum">     286 </span><span class="lineCov">     122427 :         add(messages, msg);</span></a>
+<a name="287"><span class="lineNum">     287 </span>            :       }</a>
+<a name="288"><span class="lineNum">     288 </span><span class="lineCov">     122427 :       if (!ELEM(section, SECTION_NONE, SECTION_STR)) {</span></a>
+<a name="289"><span class="lineNum">     289 </span><span class="lineNoCov">          0 :         printf(&quot;msgctxt not at start of new message on %s:%d\n&quot;, input_file_name, lno);</span></a>
+<a name="290"><span class="lineNum">     290 </span><span class="lineNoCov">          0 :         return EXIT_FAILURE;</span></a>
+<a name="291"><span class="lineNum">     291 </span>            :       }</a>
+<a name="292"><span class="lineNum">     292 </span><span class="lineCov">     122427 :       section = SECTION_CTX;</span></a>
+<a name="293"><span class="lineNum">     293 </span><span class="lineCov">     122427 :       l = l.substr(msgctxt_len);</span></a>
+<a name="294"><span class="lineNum">     294 </span><span class="lineCov">     122427 :       clear(msg);</span></a>
+<a name="295"><span class="lineNum">     295 </span>            :     }</a>
+<a name="296"><span class="lineNum">     296 </span><span class="lineCov">    1706468 :     else if (l.startswith(msgid_plural_kw)) {</span></a>
+<a name="297"><span class="lineNum">     297 </span>            :       /* This is a message with plural forms. */</a>
+<a name="298"><span class="lineNum">     298 </span><span class="lineNoCov">          0 :       if (section != SECTION_ID) {</span></a>
+<a name="299"><span class="lineNum">     299 </span><span class="lineNoCov">          0 :         printf(&quot;msgid_plural not preceded by msgid on %s:%d\n&quot;, input_file_name, lno);</span></a>
+<a name="300"><span class="lineNum">     300 </span><span class="lineNoCov">          0 :         return EXIT_FAILURE;</span></a>
+<a name="301"><span class="lineNum">     301 </span>            :       }</a>
+<a name="302"><span class="lineNum">     302 </span><span class="lineNoCov">          0 :       l = l.substr(msgid_plural_len);</span></a>
+<a name="303"><span class="lineNum">     303 </span><span class="lineNoCov">          0 :       msg.id += &quot;\0&quot;; /* separator of singular and plural */  // NOLINT</span></a>
+<a name="304"><span class="lineNum">     304 </span><span class="lineNoCov">          0 :       is_plural = true;</span></a>
+<a name="305"><span class="lineNum">     305 </span>            :     }</a>
+<a name="306"><span class="lineNum">     306 </span><span class="lineCov">    1706468 :     else if (l.startswith(msgid_kw)) {</span></a>
+<a name="307"><span class="lineNum">     307 </span><span class="lineCov">     847433 :       if (section == SECTION_STR) {</span></a>
+<a name="308"><span class="lineNum">     308 </span><span class="lineCov">     724957 :         add(messages, msg);</span></a>
+<a name="309"><span class="lineNum">     309 </span>            :       }</a>
+<a name="310"><span class="lineNum">     310 </span><span class="lineCov">     847433 :       if (section != SECTION_CTX) {</span></a>
+<a name="311"><span class="lineNum">     311 </span><span class="lineCov">     725006 :         clear(msg);</span></a>
+<a name="312"><span class="lineNum">     312 </span>            :       }</a>
+<a name="313"><span class="lineNum">     313 </span><span class="lineCov">     847433 :       section = SECTION_ID;</span></a>
+<a name="314"><span class="lineNum">     314 </span><span class="lineCov">     847433 :       l = l.substr(msgid_len);</span></a>
+<a name="315"><span class="lineNum">     315 </span><span class="lineCov">     847433 :       is_plural = false;</span></a>
+<a name="316"><span class="lineNum">     316 </span>            :     }</a>
+<a name="317"><span class="lineNum">     317 </span><span class="lineCov">     859035 :     else if (l.startswith(msgstr_kw)) {</span></a>
+<a name="318"><span class="lineNum">     318 </span><span class="lineCov">     847433 :       l = l.substr(msgstr_len);</span></a>
+<a name="319"><span class="lineNum">     319 </span>            :       /* Now we are in a `msgstr` section. */</a>
+<a name="320"><span class="lineNum">     320 </span><span class="lineCov">     847433 :       section = SECTION_STR;</span></a>
+<a name="321"><span class="lineNum">     321 </span><span class="lineCov">     847433 :       if (l[0] == '[') {</span></a>
+<a name="322"><span class="lineNum">     322 </span><span class="lineNoCov">          0 :         if (!is_plural) {</span></a>
+<a name="323"><span class="lineNum">     323 </span><span class="lineNoCov">          0 :           printf(&quot;plural without msgid_plural on %s:%d\n&quot;, input_file_name, lno);</span></a>
+<a name="324"><span class="lineNum">     324 </span><span class="lineNoCov">          0 :           return EXIT_FAILURE;</span></a>
+<a name="325"><span class="lineNum">     325 </span>            :         }</a>
+<a name="326"><span class="lineNum">     326 </span><span class="lineNoCov">          0 :         int64_t close_bracket_idx = l.find(']');</span></a>
+<a name="327"><span class="lineNum">     327 </span><span class="lineNoCov">          0 :         if (close_bracket_idx == StringRef::not_found) {</span></a>
+<a name="328"><span class="lineNum">     328 </span><span class="lineNoCov">          0 :           printf(&quot;Syntax error on %s:%d\n&quot;, input_file_name, lno);</span></a>
+<a name="329"><span class="lineNum">     329 </span><span class="lineNoCov">          0 :           return EXIT_FAILURE;</span></a>
+<a name="330"><span class="lineNum">     330 </span>            :         }</a>
+<a name="331"><span class="lineNum">     331 </span><span class="lineNoCov">          0 :         l = l.substr(close_bracket_idx + 1);</span></a>
+<a name="332"><span class="lineNum">     332 </span><span class="lineNoCov">          0 :         if (!msg.str.empty()) {</span></a>
+<a name="333"><span class="lineNum">     333 </span><span class="lineNoCov">          0 :           msg.str += &quot;\0&quot;; /* Separator of the various plural forms. */  // NOLINT</span></a>
+<a name="334"><span class="lineNum">     334 </span>            :         }</a>
+<a name="335"><span class="lineNum">     335 </span>            :       }</a>
+<a name="336"><span class="lineNum">     336 </span>            :       else {</a>
+<a name="337"><span class="lineNum">     337 </span><span class="lineCov">     847433 :         if (is_plural) {</span></a>
+<a name="338"><span class="lineNum">     338 </span><span class="lineNoCov">          0 :           printf(&quot;indexed msgstr required for plural on %s:%d\n&quot;, input_file_name, lno);</span></a>
+<a name="339"><span class="lineNum">     339 </span><span class="lineNoCov">          0 :           return EXIT_FAILURE;</span></a>
+<a name="340"><span class="lineNum">     340 </span>            :         }</a>
+<a name="341"><span class="lineNum">     341 </span>            :       }</a>
+<a name="342"><span class="lineNum">     342 </span>            :     }</a>
+<a name="343"><span class="lineNum">     343 </span>            :     /* Skip empty lines. */</a>
+<a name="344"><span class="lineNum">     344 </span><span class="lineCov">    1828895 :     l = l.trim();</span></a>
+<a name="345"><span class="lineNum">     345 </span><span class="lineCov">    1828895 :     if (l.is_empty()) {</span></a>
+<a name="346"><span class="lineNum">     346 </span><span class="lineNoCov">          0 :       if (section == SECTION_STR) {</span></a>
+<a name="347"><span class="lineNum">     347 </span><span class="lineNoCov">          0 :         add(messages, msg);</span></a>
+<a name="348"><span class="lineNum">     348 </span>            :       }</a>
+<a name="349"><span class="lineNum">     349 </span><span class="lineNoCov">          0 :       section = SECTION_NONE;</span></a>
+<a name="350"><span class="lineNum">     350 </span><span class="lineNoCov">          0 :       continue;</span></a>
+<a name="351"><span class="lineNum">     351 </span>            :     }</a>
+<a name="352"><span class="lineNum">     352 </span><span class="lineCov">    1828895 :     line = l;</span></a>
+<a name="353"><span class="lineNum">     353 </span><span class="lineCov">    1828895 :     l = unescape(line);</span></a>
+<a name="354"><span class="lineNum">     354 </span><span class="lineCov">    1828895 :     if (section == SECTION_CTX) {</span></a>
+<a name="355"><span class="lineNum">     355 </span><span class="lineCov">     122427 :       msg.ctxt += l;</span></a>
+<a name="356"><span class="lineNum">     356 </span>            :     }</a>
+<a name="357"><span class="lineNum">     357 </span><span class="lineCov">    1706468 :     else if (section == SECTION_ID) {</span></a>
+<a name="358"><span class="lineNum">     358 </span><span class="lineCov">     851903 :       msg.id += l;</span></a>
+<a name="359"><span class="lineNum">     359 </span>            :     }</a>
+<a name="360"><span class="lineNum">     360 </span><span class="lineCov">     854565 :     else if (section == SECTION_STR) {</span></a>
+<a name="361"><span class="lineNum">     361 </span><span class="lineCov">     854565 :       msg.str += l;</span></a>
+<a name="362"><span class="lineNum">     362 </span>            :     }</a>
+<a name="363"><span class="lineNum">     363 </span>            :     else {</a>
+<a name="364"><span class="lineNum">     364 </span><span class="lineNoCov">          0 :       printf(&quot;Syntax error on %s:%d\n&quot;, input_file_name, lno);</span></a>
+<a name="365"><span class="lineNum">     365 </span><span class="lineNoCov">          0 :       return EXIT_FAILURE;</span></a>
+<a name="366"><span class="lineNum">     366 </span>            :     }</a>
+<a name="367"><span class="lineNum">     367 </span><span class="lineCov">    3523810 :   }</span></a>
+<a name="368"><span class="lineNum">     368 </span>            :   /* Add last entry */</a>
+<a name="369"><span class="lineNum">     369 </span><span class="lineCov">         49 :   if (section == SECTION_STR) {</span></a>
+<a name="370"><span class="lineNum">     370 </span><span class="lineCov">         49 :     add(messages, msg);</span></a>
+<a name="371"><span class="lineNum">     371 </span>            :   }</a>
+<a name="372"><span class="lineNum">     372 </span>            : </a>
+<a name="373"><span class="lineNum">     373 </span><span class="lineCov">         49 :   BLI_file_free_lines(input_file_lines);</span></a>
+<a name="374"><span class="lineNum">     374 </span>            : </a>
+<a name="375"><span class="lineNum">     375 </span>            :   /* Compute output */</a>
+<a name="376"><span class="lineNum">     376 </span>            :   size_t output_size;</a>
+<a name="377"><span class="lineNum">     377 </span><span class="lineCov">         49 :   char *output = generate(messages, &amp;output_size);</span></a>
+<a name="378"><span class="lineNum">     378 </span>            : </a>
+<a name="379"><span class="lineNum">     379 </span><span class="lineCov">         49 :   FILE *fp = BLI_fopen(output_file_name, &quot;wb&quot;);</span></a>
+<a name="380"><span class="lineNum">     380 </span><span class="lineCov">         49 :   fwrite(output, 1, output_size, fp);</span></a>
+<a name="381"><span class="lineNum">     381 </span><span class="lineCov">         49 :   fclose(fp);</span></a>
+<a name="382"><span class="lineNum">     382 </span>            : </a>
+<a name="383"><span class="lineNum">     383 </span><span class="lineCov">         49 :   MEM_delete(output);</span></a>
+<a name="384"><span class="lineNum">     384 </span>            : </a>
+<a name="385"><span class="lineNum">     385 </span><span class="lineCov">         49 :   return EXIT_SUCCESS;</span></a>
+<a name="386"><span class="lineNum">     386 </span><span class="lineCov">         49 : }</span></a>
+<a name="387"><span class="lineNum">     387 </span>            : </a>
+<a name="388"><span class="lineNum">     388 </span>            : }  // namespace blender</a>
+<a name="389"><span class="lineNum">     389 </span>            : </a>
+<a name="390"><span class="lineNum">     390 </span><span class="lineCov">         49 : int main(int argc, char **argv)</span></a>
+<a name="391"><span class="lineNum">     391 </span>            : {</a>
+<a name="392"><span class="lineNum">     392 </span><span class="lineCov">         49 :   if (argc != 3) {</span></a>
+<a name="393"><span class="lineNum">     393 </span><span class="lineNoCov">          0 :     printf(&quot;Usage: %s &lt;input.po&gt; &lt;output.mo&gt;\n&quot;, argv[0]);</span></a>
+<a name="394"><span class="lineNum">     394 </span><span class="lineNoCov">          0 :     return EXIT_FAILURE;</span></a>
+<a name="395"><span class="lineNum">     395 </span>            :   }</a>
+<a name="396"><span class="lineNum">     396 </span><span class="lineCov">         49 :   const char *input_file = argv[1];</span></a>
+<a name="397"><span class="lineNum">     397 </span><span class="lineCov">         49 :   const char *output_file = argv[2];</span></a>
+<a name="398"><span class="lineNum">     398 </span>            : </a>
+<a name="399"><span class="lineNum">     399 </span><span class="lineCov">         49 :   return blender::make(input_file, output_file);</span></a>
+<a name="400"><span class="lineNum">     400 </span>            : }</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,345 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - makesdna/DNA_customdata_types.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">makesdna</a> - DNA_customdata_types.h<span style="font-size: 80%;"> (source / <a href="DNA_customdata_types.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2001-2002 NaN Holding BV. All rights reserved.</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup DNA</a>
+<a name="7"><span class="lineNum">       7 </span>            :  *</a>
+<a name="8"><span class="lineNum">       8 </span>            :  * Used for custom mesh data types (stored per vert/edge/loop/face)</a>
+<a name="9"><span class="lineNum">       9 </span>            :  */</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : #pragma once</a>
+<a name="12"><span class="lineNum">      12 </span>            : </a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;BLI_enum_flags.hh&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;BLI_sys_types.hh&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : </a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &quot;BLI_implicit_sharing.hh&quot;</a>
+<a name="17"><span class="lineNum">      17 </span>            : </a>
+<a name="18"><span class="lineNum">      18 </span>            : namespace blender {</a>
+<a name="19"><span class="lineNum">      19 </span>            : </a>
+<a name="20"><span class="lineNum">      20 </span>            : /** #CustomDataLayer.type */</a>
+<a name="21"><span class="lineNum">      21 </span>            : enum eCustomDataType : int {</a>
+<a name="22"><span class="lineNum">      22 </span>            :   /**</a>
+<a name="23"><span class="lineNum">      23 </span>            :    * Used by GPU attributes in the cases when we don't know which layer</a>
+<a name="24"><span class="lineNum">      24 </span>            :    * we are addressing in advance.</a>
+<a name="25"><span class="lineNum">      25 </span>            :    */</a>
+<a name="26"><span class="lineNum">      26 </span>            :   CD_AUTO_FROM_NAME = -1,</a>
+<a name="27"><span class="lineNum">      27 </span>            : </a>
+<a name="28"><span class="lineNum">      28 </span>            : #ifdef DNA_DEPRECATED_ALLOW</a>
+<a name="29"><span class="lineNum">      29 </span>            :   CD_MVERT = 0,</a>
+<a name="30"><span class="lineNum">      30 </span>            :   CD_MSTICKY = 1,</a>
+<a name="31"><span class="lineNum">      31 </span>            : #endif</a>
+<a name="32"><span class="lineNum">      32 </span>            :   CD_MDEFORMVERT = 2, /* Array of #MDeformVert. */</a>
+<a name="33"><span class="lineNum">      33 </span>            : #ifdef DNA_DEPRECATED_ALLOW</a>
+<a name="34"><span class="lineNum">      34 </span>            :   CD_MEDGE = 3,</a>
+<a name="35"><span class="lineNum">      35 </span>            : #endif</a>
+<a name="36"><span class="lineNum">      36 </span>            :   CD_MFACE = 4,</a>
+<a name="37"><span class="lineNum">      37 </span>            :   CD_MTFACE = 5,</a>
+<a name="38"><span class="lineNum">      38 </span>            :   CD_MCOL = 6,</a>
+<a name="39"><span class="lineNum">      39 </span>            :   CD_ORIGINDEX = 7,</a>
+<a name="40"><span class="lineNum">      40 </span>            :   /**</a>
+<a name="41"><span class="lineNum">      41 </span>            :    * Used as temporary storage for some areas that support interpolating custom normals.</a>
+<a name="42"><span class="lineNum">      42 </span>            :    * Using a separate type from generic 3D vectors is a simple way of keeping values normalized.</a>
+<a name="43"><span class="lineNum">      43 </span>            :    */</a>
+<a name="44"><span class="lineNum">      44 </span>            :   CD_NORMAL = 8,</a>
+<a name="45"><span class="lineNum">      45 </span>            : #ifdef DNA_DEPRECATED_ALLOW</a>
+<a name="46"><span class="lineNum">      46 </span>            :   CD_FACEMAP = 9,</a>
+<a name="47"><span class="lineNum">      47 </span>            : #endif</a>
+<a name="48"><span class="lineNum">      48 </span>            :   CD_PROP_FLOAT = 10,</a>
+<a name="49"><span class="lineNum">      49 </span>            :   CD_PROP_INT32 = 11,</a>
+<a name="50"><span class="lineNum">      50 </span>            :   CD_PROP_STRING = 12,</a>
+<a name="51"><span class="lineNum">      51 </span>            :   CD_ORIGSPACE = 13, /* for modifier stack face location mapping */</a>
+<a name="52"><span class="lineNum">      52 </span>            :   CD_ORCO = 14,      /* undeformed vertex coordinates, normalized to 0..1 range */</a>
+<a name="53"><span class="lineNum">      53 </span>            : #ifdef DNA_DEPRECATED_ALLOW</a>
+<a name="54"><span class="lineNum">      54 </span>            :   CD_MTEXPOLY = 15,</a>
+<a name="55"><span class="lineNum">      55 </span>            :   CD_MLOOPUV = 16,</a>
+<a name="56"><span class="lineNum">      56 </span>            : #endif</a>
+<a name="57"><span class="lineNum">      57 </span>            :   CD_PROP_BYTE_COLOR = 17,</a>
+<a name="58"><span class="lineNum">      58 </span>            :   /**</a>
+<a name="59"><span class="lineNum">      59 </span>            :    * Previously used for runtime corner tangent storage in mesh #CustomData. Currently only used</a>
+<a name="60"><span class="lineNum">      60 </span>            :    * as an identifier to choose tangents in a few places.</a>
+<a name="61"><span class="lineNum">      61 </span>            :    */</a>
+<a name="62"><span class="lineNum">      62 </span>            :   CD_TANGENT = 18,</a>
+<a name="63"><span class="lineNum">      63 </span>            :   CD_MDISPS = 19,</a>
+<a name="64"><span class="lineNum">      64 </span>            :   CD_PROP_FLOAT4X4 = 20,</a>
+<a name="65"><span class="lineNum">      65 </span>            :   /* CD_ID_MCOL = 21, */</a>
+<a name="66"><span class="lineNum">      66 </span>            :   CD_PROP_INT16_2D = 22,</a>
+<a name="67"><span class="lineNum">      67 </span>            :   CD_CLOTH_ORCO = 23,</a>
+<a name="68"><span class="lineNum">      68 </span>            :   CD_PROP_FLOAT4 = 24,</a>
+<a name="69"><span class="lineNum">      69 </span>            : </a>
+<a name="70"><span class="lineNum">      70 </span>            : #ifdef DNA_DEPRECATED_ALLOW</a>
+<a name="71"><span class="lineNum">      71 </span>            :   CD_MPOLY = 25,</a>
+<a name="72"><span class="lineNum">      72 </span>            :   CD_MLOOP = 26,</a>
+<a name="73"><span class="lineNum">      73 </span>            : #endif</a>
+<a name="74"><span class="lineNum">      74 </span>            :   CD_SHAPE_KEYINDEX = 27,</a>
+<a name="75"><span class="lineNum">      75 </span>            :   CD_SHAPEKEY = 28,</a>
+<a name="76"><span class="lineNum">      76 </span>            : #ifdef DNA_DEPRECATED_ALLOW</a>
+<a name="77"><span class="lineNum">      77 </span>            :   CD_BWEIGHT = 29,</a>
+<a name="78"><span class="lineNum">      78 </span>            :   CD_CREASE = 30,</a>
+<a name="79"><span class="lineNum">      79 </span>            : #endif</a>
+<a name="80"><span class="lineNum">      80 </span>            :   CD_ORIGSPACE_MLOOP = 31,</a>
+<a name="81"><span class="lineNum">      81 </span>            :   /* CD_PREVIEW_MLOOPCOL = 32, */ /* UNUSED */</a>
+<a name="82"><span class="lineNum">      82 </span>            :   CD_BM_ELEM_PYPTR = 33,</a>
+<a name="83"><span class="lineNum">      83 </span>            : </a>
+<a name="84"><span class="lineNum">      84 </span>            : #ifdef DNA_DEPRECATED_ALLOW</a>
+<a name="85"><span class="lineNum">      85 </span>            :   CD_PAINT_MASK = 34,</a>
+<a name="86"><span class="lineNum">      86 </span>            : #endif</a>
+<a name="87"><span class="lineNum">      87 </span>            :   CD_GRID_PAINT_MASK = 35,</a>
+<a name="88"><span class="lineNum">      88 </span>            : #ifdef DNA_DEPRECATED_ALLOW</a>
+<a name="89"><span class="lineNum">      89 </span>            :   CD_MVERT_SKIN = 36,</a>
+<a name="90"><span class="lineNum">      90 </span>            :   CD_FREESTYLE_EDGE = 37,</a>
+<a name="91"><span class="lineNum">      91 </span>            :   CD_FREESTYLE_FACE = 38,</a>
+<a name="92"><span class="lineNum">      92 </span>            : #endif</a>
+<a name="93"><span class="lineNum">      93 </span>            :   CD_MLOOPTANGENT = 39,</a>
+<a name="94"><span class="lineNum">      94 </span>            :   CD_TESSLOOPNORMAL = 40,</a>
+<a name="95"><span class="lineNum">      95 </span>            : #ifdef DNA_DEPRECATED_ALLOW</a>
+<a name="96"><span class="lineNum">      96 </span>            :   CD_CUSTOMLOOPNORMAL = 41,</a>
+<a name="97"><span class="lineNum">      97 </span>            :   CD_SCULPT_FACE_SETS = 42,</a>
+<a name="98"><span class="lineNum">      98 </span>            : #endif</a>
+<a name="99"><span class="lineNum">      99 </span>            : </a>
+<a name="100"><span class="lineNum">     100 </span>            :   /* CD_LOCATION = 43, */ /* UNUSED */</a>
+<a name="101"><span class="lineNum">     101 </span>            :   /* CD_RADIUS = 44, */   /* UNUSED */</a>
+<a name="102"><span class="lineNum">     102 </span>            :   CD_PROP_INT8 = 45,</a>
+<a name="103"><span class="lineNum">     103 </span>            :   /* Two 32-bit signed integers. */</a>
+<a name="104"><span class="lineNum">     104 </span>            :   CD_PROP_INT32_2D = 46,</a>
+<a name="105"><span class="lineNum">     105 </span>            : </a>
+<a name="106"><span class="lineNum">     106 </span>            :   CD_PROP_COLOR = 47,</a>
+<a name="107"><span class="lineNum">     107 </span>            :   CD_PROP_FLOAT3 = 48,</a>
+<a name="108"><span class="lineNum">     108 </span>            :   CD_PROP_FLOAT2 = 49,</a>
+<a name="109"><span class="lineNum">     109 </span>            :   CD_PROP_BOOL = 50,</a>
+<a name="110"><span class="lineNum">     110 </span>            : </a>
+<a name="111"><span class="lineNum">     111 </span>            :   /* CD_HAIRLENGTH = 51, */ /* UNUSED */</a>
+<a name="112"><span class="lineNum">     112 </span>            : </a>
+<a name="113"><span class="lineNum">     113 </span>            :   CD_PROP_QUATERNION = 52,</a>
+<a name="114"><span class="lineNum">     114 </span>            : </a>
+<a name="115"><span class="lineNum">     115 </span>            :   CD_NUMTYPES = 53,</a>
+<a name="116"><span class="lineNum">     116 </span>            : };</a>
+<a name="117"><span class="lineNum">     117 </span>            : </a>
+<a name="118"><span class="lineNum">     118 </span>            : /* Bits for #eCustomDataMask */</a>
+<a name="119"><span class="lineNum">     119 </span>            : </a>
+<a name="120"><span class="lineNum">     120 </span>            : #define CD_MASK_MDEFORMVERT (1 &lt;&lt; CD_MDEFORMVERT)</a>
+<a name="121"><span class="lineNum">     121 </span>            : #define CD_MASK_MFACE (1 &lt;&lt; CD_MFACE)</a>
+<a name="122"><span class="lineNum">     122 </span>            : #define CD_MASK_MTFACE (1 &lt;&lt; CD_MTFACE)</a>
+<a name="123"><span class="lineNum">     123 </span>            : #define CD_MASK_MCOL (1 &lt;&lt; CD_MCOL)</a>
+<a name="124"><span class="lineNum">     124 </span>            : #define CD_MASK_ORIGINDEX (1 &lt;&lt; CD_ORIGINDEX)</a>
+<a name="125"><span class="lineNum">     125 </span>            : #define CD_MASK_NORMAL (1 &lt;&lt; CD_NORMAL)</a>
+<a name="126"><span class="lineNum">     126 </span>            : #define CD_MASK_PROP_FLOAT (1 &lt;&lt; CD_PROP_FLOAT)</a>
+<a name="127"><span class="lineNum">     127 </span>            : #define CD_MASK_PROP_INT32 (1 &lt;&lt; CD_PROP_INT32)</a>
+<a name="128"><span class="lineNum">     128 </span>            : #define CD_MASK_PROP_STRING (1 &lt;&lt; CD_PROP_STRING)</a>
+<a name="129"><span class="lineNum">     129 </span>            : #define CD_MASK_ORIGSPACE (1 &lt;&lt; CD_ORIGSPACE)</a>
+<a name="130"><span class="lineNum">     130 </span>            : #define CD_MASK_ORCO (1 &lt;&lt; CD_ORCO)</a>
+<a name="131"><span class="lineNum">     131 </span>            : #define CD_MASK_PROP_BYTE_COLOR (1 &lt;&lt; CD_PROP_BYTE_COLOR)</a>
+<a name="132"><span class="lineNum">     132 </span>            : #define CD_MASK_MDISPS (1 &lt;&lt; CD_MDISPS)</a>
+<a name="133"><span class="lineNum">     133 </span>            : #define CD_MASK_CLOTH_ORCO (1 &lt;&lt; CD_CLOTH_ORCO)</a>
+<a name="134"><span class="lineNum">     134 </span>            : </a>
+<a name="135"><span class="lineNum">     135 </span>            : #define CD_MASK_SHAPE_KEYINDEX (1 &lt;&lt; CD_SHAPE_KEYINDEX)</a>
+<a name="136"><span class="lineNum">     136 </span>            : #define CD_MASK_SHAPEKEY (1 &lt;&lt; CD_SHAPEKEY)</a>
+<a name="137"><span class="lineNum">     137 </span>            : #define CD_MASK_ORIGSPACE_MLOOP (1LL &lt;&lt; CD_ORIGSPACE_MLOOP)</a>
+<a name="138"><span class="lineNum">     138 </span>            : #define CD_MASK_BM_ELEM_PYPTR (1LL &lt;&lt; CD_BM_ELEM_PYPTR)</a>
+<a name="139"><span class="lineNum">     139 </span>            : </a>
+<a name="140"><span class="lineNum">     140 </span>            : #define CD_MASK_GRID_PAINT_MASK (1LL &lt;&lt; CD_GRID_PAINT_MASK)</a>
+<a name="141"><span class="lineNum">     141 </span>            : #define CD_MASK_MLOOPTANGENT (1LL &lt;&lt; CD_MLOOPTANGENT)</a>
+<a name="142"><span class="lineNum">     142 </span>            : #define CD_MASK_TESSLOOPNORMAL (1LL &lt;&lt; CD_TESSLOOPNORMAL)</a>
+<a name="143"><span class="lineNum">     143 </span>            : #define CD_MASK_PROP_COLOR (1ULL &lt;&lt; CD_PROP_COLOR)</a>
+<a name="144"><span class="lineNum">     144 </span>            : #define CD_MASK_PROP_FLOAT4 (1ULL &lt;&lt; CD_PROP_FLOAT4)</a>
+<a name="145"><span class="lineNum">     145 </span>            : #define CD_MASK_PROP_FLOAT3 (1ULL &lt;&lt; CD_PROP_FLOAT3)</a>
+<a name="146"><span class="lineNum">     146 </span>            : #define CD_MASK_PROP_FLOAT2 (1ULL &lt;&lt; CD_PROP_FLOAT2)</a>
+<a name="147"><span class="lineNum">     147 </span>            : #define CD_MASK_PROP_BOOL (1ULL &lt;&lt; CD_PROP_BOOL)</a>
+<a name="148"><span class="lineNum">     148 </span>            : #define CD_MASK_PROP_INT8 (1ULL &lt;&lt; CD_PROP_INT8)</a>
+<a name="149"><span class="lineNum">     149 </span>            : #define CD_MASK_PROP_INT16_2D (1ULL &lt;&lt; CD_PROP_INT16_2D)</a>
+<a name="150"><span class="lineNum">     150 </span>            : #define CD_MASK_PROP_INT32_2D (1ULL &lt;&lt; CD_PROP_INT32_2D)</a>
+<a name="151"><span class="lineNum">     151 </span>            : #define CD_MASK_PROP_QUATERNION (1ULL &lt;&lt; CD_PROP_QUATERNION)</a>
+<a name="152"><span class="lineNum">     152 </span>            : #define CD_MASK_PROP_FLOAT4X4 (1ULL &lt;&lt; CD_PROP_FLOAT4X4)</a>
+<a name="153"><span class="lineNum">     153 </span>            : </a>
+<a name="154"><span class="lineNum">     154 </span>            : /** Multi-resolution loop data. */</a>
+<a name="155"><span class="lineNum">     155 </span>            : #define CD_MASK_MULTIRES_GRIDS (CD_MASK_MDISPS | CD_GRID_PAINT_MASK)</a>
+<a name="156"><span class="lineNum">     156 </span>            : </a>
+<a name="157"><span class="lineNum">     157 </span>            : /** All data layers. */</a>
+<a name="158"><span class="lineNum">     158 </span>            : #define CD_MASK_ALL (~0LL)</a>
+<a name="159"><span class="lineNum">     159 </span>            : </a>
+<a name="160"><span class="lineNum">     160 </span>            : /** All generic attributes. */</a>
+<a name="161"><span class="lineNum">     161 </span>            : #define CD_MASK_PROP_ALL \</a>
+<a name="162"><span class="lineNum">     162 </span>            :   (CD_MASK_PROP_FLOAT | CD_MASK_PROP_FLOAT2 | CD_MASK_PROP_FLOAT3 | CD_MASK_PROP_FLOAT4 | \</a>
+<a name="163"><span class="lineNum">     163 </span>            :    CD_MASK_PROP_INT32 | CD_MASK_PROP_COLOR | CD_MASK_PROP_STRING | CD_MASK_PROP_BYTE_COLOR | \</a>
+<a name="164"><span class="lineNum">     164 </span>            :    CD_MASK_PROP_BOOL | CD_MASK_PROP_INT8 | CD_MASK_PROP_INT16_2D | CD_MASK_PROP_INT32_2D | \</a>
+<a name="165"><span class="lineNum">     165 </span>            :    CD_MASK_PROP_QUATERNION | CD_MASK_PROP_FLOAT4X4)</a>
+<a name="166"><span class="lineNum">     166 </span>            : </a>
+<a name="167"><span class="lineNum">     167 </span>            : /** All color attributes */</a>
+<a name="168"><span class="lineNum">     168 </span>            : #define CD_MASK_COLOR_ALL (CD_MASK_PROP_COLOR | CD_MASK_PROP_BYTE_COLOR)</a>
+<a name="169"><span class="lineNum">     169 </span>            : </a>
+<a name="170"><span class="lineNum">     170 </span>            : /** Limits. */</a>
+<a name="171"><span class="lineNum">     171 </span>            : #define MAX_MTFACE 8</a>
+<a name="172"><span class="lineNum">     172 </span>            : </a>
+<a name="173"><span class="lineNum">     173 </span>            : #define MAX_CUSTOMDATA_LAYER_NAME 68</a>
+<a name="174"><span class="lineNum">     174 </span>            : #define MAX_CUSTOMDATA_LAYER_NAME_NO_PREFIX 64</a>
+<a name="175"><span class="lineNum">     175 </span>            : </a>
+<a name="176"><span class="lineNum">     176 </span>            : /** #CustomDataLayer.flag */</a>
+<a name="177"><span class="lineNum">     177 </span>            : enum eCustomDataLayer_Flag : int {</a>
+<a name="178"><span class="lineNum">     178 </span>            :   /**</a>
+<a name="179"><span class="lineNum">     179 </span>            :    * Indicates layer should not be copied by #CustomData_from_template or #CustomData_copy_data.</a>
+<a name="180"><span class="lineNum">     180 </span>            :    */</a>
+<a name="181"><span class="lineNum">     181 </span>            :   CD_FLAG_NOCOPY = (1 &lt;&lt; 0),</a>
+<a name="182"><span class="lineNum">     182 </span>            :   CD_FLAG_UNUSED = (1 &lt;&lt; 1),</a>
+<a name="183"><span class="lineNum">     183 </span>            :   /** Indicates the layer is only temporary, also implies no copy */</a>
+<a name="184"><span class="lineNum">     184 </span>            :   CD_FLAG_TEMPORARY = ((1 &lt;&lt; 2) | CD_FLAG_NOCOPY),</a>
+<a name="185"><span class="lineNum">     185 </span>            :   /** Indicates the layer is stored in an external file */</a>
+<a name="186"><span class="lineNum">     186 </span>            :   CD_FLAG_EXTERNAL = (1 &lt;&lt; 3),</a>
+<a name="187"><span class="lineNum">     187 </span>            :   /** Indicates external data is read into memory */</a>
+<a name="188"><span class="lineNum">     188 </span>            :   CD_FLAG_IN_MEMORY = (1 &lt;&lt; 4),</a>
+<a name="189"><span class="lineNum">     189 </span>            : #ifdef DNA_DEPRECATED_ALLOW</a>
+<a name="190"><span class="lineNum">     190 </span>            :   CD_FLAG_COLOR_ACTIVE = (1 &lt;&lt; 5),</a>
+<a name="191"><span class="lineNum">     191 </span>            :   CD_FLAG_COLOR_RENDER = (1 &lt;&lt; 6)</a>
+<a name="192"><span class="lineNum">     192 </span>            : #endif</a>
+<a name="193"><span class="lineNum">     193 </span>            : };</a>
+<a name="194"><span class="lineNum">     194 </span><span class="lineCov">     185080 : ENUM_OPERATORS(eCustomDataLayer_Flag)</span></a>
+<a name="195"><span class="lineNum">     195 </span>            : </a>
+<a name="196"><span class="lineNum">     196 </span>            : /** Descriptor and storage for a custom data layer. */</a>
+<a name="197"><span class="lineNum">     197 </span>            : struct CustomDataLayer {</a>
+<a name="198"><span class="lineNum">     198 </span>            :   /** Type of data in layer. */</a>
+<a name="199"><span class="lineNum">     199 </span>            :   eCustomDataType type = {};</a>
+<a name="200"><span class="lineNum">     200 </span>            :   /** In editmode, offset of layer in block. */</a>
+<a name="201"><span class="lineNum">     201 </span>            :   int offset = 0;</a>
+<a name="202"><span class="lineNum">     202 </span>            :   /** General purpose flag. */</a>
+<a name="203"><span class="lineNum">     203 </span>            :   eCustomDataLayer_Flag flag = {};</a>
+<a name="204"><span class="lineNum">     204 </span>            :   /** Number of the active layer of this type. */</a>
+<a name="205"><span class="lineNum">     205 </span>            :   int active = 0;</a>
+<a name="206"><span class="lineNum">     206 </span>            :   /** Number of the layer to render. */</a>
+<a name="207"><span class="lineNum">     207 </span>            :   int active_rnd = 0;</a>
+<a name="208"><span class="lineNum">     208 </span>            :   /** Shape key-block unique id reference. */</a>
+<a name="209"><span class="lineNum">     209 </span>            :   int uid = 0;</a>
+<a name="210"><span class="lineNum">     210 </span>            :   /** Layer name. */</a>
+<a name="211"><span class="lineNum">     211 </span>            :   char name[/*MAX_CUSTOMDATA_LAYER_NAME*/ 68] = &quot;&quot;;</a>
+<a name="212"><span class="lineNum">     212 </span>            :   char _pad1[4] = {};</a>
+<a name="213"><span class="lineNum">     213 </span>            :   /** Layer data. */</a>
+<a name="214"><span class="lineNum">     214 </span>            :   void *data = nullptr;</a>
+<a name="215"><span class="lineNum">     215 </span>            :   /**</a>
+<a name="216"><span class="lineNum">     216 </span>            :    * Run-time data that allows sharing `data` with other entities (mostly custom data layers on</a>
+<a name="217"><span class="lineNum">     217 </span>            :    * other geometries).</a>
+<a name="218"><span class="lineNum">     218 </span>            :    */</a>
+<a name="219"><span class="lineNum">     219 </span>            :   const ImplicitSharingInfoHandle *sharing_info = nullptr;</a>
+<a name="220"><span class="lineNum">     220 </span>            : };</a>
+<a name="221"><span class="lineNum">     221 </span>            : </a>
+<a name="222"><span class="lineNum">     222 </span>            : struct CustomDataExternal {</a>
+<a name="223"><span class="lineNum">     223 </span>            :   char filepath[/*FILE_MAX*/ 1024] = &quot;&quot;;</a>
+<a name="224"><span class="lineNum">     224 </span>            : };</a>
+<a name="225"><span class="lineNum">     225 </span>            : </a>
+<a name="226"><span class="lineNum">     226 </span>            : /**</a>
+<a name="227"><span class="lineNum">     227 </span>            :  * #CustomData stores an arbitrary number of typed data &quot;layers&quot; for multiple elements.</a>
+<a name="228"><span class="lineNum">     228 </span>            :  * The layers are typically geometry attributes, and the elements are typically geometry</a>
+<a name="229"><span class="lineNum">     229 </span>            :  * elements like vertices, edges, or curves.</a>
+<a name="230"><span class="lineNum">     230 </span>            :  *</a>
+<a name="231"><span class="lineNum">     231 </span>            :  * Each layer has a type, often with certain semantics beyond the type of the raw data. However,</a>
+<a name="232"><span class="lineNum">     232 </span>            :  * a subset of the layer types are exposed as attributes and accessed with a higher level API</a>
+<a name="233"><span class="lineNum">     233 </span>            :  * built around #AttributeAccessor.</a>
+<a name="234"><span class="lineNum">     234 </span>            :  *</a>
+<a name="235"><span class="lineNum">     235 </span>            :  * For #BMesh, #CustomData is adapted to store the data from all layers in a single &quot;block&quot; which</a>
+<a name="236"><span class="lineNum">     236 </span>            :  * is allocated for each element. Each layer's data is stored at a certain offset into every</a>
+<a name="237"><span class="lineNum">     237 </span>            :  * block's data.</a>
+<a name="238"><span class="lineNum">     238 </span>            :  */</a>
+<a name="239"><span class="lineNum">     239 </span>            : struct CustomData {</a>
+<a name="240"><span class="lineNum">     240 </span>            :   /** Layers ordered by type. */</a>
+<a name="241"><span class="lineNum">     241 </span>            :   CustomDataLayer *layers = nullptr;</a>
+<a name="242"><span class="lineNum">     242 </span>            :   /**</a>
+<a name="243"><span class="lineNum">     243 </span>            :    * Runtime only map from types to indices of first layer of that type,</a>
+<a name="244"><span class="lineNum">     244 </span>            :    * Correct size of #CD_NUMTYPES is ensured by CustomData_update_typemap.</a>
+<a name="245"><span class="lineNum">     245 </span>            :    */</a>
+<a name="246"><span class="lineNum">     246 </span>            :   int typemap[53] = {};</a>
+<a name="247"><span class="lineNum">     247 </span>            :   /** Number of layers, size of layers array. */</a>
+<a name="248"><span class="lineNum">     248 </span>            :   int totlayer = 0, maxlayer = 0;</a>
+<a name="249"><span class="lineNum">     249 </span>            :   /** In editmode, total size of all data layers. */</a>
+<a name="250"><span class="lineNum">     250 </span>            :   int totsize = 0;</a>
+<a name="251"><span class="lineNum">     251 </span>            :   /** (BMesh Only): Memory pool for allocation of blocks. */</a>
+<a name="252"><span class="lineNum">     252 </span>            :   struct BLI_mempool *pool = nullptr;</a>
+<a name="253"><span class="lineNum">     253 </span>            :   /** External file storing custom-data layers. */</a>
+<a name="254"><span class="lineNum">     254 </span>            :   CustomDataExternal *external = nullptr;</a>
+<a name="255"><span class="lineNum">     255 </span>            : };</a>
+<a name="256"><span class="lineNum">     256 </span>            : </a>
+<a name="257"><span class="lineNum">     257 </span>            : #ifdef __cplusplus</a>
+<a name="258"><span class="lineNum">     258 </span>            : using eCustomDataMask = uint64_t;</a>
+<a name="259"><span class="lineNum">     259 </span>            : #endif</a>
+<a name="260"><span class="lineNum">     260 </span>            : </a>
+<a name="261"><span class="lineNum">     261 </span>            : struct CustomData_MeshMasks {</a>
+<a name="262"><span class="lineNum">     262 </span>            :   uint64_t vmask = 0;</a>
+<a name="263"><span class="lineNum">     263 </span>            :   uint64_t emask = 0;</a>
+<a name="264"><span class="lineNum">     264 </span>            :   uint64_t fmask = 0;</a>
+<a name="265"><span class="lineNum">     265 </span>            :   uint64_t pmask = 0;</a>
+<a name="266"><span class="lineNum">     266 </span>            :   uint64_t lmask = 0;</a>
+<a name="267"><span class="lineNum">     267 </span>            : };</a>
+<a name="268"><span class="lineNum">     268 </span>            : </a>
+<a name="269"><span class="lineNum">     269 </span>            : }  // namespace blender</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,1179 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - /home/dev/Blender_PA1483/blender/intern/ghost/intern/GHOST_XrSession.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../../index.html">top level</a> - <a href="index.html">home/dev/Blender_PA1483/blender/intern/ghost/intern</a> - GHOST_XrSession.cc<span style="font-size: 80%;"> (source / <a href="GHOST_XrSession.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">508</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">43</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2020-2023 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup GHOST</a>
+<a name="7"><span class="lineNum">       7 </span>            :  */</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &lt;algorithm&gt;</a>
+<a name="10"><span class="lineNum">      10 </span>            : #include &lt;cassert&gt;</a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &lt;chrono&gt;</a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &lt;cstdio&gt;</a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &lt;list&gt;</a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &lt;sstream&gt;</a>
+<a name="15"><span class="lineNum">      15 </span>            : </a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &quot;BLI_span.hh&quot;</a>
+<a name="17"><span class="lineNum">      17 </span>            : </a>
+<a name="18"><span class="lineNum">      18 </span>            : #include &quot;GHOST_Context.hh&quot;</a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &quot;GHOST_IXrGraphicsBinding.hh&quot;</a>
+<a name="20"><span class="lineNum">      20 </span>            : #include &quot;GHOST_XrAction.hh&quot;</a>
+<a name="21"><span class="lineNum">      21 </span>            : #include &quot;GHOST_XrContext.hh&quot;</a>
+<a name="22"><span class="lineNum">      22 </span>            : #include &quot;GHOST_XrControllerModel.hh&quot;</a>
+<a name="23"><span class="lineNum">      23 </span>            : #include &quot;GHOST_XrException.hh&quot;</a>
+<a name="24"><span class="lineNum">      24 </span>            : #include &quot;GHOST_XrSwapchain.hh&quot;</a>
+<a name="25"><span class="lineNum">      25 </span>            : #include &quot;GHOST_Xr_intern.hh&quot;</a>
+<a name="26"><span class="lineNum">      26 </span>            : </a>
+<a name="27"><span class="lineNum">      27 </span>            : #include &quot;GHOST_XrSession.hh&quot;</a>
+<a name="28"><span class="lineNum">      28 </span>            : </a>
+<a name="29"><span class="lineNum">      29 </span>            : struct OpenXRSessionData {</a>
+<a name="30"><span class="lineNum">      30 </span>            :   XrSystemId system_id = XR_NULL_SYSTEM_ID;</a>
+<a name="31"><span class="lineNum">      31 </span>            :   XrSession session = XR_NULL_HANDLE;</a>
+<a name="32"><span class="lineNum">      32 </span>            :   XrSessionState session_state = XR_SESSION_STATE_UNKNOWN;</a>
+<a name="33"><span class="lineNum">      33 </span>            : </a>
+<a name="34"><span class="lineNum">      34 </span>            :   /* Use stereo rendering by default. */</a>
+<a name="35"><span class="lineNum">      35 </span>            :   XrViewConfigurationType view_type = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO;</a>
+<a name="36"><span class="lineNum">      36 </span>            :   bool foveation_supported = false;</a>
+<a name="37"><span class="lineNum">      37 </span>            : </a>
+<a name="38"><span class="lineNum">      38 </span>            :   XrSpace reference_space;</a>
+<a name="39"><span class="lineNum">      39 </span>            :   XrSpace view_space;</a>
+<a name="40"><span class="lineNum">      40 </span>            :   XrSpace combined_eye_space;</a>
+<a name="41"><span class="lineNum">      41 </span>            :   std::vector&lt;XrView&gt; views;</a>
+<a name="42"><span class="lineNum">      42 </span>            :   std::vector&lt;GHOST_XrSwapchain&gt; swapchains;</a>
+<a name="43"><span class="lineNum">      43 </span>            : </a>
+<a name="44"><span class="lineNum">      44 </span>            :   std::map&lt;std::string, GHOST_XrActionSet&gt; action_sets;</a>
+<a name="45"><span class="lineNum">      45 </span>            :   /* Controller models identified by subaction path. */</a>
+<a name="46"><span class="lineNum">      46 </span>            :   std::map&lt;std::string, GHOST_XrControllerModel&gt; controller_models;</a>
+<a name="47"><span class="lineNum">      47 </span>            : </a>
+<a name="48"><span class="lineNum">      48 </span>            :   /* Meta Quest passthrough support. */</a>
+<a name="49"><span class="lineNum">      49 </span>            :   bool passthrough_supported = false;</a>
+<a name="50"><span class="lineNum">      50 </span>            :   XrCompositionLayerPassthroughFB passthrough_layer;</a>
+<a name="51"><span class="lineNum">      51 </span>            : };</a>
+<a name="52"><span class="lineNum">      52 </span>            : </a>
+<a name="53"><span class="lineNum">      53 </span>            : struct GHOST_XrDrawInfo {</a>
+<a name="54"><span class="lineNum">      54 </span>            :   XrFrameState frame_state;</a>
+<a name="55"><span class="lineNum">      55 </span>            : </a>
+<a name="56"><span class="lineNum">      56 </span>            :   /** Time at frame start to benchmark frame render durations. */</a>
+<a name="57"><span class="lineNum">      57 </span>            :   std::chrono::high_resolution_clock::time_point frame_begin_time;</a>
+<a name="58"><span class="lineNum">      58 </span>            :   /* Time previous frames took for rendering (in ms). */</a>
+<a name="59"><span class="lineNum">      59 </span>            :   std::list&lt;double&gt; last_frame_times;</a>
+<a name="60"><span class="lineNum">      60 </span>            : </a>
+<a name="61"><span class="lineNum">      61 </span>            :   /* Whether foveation is active for the frame. */</a>
+<a name="62"><span class="lineNum">      62 </span>            :   bool foveation_active;</a>
+<a name="63"><span class="lineNum">      63 </span>            : };</a>
+<a name="64"><span class="lineNum">      64 </span>            : </a>
+<a name="65"><span class="lineNum">      65 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="66"><span class="lineNum">      66 </span>            : /** \name Create, Initialize and Destruct</a>
+<a name="67"><span class="lineNum">      67 </span>            :  * \{ */</a>
+<a name="68"><span class="lineNum">      68 </span>            : </a>
+<a name="69"><span class="lineNum">      69 </span><span class="lineNoCov">          0 : GHOST_XrSession::GHOST_XrSession(GHOST_XrContext &amp;xr_context)</span></a>
+<a name="70"><span class="lineNum">      70 </span><span class="lineNoCov">          0 :     : context_(&amp;xr_context), oxr_(std::make_unique&lt;OpenXRSessionData&gt;())</span></a>
+<a name="71"><span class="lineNum">      71 </span>            : {</a>
+<a name="72"><span class="lineNum">      72 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="73"><span class="lineNum">      73 </span>            : </a>
+<a name="74"><span class="lineNum">      74 </span><span class="lineNoCov">          0 : GHOST_XrSession::~GHOST_XrSession()</span></a>
+<a name="75"><span class="lineNum">      75 </span>            : {</a>
+<a name="76"><span class="lineNum">      76 </span><span class="lineNoCov">          0 :   unbindGraphicsContext();</span></a>
+<a name="77"><span class="lineNum">      77 </span>            : </a>
+<a name="78"><span class="lineNum">      78 </span><span class="lineNoCov">          0 :   oxr_-&gt;swapchains.clear();</span></a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineNoCov">          0 :   oxr_-&gt;action_sets.clear();</span></a>
+<a name="80"><span class="lineNum">      80 </span>            : </a>
+<a name="81"><span class="lineNum">      81 </span><span class="lineNoCov">          0 :   if (oxr_-&gt;reference_space != XR_NULL_HANDLE) {</span></a>
+<a name="82"><span class="lineNum">      82 </span><span class="lineNoCov">          0 :     CHECK_XR_ASSERT(xrDestroySpace(oxr_-&gt;reference_space));</span></a>
+<a name="83"><span class="lineNum">      83 </span>            :   }</a>
+<a name="84"><span class="lineNum">      84 </span><span class="lineNoCov">          0 :   if (oxr_-&gt;view_space != XR_NULL_HANDLE) {</span></a>
+<a name="85"><span class="lineNum">      85 </span><span class="lineNoCov">          0 :     CHECK_XR_ASSERT(xrDestroySpace(oxr_-&gt;view_space));</span></a>
+<a name="86"><span class="lineNum">      86 </span>            :   }</a>
+<a name="87"><span class="lineNum">      87 </span><span class="lineNoCov">          0 :   if (oxr_-&gt;combined_eye_space != XR_NULL_HANDLE) {</span></a>
+<a name="88"><span class="lineNum">      88 </span><span class="lineNoCov">          0 :     CHECK_XR_ASSERT(xrDestroySpace(oxr_-&gt;combined_eye_space));</span></a>
+<a name="89"><span class="lineNum">      89 </span>            :   }</a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineNoCov">          0 :   if (oxr_-&gt;session != XR_NULL_HANDLE) {</span></a>
+<a name="91"><span class="lineNum">      91 </span><span class="lineNoCov">          0 :     CHECK_XR_ASSERT(xrDestroySession(oxr_-&gt;session));</span></a>
+<a name="92"><span class="lineNum">      92 </span>            :   }</a>
+<a name="93"><span class="lineNum">      93 </span>            : </a>
+<a name="94"><span class="lineNum">      94 </span><span class="lineNoCov">          0 :   oxr_-&gt;session = XR_NULL_HANDLE;</span></a>
+<a name="95"><span class="lineNum">      95 </span><span class="lineNoCov">          0 :   oxr_-&gt;session_state = XR_SESSION_STATE_UNKNOWN;</span></a>
+<a name="96"><span class="lineNum">      96 </span>            : </a>
+<a name="97"><span class="lineNum">      97 </span><span class="lineNoCov">          0 :   oxr_-&gt;passthrough_supported = false;</span></a>
+<a name="98"><span class="lineNum">      98 </span><span class="lineNoCov">          0 :   oxr_-&gt;passthrough_layer.layerHandle = XR_NULL_HANDLE;</span></a>
+<a name="99"><span class="lineNum">      99 </span>            : </a>
+<a name="100"><span class="lineNum">     100 </span><span class="lineNoCov">          0 :   context_-&gt;getCustomFuncs().session_exit_fn(context_-&gt;getCustomFuncs().session_exit_customdata);</span></a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="102"><span class="lineNum">     102 </span>            : </a>
+<a name="103"><span class="lineNum">     103 </span>            : /**</a>
+<a name="104"><span class="lineNum">     104 </span>            :  * A system in OpenXR the combination of some sort of HMD plus controllers and whatever other</a>
+<a name="105"><span class="lineNum">     105 </span>            :  * devices are managed through OpenXR. So this attempts to init the HMD and the other devices.</a>
+<a name="106"><span class="lineNum">     106 </span>            :  */</a>
+<a name="107"><span class="lineNum">     107 </span><span class="lineNoCov">          0 : void GHOST_XrSession::initSystem()</span></a>
+<a name="108"><span class="lineNum">     108 </span>            : {</a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineNoCov">          0 :   assert(context_-&gt;getInstance() != XR_NULL_HANDLE);</span></a>
+<a name="110"><span class="lineNum">     110 </span><span class="lineNoCov">          0 :   assert(oxr_-&gt;system_id == XR_NULL_SYSTEM_ID);</span></a>
+<a name="111"><span class="lineNum">     111 </span>            : </a>
+<a name="112"><span class="lineNum">     112 </span><span class="lineNoCov">          0 :   XrSystemGetInfo system_info = {};</span></a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineNoCov">          0 :   system_info.type = XR_TYPE_SYSTEM_GET_INFO;</span></a>
+<a name="114"><span class="lineNum">     114 </span><span class="lineNoCov">          0 :   system_info.formFactor = XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY;</span></a>
+<a name="115"><span class="lineNum">     115 </span>            : </a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineNoCov">          0 :   CHECK_XR(xrGetSystem(context_-&gt;getInstance(), &amp;system_info, &amp;oxr_-&gt;system_id),</span></a>
+<a name="117"><span class="lineNum">     117 </span>            :            &quot;Failed to get device information. Is a device plugged in?&quot;);</a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="119"><span class="lineNum">     119 </span>            : </a>
+<a name="120"><span class="lineNum">     120 </span>            : /** \} */ /* Create, Initialize and Destruct */</a>
+<a name="121"><span class="lineNum">     121 </span>            : </a>
+<a name="122"><span class="lineNum">     122 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="123"><span class="lineNum">     123 </span>            : /** \name State Management</a>
+<a name="124"><span class="lineNum">     124 </span>            :  * \{ */</a>
+<a name="125"><span class="lineNum">     125 </span>            : </a>
+<a name="126"><span class="lineNum">     126 </span><span class="lineNoCov">          0 : static void create_main_reference_space(OpenXRSessionData &amp;oxr,</span></a>
+<a name="127"><span class="lineNum">     127 </span>            :                                         const blender::Span&lt;XrReferenceSpaceType&gt; supported_spaces)</a>
+<a name="128"><span class="lineNum">     128 </span>            : {</a>
+<a name="129"><span class="lineNum">     129 </span><span class="lineNoCov">          0 :   XrReferenceSpaceCreateInfo create_info = {XR_TYPE_REFERENCE_SPACE_CREATE_INFO};</span></a>
+<a name="130"><span class="lineNum">     130 </span><span class="lineNoCov">          0 :   create_info.poseInReferenceSpace.orientation.w = 1.0f;</span></a>
+<a name="131"><span class="lineNum">     131 </span>            : </a>
+<a name="132"><span class="lineNum">     132 </span>            :   /* Use the most suitable space as the main reference space. By order of preference:</a>
+<a name="133"><span class="lineNum">     133 </span>            :    * - Stage Reference Space</a>
+<a name="134"><span class="lineNum">     134 </span>            :    * - Local Floor Reference Space</a>
+<a name="135"><span class="lineNum">     135 </span>            :    * - Local Space</a>
+<a name="136"><span class="lineNum">     136 </span>            :    * Defaulting to the next one if the prior one is not available.</a>
+<a name="137"><span class="lineNum">     137 </span>            :    */</a>
+<a name="138"><span class="lineNum">     138 </span>            : </a>
+<a name="139"><span class="lineNum">     139 </span>            :   /* Stage Reference Space. */</a>
+<a name="140"><span class="lineNum">     140 </span><span class="lineNoCov">          0 :   if (supported_spaces.contains(XR_REFERENCE_SPACE_TYPE_STAGE)) {</span></a>
+<a name="141"><span class="lineNum">     141 </span><span class="lineNoCov">          0 :     create_info.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_STAGE;</span></a>
+<a name="142"><span class="lineNum">     142 </span><span class="lineNoCov">          0 :     CHECK_XR(xrCreateReferenceSpace(oxr.session, &amp;create_info, &amp;oxr.reference_space),</span></a>
+<a name="143"><span class="lineNum">     143 </span>            :              &quot;Failed to create stage reference space.&quot;);</a>
+<a name="144"><span class="lineNum">     144 </span>            : </a>
+<a name="145"><span class="lineNum">     145 </span>            :     /* Check if tracking bounds are valid. Tracking bounds may be invalid if the user did not</a>
+<a name="146"><span class="lineNum">     146 </span>            :      * define a tracking space via the XR runtime. */</a>
+<a name="147"><span class="lineNum">     147 </span>            :     XrExtent2Df extents;</a>
+<a name="148"><span class="lineNum">     148 </span><span class="lineNoCov">          0 :     CHECK_XR(xrGetReferenceSpaceBoundsRect(oxr.session, XR_REFERENCE_SPACE_TYPE_STAGE, &amp;extents),</span></a>
+<a name="149"><span class="lineNum">     149 </span>            :              &quot;Failed to get stage reference space bounds.&quot;);</a>
+<a name="150"><span class="lineNum">     150 </span><span class="lineNoCov">          0 :     if (extents.width != 0.0f &amp;&amp; extents.height != 0.0f) {</span></a>
+<a name="151"><span class="lineNum">     151 </span>            :       /* Stage Reference Space is valid, return. */</a>
+<a name="152"><span class="lineNum">     152 </span><span class="lineNoCov">          0 :       return;</span></a>
+<a name="153"><span class="lineNum">     153 </span>            :     }</a>
+<a name="154"><span class="lineNum">     154 </span>            : </a>
+<a name="155"><span class="lineNum">     155 </span>            :     /* Stage Reference Space is invalid, destroy it and try to create the next available space. */</a>
+<a name="156"><span class="lineNum">     156 </span><span class="lineNoCov">          0 :     if (oxr.reference_space != XR_NULL_HANDLE) {</span></a>
+<a name="157"><span class="lineNum">     157 </span><span class="lineNoCov">          0 :       CHECK_XR(xrDestroySpace(oxr.reference_space), &quot;Failed to destroy stage reference space.&quot;);</span></a>
+<a name="158"><span class="lineNum">     158 </span>            :     }</a>
+<a name="159"><span class="lineNum">     159 </span>            : </a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineNoCov">          0 :     CLOG_WARN(LOG_GHOST_XR,</span></a>
+<a name="161"><span class="lineNum">     161 </span>            :               &quot;Invalid stage reference space bounds, falling back to local floor reference &quot;</a>
+<a name="162"><span class="lineNum">     162 </span>            :               &quot;space. To use the stage reference space, please define a tracking space via the &quot;</a>
+<a name="163"><span class="lineNum">     163 </span>            :               &quot;XR runtime.&quot;);</a>
+<a name="164"><span class="lineNum">     164 </span>            :   }</a>
+<a name="165"><span class="lineNum">     165 </span>            : </a>
+<a name="166"><span class="lineNum">     166 </span>            :   /* Local Floor Reference Space. */</a>
+<a name="167"><span class="lineNum">     167 </span><span class="lineNoCov">          0 :   if (supported_spaces.contains(XR_REFERENCE_SPACE_TYPE_LOCAL_FLOOR_EXT)) {</span></a>
+<a name="168"><span class="lineNum">     168 </span><span class="lineNoCov">          0 :     CLOG_WARN(LOG_GHOST_XR,</span></a>
+<a name="169"><span class="lineNum">     169 </span>            :               &quot;Stage reference space unavailable, falling back to local floor reference space.&quot;);</a>
+<a name="170"><span class="lineNum">     170 </span><span class="lineNoCov">          0 :     create_info.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_LOCAL_FLOOR_EXT;</span></a>
+<a name="171"><span class="lineNum">     171 </span><span class="lineNoCov">          0 :     CHECK_XR(xrCreateReferenceSpace(oxr.session, &amp;create_info, &amp;oxr.reference_space),</span></a>
+<a name="172"><span class="lineNum">     172 </span>            :              &quot;Failed to create local floor reference space.&quot;);</a>
+<a name="173"><span class="lineNum">     173 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="174"><span class="lineNum">     174 </span>            :   }</a>
+<a name="175"><span class="lineNum">     175 </span>            : </a>
+<a name="176"><span class="lineNum">     176 </span>            :   /* Local Reference Space. */</a>
+<a name="177"><span class="lineNum">     177 </span><span class="lineNoCov">          0 :   CLOG_WARN(LOG_GHOST_XR,</span></a>
+<a name="178"><span class="lineNum">     178 </span>            :             &quot;Stage and local floor reference space unavailable, falling back to local &quot;</a>
+<a name="179"><span class="lineNum">     179 </span>            :             &quot;reference space.&quot;);</a>
+<a name="180"><span class="lineNum">     180 </span><span class="lineNoCov">          0 :   create_info.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_LOCAL;</span></a>
+<a name="181"><span class="lineNum">     181 </span><span class="lineNoCov">          0 :   CHECK_XR(xrCreateReferenceSpace(oxr.session, &amp;create_info, &amp;oxr.reference_space),</span></a>
+<a name="182"><span class="lineNum">     182 </span>            :            &quot;Failed to create local reference space.&quot;);</a>
+<a name="183"><span class="lineNum">     183 </span>            : }</a>
+<a name="184"><span class="lineNum">     184 </span>            : </a>
+<a name="185"><span class="lineNum">     185 </span><span class="lineNoCov">          0 : static void create_reference_spaces(OpenXRSessionData &amp;oxr)</span></a>
+<a name="186"><span class="lineNum">     186 </span>            : {</a>
+<a name="187"><span class="lineNum">     187 </span><span class="lineNoCov">          0 :   XrReferenceSpaceCreateInfo create_info = {XR_TYPE_REFERENCE_SPACE_CREATE_INFO};</span></a>
+<a name="188"><span class="lineNum">     188 </span><span class="lineNoCov">          0 :   create_info.poseInReferenceSpace.orientation.w = 1.0f;</span></a>
+<a name="189"><span class="lineNum">     189 </span>            : </a>
+<a name="190"><span class="lineNum">     190 </span>            :   /* Enumerate supported reference spaces. */</a>
+<a name="191"><span class="lineNum">     191 </span><span class="lineNoCov">          0 :   uint32_t space_count = 0;</span></a>
+<a name="192"><span class="lineNum">     192 </span><span class="lineNoCov">          0 :   CHECK_XR(xrEnumerateReferenceSpaces(oxr.session, 0, &amp;space_count, nullptr),</span></a>
+<a name="193"><span class="lineNum">     193 </span>            :            &quot;Failed to enumerate available reference space count.&quot;);</a>
+<a name="194"><span class="lineNum">     194 </span>            : </a>
+<a name="195"><span class="lineNum">     195 </span><span class="lineNoCov">          0 :   std::vector&lt;XrReferenceSpaceType&gt; supported_spaces_vec(space_count);</span></a>
+<a name="196"><span class="lineNum">     196 </span><span class="lineNoCov">          0 :   CHECK_XR(xrEnumerateReferenceSpaces(</span></a>
+<a name="197"><span class="lineNum">     197 </span>            :                oxr.session, space_count, &amp;space_count, supported_spaces_vec.data()),</a>
+<a name="198"><span class="lineNum">     198 </span>            :            &quot;Failed to enumerate available reference spaces.&quot;);</a>
+<a name="199"><span class="lineNum">     199 </span>            : </a>
+<a name="200"><span class="lineNum">     200 </span><span class="lineNoCov">          0 :   const blender::Span supported_spaces(supported_spaces_vec);</span></a>
+<a name="201"><span class="lineNum">     201 </span>            : </a>
+<a name="202"><span class="lineNum">     202 </span><span class="lineNoCov">          0 :   create_main_reference_space(oxr, supported_spaces);</span></a>
+<a name="203"><span class="lineNum">     203 </span>            : </a>
+<a name="204"><span class="lineNum">     204 </span>            :   /* View reference space. */</a>
+<a name="205"><span class="lineNum">     205 </span><span class="lineNoCov">          0 :   create_info.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_VIEW;</span></a>
+<a name="206"><span class="lineNum">     206 </span><span class="lineNoCov">          0 :   CHECK_XR(xrCreateReferenceSpace(oxr.session, &amp;create_info, &amp;oxr.view_space),</span></a>
+<a name="207"><span class="lineNum">     207 </span>            :            &quot;Failed to create view reference space.&quot;);</a>
+<a name="208"><span class="lineNum">     208 </span>            : </a>
+<a name="209"><span class="lineNum">     209 </span>            :   /* Foveation reference spaces. */</a>
+<a name="210"><span class="lineNum">     210 </span><span class="lineNoCov">          0 :   if (oxr.foveation_supported) {</span></a>
+<a name="211"><span class="lineNum">     211 </span><span class="lineNoCov">          0 :     create_info.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_COMBINED_EYE_VARJO;</span></a>
+<a name="212"><span class="lineNum">     212 </span><span class="lineNoCov">          0 :     CHECK_XR(xrCreateReferenceSpace(oxr.session, &amp;create_info, &amp;oxr.combined_eye_space),</span></a>
+<a name="213"><span class="lineNum">     213 </span>            :              &quot;Failed to create combined eye reference space.&quot;);</a>
+<a name="214"><span class="lineNum">     214 </span>            :   }</a>
+<a name="215"><span class="lineNum">     215 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="216"><span class="lineNum">     216 </span>            : </a>
+<a name="217"><span class="lineNum">     217 </span><span class="lineNoCov">          0 : void GHOST_XrSession::start()</span></a>
+<a name="218"><span class="lineNum">     218 </span>            : {</a>
+<a name="219"><span class="lineNum">     219 </span><span class="lineNoCov">          0 :   assert(context_-&gt;getInstance() != XR_NULL_HANDLE);</span></a>
+<a name="220"><span class="lineNum">     220 </span><span class="lineNoCov">          0 :   assert(oxr_-&gt;session == XR_NULL_HANDLE);</span></a>
+<a name="221"><span class="lineNum">     221 </span><span class="lineNoCov">          0 :   if (context_-&gt;getCustomFuncs().gpu_ctx_bind_fn == nullptr) {</span></a>
+<a name="222"><span class="lineNum">     222 </span>            :     throw GHOST_XrException(</a>
+<a name="223"><span class="lineNum">     223 </span>            :         &quot;Invalid API usage: No way to bind graphics context to the XR session. Call &quot;</a>
+<a name="224"><span class="lineNum">     224 </span>            :         &quot;GHOST_XrGraphicsContextBindFuncs() with valid parameters before starting the &quot;</a>
+<a name="225"><span class="lineNum">     225 </span><span class="lineNoCov">          0 :         &quot;session (through GHOST_XrSessionStart()).&quot;);</span></a>
+<a name="226"><span class="lineNum">     226 </span>            :   }</a>
+<a name="227"><span class="lineNum">     227 </span>            : </a>
+<a name="228"><span class="lineNum">     228 </span><span class="lineNoCov">          0 :   initSystem();</span></a>
+<a name="229"><span class="lineNum">     229 </span>            : </a>
+<a name="230"><span class="lineNum">     230 </span><span class="lineNoCov">          0 :   bindGraphicsContext();</span></a>
+<a name="231"><span class="lineNum">     231 </span><span class="lineNoCov">          0 :   if (gpu_ctx_ == nullptr) {</span></a>
+<a name="232"><span class="lineNum">     232 </span>            :     throw GHOST_XrException(</a>
+<a name="233"><span class="lineNum">     233 </span>            :         &quot;Invalid API usage: No graphics context returned through the callback set with &quot;</a>
+<a name="234"><span class="lineNum">     234 </span>            :         &quot;GHOST_XrGraphicsContextBindFuncs(). This is required for session starting (through &quot;</a>
+<a name="235"><span class="lineNum">     235 </span><span class="lineNoCov">          0 :         &quot;GHOST_XrSessionStart()).&quot;);</span></a>
+<a name="236"><span class="lineNum">     236 </span>            :   }</a>
+<a name="237"><span class="lineNum">     237 </span>            : </a>
+<a name="238"><span class="lineNum">     238 </span><span class="lineNoCov">          0 :   std::string requirement_str;</span></a>
+<a name="239"><span class="lineNum">     239 </span><span class="lineNoCov">          0 :   gpu_binding_ = GHOST_XrGraphicsBindingCreateFromType(context_-&gt;getGraphicsBindingType(),</span></a>
+<a name="240"><span class="lineNum">     240 </span><span class="lineNoCov">          0 :                                                        *gpu_ctx_);</span></a>
+<a name="241"><span class="lineNum">     241 </span><span class="lineNoCov">          0 :   if (!gpu_binding_-&gt;loadExtensionFunctions(context_-&gt;getInstance())) {</span></a>
+<a name="242"><span class="lineNum">     242 </span>            :     throw GHOST_XrException(</a>
+<a name="243"><span class="lineNum">     243 </span>            :         &quot;Unable to load graphics bindings (could not load the needed extension functions from the &quot;</a>
+<a name="244"><span class="lineNum">     244 </span><span class="lineNoCov">          0 :         &quot;XrInstance)&quot;);</span></a>
+<a name="245"><span class="lineNum">     245 </span>            :   }</a>
+<a name="246"><span class="lineNum">     246 </span><span class="lineNoCov">          0 :   if (!gpu_binding_-&gt;checkVersionRequirements(</span></a>
+<a name="247"><span class="lineNum">     247 </span><span class="lineNoCov">          0 :           *gpu_ctx_, context_-&gt;getInstance(), oxr_-&gt;system_id, &amp;requirement_str))</span></a>
+<a name="248"><span class="lineNum">     248 </span>            :   {</a>
+<a name="249"><span class="lineNum">     249 </span><span class="lineNoCov">          0 :     std::ostringstream strstream;</span></a>
+<a name="250"><span class="lineNum">     250 </span>            :     strstream &lt;&lt; &quot;Available graphics context version does not meet the following requirements: &quot;</a>
+<a name="251"><span class="lineNum">     251 </span><span class="lineNoCov">          0 :               &lt;&lt; requirement_str;</span></a>
+<a name="252"><span class="lineNum">     252 </span><span class="lineNoCov">          0 :     throw GHOST_XrException(strstream.str().data());</span></a>
+<a name="253"><span class="lineNum">     253 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="254"><span class="lineNum">     254 </span><span class="lineNoCov">          0 :   gpu_binding_-&gt;initFromGhostContext(*gpu_ctx_, context_-&gt;getInstance(), oxr_-&gt;system_id);</span></a>
+<a name="255"><span class="lineNum">     255 </span>            : </a>
+<a name="256"><span class="lineNum">     256 </span><span class="lineNoCov">          0 :   XrSessionCreateInfo create_info = {};</span></a>
+<a name="257"><span class="lineNum">     257 </span><span class="lineNoCov">          0 :   create_info.type = XR_TYPE_SESSION_CREATE_INFO;</span></a>
+<a name="258"><span class="lineNum">     258 </span><span class="lineNoCov">          0 :   create_info.systemId = oxr_-&gt;system_id;</span></a>
+<a name="259"><span class="lineNum">     259 </span><span class="lineNoCov">          0 :   create_info.next = &amp;gpu_binding_-&gt;oxr_binding;</span></a>
+<a name="260"><span class="lineNum">     260 </span>            : </a>
+<a name="261"><span class="lineNum">     261 </span><span class="lineNoCov">          0 :   CHECK_XR(xrCreateSession(context_-&gt;getInstance(), &amp;create_info, &amp;oxr_-&gt;session),</span></a>
+<a name="262"><span class="lineNum">     262 </span>            :            &quot;Failed to create VR session. The OpenXR runtime may have additional requirements for &quot;</a>
+<a name="263"><span class="lineNum">     263 </span>            :            &quot;the graphics driver that are not met. Other causes are possible too however.\nTip: &quot;</a>
+<a name="264"><span class="lineNum">     264 </span>            :            &quot;The --debug-xr command line option for Blender might allow the runtime to output &quot;</a>
+<a name="265"><span class="lineNum">     265 </span>            :            &quot;detailed error information to the command line.&quot;);</a>
+<a name="266"><span class="lineNum">     266 </span>            : </a>
+<a name="267"><span class="lineNum">     267 </span><span class="lineNoCov">          0 :   prepareDrawing();</span></a>
+<a name="268"><span class="lineNum">     268 </span><span class="lineNoCov">          0 :   create_reference_spaces(*oxr_);</span></a>
+<a name="269"><span class="lineNum">     269 </span>            : </a>
+<a name="270"><span class="lineNum">     270 </span>            :   /* Create and bind actions here. */</a>
+<a name="271"><span class="lineNum">     271 </span><span class="lineNoCov">          0 :   context_-&gt;getCustomFuncs().session_create_fn();</span></a>
+<a name="272"><span class="lineNum">     272 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="273"><span class="lineNum">     273 </span>            : </a>
+<a name="274"><span class="lineNum">     274 </span><span class="lineNoCov">          0 : void GHOST_XrSession::requestEnd()</span></a>
+<a name="275"><span class="lineNum">     275 </span>            : {</a>
+<a name="276"><span class="lineNum">     276 </span><span class="lineNoCov">          0 :   xrRequestExitSession(oxr_-&gt;session);</span></a>
+<a name="277"><span class="lineNum">     277 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="278"><span class="lineNum">     278 </span>            : </a>
+<a name="279"><span class="lineNum">     279 </span><span class="lineNoCov">          0 : void GHOST_XrSession::beginSession()</span></a>
+<a name="280"><span class="lineNum">     280 </span>            : {</a>
+<a name="281"><span class="lineNum">     281 </span><span class="lineNoCov">          0 :   XrSessionBeginInfo begin_info = {XR_TYPE_SESSION_BEGIN_INFO};</span></a>
+<a name="282"><span class="lineNum">     282 </span><span class="lineNoCov">          0 :   begin_info.primaryViewConfigurationType = oxr_-&gt;view_type;</span></a>
+<a name="283"><span class="lineNum">     283 </span><span class="lineNoCov">          0 :   CHECK_XR(xrBeginSession(oxr_-&gt;session, &amp;begin_info), &quot;Failed to cleanly begin the VR session.&quot;);</span></a>
+<a name="284"><span class="lineNum">     284 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="285"><span class="lineNum">     285 </span>            : </a>
+<a name="286"><span class="lineNum">     286 </span><span class="lineNoCov">          0 : void GHOST_XrSession::endSession()</span></a>
+<a name="287"><span class="lineNum">     287 </span>            : {</a>
+<a name="288"><span class="lineNum">     288 </span><span class="lineNoCov">          0 :   assert(oxr_-&gt;session != XR_NULL_HANDLE);</span></a>
+<a name="289"><span class="lineNum">     289 </span><span class="lineNoCov">          0 :   CHECK_XR(xrEndSession(oxr_-&gt;session), &quot;Failed to cleanly end the VR session.&quot;);</span></a>
+<a name="290"><span class="lineNum">     290 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="291"><span class="lineNum">     291 </span>            : </a>
+<a name="292"><span class="lineNum">     292 </span><span class="lineNoCov">          0 : GHOST_XrSession::LifeExpectancy GHOST_XrSession::handleStateChangeEvent(</span></a>
+<a name="293"><span class="lineNum">     293 </span>            :     const XrEventDataSessionStateChanged &amp;lifecycle)</a>
+<a name="294"><span class="lineNum">     294 </span>            : {</a>
+<a name="295"><span class="lineNum">     295 </span><span class="lineNoCov">          0 :   oxr_-&gt;session_state = lifecycle.state;</span></a>
+<a name="296"><span class="lineNum">     296 </span>            : </a>
+<a name="297"><span class="lineNum">     297 </span>            :   /* Runtime may send events for apparently destroyed session. Our handle should be nullptr then.</a>
+<a name="298"><span class="lineNum">     298 </span>            :    */</a>
+<a name="299"><span class="lineNum">     299 </span><span class="lineNoCov">          0 :   assert(oxr_-&gt;session == XR_NULL_HANDLE || oxr_-&gt;session == lifecycle.session);</span></a>
+<a name="300"><span class="lineNum">     300 </span>            : </a>
+<a name="301"><span class="lineNum">     301 </span><span class="lineNoCov">          0 :   switch (lifecycle.state) {</span></a>
+<a name="302"><span class="lineNum">     302 </span><span class="lineNoCov">          0 :     case XR_SESSION_STATE_READY:</span></a>
+<a name="303"><span class="lineNum">     303 </span><span class="lineNoCov">          0 :       beginSession();</span></a>
+<a name="304"><span class="lineNum">     304 </span><span class="lineNoCov">          0 :       break;</span></a>
+<a name="305"><span class="lineNum">     305 </span><span class="lineNoCov">          0 :     case XR_SESSION_STATE_STOPPING:</span></a>
+<a name="306"><span class="lineNum">     306 </span><span class="lineNoCov">          0 :       endSession();</span></a>
+<a name="307"><span class="lineNum">     307 </span><span class="lineNoCov">          0 :       break;</span></a>
+<a name="308"><span class="lineNum">     308 </span><span class="lineNoCov">          0 :     case XR_SESSION_STATE_EXITING:</span></a>
+<a name="309"><span class="lineNum">     309 </span>            :     case XR_SESSION_STATE_LOSS_PENDING:</a>
+<a name="310"><span class="lineNum">     310 </span><span class="lineNoCov">          0 :       return SESSION_DESTROY;</span></a>
+<a name="311"><span class="lineNum">     311 </span><span class="lineNoCov">          0 :     default:</span></a>
+<a name="312"><span class="lineNum">     312 </span><span class="lineNoCov">          0 :       break;</span></a>
+<a name="313"><span class="lineNum">     313 </span>            :   }</a>
+<a name="314"><span class="lineNum">     314 </span>            : </a>
+<a name="315"><span class="lineNum">     315 </span><span class="lineNoCov">          0 :   return SESSION_KEEP_ALIVE;</span></a>
+<a name="316"><span class="lineNum">     316 </span>            : }</a>
+<a name="317"><span class="lineNum">     317 </span>            : </a>
+<a name="318"><span class="lineNum">     318 </span>            : /** \} */ /* State Management */</a>
+<a name="319"><span class="lineNum">     319 </span>            : </a>
+<a name="320"><span class="lineNum">     320 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="321"><span class="lineNum">     321 </span>            : /** \name Drawing</a>
+<a name="322"><span class="lineNum">     322 </span>            :  * \{ */</a>
+<a name="323"><span class="lineNum">     323 </span>            : </a>
+<a name="324"><span class="lineNum">     324 </span><span class="lineNoCov">          0 : void GHOST_XrSession::prepareDrawing()</span></a>
+<a name="325"><span class="lineNum">     325 </span>            : {</a>
+<a name="326"><span class="lineNum">     326 </span><span class="lineNoCov">          0 :   assert(context_-&gt;getInstance() != XR_NULL_HANDLE);</span></a>
+<a name="327"><span class="lineNum">     327 </span>            : </a>
+<a name="328"><span class="lineNum">     328 </span><span class="lineNoCov">          0 :   std::vector&lt;XrViewConfigurationView&gt; view_configs;</span></a>
+<a name="329"><span class="lineNum">     329 </span>            :   uint32_t view_count;</a>
+<a name="330"><span class="lineNum">     330 </span>            : </a>
+<a name="331"><span class="lineNum">     331 </span>            :   /* Attempt to use quad view if supported. */</a>
+<a name="332"><span class="lineNum">     332 </span><span class="lineNoCov">          0 :   if (context_-&gt;isExtensionEnabled(XR_VARJO_QUAD_VIEWS_EXTENSION_NAME)) {</span></a>
+<a name="333"><span class="lineNum">     333 </span><span class="lineNoCov">          0 :     oxr_-&gt;view_type = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_QUAD_VARJO;</span></a>
+<a name="334"><span class="lineNum">     334 </span>            :   }</a>
+<a name="335"><span class="lineNum">     335 </span>            : </a>
+<a name="336"><span class="lineNum">     336 </span><span class="lineNoCov">          0 :   oxr_-&gt;foveation_supported = context_-&gt;isExtensionEnabled(</span></a>
+<a name="337"><span class="lineNum">     337 </span>            :       XR_VARJO_FOVEATED_RENDERING_EXTENSION_NAME);</a>
+<a name="338"><span class="lineNum">     338 </span>            : </a>
+<a name="339"><span class="lineNum">     339 </span><span class="lineNoCov">          0 :   CHECK_XR(xrEnumerateViewConfigurationViews(</span></a>
+<a name="340"><span class="lineNum">     340 </span>            :                context_-&gt;getInstance(), oxr_-&gt;system_id, oxr_-&gt;view_type, 0, &amp;view_count, nullptr),</a>
+<a name="341"><span class="lineNum">     341 </span>            :            &quot;Failed to get count of view configurations.&quot;);</a>
+<a name="342"><span class="lineNum">     342 </span><span class="lineNoCov">          0 :   view_configs.resize(view_count, {XR_TYPE_VIEW_CONFIGURATION_VIEW});</span></a>
+<a name="343"><span class="lineNum">     343 </span><span class="lineNoCov">          0 :   CHECK_XR(xrEnumerateViewConfigurationViews(context_-&gt;getInstance(),</span></a>
+<a name="344"><span class="lineNum">     344 </span>            :                                              oxr_-&gt;system_id,</a>
+<a name="345"><span class="lineNum">     345 </span>            :                                              oxr_-&gt;view_type,</a>
+<a name="346"><span class="lineNum">     346 </span>            :                                              view_configs.size(),</a>
+<a name="347"><span class="lineNum">     347 </span>            :                                              &amp;view_count,</a>
+<a name="348"><span class="lineNum">     348 </span>            :                                              view_configs.data()),</a>
+<a name="349"><span class="lineNum">     349 </span>            :            &quot;Failed to get view configurations.&quot;);</a>
+<a name="350"><span class="lineNum">     350 </span>            : </a>
+<a name="351"><span class="lineNum">     351 </span>            :   /* If foveated rendering is used, query the foveated views. */</a>
+<a name="352"><span class="lineNum">     352 </span><span class="lineNoCov">          0 :   if (oxr_-&gt;foveation_supported) {</span></a>
+<a name="353"><span class="lineNum">     353 </span>            :     std::vector&lt;XrFoveatedViewConfigurationViewVARJO&gt; request_foveated_config{</a>
+<a name="354"><span class="lineNum">     354 </span><span class="lineNoCov">          0 :         view_count, {XR_TYPE_FOVEATED_VIEW_CONFIGURATION_VIEW_VARJO, nullptr, XR_TRUE}};</span></a>
+<a name="355"><span class="lineNum">     355 </span>            : </a>
+<a name="356"><span class="lineNum">     356 </span>            :     auto foveated_views = std::vector&lt;XrViewConfigurationView&gt;(view_count,</a>
+<a name="357"><span class="lineNum">     357 </span><span class="lineNoCov">          0 :                                                                {XR_TYPE_VIEW_CONFIGURATION_VIEW});</span></a>
+<a name="358"><span class="lineNum">     358 </span>            : </a>
+<a name="359"><span class="lineNum">     359 </span><span class="lineNoCov">          0 :     for (uint32_t i = 0; i &lt; view_count; i++) {</span></a>
+<a name="360"><span class="lineNum">     360 </span><span class="lineNoCov">          0 :       foveated_views[i].next = &amp;request_foveated_config[i];</span></a>
+<a name="361"><span class="lineNum">     361 </span>            :     }</a>
+<a name="362"><span class="lineNum">     362 </span><span class="lineNoCov">          0 :     CHECK_XR(xrEnumerateViewConfigurationViews(context_-&gt;getInstance(),</span></a>
+<a name="363"><span class="lineNum">     363 </span>            :                                                oxr_-&gt;system_id,</a>
+<a name="364"><span class="lineNum">     364 </span>            :                                                oxr_-&gt;view_type,</a>
+<a name="365"><span class="lineNum">     365 </span>            :                                                view_configs.size(),</a>
+<a name="366"><span class="lineNum">     366 </span>            :                                                &amp;view_count,</a>
+<a name="367"><span class="lineNum">     367 </span>            :                                                foveated_views.data()),</a>
+<a name="368"><span class="lineNum">     368 </span>            :              &quot;Failed to get foveated view configurations.&quot;);</a>
+<a name="369"><span class="lineNum">     369 </span>            : </a>
+<a name="370"><span class="lineNum">     370 </span>            :     /* Ensure swapchains have correct size even when foveation is being used. */</a>
+<a name="371"><span class="lineNum">     371 </span><span class="lineNoCov">          0 :     for (uint32_t i = 0; i &lt; view_count; i++) {</span></a>
+<a name="372"><span class="lineNum">     372 </span><span class="lineNoCov">          0 :       view_configs[i].recommendedImageRectWidth = std::max(</span></a>
+<a name="373"><span class="lineNum">     373 </span><span class="lineNoCov">          0 :           view_configs[i].recommendedImageRectWidth, foveated_views[i].recommendedImageRectWidth);</span></a>
+<a name="374"><span class="lineNum">     374 </span><span class="lineNoCov">          0 :       view_configs[i].recommendedImageRectHeight = std::max(</span></a>
+<a name="375"><span class="lineNum">     375 </span><span class="lineNoCov">          0 :           view_configs[i].recommendedImageRectHeight,</span></a>
+<a name="376"><span class="lineNum">     376 </span><span class="lineNoCov">          0 :           foveated_views[i].recommendedImageRectHeight);</span></a>
+<a name="377"><span class="lineNum">     377 </span>            :     }</a>
+<a name="378"><span class="lineNum">     378 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="379"><span class="lineNum">     379 </span>            : </a>
+<a name="380"><span class="lineNum">     380 </span><span class="lineNoCov">          0 :   for (const XrViewConfigurationView &amp;view_config : view_configs) {</span></a>
+<a name="381"><span class="lineNum">     381 </span><span class="lineNoCov">          0 :     oxr_-&gt;swapchains.emplace_back(*gpu_binding_, oxr_-&gt;session, view_config);</span></a>
+<a name="382"><span class="lineNum">     382 </span>            :   }</a>
+<a name="383"><span class="lineNum">     383 </span>            : </a>
+<a name="384"><span class="lineNum">     384 </span><span class="lineNoCov">          0 :   oxr_-&gt;views.resize(view_count, {XR_TYPE_VIEW});</span></a>
+<a name="385"><span class="lineNum">     385 </span>            : </a>
+<a name="386"><span class="lineNum">     386 </span><span class="lineNoCov">          0 :   draw_info_ = std::make_unique&lt;GHOST_XrDrawInfo&gt;();</span></a>
+<a name="387"><span class="lineNum">     387 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="388"><span class="lineNum">     388 </span>            : </a>
+<a name="389"><span class="lineNum">     389 </span><span class="lineNoCov">          0 : void GHOST_XrSession::beginFrameDrawing()</span></a>
+<a name="390"><span class="lineNum">     390 </span>            : {</a>
+<a name="391"><span class="lineNum">     391 </span><span class="lineNoCov">          0 :   XrFrameWaitInfo wait_info = {XR_TYPE_FRAME_WAIT_INFO};</span></a>
+<a name="392"><span class="lineNum">     392 </span><span class="lineNoCov">          0 :   XrFrameBeginInfo begin_info = {XR_TYPE_FRAME_BEGIN_INFO};</span></a>
+<a name="393"><span class="lineNum">     393 </span><span class="lineNoCov">          0 :   XrFrameState frame_state = {XR_TYPE_FRAME_STATE};</span></a>
+<a name="394"><span class="lineNum">     394 </span>            : </a>
+<a name="395"><span class="lineNum">     395 </span>            :   /* TODO Blocking call. Drawing should run on a separate thread to avoid interferences. */</a>
+<a name="396"><span class="lineNum">     396 </span><span class="lineNoCov">          0 :   CHECK_XR(xrWaitFrame(oxr_-&gt;session, &amp;wait_info, &amp;frame_state),</span></a>
+<a name="397"><span class="lineNum">     397 </span>            :            &quot;Failed to synchronize frame rates between Blender and the device.&quot;);</a>
+<a name="398"><span class="lineNum">     398 </span>            : </a>
+<a name="399"><span class="lineNum">     399 </span>            :   /* Check if we have foveation available for the current frame. */</a>
+<a name="400"><span class="lineNum">     400 </span><span class="lineNoCov">          0 :   draw_info_-&gt;foveation_active = false;</span></a>
+<a name="401"><span class="lineNum">     401 </span><span class="lineNoCov">          0 :   if (oxr_-&gt;foveation_supported) {</span></a>
+<a name="402"><span class="lineNum">     402 </span><span class="lineNoCov">          0 :     XrSpaceLocation render_gaze_location{XR_TYPE_SPACE_LOCATION};</span></a>
+<a name="403"><span class="lineNum">     403 </span><span class="lineNoCov">          0 :     CHECK_XR(xrLocateSpace(oxr_-&gt;combined_eye_space,</span></a>
+<a name="404"><span class="lineNum">     404 </span>            :                            oxr_-&gt;view_space,</a>
+<a name="405"><span class="lineNum">     405 </span>            :                            frame_state.predictedDisplayTime,</a>
+<a name="406"><span class="lineNum">     406 </span>            :                            &amp;render_gaze_location),</a>
+<a name="407"><span class="lineNum">     407 </span>            :              &quot;Failed to locate combined eye space.&quot;);</a>
+<a name="408"><span class="lineNum">     408 </span>            : </a>
+<a name="409"><span class="lineNum">     409 </span><span class="lineNoCov">          0 :     draw_info_-&gt;foveation_active = (render_gaze_location.locationFlags &amp;</span></a>
+<a name="410"><span class="lineNum">     410 </span><span class="lineNoCov">          0 :                                     XR_SPACE_LOCATION_ORIENTATION_TRACKED_BIT) != 0;</span></a>
+<a name="411"><span class="lineNum">     411 </span>            :   }</a>
+<a name="412"><span class="lineNum">     412 </span>            : </a>
+<a name="413"><span class="lineNum">     413 </span><span class="lineNoCov">          0 :   CHECK_XR(xrBeginFrame(oxr_-&gt;session, &amp;begin_info),</span></a>
+<a name="414"><span class="lineNum">     414 </span>            :            &quot;Failed to submit frame rendering start state.&quot;);</a>
+<a name="415"><span class="lineNum">     415 </span>            : </a>
+<a name="416"><span class="lineNum">     416 </span><span class="lineNoCov">          0 :   draw_info_-&gt;frame_state = frame_state;</span></a>
+<a name="417"><span class="lineNum">     417 </span>            : </a>
+<a name="418"><span class="lineNum">     418 </span><span class="lineNoCov">          0 :   if (context_-&gt;isDebugTimeMode()) {</span></a>
+<a name="419"><span class="lineNum">     419 </span><span class="lineNoCov">          0 :     draw_info_-&gt;frame_begin_time = std::chrono::high_resolution_clock::now();</span></a>
+<a name="420"><span class="lineNum">     420 </span>            :   }</a>
+<a name="421"><span class="lineNum">     421 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="422"><span class="lineNum">     422 </span>            : </a>
+<a name="423"><span class="lineNum">     423 </span><span class="lineNoCov">          0 : static void print_debug_timings(GHOST_XrDrawInfo &amp;draw_info)</span></a>
+<a name="424"><span class="lineNum">     424 </span>            : {</a>
+<a name="425"><span class="lineNum">     425 </span>            :   /** Render time of last 8 frames (in ms) to calculate an average. */</a>
+<a name="426"><span class="lineNum">     426 </span><span class="lineNoCov">          0 :   std::chrono::duration&lt;double, std::milli&gt; duration = std::chrono::high_resolution_clock::now() -</span></a>
+<a name="427"><span class="lineNum">     427 </span><span class="lineNoCov">          0 :                                                        draw_info.frame_begin_time;</span></a>
+<a name="428"><span class="lineNum">     428 </span><span class="lineNoCov">          0 :   const double duration_ms = duration.count();</span></a>
+<a name="429"><span class="lineNum">     429 </span><span class="lineNoCov">          0 :   const int avg_frame_count = 8;</span></a>
+<a name="430"><span class="lineNum">     430 </span><span class="lineNoCov">          0 :   double avg_ms_tot = 0.0;</span></a>
+<a name="431"><span class="lineNum">     431 </span>            : </a>
+<a name="432"><span class="lineNum">     432 </span><span class="lineNoCov">          0 :   if (draw_info.last_frame_times.size() &gt;= avg_frame_count) {</span></a>
+<a name="433"><span class="lineNum">     433 </span><span class="lineNoCov">          0 :     draw_info.last_frame_times.pop_front();</span></a>
+<a name="434"><span class="lineNum">     434 </span><span class="lineNoCov">          0 :     assert(draw_info.last_frame_times.size() == avg_frame_count - 1);</span></a>
+<a name="435"><span class="lineNum">     435 </span>            :   }</a>
+<a name="436"><span class="lineNum">     436 </span><span class="lineNoCov">          0 :   draw_info.last_frame_times.push_back(duration_ms);</span></a>
+<a name="437"><span class="lineNum">     437 </span><span class="lineNoCov">          0 :   for (double ms_iter : draw_info.last_frame_times) {</span></a>
+<a name="438"><span class="lineNum">     438 </span><span class="lineNoCov">          0 :     avg_ms_tot += ms_iter;</span></a>
+<a name="439"><span class="lineNum">     439 </span>            :   }</a>
+<a name="440"><span class="lineNum">     440 </span>            : </a>
+<a name="441"><span class="lineNum">     441 </span><span class="lineNoCov">          0 :   CLOG_INFO(LOG_GHOST_XR,</span></a>
+<a name="442"><span class="lineNum">     442 </span>            :             &quot;VR frame render time: %.0fms - %.2f FPS (%.2f FPS 8 frames average)&quot;,</a>
+<a name="443"><span class="lineNum">     443 </span>            :             duration_ms,</a>
+<a name="444"><span class="lineNum">     444 </span>            :             1000.0 / duration_ms,</a>
+<a name="445"><span class="lineNum">     445 </span>            :             1000.0 / (avg_ms_tot / draw_info.last_frame_times.size()));</a>
+<a name="446"><span class="lineNum">     446 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="447"><span class="lineNum">     447 </span>            : </a>
+<a name="448"><span class="lineNum">     448 </span><span class="lineNoCov">          0 : void GHOST_XrSession::endFrameDrawing(std::vector&lt;XrCompositionLayerBaseHeader *&gt; &amp;layers)</span></a>
+<a name="449"><span class="lineNum">     449 </span>            : {</a>
+<a name="450"><span class="lineNum">     450 </span><span class="lineNoCov">          0 :   XrFrameEndInfo end_info = {XR_TYPE_FRAME_END_INFO};</span></a>
+<a name="451"><span class="lineNum">     451 </span>            : </a>
+<a name="452"><span class="lineNum">     452 </span><span class="lineNoCov">          0 :   end_info.displayTime = draw_info_-&gt;frame_state.predictedDisplayTime;</span></a>
+<a name="453"><span class="lineNum">     453 </span><span class="lineNoCov">          0 :   end_info.environmentBlendMode = XR_ENVIRONMENT_BLEND_MODE_OPAQUE;</span></a>
+<a name="454"><span class="lineNum">     454 </span><span class="lineNoCov">          0 :   end_info.layerCount = layers.size();</span></a>
+<a name="455"><span class="lineNum">     455 </span><span class="lineNoCov">          0 :   end_info.layers = layers.data();</span></a>
+<a name="456"><span class="lineNum">     456 </span>            : </a>
+<a name="457"><span class="lineNum">     457 </span><span class="lineNoCov">          0 :   CHECK_XR(xrEndFrame(oxr_-&gt;session, &amp;end_info), &quot;Failed to submit rendered frame.&quot;);</span></a>
+<a name="458"><span class="lineNum">     458 </span>            : </a>
+<a name="459"><span class="lineNum">     459 </span><span class="lineNoCov">          0 :   if (context_-&gt;isDebugTimeMode()) {</span></a>
+<a name="460"><span class="lineNum">     460 </span><span class="lineNoCov">          0 :     print_debug_timings(*draw_info_);</span></a>
+<a name="461"><span class="lineNum">     461 </span>            :   }</a>
+<a name="462"><span class="lineNum">     462 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="463"><span class="lineNum">     463 </span>            : </a>
+<a name="464"><span class="lineNum">     464 </span><span class="lineNoCov">          0 : void GHOST_XrSession::draw(void *draw_customdata)</span></a>
+<a name="465"><span class="lineNum">     465 </span>            : {</a>
+<a name="466"><span class="lineNum">     466 </span>            :   std::vector&lt;XrCompositionLayerProjectionView&gt;</a>
+<a name="467"><span class="lineNum">     467 </span><span class="lineNoCov">          0 :       projection_layer_views; /* Keep alive until #xrEndFrame() call! */</span></a>
+<a name="468"><span class="lineNum">     468 </span>            :   XrCompositionLayerProjection proj_layer;</a>
+<a name="469"><span class="lineNum">     469 </span><span class="lineNoCov">          0 :   std::vector&lt;XrCompositionLayerBaseHeader *&gt; layers;</span></a>
+<a name="470"><span class="lineNum">     470 </span>            : </a>
+<a name="471"><span class="lineNum">     471 </span><span class="lineNoCov">          0 :   beginFrameDrawing();</span></a>
+<a name="472"><span class="lineNum">     472 </span>            : </a>
+<a name="473"><span class="lineNum">     473 </span><span class="lineNoCov">          0 :   if (context_-&gt;getCustomFuncs().passthrough_enabled_fn(draw_customdata)) {</span></a>
+<a name="474"><span class="lineNum">     474 </span><span class="lineNoCov">          0 :     enablePassthrough();</span></a>
+<a name="475"><span class="lineNum">     475 </span><span class="lineNoCov">          0 :     if (oxr_-&gt;passthrough_supported) {</span></a>
+<a name="476"><span class="lineNum">     476 </span><span class="lineNoCov">          0 :       layers.push_back((XrCompositionLayerBaseHeader *)&amp;oxr_-&gt;passthrough_layer);</span></a>
+<a name="477"><span class="lineNum">     477 </span>            :     }</a>
+<a name="478"><span class="lineNum">     478 </span>            :     else {</a>
+<a name="479"><span class="lineNum">     479 </span><span class="lineNoCov">          0 :       context_-&gt;getCustomFuncs().disable_passthrough_fn(draw_customdata);</span></a>
+<a name="480"><span class="lineNum">     480 </span>            :     }</a>
+<a name="481"><span class="lineNum">     481 </span>            :   }</a>
+<a name="482"><span class="lineNum">     482 </span>            : </a>
+<a name="483"><span class="lineNum">     483 </span><span class="lineNoCov">          0 :   if (draw_info_-&gt;frame_state.shouldRender) {</span></a>
+<a name="484"><span class="lineNum">     484 </span><span class="lineNoCov">          0 :     proj_layer = drawLayer(projection_layer_views, draw_customdata);</span></a>
+<a name="485"><span class="lineNum">     485 </span><span class="lineNoCov">          0 :     if (layers.size() &gt; 0) {</span></a>
+<a name="486"><span class="lineNum">     486 </span><span class="lineNoCov">          0 :       proj_layer.layerFlags = XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT;</span></a>
+<a name="487"><span class="lineNum">     487 </span>            :     }</a>
+<a name="488"><span class="lineNum">     488 </span><span class="lineNoCov">          0 :     layers.push_back(reinterpret_cast&lt;XrCompositionLayerBaseHeader *&gt;(&amp;proj_layer));</span></a>
+<a name="489"><span class="lineNum">     489 </span>            :   }</a>
+<a name="490"><span class="lineNum">     490 </span>            : </a>
+<a name="491"><span class="lineNum">     491 </span><span class="lineNoCov">          0 :   endFrameDrawing(layers);</span></a>
+<a name="492"><span class="lineNum">     492 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="493"><span class="lineNum">     493 </span>            : </a>
+<a name="494"><span class="lineNum">     494 </span><span class="lineNoCov">          0 : static void ghost_xr_draw_view_info_from_view(const XrView &amp;view, GHOST_XrDrawViewInfo &amp;r_info)</span></a>
+<a name="495"><span class="lineNum">     495 </span>            : {</a>
+<a name="496"><span class="lineNum">     496 </span>            :   /* Set and convert to Blender coordinate space. */</a>
+<a name="497"><span class="lineNum">     497 </span><span class="lineNoCov">          0 :   copy_openxr_pose_to_ghost_pose(view.pose, r_info.eye_pose);</span></a>
+<a name="498"><span class="lineNum">     498 </span>            : </a>
+<a name="499"><span class="lineNum">     499 </span><span class="lineNoCov">          0 :   r_info.fov.angle_left = view.fov.angleLeft;</span></a>
+<a name="500"><span class="lineNum">     500 </span><span class="lineNoCov">          0 :   r_info.fov.angle_right = view.fov.angleRight;</span></a>
+<a name="501"><span class="lineNum">     501 </span><span class="lineNoCov">          0 :   r_info.fov.angle_up = view.fov.angleUp;</span></a>
+<a name="502"><span class="lineNum">     502 </span><span class="lineNoCov">          0 :   r_info.fov.angle_down = view.fov.angleDown;</span></a>
+<a name="503"><span class="lineNum">     503 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="504"><span class="lineNum">     504 </span>            : </a>
+<a name="505"><span class="lineNum">     505 </span><span class="lineNoCov">          0 : void GHOST_XrSession::drawView(GHOST_XrSwapchain &amp;swapchain,</span></a>
+<a name="506"><span class="lineNum">     506 </span>            :                                XrSwapchainImageBaseHeader &amp;swapchain_image,</a>
+<a name="507"><span class="lineNum">     507 </span>            :                                XrCompositionLayerProjectionView &amp;r_proj_layer_view,</a>
+<a name="508"><span class="lineNum">     508 </span>            :                                const XrSpaceLocation &amp;view_location,</a>
+<a name="509"><span class="lineNum">     509 </span>            :                                const XrView &amp;view,</a>
+<a name="510"><span class="lineNum">     510 </span>            :                                uint32_t view_idx,</a>
+<a name="511"><span class="lineNum">     511 </span>            :                                void *draw_customdata)</a>
+<a name="512"><span class="lineNum">     512 </span>            : {</a>
+<a name="513"><span class="lineNum">     513 </span><span class="lineNoCov">          0 :   r_proj_layer_view.type = XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW;</span></a>
+<a name="514"><span class="lineNum">     514 </span><span class="lineNoCov">          0 :   r_proj_layer_view.pose = view.pose;</span></a>
+<a name="515"><span class="lineNum">     515 </span><span class="lineNoCov">          0 :   r_proj_layer_view.fov = view.fov;</span></a>
+<a name="516"><span class="lineNum">     516 </span><span class="lineNoCov">          0 :   swapchain.updateCompositionLayerProjectViewSubImage(r_proj_layer_view.subImage);</span></a>
+<a name="517"><span class="lineNum">     517 </span>            : </a>
+<a name="518"><span class="lineNum">     518 </span><span class="lineNoCov">          0 :   assert(view_idx &lt; 256);</span></a>
+<a name="519"><span class="lineNum">     519 </span><span class="lineNoCov">          0 :   GHOST_XrDrawViewInfo draw_view_info = {};</span></a>
+<a name="520"><span class="lineNum">     520 </span><span class="lineNoCov">          0 :   draw_view_info.view_idx = char(view_idx);</span></a>
+<a name="521"><span class="lineNum">     521 </span><span class="lineNoCov">          0 :   draw_view_info.swapchain_format = swapchain.getFormat();</span></a>
+<a name="522"><span class="lineNum">     522 </span><span class="lineNoCov">          0 :   draw_view_info.gpu_swapchain_format = swapchain.getGPUFormat();</span></a>
+<a name="523"><span class="lineNum">     523 </span><span class="lineNoCov">          0 :   draw_view_info.expects_srgb_buffer = swapchain.isBufferSRGB();</span></a>
+<a name="524"><span class="lineNum">     524 </span><span class="lineNoCov">          0 :   draw_view_info.ofsx = r_proj_layer_view.subImage.imageRect.offset.x;</span></a>
+<a name="525"><span class="lineNum">     525 </span><span class="lineNoCov">          0 :   draw_view_info.ofsy = r_proj_layer_view.subImage.imageRect.offset.y;</span></a>
+<a name="526"><span class="lineNum">     526 </span><span class="lineNoCov">          0 :   draw_view_info.width = r_proj_layer_view.subImage.imageRect.extent.width;</span></a>
+<a name="527"><span class="lineNum">     527 </span><span class="lineNoCov">          0 :   draw_view_info.height = r_proj_layer_view.subImage.imageRect.extent.height;</span></a>
+<a name="528"><span class="lineNum">     528 </span><span class="lineNoCov">          0 :   copy_openxr_pose_to_ghost_pose(view_location.pose, draw_view_info.local_pose);</span></a>
+<a name="529"><span class="lineNum">     529 </span><span class="lineNoCov">          0 :   ghost_xr_draw_view_info_from_view(view, draw_view_info);</span></a>
+<a name="530"><span class="lineNum">     530 </span>            : </a>
+<a name="531"><span class="lineNum">     531 </span>            :   /* Draw! */</a>
+<a name="532"><span class="lineNum">     532 </span><span class="lineNoCov">          0 :   context_-&gt;getCustomFuncs().draw_view_fn(&amp;draw_view_info, draw_customdata);</span></a>
+<a name="533"><span class="lineNum">     533 </span><span class="lineNoCov">          0 :   gpu_binding_-&gt;submitToSwapchainImage(swapchain_image, draw_view_info);</span></a>
+<a name="534"><span class="lineNum">     534 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="535"><span class="lineNum">     535 </span>            : </a>
+<a name="536"><span class="lineNum">     536 </span><span class="lineNoCov">          0 : XrCompositionLayerProjection GHOST_XrSession::drawLayer(</span></a>
+<a name="537"><span class="lineNum">     537 </span>            :     std::vector&lt;XrCompositionLayerProjectionView&gt; &amp;r_proj_layer_views, void *draw_customdata)</a>
+<a name="538"><span class="lineNum">     538 </span>            : {</a>
+<a name="539"><span class="lineNum">     539 </span><span class="lineNoCov">          0 :   XrViewLocateInfo viewloc_info = {XR_TYPE_VIEW_LOCATE_INFO};</span></a>
+<a name="540"><span class="lineNum">     540 </span><span class="lineNoCov">          0 :   XrViewLocateFoveatedRenderingVARJO foveated_info{</span></a>
+<a name="541"><span class="lineNum">     541 </span>            :       XR_TYPE_VIEW_LOCATE_FOVEATED_RENDERING_VARJO, nullptr, true};</a>
+<a name="542"><span class="lineNum">     542 </span><span class="lineNoCov">          0 :   XrViewState view_state = {XR_TYPE_VIEW_STATE};</span></a>
+<a name="543"><span class="lineNum">     543 </span><span class="lineNoCov">          0 :   XrCompositionLayerProjection layer = {XR_TYPE_COMPOSITION_LAYER_PROJECTION};</span></a>
+<a name="544"><span class="lineNum">     544 </span><span class="lineNoCov">          0 :   XrSpaceLocation view_location{XR_TYPE_SPACE_LOCATION};</span></a>
+<a name="545"><span class="lineNum">     545 </span>            :   uint32_t view_count;</a>
+<a name="546"><span class="lineNum">     546 </span>            : </a>
+<a name="547"><span class="lineNum">     547 </span><span class="lineNoCov">          0 :   viewloc_info.viewConfigurationType = oxr_-&gt;view_type;</span></a>
+<a name="548"><span class="lineNum">     548 </span><span class="lineNoCov">          0 :   viewloc_info.displayTime = draw_info_-&gt;frame_state.predictedDisplayTime;</span></a>
+<a name="549"><span class="lineNum">     549 </span><span class="lineNoCov">          0 :   viewloc_info.space = oxr_-&gt;reference_space;</span></a>
+<a name="550"><span class="lineNum">     550 </span>            : </a>
+<a name="551"><span class="lineNum">     551 </span><span class="lineNoCov">          0 :   if (draw_info_-&gt;foveation_active) {</span></a>
+<a name="552"><span class="lineNum">     552 </span><span class="lineNoCov">          0 :     viewloc_info.next = &amp;foveated_info;</span></a>
+<a name="553"><span class="lineNum">     553 </span>            :   }</a>
+<a name="554"><span class="lineNum">     554 </span>            : </a>
+<a name="555"><span class="lineNum">     555 </span><span class="lineNoCov">          0 :   CHECK_XR(xrLocateViews(oxr_-&gt;session,</span></a>
+<a name="556"><span class="lineNum">     556 </span>            :                          &amp;viewloc_info,</a>
+<a name="557"><span class="lineNum">     557 </span>            :                          &amp;view_state,</a>
+<a name="558"><span class="lineNum">     558 </span>            :                          oxr_-&gt;views.size(),</a>
+<a name="559"><span class="lineNum">     559 </span>            :                          &amp;view_count,</a>
+<a name="560"><span class="lineNum">     560 </span>            :                          oxr_-&gt;views.data()),</a>
+<a name="561"><span class="lineNum">     561 </span>            :            &quot;Failed to query frame view and projection state.&quot;);</a>
+<a name="562"><span class="lineNum">     562 </span>            : </a>
+<a name="563"><span class="lineNum">     563 </span><span class="lineNoCov">          0 :   assert(oxr_-&gt;swapchains.size() == view_count);</span></a>
+<a name="564"><span class="lineNum">     564 </span>            : </a>
+<a name="565"><span class="lineNum">     565 </span><span class="lineNoCov">          0 :   CHECK_XR(xrLocateSpace(</span></a>
+<a name="566"><span class="lineNum">     566 </span>            :                oxr_-&gt;view_space, oxr_-&gt;reference_space, viewloc_info.displayTime, &amp;view_location),</a>
+<a name="567"><span class="lineNum">     567 </span>            :            &quot;Failed to query frame view space&quot;);</a>
+<a name="568"><span class="lineNum">     568 </span>            : </a>
+<a name="569"><span class="lineNum">     569 </span><span class="lineNoCov">          0 :   r_proj_layer_views.resize(view_count);</span></a>
+<a name="570"><span class="lineNum">     570 </span><span class="lineNoCov">          0 :   std::vector&lt;XrSwapchainImageBaseHeader *&gt; swapchain_images;</span></a>
+<a name="571"><span class="lineNum">     571 </span><span class="lineNoCov">          0 :   swapchain_images.resize(view_count);</span></a>
+<a name="572"><span class="lineNum">     572 </span>            : </a>
+<a name="573"><span class="lineNum">     573 </span><span class="lineNoCov">          0 :   for (uint32_t view_idx = 0; view_idx &lt; view_count; view_idx++) {</span></a>
+<a name="574"><span class="lineNum">     574 </span><span class="lineNoCov">          0 :     GHOST_XrSwapchain &amp;swapchain = oxr_-&gt;swapchains[view_idx];</span></a>
+<a name="575"><span class="lineNum">     575 </span><span class="lineNoCov">          0 :     swapchain_images[view_idx] = swapchain.acquireDrawableSwapchainImage();</span></a>
+<a name="576"><span class="lineNum">     576 </span>            :   }</a>
+<a name="577"><span class="lineNum">     577 </span>            : </a>
+<a name="578"><span class="lineNum">     578 </span><span class="lineNoCov">          0 :   gpu_binding_-&gt;submitToSwapchainBegin();</span></a>
+<a name="579"><span class="lineNum">     579 </span><span class="lineNoCov">          0 :   for (uint32_t view_idx = 0; view_idx &lt; view_count; view_idx++) {</span></a>
+<a name="580"><span class="lineNum">     580 </span><span class="lineNoCov">          0 :     GHOST_XrSwapchain &amp;swapchain = oxr_-&gt;swapchains[view_idx];</span></a>
+<a name="581"><span class="lineNum">     581 </span><span class="lineNoCov">          0 :     XrSwapchainImageBaseHeader &amp;swapchain_image = *swapchain_images[view_idx];</span></a>
+<a name="582"><span class="lineNum">     582 </span><span class="lineNoCov">          0 :     drawView(swapchain,</span></a>
+<a name="583"><span class="lineNum">     583 </span>            :              swapchain_image,</a>
+<a name="584"><span class="lineNum">     584 </span><span class="lineNoCov">          0 :              r_proj_layer_views[view_idx],</span></a>
+<a name="585"><span class="lineNum">     585 </span>            :              view_location,</a>
+<a name="586"><span class="lineNum">     586 </span><span class="lineNoCov">          0 :              oxr_-&gt;views[view_idx],</span></a>
+<a name="587"><span class="lineNum">     587 </span>            :              view_idx,</a>
+<a name="588"><span class="lineNum">     588 </span>            :              draw_customdata);</a>
+<a name="589"><span class="lineNum">     589 </span>            :   }</a>
+<a name="590"><span class="lineNum">     590 </span><span class="lineNoCov">          0 :   gpu_binding_-&gt;submitToSwapchainEnd();</span></a>
+<a name="591"><span class="lineNum">     591 </span>            : </a>
+<a name="592"><span class="lineNum">     592 </span><span class="lineNoCov">          0 :   for (uint32_t view_idx = 0; view_idx &lt; view_count; view_idx++) {</span></a>
+<a name="593"><span class="lineNum">     593 </span><span class="lineNoCov">          0 :     GHOST_XrSwapchain &amp;swapchain = oxr_-&gt;swapchains[view_idx];</span></a>
+<a name="594"><span class="lineNum">     594 </span><span class="lineNoCov">          0 :     swapchain.releaseImage();</span></a>
+<a name="595"><span class="lineNum">     595 </span><span class="lineNoCov">          0 :     swapchain_images[view_idx] = nullptr;</span></a>
+<a name="596"><span class="lineNum">     596 </span>            :   }</a>
+<a name="597"><span class="lineNum">     597 </span>            : </a>
+<a name="598"><span class="lineNum">     598 </span><span class="lineNoCov">          0 :   layer.space = oxr_-&gt;reference_space;</span></a>
+<a name="599"><span class="lineNum">     599 </span><span class="lineNoCov">          0 :   layer.viewCount = r_proj_layer_views.size();</span></a>
+<a name="600"><span class="lineNum">     600 </span><span class="lineNoCov">          0 :   layer.views = r_proj_layer_views.data();</span></a>
+<a name="601"><span class="lineNum">     601 </span>            : </a>
+<a name="602"><span class="lineNum">     602 </span><span class="lineNoCov">          0 :   return layer;</span></a>
+<a name="603"><span class="lineNum">     603 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="604"><span class="lineNum">     604 </span>            : </a>
+<a name="605"><span class="lineNum">     605 </span><span class="lineNoCov">          0 : bool GHOST_XrSession::needsUpsideDownDrawing() const</span></a>
+<a name="606"><span class="lineNum">     606 </span>            : {</a>
+<a name="607"><span class="lineNum">     607 </span><span class="lineNoCov">          0 :   return gpu_binding_ &amp;&amp; gpu_binding_-&gt;needsUpsideDownDrawing(*gpu_ctx_);</span></a>
+<a name="608"><span class="lineNum">     608 </span>            : }</a>
+<a name="609"><span class="lineNum">     609 </span>            : </a>
+<a name="610"><span class="lineNum">     610 </span>            : /** \} */ /* Drawing */</a>
+<a name="611"><span class="lineNum">     611 </span>            : </a>
+<a name="612"><span class="lineNum">     612 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="613"><span class="lineNum">     613 </span>            : /** \name State Queries</a>
+<a name="614"><span class="lineNum">     614 </span>            :  * \{ */</a>
+<a name="615"><span class="lineNum">     615 </span>            : </a>
+<a name="616"><span class="lineNum">     616 </span><span class="lineNoCov">          0 : bool GHOST_XrSession::isRunning() const</span></a>
+<a name="617"><span class="lineNum">     617 </span>            : {</a>
+<a name="618"><span class="lineNum">     618 </span><span class="lineNoCov">          0 :   if (oxr_-&gt;session == XR_NULL_HANDLE) {</span></a>
+<a name="619"><span class="lineNum">     619 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="620"><span class="lineNum">     620 </span>            :   }</a>
+<a name="621"><span class="lineNum">     621 </span><span class="lineNoCov">          0 :   switch (oxr_-&gt;session_state) {</span></a>
+<a name="622"><span class="lineNum">     622 </span><span class="lineNoCov">          0 :     case XR_SESSION_STATE_READY:</span></a>
+<a name="623"><span class="lineNum">     623 </span>            :     case XR_SESSION_STATE_SYNCHRONIZED:</a>
+<a name="624"><span class="lineNum">     624 </span>            :     case XR_SESSION_STATE_VISIBLE:</a>
+<a name="625"><span class="lineNum">     625 </span>            :     case XR_SESSION_STATE_FOCUSED:</a>
+<a name="626"><span class="lineNum">     626 </span><span class="lineNoCov">          0 :       return true;</span></a>
+<a name="627"><span class="lineNum">     627 </span><span class="lineNoCov">          0 :     default:</span></a>
+<a name="628"><span class="lineNum">     628 </span><span class="lineNoCov">          0 :       return false;</span></a>
+<a name="629"><span class="lineNum">     629 </span>            :   }</a>
+<a name="630"><span class="lineNum">     630 </span>            : }</a>
+<a name="631"><span class="lineNum">     631 </span>            : </a>
+<a name="632"><span class="lineNum">     632 </span>            : /** \} */ /* State Queries */</a>
+<a name="633"><span class="lineNum">     633 </span>            : </a>
+<a name="634"><span class="lineNum">     634 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="635"><span class="lineNum">     635 </span>            : /** \name Graphics Context Injection</a>
+<a name="636"><span class="lineNum">     636 </span>            :  *</a>
+<a name="637"><span class="lineNum">     637 </span>            :  * Sessions need access to Ghost graphics context information. Additionally, this API allows</a>
+<a name="638"><span class="lineNum">     638 </span>            :  * creating contexts on the fly (created on start, destructed on end). For this, callbacks to bind</a>
+<a name="639"><span class="lineNum">     639 </span>            :  * (potentially create) and unbind (potentially destruct) a Ghost graphics context have to be set,</a>
+<a name="640"><span class="lineNum">     640 </span>            :  * which will be called on session start and end respectively.</a>
+<a name="641"><span class="lineNum">     641 </span>            :  *</a>
+<a name="642"><span class="lineNum">     642 </span>            :  * \{ */</a>
+<a name="643"><span class="lineNum">     643 </span>            : </a>
+<a name="644"><span class="lineNum">     644 </span><span class="lineNoCov">          0 : void GHOST_XrSession::bindGraphicsContext()</span></a>
+<a name="645"><span class="lineNum">     645 </span>            : {</a>
+<a name="646"><span class="lineNum">     646 </span><span class="lineNoCov">          0 :   const GHOST_XrCustomFuncs &amp;custom_funcs = context_-&gt;getCustomFuncs();</span></a>
+<a name="647"><span class="lineNum">     647 </span><span class="lineNoCov">          0 :   assert(custom_funcs.gpu_ctx_bind_fn);</span></a>
+<a name="648"><span class="lineNum">     648 </span><span class="lineNoCov">          0 :   gpu_ctx_ = static_cast&lt;GHOST_Context *&gt;(custom_funcs.gpu_ctx_bind_fn());</span></a>
+<a name="649"><span class="lineNum">     649 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="650"><span class="lineNum">     650 </span>            : </a>
+<a name="651"><span class="lineNum">     651 </span><span class="lineNoCov">          0 : void GHOST_XrSession::unbindGraphicsContext()</span></a>
+<a name="652"><span class="lineNum">     652 </span>            : {</a>
+<a name="653"><span class="lineNum">     653 </span><span class="lineNoCov">          0 :   const GHOST_XrCustomFuncs &amp;custom_funcs = context_-&gt;getCustomFuncs();</span></a>
+<a name="654"><span class="lineNum">     654 </span><span class="lineNoCov">          0 :   if (custom_funcs.gpu_ctx_unbind_fn) {</span></a>
+<a name="655"><span class="lineNum">     655 </span><span class="lineNoCov">          0 :     custom_funcs.gpu_ctx_unbind_fn(gpu_ctx_);</span></a>
+<a name="656"><span class="lineNum">     656 </span>            :   }</a>
+<a name="657"><span class="lineNum">     657 </span><span class="lineNoCov">          0 :   gpu_ctx_ = nullptr;</span></a>
+<a name="658"><span class="lineNum">     658 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="659"><span class="lineNum">     659 </span>            : </a>
+<a name="660"><span class="lineNum">     660 </span>            : /** \} */ /* Graphics Context Injection */</a>
+<a name="661"><span class="lineNum">     661 </span>            : </a>
+<a name="662"><span class="lineNum">     662 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="663"><span class="lineNum">     663 </span>            : /** \name Actions</a>
+<a name="664"><span class="lineNum">     664 </span>            :  *</a>
+<a name="665"><span class="lineNum">     665 </span>            :  * \{ */</a>
+<a name="666"><span class="lineNum">     666 </span>            : </a>
+<a name="667"><span class="lineNum">     667 </span><span class="lineNoCov">          0 : static GHOST_XrActionSet *find_action_set(OpenXRSessionData *oxr, const char *action_set_name)</span></a>
+<a name="668"><span class="lineNum">     668 </span>            : {</a>
+<a name="669"><span class="lineNum">     669 </span><span class="lineNoCov">          0 :   std::map&lt;std::string, GHOST_XrActionSet&gt;::iterator it = oxr-&gt;action_sets.find(action_set_name);</span></a>
+<a name="670"><span class="lineNum">     670 </span><span class="lineNoCov">          0 :   if (it == oxr-&gt;action_sets.end()) {</span></a>
+<a name="671"><span class="lineNum">     671 </span><span class="lineNoCov">          0 :     return nullptr;</span></a>
+<a name="672"><span class="lineNum">     672 </span>            :   }</a>
+<a name="673"><span class="lineNum">     673 </span><span class="lineNoCov">          0 :   return &amp;it-&gt;second;</span></a>
+<a name="674"><span class="lineNum">     674 </span>            : }</a>
+<a name="675"><span class="lineNum">     675 </span>            : </a>
+<a name="676"><span class="lineNum">     676 </span><span class="lineNoCov">          0 : bool GHOST_XrSession::createActionSet(const GHOST_XrActionSetInfo &amp;info)</span></a>
+<a name="677"><span class="lineNum">     677 </span>            : {</a>
+<a name="678"><span class="lineNum">     678 </span><span class="lineNoCov">          0 :   std::map&lt;std::string, GHOST_XrActionSet&gt; &amp;action_sets = oxr_-&gt;action_sets;</span></a>
+<a name="679"><span class="lineNum">     679 </span><span class="lineNoCov">          0 :   if (action_sets.find(info.name) != action_sets.end()) {</span></a>
+<a name="680"><span class="lineNum">     680 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="681"><span class="lineNum">     681 </span>            :   }</a>
+<a name="682"><span class="lineNum">     682 </span>            : </a>
+<a name="683"><span class="lineNum">     683 </span><span class="lineNoCov">          0 :   XrInstance instance = context_-&gt;getInstance();</span></a>
+<a name="684"><span class="lineNum">     684 </span>            : </a>
+<a name="685"><span class="lineNum">     685 </span><span class="lineNoCov">          0 :   action_sets.emplace(</span></a>
+<a name="686"><span class="lineNum">     686 </span><span class="lineNoCov">          0 :       std::piecewise_construct, std::make_tuple(info.name), std::make_tuple(instance, info));</span></a>
+<a name="687"><span class="lineNum">     687 </span>            : </a>
+<a name="688"><span class="lineNum">     688 </span><span class="lineNoCov">          0 :   return true;</span></a>
+<a name="689"><span class="lineNum">     689 </span>            : }</a>
+<a name="690"><span class="lineNum">     690 </span>            : </a>
+<a name="691"><span class="lineNum">     691 </span><span class="lineNoCov">          0 : void GHOST_XrSession::destroyActionSet(const char *action_set_name)</span></a>
+<a name="692"><span class="lineNum">     692 </span>            : {</a>
+<a name="693"><span class="lineNum">     693 </span><span class="lineNoCov">          0 :   std::map&lt;std::string, GHOST_XrActionSet&gt; &amp;action_sets = oxr_-&gt;action_sets;</span></a>
+<a name="694"><span class="lineNum">     694 </span>            :   /* It's possible nothing is removed. */</a>
+<a name="695"><span class="lineNum">     695 </span><span class="lineNoCov">          0 :   action_sets.erase(action_set_name);</span></a>
+<a name="696"><span class="lineNum">     696 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="697"><span class="lineNum">     697 </span>            : </a>
+<a name="698"><span class="lineNum">     698 </span><span class="lineNoCov">          0 : bool GHOST_XrSession::createActions(const char *action_set_name,</span></a>
+<a name="699"><span class="lineNum">     699 </span>            :                                     uint32_t count,</a>
+<a name="700"><span class="lineNum">     700 </span>            :                                     const GHOST_XrActionInfo *infos)</a>
+<a name="701"><span class="lineNum">     701 </span>            : {</a>
+<a name="702"><span class="lineNum">     702 </span><span class="lineNoCov">          0 :   GHOST_XrActionSet *action_set = find_action_set(oxr_.get(), action_set_name);</span></a>
+<a name="703"><span class="lineNum">     703 </span><span class="lineNoCov">          0 :   if (action_set == nullptr) {</span></a>
+<a name="704"><span class="lineNum">     704 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="705"><span class="lineNum">     705 </span>            :   }</a>
+<a name="706"><span class="lineNum">     706 </span>            : </a>
+<a name="707"><span class="lineNum">     707 </span><span class="lineNoCov">          0 :   XrInstance instance = context_-&gt;getInstance();</span></a>
+<a name="708"><span class="lineNum">     708 </span>            : </a>
+<a name="709"><span class="lineNum">     709 </span><span class="lineNoCov">          0 :   for (uint32_t i = 0; i &lt; count; ++i) {</span></a>
+<a name="710"><span class="lineNum">     710 </span><span class="lineNoCov">          0 :     if (!action_set-&gt;createAction(instance, infos[i])) {</span></a>
+<a name="711"><span class="lineNum">     711 </span><span class="lineNoCov">          0 :       return false;</span></a>
+<a name="712"><span class="lineNum">     712 </span>            :     }</a>
+<a name="713"><span class="lineNum">     713 </span>            :   }</a>
+<a name="714"><span class="lineNum">     714 </span>            : </a>
+<a name="715"><span class="lineNum">     715 </span><span class="lineNoCov">          0 :   return true;</span></a>
+<a name="716"><span class="lineNum">     716 </span>            : }</a>
+<a name="717"><span class="lineNum">     717 </span>            : </a>
+<a name="718"><span class="lineNum">     718 </span><span class="lineNoCov">          0 : void GHOST_XrSession::destroyActions(const char *action_set_name,</span></a>
+<a name="719"><span class="lineNum">     719 </span>            :                                      uint32_t count,</a>
+<a name="720"><span class="lineNum">     720 </span>            :                                      const char *const *action_names)</a>
+<a name="721"><span class="lineNum">     721 </span>            : {</a>
+<a name="722"><span class="lineNum">     722 </span><span class="lineNoCov">          0 :   GHOST_XrActionSet *action_set = find_action_set(oxr_.get(), action_set_name);</span></a>
+<a name="723"><span class="lineNum">     723 </span><span class="lineNoCov">          0 :   if (action_set == nullptr) {</span></a>
+<a name="724"><span class="lineNum">     724 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="725"><span class="lineNum">     725 </span>            :   }</a>
+<a name="726"><span class="lineNum">     726 </span>            : </a>
+<a name="727"><span class="lineNum">     727 </span><span class="lineNoCov">          0 :   for (uint32_t i = 0; i &lt; count; ++i) {</span></a>
+<a name="728"><span class="lineNum">     728 </span><span class="lineNoCov">          0 :     action_set-&gt;destroyAction(action_names[i]);</span></a>
+<a name="729"><span class="lineNum">     729 </span>            :   }</a>
+<a name="730"><span class="lineNum">     730 </span>            : }</a>
+<a name="731"><span class="lineNum">     731 </span>            : </a>
+<a name="732"><span class="lineNum">     732 </span><span class="lineNoCov">          0 : bool GHOST_XrSession::createActionBindings(const char *action_set_name,</span></a>
+<a name="733"><span class="lineNum">     733 </span>            :                                            uint32_t count,</a>
+<a name="734"><span class="lineNum">     734 </span>            :                                            const GHOST_XrActionProfileInfo *infos)</a>
+<a name="735"><span class="lineNum">     735 </span>            : {</a>
+<a name="736"><span class="lineNum">     736 </span><span class="lineNoCov">          0 :   GHOST_XrActionSet *action_set = find_action_set(oxr_.get(), action_set_name);</span></a>
+<a name="737"><span class="lineNum">     737 </span><span class="lineNoCov">          0 :   if (action_set == nullptr) {</span></a>
+<a name="738"><span class="lineNum">     738 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="739"><span class="lineNum">     739 </span>            :   }</a>
+<a name="740"><span class="lineNum">     740 </span>            : </a>
+<a name="741"><span class="lineNum">     741 </span><span class="lineNoCov">          0 :   XrInstance instance = context_-&gt;getInstance();</span></a>
+<a name="742"><span class="lineNum">     742 </span><span class="lineNoCov">          0 :   XrSession session = oxr_-&gt;session;</span></a>
+<a name="743"><span class="lineNum">     743 </span>            : </a>
+<a name="744"><span class="lineNum">     744 </span><span class="lineNoCov">          0 :   for (uint32_t profile_idx = 0; profile_idx &lt; count; ++profile_idx) {</span></a>
+<a name="745"><span class="lineNum">     745 </span><span class="lineNoCov">          0 :     const GHOST_XrActionProfileInfo &amp;info = infos[profile_idx];</span></a>
+<a name="746"><span class="lineNum">     746 </span>            : </a>
+<a name="747"><span class="lineNum">     747 </span><span class="lineNoCov">          0 :     GHOST_XrAction *action = action_set-&gt;findAction(info.action_name);</span></a>
+<a name="748"><span class="lineNum">     748 </span><span class="lineNoCov">          0 :     if (action == nullptr) {</span></a>
+<a name="749"><span class="lineNum">     749 </span><span class="lineNoCov">          0 :       continue;</span></a>
+<a name="750"><span class="lineNum">     750 </span>            :     }</a>
+<a name="751"><span class="lineNum">     751 </span>            : </a>
+<a name="752"><span class="lineNum">     752 </span><span class="lineNoCov">          0 :     action-&gt;createBinding(instance, session, info);</span></a>
+<a name="753"><span class="lineNum">     753 </span>            :   }</a>
+<a name="754"><span class="lineNum">     754 </span>            : </a>
+<a name="755"><span class="lineNum">     755 </span><span class="lineNoCov">          0 :   return true;</span></a>
+<a name="756"><span class="lineNum">     756 </span>            : }</a>
+<a name="757"><span class="lineNum">     757 </span>            : </a>
+<a name="758"><span class="lineNum">     758 </span><span class="lineNoCov">          0 : void GHOST_XrSession::destroyActionBindings(const char *action_set_name,</span></a>
+<a name="759"><span class="lineNum">     759 </span>            :                                             uint32_t count,</a>
+<a name="760"><span class="lineNum">     760 </span>            :                                             const char *const *action_names,</a>
+<a name="761"><span class="lineNum">     761 </span>            :                                             const char *const *profile_paths)</a>
+<a name="762"><span class="lineNum">     762 </span>            : {</a>
+<a name="763"><span class="lineNum">     763 </span><span class="lineNoCov">          0 :   GHOST_XrActionSet *action_set = find_action_set(oxr_.get(), action_set_name);</span></a>
+<a name="764"><span class="lineNum">     764 </span><span class="lineNoCov">          0 :   if (action_set == nullptr) {</span></a>
+<a name="765"><span class="lineNum">     765 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="766"><span class="lineNum">     766 </span>            :   }</a>
+<a name="767"><span class="lineNum">     767 </span>            : </a>
+<a name="768"><span class="lineNum">     768 </span><span class="lineNoCov">          0 :   for (uint32_t i = 0; i &lt; count; ++i) {</span></a>
+<a name="769"><span class="lineNum">     769 </span><span class="lineNoCov">          0 :     GHOST_XrAction *action = action_set-&gt;findAction(action_names[i]);</span></a>
+<a name="770"><span class="lineNum">     770 </span><span class="lineNoCov">          0 :     if (action == nullptr) {</span></a>
+<a name="771"><span class="lineNum">     771 </span><span class="lineNoCov">          0 :       continue;</span></a>
+<a name="772"><span class="lineNum">     772 </span>            :     }</a>
+<a name="773"><span class="lineNum">     773 </span>            : </a>
+<a name="774"><span class="lineNum">     774 </span><span class="lineNoCov">          0 :     action-&gt;destroyBinding(profile_paths[i]);</span></a>
+<a name="775"><span class="lineNum">     775 </span>            :   }</a>
+<a name="776"><span class="lineNum">     776 </span>            : }</a>
+<a name="777"><span class="lineNum">     777 </span>            : </a>
+<a name="778"><span class="lineNum">     778 </span><span class="lineNoCov">          0 : bool GHOST_XrSession::attachActionSets()</span></a>
+<a name="779"><span class="lineNum">     779 </span>            : {</a>
+<a name="780"><span class="lineNum">     780 </span>            :   /* Suggest action bindings for all action sets. */</a>
+<a name="781"><span class="lineNum">     781 </span><span class="lineNoCov">          0 :   std::map&lt;XrPath, std::vector&lt;XrActionSuggestedBinding&gt;&gt; profile_bindings;</span></a>
+<a name="782"><span class="lineNum">     782 </span><span class="lineNoCov">          0 :   for (auto &amp;[name, action_set] : oxr_-&gt;action_sets) {</span></a>
+<a name="783"><span class="lineNum">     783 </span><span class="lineNoCov">          0 :     action_set.getBindings(profile_bindings);</span></a>
+<a name="784"><span class="lineNum">     784 </span>            :   }</a>
+<a name="785"><span class="lineNum">     785 </span>            : </a>
+<a name="786"><span class="lineNum">     786 </span><span class="lineNoCov">          0 :   if (profile_bindings.size() &lt; 1) {</span></a>
+<a name="787"><span class="lineNum">     787 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="788"><span class="lineNum">     788 </span>            :   }</a>
+<a name="789"><span class="lineNum">     789 </span>            : </a>
+<a name="790"><span class="lineNum">     790 </span><span class="lineNoCov">          0 :   XrInteractionProfileSuggestedBinding bindings_info{</span></a>
+<a name="791"><span class="lineNum">     791 </span>            :       XR_TYPE_INTERACTION_PROFILE_SUGGESTED_BINDING};</a>
+<a name="792"><span class="lineNum">     792 </span><span class="lineNoCov">          0 :   XrInstance instance = context_-&gt;getInstance();</span></a>
+<a name="793"><span class="lineNum">     793 </span>            : </a>
+<a name="794"><span class="lineNum">     794 </span><span class="lineNoCov">          0 :   for (auto &amp;[profile, bindings] : profile_bindings) {</span></a>
+<a name="795"><span class="lineNum">     795 </span><span class="lineNoCov">          0 :     bindings_info.interactionProfile = profile;</span></a>
+<a name="796"><span class="lineNum">     796 </span><span class="lineNoCov">          0 :     bindings_info.countSuggestedBindings = uint32_t(bindings.size());</span></a>
+<a name="797"><span class="lineNum">     797 </span><span class="lineNoCov">          0 :     bindings_info.suggestedBindings = bindings.data();</span></a>
+<a name="798"><span class="lineNum">     798 </span>            : </a>
+<a name="799"><span class="lineNum">     799 </span><span class="lineNoCov">          0 :     CHECK_XR(xrSuggestInteractionProfileBindings(instance, &amp;bindings_info),</span></a>
+<a name="800"><span class="lineNum">     800 </span>            :              &quot;Failed to suggest interaction profile bindings.&quot;);</a>
+<a name="801"><span class="lineNum">     801 </span>            :   }</a>
+<a name="802"><span class="lineNum">     802 </span>            : </a>
+<a name="803"><span class="lineNum">     803 </span>            :   /* Attach action sets. */</a>
+<a name="804"><span class="lineNum">     804 </span><span class="lineNoCov">          0 :   XrSessionActionSetsAttachInfo attach_info{XR_TYPE_SESSION_ACTION_SETS_ATTACH_INFO};</span></a>
+<a name="805"><span class="lineNum">     805 </span><span class="lineNoCov">          0 :   attach_info.countActionSets = uint32_t(oxr_-&gt;action_sets.size());</span></a>
+<a name="806"><span class="lineNum">     806 </span>            : </a>
+<a name="807"><span class="lineNum">     807 </span>            :   /* Create an aligned copy of the action sets to pass to xrAttachSessionActionSets(). */</a>
+<a name="808"><span class="lineNum">     808 </span><span class="lineNoCov">          0 :   std::vector&lt;XrActionSet&gt; action_sets(attach_info.countActionSets);</span></a>
+<a name="809"><span class="lineNum">     809 </span><span class="lineNoCov">          0 :   uint32_t i = 0;</span></a>
+<a name="810"><span class="lineNum">     810 </span><span class="lineNoCov">          0 :   for (auto &amp;[name, action_set] : oxr_-&gt;action_sets) {</span></a>
+<a name="811"><span class="lineNum">     811 </span><span class="lineNoCov">          0 :     action_sets[i++] = action_set.getActionSet();</span></a>
+<a name="812"><span class="lineNum">     812 </span>            :   }</a>
+<a name="813"><span class="lineNum">     813 </span><span class="lineNoCov">          0 :   attach_info.actionSets = action_sets.data();</span></a>
+<a name="814"><span class="lineNum">     814 </span>            : </a>
+<a name="815"><span class="lineNum">     815 </span><span class="lineNoCov">          0 :   CHECK_XR(xrAttachSessionActionSets(oxr_-&gt;session, &amp;attach_info),</span></a>
+<a name="816"><span class="lineNum">     816 </span>            :            &quot;Failed to attach XR action sets.&quot;);</a>
+<a name="817"><span class="lineNum">     817 </span>            : </a>
+<a name="818"><span class="lineNum">     818 </span><span class="lineNoCov">          0 :   return true;</span></a>
+<a name="819"><span class="lineNum">     819 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="820"><span class="lineNum">     820 </span>            : </a>
+<a name="821"><span class="lineNum">     821 </span><span class="lineNoCov">          0 : bool GHOST_XrSession::syncActions(const char *action_set_name)</span></a>
+<a name="822"><span class="lineNum">     822 </span>            : {</a>
+<a name="823"><span class="lineNum">     823 </span><span class="lineNoCov">          0 :   std::map&lt;std::string, GHOST_XrActionSet&gt; &amp;action_sets = oxr_-&gt;action_sets;</span></a>
+<a name="824"><span class="lineNum">     824 </span>            : </a>
+<a name="825"><span class="lineNum">     825 </span><span class="lineNoCov">          0 :   XrActionsSyncInfo sync_info{XR_TYPE_ACTIONS_SYNC_INFO};</span></a>
+<a name="826"><span class="lineNum">     826 </span><span class="lineNoCov">          0 :   sync_info.countActiveActionSets = (action_set_name != nullptr) ? 1 :</span></a>
+<a name="827"><span class="lineNum">     827 </span><span class="lineNoCov">          0 :                                                                    uint32_t(action_sets.size());</span></a>
+<a name="828"><span class="lineNum">     828 </span><span class="lineNoCov">          0 :   if (sync_info.countActiveActionSets &lt; 1) {</span></a>
+<a name="829"><span class="lineNum">     829 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="830"><span class="lineNum">     830 </span>            :   }</a>
+<a name="831"><span class="lineNum">     831 </span>            : </a>
+<a name="832"><span class="lineNum">     832 </span><span class="lineNoCov">          0 :   std::vector&lt;XrActiveActionSet&gt; active_action_sets(sync_info.countActiveActionSets);</span></a>
+<a name="833"><span class="lineNum">     833 </span><span class="lineNoCov">          0 :   GHOST_XrActionSet *action_set = nullptr;</span></a>
+<a name="834"><span class="lineNum">     834 </span>            : </a>
+<a name="835"><span class="lineNum">     835 </span><span class="lineNoCov">          0 :   if (action_set_name != nullptr) {</span></a>
+<a name="836"><span class="lineNum">     836 </span><span class="lineNoCov">          0 :     action_set = find_action_set(oxr_.get(), action_set_name);</span></a>
+<a name="837"><span class="lineNum">     837 </span><span class="lineNoCov">          0 :     if (action_set == nullptr) {</span></a>
+<a name="838"><span class="lineNum">     838 </span><span class="lineNoCov">          0 :       return false;</span></a>
+<a name="839"><span class="lineNum">     839 </span>            :     }</a>
+<a name="840"><span class="lineNum">     840 </span>            : </a>
+<a name="841"><span class="lineNum">     841 </span><span class="lineNoCov">          0 :     XrActiveActionSet &amp;active_action_set = active_action_sets[0];</span></a>
+<a name="842"><span class="lineNum">     842 </span><span class="lineNoCov">          0 :     active_action_set.actionSet = action_set-&gt;getActionSet();</span></a>
+<a name="843"><span class="lineNum">     843 </span><span class="lineNoCov">          0 :     active_action_set.subactionPath = XR_NULL_PATH;</span></a>
+<a name="844"><span class="lineNum">     844 </span>            :   }</a>
+<a name="845"><span class="lineNum">     845 </span>            :   else {</a>
+<a name="846"><span class="lineNum">     846 </span><span class="lineNoCov">          0 :     uint32_t i = 0;</span></a>
+<a name="847"><span class="lineNum">     847 </span><span class="lineNoCov">          0 :     for (auto &amp;[name, action_set] : action_sets) {</span></a>
+<a name="848"><span class="lineNum">     848 </span><span class="lineNoCov">          0 :       XrActiveActionSet &amp;active_action_set = active_action_sets[i++];</span></a>
+<a name="849"><span class="lineNum">     849 </span><span class="lineNoCov">          0 :       active_action_set.actionSet = action_set.getActionSet();</span></a>
+<a name="850"><span class="lineNum">     850 </span><span class="lineNoCov">          0 :       active_action_set.subactionPath = XR_NULL_PATH;</span></a>
+<a name="851"><span class="lineNum">     851 </span>            :     }</a>
+<a name="852"><span class="lineNum">     852 </span>            :   }</a>
+<a name="853"><span class="lineNum">     853 </span><span class="lineNoCov">          0 :   sync_info.activeActionSets = active_action_sets.data();</span></a>
+<a name="854"><span class="lineNum">     854 </span>            : </a>
+<a name="855"><span class="lineNum">     855 </span><span class="lineNoCov">          0 :   CHECK_XR(xrSyncActions(oxr_-&gt;session, &amp;sync_info), &quot;Failed to synchronize XR actions.&quot;);</span></a>
+<a name="856"><span class="lineNum">     856 </span>            : </a>
+<a name="857"><span class="lineNum">     857 </span>            :   /* Update action states (i.e. Blender custom data). */</a>
+<a name="858"><span class="lineNum">     858 </span><span class="lineNoCov">          0 :   XrSession session = oxr_-&gt;session;</span></a>
+<a name="859"><span class="lineNum">     859 </span><span class="lineNoCov">          0 :   XrSpace reference_space = oxr_-&gt;reference_space;</span></a>
+<a name="860"><span class="lineNum">     860 </span><span class="lineNoCov">          0 :   const XrTime &amp;predicted_display_time = draw_info_-&gt;frame_state.predictedDisplayTime;</span></a>
+<a name="861"><span class="lineNum">     861 </span>            : </a>
+<a name="862"><span class="lineNum">     862 </span><span class="lineNoCov">          0 :   if (action_set != nullptr) {</span></a>
+<a name="863"><span class="lineNum">     863 </span><span class="lineNoCov">          0 :     action_set-&gt;updateStates(session, reference_space, predicted_display_time);</span></a>
+<a name="864"><span class="lineNum">     864 </span>            :   }</a>
+<a name="865"><span class="lineNum">     865 </span>            :   else {</a>
+<a name="866"><span class="lineNum">     866 </span><span class="lineNoCov">          0 :     for (auto &amp;[name, action_set] : action_sets) {</span></a>
+<a name="867"><span class="lineNum">     867 </span><span class="lineNoCov">          0 :       action_set.updateStates(session, reference_space, predicted_display_time);</span></a>
+<a name="868"><span class="lineNum">     868 </span>            :     }</a>
+<a name="869"><span class="lineNum">     869 </span>            :   }</a>
+<a name="870"><span class="lineNum">     870 </span>            : </a>
+<a name="871"><span class="lineNum">     871 </span><span class="lineNoCov">          0 :   return true;</span></a>
+<a name="872"><span class="lineNum">     872 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="873"><span class="lineNum">     873 </span>            : </a>
+<a name="874"><span class="lineNum">     874 </span><span class="lineNoCov">          0 : bool GHOST_XrSession::applyHapticAction(const char *action_set_name,</span></a>
+<a name="875"><span class="lineNum">     875 </span>            :                                         const char *action_name,</a>
+<a name="876"><span class="lineNum">     876 </span>            :                                         const char *subaction_path,</a>
+<a name="877"><span class="lineNum">     877 </span>            :                                         const int64_t &amp;duration,</a>
+<a name="878"><span class="lineNum">     878 </span>            :                                         const float &amp;frequency,</a>
+<a name="879"><span class="lineNum">     879 </span>            :                                         const float &amp;amplitude)</a>
+<a name="880"><span class="lineNum">     880 </span>            : {</a>
+<a name="881"><span class="lineNum">     881 </span><span class="lineNoCov">          0 :   GHOST_XrActionSet *action_set = find_action_set(oxr_.get(), action_set_name);</span></a>
+<a name="882"><span class="lineNum">     882 </span><span class="lineNoCov">          0 :   if (action_set == nullptr) {</span></a>
+<a name="883"><span class="lineNum">     883 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="884"><span class="lineNum">     884 </span>            :   }</a>
+<a name="885"><span class="lineNum">     885 </span>            : </a>
+<a name="886"><span class="lineNum">     886 </span><span class="lineNoCov">          0 :   GHOST_XrAction *action = action_set-&gt;findAction(action_name);</span></a>
+<a name="887"><span class="lineNum">     887 </span><span class="lineNoCov">          0 :   if (action == nullptr) {</span></a>
+<a name="888"><span class="lineNum">     888 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="889"><span class="lineNum">     889 </span>            :   }</a>
+<a name="890"><span class="lineNum">     890 </span>            : </a>
+<a name="891"><span class="lineNum">     891 </span><span class="lineNoCov">          0 :   action-&gt;applyHapticFeedback(</span></a>
+<a name="892"><span class="lineNum">     892 </span><span class="lineNoCov">          0 :       oxr_-&gt;session, action_name, subaction_path, duration, frequency, amplitude);</span></a>
+<a name="893"><span class="lineNum">     893 </span>            : </a>
+<a name="894"><span class="lineNum">     894 </span><span class="lineNoCov">          0 :   return true;</span></a>
+<a name="895"><span class="lineNum">     895 </span>            : }</a>
+<a name="896"><span class="lineNum">     896 </span>            : </a>
+<a name="897"><span class="lineNum">     897 </span><span class="lineNoCov">          0 : void GHOST_XrSession::stopHapticAction(const char *action_set_name,</span></a>
+<a name="898"><span class="lineNum">     898 </span>            :                                        const char *action_name,</a>
+<a name="899"><span class="lineNum">     899 </span>            :                                        const char *subaction_path)</a>
+<a name="900"><span class="lineNum">     900 </span>            : {</a>
+<a name="901"><span class="lineNum">     901 </span><span class="lineNoCov">          0 :   GHOST_XrActionSet *action_set = find_action_set(oxr_.get(), action_set_name);</span></a>
+<a name="902"><span class="lineNum">     902 </span><span class="lineNoCov">          0 :   if (action_set == nullptr) {</span></a>
+<a name="903"><span class="lineNum">     903 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="904"><span class="lineNum">     904 </span>            :   }</a>
+<a name="905"><span class="lineNum">     905 </span>            : </a>
+<a name="906"><span class="lineNum">     906 </span><span class="lineNoCov">          0 :   GHOST_XrAction *action = action_set-&gt;findAction(action_name);</span></a>
+<a name="907"><span class="lineNum">     907 </span><span class="lineNoCov">          0 :   if (action == nullptr) {</span></a>
+<a name="908"><span class="lineNum">     908 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="909"><span class="lineNum">     909 </span>            :   }</a>
+<a name="910"><span class="lineNum">     910 </span>            : </a>
+<a name="911"><span class="lineNum">     911 </span><span class="lineNoCov">          0 :   action-&gt;stopHapticFeedback(oxr_-&gt;session, action_name, subaction_path);</span></a>
+<a name="912"><span class="lineNum">     912 </span>            : }</a>
+<a name="913"><span class="lineNum">     913 </span>            : </a>
+<a name="914"><span class="lineNum">     914 </span><span class="lineNoCov">          0 : void *GHOST_XrSession::getActionSetCustomdata(const char *action_set_name)</span></a>
+<a name="915"><span class="lineNum">     915 </span>            : {</a>
+<a name="916"><span class="lineNum">     916 </span><span class="lineNoCov">          0 :   GHOST_XrActionSet *action_set = find_action_set(oxr_.get(), action_set_name);</span></a>
+<a name="917"><span class="lineNum">     917 </span><span class="lineNoCov">          0 :   if (action_set == nullptr) {</span></a>
+<a name="918"><span class="lineNum">     918 </span><span class="lineNoCov">          0 :     return nullptr;</span></a>
+<a name="919"><span class="lineNum">     919 </span>            :   }</a>
+<a name="920"><span class="lineNum">     920 </span>            : </a>
+<a name="921"><span class="lineNum">     921 </span><span class="lineNoCov">          0 :   return action_set-&gt;getCustomdata();</span></a>
+<a name="922"><span class="lineNum">     922 </span>            : }</a>
+<a name="923"><span class="lineNum">     923 </span>            : </a>
+<a name="924"><span class="lineNum">     924 </span><span class="lineNoCov">          0 : void *GHOST_XrSession::getActionCustomdata(const char *action_set_name, const char *action_name)</span></a>
+<a name="925"><span class="lineNum">     925 </span>            : {</a>
+<a name="926"><span class="lineNum">     926 </span><span class="lineNoCov">          0 :   GHOST_XrActionSet *action_set = find_action_set(oxr_.get(), action_set_name);</span></a>
+<a name="927"><span class="lineNum">     927 </span><span class="lineNoCov">          0 :   if (action_set == nullptr) {</span></a>
+<a name="928"><span class="lineNum">     928 </span><span class="lineNoCov">          0 :     return nullptr;</span></a>
+<a name="929"><span class="lineNum">     929 </span>            :   }</a>
+<a name="930"><span class="lineNum">     930 </span>            : </a>
+<a name="931"><span class="lineNum">     931 </span><span class="lineNoCov">          0 :   GHOST_XrAction *action = action_set-&gt;findAction(action_name);</span></a>
+<a name="932"><span class="lineNum">     932 </span><span class="lineNoCov">          0 :   if (action == nullptr) {</span></a>
+<a name="933"><span class="lineNum">     933 </span><span class="lineNoCov">          0 :     return nullptr;</span></a>
+<a name="934"><span class="lineNum">     934 </span>            :   }</a>
+<a name="935"><span class="lineNum">     935 </span>            : </a>
+<a name="936"><span class="lineNum">     936 </span><span class="lineNoCov">          0 :   return action-&gt;getCustomdata();</span></a>
+<a name="937"><span class="lineNum">     937 </span>            : }</a>
+<a name="938"><span class="lineNum">     938 </span>            : </a>
+<a name="939"><span class="lineNum">     939 </span><span class="lineNoCov">          0 : uint32_t GHOST_XrSession::getActionCount(const char *action_set_name)</span></a>
+<a name="940"><span class="lineNum">     940 </span>            : {</a>
+<a name="941"><span class="lineNum">     941 </span><span class="lineNoCov">          0 :   const GHOST_XrActionSet *action_set = find_action_set(oxr_.get(), action_set_name);</span></a>
+<a name="942"><span class="lineNum">     942 </span><span class="lineNoCov">          0 :   if (action_set == nullptr) {</span></a>
+<a name="943"><span class="lineNum">     943 </span><span class="lineNoCov">          0 :     return 0;</span></a>
+<a name="944"><span class="lineNum">     944 </span>            :   }</a>
+<a name="945"><span class="lineNum">     945 </span>            : </a>
+<a name="946"><span class="lineNum">     946 </span><span class="lineNoCov">          0 :   return action_set-&gt;getActionCount();</span></a>
+<a name="947"><span class="lineNum">     947 </span>            : }</a>
+<a name="948"><span class="lineNum">     948 </span>            : </a>
+<a name="949"><span class="lineNum">     949 </span><span class="lineNoCov">          0 : void GHOST_XrSession::getActionCustomdataArray(const char *action_set_name,</span></a>
+<a name="950"><span class="lineNum">     950 </span>            :                                                void **r_customdata_array)</a>
+<a name="951"><span class="lineNum">     951 </span>            : {</a>
+<a name="952"><span class="lineNum">     952 </span><span class="lineNoCov">          0 :   GHOST_XrActionSet *action_set = find_action_set(oxr_.get(), action_set_name);</span></a>
+<a name="953"><span class="lineNum">     953 </span><span class="lineNoCov">          0 :   if (action_set == nullptr) {</span></a>
+<a name="954"><span class="lineNum">     954 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="955"><span class="lineNum">     955 </span>            :   }</a>
+<a name="956"><span class="lineNum">     956 </span>            : </a>
+<a name="957"><span class="lineNum">     957 </span><span class="lineNoCov">          0 :   action_set-&gt;getActionCustomdataArray(r_customdata_array);</span></a>
+<a name="958"><span class="lineNum">     958 </span>            : }</a>
+<a name="959"><span class="lineNum">     959 </span>            : </a>
+<a name="960"><span class="lineNum">     960 </span>            : /** \} */ /* Actions */</a>
+<a name="961"><span class="lineNum">     961 </span>            : </a>
+<a name="962"><span class="lineNum">     962 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="963"><span class="lineNum">     963 </span>            : /** \name Controller Model</a>
+<a name="964"><span class="lineNum">     964 </span>            :  *</a>
+<a name="965"><span class="lineNum">     965 </span>            :  * \{ */</a>
+<a name="966"><span class="lineNum">     966 </span>            : </a>
+<a name="967"><span class="lineNum">     967 </span><span class="lineNoCov">          0 : bool GHOST_XrSession::loadControllerModel(const char *subaction_path)</span></a>
+<a name="968"><span class="lineNum">     968 </span>            : {</a>
+<a name="969"><span class="lineNum">     969 </span><span class="lineNoCov">          0 :   if (!context_-&gt;isExtensionEnabled(XR_MSFT_CONTROLLER_MODEL_EXTENSION_NAME)) {</span></a>
+<a name="970"><span class="lineNum">     970 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="971"><span class="lineNum">     971 </span>            :   }</a>
+<a name="972"><span class="lineNum">     972 </span>            : </a>
+<a name="973"><span class="lineNum">     973 </span><span class="lineNoCov">          0 :   XrSession session = oxr_-&gt;session;</span></a>
+<a name="974"><span class="lineNum">     974 </span><span class="lineNoCov">          0 :   std::map&lt;std::string, GHOST_XrControllerModel&gt; &amp;controller_models = oxr_-&gt;controller_models;</span></a>
+<a name="975"><span class="lineNum">     975 </span><span class="lineNoCov">          0 :   std::map&lt;std::string, GHOST_XrControllerModel&gt;::iterator it = controller_models.find(</span></a>
+<a name="976"><span class="lineNum">     976 </span>            :       subaction_path);</a>
+<a name="977"><span class="lineNum">     977 </span>            : </a>
+<a name="978"><span class="lineNum">     978 </span><span class="lineNoCov">          0 :   if (it == controller_models.end()) {</span></a>
+<a name="979"><span class="lineNum">     979 </span><span class="lineNoCov">          0 :     XrInstance instance = context_-&gt;getInstance();</span></a>
+<a name="980"><span class="lineNum">     980 </span><span class="lineNoCov">          0 :     it = controller_models</span></a>
+<a name="981"><span class="lineNum">     981 </span><span class="lineNoCov">          0 :              .emplace(std::piecewise_construct,</span></a>
+<a name="982"><span class="lineNum">     982 </span><span class="lineNoCov">          0 :                       std::make_tuple(subaction_path),</span></a>
+<a name="983"><span class="lineNum">     983 </span><span class="lineNoCov">          0 :                       std::make_tuple(instance, subaction_path))</span></a>
+<a name="984"><span class="lineNum">     984 </span>            :              .first;</a>
+<a name="985"><span class="lineNum">     985 </span>            :   }</a>
+<a name="986"><span class="lineNum">     986 </span>            : </a>
+<a name="987"><span class="lineNum">     987 </span><span class="lineNoCov">          0 :   it-&gt;second.load(session);</span></a>
+<a name="988"><span class="lineNum">     988 </span>            : </a>
+<a name="989"><span class="lineNum">     989 </span><span class="lineNoCov">          0 :   return true;</span></a>
+<a name="990"><span class="lineNum">     990 </span>            : }</a>
+<a name="991"><span class="lineNum">     991 </span>            : </a>
+<a name="992"><span class="lineNum">     992 </span><span class="lineNoCov">          0 : void GHOST_XrSession::unloadControllerModel(const char *subaction_path)</span></a>
+<a name="993"><span class="lineNum">     993 </span>            : {</a>
+<a name="994"><span class="lineNum">     994 </span><span class="lineNoCov">          0 :   std::map&lt;std::string, GHOST_XrControllerModel&gt; &amp;controller_models = oxr_-&gt;controller_models;</span></a>
+<a name="995"><span class="lineNum">     995 </span>            :   /* It's possible nothing is removed. */</a>
+<a name="996"><span class="lineNum">     996 </span><span class="lineNoCov">          0 :   controller_models.erase(subaction_path);</span></a>
+<a name="997"><span class="lineNum">     997 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="998"><span class="lineNum">     998 </span>            : </a>
+<a name="999"><span class="lineNum">     999 </span><span class="lineNoCov">          0 : bool GHOST_XrSession::updateControllerModelComponents(const char *subaction_path)</span></a>
+<a name="1000"><span class="lineNum">    1000 </span>            : {</a>
+<a name="1001"><span class="lineNum">    1001 </span><span class="lineNoCov">          0 :   XrSession session = oxr_-&gt;session;</span></a>
+<a name="1002"><span class="lineNum">    1002 </span><span class="lineNoCov">          0 :   std::map&lt;std::string, GHOST_XrControllerModel&gt;::iterator it = oxr_-&gt;controller_models.find(</span></a>
+<a name="1003"><span class="lineNum">    1003 </span>            :       subaction_path);</a>
+<a name="1004"><span class="lineNum">    1004 </span><span class="lineNoCov">          0 :   if (it == oxr_-&gt;controller_models.end()) {</span></a>
+<a name="1005"><span class="lineNum">    1005 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="1006"><span class="lineNum">    1006 </span>            :   }</a>
+<a name="1007"><span class="lineNum">    1007 </span>            : </a>
+<a name="1008"><span class="lineNum">    1008 </span><span class="lineNoCov">          0 :   it-&gt;second.updateComponents(session);</span></a>
+<a name="1009"><span class="lineNum">    1009 </span>            : </a>
+<a name="1010"><span class="lineNum">    1010 </span><span class="lineNoCov">          0 :   return true;</span></a>
+<a name="1011"><span class="lineNum">    1011 </span>            : }</a>
+<a name="1012"><span class="lineNum">    1012 </span>            : </a>
+<a name="1013"><span class="lineNum">    1013 </span><span class="lineNoCov">          0 : bool GHOST_XrSession::getControllerModelData(const char *subaction_path,</span></a>
+<a name="1014"><span class="lineNum">    1014 </span>            :                                              GHOST_XrControllerModelData &amp;r_data)</a>
+<a name="1015"><span class="lineNum">    1015 </span>            : {</a>
+<a name="1016"><span class="lineNum">    1016 </span><span class="lineNoCov">          0 :   std::map&lt;std::string, GHOST_XrControllerModel&gt;::iterator it = oxr_-&gt;controller_models.find(</span></a>
+<a name="1017"><span class="lineNum">    1017 </span>            :       subaction_path);</a>
+<a name="1018"><span class="lineNum">    1018 </span><span class="lineNoCov">          0 :   if (it == oxr_-&gt;controller_models.end()) {</span></a>
+<a name="1019"><span class="lineNum">    1019 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="1020"><span class="lineNum">    1020 </span>            :   }</a>
+<a name="1021"><span class="lineNum">    1021 </span>            : </a>
+<a name="1022"><span class="lineNum">    1022 </span><span class="lineNoCov">          0 :   it-&gt;second.getData(r_data);</span></a>
+<a name="1023"><span class="lineNum">    1023 </span>            : </a>
+<a name="1024"><span class="lineNum">    1024 </span><span class="lineNoCov">          0 :   return true;</span></a>
+<a name="1025"><span class="lineNum">    1025 </span>            : }</a>
+<a name="1026"><span class="lineNum">    1026 </span>            : </a>
+<a name="1027"><span class="lineNum">    1027 </span>            : /** \} */ /* Controller Model */</a>
+<a name="1028"><span class="lineNum">    1028 </span>            : </a>
+<a name="1029"><span class="lineNum">    1029 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="1030"><span class="lineNum">    1030 </span>            : /** \name Meta Quest Passthrough</a>
+<a name="1031"><span class="lineNum">    1031 </span>            :  *</a>
+<a name="1032"><span class="lineNum">    1032 </span>            :  * \{ */</a>
+<a name="1033"><span class="lineNum">    1033 </span>            : </a>
+<a name="1034"><span class="lineNum">    1034 </span>            : static PFN_xrCreatePassthroughFB g_xrCreatePassthroughFB = nullptr;</a>
+<a name="1035"><span class="lineNum">    1035 </span>            : static PFN_xrCreatePassthroughLayerFB g_xrCreatePassthroughLayerFB = nullptr;</a>
+<a name="1036"><span class="lineNum">    1036 </span>            : static PFN_xrPassthroughStartFB g_xrPassthroughStartFB = nullptr;</a>
+<a name="1037"><span class="lineNum">    1037 </span>            : static PFN_xrPassthroughLayerResumeFB g_xrPassthroughLayerResumeFB = nullptr;</a>
+<a name="1038"><span class="lineNum">    1038 </span>            : </a>
+<a name="1039"><span class="lineNum">    1039 </span><span class="lineNoCov">          0 : static void init_passthrough_extension_functions(XrInstance instance)</span></a>
+<a name="1040"><span class="lineNum">    1040 </span>            : {</a>
+<a name="1041"><span class="lineNum">    1041 </span><span class="lineNoCov">          0 :   if (g_xrCreatePassthroughFB == nullptr) {</span></a>
+<a name="1042"><span class="lineNum">    1042 </span><span class="lineNoCov">          0 :     INIT_EXTENSION_FUNCTION(xrCreatePassthroughFB);</span></a>
+<a name="1043"><span class="lineNum">    1043 </span>            :   }</a>
+<a name="1044"><span class="lineNum">    1044 </span><span class="lineNoCov">          0 :   if (g_xrCreatePassthroughLayerFB == nullptr) {</span></a>
+<a name="1045"><span class="lineNum">    1045 </span><span class="lineNoCov">          0 :     INIT_EXTENSION_FUNCTION(xrCreatePassthroughLayerFB);</span></a>
+<a name="1046"><span class="lineNum">    1046 </span>            :   }</a>
+<a name="1047"><span class="lineNum">    1047 </span><span class="lineNoCov">          0 :   if (g_xrPassthroughStartFB == nullptr) {</span></a>
+<a name="1048"><span class="lineNum">    1048 </span><span class="lineNoCov">          0 :     INIT_EXTENSION_FUNCTION(xrPassthroughStartFB);</span></a>
+<a name="1049"><span class="lineNum">    1049 </span>            :   }</a>
+<a name="1050"><span class="lineNum">    1050 </span><span class="lineNoCov">          0 :   if (g_xrPassthroughLayerResumeFB == nullptr) {</span></a>
+<a name="1051"><span class="lineNum">    1051 </span><span class="lineNoCov">          0 :     INIT_EXTENSION_FUNCTION(xrPassthroughLayerResumeFB);</span></a>
+<a name="1052"><span class="lineNum">    1052 </span>            :   }</a>
+<a name="1053"><span class="lineNum">    1053 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="1054"><span class="lineNum">    1054 </span>            : </a>
+<a name="1055"><span class="lineNum">    1055 </span><span class="lineNoCov">          0 : void GHOST_XrSession::enablePassthrough()</span></a>
+<a name="1056"><span class="lineNum">    1056 </span>            : {</a>
+<a name="1057"><span class="lineNum">    1057 </span><span class="lineNoCov">          0 :   oxr_-&gt;passthrough_supported = false;</span></a>
+<a name="1058"><span class="lineNum">    1058 </span>            : </a>
+<a name="1059"><span class="lineNum">    1059 </span><span class="lineNoCov">          0 :   if (!context_-&gt;isExtensionEnabled(XR_FB_PASSTHROUGH_EXTENSION_NAME)) {</span></a>
+<a name="1060"><span class="lineNum">    1060 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="1061"><span class="lineNum">    1061 </span>            :   }</a>
+<a name="1062"><span class="lineNum">    1062 </span>            : </a>
+<a name="1063"><span class="lineNum">    1063 </span><span class="lineNoCov">          0 :   if (oxr_-&gt;passthrough_layer.layerHandle != XR_NULL_HANDLE) {</span></a>
+<a name="1064"><span class="lineNum">    1064 </span><span class="lineNoCov">          0 :     oxr_-&gt;passthrough_supported = true;</span></a>
+<a name="1065"><span class="lineNum">    1065 </span><span class="lineNoCov">          0 :     return; /* Already initialized. */</span></a>
+<a name="1066"><span class="lineNum">    1066 </span>            :   }</a>
+<a name="1067"><span class="lineNum">    1067 </span>            : </a>
+<a name="1068"><span class="lineNum">    1068 </span><span class="lineNoCov">          0 :   init_passthrough_extension_functions(context_-&gt;getInstance());</span></a>
+<a name="1069"><span class="lineNum">    1069 </span>            : </a>
+<a name="1070"><span class="lineNum">    1070 </span><span class="lineNoCov">          0 :   XrPassthroughCreateInfoFB passthrough_create_info = {};</span></a>
+<a name="1071"><span class="lineNum">    1071 </span><span class="lineNoCov">          0 :   passthrough_create_info.type = XR_TYPE_PASSTHROUGH_CREATE_INFO_FB;</span></a>
+<a name="1072"><span class="lineNum">    1072 </span><span class="lineNoCov">          0 :   passthrough_create_info.next = nullptr;</span></a>
+<a name="1073"><span class="lineNum">    1073 </span><span class="lineNoCov">          0 :   passthrough_create_info.flags |= XR_PASSTHROUGH_IS_RUNNING_AT_CREATION_BIT_FB;</span></a>
+<a name="1074"><span class="lineNum">    1074 </span>            : </a>
+<a name="1075"><span class="lineNum">    1075 </span>            :   XrPassthroughFB passthrough_handle;</a>
+<a name="1076"><span class="lineNum">    1076 </span><span class="lineNoCov">          0 :   CHECK_XR(g_xrCreatePassthroughFB(oxr_-&gt;session, &amp;passthrough_create_info, &amp;passthrough_handle),</span></a>
+<a name="1077"><span class="lineNum">    1077 </span>            :            &quot;Failed to create passthrough handle.&quot;);</a>
+<a name="1078"><span class="lineNum">    1078 </span>            : </a>
+<a name="1079"><span class="lineNum">    1079 </span><span class="lineNoCov">          0 :   XrPassthroughLayerCreateInfoFB passthrough_layer_create_info = {};</span></a>
+<a name="1080"><span class="lineNum">    1080 </span><span class="lineNoCov">          0 :   passthrough_layer_create_info.type = XR_TYPE_PASSTHROUGH_LAYER_CREATE_INFO_FB;</span></a>
+<a name="1081"><span class="lineNum">    1081 </span><span class="lineNoCov">          0 :   passthrough_layer_create_info.next = nullptr;</span></a>
+<a name="1082"><span class="lineNum">    1082 </span><span class="lineNoCov">          0 :   passthrough_layer_create_info.passthrough = passthrough_handle;</span></a>
+<a name="1083"><span class="lineNum">    1083 </span><span class="lineNoCov">          0 :   passthrough_layer_create_info.flags |= XR_PASSTHROUGH_IS_RUNNING_AT_CREATION_BIT_FB;</span></a>
+<a name="1084"><span class="lineNum">    1084 </span><span class="lineNoCov">          0 :   passthrough_layer_create_info.purpose = XR_PASSTHROUGH_LAYER_PURPOSE_RECONSTRUCTION_FB;</span></a>
+<a name="1085"><span class="lineNum">    1085 </span>            : </a>
+<a name="1086"><span class="lineNum">    1086 </span>            :   XrPassthroughLayerFB passthrough_layer_handle;</a>
+<a name="1087"><span class="lineNum">    1087 </span><span class="lineNoCov">          0 :   CHECK_XR(g_xrCreatePassthroughLayerFB(</span></a>
+<a name="1088"><span class="lineNum">    1088 </span>            :                oxr_-&gt;session, &amp;passthrough_layer_create_info, &amp;passthrough_layer_handle),</a>
+<a name="1089"><span class="lineNum">    1089 </span>            :            &quot;Failed to create passthrough layer handle.&quot;);</a>
+<a name="1090"><span class="lineNum">    1090 </span>            : </a>
+<a name="1091"><span class="lineNum">    1091 </span><span class="lineNoCov">          0 :   g_xrPassthroughStartFB(passthrough_handle);</span></a>
+<a name="1092"><span class="lineNum">    1092 </span><span class="lineNoCov">          0 :   g_xrPassthroughLayerResumeFB(passthrough_layer_handle);</span></a>
+<a name="1093"><span class="lineNum">    1093 </span>            : </a>
+<a name="1094"><span class="lineNum">    1094 </span><span class="lineNoCov">          0 :   oxr_-&gt;passthrough_layer.type = XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_FB;</span></a>
+<a name="1095"><span class="lineNum">    1095 </span><span class="lineNoCov">          0 :   oxr_-&gt;passthrough_layer.next = nullptr;</span></a>
+<a name="1096"><span class="lineNum">    1096 </span><span class="lineNoCov">          0 :   oxr_-&gt;passthrough_layer.flags = XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT;</span></a>
+<a name="1097"><span class="lineNum">    1097 </span><span class="lineNoCov">          0 :   oxr_-&gt;passthrough_layer.space = XR_NULL_HANDLE;</span></a>
+<a name="1098"><span class="lineNum">    1098 </span><span class="lineNoCov">          0 :   oxr_-&gt;passthrough_layer.layerHandle = passthrough_layer_handle;</span></a>
+<a name="1099"><span class="lineNum">    1099 </span>            : </a>
+<a name="1100"><span class="lineNum">    1100 </span><span class="lineNoCov">          0 :   oxr_-&gt;passthrough_supported = true;</span></a>
+<a name="1101"><span class="lineNum">    1101 </span>            : }</a>
+<a name="1102"><span class="lineNum">    1102 </span>            : </a>
+<a name="1103"><span class="lineNum">    1103 </span>            : /** \} */ /* Meta Quest Passthrough */</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,1512 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - makesdna/DNA_ID.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">makesdna</a> - DNA_ID.h<span style="font-size: 80%;"> (source / <a href="DNA_ID.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">27</td>
+            <td class="headerCovTableEntry">28</td>
+            <td class="headerCovTableEntryHi">96.4 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">381</td>
+            <td class="headerCovTableEntry">488</td>
+            <td class="headerCovTableEntryMed">78.1 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2001-2002 NaN Holding BV. All rights reserved.</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup DNA</a>
+<a name="7"><span class="lineNum">       7 </span>            :  * \brief ID and Library types, which are fundamental for SDNA.</a>
+<a name="8"><span class="lineNum">       8 </span>            :  */</a>
+<a name="9"><span class="lineNum">       9 </span>            : </a>
+<a name="10"><span class="lineNum">      10 </span>            : #pragma once</a>
+<a name="11"><span class="lineNum">      11 </span>            : </a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &quot;DNA_ID_enums.h&quot;</a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;DNA_defs.h&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;DNA_listBase.h&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : </a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &quot;BLI_assert.hh&quot;</a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;BLI_compiler_typecheck.hh&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : </a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &lt;cstring&gt;</a>
+<a name="20"><span class="lineNum">      20 </span>            : #include &lt;type_traits&gt;</a>
+<a name="21"><span class="lineNum">      21 </span>            : </a>
+<a name="22"><span class="lineNum">      22 </span>            : namespace blender {</a>
+<a name="23"><span class="lineNum">      23 </span>            : </a>
+<a name="24"><span class="lineNum">      24 </span>            : namespace bke::id {</a>
+<a name="25"><span class="lineNum">      25 </span>            : struct ID_Runtime;</a>
+<a name="26"><span class="lineNum">      26 </span>            : }</a>
+<a name="27"><span class="lineNum">      27 </span>            : namespace bke {</a>
+<a name="28"><span class="lineNum">      28 </span>            : struct PreviewImageRuntime;</a>
+<a name="29"><span class="lineNum">      29 </span>            : }</a>
+<a name="30"><span class="lineNum">      30 </span>            : namespace bke::idprop {</a>
+<a name="31"><span class="lineNum">      31 </span>            : struct IDPropertyGroupChildrenSet;</a>
+<a name="32"><span class="lineNum">      32 </span>            : }</a>
+<a name="33"><span class="lineNum">      33 </span>            : namespace bke::library {</a>
+<a name="34"><span class="lineNum">      34 </span>            : struct LibraryRuntime;</a>
+<a name="35"><span class="lineNum">      35 </span>            : }</a>
+<a name="36"><span class="lineNum">      36 </span>            : </a>
+<a name="37"><span class="lineNum">      37 </span>            : struct FileData;</a>
+<a name="38"><span class="lineNum">      38 </span>            : struct GHash;</a>
+<a name="39"><span class="lineNum">      39 </span>            : struct ID;</a>
+<a name="40"><span class="lineNum">      40 </span>            : struct Library;</a>
+<a name="41"><span class="lineNum">      41 </span>            : struct PackedFile;</a>
+<a name="42"><span class="lineNum">      42 </span>            : struct UniqueName_Map;</a>
+<a name="43"><span class="lineNum">      43 </span>            : </a>
+<a name="44"><span class="lineNum">      44 </span>            : struct IDPropertyUIData {</a>
+<a name="45"><span class="lineNum">      45 </span>            :   /** Tool-tip / property description pointer. Owned by the #IDProperty. */</a>
+<a name="46"><span class="lineNum">      46 </span>            :   char *description = nullptr;</a>
+<a name="47"><span class="lineNum">      47 </span>            :   /** RNA `subtype`, used for every type except string properties (#PropertySubType). */</a>
+<a name="48"><span class="lineNum">      48 </span>            :   int rna_subtype = 0;</a>
+<a name="49"><span class="lineNum">      49 </span>            : </a>
+<a name="50"><span class="lineNum">      50 </span>            :   char _pad[4] = {};</a>
+<a name="51"><span class="lineNum">      51 </span>            : };</a>
+<a name="52"><span class="lineNum">      52 </span>            : </a>
+<a name="53"><span class="lineNum">      53 </span>            : /* DNA version of #EnumPropertyItem. */</a>
+<a name="54"><span class="lineNum">      54 </span>            : struct IDPropertyUIDataEnumItem {</a>
+<a name="55"><span class="lineNum">      55 </span>            :   /* Unique identifier, used for string lookup. */</a>
+<a name="56"><span class="lineNum">      56 </span>            :   char *identifier = nullptr;</a>
+<a name="57"><span class="lineNum">      57 </span>            :   /* UI name of the item. */</a>
+<a name="58"><span class="lineNum">      58 </span>            :   char *name = nullptr;</a>
+<a name="59"><span class="lineNum">      59 </span>            :   /* Optional description. */</a>
+<a name="60"><span class="lineNum">      60 </span>            :   char *description = nullptr;</a>
+<a name="61"><span class="lineNum">      61 </span>            :   /* Unique integer value, should never change. */</a>
+<a name="62"><span class="lineNum">      62 </span>            :   int value = 0;</a>
+<a name="63"><span class="lineNum">      63 </span>            :   /* Optional icon. */</a>
+<a name="64"><span class="lineNum">      64 </span>            :   int icon = 0;</a>
+<a name="65"><span class="lineNum">      65 </span>            : };</a>
+<a name="66"><span class="lineNum">      66 </span>            : </a>
+<a name="67"><span class="lineNum">      67 </span>            : /* IDP_UI_DATA_TYPE_INT */</a>
+<a name="68"><span class="lineNum">      68 </span>            : struct IDPropertyUIDataInt {</a>
+<a name="69"><span class="lineNum">      69 </span>            :   IDPropertyUIData base;</a>
+<a name="70"><span class="lineNum">      70 </span>            :   int *default_array = nullptr; /* Only for array properties. */</a>
+<a name="71"><span class="lineNum">      71 </span>            :   int default_array_len = 0;</a>
+<a name="72"><span class="lineNum">      72 </span>            : </a>
+<a name="73"><span class="lineNum">      73 </span>            :   int min = 0;</a>
+<a name="74"><span class="lineNum">      74 </span>            :   int max = 0;</a>
+<a name="75"><span class="lineNum">      75 </span>            :   int soft_min = 0;</a>
+<a name="76"><span class="lineNum">      76 </span>            :   int soft_max = 0;</a>
+<a name="77"><span class="lineNum">      77 </span>            :   int step = 0;</a>
+<a name="78"><span class="lineNum">      78 </span>            :   int default_value = 0;</a>
+<a name="79"><span class="lineNum">      79 </span>            : </a>
+<a name="80"><span class="lineNum">      80 </span>            :   int enum_items_num = 0;</a>
+<a name="81"><span class="lineNum">      81 </span>            :   IDPropertyUIDataEnumItem *enum_items = nullptr;</a>
+<a name="82"><span class="lineNum">      82 </span>            : };</a>
+<a name="83"><span class="lineNum">      83 </span>            : </a>
+<a name="84"><span class="lineNum">      84 </span>            : /** For #IDP_UI_DATA_TYPE_BOOLEAN Use `int8_t` because DNA does not support `bool`. */</a>
+<a name="85"><span class="lineNum">      85 </span>            : struct IDPropertyUIDataBool {</a>
+<a name="86"><span class="lineNum">      86 </span>            :   IDPropertyUIData base;</a>
+<a name="87"><span class="lineNum">      87 </span>            :   int8_t *default_array = nullptr; /* Only for array properties. */</a>
+<a name="88"><span class="lineNum">      88 </span>            :   int default_array_len = 0;</a>
+<a name="89"><span class="lineNum">      89 </span>            :   char _pad[3] = {};</a>
+<a name="90"><span class="lineNum">      90 </span>            : </a>
+<a name="91"><span class="lineNum">      91 </span>            :   int8_t default_value = 0;</a>
+<a name="92"><span class="lineNum">      92 </span>            : };</a>
+<a name="93"><span class="lineNum">      93 </span>            : </a>
+<a name="94"><span class="lineNum">      94 </span>            : /** For #IDP_UI_DATA_TYPE_FLOAT */</a>
+<a name="95"><span class="lineNum">      95 </span>            : struct IDPropertyUIDataFloat {</a>
+<a name="96"><span class="lineNum">      96 </span>            :   IDPropertyUIData base;</a>
+<a name="97"><span class="lineNum">      97 </span>            :   double *default_array = nullptr; /* Only for array properties. */</a>
+<a name="98"><span class="lineNum">      98 </span>            :   int default_array_len = 0;</a>
+<a name="99"><span class="lineNum">      99 </span>            :   char _pad[4] = {};</a>
+<a name="100"><span class="lineNum">     100 </span>            : </a>
+<a name="101"><span class="lineNum">     101 </span>            :   float step = 0;</a>
+<a name="102"><span class="lineNum">     102 </span>            :   int precision = 0;</a>
+<a name="103"><span class="lineNum">     103 </span>            : </a>
+<a name="104"><span class="lineNum">     104 </span>            :   double min = 0;</a>
+<a name="105"><span class="lineNum">     105 </span>            :   double max = 0;</a>
+<a name="106"><span class="lineNum">     106 </span>            :   double soft_min = 0;</a>
+<a name="107"><span class="lineNum">     107 </span>            :   double soft_max = 0;</a>
+<a name="108"><span class="lineNum">     108 </span>            :   double default_value = 0;</a>
+<a name="109"><span class="lineNum">     109 </span>            : };</a>
+<a name="110"><span class="lineNum">     110 </span>            : </a>
+<a name="111"><span class="lineNum">     111 </span>            : /** For #IDP_UI_DATA_TYPE_STRING */</a>
+<a name="112"><span class="lineNum">     112 </span>            : struct IDPropertyUIDataString {</a>
+<a name="113"><span class="lineNum">     113 </span>            :   IDPropertyUIData base;</a>
+<a name="114"><span class="lineNum">     114 </span>            :   char *default_value = nullptr;</a>
+<a name="115"><span class="lineNum">     115 </span>            : };</a>
+<a name="116"><span class="lineNum">     116 </span>            : </a>
+<a name="117"><span class="lineNum">     117 </span>            : /** For #IDP_UI_DATA_TYPE_ID. */</a>
+<a name="118"><span class="lineNum">     118 </span>            : struct IDPropertyUIDataID {</a>
+<a name="119"><span class="lineNum">     119 </span>            :   IDPropertyUIData base;</a>
+<a name="120"><span class="lineNum">     120 </span>            :   /**</a>
+<a name="121"><span class="lineNum">     121 </span>            :    * #ID_Type. With python-defined properties, this type is not enforced. A value of `0` means any</a>
+<a name="122"><span class="lineNum">     122 </span>            :    * ID type.</a>
+<a name="123"><span class="lineNum">     123 </span>            :    *</a>
+<a name="124"><span class="lineNum">     124 </span>            :    * However, when defined/edited from the UI (Custom Properties panel), it must/will be defined,</a>
+<a name="125"><span class="lineNum">     125 </span>            :    * as generic 'Any ID type' selection is a TODO UI-wise.</a>
+<a name="126"><span class="lineNum">     126 </span>            :    */</a>
+<a name="127"><span class="lineNum">     127 </span>            :   short id_type = 0;</a>
+<a name="128"><span class="lineNum">     128 </span>            :   char _pad[6] = {};</a>
+<a name="129"><span class="lineNum">     129 </span>            : };</a>
+<a name="130"><span class="lineNum">     130 </span>            : </a>
+<a name="131"><span class="lineNum">     131 </span>            : struct IDPropertyData {</a>
+<a name="132"><span class="lineNum">     132 </span>            :   void *pointer = nullptr;</a>
+<a name="133"><span class="lineNum">     133 </span>            :   ListBaseT&lt;struct IDProperty&gt; group = {nullptr, nullptr};</a>
+<a name="134"><span class="lineNum">     134 </span>            :   /**</a>
+<a name="135"><span class="lineNum">     135 </span>            :    * Allows constant time lookup by name of the children in this group. This may be null if the</a>
+<a name="136"><span class="lineNum">     136 </span>            :    * group is empty. The order may not be exactly the same as in #group.</a>
+<a name="137"><span class="lineNum">     137 </span>            :    */</a>
+<a name="138"><span class="lineNum">     138 </span>            :   bke::idprop::IDPropertyGroupChildrenSet *children_map = nullptr;</a>
+<a name="139"><span class="lineNum">     139 </span>            :   /** NOTE: a `double` is written into two 32bit integers. */</a>
+<a name="140"><span class="lineNum">     140 </span>            :   int val = 0, val2 = 0;</a>
+<a name="141"><span class="lineNum">     141 </span>            : };</a>
+<a name="142"><span class="lineNum">     142 </span>            : </a>
+<a name="143"><span class="lineNum">     143 </span>            : struct IDProperty {</a>
+<a name="144"><span class="lineNum">     144 </span>            :   struct IDProperty *next = nullptr, *prev = nullptr;</a>
+<a name="145"><span class="lineNum">     145 </span>            :   eIDPropertyType type = IDP_STRING;</a>
+<a name="146"><span class="lineNum">     146 </span>            :   /**</a>
+<a name="147"><span class="lineNum">     147 </span>            :    * #eIDPropertySubType when `type` is #IDP_STRING.</a>
+<a name="148"><span class="lineNum">     148 </span>            :    * #eIDPropertyType for all other types.</a>
+<a name="149"><span class="lineNum">     149 </span>            :    */</a>
+<a name="150"><span class="lineNum">     150 </span>            :   char subtype = 0;</a>
+<a name="151"><span class="lineNum">     151 </span>            :   eIDPropertyFlag flag = {};</a>
+<a name="152"><span class="lineNum">     152 </span>            :   char name[/*MAX_IDPROP_NAME*/ 64] = &quot;&quot;;</a>
+<a name="153"><span class="lineNum">     153 </span>            : </a>
+<a name="154"><span class="lineNum">     154 </span>            :   char _pad0[4] = {};</a>
+<a name="155"><span class="lineNum">     155 </span>            : </a>
+<a name="156"><span class="lineNum">     156 </span>            :   /** NOTE: alignment for 64 bits. */</a>
+<a name="157"><span class="lineNum">     157 </span>            :   IDPropertyData data;</a>
+<a name="158"><span class="lineNum">     158 </span>            : </a>
+<a name="159"><span class="lineNum">     159 </span>            :   /**</a>
+<a name="160"><span class="lineNum">     160 </span>            :    * Array length, and importantly string length + 1.</a>
+<a name="161"><span class="lineNum">     161 </span>            :    * the idea is to be able to reuse array reallocation functions on strings.</a>
+<a name="162"><span class="lineNum">     162 </span>            :    */</a>
+<a name="163"><span class="lineNum">     163 </span>            :   int len = 0;</a>
+<a name="164"><span class="lineNum">     164 </span>            :   /**</a>
+<a name="165"><span class="lineNum">     165 </span>            :    * Strings and arrays are both buffered, though the buffer isn't saved.</a>
+<a name="166"><span class="lineNum">     166 </span>            :    * `totallen` is total length of allocated array/string, including a buffer.</a>
+<a name="167"><span class="lineNum">     167 </span>            :    * \note the buffering is mild; see #IDP_ResizeIDPArray for details.</a>
+<a name="168"><span class="lineNum">     168 </span>            :    */</a>
+<a name="169"><span class="lineNum">     169 </span>            :   int totallen = 0;</a>
+<a name="170"><span class="lineNum">     170 </span>            : </a>
+<a name="171"><span class="lineNum">     171 </span>            :   IDPropertyUIData *ui_data = nullptr;</a>
+<a name="172"><span class="lineNum">     172 </span>            : };</a>
+<a name="173"><span class="lineNum">     173 </span>            : </a>
+<a name="174"><span class="lineNum">     174 </span>            : #define MAX_IDPROP_NAME 64</a>
+<a name="175"><span class="lineNum">     175 </span>            : #define DEFAULT_ALLOC_FOR_NULL_STRINGS 64</a>
+<a name="176"><span class="lineNum">     176 </span>            : </a>
+<a name="177"><span class="lineNum">     177 </span>            : /* add any future new id property types here. */</a>
+<a name="178"><span class="lineNum">     178 </span>            : </a>
+<a name="179"><span class="lineNum">     179 </span>            : /* Static ID override structs. */</a>
+<a name="180"><span class="lineNum">     180 </span>            : </a>
+<a name="181"><span class="lineNum">     181 </span>            : /* IDOverrideLibraryPropertyOperation-&gt;operation. */</a>
+<a name="182"><span class="lineNum">     182 </span>            : enum eID_OverrideLib_Op : short {</a>
+<a name="183"><span class="lineNum">     183 </span>            :   /* Basic operations. */</a>
+<a name="184"><span class="lineNum">     184 </span>            :   /** Special value, forbids any overriding. */</a>
+<a name="185"><span class="lineNum">     185 </span>            :   LIBOVERRIDE_OP_NOOP = 0,</a>
+<a name="186"><span class="lineNum">     186 </span>            : </a>
+<a name="187"><span class="lineNum">     187 </span>            :   /** Fully replace local value by reference one. */</a>
+<a name="188"><span class="lineNum">     188 </span>            :   LIBOVERRIDE_OP_REPLACE = 1,</a>
+<a name="189"><span class="lineNum">     189 </span>            : </a>
+<a name="190"><span class="lineNum">     190 </span>            :   /* Numeric-only operations. */</a>
+<a name="191"><span class="lineNum">     191 </span>            :   /** Add local value to reference one. */</a>
+<a name="192"><span class="lineNum">     192 </span>            :   LIBOVERRIDE_OP_ADD = 101,</a>
+<a name="193"><span class="lineNum">     193 </span>            :   /** Subtract local value from reference one (needed due to unsigned values etc.). */</a>
+<a name="194"><span class="lineNum">     194 </span>            :   LIBOVERRIDE_OP_SUBTRACT = 102,</a>
+<a name="195"><span class="lineNum">     195 </span>            :   /** Multiply reference value by local one (more useful than diff for scales and the like). */</a>
+<a name="196"><span class="lineNum">     196 </span>            :   LIBOVERRIDE_OP_MULTIPLY = 103,</a>
+<a name="197"><span class="lineNum">     197 </span>            : </a>
+<a name="198"><span class="lineNum">     198 </span>            :   /* Collection-only operations. */</a>
+<a name="199"><span class="lineNum">     199 </span>            :   /** Insert after given reference's subitem. */</a>
+<a name="200"><span class="lineNum">     200 </span>            :   LIBOVERRIDE_OP_INSERT_AFTER = 201,</a>
+<a name="201"><span class="lineNum">     201 </span>            :   /** Insert before given reference's subitem. */</a>
+<a name="202"><span class="lineNum">     202 </span>            :   LIBOVERRIDE_OP_INSERT_BEFORE = 202,</a>
+<a name="203"><span class="lineNum">     203 </span>            :   /* We can add more if needed (move, delete, ...). */</a>
+<a name="204"><span class="lineNum">     204 </span>            : </a>
+<a name="205"><span class="lineNum">     205 </span>            :   /**</a>
+<a name="206"><span class="lineNum">     206 </span>            :    * Custom operation, generic liboverride code does not handle these, and expect all custom</a>
+<a name="207"><span class="lineNum">     207 </span>            :    * handling callbacks to be defined on properties when they have this type of operations.</a>
+<a name="208"><span class="lineNum">     208 </span>            :    */</a>
+<a name="209"><span class="lineNum">     209 </span>            :   /* Note: Currently there is no dedicated 'extra data' for these custom operations.</a>
+<a name="210"><span class="lineNum">     210 </span>            :    * If needs arise, the padding in `IDOverrideLibraryPropertyOperation` could be used for some</a>
+<a name="211"><span class="lineNum">     211 </span>            :    * custom data... */</a>
+<a name="212"><span class="lineNum">     212 </span>            :   LIBOVERRIDE_OP_CUSTOM = 255,</a>
+<a name="213"><span class="lineNum">     213 </span>            : };</a>
+<a name="214"><span class="lineNum">     214 </span>            : </a>
+<a name="215"><span class="lineNum">     215 </span>            : /* IDOverrideLibraryPropertyOperation-&gt;flag. */</a>
+<a name="216"><span class="lineNum">     216 </span>            : enum eID_OverrideLib_OpFlag : short {</a>
+<a name="217"><span class="lineNum">     217 </span>            :   /** User cannot remove that override operation. */</a>
+<a name="218"><span class="lineNum">     218 </span>            :   LIBOVERRIDE_OP_FLAG_MANDATORY = 1 &lt;&lt; 0,</a>
+<a name="219"><span class="lineNum">     219 </span>            :   /** User cannot change that override operation. */</a>
+<a name="220"><span class="lineNum">     220 </span>            :   LIBOVERRIDE_OP_FLAG_LOCKED = 1 &lt;&lt; 1,</a>
+<a name="221"><span class="lineNum">     221 </span>            : </a>
+<a name="222"><span class="lineNum">     222 </span>            :   /**</a>
+<a name="223"><span class="lineNum">     223 </span>            :    * For overrides of ID pointers: this override still matches (follows) the hierarchy of the</a>
+<a name="224"><span class="lineNum">     224 </span>            :    * reference linked data.</a>
+<a name="225"><span class="lineNum">     225 </span>            :    */</a>
+<a name="226"><span class="lineNum">     226 </span>            :   LIBOVERRIDE_OP_FLAG_IDPOINTER_MATCH_REFERENCE = 1 &lt;&lt; 8,</a>
+<a name="227"><span class="lineNum">     227 </span>            :   /**</a>
+<a name="228"><span class="lineNum">     228 </span>            :    * For overrides of ID pointers within RNA collections: this override is using the ID</a>
+<a name="229"><span class="lineNum">     229 </span>            :    * pointer in addition to the item name (to fully disambiguate the reference, since IDs from</a>
+<a name="230"><span class="lineNum">     230 </span>            :    * different libraries can have a same name).</a>
+<a name="231"><span class="lineNum">     231 </span>            :    */</a>
+<a name="232"><span class="lineNum">     232 </span>            :   LIBOVERRIDE_OP_FLAG_IDPOINTER_ITEM_USE_ID = 1 &lt;&lt; 9,</a>
+<a name="233"><span class="lineNum">     233 </span>            : };</a>
+<a name="234"><span class="lineNum">     234 </span><span class="lineCov">       1822 : ENUM_OPERATORS(eID_OverrideLib_OpFlag)</span></a>
+<a name="235"><span class="lineNum">     235 </span>            : </a>
+<a name="236"><span class="lineNum">     236 </span>            : /* IDOverrideLibraryProperty-&gt;tag and IDOverrideLibraryPropertyOperation-&gt;tag. */</a>
+<a name="237"><span class="lineNum">     237 </span>            : enum eID_OverrideLib_PropTag : short {</a>
+<a name="238"><span class="lineNum">     238 </span>            :   /** This override property (operation) is unused and should be removed by cleanup process. */</a>
+<a name="239"><span class="lineNum">     239 </span>            :   LIBOVERRIDE_PROP_OP_TAG_UNUSED = 1 &lt;&lt; 0,</a>
+<a name="240"><span class="lineNum">     240 </span>            : </a>
+<a name="241"><span class="lineNum">     241 </span>            :   /** This override property is forbidden and should be restored to its linked reference value. */</a>
+<a name="242"><span class="lineNum">     242 </span>            :   LIBOVERRIDE_PROP_TAG_NEEDS_RETORE = 1 &lt;&lt; 1,</a>
+<a name="243"><span class="lineNum">     243 </span>            : };</a>
+<a name="244"><span class="lineNum">     244 </span><span class="lineCov">       5312 : ENUM_OPERATORS(eID_OverrideLib_PropTag)</span></a>
+<a name="245"><span class="lineNum">     245 </span>            : </a>
+<a name="246"><span class="lineNum">     246 </span>            : struct IDOverrideLibraryPropertyOperation {</a>
+<a name="247"><span class="lineNum">     247 </span>            :   struct IDOverrideLibraryPropertyOperation *next = nullptr, *prev = nullptr;</a>
+<a name="248"><span class="lineNum">     248 </span>            : </a>
+<a name="249"><span class="lineNum">     249 </span>            :   /* Type of override. */</a>
+<a name="250"><span class="lineNum">     250 </span>            :   eID_OverrideLib_Op operation = {};</a>
+<a name="251"><span class="lineNum">     251 </span>            :   eID_OverrideLib_OpFlag flag = {};</a>
+<a name="252"><span class="lineNum">     252 </span>            : </a>
+<a name="253"><span class="lineNum">     253 </span>            :   /** Runtime, tags are common to both #IDOverrideProperty and #IDOverridePropertyOperation. */</a>
+<a name="254"><span class="lineNum">     254 </span>            :   eID_OverrideLib_PropTag tag = {};</a>
+<a name="255"><span class="lineNum">     255 </span>            :   char _pad0[2] = {};</a>
+<a name="256"><span class="lineNum">     256 </span>            : </a>
+<a name="257"><span class="lineNum">     257 </span>            :   /* Sub-item references, if needed (for arrays or collections only).</a>
+<a name="258"><span class="lineNum">     258 </span>            :    * We need both reference and local values to allow e.g. insertion into RNA collections</a>
+<a name="259"><span class="lineNum">     259 </span>            :    * (constraints, modifiers...).</a>
+<a name="260"><span class="lineNum">     260 </span>            :    * In RNA collection case, if names are defined, they are used in priority.</a>
+<a name="261"><span class="lineNum">     261 </span>            :    * Names are pointers (instead of char[64]) to save some space, NULL or empty string when unset.</a>
+<a name="262"><span class="lineNum">     262 </span>            :    * Indices are -1 when unset.</a>
+<a name="263"><span class="lineNum">     263 </span>            :    *</a>
+<a name="264"><span class="lineNum">     264 </span>            :    * NOTE: For insertion operations in RNA collections, reference may not actually exist in the</a>
+<a name="265"><span class="lineNum">     265 </span>            :    * linked reference data. It is used to identify the anchor of the insertion operation (i.e. the</a>
+<a name="266"><span class="lineNum">     266 </span>            :    * item after or before which the new local item should be inserted), in the local override. */</a>
+<a name="267"><span class="lineNum">     267 </span>            :   char *subitem_reference_name = nullptr;</a>
+<a name="268"><span class="lineNum">     268 </span>            :   char *subitem_local_name = nullptr;</a>
+<a name="269"><span class="lineNum">     269 </span>            :   int subitem_reference_index = 0;</a>
+<a name="270"><span class="lineNum">     270 </span>            :   int subitem_local_index = 0;</a>
+<a name="271"><span class="lineNum">     271 </span>            :   /** Additional pointer to an ID. Only used and relevant when the related RNA collection stores ID</a>
+<a name="272"><span class="lineNum">     272 </span>            :    * pointers, to help disambiguate cases where several IDs from different libraries have the exact</a>
+<a name="273"><span class="lineNum">     273 </span>            :    * same name. */</a>
+<a name="274"><span class="lineNum">     274 </span>            :   struct ID *subitem_reference_id = nullptr;</a>
+<a name="275"><span class="lineNum">     275 </span>            :   struct ID *subitem_local_id = nullptr;</a>
+<a name="276"><span class="lineNum">     276 </span>            : </a>
+<a name="277"><span class="lineNum">     277 </span>            :   /**</a>
+<a name="278"><span class="lineNum">     278 </span>            :    * A UI-only label to represent that operation.</a>
+<a name="279"><span class="lineNum">     279 </span>            :    *</a>
+<a name="280"><span class="lineNum">     280 </span>            :    * Typically used for collection items, when the `subitem_reference_name`/`subitem_local_name`</a>
+<a name="281"><span class="lineNum">     281 </span>            :    * are not available or not usable from a UI PoV.</a>
+<a name="282"><span class="lineNum">     282 </span>            :    * See e.g. its usage by `rna_NodesModifierBake_override_diff` for geonodes packed bakes items.</a>
+<a name="283"><span class="lineNum">     283 </span>            :    */</a>
+<a name="284"><span class="lineNum">     284 </span>            :   char *label = nullptr;</a>
+<a name="285"><span class="lineNum">     285 </span>            :   /**</a>
+<a name="286"><span class="lineNum">     286 </span>            :    * A UI-only longer tooltip to represent that operation.</a>
+<a name="287"><span class="lineNum">     287 </span>            :    *</a>
+<a name="288"><span class="lineNum">     288 </span>            :    * Same as `label` above, but for usage in tooltips and other longer text representations.</a>
+<a name="289"><span class="lineNum">     289 </span>            :    */</a>
+<a name="290"><span class="lineNum">     290 </span>            :   char *tooltip = nullptr;</a>
+<a name="291"><span class="lineNum">     291 </span>            : </a>
+<a name="292"><span class="lineNum">     292 </span>            : #ifdef __cplusplus</a>
+<a name="293"><span class="lineNum">     293 </span>            :   bool operator==(const IDOverrideLibraryPropertyOperation &amp;b) const;</a>
+<a name="294"><span class="lineNum">     294 </span>            : #endif</a>
+<a name="295"><span class="lineNum">     295 </span>            : };</a>
+<a name="296"><span class="lineNum">     296 </span>            : </a>
+<a name="297"><span class="lineNum">     297 </span>            : /* IDOverrideLibrary-&gt;flag */</a>
+<a name="298"><span class="lineNum">     298 </span>            : enum eID_OverrideLib_Flag : uint32_t {</a>
+<a name="299"><span class="lineNum">     299 </span>            :   /**</a>
+<a name="300"><span class="lineNum">     300 </span>            :    * The override data-block should not be considered as part of an override hierarchy (generally</a>
+<a name="301"><span class="lineNum">     301 </span>            :    * because it was created as an single override, outside of any hierarchy consideration).</a>
+<a name="302"><span class="lineNum">     302 </span>            :    */</a>
+<a name="303"><span class="lineNum">     303 </span>            :   LIBOVERRIDE_FLAG_NO_HIERARCHY = 1 &lt;&lt; 0,</a>
+<a name="304"><span class="lineNum">     304 </span>            :   /**</a>
+<a name="305"><span class="lineNum">     305 </span>            :    * The override ID is required for the system to work (because of ID dependencies), but is not</a>
+<a name="306"><span class="lineNum">     306 </span>            :    * seen as editable by the user.</a>
+<a name="307"><span class="lineNum">     307 </span>            :    */</a>
+<a name="308"><span class="lineNum">     308 </span>            :   LIBOVERRIDE_FLAG_SYSTEM_DEFINED = 1 &lt;&lt; 1,</a>
+<a name="309"><span class="lineNum">     309 </span>            : };</a>
+<a name="310"><span class="lineNum">     310 </span><span class="lineCov">       2459 : ENUM_OPERATORS(eID_OverrideLib_Flag)</span></a>
+<a name="311"><span class="lineNum">     311 </span>            : </a>
+<a name="312"><span class="lineNum">     312 </span>            : /** A single overridden property, contain all operations on this one. */</a>
+<a name="313"><span class="lineNum">     313 </span>            : struct IDOverrideLibraryProperty {</a>
+<a name="314"><span class="lineNum">     314 </span>            :   struct IDOverrideLibraryProperty *next = nullptr, *prev = nullptr;</a>
+<a name="315"><span class="lineNum">     315 </span>            : </a>
+<a name="316"><span class="lineNum">     316 </span>            :   /**</a>
+<a name="317"><span class="lineNum">     317 </span>            :    * Path from ID to overridden property.</a>
+<a name="318"><span class="lineNum">     318 </span>            :    * *Does not* include indices/names for final arrays/collections items.</a>
+<a name="319"><span class="lineNum">     319 </span>            :    */</a>
+<a name="320"><span class="lineNum">     320 </span>            :   char *rna_path = nullptr;</a>
+<a name="321"><span class="lineNum">     321 </span>            : </a>
+<a name="322"><span class="lineNum">     322 </span>            :   /**</a>
+<a name="323"><span class="lineNum">     323 </span>            :    * List of overriding operations applied to this property.</a>
+<a name="324"><span class="lineNum">     324 </span>            :    * Recreated as part of the diffing, so do not store any of these elsewhere.</a>
+<a name="325"><span class="lineNum">     325 </span>            :    */</a>
+<a name="326"><span class="lineNum">     326 </span>            :   ListBaseT&lt;IDOverrideLibraryPropertyOperation&gt; operations = {nullptr, nullptr};</a>
+<a name="327"><span class="lineNum">     327 </span>            : </a>
+<a name="328"><span class="lineNum">     328 </span>            :   /**</a>
+<a name="329"><span class="lineNum">     329 </span>            :    * Runtime, tags are common to both IDOverrideLibraryProperty and</a>
+<a name="330"><span class="lineNum">     330 </span>            :    * IDOverrideLibraryPropertyOperation. */</a>
+<a name="331"><span class="lineNum">     331 </span>            :   eID_OverrideLib_PropTag tag = {};</a>
+<a name="332"><span class="lineNum">     332 </span>            :   char _pad[2] = {};</a>
+<a name="333"><span class="lineNum">     333 </span>            : </a>
+<a name="334"><span class="lineNum">     334 </span>            :   /** The property type matching the rna_path. */</a>
+<a name="335"><span class="lineNum">     335 </span>            :   unsigned int rna_prop_type = 0;</a>
+<a name="336"><span class="lineNum">     336 </span>            : };</a>
+<a name="337"><span class="lineNum">     337 </span>            : </a>
+<a name="338"><span class="lineNum">     338 </span>            : struct IDOverrideLibraryRuntime;</a>
+<a name="339"><span class="lineNum">     339 </span>            : </a>
+<a name="340"><span class="lineNum">     340 </span>            : /* Main container for all overriding data info of a data-block. */</a>
+<a name="341"><span class="lineNum">     341 </span>            : struct IDOverrideLibrary {</a>
+<a name="342"><span class="lineNum">     342 </span>            :   /** Reference linked ID which this one overrides. */</a>
+<a name="343"><span class="lineNum">     343 </span>            :   struct ID *reference = nullptr;</a>
+<a name="344"><span class="lineNum">     344 </span>            :   ListBaseT&lt;IDOverrideLibraryProperty&gt; properties = {nullptr, nullptr};</a>
+<a name="345"><span class="lineNum">     345 </span>            : </a>
+<a name="346"><span class="lineNum">     346 </span>            :   /**</a>
+<a name="347"><span class="lineNum">     347 </span>            :    * Override hierarchy root ID. Usually the actual root of the hierarchy, but not always</a>
+<a name="348"><span class="lineNum">     348 </span>            :    * in degenerated cases.</a>
+<a name="349"><span class="lineNum">     349 </span>            :    *</a>
+<a name="350"><span class="lineNum">     350 </span>            :    * All liboverrides of a same hierarchy (e.g. a character collection) share the same root.</a>
+<a name="351"><span class="lineNum">     351 </span>            :    */</a>
+<a name="352"><span class="lineNum">     352 </span>            :   struct ID *hierarchy_root = nullptr;</a>
+<a name="353"><span class="lineNum">     353 </span>            : </a>
+<a name="354"><span class="lineNum">     354 </span>            :   IDOverrideLibraryRuntime *runtime = nullptr;</a>
+<a name="355"><span class="lineNum">     355 </span>            : </a>
+<a name="356"><span class="lineNum">     356 </span>            :   eID_OverrideLib_Flag flag = {};</a>
+<a name="357"><span class="lineNum">     357 </span>            :   char _pad_1[4] = {};</a>
+<a name="358"><span class="lineNum">     358 </span>            : };</a>
+<a name="359"><span class="lineNum">     359 </span>            : </a>
+<a name="360"><span class="lineNum">     360 </span>            : /* watch it: Strip has identical beginning. */</a>
+<a name="361"><span class="lineNum">     361 </span>            : /**</a>
+<a name="362"><span class="lineNum">     362 </span>            :  * ID is the first thing included in all serializable types. It</a>
+<a name="363"><span class="lineNum">     363 </span>            :  * provides a common handle to place all data in double-linked lists.</a>
+<a name="364"><span class="lineNum">     364 </span>            :  */</a>
+<a name="365"><span class="lineNum">     365 </span>            : </a>
+<a name="366"><span class="lineNum">     366 </span>            : /* 2 characters for ID code and 256 for actual name */</a>
+<a name="367"><span class="lineNum">     367 </span>            : #define MAX_ID_NAME 258</a>
+<a name="368"><span class="lineNum">     368 </span>            : </a>
+<a name="369"><span class="lineNum">     369 </span>            : /** #ID_Runtime_Remap.status */</a>
+<a name="370"><span class="lineNum">     370 </span>            : enum eID_RemapStatus : char {</a>
+<a name="371"><span class="lineNum">     371 </span>            :   /** new_id is directly linked in current .blend. */</a>
+<a name="372"><span class="lineNum">     372 </span>            :   ID_REMAP_IS_LINKED_DIRECT = 1 &lt;&lt; 0,</a>
+<a name="373"><span class="lineNum">     373 </span>            :   /** There was some skipped 'user_one' usages of old_id. */</a>
+<a name="374"><span class="lineNum">     374 </span>            :   ID_REMAP_IS_USER_ONE_SKIPPED = 1 &lt;&lt; 1,</a>
+<a name="375"><span class="lineNum">     375 </span>            : };</a>
+<a name="376"><span class="lineNum">     376 </span>            : ENUM_OPERATORS(eID_RemapStatus)</a>
+<a name="377"><span class="lineNum">     377 </span>            : </a>
+<a name="378"><span class="lineNum">     378 </span>            : struct IDHash {</a>
+<a name="379"><span class="lineNum">     379 </span>            :   char data[16] = &quot;&quot;;</a>
+<a name="380"><span class="lineNum">     380 </span>            : </a>
+<a name="381"><span class="lineNum">     381 </span>            : #ifdef __cplusplus</a>
+<a name="382"><span class="lineNum">     382 </span><span class="lineCov">       2691 :   uint64_t hash() const</span></a>
+<a name="383"><span class="lineNum">     383 </span>            :   {</a>
+<a name="384"><span class="lineNum">     384 </span><span class="lineCov">       2691 :     return *reinterpret_cast&lt;const uint64_t *&gt;(this-&gt;data);</span></a>
+<a name="385"><span class="lineNum">     385 </span>            :   }</a>
+<a name="386"><span class="lineNum">     386 </span>            : </a>
+<a name="387"><span class="lineNum">     387 </span><span class="lineCov">     714553 :   static constexpr IDHash get_null()</span></a>
+<a name="388"><span class="lineNum">     388 </span>            :   {</a>
+<a name="389"><span class="lineNum">     389 </span><span class="lineCov">     714553 :     return {};</span></a>
+<a name="390"><span class="lineNum">     390 </span>            :   }</a>
+<a name="391"><span class="lineNum">     391 </span><span class="lineCov">     713899 :   bool is_null() const</span></a>
+<a name="392"><span class="lineNum">     392 </span>            :   {</a>
+<a name="393"><span class="lineNum">     393 </span><span class="lineCov">     713899 :     return *this == IDHash::get_null();</span></a>
+<a name="394"><span class="lineNum">     394 </span>            :   }</a>
+<a name="395"><span class="lineNum">     395 </span>            : </a>
+<a name="396"><span class="lineNum">     396 </span><span class="lineCov">     715583 :   friend bool operator==(const IDHash &amp;a, const IDHash &amp;b)</span></a>
+<a name="397"><span class="lineNum">     397 </span>            :   {</a>
+<a name="398"><span class="lineNum">     398 </span><span class="lineCov">     715583 :     return memcmp(a.data, b.data, sizeof(a.data)) == 0;</span></a>
+<a name="399"><span class="lineNum">     399 </span>            :   }</a>
+<a name="400"><span class="lineNum">     400 </span>            : </a>
+<a name="401"><span class="lineNum">     401 </span><span class="lineCov">        660 :   friend bool operator!=(const IDHash &amp;a, const IDHash &amp;b)</span></a>
+<a name="402"><span class="lineNum">     402 </span>            :   {</a>
+<a name="403"><span class="lineNum">     403 </span><span class="lineCov">        660 :     return !(a == b);</span></a>
+<a name="404"><span class="lineNum">     404 </span>            :   }</a>
+<a name="405"><span class="lineNum">     405 </span>            : </a>
+<a name="406"><span class="lineNum">     406 </span>            : #endif</a>
+<a name="407"><span class="lineNum">     407 </span>            : };</a>
+<a name="408"><span class="lineNum">     408 </span>            : </a>
+<a name="409"><span class="lineNum">     409 </span>            : /** Return the #ID_Type encoded in the first two bytes of #ID::name. */</a>
+<a name="410"><span class="lineNum">     410 </span><span class="lineCov">  734833259 : inline ID_Type GS(const char *name)</span></a>
+<a name="411"><span class="lineNum">     411 </span>            : {</a>
+<a name="412"><span class="lineNum">     412 </span><span class="lineCov">  734833259 :   return ID_Type(*reinterpret_cast&lt;const short *&gt;(name));</span></a>
+<a name="413"><span class="lineNum">     413 </span>            : }</a>
+<a name="414"><span class="lineNum">     414 </span>            : </a>
+<a name="415"><span class="lineNum">     415 </span>            : struct ID {</a>
+<a name="416"><span class="lineNum">     416 </span>            :   /* There's a nasty circular dependency here.... 'void *' to the rescue! I</a>
+<a name="417"><span class="lineNum">     417 </span>            :    * really wonder why this is needed. */</a>
+<a name="418"><span class="lineNum">     418 </span>            :   void *next = nullptr, *prev = nullptr;</a>
+<a name="419"><span class="lineNum">     419 </span>            :   struct ID *newid = nullptr;</a>
+<a name="420"><span class="lineNum">     420 </span>            : </a>
+<a name="421"><span class="lineNum">     421 </span>            :   struct Library *lib = nullptr;</a>
+<a name="422"><span class="lineNum">     422 </span>            : </a>
+<a name="423"><span class="lineNum">     423 </span>            :   /** If the ID is an asset, this pointer is set. Owning pointer. */</a>
+<a name="424"><span class="lineNum">     424 </span>            :   struct AssetMetaData *asset_data = nullptr;</a>
+<a name="425"><span class="lineNum">     425 </span>            : </a>
+<a name="426"><span class="lineNum">     426 </span>            :   /**</a>
+<a name="427"><span class="lineNum">     427 </span>            :    * Main identifier for this data-block. Must be unique within the ID name-space (defined by its</a>
+<a name="428"><span class="lineNum">     428 </span>            :    * type, and owning #Library).</a>
+<a name="429"><span class="lineNum">     429 </span>            :    *</a>
+<a name="430"><span class="lineNum">     430 </span>            :    * The first two bytes are always the #ID_Type code of the data-block's type.</a>
+<a name="431"><span class="lineNum">     431 </span>            :    *</a>
+<a name="432"><span class="lineNum">     432 </span>            :    * One critical usage is to reference external linked data. */</a>
+<a name="433"><span class="lineNum">     433 </span>            :   char name[/*MAX_ID_NAME*/ 258] = &quot;&quot;;</a>
+<a name="434"><span class="lineNum">     434 </span>            : </a>
+<a name="435"><span class="lineNum">     435 </span>            :   /**</a>
+<a name="436"><span class="lineNum">     436 </span>            :    * ID_FLAG_... flags report on status of the data-block this ID belongs to</a>
+<a name="437"><span class="lineNum">     437 </span>            :    * (persistent, saved to and read from .blend).</a>
+<a name="438"><span class="lineNum">     438 </span>            :    */</a>
+<a name="439"><span class="lineNum">     439 </span>            :   short flag = 0;</a>
+<a name="440"><span class="lineNum">     440 </span>            :   /**</a>
+<a name="441"><span class="lineNum">     441 </span>            :    * ID_TAG_... tags (runtime only, cleared at read time).</a>
+<a name="442"><span class="lineNum">     442 </span>            :    */</a>
+<a name="443"><span class="lineNum">     443 </span>            :   int tag = 0;</a>
+<a name="444"><span class="lineNum">     444 </span>            :   int us = 0;</a>
+<a name="445"><span class="lineNum">     445 </span>            :   int icon_id = 0;</a>
+<a name="446"><span class="lineNum">     446 </span>            :   unsigned int recalc = 0;</a>
+<a name="447"><span class="lineNum">     447 </span>            :   /**</a>
+<a name="448"><span class="lineNum">     448 </span>            :    * Used by undo code. recalc_after_undo_push contains the changes between the</a>
+<a name="449"><span class="lineNum">     449 </span>            :    * last undo push and the current state. This is accumulated as IDs are tagged</a>
+<a name="450"><span class="lineNum">     450 </span>            :    * for update in the depsgraph, and only cleared on undo push.</a>
+<a name="451"><span class="lineNum">     451 </span>            :    *</a>
+<a name="452"><span class="lineNum">     452 </span>            :    * recalc_up_to_undo_push is saved to undo memory, and is the value of</a>
+<a name="453"><span class="lineNum">     453 </span>            :    * recalc_after_undo_push at the time of the undo push. This means it can be</a>
+<a name="454"><span class="lineNum">     454 </span>            :    * used to find the changes between undo states.</a>
+<a name="455"><span class="lineNum">     455 </span>            :    */</a>
+<a name="456"><span class="lineNum">     456 </span>            :   unsigned int recalc_up_to_undo_push = 0;</a>
+<a name="457"><span class="lineNum">     457 </span>            :   unsigned int recalc_after_undo_push = 0;</a>
+<a name="458"><span class="lineNum">     458 </span>            : </a>
+<a name="459"><span class="lineNum">     459 </span>            :   /**</a>
+<a name="460"><span class="lineNum">     460 </span>            :    * A session-wide unique identifier for a given ID, that remain the same across potential</a>
+<a name="461"><span class="lineNum">     461 </span>            :    * re-allocations (e.g. due to undo/redo steps).</a>
+<a name="462"><span class="lineNum">     462 </span>            :    */</a>
+<a name="463"><span class="lineNum">     463 </span>            :   unsigned int session_uid = 0;</a>
+<a name="464"><span class="lineNum">     464 </span>            : </a>
+<a name="465"><span class="lineNum">     465 </span>            :   /**</a>
+<a name="466"><span class="lineNum">     466 </span>            :    * This is only available on packed linked data-blocks. It is a hash of the contents the</a>
+<a name="467"><span class="lineNum">     467 </span>            :    * data-block including all its dependencies. It is computed when first packing the data-block</a>
+<a name="468"><span class="lineNum">     468 </span>            :    * and is not changed afterwards. It can be used to detect that packed data-blocks in two</a>
+<a name="469"><span class="lineNum">     469 </span>            :    * separate .blend files are the same.</a>
+<a name="470"><span class="lineNum">     470 </span>            :    *</a>
+<a name="471"><span class="lineNum">     471 </span>            :    * Two data-blocks with the same deep hash are assumed to be interchangeable, but not necessarily</a>
+<a name="472"><span class="lineNum">     472 </span>            :    * exactly the same. For example, it's possible to change node positions on packed data-blocks</a>
+<a name="473"><span class="lineNum">     473 </span>            :    * without changing the deep hash.</a>
+<a name="474"><span class="lineNum">     474 </span>            :    */</a>
+<a name="475"><span class="lineNum">     475 </span>            :   IDHash deep_hash;</a>
+<a name="476"><span class="lineNum">     476 </span>            : </a>
+<a name="477"><span class="lineNum">     477 </span>            :   /**</a>
+<a name="478"><span class="lineNum">     478 </span>            :    * User-defined custom properties storage. Typically Accessed through the 'dict' syntax from</a>
+<a name="479"><span class="lineNum">     479 </span>            :    * Python.</a>
+<a name="480"><span class="lineNum">     480 </span>            :    */</a>
+<a name="481"><span class="lineNum">     481 </span>            :   IDProperty *properties = nullptr;</a>
+<a name="482"><span class="lineNum">     482 </span>            : </a>
+<a name="483"><span class="lineNum">     483 </span>            :   /**</a>
+<a name="484"><span class="lineNum">     484 </span>            :    * System-defined custom properties storage. Used to store data dynamically defined either by</a>
+<a name="485"><span class="lineNum">     485 </span>            :    * Blender itself (e.g. the GeoNode modifier), or some python script, extension etc.</a>
+<a name="486"><span class="lineNum">     486 </span>            :    *</a>
+<a name="487"><span class="lineNum">     487 </span>            :    * Typically accessed through RNA paths (`C.object.my_dynamic_float_property = 33.3`), when</a>
+<a name="488"><span class="lineNum">     488 </span>            :    * wrapped/defined by RNA.</a>
+<a name="489"><span class="lineNum">     489 </span>            :    */</a>
+<a name="490"><span class="lineNum">     490 </span>            :   IDProperty *system_properties = nullptr;</a>
+<a name="491"><span class="lineNum">     491 </span>            : </a>
+<a name="492"><span class="lineNum">     492 </span>            :   void *_pad1 = nullptr;</a>
+<a name="493"><span class="lineNum">     493 </span>            : </a>
+<a name="494"><span class="lineNum">     494 </span>            :   /** Reference linked ID which this one overrides. */</a>
+<a name="495"><span class="lineNum">     495 </span>            :   IDOverrideLibrary *override_library = nullptr;</a>
+<a name="496"><span class="lineNum">     496 </span>            : </a>
+<a name="497"><span class="lineNum">     497 </span>            :   /**</a>
+<a name="498"><span class="lineNum">     498 </span>            :    * Only set for data-blocks which are coming from copy-on-evaluation, points to</a>
+<a name="499"><span class="lineNum">     499 </span>            :    * the original version of it.</a>
+<a name="500"><span class="lineNum">     500 </span>            :    * Also used temporarily during memfile undo to keep a reference to old ID when found.</a>
+<a name="501"><span class="lineNum">     501 </span>            :    */</a>
+<a name="502"><span class="lineNum">     502 </span>            :   struct ID *orig_id = nullptr;</a>
+<a name="503"><span class="lineNum">     503 </span>            : </a>
+<a name="504"><span class="lineNum">     504 </span>            :   /**</a>
+<a name="505"><span class="lineNum">     505 </span>            :    * Holds the #PyObject reference to the ID (initialized on demand).</a>
+<a name="506"><span class="lineNum">     506 </span>            :    *</a>
+<a name="507"><span class="lineNum">     507 </span>            :    * This isn't essential, it could be removed however it gives some advantages:</a>
+<a name="508"><span class="lineNum">     508 </span>            :    *</a>
+<a name="509"><span class="lineNum">     509 </span>            :    * - Every time the #ID is accessed a #BPy_StructRNA doesn't have to be created &amp; destroyed</a>
+<a name="510"><span class="lineNum">     510 </span>            :    *   (consider all the polling and drawing functions that access ID's).</a>
+<a name="511"><span class="lineNum">     511 </span>            :    *</a>
+<a name="512"><span class="lineNum">     512 </span>            :    * - When this #ID is deleted, the #BPy_StructRNA can be invalidated</a>
+<a name="513"><span class="lineNum">     513 </span>            :    *   so accessing it from Python raises an exception instead of crashing.</a>
+<a name="514"><span class="lineNum">     514 </span>            :    *</a>
+<a name="515"><span class="lineNum">     515 </span>            :    *   This is of limited benefit though, as it doesn't apply to non #ID data</a>
+<a name="516"><span class="lineNum">     516 </span>            :    *   that references this ID (the bones of an armature or the modifiers of an object for</a>
+<a name="517"><span class="lineNum">     517 </span>            :    *   example).</a>
+<a name="518"><span class="lineNum">     518 </span>            :    */</a>
+<a name="519"><span class="lineNum">     519 </span>            :   void *py_instance = nullptr;</a>
+<a name="520"><span class="lineNum">     520 </span>            : </a>
+<a name="521"><span class="lineNum">     521 </span>            :   /**</a>
+<a name="522"><span class="lineNum">     522 </span>            :    * Weak reference to an ID in a given library file, used for two purposes:</a>
+<a name="523"><span class="lineNum">     523 </span>            :    * - Allow re-using already appended data in some cases, instead of appending</a>
+<a name="524"><span class="lineNum">     524 </span>            :    *   it again.</a>
+<a name="525"><span class="lineNum">     525 </span>            :    * - Store the original name and library for linked editable assets, that</a>
+<a name="526"><span class="lineNum">     526 </span>            :    *   might get renamed locally.</a>
+<a name="527"><span class="lineNum">     527 </span>            :    * May be NULL.</a>
+<a name="528"><span class="lineNum">     528 </span>            :    */</a>
+<a name="529"><span class="lineNum">     529 </span>            :   struct LibraryWeakReference *library_weak_reference = nullptr;</a>
+<a name="530"><span class="lineNum">     530 </span>            : </a>
+<a name="531"><span class="lineNum">     531 </span>            :   /**</a>
+<a name="532"><span class="lineNum">     532 </span>            :    * Allocated runtime data, never written on disk or in undo steps.</a>
+<a name="533"><span class="lineNum">     533 </span>            :    *</a>
+<a name="534"><span class="lineNum">     534 </span>            :    * _Always_ valid for code handling IDs managed by the `BKE_lib_id` API.</a>
+<a name="535"><span class="lineNum">     535 </span>            :    *</a>
+<a name="536"><span class="lineNum">     536 </span>            :    * Internal low-level implementation of ID creation/copying/deletion, and code handling IDs</a>
+<a name="537"><span class="lineNum">     537 </span>            :    * themselves in non-standard ways (mainly the CoW IDs in depsgraph, and some temporary IDs in</a>
+<a name="538"><span class="lineNum">     538 </span>            :    * readfile) may have to manage this pointer themselves (see also #BKE_libblock_runtime_ensure</a>
+<a name="539"><span class="lineNum">     539 </span>            :    * and #BKE_libblock_free_runtime_data).</a>
+<a name="540"><span class="lineNum">     540 </span>            :    */</a>
+<a name="541"><span class="lineNum">     541 </span>            :   bke::id::ID_Runtime *runtime = nullptr;</a>
+<a name="542"><span class="lineNum">     542 </span>            : </a>
+<a name="543"><span class="lineNum">     543 </span>            : #ifdef __cplusplus</a>
+<a name="544"><span class="lineNum">     544 </span><span class="lineCov">  398953509 :   ID_Type id_type() const</span></a>
+<a name="545"><span class="lineNum">     545 </span>            :   {</a>
+<a name="546"><span class="lineNum">     546 </span><span class="lineCov">  398953509 :     return GS(this-&gt;name);</span></a>
+<a name="547"><span class="lineNum">     547 </span>            :   }</a>
+<a name="548"><span class="lineNum">     548 </span>            : #endif</a>
+<a name="549"><span class="lineNum">     549 </span>            : };</a>
+<a name="550"><span class="lineNum">     550 </span>            : </a>
+<a name="551"><span class="lineNum">     551 </span>            : /**</a>
+<a name="552"><span class="lineNum">     552 </span>            :  * For each library file used, a Library struct is added to Main.</a>
+<a name="553"><span class="lineNum">     553 </span>            :  */</a>
+<a name="554"><span class="lineNum">     554 </span>            : struct Library {</a>
+<a name="555"><span class="lineNum">     555 </span>            : #ifdef __cplusplus</a>
+<a name="556"><span class="lineNum">     556 </span>            :   /** See #ID_Type comment for why this is here. */</a>
+<a name="557"><span class="lineNum">     557 </span>            :   static constexpr ID_Type id_type = ID_LI;</a>
+<a name="558"><span class="lineNum">     558 </span>            : #endif</a>
+<a name="559"><span class="lineNum">     559 </span>            : </a>
+<a name="560"><span class="lineNum">     560 </span>            :   ID id;</a>
+<a name="561"><span class="lineNum">     561 </span>            :   /** Path name used for reading, can be relative and edited in the outliner. */</a>
+<a name="562"><span class="lineNum">     562 </span>            :   char filepath[/*FILE_MAX*/ 1024] = &quot;&quot;;</a>
+<a name="563"><span class="lineNum">     563 </span>            : </a>
+<a name="564"><span class="lineNum">     564 </span>            :   /** Flags defining specific characteristics of a library. See #LibraryFlag. */</a>
+<a name="565"><span class="lineNum">     565 </span>            :   uint16_t flag = 0;</a>
+<a name="566"><span class="lineNum">     566 </span>            :   /** #LibraryRuntime::tag need to be preserved in undo (memfile) case (#eLibrary_Tag). */</a>
+<a name="567"><span class="lineNum">     567 </span>            :   uint16_t undo_runtime_tag = 0;</a>
+<a name="568"><span class="lineNum">     568 </span>            :   char _pad[4] = {};</a>
+<a name="569"><span class="lineNum">     569 </span>            : </a>
+<a name="570"><span class="lineNum">     570 </span>            :   /**</a>
+<a name="571"><span class="lineNum">     571 </span>            :    * For archive library only (#LIBRARY_FLAG_IS_ARCHIVE): The main library owning it.</a>
+<a name="572"><span class="lineNum">     572 </span>            :    *</a>
+<a name="573"><span class="lineNum">     573 </span>            :    * `archive_parent_library` and `packedfile` should never be both non-null in a same Library ID.</a>
+<a name="574"><span class="lineNum">     574 </span>            :    */</a>
+<a name="575"><span class="lineNum">     575 </span>            :   struct Library *archive_parent_library = nullptr;</a>
+<a name="576"><span class="lineNum">     576 </span>            : </a>
+<a name="577"><span class="lineNum">     577 </span>            :   /**</a>
+<a name="578"><span class="lineNum">     578 </span>            :    * Packed blend-file of the library, nullptr if not packed.</a>
+<a name="579"><span class="lineNum">     579 </span>            :    *</a>
+<a name="580"><span class="lineNum">     580 </span>            :    * \note Individual IDs may be packed even if the entire library is not packed.</a>
+<a name="581"><span class="lineNum">     581 </span>            :    *</a>
+<a name="582"><span class="lineNum">     582 </span>            :    * `archive_parent_library` and `packedfile` should never be both non-null in a same Library ID.</a>
+<a name="583"><span class="lineNum">     583 </span>            :    */</a>
+<a name="584"><span class="lineNum">     584 </span>            :   struct PackedFile *packedfile = nullptr;</a>
+<a name="585"><span class="lineNum">     585 </span>            : </a>
+<a name="586"><span class="lineNum">     586 </span>            :   /**</a>
+<a name="587"><span class="lineNum">     587 </span>            :    * Runtime only data, never written in blendfile.</a>
+<a name="588"><span class="lineNum">     588 </span>            :    *</a>
+<a name="589"><span class="lineNum">     589 </span>            :    * Typically allocated when creating a new Library or reading it from a blendfile.</a>
+<a name="590"><span class="lineNum">     590 </span>            :    */</a>
+<a name="591"><span class="lineNum">     591 </span>            :   bke::library::LibraryRuntime *runtime = nullptr;</a>
+<a name="592"><span class="lineNum">     592 </span>            : </a>
+<a name="593"><span class="lineNum">     593 </span>            :   void *_pad2 = nullptr;</a>
+<a name="594"><span class="lineNum">     594 </span>            : };</a>
+<a name="595"><span class="lineNum">     595 </span>            : </a>
+<a name="596"><span class="lineNum">     596 </span>            : /**</a>
+<a name="597"><span class="lineNum">     597 </span>            :  * A weak library/ID reference for local data that has been appended, to allow re-using that local</a>
+<a name="598"><span class="lineNum">     598 </span>            :  * data instead of creating a new copy of it in future appends.</a>
+<a name="599"><span class="lineNum">     599 </span>            :  *</a>
+<a name="600"><span class="lineNum">     600 </span>            :  * NOTE: This is by design a week reference, in other words code should be totally fine and perform</a>
+<a name="601"><span class="lineNum">     601 </span>            :  * a regular append if it cannot find a valid matching local ID.</a>
+<a name="602"><span class="lineNum">     602 </span>            :  *</a>
+<a name="603"><span class="lineNum">     603 </span>            :  * NOTE: There should always be only one single ID in current Main matching a given linked</a>
+<a name="604"><span class="lineNum">     604 </span>            :  * reference.</a>
+<a name="605"><span class="lineNum">     605 </span>            :  */</a>
+<a name="606"><span class="lineNum">     606 </span>            : struct LibraryWeakReference {</a>
+<a name="607"><span class="lineNum">     607 </span>            :   /**  Expected to match a `Library.filepath`. */</a>
+<a name="608"><span class="lineNum">     608 </span>            :   char library_filepath[/*FILE_MAX*/ 1024] = &quot;&quot;;</a>
+<a name="609"><span class="lineNum">     609 </span>            : </a>
+<a name="610"><span class="lineNum">     610 </span>            :   /** May be different from the current local ID name. */</a>
+<a name="611"><span class="lineNum">     611 </span>            :   char library_id_name[/*MAX_ID_NAME*/ 258] = &quot;&quot;;</a>
+<a name="612"><span class="lineNum">     612 </span>            : </a>
+<a name="613"><span class="lineNum">     613 </span>            :   char _pad[2] = {};</a>
+<a name="614"><span class="lineNum">     614 </span>            : };</a>
+<a name="615"><span class="lineNum">     615 </span>            : </a>
+<a name="616"><span class="lineNum">     616 </span>            : /* PreviewImage.flag */</a>
+<a name="617"><span class="lineNum">     617 </span>            : enum ePreviewImage_Flag {</a>
+<a name="618"><span class="lineNum">     618 </span>            :   PRV_CHANGED = (1 &lt;&lt; 0),</a>
+<a name="619"><span class="lineNum">     619 </span>            :   /** If user-edited, do not auto-update this anymore! */</a>
+<a name="620"><span class="lineNum">     620 </span>            :   PRV_USER_EDITED = (1 &lt;&lt; 1),</a>
+<a name="621"><span class="lineNum">     621 </span>            :   /* Rendering was invoked. Cleared on file read. */</a>
+<a name="622"><span class="lineNum">     622 </span>            :   PRV_RENDERING = (1 &lt;&lt; 2),</a>
+<a name="623"><span class="lineNum">     623 </span>            : };</a>
+<a name="624"><span class="lineNum">     624 </span>            : </a>
+<a name="625"><span class="lineNum">     625 </span>            : /* PreviewImage.tag */</a>
+<a name="626"><span class="lineNum">     626 </span>            : enum ePreviewImage_Tag : short {</a>
+<a name="627"><span class="lineNum">     627 </span>            :   /** Deferred preview is being loaded. */</a>
+<a name="628"><span class="lineNum">     628 </span>            :   PRV_TAG_DEFERRED_RENDERING = (1 &lt;&lt; 1),</a>
+<a name="629"><span class="lineNum">     629 </span>            :   /** Deferred preview should be deleted asap. */</a>
+<a name="630"><span class="lineNum">     630 </span>            :   PRV_TAG_DEFERRED_DELETE = (1 &lt;&lt; 2),</a>
+<a name="631"><span class="lineNum">     631 </span>            :   /** This deferred preview could not be loaded (e.g. not found on disk). */</a>
+<a name="632"><span class="lineNum">     632 </span>            :   PRV_TAG_DEFERRED_INVALID = (1 &lt;&lt; 3),</a>
+<a name="633"><span class="lineNum">     633 </span>            :   /* Rendering was interrupted and needs restart. */</a>
+<a name="634"><span class="lineNum">     634 </span>            :   PRV_TAG_RESTART_RENDERING = (1 &lt;&lt; 4),</a>
+<a name="635"><span class="lineNum">     635 </span>            : };</a>
+<a name="636"><span class="lineNum">     636 </span><span class="lineNoCov">          0 : ENUM_OPERATORS(ePreviewImage_Tag)</span></a>
+<a name="637"><span class="lineNum">     637 </span>            : </a>
+<a name="638"><span class="lineNum">     638 </span>            : /**</a>
+<a name="639"><span class="lineNum">     639 </span>            :  * This type allows shallow copies. Use #BKE_previewimg_free() to release contained resources.</a>
+<a name="640"><span class="lineNum">     640 </span>            :  * Don't call this for shallow copies (or the original instance will have dangling pointers).</a>
+<a name="641"><span class="lineNum">     641 </span>            :  */</a>
+<a name="642"><span class="lineNum">     642 </span>            : struct PreviewImage {</a>
+<a name="643"><span class="lineNum">     643 </span><span class="lineCov">         52 :   DNA_DEFINE_CXX_METHODS(PreviewImage)</span></a>
+<a name="644"><span class="lineNum">     644 </span>            :   /* All values of 2 are really NUM_ICON_SIZES */</a>
+<a name="645"><span class="lineNum">     645 </span>            :   unsigned int w[2] = {};</a>
+<a name="646"><span class="lineNum">     646 </span>            :   unsigned int h[2] = {};</a>
+<a name="647"><span class="lineNum">     647 </span>            :   short flag[2] = {};</a>
+<a name="648"><span class="lineNum">     648 </span>            :   short changed_timestamp[2] = {};</a>
+<a name="649"><span class="lineNum">     649 </span>            :   unsigned int *rect[2] = {};</a>
+<a name="650"><span class="lineNum">     650 </span>            : </a>
+<a name="651"><span class="lineNum">     651 </span>            :   bke::PreviewImageRuntime *runtime = nullptr;</a>
+<a name="652"><span class="lineNum">     652 </span>            : };</a>
+<a name="653"><span class="lineNum">     653 </span>            : </a>
+<a name="654"><span class="lineNum">     654 </span>            : /**</a>
+<a name="655"><span class="lineNum">     655 </span>            :  * Amount of 'fake user' usages of this ID.</a>
+<a name="656"><span class="lineNum">     656 </span>            :  * Always 0 or 1.</a>
+<a name="657"><span class="lineNum">     657 </span>            :  */</a>
+<a name="658"><span class="lineNum">     658 </span>            : #define ID_FAKE_USERS(id) ((id_cast&lt;const ID *&gt;(id)-&gt;flag &amp; ID_FLAG_FAKEUSER) ? 1 : 0)</a>
+<a name="659"><span class="lineNum">     659 </span>            : /**</a>
+<a name="660"><span class="lineNum">     660 </span>            :  * Amount of defined 'extra' shallow, runtime-only usages of this ID (typically from UI).</a>
+<a name="661"><span class="lineNum">     661 </span>            :  * Always 0 or 1.</a>
+<a name="662"><span class="lineNum">     662 </span>            :  *</a>
+<a name="663"><span class="lineNum">     663 </span>            :  * \warning May not actually be part of the total #ID.us count, see #ID_EXTRA_REAL_USERS.</a>
+<a name="664"><span class="lineNum">     664 </span>            :  */</a>
+<a name="665"><span class="lineNum">     665 </span>            : #define ID_EXTRA_USERS(id) (id_cast&lt;const ID *&gt;(id)-&gt;tag &amp; ID_TAG_EXTRAUSER ? 1 : 0)</a>
+<a name="666"><span class="lineNum">     666 </span>            : /**</a>
+<a name="667"><span class="lineNum">     667 </span>            :  * Amount of real 'extra' shallow, runtime-only usages of this ID (typically from UI).</a>
+<a name="668"><span class="lineNum">     668 </span>            :  * Always 0 or 1.</a>
+<a name="669"><span class="lineNum">     669 </span>            :  *</a>
+<a name="670"><span class="lineNum">     670 </span>            :  * \note Actual number of usages added to #ID.us by these extra usages.</a>
+<a name="671"><span class="lineNum">     671 </span>            :  * May be 0 even if there are some 'extra' usages of this ID,</a>
+<a name="672"><span class="lineNum">     672 </span>            :  * when there are also other 'normal' reference-counting usages of it.</a>
+<a name="673"><span class="lineNum">     673 </span>            :  */</a>
+<a name="674"><span class="lineNum">     674 </span>            : #define ID_EXTRA_REAL_USERS(id) (id_cast&lt;const ID *&gt;(id)-&gt;tag &amp; ID_TAG_EXTRAUSER_SET ? 1 : 0)</a>
+<a name="675"><span class="lineNum">     675 </span>            : /**</a>
+<a name="676"><span class="lineNum">     676 </span>            :  * Amount of real usages of this ID (i.e. excluding the 'fake user' one, but including a potential</a>
+<a name="677"><span class="lineNum">     677 </span>            :  * 'extra' shallow/runtime usage).</a>
+<a name="678"><span class="lineNum">     678 </span>            :  */</a>
+<a name="679"><span class="lineNum">     679 </span>            : #define ID_REAL_USERS(id) (id_cast&lt;const ID *&gt;(id)-&gt;us - ID_FAKE_USERS(id))</a>
+<a name="680"><span class="lineNum">     680 </span>            : /**</a>
+<a name="681"><span class="lineNum">     681 </span>            :  * Amount of 'normal' reference-counting usages of this ID</a>
+<a name="682"><span class="lineNum">     682 </span>            :  * (i.e. excluding the 'fake user' one, and a potential 'extra' shallow/runtime usage).</a>
+<a name="683"><span class="lineNum">     683 </span>            :  */</a>
+<a name="684"><span class="lineNum">     684 </span>            : #define ID_REFCOUNTING_USERS(id) (ID_REAL_USERS(id) - ID_EXTRA_REAL_USERS(id))</a>
+<a name="685"><span class="lineNum">     685 </span>            : </a>
+<a name="686"><span class="lineNum">     686 </span>            : #define ID_CHECK_UNDO(id) (!ELEM(GS((id)-&gt;name), ID_SCR, ID_WM, ID_WS, ID_BR))</a>
+<a name="687"><span class="lineNum">     687 </span>            : </a>
+<a name="688"><span class="lineNum">     688 </span>            : #define ID_BLEND_PATH(_bmain, _id) \</a>
+<a name="689"><span class="lineNum">     689 </span>            :   ((_id)-&gt;lib ? BKE_main_blendfile_path_from_library(*(_id)-&gt;lib) : \</a>
+<a name="690"><span class="lineNum">     690 </span>            :                 BKE_main_blendfile_path((_bmain)))</a>
+<a name="691"><span class="lineNum">     691 </span>            : #define ID_BLEND_PATH_FROM_GLOBAL(_id) \</a>
+<a name="692"><span class="lineNum">     692 </span>            :   ((_id)-&gt;lib ? BKE_main_blendfile_path_from_library(*(_id)-&gt;lib) : \</a>
+<a name="693"><span class="lineNum">     693 </span>            :                 BKE_main_blendfile_path_from_global())</a>
+<a name="694"><span class="lineNum">     694 </span>            : </a>
+<a name="695"><span class="lineNum">     695 </span>            : #define ID_MISSING(_id) ((id_cast&lt;const ID *&gt;(_id)-&gt;tag &amp; ID_TAG_MISSING) != 0)</a>
+<a name="696"><span class="lineNum">     696 </span>            : </a>
+<a name="697"><span class="lineNum">     697 </span>            : #define ID_IS_LINKED(_id) (id_cast&lt;const ID *&gt;(_id)-&gt;lib != NULL)</a>
+<a name="698"><span class="lineNum">     698 </span>            : /**</a>
+<a name="699"><span class="lineNum">     699 </span>            :  * Indicates that this ID is linked but also packed into the current .blend file. Note that this</a>
+<a name="700"><span class="lineNum">     700 </span>            :  * just means that this specific ID and its dependencies are packed, not the entire library. So</a>
+<a name="701"><span class="lineNum">     701 </span>            :  * this is separate from #Library::packedfile.</a>
+<a name="702"><span class="lineNum">     702 </span>            :  */</a>
+<a name="703"><span class="lineNum">     703 </span>            : #define ID_IS_PACKED(_id) (ID_IS_LINKED(_id) &amp;&amp; ((_id)-&gt;flag &amp; ID_FLAG_LINKED_AND_PACKED))</a>
+<a name="704"><span class="lineNum">     704 </span>            : </a>
+<a name="705"><span class="lineNum">     705 </span>            : #define ID_TYPE_SUPPORTS_ASSET_EDITABLE(id_type) \</a>
+<a name="706"><span class="lineNum">     706 </span>            :   ELEM(id_type, ID_BR, ID_TE, ID_NT, ID_IM, ID_PC, ID_MA)</a>
+<a name="707"><span class="lineNum">     707 </span>            : </a>
+<a name="708"><span class="lineNum">     708 </span>            : #define ID_IS_EDITABLE(_id) \</a>
+<a name="709"><span class="lineNum">     709 </span>            :   ((id_cast&lt;const ID *&gt;(_id)-&gt;lib == NULL) || \</a>
+<a name="710"><span class="lineNum">     710 </span>            :    ((id_cast&lt;const ID *&gt;(_id)-&gt;lib-&gt;runtime-&gt;tag &amp; LIBRARY_ASSET_EDITABLE) &amp;&amp; \</a>
+<a name="711"><span class="lineNum">     711 </span>            :     ID_TYPE_SUPPORTS_ASSET_EDITABLE(id_cast&lt;const ID *&gt;(_id)-&gt;id_type())))</a>
+<a name="712"><span class="lineNum">     712 </span>            : </a>
+<a name="713"><span class="lineNum">     713 </span>            : /* Note that these are fairly high-level checks, should be used at user interaction level, not in</a>
+<a name="714"><span class="lineNum">     714 </span>            :  * BKE_library_override typically (especially due to the check on ID_TAG_EXTERN). */</a>
+<a name="715"><span class="lineNum">     715 </span>            : #define ID_IS_OVERRIDABLE_LIBRARY_HIERARCHY(_id) \</a>
+<a name="716"><span class="lineNum">     716 </span>            :   (ID_IS_LINKED(_id) &amp;&amp; !ID_MISSING(_id) &amp;&amp; \</a>
+<a name="717"><span class="lineNum">     717 </span>            :    (id_cast&lt;const ID *&gt;(_id)-&gt;flag &amp; ID_FLAG_EMBEDDED_DATA) == 0 &amp;&amp; \</a>
+<a name="718"><span class="lineNum">     718 </span>            :    (BKE_idtype_get_info_from_id(id_cast&lt;const ID *&gt;(_id))-&gt;flags &amp; IDTYPE_FLAGS_NO_LIBLINKING) == \</a>
+<a name="719"><span class="lineNum">     719 </span>            :        0 &amp;&amp; \</a>
+<a name="720"><span class="lineNum">     720 </span>            :    !ELEM((id_cast&lt;const ID *&gt;(_id))-&gt;id_type(), ID_SCE))</a>
+<a name="721"><span class="lineNum">     721 </span>            : #define ID_IS_OVERRIDABLE_LIBRARY(_id) \</a>
+<a name="722"><span class="lineNum">     722 </span>            :   (ID_IS_OVERRIDABLE_LIBRARY_HIERARCHY((_id)) &amp;&amp; \</a>
+<a name="723"><span class="lineNum">     723 </span>            :    (id_cast&lt;const ID *&gt;(_id)-&gt;tag &amp; ID_TAG_EXTERN) != 0)</a>
+<a name="724"><span class="lineNum">     724 </span>            : </a>
+<a name="725"><span class="lineNum">     725 </span>            : /* NOTE: The three checks below do not take into account whether given ID is linked or not (when</a>
+<a name="726"><span class="lineNum">     726 </span>            :  * chaining overrides over several libraries). User must ensure the ID is not linked itself</a>
+<a name="727"><span class="lineNum">     727 </span>            :  * currently. */</a>
+<a name="728"><span class="lineNum">     728 </span>            : /* TODO: add `_EDITABLE` versions of those macros (that would check if ID is linked or not)? */</a>
+<a name="729"><span class="lineNum">     729 </span>            : #define ID_IS_OVERRIDE_LIBRARY_REAL(_id) \</a>
+<a name="730"><span class="lineNum">     730 </span>            :   (id_cast&lt;const ID *&gt;(_id)-&gt;override_library != NULL &amp;&amp; \</a>
+<a name="731"><span class="lineNum">     731 </span>            :    id_cast&lt;const ID *&gt;(_id)-&gt;override_library-&gt;reference != NULL)</a>
+<a name="732"><span class="lineNum">     732 </span>            : </a>
+<a name="733"><span class="lineNum">     733 </span>            : #define ID_IS_OVERRIDE_LIBRARY_VIRTUAL(_id) \</a>
+<a name="734"><span class="lineNum">     734 </span>            :   ((id_cast&lt;const ID *&gt;(_id)-&gt;flag &amp; ID_FLAG_EMBEDDED_DATA_LIB_OVERRIDE) != 0)</a>
+<a name="735"><span class="lineNum">     735 </span>            : </a>
+<a name="736"><span class="lineNum">     736 </span>            : #define ID_IS_OVERRIDE_LIBRARY(_id) \</a>
+<a name="737"><span class="lineNum">     737 </span>            :   (ID_IS_OVERRIDE_LIBRARY_REAL(_id) || ID_IS_OVERRIDE_LIBRARY_VIRTUAL(_id))</a>
+<a name="738"><span class="lineNum">     738 </span>            : </a>
+<a name="739"><span class="lineNum">     739 </span>            : #define ID_IS_OVERRIDE_LIBRARY_HIERARCHY_ROOT(_id) \</a>
+<a name="740"><span class="lineNum">     740 </span>            :   (!ID_IS_OVERRIDE_LIBRARY_REAL(_id) || \</a>
+<a name="741"><span class="lineNum">     741 </span>            :    (id_cast&lt;ID *&gt;(_id))-&gt;override_library-&gt;hierarchy_root == (id_cast&lt;ID *&gt;(_id)))</a>
+<a name="742"><span class="lineNum">     742 </span>            : </a>
+<a name="743"><span class="lineNum">     743 </span>            : #define ID_IS_ASSET(_id) (id_cast&lt;const ID *&gt;(_id)-&gt;asset_data != NULL)</a>
+<a name="744"><span class="lineNum">     744 </span>            : </a>
+<a name="745"><span class="lineNum">     745 </span>            : /* Check whether datablock type is covered by copy-on-evaluation. */</a>
+<a name="746"><span class="lineNum">     746 </span>            : #define ID_TYPE_USE_COPY_ON_EVAL(_id_type) \</a>
+<a name="747"><span class="lineNum">     747 </span>            :   (!ELEM(_id_type, ID_LI, ID_SCR, ID_VF, ID_BR, ID_WM, ID_PAL, ID_PC, ID_WS, ID_IM))</a>
+<a name="748"><span class="lineNum">     748 </span>            : </a>
+<a name="749"><span class="lineNum">     749 </span>            : /* Check whether data-block type requires copy-on-evaluation from #ID_RECALC_PARAMETERS.</a>
+<a name="750"><span class="lineNum">     750 </span>            :  * Keep in sync with #BKE_id_eval_properties_copy. */</a>
+<a name="751"><span class="lineNum">     751 </span>            : #define ID_TYPE_SUPPORTS_PARAMS_WITHOUT_COW(id_type) ELEM(id_type, ID_ME)</a>
+<a name="752"><span class="lineNum">     752 </span>            : </a>
+<a name="753"><span class="lineNum">     753 </span>            : /* This used to be ELEM(id_type, ID_IP), currently there is no deprecated ID</a>
+<a name="754"><span class="lineNum">     754 </span>            :  * type. ID_IP was removed in Blender 5.0. */</a>
+<a name="755"><span class="lineNum">     755 </span>            : #define ID_TYPE_IS_DEPRECATED(id_type) false</a>
+<a name="756"><span class="lineNum">     756 </span>            : </a>
+<a name="757"><span class="lineNum">     757 </span>            : #define ID_NEW_SET(_id, _idn) \</a>
+<a name="758"><span class="lineNum">     758 </span>            :   (((id_cast&lt;ID *&gt;)(_id))-&gt;newid = (id_cast&lt;ID *&gt;)(_idn), \</a>
+<a name="759"><span class="lineNum">     759 </span>            :    ((id_cast&lt;ID *&gt;)(_id))-&gt;newid-&gt;tag |= ID_TAG_NEW, \</a>
+<a name="760"><span class="lineNum">     760 </span>            :    ((id_cast&lt;ID *&gt;)(_id))-&gt;newid)</a>
+<a name="761"><span class="lineNum">     761 </span>            : #define ID_NEW_REMAP(a) \</a>
+<a name="762"><span class="lineNum">     762 </span>            :   if ((a) &amp;&amp; (a)-&gt;id.newid) { \</a>
+<a name="763"><span class="lineNum">     763 </span>            :     *(void **)&amp;(a) = (a)-&gt;id.newid; \</a>
+<a name="764"><span class="lineNum">     764 </span>            :   } \</a>
+<a name="765"><span class="lineNum">     765 </span>            :   ((void)0)</a>
+<a name="766"><span class="lineNum">     766 </span>            : </a>
+<a name="767"><span class="lineNum">     767 </span>            : /** id-&gt;flag (persistent). */</a>
+<a name="768"><span class="lineNum">     768 </span>            : enum eID_Flag : short {</a>
+<a name="769"><span class="lineNum">     769 </span>            :   /** Don't delete the data-block even if unused. */</a>
+<a name="770"><span class="lineNum">     770 </span>            :   ID_FLAG_FAKEUSER = 1 &lt;&lt; 9,</a>
+<a name="771"><span class="lineNum">     771 </span>            :   /**</a>
+<a name="772"><span class="lineNum">     772 </span>            :    * The data-block is a sub-data of another one.</a>
+<a name="773"><span class="lineNum">     773 </span>            :    * Direct persistent references are not allowed.</a>
+<a name="774"><span class="lineNum">     774 </span>            :    */</a>
+<a name="775"><span class="lineNum">     775 </span>            :   ID_FLAG_EMBEDDED_DATA = 1 &lt;&lt; 10,</a>
+<a name="776"><span class="lineNum">     776 </span>            :   /**</a>
+<a name="777"><span class="lineNum">     777 </span>            :    * Data-block is from a library and linked indirectly, with ID_TAG_INDIRECT</a>
+<a name="778"><span class="lineNum">     778 </span>            :    * tag set. But the current .blend file also has a weak pointer to it that</a>
+<a name="779"><span class="lineNum">     779 </span>            :    * we want to restore if possible, and silently drop if it's missing.</a>
+<a name="780"><span class="lineNum">     780 </span>            :    */</a>
+<a name="781"><span class="lineNum">     781 </span>            :   ID_FLAG_INDIRECT_WEAK_LINK = 1 &lt;&lt; 11,</a>
+<a name="782"><span class="lineNum">     782 </span>            :   /**</a>
+<a name="783"><span class="lineNum">     783 </span>            :    * The data-block is a sub-data of another one, which is an override.</a>
+<a name="784"><span class="lineNum">     784 </span>            :    * Note that this also applies to shape-keys, even though they are not 100% embedded data.</a>
+<a name="785"><span class="lineNum">     785 </span>            :    */</a>
+<a name="786"><span class="lineNum">     786 </span>            :   ID_FLAG_EMBEDDED_DATA_LIB_OVERRIDE = 1 &lt;&lt; 12,</a>
+<a name="787"><span class="lineNum">     787 </span>            :   /**</a>
+<a name="788"><span class="lineNum">     788 </span>            :    * The override data-block appears to not be needed anymore after resync with linked data, but it</a>
+<a name="789"><span class="lineNum">     789 </span>            :    * was kept around (because e.g. detected as user-edited).</a>
+<a name="790"><span class="lineNum">     790 </span>            :    */</a>
+<a name="791"><span class="lineNum">     791 </span>            :   ID_FLAG_LIB_OVERRIDE_RESYNC_LEFTOVER = 1 &lt;&lt; 13,</a>
+<a name="792"><span class="lineNum">     792 </span>            :   /**</a>
+<a name="793"><span class="lineNum">     793 </span>            :    * This ID was explicitly copied as part of a clipboard copy operation.</a>
+<a name="794"><span class="lineNum">     794 </span>            :    *</a>
+<a name="795"><span class="lineNum">     795 </span>            :    * When reading the clipboard back, this can be used to differentiate between ID's that are</a>
+<a name="796"><span class="lineNum">     796 </span>            :    * intended to be part of the clipboard, and ID's that are only there because they are</a>
+<a name="797"><span class="lineNum">     797 </span>            :    * dependencies of the copied ones.</a>
+<a name="798"><span class="lineNum">     798 </span>            :    *</a>
+<a name="799"><span class="lineNum">     799 </span>            :    * This flag should never be set for 'normal' IDs in the global Main database.</a>
+<a name="800"><span class="lineNum">     800 </span>            :    */</a>
+<a name="801"><span class="lineNum">     801 </span>            :   ID_FLAG_CLIPBOARD_MARK = 1 &lt;&lt; 14,</a>
+<a name="802"><span class="lineNum">     802 </span>            :   /**</a>
+<a name="803"><span class="lineNum">     803 </span>            :    * Indicates that this linked ID is packed into the current .blend file. This should never be set</a>
+<a name="804"><span class="lineNum">     804 </span>            :    * on local ID (without one with a null `ID::lib` pointer).</a>
+<a name="805"><span class="lineNum">     805 </span>            :    */</a>
+<a name="806"><span class="lineNum">     806 </span>            :   ID_FLAG_LINKED_AND_PACKED = short(1u &lt;&lt; 15),</a>
+<a name="807"><span class="lineNum">     807 </span>            : };</a>
+<a name="808"><span class="lineNum">     808 </span><span class="lineCov">    2846235 : ENUM_OPERATORS(eID_Flag)</span></a>
+<a name="809"><span class="lineNum">     809 </span>            : </a>
+<a name="810"><span class="lineNum">     810 </span>            : /**</a>
+<a name="811"><span class="lineNum">     811 </span>            :  * id-&gt;tag (runtime-only).</a>
+<a name="812"><span class="lineNum">     812 </span>            :  *</a>
+<a name="813"><span class="lineNum">     813 </span>            :  * Those tags belong to three different categories, which have different expected handling in</a>
+<a name="814"><span class="lineNum">     814 </span>            :  * code:</a>
+<a name="815"><span class="lineNum">     815 </span>            :  *</a>
+<a name="816"><span class="lineNum">     816 </span>            :  * - RESET_BEFORE_USE: piece of code that wants to use such flag has to ensure they are properly</a>
+<a name="817"><span class="lineNum">     817 </span>            :  *   &quot;reset&quot; first.</a>
+<a name="818"><span class="lineNum">     818 </span>            :  * - RESET_AFTER_USE: piece of code that wants to use such flag has to ensure they are properly</a>
+<a name="819"><span class="lineNum">     819 </span>            :  *   &quot;reset&quot; after usage (though &quot;lifetime&quot; of those flags is a bit fuzzy, e.g. _RECALC ones are</a>
+<a name="820"><span class="lineNum">     820 </span>            :  *   reset on depsgraph evaluation...).</a>
+<a name="821"><span class="lineNum">     821 </span>            :  * - RESET_NEVER: these flags are 'status' ones, and never actually need any reset (except on</a>
+<a name="822"><span class="lineNum">     822 </span>            :  *   initialization during `.blend` file reading).</a>
+<a name="823"><span class="lineNum">     823 </span>            :  *</a>
+<a name="824"><span class="lineNum">     824 </span>            :  * \note These tags are purely runtime, so changing there value is not an issue. When adding new</a>
+<a name="825"><span class="lineNum">     825 </span>            :  * tags, please put them in the relevant category and always keep their values strictly increasing.</a>
+<a name="826"><span class="lineNum">     826 </span>            :  */</a>
+<a name="827"><span class="lineNum">     827 </span>            : enum eID_Tag : int {</a>
+<a name="828"><span class="lineNum">     828 </span>            :   /**</a>
+<a name="829"><span class="lineNum">     829 </span>            :    * Long-life tags giving important info about general ID management.</a>
+<a name="830"><span class="lineNum">     830 </span>            :    *</a>
+<a name="831"><span class="lineNum">     831 </span>            :    * These tags are typically not changed often, if ever, during an ID's life.</a>
+<a name="832"><span class="lineNum">     832 </span>            :    */</a>
+<a name="833"><span class="lineNum">     833 </span>            : </a>
+<a name="834"><span class="lineNum">     834 </span>            :   /**</a>
+<a name="835"><span class="lineNum">     835 </span>            :    * ID is from current .blend file.</a>
+<a name="836"><span class="lineNum">     836 </span>            :    *</a>
+<a name="837"><span class="lineNum">     837 </span>            :    * RESET_NEVER</a>
+<a name="838"><span class="lineNum">     838 </span>            :    */</a>
+<a name="839"><span class="lineNum">     839 </span>            :   ID_TAG_LOCAL = 0,</a>
+<a name="840"><span class="lineNum">     840 </span>            :   /**</a>
+<a name="841"><span class="lineNum">     841 </span>            :    * ID is from a library, but is used (linked) directly by current .blend file.</a>
+<a name="842"><span class="lineNum">     842 </span>            :    *</a>
+<a name="843"><span class="lineNum">     843 </span>            :    * RESET_NEVER</a>
+<a name="844"><span class="lineNum">     844 </span>            :    */</a>
+<a name="845"><span class="lineNum">     845 </span>            :   ID_TAG_EXTERN = 1 &lt;&lt; 0,</a>
+<a name="846"><span class="lineNum">     846 </span>            :   /**</a>
+<a name="847"><span class="lineNum">     847 </span>            :    * ID is from a library, and is only used (linked) indirectly through other libraries.</a>
+<a name="848"><span class="lineNum">     848 </span>            :    *</a>
+<a name="849"><span class="lineNum">     849 </span>            :    * RESET_NEVER</a>
+<a name="850"><span class="lineNum">     850 </span>            :    */</a>
+<a name="851"><span class="lineNum">     851 </span>            :   ID_TAG_INDIRECT = 1 &lt;&lt; 1,</a>
+<a name="852"><span class="lineNum">     852 </span>            : </a>
+<a name="853"><span class="lineNum">     853 </span>            :   /**</a>
+<a name="854"><span class="lineNum">     854 </span>            :    * ID is considered as runtime, and should not be saved when writing .blend file, nor influence</a>
+<a name="855"><span class="lineNum">     855 </span>            :    * (in)direct status of linked data.</a>
+<a name="856"><span class="lineNum">     856 </span>            :    *</a>
+<a name="857"><span class="lineNum">     857 </span>            :    * Only meaningful for IDs belonging to regular Main database, all other cases are implicitly</a>
+<a name="858"><span class="lineNum">     858 </span>            :    * considered runtime-only.</a>
+<a name="859"><span class="lineNum">     859 </span>            :    *</a>
+<a name="860"><span class="lineNum">     860 </span>            :    * RESET_NEVER</a>
+<a name="861"><span class="lineNum">     861 </span>            :    */</a>
+<a name="862"><span class="lineNum">     862 </span>            :   ID_TAG_RUNTIME = 1 &lt;&lt; 2,</a>
+<a name="863"><span class="lineNum">     863 </span>            : </a>
+<a name="864"><span class="lineNum">     864 </span>            :   /**</a>
+<a name="865"><span class="lineNum">     865 </span>            :    * ID is a place-holder, an 'empty shell' (because the real one could not be linked from its</a>
+<a name="866"><span class="lineNum">     866 </span>            :    * library e.g.).</a>
+<a name="867"><span class="lineNum">     867 </span>            :    *</a>
+<a name="868"><span class="lineNum">     868 </span>            :    * RESET_NEVER</a>
+<a name="869"><span class="lineNum">     869 </span>            :    */</a>
+<a name="870"><span class="lineNum">     870 </span>            :   ID_TAG_MISSING = 1 &lt;&lt; 3,</a>
+<a name="871"><span class="lineNum">     871 </span>            : </a>
+<a name="872"><span class="lineNum">     872 </span>            :   /**</a>
+<a name="873"><span class="lineNum">     873 </span>            :    * ID has an extra virtual user (aka 'ensured real', as set by e.g. some editors, not to be</a>
+<a name="874"><span class="lineNum">     874 </span>            :    * confused with the `ID_FLAG_FAKEUSER` flag).</a>
+<a name="875"><span class="lineNum">     875 </span>            :    *</a>
+<a name="876"><span class="lineNum">     876 </span>            :    * RESET_NEVER</a>
+<a name="877"><span class="lineNum">     877 </span>            :    *</a>
+<a name="878"><span class="lineNum">     878 </span>            :    * \note This tag does not necessarily mean the actual user count of the ID is increased, this is</a>
+<a name="879"><span class="lineNum">     879 </span>            :    * defined by #ID_TAG_EXTRAUSER_SET.</a>
+<a name="880"><span class="lineNum">     880 </span>            :    */</a>
+<a name="881"><span class="lineNum">     881 </span>            :   ID_TAG_EXTRAUSER = 1 &lt;&lt; 4,</a>
+<a name="882"><span class="lineNum">     882 </span>            :   /**</a>
+<a name="883"><span class="lineNum">     883 </span>            :    * ID actually has increased user-count for the extra virtual user.</a>
+<a name="884"><span class="lineNum">     884 </span>            :    *</a>
+<a name="885"><span class="lineNum">     885 </span>            :    * RESET_NEVER</a>
+<a name="886"><span class="lineNum">     886 </span>            :    */</a>
+<a name="887"><span class="lineNum">     887 </span>            :   ID_TAG_EXTRAUSER_SET = 1 &lt;&lt; 5,</a>
+<a name="888"><span class="lineNum">     888 </span>            : </a>
+<a name="889"><span class="lineNum">     889 </span>            :   /**</a>
+<a name="890"><span class="lineNum">     890 </span>            :    * ID is up-to-date regarding its reference (only for library overrides).</a>
+<a name="891"><span class="lineNum">     891 </span>            :    *</a>
+<a name="892"><span class="lineNum">     892 </span>            :    * RESET_NEVER</a>
+<a name="893"><span class="lineNum">     893 </span>            :    */</a>
+<a name="894"><span class="lineNum">     894 </span>            :   ID_TAG_LIBOVERRIDE_REFOK = 1 &lt;&lt; 6,</a>
+<a name="895"><span class="lineNum">     895 </span>            :   /**</a>
+<a name="896"><span class="lineNum">     896 </span>            :    * ID needs an auto-diffing execution, if enabled (only for library overrides).</a>
+<a name="897"><span class="lineNum">     897 </span>            :    *</a>
+<a name="898"><span class="lineNum">     898 </span>            :    * RESET_NEVER</a>
+<a name="899"><span class="lineNum">     899 </span>            :    */</a>
+<a name="900"><span class="lineNum">     900 </span>            :   ID_TAG_LIBOVERRIDE_AUTOREFRESH = 1 &lt;&lt; 7,</a>
+<a name="901"><span class="lineNum">     901 </span>            :   /**</a>
+<a name="902"><span class="lineNum">     902 </span>            :    * ID is a library override that needs re-sync to its linked reference.</a>
+<a name="903"><span class="lineNum">     903 </span>            :    *</a>
+<a name="904"><span class="lineNum">     904 </span>            :    * \note Also used by readfile code when creating a missing ID placeholder if it is detected as</a>
+<a name="905"><span class="lineNum">     905 </span>            :    * being a linked liboverride ID.</a>
+<a name="906"><span class="lineNum">     906 </span>            :    *</a>
+<a name="907"><span class="lineNum">     907 </span>            :    * RESET_NEVER</a>
+<a name="908"><span class="lineNum">     908 </span>            :    */</a>
+<a name="909"><span class="lineNum">     909 </span>            :   ID_TAG_LIBOVERRIDE_NEED_RESYNC = 1 &lt;&lt; 8,</a>
+<a name="910"><span class="lineNum">     910 </span>            : </a>
+<a name="911"><span class="lineNum">     911 </span>            :   /**</a>
+<a name="912"><span class="lineNum">     912 </span>            :    * Short-life tags used during specific processes, like blend-file reading.</a>
+<a name="913"><span class="lineNum">     913 </span>            :    */</a>
+<a name="914"><span class="lineNum">     914 </span>            : </a>
+<a name="915"><span class="lineNum">     915 </span>            :   /**</a>
+<a name="916"><span class="lineNum">     916 </span>            :    * ID is newly duplicated/copied (see #ID_NEW_SET macro above).</a>
+<a name="917"><span class="lineNum">     917 </span>            :    *</a>
+<a name="918"><span class="lineNum">     918 </span>            :    * RESET_AFTER_USE</a>
+<a name="919"><span class="lineNum">     919 </span>            :    *</a>
+<a name="920"><span class="lineNum">     920 </span>            :    * \note Also used internally in `readfile.cc` to mark data-blocks needing do_versions.</a>
+<a name="921"><span class="lineNum">     921 </span>            :    */</a>
+<a name="922"><span class="lineNum">     922 </span>            :   ID_TAG_NEW = 1 &lt;&lt; 12,</a>
+<a name="923"><span class="lineNum">     923 </span>            :   /**</a>
+<a name="924"><span class="lineNum">     924 </span>            :    * ID is already existing. Set before linking, to distinguish between existing data-blocks and</a>
+<a name="925"><span class="lineNum">     925 </span>            :    * newly linked ones.</a>
+<a name="926"><span class="lineNum">     926 </span>            :    *</a>
+<a name="927"><span class="lineNum">     927 </span>            :    * RESET_AFTER_USE</a>
+<a name="928"><span class="lineNum">     928 </span>            :    */</a>
+<a name="929"><span class="lineNum">     929 </span>            :   ID_TAG_PRE_EXISTING = 1 &lt;&lt; 13,</a>
+<a name="930"><span class="lineNum">     930 </span>            : </a>
+<a name="931"><span class="lineNum">     931 </span>            :   /**</a>
+<a name="932"><span class="lineNum">     932 </span>            :    * ID is being re-used from the old Main (instead of read from memfile), during memfile undo</a>
+<a name="933"><span class="lineNum">     933 </span>            :    * processing, because it was detected as unchanged.</a>
+<a name="934"><span class="lineNum">     934 </span>            :    *</a>
+<a name="935"><span class="lineNum">     935 </span>            :    * \note Also means that such ID does not need to be lib-linked during undo readfile process.</a>
+<a name="936"><span class="lineNum">     936 </span>            :    *</a>
+<a name="937"><span class="lineNum">     937 </span>            :    * RESET_AFTER_USE</a>
+<a name="938"><span class="lineNum">     938 </span>            :    */</a>
+<a name="939"><span class="lineNum">     939 </span>            :   ID_TAG_UNDO_OLD_ID_REUSED_UNCHANGED = 1 &lt;&lt; 17,</a>
+<a name="940"><span class="lineNum">     940 </span>            :   /**</a>
+<a name="941"><span class="lineNum">     941 </span>            :    * ID is being re-used from the old Main (instead of read from memfile), during memfile undo</a>
+<a name="942"><span class="lineNum">     942 </span>            :    * processing, because it is a 'NO_UNDO' type of ID.</a>
+<a name="943"><span class="lineNum">     943 </span>            :    *</a>
+<a name="944"><span class="lineNum">     944 </span>            :    * \note Also means that such ID does not need to be lib-linked during undo readfile process. It</a>
+<a name="945"><span class="lineNum">     945 </span>            :    * does need to be relinked in a different way however, doing a `session_uid`-based lookup into</a>
+<a name="946"><span class="lineNum">     946 </span>            :    * the newly read main database.</a>
+<a name="947"><span class="lineNum">     947 </span>            :    *</a>
+<a name="948"><span class="lineNum">     948 </span>            :    * RESET_AFTER_USE</a>
+<a name="949"><span class="lineNum">     949 </span>            :    */</a>
+<a name="950"><span class="lineNum">     950 </span>            :   ID_TAG_UNDO_OLD_ID_REUSED_NOUNDO = 1 &lt;&lt; 18,</a>
+<a name="951"><span class="lineNum">     951 </span>            :   /**</a>
+<a name="952"><span class="lineNum">     952 </span>            :    * ID has be re-read in-place, the ID address is the same as in the old main, but the content is</a>
+<a name="953"><span class="lineNum">     953 </span>            :    * different.</a>
+<a name="954"><span class="lineNum">     954 </span>            :    *</a>
+<a name="955"><span class="lineNum">     955 </span>            :    * RESET_AFTER_USE</a>
+<a name="956"><span class="lineNum">     956 </span>            :    */</a>
+<a name="957"><span class="lineNum">     957 </span>            :   ID_TAG_UNDO_OLD_ID_REREAD_IN_PLACE = 1 &lt;&lt; 19,</a>
+<a name="958"><span class="lineNum">     958 </span>            : </a>
+<a name="959"><span class="lineNum">     959 </span>            :   /* ------------------------------------------------------------------------------------------- */</a>
+<a name="960"><span class="lineNum">     960 </span>            :   /**</a>
+<a name="961"><span class="lineNum">     961 </span>            :    * Tags for special kind of IDs, not living in regular BMain data-base.</a>
+<a name="962"><span class="lineNum">     962 </span>            :    *</a>
+<a name="963"><span class="lineNum">     963 </span>            :    * IDs with such tags have typically a short life.</a>
+<a name="964"><span class="lineNum">     964 </span>            :    */</a>
+<a name="965"><span class="lineNum">     965 </span>            : </a>
+<a name="966"><span class="lineNum">     966 </span>            :   /**</a>
+<a name="967"><span class="lineNum">     967 </span>            :    * ID is part of a temporary #Main which is expected to be freed in a short time-frame.</a>
+<a name="968"><span class="lineNum">     968 </span>            :    *</a>
+<a name="969"><span class="lineNum">     969 </span>            :    * RESET_NEVER</a>
+<a name="970"><span class="lineNum">     970 </span>            :    *</a>
+<a name="971"><span class="lineNum">     971 </span>            :    * Don't allow assigning this to non-temporary members (since it's likely to cause errors).</a>
+<a name="972"><span class="lineNum">     972 </span>            :    * When set #ID.session_uid isn't initialized, since the data isn't part of the session.</a>
+<a name="973"><span class="lineNum">     973 </span>            :    */</a>
+<a name="974"><span class="lineNum">     974 </span>            :   ID_TAG_TEMP_MAIN = 1 &lt;&lt; 20,</a>
+<a name="975"><span class="lineNum">     975 </span>            :   /** General ID management info, for freeing or copying behavior e.g. */</a>
+<a name="976"><span class="lineNum">     976 </span>            :   /**</a>
+<a name="977"><span class="lineNum">     977 </span>            :    * ID is not listed/stored in any #Main database.</a>
+<a name="978"><span class="lineNum">     978 </span>            :    *</a>
+<a name="979"><span class="lineNum">     979 </span>            :    * RESET_NEVER</a>
+<a name="980"><span class="lineNum">     980 </span>            :    */</a>
+<a name="981"><span class="lineNum">     981 </span>            :   ID_TAG_NO_MAIN = 1 &lt;&lt; 21,</a>
+<a name="982"><span class="lineNum">     982 </span>            :   /**</a>
+<a name="983"><span class="lineNum">     983 </span>            :    * ID is fully outside of any ID management area, and should be considered as a purely</a>
+<a name="984"><span class="lineNum">     984 </span>            :    * independent data.</a>
+<a name="985"><span class="lineNum">     985 </span>            :    *</a>
+<a name="986"><span class="lineNum">     986 </span>            :    * RESET_NEVER</a>
+<a name="987"><span class="lineNum">     987 </span>            :    *</a>
+<a name="988"><span class="lineNum">     988 </span>            :    * \note Only used by node-trees currently.</a>
+<a name="989"><span class="lineNum">     989 </span>            :    */</a>
+<a name="990"><span class="lineNum">     990 </span>            :   ID_TAG_LOCALIZED = 1 &lt;&lt; 22,</a>
+<a name="991"><span class="lineNum">     991 </span>            :   /**</a>
+<a name="992"><span class="lineNum">     992 </span>            :    * ID is an evaluated/localized version.</a>
+<a name="993"><span class="lineNum">     993 </span>            :    *</a>
+<a name="994"><span class="lineNum">     994 </span>            :    * RESET_NEVER</a>
+<a name="995"><span class="lineNum">     995 </span>            :    *</a>
+<a name="996"><span class="lineNum">     996 </span>            :    * \warning This should not be cleared on existing data.</a>
+<a name="997"><span class="lineNum">     997 </span>            :    * If support for this is needed, see #88026 as this flag controls memory ownership</a>
+<a name="998"><span class="lineNum">     998 </span>            :    * of physics *shared* pointers.</a>
+<a name="999"><span class="lineNum">     999 </span>            :    */</a>
+<a name="1000"><span class="lineNum">    1000 </span>            :   ID_TAG_COPIED_ON_EVAL = 1 &lt;&lt; 23,</a>
+<a name="1001"><span class="lineNum">    1001 </span>            : </a>
+<a name="1002"><span class="lineNum">    1002 </span>            :   /**</a>
+<a name="1003"><span class="lineNum">    1003 </span>            :    * ID management status tags related to non-standard BMain IDs.</a>
+<a name="1004"><span class="lineNum">    1004 </span>            :    */</a>
+<a name="1005"><span class="lineNum">    1005 </span>            : </a>
+<a name="1006"><span class="lineNum">    1006 </span>            :   /**</a>
+<a name="1007"><span class="lineNum">    1007 </span>            :    * Datablock does not refcount usages of other IDs.</a>
+<a name="1008"><span class="lineNum">    1008 </span>            :    *</a>
+<a name="1009"><span class="lineNum">    1009 </span>            :    * RESET_NEVER</a>
+<a name="1010"><span class="lineNum">    1010 </span>            :    */</a>
+<a name="1011"><span class="lineNum">    1011 </span>            :   ID_TAG_NO_USER_REFCOUNT = 1 &lt;&lt; 25,</a>
+<a name="1012"><span class="lineNum">    1012 </span>            :   /**</a>
+<a name="1013"><span class="lineNum">    1013 </span>            :    * ID was not allocated by standard system (BKE_libblock_alloc), do not free its memory</a>
+<a name="1014"><span class="lineNum">    1014 </span>            :    * (usual type-specific freeing is called though).</a>
+<a name="1015"><span class="lineNum">    1015 </span>            :    *</a>
+<a name="1016"><span class="lineNum">    1016 </span>            :    * RESET_NEVER</a>
+<a name="1017"><span class="lineNum">    1017 </span>            :    */</a>
+<a name="1018"><span class="lineNum">    1018 </span>            :   ID_TAG_NOT_ALLOCATED = 1 &lt;&lt; 26,</a>
+<a name="1019"><span class="lineNum">    1019 </span>            : </a>
+<a name="1020"><span class="lineNum">    1020 </span>            :   /* ------------------------------------------------------------------------------------------- */</a>
+<a name="1021"><span class="lineNum">    1021 </span>            : </a>
+<a name="1022"><span class="lineNum">    1022 </span>            :   /**</a>
+<a name="1023"><span class="lineNum">    1023 </span>            :    * Free to use tag, often used in BKE code to mark IDs to be processed.</a>
+<a name="1024"><span class="lineNum">    1024 </span>            :    *</a>
+<a name="1025"><span class="lineNum">    1025 </span>            :    * RESET_BEFORE_USE</a>
+<a name="1026"><span class="lineNum">    1026 </span>            :    *</a>
+<a name="1027"><span class="lineNum">    1027 </span>            :    * \todo Make it a RESET_AFTER_USE too.</a>
+<a name="1028"><span class="lineNum">    1028 </span>            :    */</a>
+<a name="1029"><span class="lineNum">    1029 </span>            :   ID_TAG_DOIT = int(1u &lt;&lt; 31),</a>
+<a name="1030"><span class="lineNum">    1030 </span>            : };</a>
+<a name="1031"><span class="lineNum">    1031 </span><span class="lineCov">   22708134 : ENUM_OPERATORS(eID_Tag)</span></a>
+<a name="1032"><span class="lineNum">    1032 </span>            : </a>
+<a name="1033"><span class="lineNum">    1033 </span>            : /**</a>
+<a name="1034"><span class="lineNum">    1034 </span>            :  * Most of ID tags are cleared on file write (i.e. also when storing undo steps), since they</a>
+<a name="1035"><span class="lineNum">    1035 </span>            :  * either have of very short lifetime (not expected to exist across undo steps), or are info that</a>
+<a name="1036"><span class="lineNum">    1036 </span>            :  * will be re-generated when reading undo steps.</a>
+<a name="1037"><span class="lineNum">    1037 </span>            :  *</a>
+<a name="1038"><span class="lineNum">    1038 </span>            :  * Linked/local tags also need to be preserved, since the addition of more complex 'linked data'</a>
+<a name="1039"><span class="lineNum">    1039 </span>            :  * modes &amp; handlings (e.g. packed linked data are handled like local IDs when it comes to</a>
+<a name="1040"><span class="lineNum">    1040 </span>            :  * read/write of blend-files).</a>
+<a name="1041"><span class="lineNum">    1041 </span>            :  *</a>
+<a name="1042"><span class="lineNum">    1042 </span>            :  * However a few of these need to be explicitly preserved across undo steps.</a>
+<a name="1043"><span class="lineNum">    1043 </span>            :  */</a>
+<a name="1044"><span class="lineNum">    1044 </span>            : #define ID_TAG_KEEP_ON_UNDO \</a>
+<a name="1045"><span class="lineNum">    1045 </span>            :   (ID_TAG_EXTRAUSER | ID_TAG_MISSING | ID_TAG_RUNTIME | ID_TAG_LOCAL | ID_TAG_EXTERN | \</a>
+<a name="1046"><span class="lineNum">    1046 </span>            :    ID_TAG_INDIRECT)</a>
+<a name="1047"><span class="lineNum">    1047 </span>            : </a>
+<a name="1048"><span class="lineNum">    1048 </span>            : /* Tag given ID for an update in all the dependency graphs. */</a>
+<a name="1049"><span class="lineNum">    1049 </span>            : enum IDRecalcFlag {</a>
+<a name="1050"><span class="lineNum">    1050 </span>            :   /***************************************************************************</a>
+<a name="1051"><span class="lineNum">    1051 </span>            :    * Individual update tags, this is what ID gets tagged for update with. */</a>
+<a name="1052"><span class="lineNum">    1052 </span>            : </a>
+<a name="1053"><span class="lineNum">    1053 </span>            :   /* ** Object transformation changed. ** */</a>
+<a name="1054"><span class="lineNum">    1054 </span>            :   ID_RECALC_TRANSFORM = (1 &lt;&lt; 0),</a>
+<a name="1055"><span class="lineNum">    1055 </span>            : </a>
+<a name="1056"><span class="lineNum">    1056 </span>            :   /* ** Geometry changed. **</a>
+<a name="1057"><span class="lineNum">    1057 </span>            :    *</a>
+<a name="1058"><span class="lineNum">    1058 </span>            :    * When object of armature type gets tagged with this flag, its pose is</a>
+<a name="1059"><span class="lineNum">    1059 </span>            :    * re-evaluated.</a>
+<a name="1060"><span class="lineNum">    1060 </span>            :    *</a>
+<a name="1061"><span class="lineNum">    1061 </span>            :    * When object of other type is tagged with this flag it makes the modifier</a>
+<a name="1062"><span class="lineNum">    1062 </span>            :    * stack to be re-evaluated.</a>
+<a name="1063"><span class="lineNum">    1063 </span>            :    *</a>
+<a name="1064"><span class="lineNum">    1064 </span>            :    * When object data type (mesh, curve, ...) gets tagged with this flag it</a>
+<a name="1065"><span class="lineNum">    1065 </span>            :    * makes all objects which shares this data-block to be updated.</a>
+<a name="1066"><span class="lineNum">    1066 </span>            :    *</a>
+<a name="1067"><span class="lineNum">    1067 </span>            :    * Note that the evaluation depends on the object-mode.</a>
+<a name="1068"><span class="lineNum">    1068 </span>            :    * So edit-mesh data for example only reevaluate with the updated edit-mesh.</a>
+<a name="1069"><span class="lineNum">    1069 </span>            :    * When geometry in the original ID has been modified #ID_RECALC_GEOMETRY_ALL_MODES</a>
+<a name="1070"><span class="lineNum">    1070 </span>            :    * must be used instead.</a>
+<a name="1071"><span class="lineNum">    1071 </span>            :    *</a>
+<a name="1072"><span class="lineNum">    1072 </span>            :    * When a collection gets tagged with this flag, all objects depending on the geometry and</a>
+<a name="1073"><span class="lineNum">    1073 </span>            :    * transforms on any of the objects in the collection are updated. */</a>
+<a name="1074"><span class="lineNum">    1074 </span>            :   ID_RECALC_GEOMETRY = (1 &lt;&lt; 1),</a>
+<a name="1075"><span class="lineNum">    1075 </span>            : </a>
+<a name="1076"><span class="lineNum">    1076 </span>            :   /* ** Animation or time changed and animation is to be re-evaluated. ** */</a>
+<a name="1077"><span class="lineNum">    1077 </span>            :   ID_RECALC_ANIMATION = (1 &lt;&lt; 2),</a>
+<a name="1078"><span class="lineNum">    1078 </span>            : </a>
+<a name="1079"><span class="lineNum">    1079 </span>            :   /* ** Particle system changed. ** */</a>
+<a name="1080"><span class="lineNum">    1080 </span>            :   /* Only do path-cache etc. */</a>
+<a name="1081"><span class="lineNum">    1081 </span>            :   ID_RECALC_PSYS_REDO = (1 &lt;&lt; 3),</a>
+<a name="1082"><span class="lineNum">    1082 </span>            :   /* Reset everything including point-cache. */</a>
+<a name="1083"><span class="lineNum">    1083 </span>            :   ID_RECALC_PSYS_RESET = (1 &lt;&lt; 4),</a>
+<a name="1084"><span class="lineNum">    1084 </span>            :   /* Only child settings changed. */</a>
+<a name="1085"><span class="lineNum">    1085 </span>            :   ID_RECALC_PSYS_CHILD = (1 &lt;&lt; 5),</a>
+<a name="1086"><span class="lineNum">    1086 </span>            :   /* Physics type changed. */</a>
+<a name="1087"><span class="lineNum">    1087 </span>            :   ID_RECALC_PSYS_PHYS = (1 &lt;&lt; 6),</a>
+<a name="1088"><span class="lineNum">    1088 </span>            : </a>
+<a name="1089"><span class="lineNum">    1089 </span>            :   /* ** Material and shading ** */</a>
+<a name="1090"><span class="lineNum">    1090 </span>            : </a>
+<a name="1091"><span class="lineNum">    1091 </span>            :   /* For materials and node trees this means that topology of the shader tree</a>
+<a name="1092"><span class="lineNum">    1092 </span>            :    * changed, and the shader is to be recompiled.</a>
+<a name="1093"><span class="lineNum">    1093 </span>            :    * For objects it means that the draw batch cache is to be redone. */</a>
+<a name="1094"><span class="lineNum">    1094 </span>            :   ID_RECALC_SHADING = (1 &lt;&lt; 7),</a>
+<a name="1095"><span class="lineNum">    1095 </span>            :   /* TODO(sergey): Consider adding an explicit ID_RECALC_SHADING_PARAMETERS</a>
+<a name="1096"><span class="lineNum">    1096 </span>            :    * which can be used for cases when only socket value changed, to speed up</a>
+<a name="1097"><span class="lineNum">    1097 </span>            :    * redraw update in that case. */</a>
+<a name="1098"><span class="lineNum">    1098 </span>            : </a>
+<a name="1099"><span class="lineNum">    1099 </span>            :   /* Selection of the ID itself or its components (for example, vertices) did</a>
+<a name="1100"><span class="lineNum">    1100 </span>            :    * change, and all the drawing data is to be updated. */</a>
+<a name="1101"><span class="lineNum">    1101 </span>            :   ID_RECALC_SELECT = (1 &lt;&lt; 9),</a>
+<a name="1102"><span class="lineNum">    1102 </span>            :   /* Flags on the base did change, and is to be copied onto all the copies of</a>
+<a name="1103"><span class="lineNum">    1103 </span>            :    * corresponding objects. */</a>
+<a name="1104"><span class="lineNum">    1104 </span>            :   ID_RECALC_BASE_FLAGS = (1 &lt;&lt; 10),</a>
+<a name="1105"><span class="lineNum">    1105 </span>            :   ID_RECALC_POINT_CACHE = (1 &lt;&lt; 11),</a>
+<a name="1106"><span class="lineNum">    1106 </span>            :   /* Only inform editors about the change. Is used to force update of editors</a>
+<a name="1107"><span class="lineNum">    1107 </span>            :    * when data-block which is not a part of dependency graph did change.</a>
+<a name="1108"><span class="lineNum">    1108 </span>            :    *</a>
+<a name="1109"><span class="lineNum">    1109 </span>            :    * For example, brush texture did change and the preview is to be</a>
+<a name="1110"><span class="lineNum">    1110 </span>            :    * re-rendered. */</a>
+<a name="1111"><span class="lineNum">    1111 </span>            :   ID_RECALC_EDITORS = (1 &lt;&lt; 12),</a>
+<a name="1112"><span class="lineNum">    1112 </span>            : </a>
+<a name="1113"><span class="lineNum">    1113 </span>            :   /* ** Update evaluated copy component. **</a>
+<a name="1114"><span class="lineNum">    1114 </span>            :    *</a>
+<a name="1115"><span class="lineNum">    1115 </span>            :    * This is most generic tag which should only be used when nothing else matches.</a>
+<a name="1116"><span class="lineNum">    1116 </span>            :    * It is not to explicitly mixed in with other recalculation flags.</a>
+<a name="1117"><span class="lineNum">    1117 </span>            :    */</a>
+<a name="1118"><span class="lineNum">    1118 </span>            :   ID_RECALC_SYNC_TO_EVAL = (1 &lt;&lt; 13),</a>
+<a name="1119"><span class="lineNum">    1119 </span>            : </a>
+<a name="1120"><span class="lineNum">    1120 </span>            :   /* Strips in the sequencer changed.</a>
+<a name="1121"><span class="lineNum">    1121 </span>            :    * Use this tag with a scene ID which owns the strips. */</a>
+<a name="1122"><span class="lineNum">    1122 </span>            :   ID_RECALC_SEQUENCER_STRIPS = (1 &lt;&lt; 14),</a>
+<a name="1123"><span class="lineNum">    1123 </span>            : </a>
+<a name="1124"><span class="lineNum">    1124 </span>            :   /* Runs on frame-change (used for seeking audio too). */</a>
+<a name="1125"><span class="lineNum">    1125 </span>            :   ID_RECALC_FRAME_CHANGE = (1 &lt;&lt; 15),</a>
+<a name="1126"><span class="lineNum">    1126 </span>            : </a>
+<a name="1127"><span class="lineNum">    1127 </span>            :   ID_RECALC_AUDIO_FPS = (1 &lt;&lt; 16),</a>
+<a name="1128"><span class="lineNum">    1128 </span>            :   ID_RECALC_AUDIO_VOLUME = (1 &lt;&lt; 17),</a>
+<a name="1129"><span class="lineNum">    1129 </span>            :   ID_RECALC_AUDIO_MUTE = (1 &lt;&lt; 18),</a>
+<a name="1130"><span class="lineNum">    1130 </span>            :   ID_RECALC_AUDIO_LISTENER = (1 &lt;&lt; 19),</a>
+<a name="1131"><span class="lineNum">    1131 </span>            : </a>
+<a name="1132"><span class="lineNum">    1132 </span>            :   ID_RECALC_AUDIO = (1 &lt;&lt; 20),</a>
+<a name="1133"><span class="lineNum">    1133 </span>            : </a>
+<a name="1134"><span class="lineNum">    1134 </span>            :   /* NOTE: This triggers copy-on-eval for types that require it.</a>
+<a name="1135"><span class="lineNum">    1135 </span>            :    * Exceptions to this can be added using #ID_TYPE_SUPPORTS_PARAMS_WITHOUT_COW,</a>
+<a name="1136"><span class="lineNum">    1136 </span>            :    * this has the advantage that large arrays stored in the idea data don't</a>
+<a name="1137"><span class="lineNum">    1137 </span>            :    * have to be copied on every update. */</a>
+<a name="1138"><span class="lineNum">    1138 </span>            :   ID_RECALC_PARAMETERS = (1 &lt;&lt; 21),</a>
+<a name="1139"><span class="lineNum">    1139 </span>            : </a>
+<a name="1140"><span class="lineNum">    1140 </span>            :   /* Input has changed and data-block is to be reload from disk.</a>
+<a name="1141"><span class="lineNum">    1141 </span>            :    * Applies to movie clips to inform that copy-on-written version is to be refreshed for the new</a>
+<a name="1142"><span class="lineNum">    1142 </span>            :    * input file or for color space changes. */</a>
+<a name="1143"><span class="lineNum">    1143 </span>            :   ID_RECALC_SOURCE = (1 &lt;&lt; 23),</a>
+<a name="1144"><span class="lineNum">    1144 </span>            : </a>
+<a name="1145"><span class="lineNum">    1145 </span>            :   /* Virtual recalc tag/marker required for undo in some cases, where actual data does not change</a>
+<a name="1146"><span class="lineNum">    1146 </span>            :    * and hence do not require an update, but conceptually we are dealing with something new.</a>
+<a name="1147"><span class="lineNum">    1147 </span>            :    *</a>
+<a name="1148"><span class="lineNum">    1148 </span>            :    * Current known case: linked IDs made local without requiring any copy. While their users do not</a>
+<a name="1149"><span class="lineNum">    1149 </span>            :    * require any update, they have actually been 'virtually' remapped from the linked ID to the</a>
+<a name="1150"><span class="lineNum">    1150 </span>            :    * local one.</a>
+<a name="1151"><span class="lineNum">    1151 </span>            :    */</a>
+<a name="1152"><span class="lineNum">    1152 </span>            :   ID_RECALC_TAG_FOR_UNDO = (1 &lt;&lt; 24),</a>
+<a name="1153"><span class="lineNum">    1153 </span>            : </a>
+<a name="1154"><span class="lineNum">    1154 </span>            :   /* The node tree has changed in a way that affects its output nodes. */</a>
+<a name="1155"><span class="lineNum">    1155 </span>            :   ID_RECALC_NTREE_OUTPUT = (1 &lt;&lt; 25),</a>
+<a name="1156"><span class="lineNum">    1156 </span>            : </a>
+<a name="1157"><span class="lineNum">    1157 </span>            :   /* Hierarchy of collection and object within collection changed. */</a>
+<a name="1158"><span class="lineNum">    1158 </span>            :   ID_RECALC_HIERARCHY = (1 &lt;&lt; 26),</a>
+<a name="1159"><span class="lineNum">    1159 </span>            : </a>
+<a name="1160"><span class="lineNum">    1160 </span>            :   /* The scene has changed in a way that affects the compositor. */</a>
+<a name="1161"><span class="lineNum">    1161 </span>            :   ID_RECALC_COMPOSITOR = (1 &lt;&lt; 27),</a>
+<a name="1162"><span class="lineNum">    1162 </span>            : </a>
+<a name="1163"><span class="lineNum">    1163 </span>            :   /* Provisioned flags.</a>
+<a name="1164"><span class="lineNum">    1164 </span>            :    *</a>
+<a name="1165"><span class="lineNum">    1165 </span>            :    * Not for actual use. The idea of them is to have all bits of the `IDRecalcFlag` defined to a</a>
+<a name="1166"><span class="lineNum">    1166 </span>            :    * known value, silencing sanitizer warnings when checking bits of the ID_RECALC_ALL. */</a>
+<a name="1167"><span class="lineNum">    1167 </span>            :   ID_RECALC_PROVISION_28 = (1 &lt;&lt; 28),</a>
+<a name="1168"><span class="lineNum">    1168 </span>            :   ID_RECALC_PROVISION_29 = (1 &lt;&lt; 29),</a>
+<a name="1169"><span class="lineNum">    1169 </span>            :   ID_RECALC_PROVISION_30 = (1 &lt;&lt; 30),</a>
+<a name="1170"><span class="lineNum">    1170 </span>            :   ID_RECALC_PROVISION_31 = (1u &lt;&lt; 31),</a>
+<a name="1171"><span class="lineNum">    1171 </span>            : </a>
+<a name="1172"><span class="lineNum">    1172 </span>            :   /***************************************************************************</a>
+<a name="1173"><span class="lineNum">    1173 </span>            :    * Pseudonyms, to have more semantic meaning in the actual code without</a>
+<a name="1174"><span class="lineNum">    1174 </span>            :    * using too much low-level and implementation specific tags. */</a>
+<a name="1175"><span class="lineNum">    1175 </span>            : </a>
+<a name="1176"><span class="lineNum">    1176 </span>            :   /* Update animation data-block itself, without doing full re-evaluation of</a>
+<a name="1177"><span class="lineNum">    1177 </span>            :    * all dependent objects. */</a>
+<a name="1178"><span class="lineNum">    1178 </span>            :   ID_RECALC_ANIMATION_NO_FLUSH = ID_RECALC_SYNC_TO_EVAL,</a>
+<a name="1179"><span class="lineNum">    1179 </span>            : </a>
+<a name="1180"><span class="lineNum">    1180 </span>            :   /* Ensure geometry of object and edit modes are both up-to-date in the evaluated data-block.</a>
+<a name="1181"><span class="lineNum">    1181 </span>            :    * Example usage is when mesh validation modifies the non-edit-mode data,</a>
+<a name="1182"><span class="lineNum">    1182 </span>            :    * which we want to be copied over to the evaluated data-block. */</a>
+<a name="1183"><span class="lineNum">    1183 </span>            :   ID_RECALC_GEOMETRY_ALL_MODES = ID_RECALC_GEOMETRY | ID_RECALC_SYNC_TO_EVAL,</a>
+<a name="1184"><span class="lineNum">    1184 </span>            : </a>
+<a name="1185"><span class="lineNum">    1185 </span>            :   /***************************************************************************</a>
+<a name="1186"><span class="lineNum">    1186 </span>            :    * Aggregate flags, use only for checks on runtime.</a>
+<a name="1187"><span class="lineNum">    1187 </span>            :    * Do NOT use those for tagging. */</a>
+<a name="1188"><span class="lineNum">    1188 </span>            : </a>
+<a name="1189"><span class="lineNum">    1189 </span>            :   /* Identifies that SOMETHING has been changed in this ID. */</a>
+<a name="1190"><span class="lineNum">    1190 </span>            :   ID_RECALC_ALL = (0xffffffff),</a>
+<a name="1191"><span class="lineNum">    1191 </span>            : </a>
+<a name="1192"><span class="lineNum">    1192 </span>            :   /* Identifies that something in particle system did change. */</a>
+<a name="1193"><span class="lineNum">    1193 </span>            :   ID_RECALC_PSYS_ALL = (ID_RECALC_PSYS_REDO | ID_RECALC_PSYS_RESET | ID_RECALC_PSYS_CHILD |</a>
+<a name="1194"><span class="lineNum">    1194 </span>            :                         ID_RECALC_PSYS_PHYS),</a>
+<a name="1195"><span class="lineNum">    1195 </span>            : </a>
+<a name="1196"><span class="lineNum">    1196 </span>            : };</a>
+<a name="1197"><span class="lineNum">    1197 </span>            : </a>
+<a name="1198"><span class="lineNum">    1198 </span>            : /* To filter ID types (filter_id). 64 bit to fit all types. */</a>
+<a name="1199"><span class="lineNum">    1199 </span>            : #define FILTER_ID_AC (1ULL &lt;&lt; 0)</a>
+<a name="1200"><span class="lineNum">    1200 </span>            : #define FILTER_ID_AR (1ULL &lt;&lt; 1)</a>
+<a name="1201"><span class="lineNum">    1201 </span>            : #define FILTER_ID_BR (1ULL &lt;&lt; 2)</a>
+<a name="1202"><span class="lineNum">    1202 </span>            : #define FILTER_ID_CA (1ULL &lt;&lt; 3)</a>
+<a name="1203"><span class="lineNum">    1203 </span>            : #define FILTER_ID_CU_LEGACY (1ULL &lt;&lt; 4)</a>
+<a name="1204"><span class="lineNum">    1204 </span>            : #define FILTER_ID_GD_LEGACY (1ULL &lt;&lt; 5)</a>
+<a name="1205"><span class="lineNum">    1205 </span>            : #define FILTER_ID_GR (1ULL &lt;&lt; 6)</a>
+<a name="1206"><span class="lineNum">    1206 </span>            : #define FILTER_ID_IM (1ULL &lt;&lt; 7)</a>
+<a name="1207"><span class="lineNum">    1207 </span>            : #define FILTER_ID_LA (1ULL &lt;&lt; 8)</a>
+<a name="1208"><span class="lineNum">    1208 </span>            : #define FILTER_ID_LS (1ULL &lt;&lt; 9)</a>
+<a name="1209"><span class="lineNum">    1209 </span>            : #define FILTER_ID_LT (1ULL &lt;&lt; 10)</a>
+<a name="1210"><span class="lineNum">    1210 </span>            : #define FILTER_ID_MA (1ULL &lt;&lt; 11)</a>
+<a name="1211"><span class="lineNum">    1211 </span>            : #define FILTER_ID_MB (1ULL &lt;&lt; 12)</a>
+<a name="1212"><span class="lineNum">    1212 </span>            : #define FILTER_ID_MC (1ULL &lt;&lt; 13)</a>
+<a name="1213"><span class="lineNum">    1213 </span>            : #define FILTER_ID_ME (1ULL &lt;&lt; 14)</a>
+<a name="1214"><span class="lineNum">    1214 </span>            : #define FILTER_ID_MSK (1ULL &lt;&lt; 15)</a>
+<a name="1215"><span class="lineNum">    1215 </span>            : #define FILTER_ID_NT (1ULL &lt;&lt; 16)</a>
+<a name="1216"><span class="lineNum">    1216 </span>            : #define FILTER_ID_OB (1ULL &lt;&lt; 17)</a>
+<a name="1217"><span class="lineNum">    1217 </span>            : #define FILTER_ID_PAL (1ULL &lt;&lt; 18)</a>
+<a name="1218"><span class="lineNum">    1218 </span>            : #define FILTER_ID_PC (1ULL &lt;&lt; 19)</a>
+<a name="1219"><span class="lineNum">    1219 </span>            : #define FILTER_ID_SCE (1ULL &lt;&lt; 20)</a>
+<a name="1220"><span class="lineNum">    1220 </span>            : #define FILTER_ID_SPK (1ULL &lt;&lt; 21)</a>
+<a name="1221"><span class="lineNum">    1221 </span>            : #define FILTER_ID_SO (1ULL &lt;&lt; 22)</a>
+<a name="1222"><span class="lineNum">    1222 </span>            : #define FILTER_ID_TE (1ULL &lt;&lt; 23)</a>
+<a name="1223"><span class="lineNum">    1223 </span>            : #define FILTER_ID_TXT (1ULL &lt;&lt; 24)</a>
+<a name="1224"><span class="lineNum">    1224 </span>            : #define FILTER_ID_VF (1ULL &lt;&lt; 25)</a>
+<a name="1225"><span class="lineNum">    1225 </span>            : #define FILTER_ID_WO (1ULL &lt;&lt; 26)</a>
+<a name="1226"><span class="lineNum">    1226 </span>            : #define FILTER_ID_PA (1ULL &lt;&lt; 27)</a>
+<a name="1227"><span class="lineNum">    1227 </span>            : #define FILTER_ID_CF (1ULL &lt;&lt; 28)</a>
+<a name="1228"><span class="lineNum">    1228 </span>            : #define FILTER_ID_WS (1ULL &lt;&lt; 29)</a>
+<a name="1229"><span class="lineNum">    1229 </span>            : #define FILTER_ID_LP (1ULL &lt;&lt; 31)</a>
+<a name="1230"><span class="lineNum">    1230 </span>            : #define FILTER_ID_CV (1ULL &lt;&lt; 32)</a>
+<a name="1231"><span class="lineNum">    1231 </span>            : #define FILTER_ID_PT (1ULL &lt;&lt; 33)</a>
+<a name="1232"><span class="lineNum">    1232 </span>            : #define FILTER_ID_VO (1ULL &lt;&lt; 34)</a>
+<a name="1233"><span class="lineNum">    1233 </span>            : #define FILTER_ID_SIM (1ULL &lt;&lt; 35)</a>
+<a name="1234"><span class="lineNum">    1234 </span>            : #define FILTER_ID_KE (1ULL &lt;&lt; 36)</a>
+<a name="1235"><span class="lineNum">    1235 </span>            : #define FILTER_ID_SCR (1ULL &lt;&lt; 37)</a>
+<a name="1236"><span class="lineNum">    1236 </span>            : #define FILTER_ID_WM (1ULL &lt;&lt; 38)</a>
+<a name="1237"><span class="lineNum">    1237 </span>            : #define FILTER_ID_LI (1ULL &lt;&lt; 39)</a>
+<a name="1238"><span class="lineNum">    1238 </span>            : #define FILTER_ID_GP (1ULL &lt;&lt; 40)</a>
+<a name="1239"><span class="lineNum">    1239 </span>            : #define FILTER_ID_IP (1ULL &lt;&lt; 41)</a>
+<a name="1240"><span class="lineNum">    1240 </span>            : </a>
+<a name="1241"><span class="lineNum">    1241 </span>            : #define FILTER_ID_ALL \</a>
+<a name="1242"><span class="lineNum">    1242 </span>            :   (FILTER_ID_AC | FILTER_ID_AR | FILTER_ID_BR | FILTER_ID_CA | FILTER_ID_CU_LEGACY | \</a>
+<a name="1243"><span class="lineNum">    1243 </span>            :    FILTER_ID_GD_LEGACY | FILTER_ID_GR | FILTER_ID_IM | FILTER_ID_LA | FILTER_ID_LS | \</a>
+<a name="1244"><span class="lineNum">    1244 </span>            :    FILTER_ID_LT | FILTER_ID_MA | FILTER_ID_MB | FILTER_ID_MC | FILTER_ID_ME | FILTER_ID_MSK | \</a>
+<a name="1245"><span class="lineNum">    1245 </span>            :    FILTER_ID_NT | FILTER_ID_OB | FILTER_ID_PA | FILTER_ID_PAL | FILTER_ID_PC | FILTER_ID_SCE | \</a>
+<a name="1246"><span class="lineNum">    1246 </span>            :    FILTER_ID_SPK | FILTER_ID_SO | FILTER_ID_TE | FILTER_ID_TXT | FILTER_ID_VF | FILTER_ID_WO | \</a>
+<a name="1247"><span class="lineNum">    1247 </span>            :    FILTER_ID_CF | FILTER_ID_WS | FILTER_ID_LP | FILTER_ID_CV | FILTER_ID_PT | FILTER_ID_VO | \</a>
+<a name="1248"><span class="lineNum">    1248 </span>            :    FILTER_ID_SIM | FILTER_ID_KE | FILTER_ID_SCR | FILTER_ID_WM | FILTER_ID_LI | FILTER_ID_GP | \</a>
+<a name="1249"><span class="lineNum">    1249 </span>            :    FILTER_ID_IP)</a>
+<a name="1250"><span class="lineNum">    1250 </span>            : </a>
+<a name="1251"><span class="lineNum">    1251 </span>            : /**</a>
+<a name="1252"><span class="lineNum">    1252 </span>            :  * This enum defines the index assigned to each type of IDs in the array returned by</a>
+<a name="1253"><span class="lineNum">    1253 </span>            :  * #BKE_main_lists_get, and by extension, controls the default order in which each ID type is</a>
+<a name="1254"><span class="lineNum">    1254 </span>            :  * processed during standard 'foreach' looping over all IDs of a #Main data-base.</a>
+<a name="1255"><span class="lineNum">    1255 </span>            :  *</a>
+<a name="1256"><span class="lineNum">    1256 </span>            :  * About Order:</a>
+<a name="1257"><span class="lineNum">    1257 </span>            :  * ------------</a>
+<a name="1258"><span class="lineNum">    1258 </span>            :  *</a>
+<a name="1259"><span class="lineNum">    1259 </span>            :  * This is (loosely) defined with a relationship order in mind, from lowest level (ID types using,</a>
+<a name="1260"><span class="lineNum">    1260 </span>            :  * referencing almost no other ID types) to highest level (ID types potentially using many other ID</a>
+<a name="1261"><span class="lineNum">    1261 </span>            :  * types).</a>
+<a name="1262"><span class="lineNum">    1262 </span>            :  *</a>
+<a name="1263"><span class="lineNum">    1263 </span>            :  * So e.g. it ensures that this dependency chain is respected:</a>
+<a name="1264"><span class="lineNum">    1264 </span>            :  *   #Material &lt;- #Mesh &lt;- #Object &lt;- #Collection &lt;- #Scene</a>
+<a name="1265"><span class="lineNum">    1265 </span>            :  *</a>
+<a name="1266"><span class="lineNum">    1266 </span>            :  * Default order of processing of IDs in 'foreach' macros (#FOREACH_MAIN_ID_BEGIN and the like),</a>
+<a name="1267"><span class="lineNum">    1267 </span>            :  * built on top of #BKE_main_lists_get, is actually reversed compared to the order defined here,</a>
+<a name="1268"><span class="lineNum">    1268 </span>            :  * since processing usually needs to happen on users before it happens on used IDs (when freeing</a>
+<a name="1269"><span class="lineNum">    1269 </span>            :  * e.g.).</a>
+<a name="1270"><span class="lineNum">    1270 </span>            :  *</a>
+<a name="1271"><span class="lineNum">    1271 </span>            :  * DO NOT rely on this order as being full-proofed dependency order, there are many cases were it</a>
+<a name="1272"><span class="lineNum">    1272 </span>            :  * can be violated (most obvious cases being custom properties and drivers, which can reference any</a>
+<a name="1273"><span class="lineNum">    1273 </span>            :  * other ID types).</a>
+<a name="1274"><span class="lineNum">    1274 </span>            :  *</a>
+<a name="1275"><span class="lineNum">    1275 </span>            :  * However, this order can be considered as an optimization heuristic, especially when processing</a>
+<a name="1276"><span class="lineNum">    1276 </span>            :  * relationships in a non-recursive pattern: in typical cases, a vast majority of those</a>
+<a name="1277"><span class="lineNum">    1277 </span>            :  * relationships can be processed fine in the first pass, and only few additional passes are</a>
+<a name="1278"><span class="lineNum">    1278 </span>            :  * required to address all remaining relationship cases.</a>
+<a name="1279"><span class="lineNum">    1279 </span>            :  * See e.g. how #BKE_library_unused_linked_data_set_tag is doing this.</a>
+<a name="1280"><span class="lineNum">    1280 </span>            :  */</a>
+<a name="1281"><span class="lineNum">    1281 </span>            : enum eID_Index {</a>
+<a name="1282"><span class="lineNum">    1282 </span>            :   /* Special case: Library, should never ever depend on any other type. */</a>
+<a name="1283"><span class="lineNum">    1283 </span>            :   INDEX_ID_LI = 0,</a>
+<a name="1284"><span class="lineNum">    1284 </span>            : </a>
+<a name="1285"><span class="lineNum">    1285 </span>            :   /* Animation types, might be used by almost all other types. */</a>
+<a name="1286"><span class="lineNum">    1286 </span>            :   INDEX_ID_AC,</a>
+<a name="1287"><span class="lineNum">    1287 </span>            : </a>
+<a name="1288"><span class="lineNum">    1288 </span>            :   /* Grease Pencil, special case, should be with the other obdata, but it can also be used by many</a>
+<a name="1289"><span class="lineNum">    1289 </span>            :    * other ID types, including node trees e.g.</a>
+<a name="1290"><span class="lineNum">    1290 </span>            :    * So there is no proper place for those, for now keep close to the lower end of the processing</a>
+<a name="1291"><span class="lineNum">    1291 </span>            :    * hierarchy, but we may want to re-evaluate that at some point. */</a>
+<a name="1292"><span class="lineNum">    1292 </span>            :   INDEX_ID_GD_LEGACY,</a>
+<a name="1293"><span class="lineNum">    1293 </span>            : </a>
+<a name="1294"><span class="lineNum">    1294 </span>            :   /* Node trees, abstraction for procedural data, potentially used by many other ID types.</a>
+<a name="1295"><span class="lineNum">    1295 </span>            :    *</a>
+<a name="1296"><span class="lineNum">    1296 </span>            :    * NOTE: While node trees can also use many other ID types, they should not /own/ any of those,</a>
+<a name="1297"><span class="lineNum">    1297 </span>            :    * while they are being owned by many other ID types. This is why they are placed here. */</a>
+<a name="1298"><span class="lineNum">    1298 </span>            :   INDEX_ID_NT,</a>
+<a name="1299"><span class="lineNum">    1299 </span>            : </a>
+<a name="1300"><span class="lineNum">    1300 </span>            :   /* File-wrapper types, those usually 'embed' external files in Blender, with no dependencies to</a>
+<a name="1301"><span class="lineNum">    1301 </span>            :    * other ID types. */</a>
+<a name="1302"><span class="lineNum">    1302 </span>            :   INDEX_ID_VF,</a>
+<a name="1303"><span class="lineNum">    1303 </span>            :   INDEX_ID_TXT,</a>
+<a name="1304"><span class="lineNum">    1304 </span>            :   INDEX_ID_SO,</a>
+<a name="1305"><span class="lineNum">    1305 </span>            : </a>
+<a name="1306"><span class="lineNum">    1306 </span>            :   /* Image/movie types, can be used by shading ID types, but also directly by Objects, Scenes, etc.</a>
+<a name="1307"><span class="lineNum">    1307 </span>            :    */</a>
+<a name="1308"><span class="lineNum">    1308 </span>            :   INDEX_ID_MSK,</a>
+<a name="1309"><span class="lineNum">    1309 </span>            :   INDEX_ID_IM,</a>
+<a name="1310"><span class="lineNum">    1310 </span>            :   INDEX_ID_MC,</a>
+<a name="1311"><span class="lineNum">    1311 </span>            : </a>
+<a name="1312"><span class="lineNum">    1312 </span>            :   /* Shading types. */</a>
+<a name="1313"><span class="lineNum">    1313 </span>            :   INDEX_ID_TE,</a>
+<a name="1314"><span class="lineNum">    1314 </span>            :   INDEX_ID_MA,</a>
+<a name="1315"><span class="lineNum">    1315 </span>            :   INDEX_ID_LS,</a>
+<a name="1316"><span class="lineNum">    1316 </span>            :   INDEX_ID_WO,</a>
+<a name="1317"><span class="lineNum">    1317 </span>            : </a>
+<a name="1318"><span class="lineNum">    1318 </span>            :   /* Simulation-related types. */</a>
+<a name="1319"><span class="lineNum">    1319 </span>            :   INDEX_ID_CF,</a>
+<a name="1320"><span class="lineNum">    1320 </span>            :   INDEX_ID_PA,</a>
+<a name="1321"><span class="lineNum">    1321 </span>            : </a>
+<a name="1322"><span class="lineNum">    1322 </span>            :   /* Shape Keys snow-flake, can be used by several obdata types. */</a>
+<a name="1323"><span class="lineNum">    1323 </span>            :   INDEX_ID_KE,</a>
+<a name="1324"><span class="lineNum">    1324 </span>            : </a>
+<a name="1325"><span class="lineNum">    1325 </span>            :   /* Object data types. */</a>
+<a name="1326"><span class="lineNum">    1326 </span>            :   INDEX_ID_AR,</a>
+<a name="1327"><span class="lineNum">    1327 </span>            :   INDEX_ID_ME,</a>
+<a name="1328"><span class="lineNum">    1328 </span>            :   INDEX_ID_CU_LEGACY,</a>
+<a name="1329"><span class="lineNum">    1329 </span>            :   INDEX_ID_MB,</a>
+<a name="1330"><span class="lineNum">    1330 </span>            :   INDEX_ID_CV,</a>
+<a name="1331"><span class="lineNum">    1331 </span>            :   INDEX_ID_PT,</a>
+<a name="1332"><span class="lineNum">    1332 </span>            :   INDEX_ID_VO,</a>
+<a name="1333"><span class="lineNum">    1333 </span>            :   INDEX_ID_LT,</a>
+<a name="1334"><span class="lineNum">    1334 </span>            :   INDEX_ID_LA,</a>
+<a name="1335"><span class="lineNum">    1335 </span>            :   INDEX_ID_CA,</a>
+<a name="1336"><span class="lineNum">    1336 </span>            :   INDEX_ID_SPK,</a>
+<a name="1337"><span class="lineNum">    1337 </span>            :   INDEX_ID_LP,</a>
+<a name="1338"><span class="lineNum">    1338 </span>            :   INDEX_ID_GP,</a>
+<a name="1339"><span class="lineNum">    1339 </span>            : </a>
+<a name="1340"><span class="lineNum">    1340 </span>            :   /* Collection and object types. */</a>
+<a name="1341"><span class="lineNum">    1341 </span>            :   INDEX_ID_OB,</a>
+<a name="1342"><span class="lineNum">    1342 </span>            :   INDEX_ID_GR,</a>
+<a name="1343"><span class="lineNum">    1343 </span>            : </a>
+<a name="1344"><span class="lineNum">    1344 </span>            :   /* Preset-like, not-really-data types, can use many other ID types but should never be used by</a>
+<a name="1345"><span class="lineNum">    1345 </span>            :    * any actual data type (besides Scene, due to tool settings). */</a>
+<a name="1346"><span class="lineNum">    1346 </span>            :   INDEX_ID_PAL,</a>
+<a name="1347"><span class="lineNum">    1347 </span>            :   INDEX_ID_PC,</a>
+<a name="1348"><span class="lineNum">    1348 </span>            :   INDEX_ID_BR,</a>
+<a name="1349"><span class="lineNum">    1349 </span>            : </a>
+<a name="1350"><span class="lineNum">    1350 </span>            :   /* Scene, after preset-like ID types because of tool settings. */</a>
+<a name="1351"><span class="lineNum">    1351 </span>            :   INDEX_ID_SCE,</a>
+<a name="1352"><span class="lineNum">    1352 </span>            : </a>
+<a name="1353"><span class="lineNum">    1353 </span>            :   /* UI-related types, should never be used by any other data type. */</a>
+<a name="1354"><span class="lineNum">    1354 </span>            :   INDEX_ID_SCR,</a>
+<a name="1355"><span class="lineNum">    1355 </span>            :   INDEX_ID_WS,</a>
+<a name="1356"><span class="lineNum">    1356 </span>            :   INDEX_ID_WM,</a>
+<a name="1357"><span class="lineNum">    1357 </span>            : </a>
+<a name="1358"><span class="lineNum">    1358 </span>            :   /* Special values, keep last. */</a>
+<a name="1359"><span class="lineNum">    1359 </span>            :   INDEX_ID_NULL,</a>
+<a name="1360"><span class="lineNum">    1360 </span>            : };</a>
+<a name="1361"><span class="lineNum">    1361 </span>            : </a>
+<a name="1362"><span class="lineNum">    1362 </span>            : #define INDEX_ID_MAX (INDEX_ID_NULL + 1)</a>
+<a name="1363"><span class="lineNum">    1363 </span>            : </a>
+<a name="1364"><span class="lineNum">    1364 </span>            : #ifdef __cplusplus</a>
+<a name="1365"><span class="lineNum">    1365 </span>            : namespace dna {</a>
+<a name="1366"><span class="lineNum">    1366 </span>            : namespace detail {</a>
+<a name="1367"><span class="lineNum">    1367 </span>            : template&lt;typename, typename = void&gt; struct has_ID_member : std::false_type {};</a>
+<a name="1368"><span class="lineNum">    1368 </span>            : template&lt;typename T&gt; struct has_ID_member&lt;T, std::void_t&lt;decltype(&amp;T::id)&gt;&gt; : std::true_type {};</a>
+<a name="1369"><span class="lineNum">    1369 </span>            : template&lt;typename T&gt; constexpr bool has_ID_as_first_member()</a>
+<a name="1370"><span class="lineNum">    1370 </span>            : {</a>
+<a name="1371"><span class="lineNum">    1371 </span>            :   if constexpr (std::is_standard_layout_v&lt;T&gt; &amp;&amp; has_ID_member&lt;T&gt;::value) {</a>
+<a name="1372"><span class="lineNum">    1372 </span>            :     return offsetof(T, id) == 0 &amp;&amp; std::is_same_v&lt;decltype(T::id), ID&gt;;</a>
+<a name="1373"><span class="lineNum">    1373 </span>            :   }</a>
+<a name="1374"><span class="lineNum">    1374 </span>            :   else {</a>
+<a name="1375"><span class="lineNum">    1375 </span>            :     return false;</a>
+<a name="1376"><span class="lineNum">    1376 </span>            :   }</a>
+<a name="1377"><span class="lineNum">    1377 </span>            : }</a>
+<a name="1378"><span class="lineNum">    1378 </span>            : }  // namespace detail</a>
+<a name="1379"><span class="lineNum">    1379 </span>            : </a>
+<a name="1380"><span class="lineNum">    1380 </span>            : /**</a>
+<a name="1381"><span class="lineNum">    1381 </span>            :  * Type trait to check if a type is a ID data-block. It just actually checks whether the type has</a>
+<a name="1382"><span class="lineNum">    1382 </span>            :  * #ID is first data member, which should be good enough in practice.</a>
+<a name="1383"><span class="lineNum">    1383 </span>            :  */</a>
+<a name="1384"><span class="lineNum">    1384 </span>            : template&lt;typename T&gt;</a>
+<a name="1385"><span class="lineNum">    1385 </span>            : constexpr bool is_ID_v = detail::has_ID_as_first_member&lt;T&gt;() || std::is_same_v&lt;T, ID&gt;;</a>
+<a name="1386"><span class="lineNum">    1386 </span>            : </a>
+<a name="1387"><span class="lineNum">    1387 </span>            : }  // namespace dna</a>
+<a name="1388"><span class="lineNum">    1388 </span>            : </a>
+<a name="1389"><span class="lineNum">    1389 </span>            : namespace dna::detail {</a>
+<a name="1390"><span class="lineNum">    1390 </span>            : template&lt;typename Dst, typename Src, typename SrcRuntime&gt;</a>
+<a name="1391"><span class="lineNum">    1391 </span><span class="lineCov">  529801222 : constexpr void id_cast_assert([[maybe_unused]] SrcRuntime *src)</span></a>
+<a name="1392"><span class="lineNum">    1392 </span>            : {</a>
+<a name="1393"><span class="lineNum">    1393 </span>            :   static_assert(dna::is_ID_v&lt;Src&gt;);</a>
+<a name="1394"><span class="lineNum">    1394 </span>            :   static_assert(dna::is_ID_v&lt;Dst&gt;);</a>
+<a name="1395"><span class="lineNum">    1395 </span>            :   if constexpr (std::is_same_v&lt;Src, ID&gt; &amp;&amp; !std::is_same_v&lt;Dst, ID&gt;) {</a>
+<a name="1396"><span class="lineNum">    1396 </span>            :     /* Runtime check for when converting from #ID to subtype like #Object. */</a>
+<a name="1397"><span class="lineNum">    1397 </span><span class="lineCov">   35832093 :     BLI_assert(src == nullptr || GS(src-&gt;name) == Dst::id_type);</span></a>
+<a name="1398"><span class="lineNum">    1398 </span>            :   }</a>
+<a name="1399"><span class="lineNum">    1399 </span>            :   else if constexpr (!std::is_same_v&lt;Src, ID&gt; &amp;&amp; std::is_same_v&lt;Dst, ID&gt;) {</a>
+<a name="1400"><span class="lineNum">    1400 </span>            :     /* Converting from subtype like #Object to #ID is always allowed. */</a>
+<a name="1401"><span class="lineNum">    1401 </span>            :   }</a>
+<a name="1402"><span class="lineNum">    1402 </span>            :   else {</a>
+<a name="1403"><span class="lineNum">    1403 </span>            :     /* Converting between the same types is always allowed. */</a>
+<a name="1404"><span class="lineNum">    1404 </span>            :     static_assert(std::is_same_v&lt;Src, Dst&gt;);</a>
+<a name="1405"><span class="lineNum">    1405 </span>            :   }</a>
+<a name="1406"><span class="lineNum">    1406 </span><span class="lineCov">  529796982 : }</span></a>
+<a name="1407"><span class="lineNum">    1407 </span>            : }  // namespace dna::detail</a>
+<a name="1408"><span class="lineNum">    1408 </span>            : </a>
+<a name="1409"><span class="lineNum">    1409 </span>            : /**</a>
+<a name="1410"><span class="lineNum">    1410 </span>            :  * A drop-in replacement for `reinterpret_cast` that does additional checks:</a>
+<a name="1411"><span class="lineNum">    1411 </span>            :  * - Static check that the source and destination types are data-block types.</a>
+<a name="1412"><span class="lineNum">    1412 </span>            :  * - Run-time assert when down-casting from #ID to e.g. #Object.</a>
+<a name="1413"><span class="lineNum">    1413 </span>            :  *</a>
+<a name="1414"><span class="lineNum">    1414 </span>            :  * \note This can't be used with forward-declared types as the type information is necessary for</a>
+<a name="1415"><span class="lineNum">    1415 </span>            :  * the additional checks. For the same reason, it also can't be used to convert from void pointers.</a>
+<a name="1416"><span class="lineNum">    1416 </span>            :  */</a>
+<a name="1417"><span class="lineNum">    1417 </span><span class="lineCov">  529818835 : template&lt;typename Dst, typename Src&gt; inline Dst id_cast(Src &amp;&amp;id)</span></a>
+<a name="1418"><span class="lineNum">    1418 </span>            : {</a>
+<a name="1419"><span class="lineNum">    1419 </span>            :   using DstDecay = std::decay_t&lt;Dst&gt;;</a>
+<a name="1420"><span class="lineNum">    1420 </span>            :   using SrcDecay = std::decay_t&lt;Src&gt;;</a>
+<a name="1421"><span class="lineNum">    1421 </span>            :   static_assert(std::is_pointer_v&lt;SrcDecay&gt; == std::is_pointer_v&lt;DstDecay&gt;);</a>
+<a name="1422"><span class="lineNum">    1422 </span>            :   if constexpr (std::is_pointer_v&lt;SrcDecay&gt;) {</a>
+<a name="1423"><span class="lineNum">    1423 </span>            :     dna::detail::id_cast_assert&lt;std::decay_t&lt;std::remove_pointer_t&lt;DstDecay&gt;&gt;,</a>
+<a name="1424"><span class="lineNum">    1424 </span><span class="lineCov">  529710635 :                                 std::decay_t&lt;std::remove_pointer_t&lt;SrcDecay&gt;&gt;&gt;(id);</span></a>
+<a name="1425"><span class="lineNum">    1425 </span>            :   }</a>
+<a name="1426"><span class="lineNum">    1426 </span>            :   else {</a>
+<a name="1427"><span class="lineNum">    1427 </span>            :     static_assert(std::is_lvalue_reference_v&lt;Src&gt; &amp;&amp; std::is_lvalue_reference_v&lt;Dst&gt;);</a>
+<a name="1428"><span class="lineNum">    1428 </span><span class="lineCov">     108200 :     dna::detail::id_cast_assert&lt;DstDecay, SrcDecay&gt;(&amp;id);</span></a>
+<a name="1429"><span class="lineNum">    1429 </span>            :   }</a>
+<a name="1430"><span class="lineNum">    1430 </span>            :   /* This also makes sure that we don't cast away constness. */</a>
+<a name="1431"><span class="lineNum">    1431 </span><span class="lineCov">  529811945 :   return reinterpret_cast&lt;Dst&gt;(id);</span></a>
+<a name="1432"><span class="lineNum">    1432 </span>            : }</a>
+<a name="1433"><span class="lineNum">    1433 </span>            : </a>
+<a name="1434"><span class="lineNum">    1434 </span>            : #endif</a>
+<a name="1435"><span class="lineNum">    1435 </span>            : </a>
+<a name="1436"><span class="lineNum">    1436 </span>            : }  // namespace blender</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

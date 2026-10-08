@@ -1,0 +1,385 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - /home/dev/Blender_PA1483/blender/intern/itasc/kdl/utilities/svd_eigen_HH.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../../../index.html">top level</a> - <a href="index.html">home/dev/Blender_PA1483/blender/intern/itasc/kdl/utilities</a> - svd_eigen_HH.hpp<span style="font-size: 80%;"> (source / <a href="svd_eigen_HH.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">177</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright  (C)  2007  Ruben Smits &lt;ruben dot smits at mech dot kuleuven dot be&gt;</a>
+<a name="2"><span class="lineNum">       2 </span>            : </a>
+<a name="3"><span class="lineNum">       3 </span>            : // Version: 1.0</a>
+<a name="4"><span class="lineNum">       4 </span>            : // Author: Ruben Smits &lt;ruben dot smits at mech dot kuleuven dot be&gt;</a>
+<a name="5"><span class="lineNum">       5 </span>            : // Maintainer: Ruben Smits &lt;ruben dot smits at mech dot kuleuven dot be&gt;</a>
+<a name="6"><span class="lineNum">       6 </span>            : // URL: http://www.orocos.org/kdl</a>
+<a name="7"><span class="lineNum">       7 </span>            : </a>
+<a name="8"><span class="lineNum">       8 </span>            : // This library is free software; you can redistribute it and/or</a>
+<a name="9"><span class="lineNum">       9 </span>            : // modify it under the terms of the GNU Lesser General Public</a>
+<a name="10"><span class="lineNum">      10 </span>            : // License as published by the Free Software Foundation; either</a>
+<a name="11"><span class="lineNum">      11 </span>            : // version 2.1 of the License, or (at your option) any later version.</a>
+<a name="12"><span class="lineNum">      12 </span>            : </a>
+<a name="13"><span class="lineNum">      13 </span>            : // This library is distributed in the hope that it will be useful,</a>
+<a name="14"><span class="lineNum">      14 </span>            : // but WITHOUT ANY WARRANTY; without even the implied warranty of</a>
+<a name="15"><span class="lineNum">      15 </span>            : // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</a>
+<a name="16"><span class="lineNum">      16 </span>            : // Lesser General Public License for more details.</a>
+<a name="17"><span class="lineNum">      17 </span>            : </a>
+<a name="18"><span class="lineNum">      18 </span>            : // You should have received a copy of the GNU Lesser General Public</a>
+<a name="19"><span class="lineNum">      19 </span>            : // License along with this library; if not, write to the Free Software</a>
+<a name="20"><span class="lineNum">      20 </span>            : // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA</a>
+<a name="21"><span class="lineNum">      21 </span>            : </a>
+<a name="22"><span class="lineNum">      22 </span>            : </a>
+<a name="23"><span class="lineNum">      23 </span>            : //Based on the svd of the KDL-0.2 library by Erwin Aertbelien</a>
+<a name="24"><span class="lineNum">      24 </span>            : #ifndef SVD_EIGEN_HH_HPP</a>
+<a name="25"><span class="lineNum">      25 </span>            : #define SVD_EIGEN_HH_HPP</a>
+<a name="26"><span class="lineNum">      26 </span>            : </a>
+<a name="27"><span class="lineNum">      27 </span>            : </a>
+<a name="28"><span class="lineNum">      28 </span>            : #include &lt;Eigen/Core&gt;</a>
+<a name="29"><span class="lineNum">      29 </span>            : #include &lt;algorithm&gt;</a>
+<a name="30"><span class="lineNum">      30 </span>            : </a>
+<a name="31"><span class="lineNum">      31 </span>            : namespace KDL</a>
+<a name="32"><span class="lineNum">      32 </span>            : {</a>
+<a name="33"><span class="lineNum">      33 </span><span class="lineNoCov">          0 :     template&lt;typename Scalar&gt; inline Scalar PYTHAG(Scalar a,Scalar b) {</span></a>
+<a name="34"><span class="lineNum">      34 </span>            :         double at,bt,ct;</a>
+<a name="35"><span class="lineNum">      35 </span><span class="lineNoCov">          0 :         at = fabs(a);</span></a>
+<a name="36"><span class="lineNum">      36 </span><span class="lineNoCov">          0 :         bt = fabs(b);</span></a>
+<a name="37"><span class="lineNum">      37 </span><span class="lineNoCov">          0 :         if (at &gt; bt ) {</span></a>
+<a name="38"><span class="lineNum">      38 </span><span class="lineNoCov">          0 :             ct=bt/at;</span></a>
+<a name="39"><span class="lineNum">      39 </span><span class="lineNoCov">          0 :             return Scalar(at*sqrt(1.0+ct*ct));</span></a>
+<a name="40"><span class="lineNum">      40 </span>            :         } else {</a>
+<a name="41"><span class="lineNum">      41 </span><span class="lineNoCov">          0 :             if (bt==0)</span></a>
+<a name="42"><span class="lineNum">      42 </span><span class="lineNoCov">          0 :                 return Scalar(0.0);</span></a>
+<a name="43"><span class="lineNum">      43 </span>            :             else {</a>
+<a name="44"><span class="lineNum">      44 </span><span class="lineNoCov">          0 :                 ct=at/bt;</span></a>
+<a name="45"><span class="lineNum">      45 </span><span class="lineNoCov">          0 :                 return Scalar(bt*sqrt(1.0+ct*ct));</span></a>
+<a name="46"><span class="lineNum">      46 </span>            :             }</a>
+<a name="47"><span class="lineNum">      47 </span>            :         }</a>
+<a name="48"><span class="lineNum">      48 </span>            :     }</a>
+<a name="49"><span class="lineNum">      49 </span>            : </a>
+<a name="50"><span class="lineNum">      50 </span>            : </a>
+<a name="51"><span class="lineNum">      51 </span><span class="lineNoCov">          0 :     template&lt;typename Scalar&gt; inline Scalar SIGN(Scalar a,Scalar b) {</span></a>
+<a name="52"><span class="lineNum">      52 </span><span class="lineNoCov">          0 :         return ((b) &gt;= Scalar(0.0) ? fabs(a) : -fabs(a));</span></a>
+<a name="53"><span class="lineNum">      53 </span>            :     }</a>
+<a name="54"><span class="lineNum">      54 </span>            : </a>
+<a name="55"><span class="lineNum">      55 </span>            :     /**</a>
+<a name="56"><span class="lineNum">      56 </span>            :      * svd calculation of boost ublas matrices</a>
+<a name="57"><span class="lineNum">      57 </span>            :      *</a>
+<a name="58"><span class="lineNum">      58 </span>            :      * @param A matrix&lt;double&gt;(mxn)</a>
+<a name="59"><span class="lineNum">      59 </span>            :      * @param U matrix&lt;double&gt;(mxn)</a>
+<a name="60"><span class="lineNum">      60 </span>            :      * @param S vector&lt;double&gt; n</a>
+<a name="61"><span class="lineNum">      61 </span>            :      * @param V matrix&lt;double&gt;(nxn)</a>
+<a name="62"><span class="lineNum">      62 </span>            :      * @param tmp vector&lt;double&gt; n</a>
+<a name="63"><span class="lineNum">      63 </span>            :      * @param maxiter defaults to 150</a>
+<a name="64"><span class="lineNum">      64 </span>            :      *</a>
+<a name="65"><span class="lineNum">      65 </span>            :      * @return -2 if maxiter exceeded, 0 otherwise</a>
+<a name="66"><span class="lineNum">      66 </span>            :      */</a>
+<a name="67"><span class="lineNum">      67 </span>            :         template&lt;typename MatrixA, typename MatrixUV, typename VectorS&gt; </a>
+<a name="68"><span class="lineNum">      68 </span><span class="lineNoCov">          0 :         int svd_eigen_HH(</span></a>
+<a name="69"><span class="lineNum">      69 </span>            :                 const Eigen::MatrixBase&lt;MatrixA&gt;&amp;             A,</a>
+<a name="70"><span class="lineNum">      70 </span>            :                 Eigen::MatrixBase&lt;MatrixUV&gt;&amp;                  U,</a>
+<a name="71"><span class="lineNum">      71 </span>            :                 Eigen::MatrixBase&lt;VectorS&gt;&amp;                           S,</a>
+<a name="72"><span class="lineNum">      72 </span>            :                 Eigen::MatrixBase&lt;MatrixUV&gt;&amp;                  V,</a>
+<a name="73"><span class="lineNum">      73 </span>            :                 Eigen::MatrixBase&lt;VectorS&gt;&amp;                           tmp,</a>
+<a name="74"><span class="lineNum">      74 </span>            :                 int maxiter=150)</a>
+<a name="75"><span class="lineNum">      75 </span>            :         {</a>
+<a name="76"><span class="lineNum">      76 </span>            :         //get the rows/columns of the matrix</a>
+<a name="77"><span class="lineNum">      77 </span><span class="lineNoCov">          0 :         const int rows = A.rows();</span></a>
+<a name="78"><span class="lineNum">      78 </span><span class="lineNoCov">          0 :         const int cols = A.cols();</span></a>
+<a name="79"><span class="lineNum">      79 </span>            :         </a>
+<a name="80"><span class="lineNum">      80 </span><span class="lineNoCov">          0 :         U = A;</span></a>
+<a name="81"><span class="lineNum">      81 </span>            :         </a>
+<a name="82"><span class="lineNum">      82 </span><span class="lineNoCov">          0 :         int i(-1),its(-1),j(-1),jj(-1),k(-1),nm=0;</span></a>
+<a name="83"><span class="lineNum">      83 </span><span class="lineNoCov">          0 :         int ppi(0);</span></a>
+<a name="84"><span class="lineNum">      84 </span>            :         bool flag;</a>
+<a name="85"><span class="lineNum">      85 </span><span class="lineNoCov">          0 :         e_scalar maxarg1,maxarg2,anorm(0),c(0),f(0),h(0),s(0),scale(0),x(0),y(0),z(0),g(0);</span></a>
+<a name="86"><span class="lineNum">      86 </span>            :         </a>
+<a name="87"><span class="lineNum">      87 </span><span class="lineNoCov">          0 :         g=scale=anorm=e_scalar(0.0);</span></a>
+<a name="88"><span class="lineNum">      88 </span>            :         </a>
+<a name="89"><span class="lineNum">      89 </span>            :         /* Householder reduction to bidiagonal form. */</a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineNoCov">          0 :         for (i=0;i&lt;cols;i++) {</span></a>
+<a name="91"><span class="lineNum">      91 </span><span class="lineNoCov">          0 :             ppi=i+1;</span></a>
+<a name="92"><span class="lineNum">      92 </span><span class="lineNoCov">          0 :             tmp(i)=scale*g;</span></a>
+<a name="93"><span class="lineNum">      93 </span><span class="lineNoCov">          0 :             g=s=scale=e_scalar(0.0); </span></a>
+<a name="94"><span class="lineNum">      94 </span><span class="lineNoCov">          0 :             if (i&lt;rows) {</span></a>
+<a name="95"><span class="lineNum">      95 </span>            :                 // compute the sum of the i-th column, starting from the i-th row</a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineNoCov">          0 :                 for (k=i;k&lt;rows;k++) scale += fabs(U(k,i));</span></a>
+<a name="97"><span class="lineNum">      97 </span><span class="lineNoCov">          0 :                 if (scale!=0) {</span></a>
+<a name="98"><span class="lineNum">      98 </span>            :                     // multiply the i-th column by 1.0/scale, start from the i-th element</a>
+<a name="99"><span class="lineNum">      99 </span>            :                     // sum of squares of column i, start from the i-th element</a>
+<a name="100"><span class="lineNum">     100 </span><span class="lineNoCov">          0 :                     for (k=i;k&lt;rows;k++) {</span></a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineNoCov">          0 :                         U(k,i) /= scale;</span></a>
+<a name="102"><span class="lineNum">     102 </span><span class="lineNoCov">          0 :                         s += U(k,i)*U(k,i);</span></a>
+<a name="103"><span class="lineNum">     103 </span>            :                     }</a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineNoCov">          0 :                     f=U(i,i);  // f is the diag elem</span></a>
+<a name="105"><span class="lineNum">     105 </span><span class="lineNoCov">          0 :                     g = -SIGN(e_scalar(sqrt(s)),f);</span></a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineNoCov">          0 :                     h=f*g-s;</span></a>
+<a name="107"><span class="lineNum">     107 </span><span class="lineNoCov">          0 :                     U(i,i)=f-g;</span></a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineNoCov">          0 :                     for (j=ppi;j&lt;cols;j++) {</span></a>
+<a name="109"><span class="lineNum">     109 </span>            :                         // dot product of columns i and j, starting from the i-th row</a>
+<a name="110"><span class="lineNum">     110 </span><span class="lineNoCov">          0 :                         for (s=0.0,k=i;k&lt;rows;k++) s += U(k,i)*U(k,j);</span></a>
+<a name="111"><span class="lineNum">     111 </span><span class="lineNoCov">          0 :                         f=s/h;</span></a>
+<a name="112"><span class="lineNum">     112 </span>            :                         // copy the scaled i-th column into the j-th column</a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineNoCov">          0 :                         for (k=i;k&lt;rows;k++) U(k,j) += f*U(k,i);</span></a>
+<a name="114"><span class="lineNum">     114 </span>            :                     }</a>
+<a name="115"><span class="lineNum">     115 </span><span class="lineNoCov">          0 :                     for (k=i;k&lt;rows;k++) U(k,i) *= scale;</span></a>
+<a name="116"><span class="lineNum">     116 </span>            :                 }</a>
+<a name="117"><span class="lineNum">     117 </span>            :             }</a>
+<a name="118"><span class="lineNum">     118 </span>            :             // save singular value</a>
+<a name="119"><span class="lineNum">     119 </span><span class="lineNoCov">          0 :             S(i)=scale*g;</span></a>
+<a name="120"><span class="lineNum">     120 </span><span class="lineNoCov">          0 :             g=s=scale=e_scalar(0.0);</span></a>
+<a name="121"><span class="lineNum">     121 </span><span class="lineNoCov">          0 :             if ((i &lt;rows) &amp;&amp; (i+1 != cols)) {</span></a>
+<a name="122"><span class="lineNum">     122 </span>            :                 // sum of row i, start from columns i+1</a>
+<a name="123"><span class="lineNum">     123 </span><span class="lineNoCov">          0 :                 for (k=ppi;k&lt;cols;k++) scale += fabs(U(i,k));</span></a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineNoCov">          0 :                 if (scale!=0) {</span></a>
+<a name="125"><span class="lineNum">     125 </span><span class="lineNoCov">          0 :                     for (k=ppi;k&lt;cols;k++) {</span></a>
+<a name="126"><span class="lineNum">     126 </span><span class="lineNoCov">          0 :                         U(i,k) /= scale;</span></a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineNoCov">          0 :                         s += U(i,k)*U(i,k);</span></a>
+<a name="128"><span class="lineNum">     128 </span>            :                     }</a>
+<a name="129"><span class="lineNum">     129 </span><span class="lineNoCov">          0 :                     f=U(i,ppi);</span></a>
+<a name="130"><span class="lineNum">     130 </span><span class="lineNoCov">          0 :                     g = -SIGN(e_scalar(sqrt(s)),f);</span></a>
+<a name="131"><span class="lineNum">     131 </span><span class="lineNoCov">          0 :                     h=f*g-s;</span></a>
+<a name="132"><span class="lineNum">     132 </span><span class="lineNoCov">          0 :                     U(i,ppi)=f-g;</span></a>
+<a name="133"><span class="lineNum">     133 </span><span class="lineNoCov">          0 :                     for (k=ppi;k&lt;cols;k++) tmp(k)=U(i,k)/h;</span></a>
+<a name="134"><span class="lineNum">     134 </span><span class="lineNoCov">          0 :                     for (j=ppi;j&lt;rows;j++) {</span></a>
+<a name="135"><span class="lineNum">     135 </span><span class="lineNoCov">          0 :                         for (s=0.0,k=ppi;k&lt;cols;k++) s += U(j,k)*U(i,k);</span></a>
+<a name="136"><span class="lineNum">     136 </span><span class="lineNoCov">          0 :                         for (k=ppi;k&lt;cols;k++) U(j,k) += s*tmp(k);</span></a>
+<a name="137"><span class="lineNum">     137 </span>            :                     }</a>
+<a name="138"><span class="lineNum">     138 </span><span class="lineNoCov">          0 :                     for (k=ppi;k&lt;cols;k++) U(i,k) *= scale;</span></a>
+<a name="139"><span class="lineNum">     139 </span>            :                 }</a>
+<a name="140"><span class="lineNum">     140 </span>            :             }</a>
+<a name="141"><span class="lineNum">     141 </span><span class="lineNoCov">          0 :             maxarg1=anorm;</span></a>
+<a name="142"><span class="lineNum">     142 </span><span class="lineNoCov">          0 :             maxarg2=(fabs(S(i))+fabs(tmp(i)));</span></a>
+<a name="143"><span class="lineNum">     143 </span><span class="lineNoCov">          0 :             anorm = maxarg1 &gt; maxarg2 ?      maxarg1 : maxarg2;              </span></a>
+<a name="144"><span class="lineNum">     144 </span>            :         }</a>
+<a name="145"><span class="lineNum">     145 </span>            :         /* Accumulation of right-hand transformations. */</a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineNoCov">          0 :         for (i=cols-1;i&gt;=0;i--) {</span></a>
+<a name="147"><span class="lineNum">     147 </span><span class="lineNoCov">          0 :             if (i&lt;cols-1) {</span></a>
+<a name="148"><span class="lineNum">     148 </span><span class="lineNoCov">          0 :                 if (g) {</span></a>
+<a name="149"><span class="lineNum">     149 </span><span class="lineNoCov">          0 :                     for (j=ppi;j&lt;cols;j++) V(j,i)=(U(i,j)/U(i,ppi))/g;</span></a>
+<a name="150"><span class="lineNum">     150 </span><span class="lineNoCov">          0 :                     for (j=ppi;j&lt;cols;j++) {</span></a>
+<a name="151"><span class="lineNum">     151 </span><span class="lineNoCov">          0 :                         for (s=0.0,k=ppi;k&lt;cols;k++) s += U(i,k)*V(k,j);</span></a>
+<a name="152"><span class="lineNum">     152 </span><span class="lineNoCov">          0 :                         for (k=ppi;k&lt;cols;k++) V(k,j) += s*V(k,i);</span></a>
+<a name="153"><span class="lineNum">     153 </span>            :                     }</a>
+<a name="154"><span class="lineNum">     154 </span>            :                 }</a>
+<a name="155"><span class="lineNum">     155 </span><span class="lineNoCov">          0 :                 for (j=ppi;j&lt;cols;j++) V(i,j)=V(j,i)=0.0;</span></a>
+<a name="156"><span class="lineNum">     156 </span>            :             }</a>
+<a name="157"><span class="lineNum">     157 </span><span class="lineNoCov">          0 :             V(i,i)=1.0;</span></a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineNoCov">          0 :             g=tmp(i);</span></a>
+<a name="159"><span class="lineNum">     159 </span><span class="lineNoCov">          0 :             ppi=i;</span></a>
+<a name="160"><span class="lineNum">     160 </span>            :         }</a>
+<a name="161"><span class="lineNum">     161 </span>            :         /* Accumulation of left-hand transformations. */</a>
+<a name="162"><span class="lineNum">     162 </span><span class="lineNoCov">          0 :         for (i=cols-1&lt;rows-1 ? cols-1:rows-1;i&gt;=0;i--) {</span></a>
+<a name="163"><span class="lineNum">     163 </span><span class="lineNoCov">          0 :             ppi=i+1;</span></a>
+<a name="164"><span class="lineNum">     164 </span><span class="lineNoCov">          0 :             g=S(i);</span></a>
+<a name="165"><span class="lineNum">     165 </span><span class="lineNoCov">          0 :             for (j=ppi;j&lt;cols;j++) U(i,j)=0.0;</span></a>
+<a name="166"><span class="lineNum">     166 </span><span class="lineNoCov">          0 :             if (g) {</span></a>
+<a name="167"><span class="lineNum">     167 </span><span class="lineNoCov">          0 :                 g=e_scalar(1.0)/g;</span></a>
+<a name="168"><span class="lineNum">     168 </span><span class="lineNoCov">          0 :                 for (j=ppi;j&lt;cols;j++) {</span></a>
+<a name="169"><span class="lineNum">     169 </span><span class="lineNoCov">          0 :                     for (s=0.0,k=ppi;k&lt;rows;k++) s += U(k,i)*U(k,j);</span></a>
+<a name="170"><span class="lineNum">     170 </span><span class="lineNoCov">          0 :                     f=(s/U(i,i))*g;</span></a>
+<a name="171"><span class="lineNum">     171 </span><span class="lineNoCov">          0 :                     for (k=i;k&lt;rows;k++) U(k,j) += f*U(k,i);</span></a>
+<a name="172"><span class="lineNum">     172 </span>            :                 }</a>
+<a name="173"><span class="lineNum">     173 </span><span class="lineNoCov">          0 :                 for (j=i;j&lt;rows;j++) U(j,i) *= g;</span></a>
+<a name="174"><span class="lineNum">     174 </span>            :             } else {</a>
+<a name="175"><span class="lineNum">     175 </span><span class="lineNoCov">          0 :                 for (j=i;j&lt;rows;j++) U(j,i)=0.0;</span></a>
+<a name="176"><span class="lineNum">     176 </span>            :             }</a>
+<a name="177"><span class="lineNum">     177 </span><span class="lineNoCov">          0 :             ++U(i,i);</span></a>
+<a name="178"><span class="lineNum">     178 </span>            :         }</a>
+<a name="179"><span class="lineNum">     179 </span>            :         </a>
+<a name="180"><span class="lineNum">     180 </span>            :         /* Diagonalization of the bidiagonal form. */</a>
+<a name="181"><span class="lineNum">     181 </span><span class="lineNoCov">          0 :         for (k=cols-1;k&gt;=0;k--) { /* Loop over singular values. */</span></a>
+<a name="182"><span class="lineNum">     182 </span><span class="lineNoCov">          0 :             for (its=1;its&lt;=maxiter;its++) {  /* Loop over allowed iterations. */</span></a>
+<a name="183"><span class="lineNum">     183 </span><span class="lineNoCov">          0 :                 flag=true;</span></a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineNoCov">          0 :                 for (ppi=k;ppi&gt;=0;ppi--) {  /* Test for splitting. */</span></a>
+<a name="185"><span class="lineNum">     185 </span><span class="lineNoCov">          0 :                     nm=ppi-1;             /* Note that tmp(1) is always zero. */</span></a>
+<a name="186"><span class="lineNum">     186 </span><span class="lineNoCov">          0 :                     if ((fabs(tmp(ppi))+anorm) == anorm) {</span></a>
+<a name="187"><span class="lineNum">     187 </span><span class="lineNoCov">          0 :                         flag=false;</span></a>
+<a name="188"><span class="lineNum">     188 </span><span class="lineNoCov">          0 :                         break;</span></a>
+<a name="189"><span class="lineNum">     189 </span>            :                     }</a>
+<a name="190"><span class="lineNum">     190 </span><span class="lineNoCov">          0 :                     if ((fabs(S(nm)+anorm) == anorm)) break;</span></a>
+<a name="191"><span class="lineNum">     191 </span>            :                 }</a>
+<a name="192"><span class="lineNum">     192 </span><span class="lineNoCov">          0 :                 if (flag) {</span></a>
+<a name="193"><span class="lineNum">     193 </span><span class="lineNoCov">          0 :                     c=e_scalar(0.0);           /* Cancellation of tmp(l), if l&gt;1: */</span></a>
+<a name="194"><span class="lineNum">     194 </span><span class="lineNoCov">          0 :                     s=e_scalar(1.);</span></a>
+<a name="195"><span class="lineNum">     195 </span><span class="lineNoCov">          0 :                     for (i=ppi;i&lt;=k;i++) {</span></a>
+<a name="196"><span class="lineNum">     196 </span><span class="lineNoCov">          0 :                         f=s*tmp(i);</span></a>
+<a name="197"><span class="lineNum">     197 </span><span class="lineNoCov">          0 :                         tmp(i)=c*tmp(i);</span></a>
+<a name="198"><span class="lineNum">     198 </span><span class="lineNoCov">          0 :                         if ((fabs(f)+anorm) == anorm) break;</span></a>
+<a name="199"><span class="lineNum">     199 </span><span class="lineNoCov">          0 :                         g=S(i);</span></a>
+<a name="200"><span class="lineNum">     200 </span><span class="lineNoCov">          0 :                         h=PYTHAG(f,g);</span></a>
+<a name="201"><span class="lineNum">     201 </span><span class="lineNoCov">          0 :                         S(i)=h;</span></a>
+<a name="202"><span class="lineNum">     202 </span><span class="lineNoCov">          0 :                         h=e_scalar(1.0)/h;</span></a>
+<a name="203"><span class="lineNum">     203 </span><span class="lineNoCov">          0 :                         c=g*h;</span></a>
+<a name="204"><span class="lineNum">     204 </span><span class="lineNoCov">          0 :                         s=(-f*h);</span></a>
+<a name="205"><span class="lineNum">     205 </span><span class="lineNoCov">          0 :                         for (j=0;j&lt;rows;j++) {</span></a>
+<a name="206"><span class="lineNum">     206 </span><span class="lineNoCov">          0 :                             y=U(j,nm);</span></a>
+<a name="207"><span class="lineNum">     207 </span><span class="lineNoCov">          0 :                             z=U(j,i);</span></a>
+<a name="208"><span class="lineNum">     208 </span><span class="lineNoCov">          0 :                             U(j,nm)=y*c+z*s;</span></a>
+<a name="209"><span class="lineNum">     209 </span><span class="lineNoCov">          0 :                             U(j,i)=z*c-y*s;</span></a>
+<a name="210"><span class="lineNum">     210 </span>            :                         }</a>
+<a name="211"><span class="lineNum">     211 </span>            :                     }</a>
+<a name="212"><span class="lineNum">     212 </span>            :                 }</a>
+<a name="213"><span class="lineNum">     213 </span><span class="lineNoCov">          0 :                 z=S(k);</span></a>
+<a name="214"><span class="lineNum">     214 </span>            :                 </a>
+<a name="215"><span class="lineNum">     215 </span><span class="lineNoCov">          0 :                 if (ppi == k) {       /* Convergence. */</span></a>
+<a name="216"><span class="lineNum">     216 </span><span class="lineNoCov">          0 :                     if (z &lt; e_scalar(0.0)) {   /* Singular value is made nonnegative. */</span></a>
+<a name="217"><span class="lineNum">     217 </span><span class="lineNoCov">          0 :                         S(k) = -z;</span></a>
+<a name="218"><span class="lineNum">     218 </span><span class="lineNoCov">          0 :                         for (j=0;j&lt;cols;j++) V(j,k)=-V(j,k);</span></a>
+<a name="219"><span class="lineNum">     219 </span>            :                     }</a>
+<a name="220"><span class="lineNum">     220 </span><span class="lineNoCov">          0 :                     break;</span></a>
+<a name="221"><span class="lineNum">     221 </span>            :                 }</a>
+<a name="222"><span class="lineNum">     222 </span>            :                 </a>
+<a name="223"><span class="lineNum">     223 </span><span class="lineNoCov">          0 :                 x=S(ppi);            /* Shift from bottom 2-by-2 minor: */</span></a>
+<a name="224"><span class="lineNum">     224 </span><span class="lineNoCov">          0 :                 nm=k-1;</span></a>
+<a name="225"><span class="lineNum">     225 </span><span class="lineNoCov">          0 :                 y=S(nm);</span></a>
+<a name="226"><span class="lineNum">     226 </span><span class="lineNoCov">          0 :                 g=tmp(nm);</span></a>
+<a name="227"><span class="lineNum">     227 </span><span class="lineNoCov">          0 :                 h=tmp(k);</span></a>
+<a name="228"><span class="lineNum">     228 </span><span class="lineNoCov">          0 :                 f=((y-z)*(y+z)+(g-h)*(g+h))/(e_scalar(2.0)*h*y);</span></a>
+<a name="229"><span class="lineNum">     229 </span>            :                 </a>
+<a name="230"><span class="lineNum">     230 </span><span class="lineNoCov">          0 :                 g=PYTHAG(f,e_scalar(1.0));</span></a>
+<a name="231"><span class="lineNum">     231 </span><span class="lineNoCov">          0 :                 f=((x-z)*(x+z)+h*((y/(f+SIGN(g,f)))-h))/x;</span></a>
+<a name="232"><span class="lineNum">     232 </span>            :                 </a>
+<a name="233"><span class="lineNum">     233 </span>            :                 /* Next QR transformation: */</a>
+<a name="234"><span class="lineNum">     234 </span><span class="lineNoCov">          0 :                 c=s=1.0;</span></a>
+<a name="235"><span class="lineNum">     235 </span><span class="lineNoCov">          0 :                 for (j=ppi;j&lt;=nm;j++) {</span></a>
+<a name="236"><span class="lineNum">     236 </span><span class="lineNoCov">          0 :                     i=j+1;</span></a>
+<a name="237"><span class="lineNum">     237 </span><span class="lineNoCov">          0 :                     g=tmp(i);</span></a>
+<a name="238"><span class="lineNum">     238 </span><span class="lineNoCov">          0 :                     y=S(i);</span></a>
+<a name="239"><span class="lineNum">     239 </span><span class="lineNoCov">          0 :                     h=s*g;</span></a>
+<a name="240"><span class="lineNum">     240 </span><span class="lineNoCov">          0 :                     g=c*g;</span></a>
+<a name="241"><span class="lineNum">     241 </span><span class="lineNoCov">          0 :                     z=PYTHAG(f,h);</span></a>
+<a name="242"><span class="lineNum">     242 </span><span class="lineNoCov">          0 :                     tmp(j)=z;</span></a>
+<a name="243"><span class="lineNum">     243 </span><span class="lineNoCov">          0 :                     c=f/z;</span></a>
+<a name="244"><span class="lineNum">     244 </span><span class="lineNoCov">          0 :                     s=h/z;</span></a>
+<a name="245"><span class="lineNum">     245 </span><span class="lineNoCov">          0 :                     f=x*c+g*s;</span></a>
+<a name="246"><span class="lineNum">     246 </span><span class="lineNoCov">          0 :                     g=g*c-x*s;</span></a>
+<a name="247"><span class="lineNum">     247 </span><span class="lineNoCov">          0 :                     h=y*s;</span></a>
+<a name="248"><span class="lineNum">     248 </span><span class="lineNoCov">          0 :                     y=y*c;</span></a>
+<a name="249"><span class="lineNum">     249 </span><span class="lineNoCov">          0 :                     for (jj=0;jj&lt;cols;jj++) {</span></a>
+<a name="250"><span class="lineNum">     250 </span><span class="lineNoCov">          0 :                         x=V(jj,j);</span></a>
+<a name="251"><span class="lineNum">     251 </span><span class="lineNoCov">          0 :                         z=V(jj,i);</span></a>
+<a name="252"><span class="lineNum">     252 </span><span class="lineNoCov">          0 :                         V(jj,j)=x*c+z*s;</span></a>
+<a name="253"><span class="lineNum">     253 </span><span class="lineNoCov">          0 :                         V(jj,i)=z*c-x*s;</span></a>
+<a name="254"><span class="lineNum">     254 </span>            :                     }</a>
+<a name="255"><span class="lineNum">     255 </span><span class="lineNoCov">          0 :                     z=PYTHAG(f,h);</span></a>
+<a name="256"><span class="lineNum">     256 </span><span class="lineNoCov">          0 :                     S(j)=z;</span></a>
+<a name="257"><span class="lineNum">     257 </span><span class="lineNoCov">          0 :                     if (z) {</span></a>
+<a name="258"><span class="lineNum">     258 </span><span class="lineNoCov">          0 :                         z=e_scalar(1.0)/z;</span></a>
+<a name="259"><span class="lineNum">     259 </span><span class="lineNoCov">          0 :                         c=f*z;</span></a>
+<a name="260"><span class="lineNum">     260 </span><span class="lineNoCov">          0 :                         s=h*z;</span></a>
+<a name="261"><span class="lineNum">     261 </span>            :                     }</a>
+<a name="262"><span class="lineNum">     262 </span><span class="lineNoCov">          0 :                     f=(c*g)+(s*y);</span></a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineNoCov">          0 :                     x=(c*y)-(s*g);</span></a>
+<a name="264"><span class="lineNum">     264 </span><span class="lineNoCov">          0 :                     for (jj=0;jj&lt;rows;jj++) {</span></a>
+<a name="265"><span class="lineNum">     265 </span><span class="lineNoCov">          0 :                         y=U(jj,j);</span></a>
+<a name="266"><span class="lineNum">     266 </span><span class="lineNoCov">          0 :                         z=U(jj,i);</span></a>
+<a name="267"><span class="lineNum">     267 </span><span class="lineNoCov">          0 :                         U(jj,j)=y*c+z*s;</span></a>
+<a name="268"><span class="lineNum">     268 </span><span class="lineNoCov">          0 :                         U(jj,i)=z*c-y*s;</span></a>
+<a name="269"><span class="lineNum">     269 </span>            :                     }</a>
+<a name="270"><span class="lineNum">     270 </span>            :                 }</a>
+<a name="271"><span class="lineNum">     271 </span><span class="lineNoCov">          0 :                 tmp(ppi)=0.0;</span></a>
+<a name="272"><span class="lineNum">     272 </span><span class="lineNoCov">          0 :                 tmp(k)=f;</span></a>
+<a name="273"><span class="lineNum">     273 </span><span class="lineNoCov">          0 :                 S(k)=x;</span></a>
+<a name="274"><span class="lineNum">     274 </span>            :             }</a>
+<a name="275"><span class="lineNum">     275 </span>            :         }</a>
+<a name="276"><span class="lineNum">     276 </span>            : </a>
+<a name="277"><span class="lineNum">     277 </span>            :         //Sort eigen values:</a>
+<a name="278"><span class="lineNum">     278 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;cols; i++){</span></a>
+<a name="279"><span class="lineNum">     279 </span>            :             </a>
+<a name="280"><span class="lineNum">     280 </span><span class="lineNoCov">          0 :             double S_max = S(i);</span></a>
+<a name="281"><span class="lineNum">     281 </span><span class="lineNoCov">          0 :             int i_max = i;</span></a>
+<a name="282"><span class="lineNum">     282 </span><span class="lineNoCov">          0 :             for (j=i+1; j&lt;cols; j++){</span></a>
+<a name="283"><span class="lineNum">     283 </span><span class="lineNoCov">          0 :                 double Sj = S(j);</span></a>
+<a name="284"><span class="lineNum">     284 </span><span class="lineNoCov">          0 :                 if (Sj &gt; S_max){</span></a>
+<a name="285"><span class="lineNum">     285 </span><span class="lineNoCov">          0 :                     S_max = Sj;</span></a>
+<a name="286"><span class="lineNum">     286 </span><span class="lineNoCov">          0 :                     i_max = j;</span></a>
+<a name="287"><span class="lineNum">     287 </span>            :                 }</a>
+<a name="288"><span class="lineNum">     288 </span>            :             }</a>
+<a name="289"><span class="lineNum">     289 </span><span class="lineNoCov">          0 :             if (i_max != i){</span></a>
+<a name="290"><span class="lineNum">     290 </span>            :                 /* swap eigenvalues */</a>
+<a name="291"><span class="lineNum">     291 </span><span class="lineNoCov">          0 :                 e_scalar tmp = S(i);</span></a>
+<a name="292"><span class="lineNum">     292 </span><span class="lineNoCov">          0 :                 S(i)=S(i_max);</span></a>
+<a name="293"><span class="lineNum">     293 </span><span class="lineNoCov">          0 :                 S(i_max)=tmp;</span></a>
+<a name="294"><span class="lineNum">     294 </span>            :                 </a>
+<a name="295"><span class="lineNum">     295 </span>            :                 /* swap eigenvectors */</a>
+<a name="296"><span class="lineNum">     296 </span><span class="lineNoCov">          0 :                 U.col(i).swap(U.col(i_max));</span></a>
+<a name="297"><span class="lineNum">     297 </span><span class="lineNoCov">          0 :                 V.col(i).swap(V.col(i_max));</span></a>
+<a name="298"><span class="lineNum">     298 </span>            :             }</a>
+<a name="299"><span class="lineNum">     299 </span>            :         }</a>
+<a name="300"><span class="lineNum">     300 </span>            :         </a>
+<a name="301"><span class="lineNum">     301 </span>            :         </a>
+<a name="302"><span class="lineNum">     302 </span><span class="lineNoCov">          0 :         if (its == maxiter) </span></a>
+<a name="303"><span class="lineNum">     303 </span><span class="lineNoCov">          0 :             return (-2);</span></a>
+<a name="304"><span class="lineNum">     304 </span>            :         else </a>
+<a name="305"><span class="lineNum">     305 </span><span class="lineNoCov">          0 :             return (0);</span></a>
+<a name="306"><span class="lineNum">     306 </span>            :     }</a>
+<a name="307"><span class="lineNum">     307 </span>            : </a>
+<a name="308"><span class="lineNum">     308 </span>            : }</a>
+<a name="309"><span class="lineNum">     309 </span>            : #endif</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

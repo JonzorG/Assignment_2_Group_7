@@ -1,0 +1,369 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - draw/intern/mesh_extractors/extract_mesh_vbo_lnor.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">draw/intern/mesh_extractors</a> - extract_mesh_vbo_lnor.cc<span style="font-size: 80%;"> (source / <a href="extract_mesh_vbo_lnor.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">166</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">32</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2021 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup draw</a>
+<a name="7"><span class="lineNum">       7 </span>            :  */</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &quot;GPU_attribute_convert.hh&quot;</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &quot;extract_mesh.hh&quot;</a>
+<a name="12"><span class="lineNum">      12 </span>            : </a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;draw_subdivision.hh&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : </a>
+<a name="15"><span class="lineNum">      15 </span>            : namespace blender::draw {</a>
+<a name="16"><span class="lineNum">      16 </span>            : </a>
+<a name="17"><span class="lineNum">      17 </span><span class="lineNoCov">          0 : static Span&lt;float3&gt; get_vert_normals(const MeshRenderData &amp;mr)</span></a>
+<a name="18"><span class="lineNum">      18 </span>            : {</a>
+<a name="19"><span class="lineNum">      19 </span><span class="lineNoCov">          0 :   return mr.use_simplify_normals ? mr.mesh-&gt;vert_normals_true() : mr.mesh-&gt;vert_normals();</span></a>
+<a name="20"><span class="lineNum">      20 </span>            : }</a>
+<a name="21"><span class="lineNum">      21 </span>            : </a>
+<a name="22"><span class="lineNum">      22 </span>            : template&lt;typename GPUType&gt;</a>
+<a name="23"><span class="lineNum">      23 </span><span class="lineNoCov">          0 : static void extract_vert_normals_mesh(const MeshRenderData &amp;mr, MutableSpan&lt;GPUType&gt; vert_data)</span></a>
+<a name="24"><span class="lineNum">      24 </span>            : {</a>
+<a name="25"><span class="lineNum">      25 </span><span class="lineNoCov">          0 :   gpu::convert_normals(get_vert_normals(mr), vert_data);</span></a>
+<a name="26"><span class="lineNum">      26 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="27"><span class="lineNum">      27 </span>            : </a>
+<a name="28"><span class="lineNum">      28 </span>            : template&lt;typename GPUType&gt;</a>
+<a name="29"><span class="lineNum">      29 </span><span class="lineNoCov">          0 : static void extract_vert_normals_bm(const MeshRenderData &amp;mr, MutableSpan&lt;GPUType&gt; vert_data)</span></a>
+<a name="30"><span class="lineNum">      30 </span>            : {</a>
+<a name="31"><span class="lineNum">      31 </span><span class="lineNoCov">          0 :   const BMesh &amp;bm = *mr.bm;</span></a>
+<a name="32"><span class="lineNum">      32 </span><span class="lineNoCov">          0 :   threading::parallel_for(IndexRange(bm.totvert), 4096, [&amp;](const IndexRange range) {</span></a>
+<a name="33"><span class="lineNum">      33 </span><span class="lineNoCov">          0 :     for (const int i : range) {</span></a>
+<a name="34"><span class="lineNum">      34 </span><span class="lineNoCov">          0 :       const BMVert *vert = BM_vert_at_index(&amp;const_cast&lt;BMesh &amp;&gt;(bm), i);</span></a>
+<a name="35"><span class="lineNum">      35 </span><span class="lineNoCov">          0 :       vert_data[i] = gpu::convert_normal&lt;GPUType&gt;(bm_vert_no_get(mr, vert));</span></a>
+<a name="36"><span class="lineNum">      36 </span>            :     }</a>
+<a name="37"><span class="lineNum">      37 </span>            :   });</a>
+<a name="38"><span class="lineNum">      38 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="39"><span class="lineNum">      39 </span>            : </a>
+<a name="40"><span class="lineNum">      40 </span>            : template&lt;typename GPUType&gt;</a>
+<a name="41"><span class="lineNum">      41 </span><span class="lineNoCov">          0 : static void extract_face_normals_mesh(const MeshRenderData &amp;mr, MutableSpan&lt;GPUType&gt; face_data)</span></a>
+<a name="42"><span class="lineNum">      42 </span>            : {</a>
+<a name="43"><span class="lineNum">      43 </span><span class="lineNoCov">          0 :   gpu::convert_normals(mr.face_normals, face_data);</span></a>
+<a name="44"><span class="lineNum">      44 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="45"><span class="lineNum">      45 </span>            : </a>
+<a name="46"><span class="lineNum">      46 </span>            : template&lt;typename GPUType&gt;</a>
+<a name="47"><span class="lineNum">      47 </span><span class="lineNoCov">          0 : static void extract_face_normals_bm(const MeshRenderData &amp;mr, MutableSpan&lt;GPUType&gt; face_data)</span></a>
+<a name="48"><span class="lineNum">      48 </span>            : {</a>
+<a name="49"><span class="lineNum">      49 </span><span class="lineNoCov">          0 :   const BMesh &amp;bm = *mr.bm;</span></a>
+<a name="50"><span class="lineNum">      50 </span><span class="lineNoCov">          0 :   threading::parallel_for(IndexRange(bm.totface), 4096, [&amp;](const IndexRange range) {</span></a>
+<a name="51"><span class="lineNum">      51 </span><span class="lineNoCov">          0 :     for (const int i : range) {</span></a>
+<a name="52"><span class="lineNum">      52 </span><span class="lineNoCov">          0 :       const BMFace *face = BM_face_at_index(&amp;const_cast&lt;BMesh &amp;&gt;(bm), i);</span></a>
+<a name="53"><span class="lineNum">      53 </span><span class="lineNoCov">          0 :       face_data[i] = gpu::convert_normal&lt;GPUType&gt;(bm_face_no_get(mr, face));</span></a>
+<a name="54"><span class="lineNum">      54 </span>            :     }</a>
+<a name="55"><span class="lineNum">      55 </span>            :   });</a>
+<a name="56"><span class="lineNum">      56 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="57"><span class="lineNum">      57 </span>            : </a>
+<a name="58"><span class="lineNum">      58 </span>            : template&lt;typename GPUType&gt;</a>
+<a name="59"><span class="lineNum">      59 </span><span class="lineNoCov">          0 : static void extract_corner_normals_mesh(const MeshRenderData &amp;mr, MutableSpan&lt;GPUType&gt; normals)</span></a>
+<a name="60"><span class="lineNum">      60 </span>            : {</a>
+<a name="61"><span class="lineNum">      61 </span><span class="lineNoCov">          0 :   if (!mr.corner_normals.is_empty()) {</span></a>
+<a name="62"><span class="lineNum">      62 </span><span class="lineNoCov">          0 :     gpu::convert_normals(mr.corner_normals, normals);</span></a>
+<a name="63"><span class="lineNum">      63 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="64"><span class="lineNum">      64 </span>            :   }</a>
+<a name="65"><span class="lineNum">      65 </span>            :   /* The corner normals span can still be empty with the &quot;simplify&quot; option. That forces</a>
+<a name="66"><span class="lineNum">      66 </span>            :    * mixed face and vertex normals. */</a>
+<a name="67"><span class="lineNum">      67 </span><span class="lineNoCov">          0 :   const OffsetIndices faces = mr.faces;</span></a>
+<a name="68"><span class="lineNum">      68 </span><span class="lineNoCov">          0 :   const Span&lt;int&gt; corner_verts = mr.corner_verts;</span></a>
+<a name="69"><span class="lineNum">      69 </span><span class="lineNoCov">          0 :   const Span&lt;bool&gt; sharp_faces = mr.sharp_faces;</span></a>
+<a name="70"><span class="lineNum">      70 </span><span class="lineNoCov">          0 :   const Span&lt;float3&gt; vert_normals = get_vert_normals(mr);</span></a>
+<a name="71"><span class="lineNum">      71 </span><span class="lineNoCov">          0 :   const Span&lt;float3&gt; face_normals = mr.face_normals;</span></a>
+<a name="72"><span class="lineNum">      72 </span><span class="lineNoCov">          0 :   threading::parallel_for(faces.index_range(), 2048, [&amp;](const IndexRange range) {</span></a>
+<a name="73"><span class="lineNum">      73 </span><span class="lineNoCov">          0 :     for (const int face : range) {</span></a>
+<a name="74"><span class="lineNum">      74 </span><span class="lineNoCov">          0 :       if (!sharp_faces.is_empty() &amp;&amp; sharp_faces[face]) {</span></a>
+<a name="75"><span class="lineNum">      75 </span><span class="lineNoCov">          0 :         normals.slice(faces[face]).fill(gpu::convert_normal&lt;GPUType&gt;(face_normals[face]));</span></a>
+<a name="76"><span class="lineNum">      76 </span>            :       }</a>
+<a name="77"><span class="lineNum">      77 </span>            :       else {</a>
+<a name="78"><span class="lineNum">      78 </span><span class="lineNoCov">          0 :         for (const int corner : faces[face]) {</span></a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineNoCov">          0 :           normals[corner] = gpu::convert_normal&lt;GPUType&gt;(vert_normals[corner_verts[corner]]);</span></a>
+<a name="80"><span class="lineNum">      80 </span>            :         }</a>
+<a name="81"><span class="lineNum">      81 </span>            :       }</a>
+<a name="82"><span class="lineNum">      82 </span>            :     }</a>
+<a name="83"><span class="lineNum">      83 </span>            :   });</a>
+<a name="84"><span class="lineNum">      84 </span>            : }</a>
+<a name="85"><span class="lineNum">      85 </span>            : </a>
+<a name="86"><span class="lineNum">      86 </span>            : template&lt;typename GPUType&gt;</a>
+<a name="87"><span class="lineNum">      87 </span><span class="lineNoCov">          0 : static void extract_corner_normals_bm(const MeshRenderData &amp;mr, MutableSpan&lt;GPUType&gt; normals)</span></a>
+<a name="88"><span class="lineNum">      88 </span>            : {</a>
+<a name="89"><span class="lineNum">      89 </span><span class="lineNoCov">          0 :   const BMesh &amp;bm = *mr.bm;</span></a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineNoCov">          0 :   if (mr.bm_free_normal_offset_corner != -1) {</span></a>
+<a name="91"><span class="lineNum">      91 </span><span class="lineNoCov">          0 :     threading::parallel_for(IndexRange(bm.totface), 2048, [&amp;](const IndexRange range) {</span></a>
+<a name="92"><span class="lineNum">      92 </span><span class="lineNoCov">          0 :       for (const int face_index : range) {</span></a>
+<a name="93"><span class="lineNum">      93 </span><span class="lineNoCov">          0 :         const BMFace &amp;face = *BM_face_at_index(&amp;const_cast&lt;BMesh &amp;&gt;(bm), face_index);</span></a>
+<a name="94"><span class="lineNum">      94 </span><span class="lineNoCov">          0 :         const BMLoop *loop = BM_FACE_FIRST_LOOP(&amp;face);</span></a>
+<a name="95"><span class="lineNum">      95 </span><span class="lineNoCov">          0 :         const IndexRange face_range(BM_elem_index_get(loop), face.len);</span></a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineNoCov">          0 :         for (const int corner : face_range) {</span></a>
+<a name="97"><span class="lineNum">      97 </span><span class="lineNoCov">          0 :           normals[corner] = gpu::convert_normal&lt;GPUType&gt;(</span></a>
+<a name="98"><span class="lineNum">      98 </span><span class="lineNoCov">          0 :               BM_ELEM_CD_GET_FLOAT_P(loop, mr.bm_free_normal_offset_corner));</span></a>
+<a name="99"><span class="lineNum">      99 </span><span class="lineNoCov">          0 :           loop = loop-&gt;next;</span></a>
+<a name="100"><span class="lineNum">     100 </span>            :         }</a>
+<a name="101"><span class="lineNum">     101 </span>            :       }</a>
+<a name="102"><span class="lineNum">     102 </span>            :     });</a>
+<a name="103"><span class="lineNum">     103 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="104"><span class="lineNum">     104 </span>            :   }</a>
+<a name="105"><span class="lineNum">     105 </span><span class="lineNoCov">          0 :   if (!mr.bm_loop_normals.is_empty()) {</span></a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineNoCov">          0 :     gpu::convert_normals(mr.bm_loop_normals, normals);</span></a>
+<a name="107"><span class="lineNum">     107 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="108"><span class="lineNum">     108 </span>            :   }</a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineNoCov">          0 :   threading::parallel_for(IndexRange(bm.totface), 2048, [&amp;](const IndexRange range) {</span></a>
+<a name="110"><span class="lineNum">     110 </span><span class="lineNoCov">          0 :     for (const int face_index : range) {</span></a>
+<a name="111"><span class="lineNum">     111 </span><span class="lineNoCov">          0 :       const BMFace &amp;face = *BM_face_at_index(&amp;const_cast&lt;BMesh &amp;&gt;(bm), face_index);</span></a>
+<a name="112"><span class="lineNum">     112 </span><span class="lineNoCov">          0 :       const BMLoop *loop = BM_FACE_FIRST_LOOP(&amp;face);</span></a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineNoCov">          0 :       const IndexRange face_range(BM_elem_index_get(loop), face.len);</span></a>
+<a name="114"><span class="lineNum">     114 </span><span class="lineNoCov">          0 :       if (!BM_elem_flag_test(&amp;face, BM_ELEM_SMOOTH)) {</span></a>
+<a name="115"><span class="lineNum">     115 </span><span class="lineNoCov">          0 :         normals.slice(face_range).fill(gpu::convert_normal&lt;GPUType&gt;(bm_face_no_get(mr, &amp;face)));</span></a>
+<a name="116"><span class="lineNum">     116 </span>            :       }</a>
+<a name="117"><span class="lineNum">     117 </span>            :       else {</a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineNoCov">          0 :         for (const int corner : face_range) {</span></a>
+<a name="119"><span class="lineNum">     119 </span><span class="lineNoCov">          0 :           normals[corner] = gpu::convert_normal&lt;GPUType&gt;(bm_vert_no_get(mr, loop-&gt;v));</span></a>
+<a name="120"><span class="lineNum">     120 </span><span class="lineNoCov">          0 :           loop = loop-&gt;next;</span></a>
+<a name="121"><span class="lineNum">     121 </span>            :         }</a>
+<a name="122"><span class="lineNum">     122 </span>            :       }</a>
+<a name="123"><span class="lineNum">     123 </span>            :     }</a>
+<a name="124"><span class="lineNum">     124 </span>            :   });</a>
+<a name="125"><span class="lineNum">     125 </span>            : }</a>
+<a name="126"><span class="lineNum">     126 </span>            : </a>
+<a name="127"><span class="lineNum">     127 </span>            : template&lt;typename GPUType&gt;</a>
+<a name="128"><span class="lineNum">     128 </span><span class="lineNoCov">          0 : static gpu::VertBufPtr extract_normals(const MeshRenderData &amp;mr,</span></a>
+<a name="129"><span class="lineNum">     129 </span>            :                                        MeshBufferCache &amp;cache,</a>
+<a name="130"><span class="lineNum">     130 </span>            :                                        const GPUVertFormat &amp;format)</a>
+<a name="131"><span class="lineNum">     131 </span>            : {</a>
+<a name="132"><span class="lineNum">     132 </span><span class="lineNoCov">          0 :   const bool is_mesh = mr.extract_type == MeshExtractType::Mesh;</span></a>
+<a name="133"><span class="lineNum">     133 </span><span class="lineNoCov">          0 :   const int size = mr.corners_num + mr.loose_indices_num;</span></a>
+<a name="134"><span class="lineNum">     134 </span><span class="lineNoCov">          0 :   const Array&lt;GPUType&gt; loose_data(mr.loose_indices_num, GPUType{});</span></a>
+<a name="135"><span class="lineNum">     135 </span>            : </a>
+<a name="136"><span class="lineNum">     136 </span><span class="lineNoCov">          0 :   switch (mr.normals_domain) {</span></a>
+<a name="137"><span class="lineNum">     137 </span><span class="lineNoCov">          0 :     case bke::MeshNormalDomain::Point: {</span></a>
+<a name="138"><span class="lineNum">     138 </span><span class="lineNoCov">          0 :       gpu::VertBufPtr vert_vbo = gpu::VertBufPtr(GPU_vertbuf_create_with_format(format));</span></a>
+<a name="139"><span class="lineNum">     139 </span><span class="lineNoCov">          0 :       GPU_vertbuf_data_alloc(*vert_vbo, mr.verts_num);</span></a>
+<a name="140"><span class="lineNum">     140 </span><span class="lineNoCov">          0 :       if (is_mesh) {</span></a>
+<a name="141"><span class="lineNum">     141 </span><span class="lineNoCov">          0 :         extract_vert_normals_mesh(mr, vert_vbo-&gt;data&lt;GPUType&gt;());</span></a>
+<a name="142"><span class="lineNum">     142 </span>            :       }</a>
+<a name="143"><span class="lineNum">     143 </span>            :       else {</a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineNoCov">          0 :         extract_vert_normals_bm(mr, vert_vbo-&gt;data&lt;GPUType&gt;());</span></a>
+<a name="145"><span class="lineNum">     145 </span>            :       }</a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineNoCov">          0 :       gpu::VertBufPtr vbo = gpu::VertBufPtr(GPU_vertbuf_create_on_device(format, size));</span></a>
+<a name="147"><span class="lineNum">     147 </span><span class="lineNoCov">          0 :       gather_vert_to_corner_gpu(mr, cache, *vert_vbo, *vbo);</span></a>
+<a name="148"><span class="lineNum">     148 </span><span class="lineNoCov">          0 :       loose_data_upload(mr, loose_data.as_span(), *vbo);</span></a>
+<a name="149"><span class="lineNum">     149 </span><span class="lineNoCov">          0 :       return vbo;</span></a>
+<a name="150"><span class="lineNum">     150 </span><span class="lineNoCov">          0 :     }</span></a>
+<a name="151"><span class="lineNum">     151 </span><span class="lineNoCov">          0 :     case bke::MeshNormalDomain::Face: {</span></a>
+<a name="152"><span class="lineNum">     152 </span><span class="lineNoCov">          0 :       gpu::VertBufPtr face_vbo = gpu::VertBufPtr(GPU_vertbuf_create_with_format(format));</span></a>
+<a name="153"><span class="lineNum">     153 </span><span class="lineNoCov">          0 :       GPU_vertbuf_data_alloc(*face_vbo, mr.faces_num);</span></a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineNoCov">          0 :       if (is_mesh) {</span></a>
+<a name="155"><span class="lineNum">     155 </span><span class="lineNoCov">          0 :         extract_face_normals_mesh(mr, face_vbo-&gt;data&lt;GPUType&gt;());</span></a>
+<a name="156"><span class="lineNum">     156 </span>            :       }</a>
+<a name="157"><span class="lineNum">     157 </span>            :       else {</a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineNoCov">          0 :         extract_face_normals_bm(mr, face_vbo-&gt;data&lt;GPUType&gt;());</span></a>
+<a name="159"><span class="lineNum">     159 </span>            :       }</a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineNoCov">          0 :       gpu::VertBufPtr vbo = gpu::VertBufPtr(GPU_vertbuf_create_on_device(format, size));</span></a>
+<a name="161"><span class="lineNum">     161 </span><span class="lineNoCov">          0 :       scatter_face_to_corner_gpu(mr, cache, *face_vbo, *vbo);</span></a>
+<a name="162"><span class="lineNum">     162 </span><span class="lineNoCov">          0 :       loose_data_upload(mr, loose_data.as_span(), *vbo);</span></a>
+<a name="163"><span class="lineNum">     163 </span><span class="lineNoCov">          0 :       return vbo;</span></a>
+<a name="164"><span class="lineNum">     164 </span><span class="lineNoCov">          0 :     }</span></a>
+<a name="165"><span class="lineNum">     165 </span><span class="lineNoCov">          0 :     case bke::MeshNormalDomain::Corner: {</span></a>
+<a name="166"><span class="lineNum">     166 </span><span class="lineNoCov">          0 :       gpu::VertBufPtr vbo = gpu::VertBufPtr(GPU_vertbuf_create_with_format(format));</span></a>
+<a name="167"><span class="lineNum">     167 </span><span class="lineNoCov">          0 :       GPU_vertbuf_data_alloc(*vbo, size);</span></a>
+<a name="168"><span class="lineNum">     168 </span><span class="lineNoCov">          0 :       MutableSpan vbo_data = vbo-&gt;data&lt;GPUType&gt;();</span></a>
+<a name="169"><span class="lineNum">     169 </span><span class="lineNoCov">          0 :       if (is_mesh) {</span></a>
+<a name="170"><span class="lineNum">     170 </span><span class="lineNoCov">          0 :         extract_corner_normals_mesh(mr, vbo_data.take_front(mr.corners_num));</span></a>
+<a name="171"><span class="lineNum">     171 </span>            :       }</a>
+<a name="172"><span class="lineNum">     172 </span>            :       else {</a>
+<a name="173"><span class="lineNum">     173 </span><span class="lineNoCov">          0 :         extract_corner_normals_bm(mr, vbo_data.take_front(mr.corners_num));</span></a>
+<a name="174"><span class="lineNum">     174 </span>            :       }</a>
+<a name="175"><span class="lineNum">     175 </span><span class="lineNoCov">          0 :       vbo_data.take_back(mr.loose_indices_num).copy_from(loose_data);</span></a>
+<a name="176"><span class="lineNum">     176 </span><span class="lineNoCov">          0 :       return vbo;</span></a>
+<a name="177"><span class="lineNum">     177 </span><span class="lineNoCov">          0 :     }</span></a>
+<a name="178"><span class="lineNum">     178 </span>            :   }</a>
+<a name="179"><span class="lineNum">     179 </span><span class="lineNoCov">          0 :   BLI_assert_unreachable();</span></a>
+<a name="180"><span class="lineNum">     180 </span><span class="lineNoCov">          0 :   return {};</span></a>
+<a name="181"><span class="lineNum">     181 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="182"><span class="lineNum">     182 </span>            : </a>
+<a name="183"><span class="lineNum">     183 </span><span class="lineNoCov">          0 : gpu::VertBufPtr extract_normals(const MeshRenderData &amp;mr,</span></a>
+<a name="184"><span class="lineNum">     184 </span>            :                                 MeshBufferCache &amp;cache,</a>
+<a name="185"><span class="lineNum">     185 </span>            :                                 const bool use_hq)</a>
+<a name="186"><span class="lineNum">     186 </span>            : {</a>
+<a name="187"><span class="lineNum">     187 </span><span class="lineNoCov">          0 :   if (use_hq) {</span></a>
+<a name="188"><span class="lineNum">     188 </span><span class="lineNoCov">          0 :     static const GPUVertFormat format = []() {</span></a>
+<a name="189"><span class="lineNum">     189 </span><span class="lineNoCov">          0 :       GPUVertFormat format{};</span></a>
+<a name="190"><span class="lineNum">     190 </span><span class="lineNoCov">          0 :       GPU_vertformat_attr_add(&amp;format, &quot;nor&quot;, gpu::VertAttrType::SNORM_16_16_16_16);</span></a>
+<a name="191"><span class="lineNum">     191 </span><span class="lineNoCov">          0 :       GPU_vertformat_alias_add(&amp;format, &quot;lnor&quot;);</span></a>
+<a name="192"><span class="lineNum">     192 </span><span class="lineNoCov">          0 :       GPU_vertformat_alias_add(&amp;format, &quot;vnor&quot;);</span></a>
+<a name="193"><span class="lineNum">     193 </span><span class="lineNoCov">          0 :       return format;</span></a>
+<a name="194"><span class="lineNum">     194 </span><span class="lineNoCov">          0 :     }();</span></a>
+<a name="195"><span class="lineNum">     195 </span><span class="lineNoCov">          0 :     return extract_normals&lt;short4&gt;(mr, cache, format);</span></a>
+<a name="196"><span class="lineNum">     196 </span>            :   }</a>
+<a name="197"><span class="lineNum">     197 </span><span class="lineNoCov">          0 :   static const GPUVertFormat format = []() {</span></a>
+<a name="198"><span class="lineNum">     198 </span><span class="lineNoCov">          0 :     GPUVertFormat format{};</span></a>
+<a name="199"><span class="lineNum">     199 </span><span class="lineNoCov">          0 :     GPU_vertformat_attr_add(&amp;format, &quot;nor&quot;, gpu::VertAttrType::SNORM_10_10_10_2);</span></a>
+<a name="200"><span class="lineNum">     200 </span><span class="lineNoCov">          0 :     GPU_vertformat_alias_add(&amp;format, &quot;lnor&quot;);</span></a>
+<a name="201"><span class="lineNum">     201 </span><span class="lineNoCov">          0 :     GPU_vertformat_alias_add(&amp;format, &quot;vnor&quot;);</span></a>
+<a name="202"><span class="lineNum">     202 </span><span class="lineNoCov">          0 :     return format;</span></a>
+<a name="203"><span class="lineNum">     203 </span><span class="lineNoCov">          0 :   }();</span></a>
+<a name="204"><span class="lineNum">     204 </span><span class="lineNoCov">          0 :   return extract_normals&lt;int1010102_norm&gt;(mr, cache, format);</span></a>
+<a name="205"><span class="lineNum">     205 </span>            : }</a>
+<a name="206"><span class="lineNum">     206 </span>            : </a>
+<a name="207"><span class="lineNum">     207 </span><span class="lineNoCov">          0 : static const GPUVertFormat &amp;get_normals_format()</span></a>
+<a name="208"><span class="lineNum">     208 </span>            : {</a>
+<a name="209"><span class="lineNum">     209 </span><span class="lineNoCov">          0 :   static const GPUVertFormat format = []() {</span></a>
+<a name="210"><span class="lineNum">     210 </span><span class="lineNoCov">          0 :     GPUVertFormat format{};</span></a>
+<a name="211"><span class="lineNum">     211 </span><span class="lineNoCov">          0 :     GPU_vertformat_attr_add(&amp;format, &quot;nor&quot;, gpu::VertAttrType::SFLOAT_32_32_32);</span></a>
+<a name="212"><span class="lineNum">     212 </span><span class="lineNoCov">          0 :     GPU_vertformat_alias_add(&amp;format, &quot;lnor&quot;);</span></a>
+<a name="213"><span class="lineNum">     213 </span><span class="lineNoCov">          0 :     GPU_vertformat_alias_add(&amp;format, &quot;vnor&quot;);</span></a>
+<a name="214"><span class="lineNum">     214 </span><span class="lineNoCov">          0 :     return format;</span></a>
+<a name="215"><span class="lineNum">     215 </span><span class="lineNoCov">          0 :   }();</span></a>
+<a name="216"><span class="lineNum">     216 </span><span class="lineNoCov">          0 :   return format;</span></a>
+<a name="217"><span class="lineNum">     217 </span>            : }</a>
+<a name="218"><span class="lineNum">     218 </span>            : </a>
+<a name="219"><span class="lineNum">     219 </span><span class="lineNoCov">          0 : static void update_loose_normals(const MeshRenderData &amp;mr,</span></a>
+<a name="220"><span class="lineNum">     220 </span>            :                                  const DRWSubdivCache &amp;subdiv_cache,</a>
+<a name="221"><span class="lineNum">     221 </span>            :                                  gpu::VertBuf &amp;lnor)</a>
+<a name="222"><span class="lineNum">     222 </span>            : {</a>
+<a name="223"><span class="lineNum">     223 </span><span class="lineNoCov">          0 :   const int vbo_size = subdiv_full_vbo_size(mr, subdiv_cache);</span></a>
+<a name="224"><span class="lineNum">     224 </span><span class="lineNoCov">          0 :   const int loose_geom_start = subdiv_cache.num_subdiv_loops;</span></a>
+<a name="225"><span class="lineNum">     225 </span>            : </a>
+<a name="226"><span class="lineNum">     226 </span>            :   /* Push VBO content to the GPU and bind the VBO so that #GPU_vertbuf_update_sub can work. */</a>
+<a name="227"><span class="lineNum">     227 </span><span class="lineNoCov">          0 :   GPU_vertbuf_use(&amp;lnor);</span></a>
+<a name="228"><span class="lineNum">     228 </span>            : </a>
+<a name="229"><span class="lineNum">     229 </span>            :   /* Default to zeroed attribute. The overlay shader should expect this and render engines should</a>
+<a name="230"><span class="lineNum">     230 </span>            :    * never draw loose geometry. */</a>
+<a name="231"><span class="lineNum">     231 </span><span class="lineNoCov">          0 :   const float3 default_normal(0.0f, 0.0f, 0.0f);</span></a>
+<a name="232"><span class="lineNum">     232 </span><span class="lineNoCov">          0 :   for (const int i : IndexRange::from_begin_end(loose_geom_start, vbo_size)) {</span></a>
+<a name="233"><span class="lineNum">     233 </span>            :     /* TODO(fclem): This has HORRENDOUS performance. Prefer clearing the buffer on device with</a>
+<a name="234"><span class="lineNum">     234 </span>            :      * something like glClearBufferSubData. */</a>
+<a name="235"><span class="lineNum">     235 </span><span class="lineNoCov">          0 :     GPU_vertbuf_update_sub(&amp;lnor, i * sizeof(float3), sizeof(float3), &amp;default_normal);</span></a>
+<a name="236"><span class="lineNum">     236 </span>            :   }</a>
+<a name="237"><span class="lineNum">     237 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="238"><span class="lineNum">     238 </span>            : </a>
+<a name="239"><span class="lineNum">     239 </span><span class="lineNoCov">          0 : gpu::VertBufPtr extract_normals_subdiv(const MeshRenderData &amp;mr,</span></a>
+<a name="240"><span class="lineNum">     240 </span>            :                                        const DRWSubdivCache &amp;subdiv_cache,</a>
+<a name="241"><span class="lineNum">     241 </span>            :                                        gpu::VertBuf &amp;pos)</a>
+<a name="242"><span class="lineNum">     242 </span>            : {</a>
+<a name="243"><span class="lineNum">     243 </span><span class="lineNoCov">          0 :   const int vbo_size = subdiv_full_vbo_size(mr, subdiv_cache);</span></a>
+<a name="244"><span class="lineNum">     244 </span>            : </a>
+<a name="245"><span class="lineNum">     245 </span>            :   gpu::VertBufPtr lnor = gpu::VertBufPtr(</a>
+<a name="246"><span class="lineNum">     246 </span><span class="lineNoCov">          0 :       GPU_vertbuf_create_on_device(get_normals_format(), vbo_size));</span></a>
+<a name="247"><span class="lineNum">     247 </span><span class="lineNoCov">          0 :   if (subdiv_cache.num_subdiv_loops == 0) {</span></a>
+<a name="248"><span class="lineNum">     248 </span><span class="lineNoCov">          0 :     update_loose_normals(mr, subdiv_cache, *lnor);</span></a>
+<a name="249"><span class="lineNum">     249 </span><span class="lineNoCov">          0 :     return lnor;</span></a>
+<a name="250"><span class="lineNum">     250 </span>            :   }</a>
+<a name="251"><span class="lineNum">     251 </span>            : </a>
+<a name="252"><span class="lineNum">     252 </span><span class="lineNoCov">          0 :   if (subdiv_cache.use_custom_loop_normals) {</span></a>
+<a name="253"><span class="lineNum">     253 </span><span class="lineNoCov">          0 :     const Mesh *coarse_mesh = subdiv_cache.mesh;</span></a>
+<a name="254"><span class="lineNum">     254 </span><span class="lineNoCov">          0 :     static GPUVertFormat src_normals_format = GPU_vertformat_from_attribute(</span></a>
+<a name="255"><span class="lineNum">     255 </span><span class="lineNoCov">          0 :         &quot;vnor&quot;, gpu::VertAttrType::SFLOAT_32_32_32);</span></a>
+<a name="256"><span class="lineNum">     256 </span><span class="lineNoCov">          0 :     gpu::VertBufPtr src = gpu::VertBufPtr(GPU_vertbuf_create_with_format(src_normals_format));</span></a>
+<a name="257"><span class="lineNum">     257 </span><span class="lineNoCov">          0 :     GPU_vertbuf_data_alloc(*src, coarse_mesh-&gt;corners_num);</span></a>
+<a name="258"><span class="lineNum">     258 </span><span class="lineNoCov">          0 :     src-&gt;data&lt;float3&gt;().copy_from(coarse_mesh-&gt;corner_normals());</span></a>
+<a name="259"><span class="lineNum">     259 </span><span class="lineNoCov">          0 :     draw_subdiv_interp_corner_normals(subdiv_cache, *src, *lnor);</span></a>
+<a name="260"><span class="lineNum">     260 </span>            : </a>
+<a name="261"><span class="lineNum">     261 </span><span class="lineNoCov">          0 :     update_loose_normals(mr, subdiv_cache, *lnor);</span></a>
+<a name="262"><span class="lineNum">     262 </span><span class="lineNoCov">          0 :     return lnor;</span></a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="264"><span class="lineNum">     264 </span>            : </a>
+<a name="265"><span class="lineNum">     265 </span>            :   gpu::VertBufPtr subdiv_corner_verts = gpu::VertBufPtr(draw_subdiv_build_origindex_buffer(</a>
+<a name="266"><span class="lineNum">     266 </span><span class="lineNoCov">          0 :       subdiv_cache.subdiv_loop_subdiv_vert_index, subdiv_cache.num_subdiv_loops));</span></a>
+<a name="267"><span class="lineNum">     267 </span>            : </a>
+<a name="268"><span class="lineNum">     268 </span>            :   /* Calculate vertex normals (stored here per subdivided vertex rather than per subdivided face</a>
+<a name="269"><span class="lineNum">     269 </span>            :    * corner). The values are used for smooth shaded faces later. */</a>
+<a name="270"><span class="lineNum">     270 </span><span class="lineNoCov">          0 :   static GPUVertFormat vert_normals_format = GPU_vertformat_from_attribute(</span></a>
+<a name="271"><span class="lineNum">     271 </span><span class="lineNoCov">          0 :       &quot;vnor&quot;, gpu::VertAttrType::SFLOAT_32_32_32);</span></a>
+<a name="272"><span class="lineNum">     272 </span>            :   gpu::VertBufPtr vert_normals = gpu::VertBufPtr(</a>
+<a name="273"><span class="lineNum">     273 </span><span class="lineNoCov">          0 :       GPU_vertbuf_create_on_device(vert_normals_format, subdiv_cache.num_subdiv_verts));</span></a>
+<a name="274"><span class="lineNum">     274 </span><span class="lineNoCov">          0 :   draw_subdiv_accumulate_normals(subdiv_cache,</span></a>
+<a name="275"><span class="lineNum">     275 </span>            :                                  &amp;pos,</a>
+<a name="276"><span class="lineNum">     276 </span><span class="lineNoCov">          0 :                                  subdiv_cache.subdiv_vert_face_adjacency_offsets,</span></a>
+<a name="277"><span class="lineNum">     277 </span><span class="lineNoCov">          0 :                                  subdiv_cache.subdiv_vert_face_adjacency,</span></a>
+<a name="278"><span class="lineNum">     278 </span>            :                                  subdiv_corner_verts.get(),</a>
+<a name="279"><span class="lineNum">     279 </span>            :                                  vert_normals.get());</a>
+<a name="280"><span class="lineNum">     280 </span>            : </a>
+<a name="281"><span class="lineNum">     281 </span>            :   /* Compute final normals for face corners, either using the vertex normal corresponding to the</a>
+<a name="282"><span class="lineNum">     282 </span>            :    * corner, or by calculating the face normal.</a>
+<a name="283"><span class="lineNum">     283 </span>            :    *</a>
+<a name="284"><span class="lineNum">     284 </span>            :    * TODO: Avoid using face normals or vertex normals if possible, using `mr.normals_domain`. */</a>
+<a name="285"><span class="lineNum">     285 </span><span class="lineNoCov">          0 :   draw_subdiv_build_lnor_buffer(</span></a>
+<a name="286"><span class="lineNum">     286 </span>            :       subdiv_cache, &amp;pos, vert_normals.get(), subdiv_corner_verts.get(), lnor.get());</a>
+<a name="287"><span class="lineNum">     287 </span>            : </a>
+<a name="288"><span class="lineNum">     288 </span><span class="lineNoCov">          0 :   update_loose_normals(mr, subdiv_cache, *lnor);</span></a>
+<a name="289"><span class="lineNum">     289 </span>            : </a>
+<a name="290"><span class="lineNum">     290 </span><span class="lineNoCov">          0 :   return lnor;</span></a>
+<a name="291"><span class="lineNum">     291 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="292"><span class="lineNum">     292 </span>            : </a>
+<a name="293"><span class="lineNum">     293 </span>            : }  // namespace blender::draw</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

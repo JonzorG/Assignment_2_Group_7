@@ -1,0 +1,549 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - gpu/shader_tool/intermediate.hh</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">gpu/shader_tool</a> - intermediate.hh<span style="font-size: 80%;"> (source / <a href="intermediate.hh.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">161</td>
+            <td class="headerCovTableEntry">180</td>
+            <td class="headerCovTableEntryMed">89.4 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">32</td>
+            <td class="headerCovTableEntry">52</td>
+            <td class="headerCovTableEntryLo">61.5 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2025 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup shader_tool</a>
+<a name="7"><span class="lineNum">       7 </span>            :  *</a>
+<a name="8"><span class="lineNum">       8 </span>            :  * Very simple parsing of our shader file that are a subset of C++. It allows to traverse the</a>
+<a name="9"><span class="lineNum">       9 </span>            :  * semantic using tokens and scopes instead of trying to match string patterns throughout the whole</a>
+<a name="10"><span class="lineNum">      10 </span>            :  * input string.</a>
+<a name="11"><span class="lineNum">      11 </span>            :  *</a>
+<a name="12"><span class="lineNum">      12 </span>            :  * The goal of this representation is to output code that doesn't modify the style of the input</a>
+<a name="13"><span class="lineNum">      13 </span>            :  * string and keep the same line numbers (to match compilation error with input source).</a>
+<a name="14"><span class="lineNum">      14 </span>            :  *</a>
+<a name="15"><span class="lineNum">      15 </span>            :  * The `TokenStream` class contain a copy of the given string to apply string substitutions (called</a>
+<a name="16"><span class="lineNum">      16 </span>            :  * `Mutation`). It is usually faster to record all of them and apply them all at once after</a>
+<a name="17"><span class="lineNum">      17 </span>            :  * scanning through the whole semantic representation. In the rare case where mutation need to</a>
+<a name="18"><span class="lineNum">      18 </span>            :  * overlap (recursive processing), it is better to do them in passes until there is no mutation to</a>
+<a name="19"><span class="lineNum">      19 </span>            :  * do.</a>
+<a name="20"><span class="lineNum">      20 </span>            :  *</a>
+<a name="21"><span class="lineNum">      21 </span>            :  * `Token` and `Scope` are read only interfaces to the data stored inside the `TokenStream`.</a>
+<a name="22"><span class="lineNum">      22 </span>            :  * The data is stored as SoA (Structure of Arrays) for fast traversal.</a>
+<a name="23"><span class="lineNum">      23 </span>            :  * The types of token and scopes are defined as readable chars to easily create sequences of token</a>
+<a name="24"><span class="lineNum">      24 </span>            :  * type.</a>
+<a name="25"><span class="lineNum">      25 </span>            :  *</a>
+<a name="26"><span class="lineNum">      26 </span>            :  * The parsing phase doesn't apply any preprocessor. All  preprocessor directive are parsed as</a>
+<a name="27"><span class="lineNum">      27 </span>            :  * `Preprocessor` scope but they are not expanded.</a>
+<a name="28"><span class="lineNum">      28 </span>            :  */</a>
+<a name="29"><span class="lineNum">      29 </span>            : </a>
+<a name="30"><span class="lineNum">      30 </span>            : #pragma once</a>
+<a name="31"><span class="lineNum">      31 </span>            : </a>
+<a name="32"><span class="lineNum">      32 </span>            : #include &quot;scope.hh&quot;</a>
+<a name="33"><span class="lineNum">      33 </span>            : #include &quot;token.hh&quot;</a>
+<a name="34"><span class="lineNum">      34 </span>            : #include &quot;token_stream.hh&quot;</a>
+<a name="35"><span class="lineNum">      35 </span>            : #include &quot;utils.hh&quot;</a>
+<a name="36"><span class="lineNum">      36 </span>            : </a>
+<a name="37"><span class="lineNum">      37 </span>            : #include &lt;algorithm&gt;</a>
+<a name="38"><span class="lineNum">      38 </span>            : #include &lt;cassert&gt;</a>
+<a name="39"><span class="lineNum">      39 </span>            : #include &lt;iostream&gt;</a>
+<a name="40"><span class="lineNum">      40 </span>            : </a>
+<a name="41"><span class="lineNum">      41 </span>            : namespace blender::gpu::shader::parser {</a>
+<a name="42"><span class="lineNum">      42 </span>            : </a>
+<a name="43"><span class="lineNum">      43 </span>            : struct MutableString {</a>
+<a name="44"><span class="lineNum">      44 </span>            :   std::string str_;</a>
+<a name="45"><span class="lineNum">      45 </span>            : </a>
+<a name="46"><span class="lineNum">      46 </span><span class="lineCov">    1966677 :   struct Mutation {</span></a>
+<a name="47"><span class="lineNum">      47 </span>            :     /* Range of the original string to replace. */</a>
+<a name="48"><span class="lineNum">      48 </span>            :     IndexRange src_range;</a>
+<a name="49"><span class="lineNum">      49 </span>            :     /* The replacement string. */</a>
+<a name="50"><span class="lineNum">      50 </span>            :     std::string replacement;</a>
+<a name="51"><span class="lineNum">      51 </span>            : </a>
+<a name="52"><span class="lineNum">      52 </span><span class="lineCov">     232185 :     Mutation(IndexRange src_range, std::string replacement)</span></a>
+<a name="53"><span class="lineNum">      53 </span><span class="lineCov">     232185 :         : src_range(src_range), replacement(replacement)</span></a>
+<a name="54"><span class="lineNum">      54 </span>            :     {</a>
+<a name="55"><span class="lineNum">      55 </span><span class="lineCov">     232185 :       assert(src_range.size &gt;= 0);</span></a>
+<a name="56"><span class="lineNum">      56 </span><span class="lineCov">     232185 :       assert(src_range.start &gt;= 0);</span></a>
+<a name="57"><span class="lineNum">      57 </span><span class="lineCov">     232185 :     }</span></a>
+<a name="58"><span class="lineNum">      58 </span>            : </a>
+<a name="59"><span class="lineNum">      59 </span>            :     /* Define operator in order to sort the mutation by starting position.</a>
+<a name="60"><span class="lineNum">      60 </span>            :      * Otherwise, applying them in one pass will not work. */</a>
+<a name="61"><span class="lineNum">      61 </span><span class="lineCov">     833164 :     friend bool operator&lt;(const Mutation &amp;a, const Mutation &amp;b)</span></a>
+<a name="62"><span class="lineNum">      62 </span>            :     {</a>
+<a name="63"><span class="lineNum">      63 </span><span class="lineCov">     833164 :       return a.src_range.start &lt; b.src_range.start;</span></a>
+<a name="64"><span class="lineNum">      64 </span>            :     }</a>
+<a name="65"><span class="lineNum">      65 </span>            :   };</a>
+<a name="66"><span class="lineNum">      66 </span>            :   std::vector&lt;Mutation&gt; mutations_;</a>
+<a name="67"><span class="lineNum">      67 </span>            : </a>
+<a name="68"><span class="lineNum">      68 </span><span class="lineCov">       9483 :   MutableString(const std::string_view input) : str_(input) {}</span></a>
+<a name="69"><span class="lineNum">      69 </span>            : </a>
+<a name="70"><span class="lineNum">      70 </span>            :   /* Disable copy construction and assignment. */</a>
+<a name="71"><span class="lineNum">      71 </span>            :   MutableString(const MutableString &amp;other) = delete;</a>
+<a name="72"><span class="lineNum">      72 </span>            :   MutableString &amp;operator=(const MutableString &amp;other) = delete;</a>
+<a name="73"><span class="lineNum">      73 </span>            :   /* Explicitly enable default construction, move construction and move assignment. */</a>
+<a name="74"><span class="lineNum">      74 </span>            :   MutableString(MutableString &amp;&amp;other) = default;</a>
+<a name="75"><span class="lineNum">      75 </span>            :   MutableString &amp;operator=(MutableString &amp;&amp;other) = default;</a>
+<a name="76"><span class="lineNum">      76 </span>            : </a>
+<a name="77"><span class="lineNum">      77 </span>            :   /* Access internal string without applying pending mutations. */</a>
+<a name="78"><span class="lineNum">      78 </span><span class="lineCov">       3076 :   std::string substr_range_inclusive(size_t start, size_t end)</span></a>
+<a name="79"><span class="lineNum">      79 </span>            :   {</a>
+<a name="80"><span class="lineNum">      80 </span><span class="lineCov">       3076 :     return str_.substr(start, end - start + 1);</span></a>
+<a name="81"><span class="lineNum">      81 </span>            :   }</a>
+<a name="82"><span class="lineNum">      82 </span>            :   /* Access internal string without applying pending mutations. */</a>
+<a name="83"><span class="lineNum">      83 </span><span class="lineCov">       2563 :   std::string substr_range_inclusive(Token start, Token end)</span></a>
+<a name="84"><span class="lineNum">      84 </span>            :   {</a>
+<a name="85"><span class="lineNum">      85 </span><span class="lineCov">       2563 :     return substr_range_inclusive(start.str_index_start(), end.str_index_last());</span></a>
+<a name="86"><span class="lineNum">      86 </span>            :   }</a>
+<a name="87"><span class="lineNum">      87 </span>            : </a>
+<a name="88"><span class="lineNum">      88 </span>            :   /* Access internal string without applying pending mutations. */</a>
+<a name="89"><span class="lineNum">      89 </span>            :   std::string_view substr_range_inclusive_view(size_t start, size_t end)</a>
+<a name="90"><span class="lineNum">      90 </span>            :   {</a>
+<a name="91"><span class="lineNum">      91 </span>            :     return std::string_view(str_).substr(start, end - start + 1);</a>
+<a name="92"><span class="lineNum">      92 </span>            :   }</a>
+<a name="93"><span class="lineNum">      93 </span>            :   /* Access internal string without applying pending mutations. */</a>
+<a name="94"><span class="lineNum">      94 </span>            :   std::string_view substr_range_inclusive_view(Token start, Token end)</a>
+<a name="95"><span class="lineNum">      95 </span>            :   {</a>
+<a name="96"><span class="lineNum">      96 </span>            :     return substr_range_inclusive_view(start.str_index_start(), end.str_index_last());</a>
+<a name="97"><span class="lineNum">      97 </span>            :   }</a>
+<a name="98"><span class="lineNum">      98 </span>            : </a>
+<a name="99"><span class="lineNum">      99 </span>            :   std::string last_substitution_failure;</a>
+<a name="100"><span class="lineNum">     100 </span>            : </a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineNoCov">          0 :   bool report_failure()</span></a>
+<a name="102"><span class="lineNum">     102 </span>            :   {</a>
+<a name="103"><span class="lineNum">     103 </span><span class="lineNoCov">          0 :     std::cerr &lt;&lt; last_substitution_failure &lt;&lt; std::endl;</span></a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="105"><span class="lineNum">     105 </span>            :   }</a>
+<a name="106"><span class="lineNum">     106 </span>            : </a>
+<a name="107"><span class="lineNum">     107 </span>            :   /* Replace everything from `from` to `to` (inclusive).</a>
+<a name="108"><span class="lineNum">     108 </span>            :    * Return true on success. */</a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineCov">     216133 :   bool replace_try(size_t from, size_t to, const std::string &amp;replacement)</span></a>
+<a name="110"><span class="lineNum">     110 </span>            :   {</a>
+<a name="111"><span class="lineNum">     111 </span><span class="lineCov">     216133 :     IndexRange range = IndexRange(from, to + 1 - from);</span></a>
+<a name="112"><span class="lineNum">     112 </span><span class="lineCov">   25653571 :     for (const Mutation &amp;mut : mutations_) {</span></a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineCov">   25437459 :       if (mut.src_range.overlaps(range)) {</span></a>
+<a name="114"><span class="lineNum">     114 </span>            : #ifndef NDEBUG</a>
+<a name="115"><span class="lineNum">     115 </span><span class="lineCov">         21 :         last_substitution_failure = &quot;Trying to substitute \n\&quot;&quot; +</span></a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineCov">         42 :                                     str_.substr(range.start, range.size) + &quot;\&quot;\nwith \n\&quot;&quot; +</span></a>
+<a name="117"><span class="lineNum">     117 </span><span class="lineCov">         63 :                                     replacement + &quot;\&quot;\nbut it overlaps with substituting \n\&quot;&quot; +</span></a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineCov">         42 :                                     str_.substr(mut.src_range.start, mut.src_range.size) +</span></a>
+<a name="119"><span class="lineNum">     119 </span><span class="lineCov">         63 :                                     &quot;\&quot;\nwith \n\&quot;&quot; + mut.replacement + &quot;\&quot;&quot;;</span></a>
+<a name="120"><span class="lineNum">     120 </span>            : #endif</a>
+<a name="121"><span class="lineNum">     121 </span><span class="lineCov">         21 :         return false;</span></a>
+<a name="122"><span class="lineNum">     122 </span>            :       }</a>
+<a name="123"><span class="lineNum">     123 </span>            :     }</a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineCov">     216112 :     mutations_.emplace_back(range, replacement);</span></a>
+<a name="125"><span class="lineNum">     125 </span><span class="lineNoCov">          0 :     return true;</span></a>
+<a name="126"><span class="lineNum">     126 </span>            :   }</a>
+<a name="127"><span class="lineNum">     127 </span>            :   /* Replace everything from `from` to `to` (inclusive).</a>
+<a name="128"><span class="lineNum">     128 </span>            :    * Return true on success. */</a>
+<a name="129"><span class="lineNum">     129 </span><span class="lineCov">       2106 :   bool replace_try(Token from,</span></a>
+<a name="130"><span class="lineNum">     130 </span>            :                    Token to,</a>
+<a name="131"><span class="lineNum">     131 </span>            :                    const std::string &amp;replacement,</a>
+<a name="132"><span class="lineNum">     132 </span>            :                    bool keep_trailing_whitespaces = false)</a>
+<a name="133"><span class="lineNum">     133 </span>            :   {</a>
+<a name="134"><span class="lineNum">     134 </span><span class="lineCov">       2106 :     if (keep_trailing_whitespaces) {</span></a>
+<a name="135"><span class="lineNum">     135 </span><span class="lineCov">          4 :       return replace_try(from.str_index_start(), to.str_index_last_no_whitespace(), replacement);</span></a>
+<a name="136"><span class="lineNum">     136 </span>            :     }</a>
+<a name="137"><span class="lineNum">     137 </span><span class="lineCov">       2102 :     return replace_try(from.str_index_start(), to.str_index_last(), replacement);</span></a>
+<a name="138"><span class="lineNum">     138 </span>            :   }</a>
+<a name="139"><span class="lineNum">     139 </span>            : </a>
+<a name="140"><span class="lineNum">     140 </span>            :   /* Replace everything from `from` to `to` (inclusive). */</a>
+<a name="141"><span class="lineNum">     141 </span><span class="lineCov">     172124 :   void replace(size_t from, size_t to, const std::string &amp;replacement)</span></a>
+<a name="142"><span class="lineNum">     142 </span>            :   {</a>
+<a name="143"><span class="lineNum">     143 </span>            : #ifndef NDEBUG</a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineCov">     172124 :     bool success = replace_try(from, to, replacement);</span></a>
+<a name="145"><span class="lineNum">     145 </span><span class="lineCov">     172124 :     assert(success || report_failure());</span></a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineCov">     172124 :     (void)success;</span></a>
+<a name="147"><span class="lineNum">     147 </span>            : #else</a>
+<a name="148"><span class="lineNum">     148 </span>            :     /* No check in release. */</a>
+<a name="149"><span class="lineNum">     149 </span>            :     IndexRange range = IndexRange(from, to + 1 - from);</a>
+<a name="150"><span class="lineNum">     150 </span>            :     mutations_.emplace_back(range, replacement);</a>
+<a name="151"><span class="lineNum">     151 </span>            : #endif</a>
+<a name="152"><span class="lineNum">     152 </span><span class="lineCov">     172124 :   }</span></a>
+<a name="153"><span class="lineNum">     153 </span>            :   /* Replace everything from `from` to `to` (inclusive). */</a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineCov">       3100 :   void replace(Token from,</span></a>
+<a name="155"><span class="lineNum">     155 </span>            :                Token to,</a>
+<a name="156"><span class="lineNum">     156 </span>            :                const std::string &amp;replacement,</a>
+<a name="157"><span class="lineNum">     157 </span>            :                bool keep_trailing_whitespaces = false)</a>
+<a name="158"><span class="lineNum">     158 </span>            :   {</a>
+<a name="159"><span class="lineNum">     159 </span><span class="lineCov">       3100 :     if (keep_trailing_whitespaces) {</span></a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineNoCov">          0 :       replace(from.str_index_start(), to.str_index_last_no_whitespace(), replacement);</span></a>
+<a name="161"><span class="lineNum">     161 </span>            :     }</a>
+<a name="162"><span class="lineNum">     162 </span>            :     else {</a>
+<a name="163"><span class="lineNum">     163 </span><span class="lineCov">       3100 :       replace(from.str_index_start(), to.str_index_last(), replacement);</span></a>
+<a name="164"><span class="lineNum">     164 </span>            :     }</a>
+<a name="165"><span class="lineNum">     165 </span><span class="lineCov">       3100 :   }</span></a>
+<a name="166"><span class="lineNum">     166 </span>            : </a>
+<a name="167"><span class="lineNum">     167 </span>            :   /* Replace token by string. */</a>
+<a name="168"><span class="lineNum">     168 </span><span class="lineCov">       3293 :   void replace(Token tok, const std::string &amp;replacement, bool keep_trailing_whitespaces = false)</span></a>
+<a name="169"><span class="lineNum">     169 </span>            :   {</a>
+<a name="170"><span class="lineNum">     170 </span><span class="lineCov">       3293 :     if (keep_trailing_whitespaces) {</span></a>
+<a name="171"><span class="lineNum">     171 </span><span class="lineCov">        378 :       replace(tok.str_index_start(), tok.str_index_last_no_whitespace(), replacement);</span></a>
+<a name="172"><span class="lineNum">     172 </span>            :     }</a>
+<a name="173"><span class="lineNum">     173 </span>            :     else {</a>
+<a name="174"><span class="lineNum">     174 </span><span class="lineCov">       2915 :       replace(tok.str_index_start(), tok.str_index_last(), replacement);</span></a>
+<a name="175"><span class="lineNum">     175 </span>            :     }</a>
+<a name="176"><span class="lineNum">     176 </span><span class="lineCov">       3293 :   }</span></a>
+<a name="177"><span class="lineNum">     177 </span>            :   /* Replace Scope by string. */</a>
+<a name="178"><span class="lineNum">     178 </span><span class="lineCov">        137 :   void replace(Scope scope, const std::string &amp;replacement, bool keep_trailing_whitespaces = false)</span></a>
+<a name="179"><span class="lineNum">     179 </span>            :   {</a>
+<a name="180"><span class="lineNum">     180 </span><span class="lineCov">        137 :     if (keep_trailing_whitespaces) {</span></a>
+<a name="181"><span class="lineNum">     181 </span><span class="lineCov">        137 :       replace(scope.front().str_index_start(),</span></a>
+<a name="182"><span class="lineNum">     182 </span><span class="lineCov">        274 :               scope.back().str_index_last_no_whitespace(),</span></a>
+<a name="183"><span class="lineNum">     183 </span>            :               replacement);</a>
+<a name="184"><span class="lineNum">     184 </span>            :     }</a>
+<a name="185"><span class="lineNum">     185 </span>            :     else {</a>
+<a name="186"><span class="lineNum">     186 </span><span class="lineNoCov">          0 :       replace(scope.front(), scope.back(), replacement);</span></a>
+<a name="187"><span class="lineNum">     187 </span>            :     }</a>
+<a name="188"><span class="lineNum">     188 </span><span class="lineCov">        137 :   }</span></a>
+<a name="189"><span class="lineNum">     189 </span>            :   /* Replace Scope by string. */</a>
+<a name="190"><span class="lineNum">     190 </span><span class="lineCov">        495 :   void replace(ast::Node node,</span></a>
+<a name="191"><span class="lineNum">     191 </span>            :                const std::string &amp;replacement,</a>
+<a name="192"><span class="lineNum">     192 </span>            :                bool keep_trailing_whitespaces = false)</a>
+<a name="193"><span class="lineNum">     193 </span>            :   {</a>
+<a name="194"><span class="lineNum">     194 </span><span class="lineCov">        495 :     if (keep_trailing_whitespaces) {</span></a>
+<a name="195"><span class="lineNum">     195 </span><span class="lineNoCov">          0 :       replace(Token(node.front()).str_index_start(),</span></a>
+<a name="196"><span class="lineNum">     196 </span><span class="lineNoCov">          0 :               Token(node.back()).str_index_last_no_whitespace(),</span></a>
+<a name="197"><span class="lineNum">     197 </span>            :               replacement);</a>
+<a name="198"><span class="lineNum">     198 </span>            :     }</a>
+<a name="199"><span class="lineNum">     199 </span>            :     else {</a>
+<a name="200"><span class="lineNum">     200 </span><span class="lineCov">        495 :       replace(node.front(), node.back(), replacement);</span></a>
+<a name="201"><span class="lineNum">     201 </span>            :     }</a>
+<a name="202"><span class="lineNum">     202 </span><span class="lineCov">        495 :   }</span></a>
+<a name="203"><span class="lineNum">     203 </span>            : </a>
+<a name="204"><span class="lineNum">     204 </span>            :   /* Replace the content from `from` to `to` (inclusive) by whitespaces without changing</a>
+<a name="205"><span class="lineNum">     205 </span>            :    * line count and keep the remaining indentation spaces. */</a>
+<a name="206"><span class="lineNum">     206 </span><span class="lineCov">      41903 :   bool erase_try(size_t from, size_t to)</span></a>
+<a name="207"><span class="lineNum">     207 </span>            :   {</a>
+<a name="208"><span class="lineNum">     208 </span><span class="lineCov">      41903 :     IndexRange range = IndexRange(from, to + 1 - from);</span></a>
+<a name="209"><span class="lineNum">     209 </span><span class="lineCov">      41903 :     std::string content = str_.substr(range.start, range.size);</span></a>
+<a name="210"><span class="lineNum">     210 </span><span class="lineCov">      41903 :     size_t lines = std::count(content.begin(), content.end(), '\n');</span></a>
+<a name="211"><span class="lineNum">     211 </span><span class="lineCov">      41903 :     size_t spaces = content.find_last_of(&quot;\n&quot;);</span></a>
+<a name="212"><span class="lineNum">     212 </span><span class="lineCov">      41903 :     if (spaces != std::string::npos) {</span></a>
+<a name="213"><span class="lineNum">     213 </span><span class="lineCov">      38535 :       spaces = content.length() - (spaces + 1);</span></a>
+<a name="214"><span class="lineNum">     214 </span>            :     }</a>
+<a name="215"><span class="lineNum">     215 </span>            :     else {</a>
+<a name="216"><span class="lineNum">     216 </span><span class="lineNoCov">          0 :       spaces = content.length();</span></a>
+<a name="217"><span class="lineNum">     217 </span>            :     }</a>
+<a name="218"><span class="lineNum">     218 </span><span class="lineCov">      41903 :     return replace_try(from, to, std::string(lines, '\n') + std::string(spaces, ' '));</span></a>
+<a name="219"><span class="lineNum">     219 </span><span class="lineCov">      41903 :   }</span></a>
+<a name="220"><span class="lineNum">     220 </span><span class="lineCov">       8363 :   void erase(size_t from, size_t to)</span></a>
+<a name="221"><span class="lineNum">     221 </span>            :   {</a>
+<a name="222"><span class="lineNum">     222 </span><span class="lineCov">       8363 :     bool result = erase_try(from, to);</span></a>
+<a name="223"><span class="lineNum">     223 </span><span class="lineCov">       8363 :     assert(result || report_failure());</span></a>
+<a name="224"><span class="lineNum">     224 </span><span class="lineCov">       8363 :     (void)result;</span></a>
+<a name="225"><span class="lineNum">     225 </span><span class="lineCov">       8363 :   }</span></a>
+<a name="226"><span class="lineNum">     226 </span>            :   /* Replace the content from `from` to `to` (inclusive) by whitespaces without changing</a>
+<a name="227"><span class="lineNum">     227 </span>            :    * line count and keep the remaining indentation spaces. */</a>
+<a name="228"><span class="lineNum">     228 </span><span class="lineCov">      33540 :   bool erase_try(Token from, Token to)</span></a>
+<a name="229"><span class="lineNum">     229 </span>            :   {</a>
+<a name="230"><span class="lineNum">     230 </span><span class="lineCov">      33540 :     if (from.is_invalid() || to.is_invalid()) {</span></a>
+<a name="231"><span class="lineNum">     231 </span><span class="lineNoCov">          0 :       return true;</span></a>
+<a name="232"><span class="lineNum">     232 </span>            :     }</a>
+<a name="233"><span class="lineNum">     233 </span><span class="lineCov">      33540 :     assert(from.index_ &lt;= to.index_);</span></a>
+<a name="234"><span class="lineNum">     234 </span><span class="lineCov">      33540 :     return erase_try(from.str_index_start(), to.str_index_last());</span></a>
+<a name="235"><span class="lineNum">     235 </span>            :   }</a>
+<a name="236"><span class="lineNum">     236 </span><span class="lineCov">      29139 :   void erase(Token from, Token to)</span></a>
+<a name="237"><span class="lineNum">     237 </span>            :   {</a>
+<a name="238"><span class="lineNum">     238 </span><span class="lineCov">      29139 :     bool result = erase_try(from, to);</span></a>
+<a name="239"><span class="lineNum">     239 </span><span class="lineCov">      29139 :     assert(result || report_failure());</span></a>
+<a name="240"><span class="lineNum">     240 </span><span class="lineCov">      29139 :     (void)result;</span></a>
+<a name="241"><span class="lineNum">     241 </span><span class="lineCov">      29139 :   }</span></a>
+<a name="242"><span class="lineNum">     242 </span>            :   /* Replace the content from `from` to `to` (inclusive) by whitespaces without changing</a>
+<a name="243"><span class="lineNum">     243 </span>            :    * line count and keep the remaining indentation spaces. */</a>
+<a name="244"><span class="lineNum">     244 </span><span class="lineCov">       2211 :   bool erase_try(Token tok)</span></a>
+<a name="245"><span class="lineNum">     245 </span>            :   {</a>
+<a name="246"><span class="lineNum">     246 </span><span class="lineCov">       2211 :     if (tok.is_invalid()) {</span></a>
+<a name="247"><span class="lineNum">     247 </span><span class="lineNoCov">          0 :       return true;</span></a>
+<a name="248"><span class="lineNum">     248 </span>            :     }</a>
+<a name="249"><span class="lineNum">     249 </span><span class="lineCov">       2211 :     return erase_try(tok, tok);</span></a>
+<a name="250"><span class="lineNum">     250 </span>            :   }</a>
+<a name="251"><span class="lineNum">     251 </span><span class="lineCov">       2211 :   void erase(Token tok)</span></a>
+<a name="252"><span class="lineNum">     252 </span>            :   {</a>
+<a name="253"><span class="lineNum">     253 </span><span class="lineCov">       2211 :     bool result = erase_try(tok);</span></a>
+<a name="254"><span class="lineNum">     254 </span><span class="lineCov">       2211 :     assert(result || report_failure());</span></a>
+<a name="255"><span class="lineNum">     255 </span><span class="lineCov">       2211 :     (void)result;</span></a>
+<a name="256"><span class="lineNum">     256 </span><span class="lineCov">       2211 :   }</span></a>
+<a name="257"><span class="lineNum">     257 </span>            :   /* Replace the content of the scope by whitespaces without changing</a>
+<a name="258"><span class="lineNum">     258 </span>            :    * line count and keep the remaining indentation spaces. */</a>
+<a name="259"><span class="lineNum">     259 </span><span class="lineCov">        229 :   bool erase_try(Scope scope)</span></a>
+<a name="260"><span class="lineNum">     260 </span>            :   {</a>
+<a name="261"><span class="lineNum">     261 </span><span class="lineCov">        229 :     return erase_try(scope.front(), scope.back());</span></a>
+<a name="262"><span class="lineNum">     262 </span>            :   }</a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineCov">        229 :   void erase(Scope scope)</span></a>
+<a name="264"><span class="lineNum">     264 </span>            :   {</a>
+<a name="265"><span class="lineNum">     265 </span><span class="lineCov">        229 :     bool result = erase_try(scope);</span></a>
+<a name="266"><span class="lineNum">     266 </span><span class="lineCov">        229 :     assert(result || report_failure());</span></a>
+<a name="267"><span class="lineNum">     267 </span><span class="lineCov">        229 :     (void)result;</span></a>
+<a name="268"><span class="lineNum">     268 </span><span class="lineCov">        229 :   }</span></a>
+<a name="269"><span class="lineNum">     269 </span>            :   /* Replace the content of the scope by whitespaces without changing</a>
+<a name="270"><span class="lineNum">     270 </span>            :    * line count and keep the remaining indentation spaces. */</a>
+<a name="271"><span class="lineNum">     271 </span><span class="lineCov">       1955 :   bool erase_try(ast::Node node)</span></a>
+<a name="272"><span class="lineNum">     272 </span>            :   {</a>
+<a name="273"><span class="lineNum">     273 </span><span class="lineCov">       1955 :     return erase_try(node.front(), node.back());</span></a>
+<a name="274"><span class="lineNum">     274 </span>            :   }</a>
+<a name="275"><span class="lineNum">     275 </span><span class="lineCov">       1955 :   void erase(ast::Node node)</span></a>
+<a name="276"><span class="lineNum">     276 </span>            :   {</a>
+<a name="277"><span class="lineNum">     277 </span><span class="lineCov">       1955 :     bool result = erase_try(node);</span></a>
+<a name="278"><span class="lineNum">     278 </span><span class="lineCov">       1955 :     assert(result || report_failure());</span></a>
+<a name="279"><span class="lineNum">     279 </span><span class="lineCov">       1955 :     (void)result;</span></a>
+<a name="280"><span class="lineNum">     280 </span><span class="lineCov">       1955 :   }</span></a>
+<a name="281"><span class="lineNum">     281 </span>            : </a>
+<a name="282"><span class="lineNum">     282 </span>            :   /* If prepend is true, will prepend the new content to the list of modifications.</a>
+<a name="283"><span class="lineNum">     283 </span>            :    * With this enabled, in case of overlapping mutation, the last one added will be first.  */</a>
+<a name="284"><span class="lineNum">     284 </span><span class="lineCov">       9957 :   void insert_before(size_t at, const std::string &amp;content, bool prepend = false)</span></a>
+<a name="285"><span class="lineNum">     285 </span>            :   {</a>
+<a name="286"><span class="lineNum">     286 </span><span class="lineCov">       9957 :     IndexRange range = IndexRange(at, 0);</span></a>
+<a name="287"><span class="lineNum">     287 </span><span class="lineCov">       9957 :     if (prepend) {</span></a>
+<a name="288"><span class="lineNum">     288 </span><span class="lineNoCov">          0 :       mutations_.insert(mutations_.begin(), {range, content});</span></a>
+<a name="289"><span class="lineNum">     289 </span>            :     }</a>
+<a name="290"><span class="lineNum">     290 </span>            :     else {</a>
+<a name="291"><span class="lineNum">     291 </span><span class="lineCov">       9957 :       mutations_.emplace_back(range, content);</span></a>
+<a name="292"><span class="lineNum">     292 </span>            :     }</a>
+<a name="293"><span class="lineNum">     293 </span><span class="lineCov">       9957 :   }</span></a>
+<a name="294"><span class="lineNum">     294 </span><span class="lineCov">       9957 :   void insert_before(Token at, const std::string &amp;content, bool prepend = false)</span></a>
+<a name="295"><span class="lineNum">     295 </span>            :   {</a>
+<a name="296"><span class="lineNum">     296 </span><span class="lineCov">       9957 :     insert_before(at.str_index_start(), content, prepend);</span></a>
+<a name="297"><span class="lineNum">     297 </span><span class="lineCov">       9957 :   }</span></a>
+<a name="298"><span class="lineNum">     298 </span>            : </a>
+<a name="299"><span class="lineNum">     299 </span><span class="lineCov">       6116 :   void insert_after(size_t at, const std::string &amp;content)</span></a>
+<a name="300"><span class="lineNum">     300 </span>            :   {</a>
+<a name="301"><span class="lineNum">     301 </span><span class="lineCov">       6116 :     IndexRange range = IndexRange(at + 1, 0);</span></a>
+<a name="302"><span class="lineNum">     302 </span><span class="lineCov">       6116 :     mutations_.emplace_back(range, content);</span></a>
+<a name="303"><span class="lineNum">     303 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="304"><span class="lineNum">     304 </span><span class="lineCov">       5095 :   void insert_after(Token at, const std::string &amp;content)</span></a>
+<a name="305"><span class="lineNum">     305 </span>            :   {</a>
+<a name="306"><span class="lineNum">     306 </span><span class="lineCov">       5095 :     insert_after(at.str_index_last(), content);</span></a>
+<a name="307"><span class="lineNum">     307 </span><span class="lineCov">       5095 :   }</span></a>
+<a name="308"><span class="lineNum">     308 </span>            : </a>
+<a name="309"><span class="lineNum">     309 </span><span class="lineCov">        893 :   void insert_line_number(size_t at, int line, std::string_view filename = &quot;&quot;)</span></a>
+<a name="310"><span class="lineNum">     310 </span>            :   {</a>
+<a name="311"><span class="lineNum">     311 </span><span class="lineCov">        891 :     std::string str = &quot;\n#line &quot; + std::to_string(line);</span></a>
+<a name="312"><span class="lineNum">     312 </span><span class="lineCov">        891 :     if (!filename.empty()) {</span></a>
+<a name="313"><span class="lineNum">     313 </span><span class="lineNoCov">          0 :       str = str + &quot; \&quot;&quot; + std::string(filename) + &quot;\&quot;&quot;;</span></a>
+<a name="314"><span class="lineNum">     314 </span>            :     }</a>
+<a name="315"><span class="lineNum">     315 </span><span class="lineCov">       1782 :     insert_after(at, str + &quot;\n&quot;);</span></a>
+<a name="316"><span class="lineNum">     316 </span><span class="lineCov">        891 :   }</span></a>
+<a name="317"><span class="lineNum">     317 </span><span class="lineCov">        889 :   void insert_line_number(Token at, int line, std::string_view filename = &quot;&quot;)</span></a>
+<a name="318"><span class="lineNum">     318 </span>            :   {</a>
+<a name="319"><span class="lineNum">     319 </span><span class="lineCov">        889 :     insert_line_number(at.str_index_last(), line, filename);</span></a>
+<a name="320"><span class="lineNum">     320 </span><span class="lineCov">        889 :   }</span></a>
+<a name="321"><span class="lineNum">     321 </span>            : </a>
+<a name="322"><span class="lineNum">     322 </span>            :   /* Insert a preprocessor directive after the given token.</a>
+<a name="323"><span class="lineNum">     323 </span>            :    * This also insert a line directive to keep correct error reporting. */</a>
+<a name="324"><span class="lineNum">     324 </span><span class="lineCov">        484 :   void insert_directive(Token at, const std::string directive)</span></a>
+<a name="325"><span class="lineNum">     325 </span>            :   {</a>
+<a name="326"><span class="lineNum">     326 </span><span class="lineCov">       1452 :     insert_after(at, &quot;\n&quot; + directive + &quot;\n&quot;);</span></a>
+<a name="327"><span class="lineNum">     327 </span><span class="lineCov">        484 :     insert_line_number(at, at.line_number(true));</span></a>
+<a name="328"><span class="lineNum">     328 </span><span class="lineCov">        484 :     size_t line_break = str_.find_last_of(&quot;\n&quot;, at.str_index_last() + 1);</span></a>
+<a name="329"><span class="lineNum">     329 </span><span class="lineCov">        484 :     size_t spaces = at.str_index_last() - line_break;</span></a>
+<a name="330"><span class="lineNum">     330 </span><span class="lineCov">        484 :     insert_after(at, std::string(spaces, ' '));</span></a>
+<a name="331"><span class="lineNum">     331 </span><span class="lineCov">        484 :   }</span></a>
+<a name="332"><span class="lineNum">     332 </span>            : </a>
+<a name="333"><span class="lineNum">     333 </span>            :   /* Return true if any mutation was applied.</a>
+<a name="334"><span class="lineNum">     334 </span>            :    * Update lexer string view if needed. */</a>
+<a name="335"><span class="lineNum">     335 </span>            :   bool apply_mutations(LexerBase &amp;lexer, const bool all_mutation_ordered = false);</a>
+<a name="336"><span class="lineNum">     336 </span>            : </a>
+<a name="337"><span class="lineNum">     337 </span>            :   /* Get internal string. Does not apply pending mutation. */</a>
+<a name="338"><span class="lineNum">     338 </span><span class="lineCov">      19110 :   const std::string &amp;str()</span></a>
+<a name="339"><span class="lineNum">     339 </span>            :   {</a>
+<a name="340"><span class="lineNum">     340 </span><span class="lineCov">      19110 :     return str_;</span></a>
+<a name="341"><span class="lineNum">     341 </span>            :   }</a>
+<a name="342"><span class="lineNum">     342 </span>            : </a>
+<a name="343"><span class="lineNum">     343 </span>            :   /* For testing. */</a>
+<a name="344"><span class="lineNum">     344 </span>            :   std::string serialize_mutations() const</a>
+<a name="345"><span class="lineNum">     345 </span>            :   {</a>
+<a name="346"><span class="lineNum">     346 </span>            :     std::string out;</a>
+<a name="347"><span class="lineNum">     347 </span>            :     for (const Mutation &amp;mut : mutations_) {</a>
+<a name="348"><span class="lineNum">     348 </span>            :       out += &quot;Replace &quot;;</a>
+<a name="349"><span class="lineNum">     349 </span>            :       out += std::to_string(mut.src_range.start);</a>
+<a name="350"><span class="lineNum">     350 </span>            :       out += &quot; - &quot;;</a>
+<a name="351"><span class="lineNum">     351 </span>            :       out += std::to_string(mut.src_range.size);</a>
+<a name="352"><span class="lineNum">     352 </span>            :       out += &quot; \&quot;&quot;;</a>
+<a name="353"><span class="lineNum">     353 </span>            :       out += str_.substr(mut.src_range.start, mut.src_range.size);</a>
+<a name="354"><span class="lineNum">     354 </span>            :       out += &quot;\&quot; by \&quot;&quot;;</a>
+<a name="355"><span class="lineNum">     355 </span>            :       out += mut.replacement;</a>
+<a name="356"><span class="lineNum">     356 </span>            :       out += &quot;\&quot;\n&quot;;</a>
+<a name="357"><span class="lineNum">     357 </span>            :     }</a>
+<a name="358"><span class="lineNum">     358 </span>            :     return out;</a>
+<a name="359"><span class="lineNum">     359 </span>            :   }</a>
+<a name="360"><span class="lineNum">     360 </span>            : };</a>
+<a name="361"><span class="lineNum">     361 </span>            : </a>
+<a name="362"><span class="lineNum">     362 </span>            : inline std::ostream &amp;operator&lt;&lt;(std::ostream &amp;out, const std::vector&lt;int&gt; &amp;v)</a>
+<a name="363"><span class="lineNum">     363 </span>            : {</a>
+<a name="364"><span class="lineNum">     364 </span>            :   if (!v.empty()) {</a>
+<a name="365"><span class="lineNum">     365 </span>            :     out &lt;&lt; '[';</a>
+<a name="366"><span class="lineNum">     366 </span>            :     for (auto val : v) {</a>
+<a name="367"><span class="lineNum">     367 </span>            :       out &lt;&lt; val &lt;&lt; ',';</a>
+<a name="368"><span class="lineNum">     368 </span>            :     }</a>
+<a name="369"><span class="lineNum">     369 </span>            :     out &lt;&lt; &quot;\b]&quot;;</a>
+<a name="370"><span class="lineNum">     370 </span>            :   }</a>
+<a name="371"><span class="lineNum">     371 </span>            :   return out;</a>
+<a name="372"><span class="lineNum">     372 </span>            : }</a>
+<a name="373"><span class="lineNum">     373 </span>            : </a>
+<a name="374"><span class="lineNum">     374 </span><span class="lineNoCov">          0 : class ParserException : public std::exception {};</span></a>
+<a name="375"><span class="lineNum">     375 </span>            : </a>
+<a name="376"><span class="lineNum">     376 </span>            : /* Structure holding an intermediate form of the source code.</a>
+<a name="377"><span class="lineNum">     377 </span>            :  * It is made for fast traversal and mutation of source code. */</a>
+<a name="378"><span class="lineNum">     378 </span>            : template&lt;typename LexerFn, typename ParserFn&gt;</a>
+<a name="379"><span class="lineNum">     379 </span><span class="lineCov">       9482 : struct IntermediateForm : MutableString, Parser&lt;LexerFn, ParserFn&gt; {</span></a>
+<a name="380"><span class="lineNum">     380 </span>            :  protected:</a>
+<a name="381"><span class="lineNum">     381 </span>            :   ErrorHandler &amp;report_error;</a>
+<a name="382"><span class="lineNum">     382 </span>            : </a>
+<a name="383"><span class="lineNum">     383 </span>            :  public:</a>
+<a name="384"><span class="lineNum">     384 </span>            :   Language language = Language::BLENDER_GLSL;</a>
+<a name="385"><span class="lineNum">     385 </span>            : </a>
+<a name="386"><span class="lineNum">     386 </span><span class="lineCov">        554 :   IntermediateForm(const std::string_view input, ErrorHandler &amp;report_error)</span></a>
+<a name="387"><span class="lineNum">     387 </span><span class="lineCov">        554 :       : MutableString(input), report_error(report_error)</span></a>
+<a name="388"><span class="lineNum">     388 </span>            :   {</a>
+<a name="389"><span class="lineNum">     389 </span><span class="lineCov">        554 :     parse(report_error);</span></a>
+<a name="390"><span class="lineNum">     390 </span><span class="lineCov">        554 :   }</span></a>
+<a name="391"><span class="lineNum">     391 </span>            : </a>
+<a name="392"><span class="lineNum">     392 </span><span class="lineCov">       8929 :   IntermediateForm(ErrorHandler &amp;report_error) : MutableString(&quot;&quot;), report_error(report_error)</span></a>
+<a name="393"><span class="lineNum">     393 </span>            :   {</a>
+<a name="394"><span class="lineNum">     394 </span><span class="lineCov">       8929 :     parse(report_error);</span></a>
+<a name="395"><span class="lineNum">     395 </span><span class="lineCov">       8929 :   }</span></a>
+<a name="396"><span class="lineNum">     396 </span>            : </a>
+<a name="397"><span class="lineNum">     397 </span><span class="lineCov">       9322 :   void set_str(const std::string_view input)</span></a>
+<a name="398"><span class="lineNum">     398 </span>            :   {</a>
+<a name="399"><span class="lineNum">     399 </span><span class="lineCov">       9322 :     str_ = input;</span></a>
+<a name="400"><span class="lineNum">     400 </span><span class="lineCov">       9322 :     parse(report_error);</span></a>
+<a name="401"><span class="lineNum">     401 </span><span class="lineCov">       9322 :   }</span></a>
+<a name="402"><span class="lineNum">     402 </span>            : </a>
+<a name="403"><span class="lineNum">     403 </span>            :   /* Main access operator. Returns the root scope (aka global scope). */</a>
+<a name="404"><span class="lineNum">     404 </span><span class="lineCov">     146056 :   Scope operator()() const</span></a>
+<a name="405"><span class="lineNum">     405 </span>            :   {</a>
+<a name="406"><span class="lineNum">     406 </span><span class="lineCov">     146056 :     if (this-&gt;scope_types.empty()) {</span></a>
+<a name="407"><span class="lineNum">     407 </span><span class="lineNoCov">          0 :       return Scope(*this);</span></a>
+<a name="408"><span class="lineNum">     408 </span>            :     }</a>
+<a name="409"><span class="lineNum">     409 </span><span class="lineCov">     146056 :     return Scope(*this, 0);</span></a>
+<a name="410"><span class="lineNum">     410 </span>            :   }</a>
+<a name="411"><span class="lineNum">     411 </span>            : </a>
+<a name="412"><span class="lineNum">     412 </span>            :   /* Return true if any mutation was applied. */</a>
+<a name="413"><span class="lineNum">     413 </span><span class="lineCov">     103322 :   bool only_apply_mutations(const bool all_mutation_ordered = false)</span></a>
+<a name="414"><span class="lineNum">     414 </span>            :   {</a>
+<a name="415"><span class="lineNum">     415 </span><span class="lineCov">      45432 :     return static_cast&lt;MutableString *&gt;(this)-&gt;apply_mutations(*this, all_mutation_ordered);</span></a>
+<a name="416"><span class="lineNum">     416 </span>            :   }</a>
+<a name="417"><span class="lineNum">     417 </span>            : </a>
+<a name="418"><span class="lineNum">     418 </span>            :   /* Apply pending mutation and parse the resulting string.</a>
+<a name="419"><span class="lineNum">     419 </span>            :    * Return true if any mutation was applied. */</a>
+<a name="420"><span class="lineNum">     420 </span><span class="lineCov">      96698 :   bool apply_mutations(const bool all_mutation_ordered = false)</span></a>
+<a name="421"><span class="lineNum">     421 </span>            :   {</a>
+<a name="422"><span class="lineNum">     422 </span><span class="lineCov">      96698 :     bool applied = only_apply_mutations(all_mutation_ordered);</span></a>
+<a name="423"><span class="lineNum">     423 </span><span class="lineCov">      96698 :     if (applied) {</span></a>
+<a name="424"><span class="lineNum">     424 </span><span class="lineCov">      21459 :       parse(report_error);</span></a>
+<a name="425"><span class="lineNum">     425 </span>            :     }</a>
+<a name="426"><span class="lineNum">     426 </span><span class="lineCov">      96698 :     return applied;</span></a>
+<a name="427"><span class="lineNum">     427 </span>            :   }</a>
+<a name="428"><span class="lineNum">     428 </span>            : </a>
+<a name="429"><span class="lineNum">     429 </span>            :   /* Apply mutations if any and get resulting string. */</a>
+<a name="430"><span class="lineNum">     430 </span><span class="lineCov">       1371 :   const std::string &amp;result_get(const bool all_mutation_ordered = false)</span></a>
+<a name="431"><span class="lineNum">     431 </span>            :   {</a>
+<a name="432"><span class="lineNum">     432 </span><span class="lineCov">       1371 :     only_apply_mutations(all_mutation_ordered);</span></a>
+<a name="433"><span class="lineNum">     433 </span><span class="lineCov">        393 :     return str_;</span></a>
+<a name="434"><span class="lineNum">     434 </span>            :   }</a>
+<a name="435"><span class="lineNum">     435 </span>            : </a>
+<a name="436"><span class="lineNum">     436 </span><span class="lineCov">      45848 :   void parse(ErrorHandler &amp;report_error)</span></a>
+<a name="437"><span class="lineNum">     437 </span>            :   {</a>
+<a name="438"><span class="lineNum">     438 </span><span class="lineCov">      45848 :     this-&gt;lexical_analysis(str_);</span></a>
+<a name="439"><span class="lineNum">     439 </span><span class="lineCov">      45848 :     this-&gt;semantic_analysis(report_error);</span></a>
+<a name="440"><span class="lineNum">     440 </span><span class="lineCov">      45848 :     switch (language) {</span></a>
+<a name="441"><span class="lineNum">     441 </span><span class="lineCov">       7261 :       case Language::BSL:</span></a>
+<a name="442"><span class="lineNum">     442 </span><span class="lineCov">       7261 :         this-&gt;parse_bsl(report_error);</span></a>
+<a name="443"><span class="lineNum">     443 </span><span class="lineCov">       7261 :         break;</span></a>
+<a name="444"><span class="lineNum">     444 </span><span class="lineNoCov">          0 :       default:</span></a>
+<a name="445"><span class="lineNum">     445 </span><span class="lineNoCov">          0 :         break;</span></a>
+<a name="446"><span class="lineNum">     446 </span>            :     }</a>
+<a name="447"><span class="lineNum">     447 </span><span class="lineCov">      45848 :     if (report_error.err.has_value()) {</span></a>
+<a name="448"><span class="lineNum">     448 </span><span class="lineNoCov">          0 :       throw ParserException();</span></a>
+<a name="449"><span class="lineNum">     449 </span>            :     }</a>
+<a name="450"><span class="lineNum">     450 </span><span class="lineCov">      45848 :   }</span></a>
+<a name="451"><span class="lineNum">     451 </span>            : </a>
+<a name="452"><span class="lineNum">     452 </span>            :   void debug_print()</a>
+<a name="453"><span class="lineNum">     453 </span>            :   {</a>
+<a name="454"><span class="lineNum">     454 </span>            :     std::cout &lt;&lt; &quot;Input: \n&quot; &lt;&lt; str_ &lt;&lt; &quot; \nEnd of Input\n&quot; &lt;&lt; std::endl;</a>
+<a name="455"><span class="lineNum">     455 </span>            :     std::cout &lt;&lt; &quot;Token Types: \&quot;&quot; &lt;&lt; this-&gt;token_types_str() &lt;&lt; &quot;\&quot;&quot; &lt;&lt; std::endl;</a>
+<a name="456"><span class="lineNum">     456 </span>            :     std::cout &lt;&lt; &quot;Token scopes: \&quot;&quot; &lt;&lt; this-&gt;token_scope &lt;&lt; &quot;\&quot;&quot; &lt;&lt; std::endl;</a>
+<a name="457"><span class="lineNum">     457 </span>            :     std::cout &lt;&lt; &quot;Scope Types: \&quot;&quot; &lt;&lt; this-&gt;scope_types_str &lt;&lt; &quot;\&quot;&quot; &lt;&lt; std::endl;</a>
+<a name="458"><span class="lineNum">     458 </span>            :   }</a>
+<a name="459"><span class="lineNum">     459 </span>            : </a>
+<a name="460"><span class="lineNum">     460 </span>            :   void debug_print_tokens()</a>
+<a name="461"><span class="lineNum">     461 </span>            :   {</a>
+<a name="462"><span class="lineNum">     462 </span>            :     for (auto tok : *this) {</a>
+<a name="463"><span class="lineNum">     463 </span>            :       std::cout &lt;&lt; &quot;id:&quot; &lt;&lt; int(tok) &lt;&lt; &quot; start:&quot; &lt;&lt; this-&gt;offsets_[int(tok)]</a>
+<a name="464"><span class="lineNum">     464 </span>            :                 &lt;&lt; &quot; end:&quot; &lt;&lt; this-&gt;offsets_end_[int(tok)] &lt;&lt; &quot; type:&quot; &lt;&lt; tok.type()</a>
+<a name="465"><span class="lineNum">     465 </span>            :                 &lt;&lt; &quot; scope:&quot; &lt;&lt; this-&gt;token_scope[int(tok)] &lt;&lt; &quot;(&quot;</a>
+<a name="466"><span class="lineNum">     466 </span>            :                 &lt;&lt; this-&gt;scope_types_str[this-&gt;token_scope[int(tok)]] &lt;&lt; &quot;)&quot;</a>
+<a name="467"><span class="lineNum">     467 </span>            :                 &lt;&lt; &quot; atom:&quot; &lt;&lt; tok.atom() &lt;&lt; &quot; str:\&quot;&quot; &lt;&lt; tok.str() &lt;&lt; &quot;\&quot;&quot;</a>
+<a name="468"><span class="lineNum">     468 </span>            :                 &lt;&lt; &quot; followed_by_whitespace:&quot; &lt;&lt; tok.followed_by_whitespace() &lt;&lt; &quot;\n&quot;;</a>
+<a name="469"><span class="lineNum">     469 </span>            :     }</a>
+<a name="470"><span class="lineNum">     470 </span>            :   }</a>
+<a name="471"><span class="lineNum">     471 </span>            : };</a>
+<a name="472"><span class="lineNum">     472 </span>            : </a>
+<a name="473"><span class="lineNum">     473 </span>            : }  // namespace blender::gpu::shader::parser</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

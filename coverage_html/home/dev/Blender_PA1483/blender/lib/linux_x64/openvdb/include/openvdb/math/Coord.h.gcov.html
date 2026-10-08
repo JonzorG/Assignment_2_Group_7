@@ -1,0 +1,679 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - /home/dev/Blender_PA1483/blender/lib/linux_x64/openvdb/include/openvdb/math/Coord.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../../../../../index.html">top level</a> - <a href="index.html">home/dev/Blender_PA1483/blender/lib/linux_x64/openvdb/include/openvdb/math</a> - Coord.h<span style="font-size: 80%;"> (source / <a href="Coord.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">144</td>
+            <td class="headerCovTableEntry">189</td>
+            <td class="headerCovTableEntryMed">76.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">76</td>
+            <td class="headerCovTableEntry">93</td>
+            <td class="headerCovTableEntryMed">81.7 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright Contributors to the OpenVDB Project</a>
+<a name="2"><span class="lineNum">       2 </span>            : // SPDX-License-Identifier: Apache-2.0</a>
+<a name="3"><span class="lineNum">       3 </span>            : </a>
+<a name="4"><span class="lineNum">       4 </span>            : #ifndef OPENVDB_MATH_COORD_HAS_BEEN_INCLUDED</a>
+<a name="5"><span class="lineNum">       5 </span>            : #define OPENVDB_MATH_COORD_HAS_BEEN_INCLUDED</a>
+<a name="6"><span class="lineNum">       6 </span>            : </a>
+<a name="7"><span class="lineNum">       7 </span>            : #include &lt;functional&gt;// for std::hash</a>
+<a name="8"><span class="lineNum">       8 </span>            : #include &lt;algorithm&gt; // for std::min(), std::max()</a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &lt;array&gt; // for std::array</a>
+<a name="10"><span class="lineNum">      10 </span>            : #include &lt;iostream&gt;</a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &lt;limits&gt;</a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &lt;openvdb/Platform.h&gt;</a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &lt;openvdb/util/Assert.h&gt;</a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;Math.h&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;Vec3.h&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : </a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &lt;tbb/blocked_range.h&gt; // for tbb::split</a>
+<a name="18"><span class="lineNum">      18 </span>            : </a>
+<a name="19"><span class="lineNum">      19 </span>            : namespace openvdb {</a>
+<a name="20"><span class="lineNum">      20 </span>            : OPENVDB_USE_VERSION_NAMESPACE</a>
+<a name="21"><span class="lineNum">      21 </span>            : namespace OPENVDB_VERSION_NAME {</a>
+<a name="22"><span class="lineNum">      22 </span>            : namespace math {</a>
+<a name="23"><span class="lineNum">      23 </span>            : </a>
+<a name="24"><span class="lineNum">      24 </span>            : /// @brief Signed (x, y, z) 32-bit integer coordinates</a>
+<a name="25"><span class="lineNum">      25 </span>            : class Coord</a>
+<a name="26"><span class="lineNum">      26 </span>            : {</a>
+<a name="27"><span class="lineNum">      27 </span>            : public:</a>
+<a name="28"><span class="lineNum">      28 </span>            :     using Int32 = int32_t;</a>
+<a name="29"><span class="lineNum">      29 </span>            :     using Index32 = uint32_t;</a>
+<a name="30"><span class="lineNum">      30 </span>            :     using Vec3i = Vec3&lt;Int32&gt;;</a>
+<a name="31"><span class="lineNum">      31 </span>            :     using Vec3I = Vec3&lt;Index32&gt;;</a>
+<a name="32"><span class="lineNum">      32 </span>            : </a>
+<a name="33"><span class="lineNum">      33 </span>            :     using ValueType = Int32;</a>
+<a name="34"><span class="lineNum">      34 </span>            :     using Limits = std::numeric_limits&lt;ValueType&gt;;</a>
+<a name="35"><span class="lineNum">      35 </span>            : </a>
+<a name="36"><span class="lineNum">      36 </span><span class="lineCov">  686416320 :     Coord(): mVec{{0, 0, 0}} {}</span></a>
+<a name="37"><span class="lineNum">      37 </span><span class="lineCov">     965499 :     constexpr explicit Coord(Int32 xyz): mVec{{xyz, xyz, xyz}} {}</span></a>
+<a name="38"><span class="lineNum">      38 </span><span class="lineCov">  459329404 :     constexpr Coord(Int32 x, Int32 y, Int32 z): mVec{{x, y, z}} {}</span></a>
+<a name="39"><span class="lineNum">      39 </span><span class="lineCov">   15878667 :     explicit Coord(const Vec3i&amp; v): mVec{{v[0], v[1], v[2]}} {}</span></a>
+<a name="40"><span class="lineNum">      40 </span>            :     explicit Coord(const Vec3I&amp; v): mVec{{Int32(v[0]), Int32(v[1]), Int32(v[2])}} {}</a>
+<a name="41"><span class="lineNum">      41 </span><span class="lineNoCov">          0 :     explicit Coord(const Int32* v): mVec{{v[0], v[1], v[2]}} {}</span></a>
+<a name="42"><span class="lineNum">      42 </span>            : </a>
+<a name="43"><span class="lineNum">      43 </span>            :     /// @brief Return the smallest possible coordinate</a>
+<a name="44"><span class="lineNum">      44 </span><span class="lineCov">      25472 :     static Coord min() { return Coord(Limits::min()); }</span></a>
+<a name="45"><span class="lineNum">      45 </span>            : </a>
+<a name="46"><span class="lineNum">      46 </span>            :     /// @brief Return the largest possible coordinate</a>
+<a name="47"><span class="lineNum">      47 </span><span class="lineCov">     323447 :     static Coord max() { return Coord(Limits::max()); }</span></a>
+<a name="48"><span class="lineNum">      48 </span>            : </a>
+<a name="49"><span class="lineNum">      49 </span>            :     /// @brief Return @a xyz rounded to the closest integer coordinates</a>
+<a name="50"><span class="lineNum">      50 </span>            :     /// (cell centered conversion).</a>
+<a name="51"><span class="lineNum">      51 </span><span class="lineCov">     175850 :     template&lt;typename T&gt; static Coord round(const Vec3&lt;T&gt;&amp; xyz)</span></a>
+<a name="52"><span class="lineNum">      52 </span>            :     {</a>
+<a name="53"><span class="lineNum">      53 </span><span class="lineCov">     175850 :         return Coord(Int32(Round(xyz[0])), Int32(Round(xyz[1])), Int32(Round(xyz[2])));</span></a>
+<a name="54"><span class="lineNum">      54 </span>            :     }</a>
+<a name="55"><span class="lineNum">      55 </span>            :     /// @brief Return the largest integer coordinates that are not greater</a>
+<a name="56"><span class="lineNum">      56 </span>            :     /// than @a xyz (node centered conversion).</a>
+<a name="57"><span class="lineNum">      57 </span><span class="lineCov">   55840306 :     template&lt;typename T&gt; static Coord floor(const Vec3&lt;T&gt;&amp; xyz)</span></a>
+<a name="58"><span class="lineNum">      58 </span>            :     {</a>
+<a name="59"><span class="lineNum">      59 </span><span class="lineCov">   55840306 :         return Coord(Int32(Floor(xyz[0])), Int32(Floor(xyz[1])), Int32(Floor(xyz[2])));</span></a>
+<a name="60"><span class="lineNum">      60 </span>            :     }</a>
+<a name="61"><span class="lineNum">      61 </span>            : </a>
+<a name="62"><span class="lineNum">      62 </span>            :     /// @brief Return the largest integer coordinates that are not greater</a>
+<a name="63"><span class="lineNum">      63 </span>            :     /// than @a xyz+1 (node centered conversion).</a>
+<a name="64"><span class="lineNum">      64 </span><span class="lineCov">   56355026 :     template&lt;typename T&gt; static Coord ceil(const Vec3&lt;T&gt;&amp; xyz)</span></a>
+<a name="65"><span class="lineNum">      65 </span>            :     {</a>
+<a name="66"><span class="lineNum">      66 </span><span class="lineCov">   56355026 :         return Coord(Int32(Ceil(xyz[0])), Int32(Ceil(xyz[1])), Int32(Ceil(xyz[2])));</span></a>
+<a name="67"><span class="lineNum">      67 </span>            :     }</a>
+<a name="68"><span class="lineNum">      68 </span>            : </a>
+<a name="69"><span class="lineNum">      69 </span>            :     /// @brief Reset all three coordinates with the specified arguments</a>
+<a name="70"><span class="lineNum">      70 </span><span class="lineNoCov">          0 :     Coord&amp; reset(Int32 x, Int32 y, Int32 z)</span></a>
+<a name="71"><span class="lineNum">      71 </span>            :     {</a>
+<a name="72"><span class="lineNum">      72 </span><span class="lineNoCov">          0 :         mVec[0] = x;</span></a>
+<a name="73"><span class="lineNum">      73 </span><span class="lineNoCov">          0 :         mVec[1] = y;</span></a>
+<a name="74"><span class="lineNum">      74 </span><span class="lineNoCov">          0 :         mVec[2] = z;</span></a>
+<a name="75"><span class="lineNum">      75 </span><span class="lineNoCov">          0 :         return *this;</span></a>
+<a name="76"><span class="lineNum">      76 </span>            :     }</a>
+<a name="77"><span class="lineNum">      77 </span>            :     /// @brief Reset all three coordinates with the same specified argument</a>
+<a name="78"><span class="lineNum">      78 </span><span class="lineNoCov">          0 :     Coord&amp; reset(Int32 xyz) { return this-&gt;reset(xyz, xyz, xyz); }</span></a>
+<a name="79"><span class="lineNum">      79 </span>            : </a>
+<a name="80"><span class="lineNum">      80 </span><span class="lineCov">  693320596 :     Coord&amp; setX(Int32 x) { mVec[0] = x; return *this; }</span></a>
+<a name="81"><span class="lineNum">      81 </span><span class="lineCov">  682216058 :     Coord&amp; setY(Int32 y) { mVec[1] = y; return *this; }</span></a>
+<a name="82"><span class="lineNum">      82 </span><span class="lineCov">  656162798 :     Coord&amp; setZ(Int32 z) { mVec[2] = z; return *this; }</span></a>
+<a name="83"><span class="lineNum">      83 </span>            : </a>
+<a name="84"><span class="lineNum">      84 </span><span class="lineCov">      18857 :     Coord&amp; offset(Int32 dx, Int32 dy, Int32 dz)</span></a>
+<a name="85"><span class="lineNum">      85 </span>            :     {</a>
+<a name="86"><span class="lineNum">      86 </span><span class="lineCov">      18857 :         mVec[0] += dx;</span></a>
+<a name="87"><span class="lineNum">      87 </span><span class="lineCov">      18869 :         mVec[1] += dy;</span></a>
+<a name="88"><span class="lineNum">      88 </span><span class="lineCov">      18869 :         mVec[2] += dz;</span></a>
+<a name="89"><span class="lineNum">      89 </span><span class="lineCov">      18869 :         return *this;</span></a>
+<a name="90"><span class="lineNum">      90 </span>            :     }</a>
+<a name="91"><span class="lineNum">      91 </span><span class="lineCov">      18851 :     Coord&amp; offset(Int32 n) { return this-&gt;offset(n, n, n); }</span></a>
+<a name="92"><span class="lineNum">      92 </span><span class="lineCov">   68247039 :     Coord offsetBy(Int32 dx, Int32 dy, Int32 dz) const</span></a>
+<a name="93"><span class="lineNum">      93 </span>            :     {</a>
+<a name="94"><span class="lineNum">      94 </span><span class="lineCov">   68247039 :         return Coord(mVec[0] + dx, mVec[1] + dy, mVec[2] + dz);</span></a>
+<a name="95"><span class="lineNum">      95 </span>            :     }</a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineCov">   63872703 :     Coord offsetBy(Int32 n) const { return offsetBy(n, n, n); }</span></a>
+<a name="97"><span class="lineNum">      97 </span>            : </a>
+<a name="98"><span class="lineNum">      98 </span><span class="lineCov">      13225 :     Coord&amp; operator+=(const Coord&amp; rhs)</span></a>
+<a name="99"><span class="lineNum">      99 </span>            :     {</a>
+<a name="100"><span class="lineNum">     100 </span><span class="lineCov">      13225 :         mVec[0] += rhs[0];</span></a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineCov">      13223 :         mVec[1] += rhs[1];</span></a>
+<a name="102"><span class="lineNum">     102 </span><span class="lineCov">      13204 :         mVec[2] += rhs[2];</span></a>
+<a name="103"><span class="lineNum">     103 </span><span class="lineCov">      13199 :         return *this;</span></a>
+<a name="104"><span class="lineNum">     104 </span>            :     }</a>
+<a name="105"><span class="lineNum">     105 </span><span class="lineCov">        671 :     Coord&amp; operator-=(const Coord&amp; rhs)</span></a>
+<a name="106"><span class="lineNum">     106 </span>            :     {</a>
+<a name="107"><span class="lineNum">     107 </span><span class="lineCov">        671 :         mVec[0] -= rhs[0];</span></a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineCov">        670 :         mVec[1] -= rhs[1];</span></a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineCov">        669 :         mVec[2] -= rhs[2];</span></a>
+<a name="110"><span class="lineNum">     110 </span><span class="lineCov">        669 :         return *this;</span></a>
+<a name="111"><span class="lineNum">     111 </span>            :     }</a>
+<a name="112"><span class="lineNum">     112 </span><span class="lineCov">  737313833 :     Coord operator+(const Coord&amp; rhs) const</span></a>
+<a name="113"><span class="lineNum">     113 </span>            :     {</a>
+<a name="114"><span class="lineNum">     114 </span><span class="lineCov">  737313833 :         return Coord(mVec[0] + rhs[0], mVec[1] + rhs[1], mVec[2] + rhs[2]);</span></a>
+<a name="115"><span class="lineNum">     115 </span>            :     }</a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineCov">   47187595 :     Coord operator-(const Coord&amp; rhs) const</span></a>
+<a name="117"><span class="lineNum">     117 </span>            :     {</a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineCov">   47187595 :         return Coord(mVec[0] - rhs[0], mVec[1] - rhs[1], mVec[2] - rhs[2]);</span></a>
+<a name="119"><span class="lineNum">     119 </span>            :     }</a>
+<a name="120"><span class="lineNum">     120 </span><span class="lineNoCov">          0 :     Coord operator-() const { return Coord(-mVec[0], -mVec[1], -mVec[2]); }</span></a>
+<a name="121"><span class="lineNum">     121 </span>            : </a>
+<a name="122"><span class="lineNum">     122 </span><span class="lineCov">   58050698 :     Coord  operator&gt;&gt; (size_t n) const { return Coord(mVec[0]&gt;&gt;n, mVec[1]&gt;&gt;n, mVec[2]&gt;&gt;n); }</span></a>
+<a name="123"><span class="lineNum">     123 </span><span class="lineCov">        346 :     Coord  operator&lt;&lt; (size_t n) const { return Coord(mVec[0]&lt;&lt;n, mVec[1]&lt;&lt;n, mVec[2]&lt;&lt;n); }</span></a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineCov">     280180 :     Coord&amp; operator&lt;&lt;=(size_t n) { mVec[0]&lt;&lt;=n; mVec[1]&lt;&lt;=n; mVec[2]&lt;&lt;=n; return *this; }</span></a>
+<a name="125"><span class="lineNum">     125 </span><span class="lineCov">  102661797 :     Coord&amp; operator&gt;&gt;=(size_t n) { mVec[0]&gt;&gt;=n; mVec[1]&gt;&gt;=n; mVec[2]&gt;&gt;=n; return *this; }</span></a>
+<a name="126"><span class="lineNum">     126 </span><span class="lineCov">   68754512 :     Coord  operator&amp;  (Int32 n) const { return Coord(mVec[0] &amp; n, mVec[1] &amp; n, mVec[2] &amp; n); }</span></a>
+<a name="127"><span class="lineNum">     127 </span>            :     Coord  operator|  (Int32 n) const { return Coord(mVec[0] | n, mVec[1] | n, mVec[2] | n); }</a>
+<a name="128"><span class="lineNum">     128 </span><span class="lineCov">  102285182 :     Coord&amp; operator&amp;= (Int32 n) { mVec[0]&amp;=n; mVec[1]&amp;=n; mVec[2]&amp;=n; return *this; }</span></a>
+<a name="129"><span class="lineNum">     129 </span>            :     Coord&amp; operator|= (Int32 n) { mVec[0]|=n; mVec[1]|=n; mVec[2]|=n; return *this; }</a>
+<a name="130"><span class="lineNum">     130 </span>            : </a>
+<a name="131"><span class="lineNum">     131 </span><span class="lineCov">  160400922 :     Int32 x() const { return mVec[0]; }</span></a>
+<a name="132"><span class="lineNum">     132 </span><span class="lineCov">  115940416 :     Int32 y() const { return mVec[1]; }</span></a>
+<a name="133"><span class="lineNum">     133 </span><span class="lineCov">   83978754 :     Int32 z() const { return mVec[2]; }</span></a>
+<a name="134"><span class="lineNum">     134 </span><span class="lineCov"> 1215470348 :     Int32 operator[](size_t i) const { OPENVDB_ASSERT(i &lt; 3); return mVec[i]; }</span></a>
+<a name="135"><span class="lineNum">     135 </span><span class="lineCov">   16372322 :     Int32&amp; x() { return mVec[0]; }</span></a>
+<a name="136"><span class="lineNum">     136 </span><span class="lineCov">   41133606 :     Int32&amp; y() { return mVec[1]; }</span></a>
+<a name="137"><span class="lineNum">     137 </span><span class="lineCov">   56879859 :     Int32&amp; z() { return mVec[2]; }</span></a>
+<a name="138"><span class="lineNum">     138 </span><span class="lineCov">  909534572 :     Int32&amp; operator[](size_t i) { OPENVDB_ASSERT(i &lt; 3); return mVec[i]; }</span></a>
+<a name="139"><span class="lineNum">     139 </span>            : </a>
+<a name="140"><span class="lineNum">     140 </span>            :     const Int32* data() const { return mVec.data(); }</a>
+<a name="141"><span class="lineNum">     141 </span>            :     Int32* data() { return mVec.data(); }</a>
+<a name="142"><span class="lineNum">     142 </span><span class="lineNoCov">          0 :     const Int32* asPointer() const { return mVec.data(); }</span></a>
+<a name="143"><span class="lineNum">     143 </span><span class="lineCov">        142 :     Int32* asPointer() { return mVec.data(); }</span></a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineCov">   42301602 :     Vec3d asVec3d() const { return Vec3d(double(mVec[0]), double(mVec[1]), double(mVec[2])); }</span></a>
+<a name="145"><span class="lineNum">     145 </span><span class="lineCov">   15311314 :     Vec3s asVec3s() const { return Vec3s(float(mVec[0]), float(mVec[1]), float(mVec[2])); }</span></a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineNoCov">          0 :     Vec3i asVec3i() const { return Vec3i(mVec.data()); }</span></a>
+<a name="147"><span class="lineNum">     147 </span>            :     Vec3I asVec3I() const { return Vec3I(Index32(mVec[0]), Index32(mVec[1]), Index32(mVec[2])); }</a>
+<a name="148"><span class="lineNum">     148 </span>            :     void asXYZ(Int32&amp; x, Int32&amp; y, Int32&amp; z) const { x = mVec[0]; y = mVec[1]; z = mVec[2]; }</a>
+<a name="149"><span class="lineNum">     149 </span>            : </a>
+<a name="150"><span class="lineNum">     150 </span><span class="lineCov">     121344 :     bool operator==(const Coord&amp; rhs) const</span></a>
+<a name="151"><span class="lineNum">     151 </span>            :     {</a>
+<a name="152"><span class="lineNum">     152 </span><span class="lineCov">     121344 :         return (mVec[0] == rhs.mVec[0] &amp;&amp; mVec[1] == rhs.mVec[1] &amp;&amp; mVec[2] == rhs.mVec[2]);</span></a>
+<a name="153"><span class="lineNum">     153 </span>            :     }</a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineCov">     110239 :     bool operator!=(const Coord&amp; rhs) const { return !(*this == rhs); }</span></a>
+<a name="155"><span class="lineNum">     155 </span>            : </a>
+<a name="156"><span class="lineNum">     156 </span>            :     /// Lexicographic less than</a>
+<a name="157"><span class="lineNum">     157 </span><span class="lineCov">   87543870 :     bool operator&lt;(const Coord&amp; rhs) const</span></a>
+<a name="158"><span class="lineNum">     158 </span>            :     {</a>
+<a name="159"><span class="lineNum">     159 </span><span class="lineCov">  171223868 :         return this-&gt;x() &lt; rhs.x() ? true : this-&gt;x() &gt; rhs.x() ? false</span></a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineCov">  107318721 :              : this-&gt;y() &lt; rhs.y() ? true : this-&gt;y() &gt; rhs.y() ? false</span></a>
+<a name="161"><span class="lineNum">     161 </span><span class="lineCov">   85088857 :              : this-&gt;z() &lt; rhs.z() ? true : false;</span></a>
+<a name="162"><span class="lineNum">     162 </span>            :     }</a>
+<a name="163"><span class="lineNum">     163 </span>            :     /// Lexicographic less than or equal to</a>
+<a name="164"><span class="lineNum">     164 </span>            :     bool operator&lt;=(const Coord&amp; rhs) const</a>
+<a name="165"><span class="lineNum">     165 </span>            :     {</a>
+<a name="166"><span class="lineNum">     166 </span>            :         return this-&gt;x() &lt; rhs.x() ? true : this-&gt;x() &gt; rhs.x() ? false</a>
+<a name="167"><span class="lineNum">     167 </span>            :              : this-&gt;y() &lt; rhs.y() ? true : this-&gt;y() &gt; rhs.y() ? false</a>
+<a name="168"><span class="lineNum">     168 </span>            :              : this-&gt;z() &lt;=rhs.z() ? true : false;</a>
+<a name="169"><span class="lineNum">     169 </span>            :     }</a>
+<a name="170"><span class="lineNum">     170 </span>            :     /// Lexicographic greater than</a>
+<a name="171"><span class="lineNum">     171 </span>            :     bool operator&gt;(const Coord&amp; rhs) const { return !(*this &lt;= rhs); }</a>
+<a name="172"><span class="lineNum">     172 </span>            :     /// Lexicographic greater than or equal to</a>
+<a name="173"><span class="lineNum">     173 </span>            :     bool operator&gt;=(const Coord&amp; rhs) const { return !(*this &lt; rhs); }</a>
+<a name="174"><span class="lineNum">     174 </span>            : </a>
+<a name="175"><span class="lineNum">     175 </span>            :     /// Perform a component-wise minimum with the other Coord.</a>
+<a name="176"><span class="lineNum">     176 </span><span class="lineCov">   52965993 :     void minComponent(const Coord&amp; other)</span></a>
+<a name="177"><span class="lineNum">     177 </span>            :     {</a>
+<a name="178"><span class="lineNum">     178 </span><span class="lineCov">   52965993 :         mVec[0] = std::min(mVec[0], other.mVec[0]);</span></a>
+<a name="179"><span class="lineNum">     179 </span><span class="lineCov">   52388090 :         mVec[1] = std::min(mVec[1], other.mVec[1]);</span></a>
+<a name="180"><span class="lineNum">     180 </span><span class="lineCov">   52065199 :         mVec[2] = std::min(mVec[2], other.mVec[2]);</span></a>
+<a name="181"><span class="lineNum">     181 </span><span class="lineCov">   52279201 :     }</span></a>
+<a name="182"><span class="lineNum">     182 </span>            : </a>
+<a name="183"><span class="lineNum">     183 </span>            :     /// Perform a component-wise maximum with the other Coord.</a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineCov">   50952584 :     void maxComponent(const Coord&amp; other)</span></a>
+<a name="185"><span class="lineNum">     185 </span>            :     {</a>
+<a name="186"><span class="lineNum">     186 </span><span class="lineCov">   50952584 :         mVec[0] = std::max(mVec[0], other.mVec[0]);</span></a>
+<a name="187"><span class="lineNum">     187 </span><span class="lineCov">   52334135 :         mVec[1] = std::max(mVec[1], other.mVec[1]);</span></a>
+<a name="188"><span class="lineNum">     188 </span><span class="lineCov">   52080987 :         mVec[2] = std::max(mVec[2], other.mVec[2]);</span></a>
+<a name="189"><span class="lineNum">     189 </span><span class="lineCov">   52349420 :     }</span></a>
+<a name="190"><span class="lineNum">     190 </span>            : </a>
+<a name="191"><span class="lineNum">     191 </span>            :     /// Return the component-wise minimum of the two Coords.</a>
+<a name="192"><span class="lineNum">     192 </span><span class="lineCov">     360037 :     static inline Coord minComponent(const Coord&amp; lhs, const Coord&amp; rhs)</span></a>
+<a name="193"><span class="lineNum">     193 </span>            :     {</a>
+<a name="194"><span class="lineNum">     194 </span><span class="lineCov">     345832 :         return Coord(std::min(lhs.x(), rhs.x()),</span></a>
+<a name="195"><span class="lineNum">     195 </span><span class="lineCov">     347651 :                      std::min(lhs.y(), rhs.y()),</span></a>
+<a name="196"><span class="lineNum">     196 </span><span class="lineCov">    1049409 :                      std::min(lhs.z(), rhs.z()));</span></a>
+<a name="197"><span class="lineNum">     197 </span>            :     }</a>
+<a name="198"><span class="lineNum">     198 </span>            : </a>
+<a name="199"><span class="lineNum">     199 </span>            :     /// Return the component-wise maximum of the two Coords.</a>
+<a name="200"><span class="lineNum">     200 </span><span class="lineCov">     349699 :     static inline Coord maxComponent(const Coord&amp; lhs, const Coord&amp; rhs)</span></a>
+<a name="201"><span class="lineNum">     201 </span>            :     {</a>
+<a name="202"><span class="lineNum">     202 </span><span class="lineCov">     335375 :         return Coord(std::max(lhs.x(), rhs.x()),</span></a>
+<a name="203"><span class="lineNum">     203 </span><span class="lineCov">     337197 :                      std::max(lhs.y(), rhs.y()),</span></a>
+<a name="204"><span class="lineNum">     204 </span><span class="lineCov">    1017824 :                      std::max(lhs.z(), rhs.z()));</span></a>
+<a name="205"><span class="lineNum">     205 </span>            :     }</a>
+<a name="206"><span class="lineNum">     206 </span>            : </a>
+<a name="207"><span class="lineNum">     207 </span>            :     /// Return true if any of the components of @a a are smaller than the</a>
+<a name="208"><span class="lineNum">     208 </span>            :     /// corresponding components of @a b.</a>
+<a name="209"><span class="lineNum">     209 </span><span class="lineCov">  678175528 :     static inline bool lessThan(const Coord&amp; a, const Coord&amp; b)</span></a>
+<a name="210"><span class="lineNum">     210 </span>            :     {</a>
+<a name="211"><span class="lineNum">     211 </span><span class="lineCov">  678175528 :         return (a[0] &lt; b[0] || a[1] &lt; b[1] || a[2] &lt; b[2]);</span></a>
+<a name="212"><span class="lineNum">     212 </span>            :     }</a>
+<a name="213"><span class="lineNum">     213 </span>            : </a>
+<a name="214"><span class="lineNum">     214 </span>            :     /// @brief Return the index (0, 1 or 2) with the smallest value.</a>
+<a name="215"><span class="lineNum">     215 </span>            :     size_t minIndex() const { return MinIndex(mVec); }</a>
+<a name="216"><span class="lineNum">     216 </span>            : </a>
+<a name="217"><span class="lineNum">     217 </span>            :     /// @brief Return the index (0, 1 or 2) with the largest value.</a>
+<a name="218"><span class="lineNum">     218 </span><span class="lineNoCov">          0 :     size_t maxIndex() const { return MaxIndex(mVec); }</span></a>
+<a name="219"><span class="lineNum">     219 </span>            : </a>
+<a name="220"><span class="lineNum">     220 </span>            :     void read(std::istream&amp; is) { is.read(reinterpret_cast&lt;char*&gt;(mVec.data()), sizeof(mVec)); }</a>
+<a name="221"><span class="lineNum">     221 </span>            :     void write(std::ostream&amp; os) const</a>
+<a name="222"><span class="lineNum">     222 </span>            :     {</a>
+<a name="223"><span class="lineNum">     223 </span>            :         os.write(reinterpret_cast&lt;const char*&gt;(mVec.data()), sizeof(mVec));</a>
+<a name="224"><span class="lineNum">     224 </span>            :     }</a>
+<a name="225"><span class="lineNum">     225 </span>            : </a>
+<a name="226"><span class="lineNum">     226 </span>            :     /// @brief Return a hash value for this coordinate</a>
+<a name="227"><span class="lineNum">     227 </span>            :     /// @note Log2N is the binary logarithm of the hash table size.</a>
+<a name="228"><span class="lineNum">     228 </span>            :     /// @details The hash function is originally taken from the SIGGRAPH paper:</a>
+<a name="229"><span class="lineNum">     229 </span>            :     /// &quot;VDB: High-resolution sparse volumes with dynamic topology&quot;</a>
+<a name="230"><span class="lineNum">     230 </span>            :     /// and the prime numbers are modified based on the ACM Transactions on Graphics paper:</a>
+<a name="231"><span class="lineNum">     231 </span>            :     /// &quot;Real-time 3D reconstruction at scale using voxel hashing&quot;</a>
+<a name="232"><span class="lineNum">     232 </span>            :     template&lt;int Log2N = 20&gt;</a>
+<a name="233"><span class="lineNum">     233 </span>            :     size_t hash() const</a>
+<a name="234"><span class="lineNum">     234 </span>            :     {</a>
+<a name="235"><span class="lineNum">     235 </span>            :         const uint32_t* vec = reinterpret_cast&lt;const uint32_t*&gt;(mVec.data());</a>
+<a name="236"><span class="lineNum">     236 </span>            :         return ((1&lt;&lt;Log2N)-1) &amp; (vec[0]*73856093 ^ vec[1]*19349669 ^ vec[2]*83492791);</a>
+<a name="237"><span class="lineNum">     237 </span>            :     }</a>
+<a name="238"><span class="lineNum">     238 </span>            : </a>
+<a name="239"><span class="lineNum">     239 </span>            : private:</a>
+<a name="240"><span class="lineNum">     240 </span>            :     std::array&lt;Int32, 3&gt; mVec;</a>
+<a name="241"><span class="lineNum">     241 </span>            : }; // class Coord</a>
+<a name="242"><span class="lineNum">     242 </span>            : </a>
+<a name="243"><span class="lineNum">     243 </span>            : </a>
+<a name="244"><span class="lineNum">     244 </span>            : ////////////////////////////////////////</a>
+<a name="245"><span class="lineNum">     245 </span>            : </a>
+<a name="246"><span class="lineNum">     246 </span>            : </a>
+<a name="247"><span class="lineNum">     247 </span>            : /// @brief Axis-aligned bounding box of signed integer coordinates</a>
+<a name="248"><span class="lineNum">     248 </span>            : /// @note The range of the integer coordinates, [min, max], is inclusive.</a>
+<a name="249"><span class="lineNum">     249 </span>            : /// Thus, a bounding box with min = max is not empty but rather encloses</a>
+<a name="250"><span class="lineNum">     250 </span>            : /// a single coordinate.</a>
+<a name="251"><span class="lineNum">     251 </span>            : class CoordBBox</a>
+<a name="252"><span class="lineNum">     252 </span>            : {</a>
+<a name="253"><span class="lineNum">     253 </span>            : public:</a>
+<a name="254"><span class="lineNum">     254 </span>            :     using Index64 = uint64_t;</a>
+<a name="255"><span class="lineNum">     255 </span>            :     using ValueType = Coord::ValueType;</a>
+<a name="256"><span class="lineNum">     256 </span>            : </a>
+<a name="257"><span class="lineNum">     257 </span>            :     /// @brief Iterator over the Coord domain covered by a CoordBBox</a>
+<a name="258"><span class="lineNum">     258 </span>            :     /// @note If ZYXOrder is @c true, @e z is the fastest-moving coordinate,</a>
+<a name="259"><span class="lineNum">     259 </span>            :     /// otherwise the traversal is in XYZ order (i.e., @e x is fastest-moving).</a>
+<a name="260"><span class="lineNum">     260 </span>            :     template&lt;bool ZYXOrder&gt;</a>
+<a name="261"><span class="lineNum">     261 </span>            :     class Iterator</a>
+<a name="262"><span class="lineNum">     262 </span>            :     {</a>
+<a name="263"><span class="lineNum">     263 </span>            :     public:</a>
+<a name="264"><span class="lineNum">     264 </span>            :         /// @brief C-tor from a bounding box</a>
+<a name="265"><span class="lineNum">     265 </span><span class="lineCov">   51793672 :         Iterator(const CoordBBox&amp; b): mPos(b.min()), mMin(b.min()), mMax(b.max()) {}</span></a>
+<a name="266"><span class="lineNum">     266 </span>            :         /// @brief Increment the iterator to point to the next coordinate.</a>
+<a name="267"><span class="lineNum">     267 </span>            :         /// @details Iteration stops one past the maximum coordinate</a>
+<a name="268"><span class="lineNum">     268 </span>            :         /// along the axis determined by the template parameter.</a>
+<a name="269"><span class="lineNum">     269 </span><span class="lineCov">   67017468 :         Iterator&amp; operator++() { ZYXOrder ? next&lt;2,1,0&gt;() : next&lt;0,1,2&gt;(); return *this; }</span></a>
+<a name="270"><span class="lineNum">     270 </span>            :         /// @brief Return @c true if the iterator still points to a valid coordinate.</a>
+<a name="271"><span class="lineNum">     271 </span><span class="lineCov">  122711677 :         operator bool() const { return ZYXOrder ? (mPos[0] &lt;= mMax[0]) : (mPos[2] &lt;= mMax[2]); }</span></a>
+<a name="272"><span class="lineNum">     272 </span>            :         /// @brief Return a const reference to the coordinate currently pointed to.</a>
+<a name="273"><span class="lineNum">     273 </span><span class="lineCov">   51852180 :         const Coord&amp; operator*() const { return mPos; }</span></a>
+<a name="274"><span class="lineNum">     274 </span>            :         /// Return @c true if this iterator and the given iterator point to the same coordinate.</a>
+<a name="275"><span class="lineNum">     275 </span>            :         bool operator==(const Iterator&amp; other) const</a>
+<a name="276"><span class="lineNum">     276 </span>            :         {</a>
+<a name="277"><span class="lineNum">     277 </span>            :             return ((mPos == other.mPos) &amp;&amp; (mMin == other.mMin) &amp;&amp; (mMax == other.mMax));</a>
+<a name="278"><span class="lineNum">     278 </span>            :         }</a>
+<a name="279"><span class="lineNum">     279 </span>            :         /// Return @c true if this iterator and the given iterator point to different coordinates.</a>
+<a name="280"><span class="lineNum">     280 </span>            :         bool operator!=(const Iterator&amp; other) const { return !(*this == other); }</a>
+<a name="281"><span class="lineNum">     281 </span>            :     private:</a>
+<a name="282"><span class="lineNum">     282 </span>            :         template&lt;size_t a, size_t b, size_t c&gt;</a>
+<a name="283"><span class="lineNum">     283 </span><span class="lineCov">   68735921 :         void next()</span></a>
+<a name="284"><span class="lineNum">     284 </span>            :         {</a>
+<a name="285"><span class="lineNum">     285 </span><span class="lineCov">   68735921 :             if (mPos[a] &lt; mMax[a]) { ++mPos[a]; } // this is the most common case</span></a>
+<a name="286"><span class="lineNum">     286 </span><span class="lineCov">   63378490 :             else if (mPos[b] &lt; mMax[b]) { mPos[a] = mMin[a]; ++mPos[b]; }</span></a>
+<a name="287"><span class="lineNum">     287 </span><span class="lineCov">   56300820 :             else if (mPos[c] &lt;= mMax[c]) { mPos[a] = mMin[a]; mPos[b] = mMin[b]; ++mPos[c]; }</span></a>
+<a name="288"><span class="lineNum">     288 </span><span class="lineCov">   73631522 :         }</span></a>
+<a name="289"><span class="lineNum">     289 </span>            :         Coord mPos, mMin, mMax;</a>
+<a name="290"><span class="lineNum">     290 </span>            :         friend class CoordBBox; // for CoordBBox::end()</a>
+<a name="291"><span class="lineNum">     291 </span>            :     };// CoordBBox::Iterator</a>
+<a name="292"><span class="lineNum">     292 </span>            : </a>
+<a name="293"><span class="lineNum">     293 </span>            :     using ZYXIterator = Iterator&lt;/*ZYX=*/true&gt;;</a>
+<a name="294"><span class="lineNum">     294 </span>            :     using XYZIterator = Iterator&lt;/*ZYX=*/false&gt;;</a>
+<a name="295"><span class="lineNum">     295 </span>            : </a>
+<a name="296"><span class="lineNum">     296 </span>            :     /// @brief The default constructor produces an empty bounding box.</a>
+<a name="297"><span class="lineNum">     297 </span><span class="lineCov">      13170 :     CoordBBox(): mMin(Coord::max()), mMax(Coord::min()) {}</span></a>
+<a name="298"><span class="lineNum">     298 </span>            :     /// @brief Construct a bounding box with the given @a min and @a max bounds.</a>
+<a name="299"><span class="lineNum">     299 </span><span class="lineCov">  121670584 :     CoordBBox(const Coord&amp; min, const Coord&amp; max): mMin(min), mMax(max) {}</span></a>
+<a name="300"><span class="lineNum">     300 </span>            :     /// @brief Construct from individual components of the min and max bounds.</a>
+<a name="301"><span class="lineNum">     301 </span><span class="lineCov">         15 :     CoordBBox(ValueType xMin, ValueType yMin, ValueType zMin,</span></a>
+<a name="302"><span class="lineNum">     302 </span>            :               ValueType xMax, ValueType yMax, ValueType zMax)</a>
+<a name="303"><span class="lineNum">     303 </span><span class="lineCov">         15 :         : mMin(xMin, yMin, zMin), mMax(xMax, yMax, zMax)</span></a>
+<a name="304"><span class="lineNum">     304 </span>            :     {</a>
+<a name="305"><span class="lineNum">     305 </span><span class="lineCov">         15 :     }</span></a>
+<a name="306"><span class="lineNum">     306 </span>            :     /// @brief Splitting constructor for use in TBB ranges</a>
+<a name="307"><span class="lineNum">     307 </span>            :     /// @note The other bounding box is assumed to be divisible.</a>
+<a name="308"><span class="lineNum">     308 </span><span class="lineNoCov">          0 :     CoordBBox(CoordBBox&amp; other, const tbb::split&amp;): mMin(other.mMin), mMax(other.mMax)</span></a>
+<a name="309"><span class="lineNum">     309 </span>            :     {</a>
+<a name="310"><span class="lineNum">     310 </span>            :         OPENVDB_ASSERT(this-&gt;is_divisible());</a>
+<a name="311"><span class="lineNum">     311 </span><span class="lineNoCov">          0 :         const size_t n = this-&gt;maxExtent();</span></a>
+<a name="312"><span class="lineNum">     312 </span><span class="lineNoCov">          0 :         mMax[n] = (mMin[n] + mMax[n]) &gt;&gt; 1;</span></a>
+<a name="313"><span class="lineNum">     313 </span><span class="lineNoCov">          0 :         other.mMin[n] = mMax[n] + 1;</span></a>
+<a name="314"><span class="lineNum">     314 </span><span class="lineNoCov">          0 :     }</span></a>
+<a name="315"><span class="lineNum">     315 </span>            : </a>
+<a name="316"><span class="lineNum">     316 </span><span class="lineCov">   62197455 :     static CoordBBox createCube(const Coord&amp; min, ValueType dim)</span></a>
+<a name="317"><span class="lineNum">     317 </span>            :     {</a>
+<a name="318"><span class="lineNum">     318 </span><span class="lineCov">   62197455 :         return CoordBBox(min, min.offsetBy(dim - 1));</span></a>
+<a name="319"><span class="lineNum">     319 </span>            :     }</a>
+<a name="320"><span class="lineNum">     320 </span>            : </a>
+<a name="321"><span class="lineNum">     321 </span>            :     /// Return an &quot;infinite&quot; bounding box, as defined by the Coord value range.</a>
+<a name="322"><span class="lineNum">     322 </span><span class="lineCov">         13 :     static CoordBBox inf() { return CoordBBox(Coord::min(), Coord::max()); }</span></a>
+<a name="323"><span class="lineNum">     323 </span>            : </a>
+<a name="324"><span class="lineNum">     324 </span><span class="lineCov">  198848882 :     const Coord&amp; min() const { return mMin; }</span></a>
+<a name="325"><span class="lineNum">     325 </span><span class="lineCov">  161571245 :     const Coord&amp; max() const { return mMax; }</span></a>
+<a name="326"><span class="lineNum">     326 </span>            : </a>
+<a name="327"><span class="lineNum">     327 </span><span class="lineCov">  105366182 :     Coord&amp; min() { return mMin; }</span></a>
+<a name="328"><span class="lineNum">     328 </span><span class="lineCov">  110835260 :     Coord&amp; max() { return mMax; }</span></a>
+<a name="329"><span class="lineNum">     329 </span>            : </a>
+<a name="330"><span class="lineNum">     330 </span><span class="lineCov">       6566 :     void reset() { mMin = Coord::max(); mMax = Coord::min(); }</span></a>
+<a name="331"><span class="lineNum">     331 </span>            :     void reset(const Coord&amp; min, const Coord&amp; max) { mMin = min; mMax = max; }</a>
+<a name="332"><span class="lineNum">     332 </span>            :     void resetToCube(const Coord&amp; min, ValueType dim) { mMin = min; mMax = min.offsetBy(dim - 1); }</a>
+<a name="333"><span class="lineNum">     333 </span>            : </a>
+<a name="334"><span class="lineNum">     334 </span>            :     /// @brief Return the minimum coordinate.</a>
+<a name="335"><span class="lineNum">     335 </span>            :     /// @note The start coordinate is inclusive.</a>
+<a name="336"><span class="lineNum">     336 </span><span class="lineCov">    3215172 :     Coord getStart() const { return mMin; }</span></a>
+<a name="337"><span class="lineNum">     337 </span>            :     /// @brief Return the maximum coordinate plus one.</a>
+<a name="338"><span class="lineNum">     338 </span>            :     /// @note This end coordinate is exclusive.</a>
+<a name="339"><span class="lineNum">     339 </span>            :     Coord getEnd() const { return mMax.offsetBy(1); }</a>
+<a name="340"><span class="lineNum">     340 </span>            : </a>
+<a name="341"><span class="lineNum">     341 </span>            :     /// @brief Return a ZYX-order iterator that points to the minimum coordinate.</a>
+<a name="342"><span class="lineNum">     342 </span><span class="lineCov">   51794030 :     ZYXIterator begin() const { return ZYXIterator{*this}; }</span></a>
+<a name="343"><span class="lineNum">     343 </span>            :     /// @brief Return a ZYX-order iterator that points to the minimum coordinate.</a>
+<a name="344"><span class="lineNum">     344 </span>            :     ZYXIterator beginZYX() const { return ZYXIterator{*this}; }</a>
+<a name="345"><span class="lineNum">     345 </span>            :     /// @brief Return an XYZ-order iterator that points to the minimum coordinate.</a>
+<a name="346"><span class="lineNum">     346 </span>            :     XYZIterator beginXYZ() const { return XYZIterator{*this}; }</a>
+<a name="347"><span class="lineNum">     347 </span>            : </a>
+<a name="348"><span class="lineNum">     348 </span>            :     /// @brief Return a ZYX-order iterator that points past the maximum coordinate.</a>
+<a name="349"><span class="lineNum">     349 </span>            :     ZYXIterator end() const { ZYXIterator it{*this}; it.mPos[0] = mMax[0] + 1; return it; }</a>
+<a name="350"><span class="lineNum">     350 </span>            :     /// @brief Return a ZYX-order iterator that points past the maximum coordinate.</a>
+<a name="351"><span class="lineNum">     351 </span>            :     ZYXIterator endZYX() const { return end(); }</a>
+<a name="352"><span class="lineNum">     352 </span>            :     /// @brief Return an XYZ-order iterator that points past the maximum coordinate.</a>
+<a name="353"><span class="lineNum">     353 </span>            :     XYZIterator endXYZ() const { XYZIterator it{*this}; it.mPos[2] = mMax[2] + 1; return it; }</a>
+<a name="354"><span class="lineNum">     354 </span>            : </a>
+<a name="355"><span class="lineNum">     355 </span>            :     bool operator==(const CoordBBox&amp; rhs) const { return mMin == rhs.mMin &amp;&amp; mMax == rhs.mMax; }</a>
+<a name="356"><span class="lineNum">     356 </span>            :     bool operator!=(const CoordBBox&amp; rhs) const { return !(*this == rhs); }</a>
+<a name="357"><span class="lineNum">     357 </span>            : </a>
+<a name="358"><span class="lineNum">     358 </span>            :     /// @brief Return @c true if this bounding box is empty (i.e., encloses no coordinates).</a>
+<a name="359"><span class="lineNum">     359 </span><span class="lineCov">     462466 :     bool empty() const</span></a>
+<a name="360"><span class="lineNum">     360 </span>            :     {</a>
+<a name="361"><span class="lineNum">     361 </span>            : #if defined(__GNUC__) &amp;&amp; !defined(__INTEL_COMPILER)</a>
+<a name="362"><span class="lineNum">     362 </span>            :   #pragma GCC diagnostic push</a>
+<a name="363"><span class="lineNum">     363 </span>            :   #pragma GCC diagnostic ignored &quot;-Wstrict-overflow&quot;</a>
+<a name="364"><span class="lineNum">     364 </span>            : #endif</a>
+<a name="365"><span class="lineNum">     365 </span><span class="lineCov">     462466 :         return (mMin[0] &gt; mMax[0] || mMin[1] &gt; mMax[1] || mMin[2] &gt; mMax[2]);</span></a>
+<a name="366"><span class="lineNum">     366 </span>            : #if defined(__GNUC__) &amp;&amp; !defined(__INTEL_COMPILER)</a>
+<a name="367"><span class="lineNum">     367 </span>            :   #pragma GCC diagnostic pop</a>
+<a name="368"><span class="lineNum">     368 </span>            : #endif</a>
+<a name="369"><span class="lineNum">     369 </span>            :     }</a>
+<a name="370"><span class="lineNum">     370 </span>            :     /// @brief Return @c true if this bounding box is nonempty</a>
+<a name="371"><span class="lineNum">     371 </span>            :     /// (i.e., encloses at least one coordinate).</a>
+<a name="372"><span class="lineNum">     372 </span><span class="lineCov">       1954 :     operator bool() const { return !this-&gt;empty(); }</span></a>
+<a name="373"><span class="lineNum">     373 </span>            :     /// @brief Return @c true if this bounding box is nonempty</a>
+<a name="374"><span class="lineNum">     374 </span>            :     /// (i.e., encloses at least one coordinate).</a>
+<a name="375"><span class="lineNum">     375 </span>            :     bool hasVolume() const { return !this-&gt;empty(); }</a>
+<a name="376"><span class="lineNum">     376 </span>            : </a>
+<a name="377"><span class="lineNum">     377 </span>            :     /// @brief Return the floating-point position of the center of this bounding box.</a>
+<a name="378"><span class="lineNum">     378 </span><span class="lineCov">         71 :     Vec3d getCenter() const { return 0.5 * Vec3d((mMin + mMax).asPointer()); }</span></a>
+<a name="379"><span class="lineNum">     379 </span>            : </a>
+<a name="380"><span class="lineNum">     380 </span>            :     /// @brief Return the dimensions of the coordinates spanned by this bounding box.</a>
+<a name="381"><span class="lineNum">     381 </span>            :     /// @note Since coordinates are inclusive, a bounding box with min = max</a>
+<a name="382"><span class="lineNum">     382 </span>            :     /// has dimensions of (1, 1, 1).</a>
+<a name="383"><span class="lineNum">     383 </span><span class="lineCov">        159 :     Coord dim() const { return empty() ? Coord(0) : (mMax.offsetBy(1) - mMin); }</span></a>
+<a name="384"><span class="lineNum">     384 </span>            :     /// @todo deprecate - use dim instead</a>
+<a name="385"><span class="lineNum">     385 </span><span class="lineNoCov">          0 :     Coord extents() const { return this-&gt;dim(); }</span></a>
+<a name="386"><span class="lineNum">     386 </span>            :     /// @brief Return the integer volume of coordinates spanned by this bounding box.</a>
+<a name="387"><span class="lineNum">     387 </span>            :     /// @note Since coordinates are inclusive, a bounding box with min = max has volume one.</a>
+<a name="388"><span class="lineNum">     388 </span><span class="lineNoCov">          0 :     Index64 volume() const</span></a>
+<a name="389"><span class="lineNum">     389 </span>            :     {</a>
+<a name="390"><span class="lineNum">     390 </span><span class="lineNoCov">          0 :         const Coord d = this-&gt;dim();</span></a>
+<a name="391"><span class="lineNum">     391 </span><span class="lineNoCov">          0 :         return Index64(d[0]) * Index64(d[1]) * Index64(d[2]);</span></a>
+<a name="392"><span class="lineNum">     392 </span>            :     }</a>
+<a name="393"><span class="lineNum">     393 </span>            :     /// @brief Return @c true if this bounding box can be subdivided [mainly for use by TBB].</a>
+<a name="394"><span class="lineNum">     394 </span><span class="lineNoCov">          0 :     bool is_divisible() const { return mMin[0]&lt;mMax[0] &amp;&amp; mMin[1]&lt;mMax[1] &amp;&amp; mMin[2]&lt;mMax[2]; }</span></a>
+<a name="395"><span class="lineNum">     395 </span>            : </a>
+<a name="396"><span class="lineNum">     396 </span>            :     /// @brief Return the index (0, 1 or 2) of the shortest axis.</a>
+<a name="397"><span class="lineNum">     397 </span>            :     size_t minExtent() const { return this-&gt;dim().minIndex(); }</a>
+<a name="398"><span class="lineNum">     398 </span>            : </a>
+<a name="399"><span class="lineNum">     399 </span>            :     /// @brief Return the index (0, 1 or 2) of the longest axis.</a>
+<a name="400"><span class="lineNum">     400 </span><span class="lineNoCov">          0 :     size_t maxExtent() const { return this-&gt;dim().maxIndex(); }</span></a>
+<a name="401"><span class="lineNum">     401 </span>            : </a>
+<a name="402"><span class="lineNum">     402 </span>            :     /// @brief Return @c true if point (x, y, z) is inside this bounding box.</a>
+<a name="403"><span class="lineNum">     403 </span><span class="lineCov">  779005603 :     bool isInside(const Coord&amp; xyz) const</span></a>
+<a name="404"><span class="lineNum">     404 </span>            :     {</a>
+<a name="405"><span class="lineNum">     405 </span><span class="lineCov">  779005603 :         return !(Coord::lessThan(xyz,mMin) || Coord::lessThan(mMax,xyz));</span></a>
+<a name="406"><span class="lineNum">     406 </span>            :     }</a>
+<a name="407"><span class="lineNum">     407 </span>            : </a>
+<a name="408"><span class="lineNum">     408 </span>            :     /// @brief Return @c true if the given bounding box is inside this bounding box.</a>
+<a name="409"><span class="lineNum">     409 </span><span class="lineCov">   82344865 :     bool isInside(const CoordBBox&amp; b) const</span></a>
+<a name="410"><span class="lineNum">     410 </span>            :     {</a>
+<a name="411"><span class="lineNum">     411 </span><span class="lineCov">   82344865 :         return !(Coord::lessThan(b.mMin,mMin) || Coord::lessThan(mMax,b.mMax));</span></a>
+<a name="412"><span class="lineNum">     412 </span>            :     }</a>
+<a name="413"><span class="lineNum">     413 </span>            : </a>
+<a name="414"><span class="lineNum">     414 </span>            :     /// @brief Return @c true if the given bounding box overlaps with this bounding box.</a>
+<a name="415"><span class="lineNum">     415 </span><span class="lineCov">   65197259 :     bool hasOverlap(const CoordBBox&amp; b) const</span></a>
+<a name="416"><span class="lineNum">     416 </span>            :     {</a>
+<a name="417"><span class="lineNum">     417 </span><span class="lineCov">   65197259 :         return !(Coord::lessThan(mMax,b.mMin) || Coord::lessThan(b.mMax,mMin));</span></a>
+<a name="418"><span class="lineNum">     418 </span>            :     }</a>
+<a name="419"><span class="lineNum">     419 </span>            : </a>
+<a name="420"><span class="lineNum">     420 </span>            :     /// @brief Pad this bounding box with the specified padding.</a>
+<a name="421"><span class="lineNum">     421 </span><span class="lineCov">       9426 :     void expand(ValueType padding)</span></a>
+<a name="422"><span class="lineNum">     422 </span>            :     {</a>
+<a name="423"><span class="lineNum">     423 </span><span class="lineCov">       9426 :         mMin.offset(-padding);</span></a>
+<a name="424"><span class="lineNum">     424 </span><span class="lineCov">       9428 :         mMax.offset( padding);</span></a>
+<a name="425"><span class="lineNum">     425 </span><span class="lineCov">       9454 :     }</span></a>
+<a name="426"><span class="lineNum">     426 </span>            : </a>
+<a name="427"><span class="lineNum">     427 </span>            :     /// @brief Return a new instance that is expanded by the specified padding.</a>
+<a name="428"><span class="lineNum">     428 </span>            :     CoordBBox expandBy(ValueType padding) const</a>
+<a name="429"><span class="lineNum">     429 </span>            :     {</a>
+<a name="430"><span class="lineNum">     430 </span>            :         return CoordBBox(mMin.offsetBy(-padding),mMax.offsetBy(padding));</a>
+<a name="431"><span class="lineNum">     431 </span>            :     }</a>
+<a name="432"><span class="lineNum">     432 </span>            : </a>
+<a name="433"><span class="lineNum">     433 </span>            :     /// @brief Expand this bounding box to enclose point (x, y, z).</a>
+<a name="434"><span class="lineNum">     434 </span><span class="lineCov">     998169 :     void expand(const Coord&amp; xyz)</span></a>
+<a name="435"><span class="lineNum">     435 </span>            :     {</a>
+<a name="436"><span class="lineNum">     436 </span><span class="lineCov">     998169 :         mMin.minComponent(xyz);</span></a>
+<a name="437"><span class="lineNum">     437 </span><span class="lineCov">     975108 :         mMax.maxComponent(xyz);</span></a>
+<a name="438"><span class="lineNum">     438 </span><span class="lineCov">     974351 :     }</span></a>
+<a name="439"><span class="lineNum">     439 </span>            : </a>
+<a name="440"><span class="lineNum">     440 </span>            :     /// @brief Union this bounding box with the given bounding box.</a>
+<a name="441"><span class="lineNum">     441 </span><span class="lineCov">       7449 :     void expand(const CoordBBox&amp; bbox)</span></a>
+<a name="442"><span class="lineNum">     442 </span>            :     {</a>
+<a name="443"><span class="lineNum">     443 </span><span class="lineCov">       7449 :           mMin.minComponent(bbox.min());</span></a>
+<a name="444"><span class="lineNum">     444 </span><span class="lineCov">       7452 :           mMax.maxComponent(bbox.max());</span></a>
+<a name="445"><span class="lineNum">     445 </span><span class="lineCov">       7453 :     }</span></a>
+<a name="446"><span class="lineNum">     446 </span>            :     /// @brief Intersect this bounding box with the given bounding box.</a>
+<a name="447"><span class="lineNum">     447 </span><span class="lineCov">   49470779 :     void intersect(const CoordBBox&amp; bbox)</span></a>
+<a name="448"><span class="lineNum">     448 </span>            :     {</a>
+<a name="449"><span class="lineNum">     449 </span><span class="lineCov">   49470779 :         mMin.maxComponent(bbox.min());</span></a>
+<a name="450"><span class="lineNum">     450 </span><span class="lineCov">   51348996 :         mMax.minComponent(bbox.max());</span></a>
+<a name="451"><span class="lineNum">     451 </span><span class="lineCov">   51276152 :     }</span></a>
+<a name="452"><span class="lineNum">     452 </span>            :     /// @brief Union this bounding box with the cubical bounding box</a>
+<a name="453"><span class="lineNum">     453 </span>            :     /// of the given size and with the given minimum coordinates.</a>
+<a name="454"><span class="lineNum">     454 </span><span class="lineCov">      12169 :     void expand(const Coord&amp; min, Coord::ValueType dim)</span></a>
+<a name="455"><span class="lineNum">     455 </span>            :     {</a>
+<a name="456"><span class="lineNum">     456 </span><span class="lineCov">      12169 :         mMin.minComponent(min);</span></a>
+<a name="457"><span class="lineNum">     457 </span><span class="lineCov">      12169 :         mMax.maxComponent(min.offsetBy(dim-1));</span></a>
+<a name="458"><span class="lineNum">     458 </span><span class="lineCov">      12169 :     }</span></a>
+<a name="459"><span class="lineNum">     459 </span>            :     /// @brief Translate this bounding box by</a>
+<a name="460"><span class="lineNum">     460 </span>            :     /// (&lt;i&gt;t&lt;sub&gt;x&lt;/sub&gt;&lt;/i&gt;, &lt;i&gt;t&lt;sub&gt;y&lt;/sub&gt;&lt;/i&gt;, &lt;i&gt;t&lt;sub&gt;z&lt;/sub&gt;&lt;/i&gt;).</a>
+<a name="461"><span class="lineNum">     461 </span><span class="lineCov">       6285 :     void translate(const Coord&amp; t) { mMin += t; mMax += t; }</span></a>
+<a name="462"><span class="lineNum">     462 </span>            : </a>
+<a name="463"><span class="lineNum">     463 </span>            :     /// @brief Move this bounding box to the specified min</a>
+<a name="464"><span class="lineNum">     464 </span>            :     void moveMin(const Coord&amp; min) { mMax += min - mMin; mMin = min; }</a>
+<a name="465"><span class="lineNum">     465 </span>            : </a>
+<a name="466"><span class="lineNum">     466 </span>            :     /// @brief Move this bounding box to the specified max</a>
+<a name="467"><span class="lineNum">     467 </span>            :     void moveMax(const Coord&amp; max) { mMin += max - mMax; mMax = max; }</a>
+<a name="468"><span class="lineNum">     468 </span>            : </a>
+<a name="469"><span class="lineNum">     469 </span>            :     /// @brief Populates an array with the eight corner points of this bounding box.</a>
+<a name="470"><span class="lineNum">     470 </span>            :     /// @details The ordering of the corner points is lexicographic.</a>
+<a name="471"><span class="lineNum">     471 </span>            :     /// @warning It is assumed that the pointer can be incremented at</a>
+<a name="472"><span class="lineNum">     472 </span>            :     /// least seven times, i.e. has storage for eight Coord elements!</a>
+<a name="473"><span class="lineNum">     473 </span><span class="lineNoCov">          0 :     void getCornerPoints(Coord *p) const</span></a>
+<a name="474"><span class="lineNum">     474 </span>            :     {</a>
+<a name="475"><span class="lineNum">     475 </span>            :         OPENVDB_ASSERT(p != nullptr);</a>
+<a name="476"><span class="lineNum">     476 </span><span class="lineNoCov">          0 :         p-&gt;reset(mMin.x(), mMin.y(), mMin.z()); ++p;</span></a>
+<a name="477"><span class="lineNum">     477 </span><span class="lineNoCov">          0 :         p-&gt;reset(mMin.x(), mMin.y(), mMax.z()); ++p;</span></a>
+<a name="478"><span class="lineNum">     478 </span><span class="lineNoCov">          0 :         p-&gt;reset(mMin.x(), mMax.y(), mMin.z()); ++p;</span></a>
+<a name="479"><span class="lineNum">     479 </span><span class="lineNoCov">          0 :         p-&gt;reset(mMin.x(), mMax.y(), mMax.z()); ++p;</span></a>
+<a name="480"><span class="lineNum">     480 </span><span class="lineNoCov">          0 :         p-&gt;reset(mMax.x(), mMin.y(), mMin.z()); ++p;</span></a>
+<a name="481"><span class="lineNum">     481 </span><span class="lineNoCov">          0 :         p-&gt;reset(mMax.x(), mMin.y(), mMax.z()); ++p;</span></a>
+<a name="482"><span class="lineNum">     482 </span><span class="lineNoCov">          0 :         p-&gt;reset(mMax.x(), mMax.y(), mMin.z()); ++p;</span></a>
+<a name="483"><span class="lineNum">     483 </span><span class="lineNoCov">          0 :         p-&gt;reset(mMax.x(), mMax.y(), mMax.z());</span></a>
+<a name="484"><span class="lineNum">     484 </span><span class="lineNoCov">          0 :     }</span></a>
+<a name="485"><span class="lineNum">     485 </span>            : </a>
+<a name="486"><span class="lineNum">     486 </span>            :     //@{</a>
+<a name="487"><span class="lineNum">     487 </span>            :     /// @brief Bit-wise operations performed on both the min and max members</a>
+<a name="488"><span class="lineNum">     488 </span>            :     CoordBBox  operator&gt;&gt; (size_t n) const { return CoordBBox(mMin&gt;&gt;n, mMax&gt;&gt;n); }</a>
+<a name="489"><span class="lineNum">     489 </span>            :     CoordBBox  operator&lt;&lt; (size_t n) const { return CoordBBox(mMin&lt;&lt;n, mMax&lt;&lt;n); }</a>
+<a name="490"><span class="lineNum">     490 </span>            :     CoordBBox&amp; operator&lt;&lt;=(size_t n) { mMin &lt;&lt;= n; mMax &lt;&lt;= n; return *this; }</a>
+<a name="491"><span class="lineNum">     491 </span>            :     CoordBBox&amp; operator&gt;&gt;=(size_t n) { mMin &gt;&gt;= n; mMax &gt;&gt;= n; return *this; }</a>
+<a name="492"><span class="lineNum">     492 </span>            :     CoordBBox  operator&amp;  (Coord::Int32 n) const { return CoordBBox(mMin &amp; n, mMax &amp; n); }</a>
+<a name="493"><span class="lineNum">     493 </span>            :     CoordBBox  operator|  (Coord::Int32 n) const { return CoordBBox(mMin | n, mMax | n); }</a>
+<a name="494"><span class="lineNum">     494 </span>            :     CoordBBox&amp; operator&amp;= (Coord::Int32 n) { mMin &amp;= n; mMax &amp;= n; return *this; }</a>
+<a name="495"><span class="lineNum">     495 </span>            :     CoordBBox&amp; operator|= (Coord::Int32 n) { mMin |= n; mMax |= n; return *this; }</a>
+<a name="496"><span class="lineNum">     496 </span>            :     //@}</a>
+<a name="497"><span class="lineNum">     497 </span>            : </a>
+<a name="498"><span class="lineNum">     498 </span>            :     /// @brief Unserialize this bounding box from the given stream.</a>
+<a name="499"><span class="lineNum">     499 </span>            :     void read(std::istream&amp; is) { mMin.read(is); mMax.read(is); }</a>
+<a name="500"><span class="lineNum">     500 </span>            :     /// @brief Serialize this bounding box to the given stream.</a>
+<a name="501"><span class="lineNum">     501 </span>            :     void write(std::ostream&amp; os) const { mMin.write(os); mMax.write(os); }</a>
+<a name="502"><span class="lineNum">     502 </span>            : </a>
+<a name="503"><span class="lineNum">     503 </span>            : private:</a>
+<a name="504"><span class="lineNum">     504 </span>            :     Coord mMin, mMax;</a>
+<a name="505"><span class="lineNum">     505 </span>            : }; // class CoordBBox</a>
+<a name="506"><span class="lineNum">     506 </span>            : </a>
+<a name="507"><span class="lineNum">     507 </span>            : </a>
+<a name="508"><span class="lineNum">     508 </span>            : ////////////////////////////////////////</a>
+<a name="509"><span class="lineNum">     509 </span>            : </a>
+<a name="510"><span class="lineNum">     510 </span>            : </a>
+<a name="511"><span class="lineNum">     511 </span><span class="lineNoCov">          0 : inline std::ostream&amp; operator&lt;&lt;(std::ostream&amp; os, const Coord&amp; xyz)</span></a>
+<a name="512"><span class="lineNum">     512 </span>            : {</a>
+<a name="513"><span class="lineNum">     513 </span><span class="lineNoCov">          0 :     os &lt;&lt; xyz.asVec3i(); return os;</span></a>
+<a name="514"><span class="lineNum">     514 </span>            : }</a>
+<a name="515"><span class="lineNum">     515 </span>            : </a>
+<a name="516"><span class="lineNum">     516 </span>            : </a>
+<a name="517"><span class="lineNum">     517 </span>            : inline Coord</a>
+<a name="518"><span class="lineNum">     518 </span><span class="lineNoCov">          0 : Abs(const Coord&amp; xyz)</span></a>
+<a name="519"><span class="lineNum">     519 </span>            : {</a>
+<a name="520"><span class="lineNum">     520 </span><span class="lineNoCov">          0 :     return Coord(Abs(xyz[0]), Abs(xyz[1]), Abs(xyz[2]));</span></a>
+<a name="521"><span class="lineNum">     521 </span>            : }</a>
+<a name="522"><span class="lineNum">     522 </span>            : </a>
+<a name="523"><span class="lineNum">     523 </span>            : </a>
+<a name="524"><span class="lineNum">     524 </span>            : //@{</a>
+<a name="525"><span class="lineNum">     525 </span>            : /// Allow a Coord to be added to or subtracted from a Vec3.</a>
+<a name="526"><span class="lineNum">     526 </span>            : template&lt;typename T&gt;</a>
+<a name="527"><span class="lineNum">     527 </span>            : inline Vec3&lt;typename promote&lt;T, typename Coord::ValueType&gt;::type&gt;</a>
+<a name="528"><span class="lineNum">     528 </span>            : operator+(const Vec3&lt;T&gt;&amp; v0, const Coord&amp; v1)</a>
+<a name="529"><span class="lineNum">     529 </span>            : {</a>
+<a name="530"><span class="lineNum">     530 </span>            :     Vec3&lt;typename promote&lt;T, typename Coord::ValueType&gt;::type&gt; result(v0);</a>
+<a name="531"><span class="lineNum">     531 </span>            :     result[0] += v1[0];</a>
+<a name="532"><span class="lineNum">     532 </span>            :     result[1] += v1[1];</a>
+<a name="533"><span class="lineNum">     533 </span>            :     result[2] += v1[2];</a>
+<a name="534"><span class="lineNum">     534 </span>            :     return result;</a>
+<a name="535"><span class="lineNum">     535 </span>            : }</a>
+<a name="536"><span class="lineNum">     536 </span>            : </a>
+<a name="537"><span class="lineNum">     537 </span>            : template&lt;typename T&gt;</a>
+<a name="538"><span class="lineNum">     538 </span>            : inline Vec3&lt;typename promote&lt;T, typename Coord::ValueType&gt;::type&gt;</a>
+<a name="539"><span class="lineNum">     539 </span>            : operator+(const Coord&amp; v1, const Vec3&lt;T&gt;&amp; v0)</a>
+<a name="540"><span class="lineNum">     540 </span>            : {</a>
+<a name="541"><span class="lineNum">     541 </span>            :     Vec3&lt;typename promote&lt;T, typename Coord::ValueType&gt;::type&gt; result(v0);</a>
+<a name="542"><span class="lineNum">     542 </span>            :     result[0] += v1[0];</a>
+<a name="543"><span class="lineNum">     543 </span>            :     result[1] += v1[1];</a>
+<a name="544"><span class="lineNum">     544 </span>            :     result[2] += v1[2];</a>
+<a name="545"><span class="lineNum">     545 </span>            :     return result;</a>
+<a name="546"><span class="lineNum">     546 </span>            : }</a>
+<a name="547"><span class="lineNum">     547 </span>            : //@}</a>
+<a name="548"><span class="lineNum">     548 </span>            : </a>
+<a name="549"><span class="lineNum">     549 </span>            : </a>
+<a name="550"><span class="lineNum">     550 </span>            : //@{</a>
+<a name="551"><span class="lineNum">     551 </span>            : /// Allow a Coord to be subtracted from a Vec3.</a>
+<a name="552"><span class="lineNum">     552 </span>            : template &lt;typename T&gt;</a>
+<a name="553"><span class="lineNum">     553 </span>            : inline Vec3&lt;typename promote&lt;T, Coord::ValueType&gt;::type&gt;</a>
+<a name="554"><span class="lineNum">     554 </span><span class="lineCov">     311283 : operator-(const Vec3&lt;T&gt;&amp; v0, const Coord&amp; v1)</span></a>
+<a name="555"><span class="lineNum">     555 </span>            : {</a>
+<a name="556"><span class="lineNum">     556 </span><span class="lineCov">     311283 :     Vec3&lt;typename promote&lt;T, Coord::ValueType&gt;::type&gt; result(v0);</span></a>
+<a name="557"><span class="lineNum">     557 </span><span class="lineCov">     311283 :     result[0] -= v1[0];</span></a>
+<a name="558"><span class="lineNum">     558 </span><span class="lineCov">     306583 :     result[1] -= v1[1];</span></a>
+<a name="559"><span class="lineNum">     559 </span><span class="lineCov">     302811 :     result[2] -= v1[2];</span></a>
+<a name="560"><span class="lineNum">     560 </span><span class="lineCov">     301363 :     return result;</span></a>
+<a name="561"><span class="lineNum">     561 </span>            : }</a>
+<a name="562"><span class="lineNum">     562 </span>            : </a>
+<a name="563"><span class="lineNum">     563 </span>            : template &lt;typename T&gt;</a>
+<a name="564"><span class="lineNum">     564 </span>            : inline Vec3&lt;typename promote&lt;T, Coord::ValueType&gt;::type&gt;</a>
+<a name="565"><span class="lineNum">     565 </span><span class="lineNoCov">          0 : operator-(const Coord&amp; v1, const Vec3&lt;T&gt;&amp; v0)</span></a>
+<a name="566"><span class="lineNum">     566 </span>            : {</a>
+<a name="567"><span class="lineNum">     567 </span><span class="lineNoCov">          0 :     Vec3&lt;typename promote&lt;T, Coord::ValueType&gt;::type&gt; result(v0);</span></a>
+<a name="568"><span class="lineNum">     568 </span><span class="lineNoCov">          0 :     result[0] -= v1[0];</span></a>
+<a name="569"><span class="lineNum">     569 </span><span class="lineNoCov">          0 :     result[1] -= v1[1];</span></a>
+<a name="570"><span class="lineNum">     570 </span><span class="lineNoCov">          0 :     result[2] -= v1[2];</span></a>
+<a name="571"><span class="lineNum">     571 </span><span class="lineNoCov">          0 :     return -result;</span></a>
+<a name="572"><span class="lineNum">     572 </span>            : }</a>
+<a name="573"><span class="lineNum">     573 </span>            : //@}</a>
+<a name="574"><span class="lineNum">     574 </span>            : </a>
+<a name="575"><span class="lineNum">     575 </span>            : inline std::ostream&amp;</a>
+<a name="576"><span class="lineNum">     576 </span><span class="lineNoCov">          0 : operator&lt;&lt;(std::ostream&amp; os, const CoordBBox&amp; b)</span></a>
+<a name="577"><span class="lineNum">     577 </span>            : {</a>
+<a name="578"><span class="lineNum">     578 </span><span class="lineNoCov">          0 :     os &lt;&lt; b.min() &lt;&lt; &quot; -&gt; &quot; &lt;&lt; b.max();</span></a>
+<a name="579"><span class="lineNum">     579 </span><span class="lineNoCov">          0 :     return os;</span></a>
+<a name="580"><span class="lineNum">     580 </span>            : }</a>
+<a name="581"><span class="lineNum">     581 </span>            : </a>
+<a name="582"><span class="lineNum">     582 </span>            : } // namespace math</a>
+<a name="583"><span class="lineNum">     583 </span>            : } // namespace OPENVDB_VERSION_NAME</a>
+<a name="584"><span class="lineNum">     584 </span>            : } // namespace openvdb</a>
+<a name="585"><span class="lineNum">     585 </span>            : </a>
+<a name="586"><span class="lineNum">     586 </span>            : ////////////////////////////////////////</a>
+<a name="587"><span class="lineNum">     587 </span>            : </a>
+<a name="588"><span class="lineNum">     588 </span>            : // template specialization of std::hash with Coord, which</a>
+<a name="589"><span class="lineNum">     589 </span>            : // allows for Coord to be used as the key in std::unordered_map</a>
+<a name="590"><span class="lineNum">     590 </span>            : namespace std {// injected in namespace std</a>
+<a name="591"><span class="lineNum">     591 </span>            : </a>
+<a name="592"><span class="lineNum">     592 </span>            : template&lt;&gt;</a>
+<a name="593"><span class="lineNum">     593 </span>            : struct hash&lt;openvdb::math::Coord&gt;</a>
+<a name="594"><span class="lineNum">     594 </span>            : {</a>
+<a name="595"><span class="lineNum">     595 </span>            :     using Coord = openvdb::math::Coord;</a>
+<a name="596"><span class="lineNum">     596 </span>            :     using argument_type = Coord;</a>
+<a name="597"><span class="lineNum">     597 </span>            :     using result_type = std::size_t;</a>
+<a name="598"><span class="lineNum">     598 </span>            :     std::size_t operator()(const Coord&amp; ijk) const noexcept { return ijk.Coord::hash&lt;&gt;(); }</a>
+<a name="599"><span class="lineNum">     599 </span>            : };// std::hash&lt;openvdb::math::Coord&gt;</a>
+<a name="600"><span class="lineNum">     600 </span>            : </a>
+<a name="601"><span class="lineNum">     601 </span>            : }// namespace std</a>
+<a name="602"><span class="lineNum">     602 </span>            : </a>
+<a name="603"><span class="lineNum">     603 </span>            : #endif // OPENVDB_MATH_COORD_HAS_BEEN_INCLUDED</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

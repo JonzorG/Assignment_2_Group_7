@@ -1,0 +1,1346 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - blenkernel/intern/image_save.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">blenkernel/intern</a> - image_save.cc<span style="font-size: 80%;"> (source / <a href="image_save.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">282</td>
+            <td class="headerCovTableEntry">561</td>
+            <td class="headerCovTableEntryLo">50.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntry">19</td>
+            <td class="headerCovTableEntryMed">84.2 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2001-2002 NaN Holding BV. All rights reserved.</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup bke</a>
+<a name="7"><span class="lineNum">       7 </span>            :  */</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &lt;cerrno&gt;</a>
+<a name="10"><span class="lineNum">      10 </span>            : #include &lt;cstring&gt;</a>
+<a name="11"><span class="lineNum">      11 </span>            : </a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &quot;BLI_fileops.hh&quot;</a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;BLI_index_range.hh&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;BLI_listbase.hh&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;BLI_path_utils.hh&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &quot;BLI_string_ref.hh&quot;</a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;BLI_string_utf8.hh&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : #include &quot;BLI_task.hh&quot;</a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &quot;BLI_vector.hh&quot;</a>
+<a name="20"><span class="lineNum">      20 </span>            : </a>
+<a name="21"><span class="lineNum">      21 </span>            : #include &quot;BLT_translation.hh&quot;</a>
+<a name="22"><span class="lineNum">      22 </span>            : </a>
+<a name="23"><span class="lineNum">      23 </span>            : #include &quot;DNA_image_types.h&quot;</a>
+<a name="24"><span class="lineNum">      24 </span>            : #include &quot;DNA_scene_types.h&quot;</a>
+<a name="25"><span class="lineNum">      25 </span>            : </a>
+<a name="26"><span class="lineNum">      26 </span>            : #include &quot;MEM_guardedalloc.h&quot;</a>
+<a name="27"><span class="lineNum">      27 </span>            : </a>
+<a name="28"><span class="lineNum">      28 </span>            : #include &quot;IMB_colormanagement.hh&quot;</a>
+<a name="29"><span class="lineNum">      29 </span>            : #include &quot;IMB_imbuf.hh&quot;</a>
+<a name="30"><span class="lineNum">      30 </span>            : #include &quot;IMB_imbuf_types.hh&quot;</a>
+<a name="31"><span class="lineNum">      31 </span>            : #include &quot;IMB_openexr.hh&quot;</a>
+<a name="32"><span class="lineNum">      32 </span>            : </a>
+<a name="33"><span class="lineNum">      33 </span>            : #include &quot;BKE_colortools.hh&quot;</a>
+<a name="34"><span class="lineNum">      34 </span>            : #include &quot;BKE_global.hh&quot;</a>
+<a name="35"><span class="lineNum">      35 </span>            : #include &quot;BKE_image.hh&quot;</a>
+<a name="36"><span class="lineNum">      36 </span>            : #include &quot;BKE_image_format.hh&quot;</a>
+<a name="37"><span class="lineNum">      37 </span>            : #include &quot;BKE_image_save.hh&quot;</a>
+<a name="38"><span class="lineNum">      38 </span>            : #include &quot;BKE_library.hh&quot;</a>
+<a name="39"><span class="lineNum">      39 </span>            : #include &quot;BKE_main.hh&quot;</a>
+<a name="40"><span class="lineNum">      40 </span>            : #include &quot;BKE_report.hh&quot;</a>
+<a name="41"><span class="lineNum">      41 </span>            : #include &quot;BKE_scene.hh&quot;</a>
+<a name="42"><span class="lineNum">      42 </span>            : </a>
+<a name="43"><span class="lineNum">      43 </span>            : #include &quot;RE_pipeline.h&quot;</a>
+<a name="44"><span class="lineNum">      44 </span>            : </a>
+<a name="45"><span class="lineNum">      45 </span>            : #include &quot;CLG_log.h&quot;</a>
+<a name="46"><span class="lineNum">      46 </span>            : </a>
+<a name="47"><span class="lineNum">      47 </span>            : namespace blender {</a>
+<a name="48"><span class="lineNum">      48 </span>            : </a>
+<a name="49"><span class="lineNum">      49 </span>            : static CLG_LogRef LOG_RENDER = {&quot;render&quot;};</a>
+<a name="50"><span class="lineNum">      50 </span>            : </a>
+<a name="51"><span class="lineNum">      51 </span><span class="lineCov">        316 : bool BKE_image_save_options_init(ImageSaveOptions *opts,</span></a>
+<a name="52"><span class="lineNum">      52 </span>            :                                  Main *bmain,</a>
+<a name="53"><span class="lineNum">      53 </span>            :                                  Scene *scene,</a>
+<a name="54"><span class="lineNum">      54 </span>            :                                  Image *ima,</a>
+<a name="55"><span class="lineNum">      55 </span>            :                                  ImageUser *iuser,</a>
+<a name="56"><span class="lineNum">      56 </span>            :                                  const bool guess_path,</a>
+<a name="57"><span class="lineNum">      57 </span>            :                                  const bool save_as_render)</a>
+<a name="58"><span class="lineNum">      58 </span>            : {</a>
+<a name="59"><span class="lineNum">      59 </span>            :   /* For saving a tiled image we need an iuser, so use a local one if there isn't already one. */</a>
+<a name="60"><span class="lineNum">      60 </span><span class="lineCov">        316 :   ImageUser save_iuser;</span></a>
+<a name="61"><span class="lineNum">      61 </span><span class="lineCov">        316 :   if (iuser == nullptr) {</span></a>
+<a name="62"><span class="lineNum">      62 </span><span class="lineCov">        316 :     BKE_imageuser_default(&amp;save_iuser);</span></a>
+<a name="63"><span class="lineNum">      63 </span><span class="lineCov">        316 :     iuser = &amp;save_iuser;</span></a>
+<a name="64"><span class="lineNum">      64 </span><span class="lineCov">        316 :     iuser-&gt;scene = scene;</span></a>
+<a name="65"><span class="lineNum">      65 </span>            :   }</a>
+<a name="66"><span class="lineNum">      66 </span>            : </a>
+<a name="67"><span class="lineNum">      67 </span><span class="lineCov">        316 :   *opts = ImageSaveOptions{};</span></a>
+<a name="68"><span class="lineNum">      68 </span>            : </a>
+<a name="69"><span class="lineNum">      69 </span><span class="lineCov">        316 :   opts-&gt;bmain = bmain;</span></a>
+<a name="70"><span class="lineNum">      70 </span><span class="lineCov">        316 :   opts-&gt;scene = scene;</span></a>
+<a name="71"><span class="lineNum">      71 </span><span class="lineCov">        316 :   opts-&gt;save_as_render = ima-&gt;source == IMA_SRC_VIEWER || save_as_render;</span></a>
+<a name="72"><span class="lineNum">      72 </span>            : </a>
+<a name="73"><span class="lineNum">      73 </span><span class="lineCov">        316 :   BKE_image_format_init(&amp;opts-&gt;im_format);</span></a>
+<a name="74"><span class="lineNum">      74 </span>            : </a>
+<a name="75"><span class="lineNum">      75 </span>            :   void *lock;</a>
+<a name="76"><span class="lineNum">      76 </span><span class="lineCov">        316 :   ImBuf *ibuf = BKE_image_acquire_ibuf(ima, iuser, &amp;lock);</span></a>
+<a name="77"><span class="lineNum">      77 </span>            : </a>
+<a name="78"><span class="lineNum">      78 </span><span class="lineCov">        316 :   if (ibuf) {</span></a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineCov">        316 :     const char *ima_colorspace = ima-&gt;colorspace_settings.name;</span></a>
+<a name="80"><span class="lineNum">      80 </span>            : </a>
+<a name="81"><span class="lineNum">      81 </span><span class="lineCov">        316 :     if (opts-&gt;save_as_render) {</span></a>
+<a name="82"><span class="lineNum">      82 </span>            :       /* Render/compositor output or user chose to save with render settings. */</a>
+<a name="83"><span class="lineNum">      83 </span><span class="lineCov">        288 :       BKE_image_format_init_for_write(&amp;opts-&gt;im_format, scene, nullptr);</span></a>
+<a name="84"><span class="lineNum">      84 </span><span class="lineCov">        288 :       if (!BKE_image_is_multiview(ima)) {</span></a>
+<a name="85"><span class="lineNum">      85 </span>            :         /* In case multiview is disabled,</a>
+<a name="86"><span class="lineNum">      86 </span>            :          * render settings would be invalid for render result in this area. */</a>
+<a name="87"><span class="lineNum">      87 </span><span class="lineCov">        288 :         opts-&gt;im_format.stereo3d_format = *ima-&gt;stereo3d_format;</span></a>
+<a name="88"><span class="lineNum">      88 </span><span class="lineCov">        288 :         opts-&gt;im_format.views_format = ima-&gt;views_format;</span></a>
+<a name="89"><span class="lineNum">      89 </span>            :       }</a>
+<a name="90"><span class="lineNum">      90 </span>            :     }</a>
+<a name="91"><span class="lineNum">      91 </span>            :     else {</a>
+<a name="92"><span class="lineNum">      92 </span><span class="lineCov">         28 :       BKE_image_format_from_imbuf(&amp;opts-&gt;im_format, ibuf);</span></a>
+<a name="93"><span class="lineNum">      93 </span><span class="lineCov">         54 :       if (ima-&gt;source == IMA_SRC_GENERATED &amp;&amp;</span></a>
+<a name="94"><span class="lineNum">      94 </span><span class="lineCov">         26 :           !IMB_colormanagement_space_name_is_data(ima_colorspace))</span></a>
+<a name="95"><span class="lineNum">      95 </span>            :       {</a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineCov">         25 :         ima_colorspace = IMB_colormanagement_role_colorspace_name_get(COLOR_ROLE_DEFAULT_BYTE);</span></a>
+<a name="97"><span class="lineNum">      97 </span>            :       }</a>
+<a name="98"><span class="lineNum">      98 </span>            : </a>
+<a name="99"><span class="lineNum">      99 </span>            :       /* use the multiview image settings as the default */</a>
+<a name="100"><span class="lineNum">     100 </span><span class="lineCov">         28 :       opts-&gt;im_format.stereo3d_format = *ima-&gt;stereo3d_format;</span></a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineCov">         28 :       opts-&gt;im_format.views_format = ima-&gt;views_format;</span></a>
+<a name="102"><span class="lineNum">     102 </span>            : </a>
+<a name="103"><span class="lineNum">     103 </span>            :       /* Render output: colorspace from render settings. */</a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineCov">         28 :       BKE_image_format_color_management_copy_from_scene(&amp;opts-&gt;im_format, scene);</span></a>
+<a name="105"><span class="lineNum">     105 </span>            :     }</a>
+<a name="106"><span class="lineNum">     106 </span>            : </a>
+<a name="107"><span class="lineNum">     107 </span>            :     /* Default to saving in the same colorspace as the image setting. */</a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineCov">        316 :     if (!opts-&gt;save_as_render) {</span></a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineCov">         28 :       IMB_colormanagement_colorspace_settings_set(&amp;opts-&gt;im_format.linear_colorspace_settings,</span></a>
+<a name="110"><span class="lineNum">     110 </span>            :                                                   ima_colorspace);</a>
+<a name="111"><span class="lineNum">     111 </span>            :     }</a>
+<a name="112"><span class="lineNum">     112 </span>            : </a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineCov">        316 :     opts-&gt;im_format.color_management = R_IMF_COLOR_MANAGEMENT_FOLLOW_SCENE;</span></a>
+<a name="114"><span class="lineNum">     114 </span>            : </a>
+<a name="115"><span class="lineNum">     115 </span>            :     /* Compute filepath, but don't resolve multiview and UDIM which are handled</a>
+<a name="116"><span class="lineNum">     116 </span>            :      * by the image saving code itself. */</a>
+<a name="117"><span class="lineNum">     117 </span><span class="lineCov">        316 :     BKE_image_user_file_path_ex(bmain, iuser, ima, opts-&gt;filepath, false, false);</span></a>
+<a name="118"><span class="lineNum">     118 </span>            : </a>
+<a name="119"><span class="lineNum">     119 </span>            :     /* For movies, replace extension and add the frame number to avoid writing over the movie file</a>
+<a name="120"><span class="lineNum">     120 </span>            :      * itself and provide a good default file path. */</a>
+<a name="121"><span class="lineNum">     121 </span><span class="lineCov">        316 :     if (ima-&gt;source == IMA_SRC_MOVIE) {</span></a>
+<a name="122"><span class="lineNum">     122 </span>            :       char filepath_no_ext[FILE_MAX];</a>
+<a name="123"><span class="lineNum">     123 </span><span class="lineNoCov">          0 :       STRNCPY(filepath_no_ext, opts-&gt;filepath);</span></a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineNoCov">          0 :       BLI_path_extension_strip(filepath_no_ext);</span></a>
+<a name="125"><span class="lineNum">     125 </span><span class="lineNoCov">          0 :       SNPRINTF(opts-&gt;filepath, &quot;%s_%.*d&quot;, filepath_no_ext, 4, ibuf-&gt;fileframe);</span></a>
+<a name="126"><span class="lineNum">     126 </span><span class="lineNoCov">          0 :       BKE_image_path_ext_from_imformat_ensure(</span></a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineNoCov">          0 :           opts-&gt;filepath, sizeof(opts-&gt;filepath), &amp;opts-&gt;im_format);</span></a>
+<a name="128"><span class="lineNum">     128 </span>            :     }</a>
+<a name="129"><span class="lineNum">     129 </span>            : </a>
+<a name="130"><span class="lineNum">     130 </span>            :     /* sanitize all settings */</a>
+<a name="131"><span class="lineNum">     131 </span>            : </a>
+<a name="132"><span class="lineNum">     132 </span>            :     /* unlikely but just in case */</a>
+<a name="133"><span class="lineNum">     133 </span><span class="lineCov">        316 :     if (!ELEM(opts-&gt;im_format.color_mode, ImColorMode::BW, ImColorMode::RGB, ImColorMode::RGBA)) {</span></a>
+<a name="134"><span class="lineNum">     134 </span><span class="lineNoCov">          0 :       opts-&gt;im_format.color_mode = ImColorMode::RGBA;</span></a>
+<a name="135"><span class="lineNum">     135 </span>            :     }</a>
+<a name="136"><span class="lineNum">     136 </span>            : </a>
+<a name="137"><span class="lineNum">     137 </span>            :     /* some formats don't use quality so fallback to scenes quality */</a>
+<a name="138"><span class="lineNum">     138 </span><span class="lineCov">        316 :     if (opts-&gt;im_format.quality == 0) {</span></a>
+<a name="139"><span class="lineNum">     139 </span><span class="lineNoCov">          0 :       opts-&gt;im_format.quality = scene-&gt;r.im_format.quality;</span></a>
+<a name="140"><span class="lineNum">     140 </span>            :     }</a>
+<a name="141"><span class="lineNum">     141 </span>            : </a>
+<a name="142"><span class="lineNum">     142 </span>            :     /* check for empty path */</a>
+<a name="143"><span class="lineNum">     143 </span><span class="lineCov">        316 :     if (guess_path &amp;&amp; opts-&gt;filepath[0] == 0) {</span></a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineNoCov">          0 :       const bool is_prev_save = !STREQ(G.filepath_last_image, &quot;//&quot;);</span></a>
+<a name="145"><span class="lineNum">     145 </span><span class="lineNoCov">          0 :       if (opts-&gt;save_as_render) {</span></a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineNoCov">          0 :         if (is_prev_save) {</span></a>
+<a name="147"><span class="lineNum">     147 </span><span class="lineNoCov">          0 :           STRNCPY(opts-&gt;filepath, G.filepath_last_image);</span></a>
+<a name="148"><span class="lineNum">     148 </span>            :         }</a>
+<a name="149"><span class="lineNum">     149 </span>            :         else {</a>
+<a name="150"><span class="lineNum">     150 </span><span class="lineNoCov">          0 :           BLI_path_join(opts-&gt;filepath, sizeof(opts-&gt;filepath), &quot;//&quot;, DATA_(&quot;Untitled&quot;));</span></a>
+<a name="151"><span class="lineNum">     151 </span><span class="lineNoCov">          0 :           BLI_path_abs(opts-&gt;filepath, BKE_main_blendfile_path(bmain));</span></a>
+<a name="152"><span class="lineNum">     152 </span>            :         }</a>
+<a name="153"><span class="lineNum">     153 </span>            :       }</a>
+<a name="154"><span class="lineNum">     154 </span>            :       else {</a>
+<a name="155"><span class="lineNum">     155 </span><span class="lineNoCov">          0 :         BLI_path_join(opts-&gt;filepath, sizeof(opts-&gt;filepath), &quot;//&quot;, ima-&gt;id.name + 2);</span></a>
+<a name="156"><span class="lineNum">     156 </span><span class="lineNoCov">          0 :         BLI_path_make_safe_filename(opts-&gt;filepath + 2);</span></a>
+<a name="157"><span class="lineNum">     157 </span><span class="lineNoCov">          0 :         BLI_path_abs(opts-&gt;filepath,</span></a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineNoCov">          0 :                      is_prev_save ? G.filepath_last_image : BKE_main_blendfile_path(bmain));</span></a>
+<a name="159"><span class="lineNum">     159 </span>            :       }</a>
+<a name="160"><span class="lineNum">     160 </span>            : </a>
+<a name="161"><span class="lineNum">     161 </span>            :       /* append UDIM marker if not present */</a>
+<a name="162"><span class="lineNum">     162 </span><span class="lineNoCov">          0 :       if (ima-&gt;source == IMA_SRC_TILED &amp;&amp; strstr(opts-&gt;filepath, &quot;&lt;UDIM&gt;&quot;) == nullptr) {</span></a>
+<a name="163"><span class="lineNum">     163 </span><span class="lineNoCov">          0 :         int len = strlen(opts-&gt;filepath);</span></a>
+<a name="164"><span class="lineNum">     164 </span><span class="lineNoCov">          0 :         STR_CONCAT(opts-&gt;filepath, len, &quot;.&lt;UDIM&gt;&quot;);</span></a>
+<a name="165"><span class="lineNum">     165 </span>            :       }</a>
+<a name="166"><span class="lineNum">     166 </span>            :     }</a>
+<a name="167"><span class="lineNum">     167 </span>            :   }</a>
+<a name="168"><span class="lineNum">     168 </span>            : </a>
+<a name="169"><span class="lineNum">     169 </span>            :   /* Copy for detecting UI changes. */</a>
+<a name="170"><span class="lineNum">     170 </span><span class="lineCov">        316 :   opts-&gt;orig_imtype = opts-&gt;im_format.imtype;</span></a>
+<a name="171"><span class="lineNum">     171 </span><span class="lineCov">        316 :   STRNCPY(opts-&gt;orig_colorspace, opts-&gt;im_format.linear_colorspace_settings.name);</span></a>
+<a name="172"><span class="lineNum">     172 </span><span class="lineCov">        316 :   opts-&gt;prev_save_as_render = opts-&gt;save_as_render;</span></a>
+<a name="173"><span class="lineNum">     173 </span><span class="lineCov">        316 :   opts-&gt;prev_imtype = opts-&gt;im_format.imtype;</span></a>
+<a name="174"><span class="lineNum">     174 </span>            : </a>
+<a name="175"><span class="lineNum">     175 </span><span class="lineCov">        316 :   BKE_image_release_ibuf(ima, ibuf, lock);</span></a>
+<a name="176"><span class="lineNum">     176 </span>            : </a>
+<a name="177"><span class="lineNum">     177 </span><span class="lineCov">        316 :   return (ibuf != nullptr);</span></a>
+<a name="178"><span class="lineNum">     178 </span>            : }</a>
+<a name="179"><span class="lineNum">     179 </span>            : </a>
+<a name="180"><span class="lineNum">     180 </span><span class="lineNoCov">          0 : void BKE_image_save_options_update(ImageSaveOptions *opts, const Image *image)</span></a>
+<a name="181"><span class="lineNum">     181 </span>            : {</a>
+<a name="182"><span class="lineNum">     182 </span>            :   /* Auto update color space when changing save as render and file type. */</a>
+<a name="183"><span class="lineNum">     183 </span><span class="lineNoCov">          0 :   if (opts-&gt;save_as_render) {</span></a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineNoCov">          0 :     if (!opts-&gt;prev_save_as_render) {</span></a>
+<a name="185"><span class="lineNum">     185 </span><span class="lineNoCov">          0 :       if (ELEM(image-&gt;type, IMA_TYPE_R_RESULT, IMA_TYPE_COMPOSITE)) {</span></a>
+<a name="186"><span class="lineNum">     186 </span><span class="lineNoCov">          0 :         BKE_image_format_init_for_write(&amp;opts-&gt;im_format, opts-&gt;scene, nullptr);</span></a>
+<a name="187"><span class="lineNum">     187 </span>            :       }</a>
+<a name="188"><span class="lineNum">     188 </span>            :       else {</a>
+<a name="189"><span class="lineNum">     189 </span><span class="lineNoCov">          0 :         BKE_image_format_color_management_copy_from_scene(&amp;opts-&gt;im_format, opts-&gt;scene);</span></a>
+<a name="190"><span class="lineNum">     190 </span>            :       }</a>
+<a name="191"><span class="lineNum">     191 </span>            :     }</a>
+<a name="192"><span class="lineNum">     192 </span>            :   }</a>
+<a name="193"><span class="lineNum">     193 </span><span class="lineNoCov">          0 :   else if (opts-&gt;prev_save_as_render || BKE_imtype_requires_linear_float(opts-&gt;im_format.imtype) !=</span></a>
+<a name="194"><span class="lineNum">     194 </span><span class="lineNoCov">          0 :                                             BKE_imtype_requires_linear_float(opts-&gt;prev_imtype))</span></a>
+<a name="195"><span class="lineNum">     195 </span>            :   {</a>
+<a name="196"><span class="lineNum">     196 </span><span class="lineNoCov">          0 :     if (IMB_colormanagement_space_name_is_data(opts-&gt;im_format.linear_colorspace_settings.name)) {</span></a>
+<a name="197"><span class="lineNum">     197 </span>            :       /* Stays the same regardless of file format. */</a>
+<a name="198"><span class="lineNum">     198 </span>            :     }</a>
+<a name="199"><span class="lineNum">     199 </span><span class="lineNoCov">          0 :     else if (BKE_imtype_requires_linear_float(opts-&gt;im_format.imtype) ==</span></a>
+<a name="200"><span class="lineNum">     200 </span><span class="lineNoCov">          0 :              BKE_imtype_requires_linear_float(opts-&gt;orig_imtype))</span></a>
+<a name="201"><span class="lineNum">     201 </span>            :     {</a>
+<a name="202"><span class="lineNum">     202 </span>            :       /* Same type of colorspace needed as original image, so preserve that. */</a>
+<a name="203"><span class="lineNum">     203 </span><span class="lineNoCov">          0 :       IMB_colormanagement_colorspace_settings_set(&amp;opts-&gt;im_format.linear_colorspace_settings,</span></a>
+<a name="204"><span class="lineNum">     204 </span><span class="lineNoCov">          0 :                                                   opts-&gt;orig_colorspace);</span></a>
+<a name="205"><span class="lineNum">     205 </span>            :     }</a>
+<a name="206"><span class="lineNum">     206 </span>            :     else {</a>
+<a name="207"><span class="lineNum">     207 </span>            :       /* Update for different file format. */</a>
+<a name="208"><span class="lineNum">     208 </span><span class="lineNoCov">          0 :       BKE_image_format_update_color_space_for_type(&amp;opts-&gt;im_format);</span></a>
+<a name="209"><span class="lineNum">     209 </span>            :     }</a>
+<a name="210"><span class="lineNum">     210 </span>            :   }</a>
+<a name="211"><span class="lineNum">     211 </span>            : </a>
+<a name="212"><span class="lineNum">     212 </span><span class="lineNoCov">          0 :   opts-&gt;prev_save_as_render = opts-&gt;save_as_render;</span></a>
+<a name="213"><span class="lineNum">     213 </span><span class="lineNoCov">          0 :   opts-&gt;prev_imtype = opts-&gt;im_format.imtype;</span></a>
+<a name="214"><span class="lineNum">     214 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="215"><span class="lineNum">     215 </span>            : </a>
+<a name="216"><span class="lineNum">     216 </span><span class="lineCov">        316 : void BKE_image_save_options_free(ImageSaveOptions *opts)</span></a>
+<a name="217"><span class="lineNum">     217 </span>            : {</a>
+<a name="218"><span class="lineNum">     218 </span><span class="lineCov">        316 :   BKE_image_format_free(&amp;opts-&gt;im_format);</span></a>
+<a name="219"><span class="lineNum">     219 </span><span class="lineCov">        316 : }</span></a>
+<a name="220"><span class="lineNum">     220 </span>            : </a>
+<a name="221"><span class="lineNum">     221 </span><span class="lineCov">         28 : static void image_save_update_filepath(Image *ima,</span></a>
+<a name="222"><span class="lineNum">     222 </span>            :                                        const char *filepath,</a>
+<a name="223"><span class="lineNum">     223 </span>            :                                        const ImageSaveOptions *opts)</a>
+<a name="224"><span class="lineNum">     224 </span>            : {</a>
+<a name="225"><span class="lineNum">     225 </span><span class="lineCov">         28 :   if (opts-&gt;do_newpath) {</span></a>
+<a name="226"><span class="lineNum">     226 </span><span class="lineNoCov">          0 :     STRNCPY(ima-&gt;filepath, filepath);</span></a>
+<a name="227"><span class="lineNum">     227 </span>            : </a>
+<a name="228"><span class="lineNum">     228 </span>            :     /* only image path, never ibuf */</a>
+<a name="229"><span class="lineNum">     229 </span><span class="lineNoCov">          0 :     if (opts-&gt;relative) {</span></a>
+<a name="230"><span class="lineNum">     230 </span><span class="lineNoCov">          0 :       const char *relbase = ID_BLEND_PATH(opts-&gt;bmain, &amp;ima-&gt;id);</span></a>
+<a name="231"><span class="lineNum">     231 </span><span class="lineNoCov">          0 :       BLI_path_rel(ima-&gt;filepath, relbase); /* only after saving */</span></a>
+<a name="232"><span class="lineNum">     232 </span>            :     }</a>
+<a name="233"><span class="lineNum">     233 </span>            :   }</a>
+<a name="234"><span class="lineNum">     234 </span><span class="lineCov">         28 : }</span></a>
+<a name="235"><span class="lineNum">     235 </span>            : </a>
+<a name="236"><span class="lineNum">     236 </span><span class="lineCov">        316 : static void image_save_post(ReportList *reports,</span></a>
+<a name="237"><span class="lineNum">     237 </span>            :                             Image *ima,</a>
+<a name="238"><span class="lineNum">     238 </span>            :                             ImBuf *ibuf,</a>
+<a name="239"><span class="lineNum">     239 </span>            :                             int ok,</a>
+<a name="240"><span class="lineNum">     240 </span>            :                             const ImageSaveOptions *opts,</a>
+<a name="241"><span class="lineNum">     241 </span>            :                             const bool save_copy,</a>
+<a name="242"><span class="lineNum">     242 </span>            :                             const char *filepath,</a>
+<a name="243"><span class="lineNum">     243 </span>            :                             bool *r_colorspace_changed)</a>
+<a name="244"><span class="lineNum">     244 </span>            : {</a>
+<a name="245"><span class="lineNum">     245 </span><span class="lineCov">        316 :   if (!ok) {</span></a>
+<a name="246"><span class="lineNum">     246 </span><span class="lineNoCov">          0 :     BKE_reportf(reports,</span></a>
+<a name="247"><span class="lineNum">     247 </span>            :                 RPT_ERROR,</a>
+<a name="248"><span class="lineNum">     248 </span>            :                 &quot;Could not write image: %s&quot;,</a>
+<a name="249"><span class="lineNum">     249 </span><span class="lineNoCov">          0 :                 errno ? strerror(errno) : &quot;internal error, see console&quot;);</span></a>
+<a name="250"><span class="lineNum">     250 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="251"><span class="lineNum">     251 </span>            :   }</a>
+<a name="252"><span class="lineNum">     252 </span>            : </a>
+<a name="253"><span class="lineNum">     253 </span><span class="lineCov">        316 :   if (save_copy) {</span></a>
+<a name="254"><span class="lineNum">     254 </span><span class="lineCov">        288 :     return;</span></a>
+<a name="255"><span class="lineNum">     255 </span>            :   }</a>
+<a name="256"><span class="lineNum">     256 </span>            : </a>
+<a name="257"><span class="lineNum">     257 </span><span class="lineCov">         28 :   if (opts-&gt;do_newpath) {</span></a>
+<a name="258"><span class="lineNum">     258 </span><span class="lineNoCov">          0 :     ibuf-&gt;filepath = filepath;</span></a>
+<a name="259"><span class="lineNum">     259 </span>            :   }</a>
+<a name="260"><span class="lineNum">     260 </span>            : </a>
+<a name="261"><span class="lineNum">     261 </span>            :   /* The tiled image code-path must call this on its own. */</a>
+<a name="262"><span class="lineNum">     262 </span><span class="lineCov">         28 :   if (ima-&gt;source != IMA_SRC_TILED) {</span></a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineCov">         28 :     image_save_update_filepath(ima, filepath, opts);</span></a>
+<a name="264"><span class="lineNum">     264 </span>            :   }</a>
+<a name="265"><span class="lineNum">     265 </span>            : </a>
+<a name="266"><span class="lineNum">     266 </span><span class="lineCov">         28 :   ibuf-&gt;userflags &amp;= ~IB_BITMAPDIRTY;</span></a>
+<a name="267"><span class="lineNum">     267 </span>            : </a>
+<a name="268"><span class="lineNum">     268 </span>            :   /* change type? */</a>
+<a name="269"><span class="lineNum">     269 </span><span class="lineCov">         28 :   if (ima-&gt;type == IMA_TYPE_R_RESULT) {</span></a>
+<a name="270"><span class="lineNum">     270 </span><span class="lineNoCov">          0 :     ima-&gt;type = IMA_TYPE_IMAGE;</span></a>
+<a name="271"><span class="lineNum">     271 </span>            : </a>
+<a name="272"><span class="lineNum">     272 </span>            :     /* workaround to ensure the render result buffer is no longer used</a>
+<a name="273"><span class="lineNum">     273 </span>            :      * by this image, otherwise can crash when a new render result is</a>
+<a name="274"><span class="lineNum">     274 </span>            :      * created. */</a>
+<a name="275"><span class="lineNum">     275 </span><span class="lineNoCov">          0 :     IMB_free_byte_pixels(ibuf);</span></a>
+<a name="276"><span class="lineNum">     276 </span><span class="lineNoCov">          0 :     IMB_free_float_pixels(ibuf);</span></a>
+<a name="277"><span class="lineNum">     277 </span>            :   }</a>
+<a name="278"><span class="lineNum">     278 </span><span class="lineCov">         28 :   if (ELEM(ima-&gt;source, IMA_SRC_GENERATED, IMA_SRC_VIEWER)) {</span></a>
+<a name="279"><span class="lineNum">     279 </span><span class="lineCov">         26 :     ima-&gt;source = IMA_SRC_FILE;</span></a>
+<a name="280"><span class="lineNum">     280 </span><span class="lineCov">         26 :     ima-&gt;type = IMA_TYPE_IMAGE;</span></a>
+<a name="281"><span class="lineNum">     281 </span><span class="lineCov">         26 :     ImageTile *base_tile = BKE_image_get_tile(ima, 0);</span></a>
+<a name="282"><span class="lineNum">     282 </span><span class="lineCov">         26 :     base_tile-&gt;gen_flag &amp;= ~IMA_GEN_TILE;</span></a>
+<a name="283"><span class="lineNum">     283 </span>            :   }</a>
+<a name="284"><span class="lineNum">     284 </span>            : </a>
+<a name="285"><span class="lineNum">     285 </span>            :   /* Update image file color space when saving to another color space. */</a>
+<a name="286"><span class="lineNum">     286 </span><span class="lineCov">         28 :   const bool linear_float_output = BKE_imtype_requires_linear_float(opts-&gt;im_format.imtype);</span></a>
+<a name="287"><span class="lineNum">     287 </span>            : </a>
+<a name="288"><span class="lineNum">     288 </span><span class="lineCov">         28 :   if (!opts-&gt;save_as_render || linear_float_output) {</span></a>
+<a name="289"><span class="lineNum">     289 </span><span class="lineCov">         56 :     if (opts-&gt;im_format.linear_colorspace_settings.name[0] &amp;&amp;</span></a>
+<a name="290"><span class="lineNum">     290 </span><span class="lineCov">         28 :         !BKE_color_managed_colorspace_settings_equals(&amp;ima-&gt;colorspace_settings,</span></a>
+<a name="291"><span class="lineNum">     291 </span>            :                                                       &amp;opts-&gt;im_format.linear_colorspace_settings))</a>
+<a name="292"><span class="lineNum">     292 </span>            :     {</a>
+<a name="293"><span class="lineNum">     293 </span><span class="lineNoCov">          0 :       BKE_color_managed_colorspace_settings_copy(&amp;ima-&gt;colorspace_settings,</span></a>
+<a name="294"><span class="lineNum">     294 </span>            :                                                  &amp;opts-&gt;im_format.linear_colorspace_settings);</a>
+<a name="295"><span class="lineNum">     295 </span><span class="lineNoCov">          0 :       *r_colorspace_changed = true;</span></a>
+<a name="296"><span class="lineNum">     296 </span>            :     }</a>
+<a name="297"><span class="lineNum">     297 </span>            :   }</a>
+<a name="298"><span class="lineNum">     298 </span><span class="lineNoCov">          0 :   else if (opts-&gt;save_as_render) {</span></a>
+<a name="299"><span class="lineNum">     299 </span>            :     /* Set the display colorspace that we converted to. */</a>
+<a name="300"><span class="lineNum">     300 </span><span class="lineNoCov">          0 :     const ColorSpace *colorspace = IMB_colormangement_display_get_color_space(</span></a>
+<a name="301"><span class="lineNum">     301 </span>            :         &amp;opts-&gt;im_format.view_settings, &amp;opts-&gt;im_format.display_settings);</a>
+<a name="302"><span class="lineNum">     302 </span><span class="lineNoCov">          0 :     if (colorspace) {</span></a>
+<a name="303"><span class="lineNum">     303 </span><span class="lineNoCov">          0 :       StringRefNull colorspace_name = IMB_colormanagement_colorspace_get_name(colorspace);</span></a>
+<a name="304"><span class="lineNum">     304 </span><span class="lineNoCov">          0 :       if (colorspace_name != ima-&gt;colorspace_settings.name) {</span></a>
+<a name="305"><span class="lineNum">     305 </span><span class="lineNoCov">          0 :         IMB_colormanagement_colorspace_settings_set(&amp;ima-&gt;colorspace_settings,</span></a>
+<a name="306"><span class="lineNum">     306 </span>            :                                                     colorspace_name.c_str());</a>
+<a name="307"><span class="lineNum">     307 </span>            :       }</a>
+<a name="308"><span class="lineNum">     308 </span>            :     }</a>
+<a name="309"><span class="lineNum">     309 </span>            : </a>
+<a name="310"><span class="lineNum">     310 </span>            :     /* View transform is now baked in, so don't apply it a second time for viewing. */</a>
+<a name="311"><span class="lineNum">     311 </span><span class="lineNoCov">          0 :     if (ima-&gt;flag &amp; IMA_VIEW_AS_RENDER) {</span></a>
+<a name="312"><span class="lineNum">     312 </span><span class="lineNoCov">          0 :       ima-&gt;flag &amp;= ~IMA_VIEW_AS_RENDER;</span></a>
+<a name="313"><span class="lineNum">     313 </span>            :     }</a>
+<a name="314"><span class="lineNum">     314 </span>            : </a>
+<a name="315"><span class="lineNum">     315 </span><span class="lineNoCov">          0 :     *r_colorspace_changed = true;</span></a>
+<a name="316"><span class="lineNum">     316 </span>            :   }</a>
+<a name="317"><span class="lineNum">     317 </span>            : }</a>
+<a name="318"><span class="lineNum">     318 </span>            : </a>
+<a name="319"><span class="lineNum">     319 </span><span class="lineCov">        316 : static void imbuf_save_post(ImBuf *ibuf, ImBuf *colormanaged_ibuf)</span></a>
+<a name="320"><span class="lineNum">     320 </span>            : {</a>
+<a name="321"><span class="lineNum">     321 </span><span class="lineCov">        316 :   if (colormanaged_ibuf != ibuf) {</span></a>
+<a name="322"><span class="lineNum">     322 </span>            :     /* This guys might be modified by image buffer write functions,</a>
+<a name="323"><span class="lineNum">     323 </span>            :      * need to copy them back from color managed image buffer to an</a>
+<a name="324"><span class="lineNum">     324 </span>            :      * original one, so file type of image is being properly updated.</a>
+<a name="325"><span class="lineNum">     325 </span>            :      */</a>
+<a name="326"><span class="lineNum">     326 </span><span class="lineCov">        209 :     ibuf-&gt;ftype = colormanaged_ibuf-&gt;ftype;</span></a>
+<a name="327"><span class="lineNum">     327 </span><span class="lineCov">        209 :     ibuf-&gt;foptions = colormanaged_ibuf-&gt;foptions;</span></a>
+<a name="328"><span class="lineNum">     328 </span><span class="lineCov">        209 :     ibuf-&gt;color_mode = colormanaged_ibuf-&gt;color_mode;</span></a>
+<a name="329"><span class="lineNum">     329 </span>            : </a>
+<a name="330"><span class="lineNum">     330 </span><span class="lineCov">        209 :     IMB_freeImBuf(colormanaged_ibuf);</span></a>
+<a name="331"><span class="lineNum">     331 </span>            :   }</a>
+<a name="332"><span class="lineNum">     332 </span><span class="lineCov">        316 : }</span></a>
+<a name="333"><span class="lineNum">     333 </span>            : </a>
+<a name="334"><span class="lineNum">     334 </span>            : /**</a>
+<a name="335"><span class="lineNum">     335 </span>            :  * \return success.</a>
+<a name="336"><span class="lineNum">     336 </span>            :  * \note `ima-&gt;filepath` and `ibuf-&gt;filepath` will reference the same path</a>
+<a name="337"><span class="lineNum">     337 </span>            :  * (although `ima-&gt;filepath` may be blend-file relative).</a>
+<a name="338"><span class="lineNum">     338 </span>            :  * \note for multi-view the first `ibuf` is important to get the settings.</a>
+<a name="339"><span class="lineNum">     339 </span>            :  */</a>
+<a name="340"><span class="lineNum">     340 </span><span class="lineCov">        316 : static bool image_save_single(ReportList *reports,</span></a>
+<a name="341"><span class="lineNum">     341 </span>            :                               Image *ima,</a>
+<a name="342"><span class="lineNum">     342 </span>            :                               ImageUser *iuser,</a>
+<a name="343"><span class="lineNum">     343 </span>            :                               const ImageSaveOptions *opts,</a>
+<a name="344"><span class="lineNum">     344 </span>            :                               bool *r_colorspace_changed)</a>
+<a name="345"><span class="lineNum">     345 </span>            : {</a>
+<a name="346"><span class="lineNum">     346 </span>            :   void *lock;</a>
+<a name="347"><span class="lineNum">     347 </span><span class="lineCov">        316 :   ImBuf *ibuf = BKE_image_acquire_ibuf(ima, iuser, &amp;lock);</span></a>
+<a name="348"><span class="lineNum">     348 </span><span class="lineCov">        316 :   RenderResult *rr = nullptr;</span></a>
+<a name="349"><span class="lineNum">     349 </span><span class="lineCov">        316 :   bool ok = false;</span></a>
+<a name="350"><span class="lineNum">     350 </span>            : </a>
+<a name="351"><span class="lineNum">     351 </span><span class="lineCov">        316 :   if (ibuf == nullptr || (!ibuf-&gt;byte_data() &amp;&amp; !ibuf-&gt;float_data())) {</span></a>
+<a name="352"><span class="lineNum">     352 </span><span class="lineNoCov">          0 :     BKE_image_release_ibuf(ima, ibuf, lock);</span></a>
+<a name="353"><span class="lineNum">     353 </span><span class="lineNoCov">          0 :     return ok;</span></a>
+<a name="354"><span class="lineNum">     354 </span>            :   }</a>
+<a name="355"><span class="lineNum">     355 </span>            : </a>
+<a name="356"><span class="lineNum">     356 </span><span class="lineCov">        316 :   ImBuf *colormanaged_ibuf = nullptr;</span></a>
+<a name="357"><span class="lineNum">     357 </span><span class="lineCov">        316 :   const bool save_copy = opts-&gt;save_copy;</span></a>
+<a name="358"><span class="lineNum">     358 </span><span class="lineCov">        316 :   const bool save_as_render = opts-&gt;save_as_render;</span></a>
+<a name="359"><span class="lineNum">     359 </span><span class="lineCov">        316 :   const ImageFormatData *imf = &amp;opts-&gt;im_format;</span></a>
+<a name="360"><span class="lineNum">     360 </span>            : </a>
+<a name="361"><span class="lineNum">     361 </span><span class="lineCov">        316 :   if (ima-&gt;type == IMA_TYPE_R_RESULT) {</span></a>
+<a name="362"><span class="lineNum">     362 </span>            :     /* enforce user setting for RGB or RGBA, but skip BW */</a>
+<a name="363"><span class="lineNum">     363 </span><span class="lineCov">          1 :     if (opts-&gt;im_format.color_mode == ImColorMode::RGBA) {</span></a>
+<a name="364"><span class="lineNum">     364 </span><span class="lineCov">          1 :       ibuf-&gt;color_mode = ImColorMode::RGBA;</span></a>
+<a name="365"><span class="lineNum">     365 </span>            :     }</a>
+<a name="366"><span class="lineNum">     366 </span><span class="lineNoCov">          0 :     else if (opts-&gt;im_format.color_mode == ImColorMode::RGB) {</span></a>
+<a name="367"><span class="lineNum">     367 </span><span class="lineNoCov">          0 :       ibuf-&gt;color_mode = ImColorMode::RGB;</span></a>
+<a name="368"><span class="lineNum">     368 </span>            :     }</a>
+<a name="369"><span class="lineNum">     369 </span>            :   }</a>
+<a name="370"><span class="lineNum">     370 </span>            :   else {</a>
+<a name="371"><span class="lineNum">     371 </span>            :     /* TODO: better solution, if a 24bit image is painted onto it may contain alpha. */</a>
+<a name="372"><span class="lineNum">     372 </span><span class="lineCov">        315 :     if ((opts-&gt;im_format.color_mode == ImColorMode::RGBA) &amp;&amp;</span></a>
+<a name="373"><span class="lineNum">     373 </span>            :         /* it has been painted onto */</a>
+<a name="374"><span class="lineNum">     374 </span><span class="lineCov">        219 :         (ibuf-&gt;userflags &amp; IB_BITMAPDIRTY))</span></a>
+<a name="375"><span class="lineNum">     375 </span>            :     {</a>
+<a name="376"><span class="lineNum">     376 </span>            :       /* checks each pixel, not ideal */</a>
+<a name="377"><span class="lineNum">     377 </span><span class="lineCov">         39 :       ibuf-&gt;color_mode = BKE_imbuf_alpha_test(ibuf) ? ImColorMode::RGBA : ImColorMode::RGB;</span></a>
+<a name="378"><span class="lineNum">     378 </span>            :     }</a>
+<a name="379"><span class="lineNum">     379 </span>            :   }</a>
+<a name="380"><span class="lineNum">     380 </span>            : </a>
+<a name="381"><span class="lineNum">     381 </span>            :   /* we need renderresult for exr and rendered multiview */</a>
+<a name="382"><span class="lineNum">     382 </span><span class="lineCov">        316 :   rr = BKE_image_acquire_renderresult(opts-&gt;scene, ima);</span></a>
+<a name="383"><span class="lineNum">     383 </span><span class="lineCov">        316 :   const bool is_mono = !(rr ? RE_ResultIsMultiView(rr) : BKE_image_is_multiview(ima));</span></a>
+<a name="384"><span class="lineNum">     384 </span><span class="lineCov">        316 :   const bool is_exr_rr = rr &amp;&amp; ELEM(imf-&gt;imtype, R_IMF_IMTYPE_OPENEXR, R_IMF_IMTYPE_MULTILAYER) &amp;&amp;</span></a>
+<a name="385"><span class="lineNum">     385 </span><span class="lineNoCov">          0 :                          RE_HasFloatPixels(rr);</span></a>
+<a name="386"><span class="lineNum">     386 </span><span class="lineCov">        316 :   const bool is_multilayer = is_exr_rr &amp;&amp; (imf-&gt;imtype == R_IMF_IMTYPE_MULTILAYER);</span></a>
+<a name="387"><span class="lineNum">     387 </span><span class="lineCov">        316 :   const int layer = (iuser &amp;&amp; !is_multilayer) ? iuser-&gt;layer : -1;</span></a>
+<a name="388"><span class="lineNum">     388 </span>            : </a>
+<a name="389"><span class="lineNum">     389 </span>            :   /* error handling */</a>
+<a name="390"><span class="lineNum">     390 </span><span class="lineCov">        316 :   if (rr == nullptr) {</span></a>
+<a name="391"><span class="lineNum">     391 </span><span class="lineCov">        311 :     if (imf-&gt;imtype == R_IMF_IMTYPE_MULTILAYER) {</span></a>
+<a name="392"><span class="lineNum">     392 </span><span class="lineNoCov">          0 :       BKE_report(reports, RPT_ERROR, &quot;Did not write, no Multilayer Image&quot;);</span></a>
+<a name="393"><span class="lineNum">     393 </span><span class="lineNoCov">          0 :       BKE_image_release_renderresult(opts-&gt;scene, ima, rr);</span></a>
+<a name="394"><span class="lineNum">     394 </span><span class="lineNoCov">          0 :       BKE_image_release_ibuf(ima, ibuf, lock);</span></a>
+<a name="395"><span class="lineNum">     395 </span><span class="lineNoCov">          0 :       return ok;</span></a>
+<a name="396"><span class="lineNum">     396 </span>            :     }</a>
+<a name="397"><span class="lineNum">     397 </span>            :   }</a>
+<a name="398"><span class="lineNum">     398 </span>            :   else {</a>
+<a name="399"><span class="lineNum">     399 </span><span class="lineCov">          5 :     if (imf-&gt;views_format == R_IMF_VIEWS_STEREO_3D) {</span></a>
+<a name="400"><span class="lineNum">     400 </span><span class="lineNoCov">          0 :       if (!BKE_image_is_stereo(ima)) {</span></a>
+<a name="401"><span class="lineNum">     401 </span><span class="lineNoCov">          0 :         BKE_reportf(reports,</span></a>
+<a name="402"><span class="lineNum">     402 </span>            :                     RPT_ERROR,</a>
+<a name="403"><span class="lineNum">     403 </span>            :                     R&quot;(Did not write, the image doesn't have a &quot;%s&quot; and &quot;%s&quot; views)&quot;,</a>
+<a name="404"><span class="lineNum">     404 </span>            :                     STEREO_LEFT_NAME,</a>
+<a name="405"><span class="lineNum">     405 </span>            :                     STEREO_RIGHT_NAME);</a>
+<a name="406"><span class="lineNum">     406 </span><span class="lineNoCov">          0 :         BKE_image_release_renderresult(opts-&gt;scene, ima, rr);</span></a>
+<a name="407"><span class="lineNum">     407 </span><span class="lineNoCov">          0 :         BKE_image_release_ibuf(ima, ibuf, lock);</span></a>
+<a name="408"><span class="lineNum">     408 </span><span class="lineNoCov">          0 :         return ok;</span></a>
+<a name="409"><span class="lineNum">     409 </span>            :       }</a>
+<a name="410"><span class="lineNum">     410 </span>            : </a>
+<a name="411"><span class="lineNum">     411 </span>            :       /* It shouldn't ever happen. */</a>
+<a name="412"><span class="lineNum">     412 </span><span class="lineNoCov">          0 :       if ((BLI_findstring(&amp;rr-&gt;views, STEREO_LEFT_NAME, offsetof(RenderView, name)) == nullptr) ||</span></a>
+<a name="413"><span class="lineNum">     413 </span><span class="lineNoCov">          0 :           (BLI_findstring(&amp;rr-&gt;views, STEREO_RIGHT_NAME, offsetof(RenderView, name)) == nullptr))</span></a>
+<a name="414"><span class="lineNum">     414 </span>            :       {</a>
+<a name="415"><span class="lineNum">     415 </span><span class="lineNoCov">          0 :         BKE_reportf(reports,</span></a>
+<a name="416"><span class="lineNum">     416 </span>            :                     RPT_ERROR,</a>
+<a name="417"><span class="lineNum">     417 </span>            :                     R&quot;(Did not write, the image doesn't have a &quot;%s&quot; and &quot;%s&quot; views)&quot;,</a>
+<a name="418"><span class="lineNum">     418 </span>            :                     STEREO_LEFT_NAME,</a>
+<a name="419"><span class="lineNum">     419 </span>            :                     STEREO_RIGHT_NAME);</a>
+<a name="420"><span class="lineNum">     420 </span><span class="lineNoCov">          0 :         BKE_image_release_renderresult(opts-&gt;scene, ima, rr);</span></a>
+<a name="421"><span class="lineNum">     421 </span><span class="lineNoCov">          0 :         BKE_image_release_ibuf(ima, ibuf, lock);</span></a>
+<a name="422"><span class="lineNum">     422 </span><span class="lineNoCov">          0 :         return ok;</span></a>
+<a name="423"><span class="lineNum">     423 </span>            :       }</a>
+<a name="424"><span class="lineNum">     424 </span>            :     }</a>
+<a name="425"><span class="lineNum">     425 </span><span class="lineCov">          5 :     BKE_imbuf_stamp_info(rr, ibuf);</span></a>
+<a name="426"><span class="lineNum">     426 </span>            :   }</a>
+<a name="427"><span class="lineNum">     427 </span>            : </a>
+<a name="428"><span class="lineNum">     428 </span>            :   /* Don't write permanently into the render-result. */</a>
+<a name="429"><span class="lineNum">     429 </span><span class="lineCov">        316 :   double rr_ppm_prev[2] = {0, 0};</span></a>
+<a name="430"><span class="lineNum">     430 </span>            : </a>
+<a name="431"><span class="lineNum">     431 </span><span class="lineCov">        316 :   if (save_as_render &amp;&amp; rr) {</span></a>
+<a name="432"><span class="lineNum">     432 </span>            :     /* These could be used in the case of a null `rr`, currently they're not though.</a>
+<a name="433"><span class="lineNum">     433 </span>            :      * Note that setting zero when there is no `rr` is intentional,</a>
+<a name="434"><span class="lineNum">     434 </span>            :      * this signifies no valid PPM is set. */</a>
+<a name="435"><span class="lineNum">     435 </span><span class="lineCov">          5 :     double ppm[2] = {0, 0};</span></a>
+<a name="436"><span class="lineNum">     436 </span><span class="lineCov">          5 :     if (opts-&gt;scene) {</span></a>
+<a name="437"><span class="lineNum">     437 </span><span class="lineCov">          5 :       BKE_scene_ppm_get(&amp;opts-&gt;scene-&gt;r, ppm);</span></a>
+<a name="438"><span class="lineNum">     438 </span>            :     }</a>
+<a name="439"><span class="lineNum">     439 </span><span class="lineCov">          5 :     copy_v2_v2_db(rr_ppm_prev, rr-&gt;ppm);</span></a>
+<a name="440"><span class="lineNum">     440 </span><span class="lineCov">          5 :     copy_v2_v2_db(rr-&gt;ppm, ppm);</span></a>
+<a name="441"><span class="lineNum">     441 </span>            :   }</a>
+<a name="442"><span class="lineNum">     442 </span>            : </a>
+<a name="443"><span class="lineNum">     443 </span>            :   /* From now on, calls to #BKE_image_release_renderresult must restore the PPM beforehand. */</a>
+<a name="444"><span class="lineNum">     444 </span><span class="lineCov">        632 :   auto render_result_restore_ppm = [rr, save_as_render, rr_ppm_prev]() {</span></a>
+<a name="445"><span class="lineNum">     445 </span><span class="lineCov">        316 :     if (save_as_render &amp;&amp; rr) {</span></a>
+<a name="446"><span class="lineNum">     446 </span><span class="lineCov">          5 :       copy_v2_v2_db(rr-&gt;ppm, rr_ppm_prev);</span></a>
+<a name="447"><span class="lineNum">     447 </span>            :     }</a>
+<a name="448"><span class="lineNum">     448 </span><span class="lineCov">        632 :   };</span></a>
+<a name="449"><span class="lineNum">     449 </span>            : </a>
+<a name="450"><span class="lineNum">     450 </span>            :   /* fancy multiview OpenEXR */</a>
+<a name="451"><span class="lineNum">     451 </span><span class="lineCov">        316 :   if (imf-&gt;views_format == R_IMF_VIEWS_MULTIVIEW &amp;&amp; is_exr_rr) {</span></a>
+<a name="452"><span class="lineNum">     452 </span>            :     /* save render result */</a>
+<a name="453"><span class="lineNum">     453 </span><span class="lineNoCov">          0 :     ok = BKE_image_render_write_exr(</span></a>
+<a name="454"><span class="lineNum">     454 </span><span class="lineNoCov">          0 :         reports, rr, opts-&gt;filepath, imf, save_as_render, nullptr, layer);</span></a>
+<a name="455"><span class="lineNum">     455 </span>            : </a>
+<a name="456"><span class="lineNum">     456 </span><span class="lineNoCov">          0 :     render_result_restore_ppm();</span></a>
+<a name="457"><span class="lineNum">     457 </span><span class="lineNoCov">          0 :     BKE_image_release_renderresult(opts-&gt;scene, ima, rr);</span></a>
+<a name="458"><span class="lineNum">     458 </span><span class="lineNoCov">          0 :     image_save_post(reports, ima, ibuf, ok, opts, true, opts-&gt;filepath, r_colorspace_changed);</span></a>
+<a name="459"><span class="lineNum">     459 </span><span class="lineNoCov">          0 :     BKE_image_release_ibuf(ima, ibuf, lock);</span></a>
+<a name="460"><span class="lineNum">     460 </span>            :   }</a>
+<a name="461"><span class="lineNum">     461 </span>            :   /* regular mono pipeline */</a>
+<a name="462"><span class="lineNum">     462 </span><span class="lineCov">        316 :   else if (is_mono) {</span></a>
+<a name="463"><span class="lineNum">     463 </span><span class="lineCov">        316 :     if (is_exr_rr) {</span></a>
+<a name="464"><span class="lineNum">     464 </span><span class="lineNoCov">          0 :       ok = BKE_image_render_write_exr(</span></a>
+<a name="465"><span class="lineNum">     465 </span><span class="lineNoCov">          0 :           reports, rr, opts-&gt;filepath, imf, save_as_render, nullptr, layer);</span></a>
+<a name="466"><span class="lineNum">     466 </span>            :     }</a>
+<a name="467"><span class="lineNum">     467 </span>            :     else {</a>
+<a name="468"><span class="lineNum">     468 </span><span class="lineCov">        316 :       colormanaged_ibuf = IMB_colormanagement_imbuf_for_write(ibuf, save_as_render, true, imf);</span></a>
+<a name="469"><span class="lineNum">     469 </span><span class="lineCov">        316 :       ok = BKE_imbuf_write_as(colormanaged_ibuf, opts-&gt;filepath, imf, save_copy);</span></a>
+<a name="470"><span class="lineNum">     470 </span><span class="lineCov">        316 :       imbuf_save_post(ibuf, colormanaged_ibuf);</span></a>
+<a name="471"><span class="lineNum">     471 </span>            :     }</a>
+<a name="472"><span class="lineNum">     472 </span>            : </a>
+<a name="473"><span class="lineNum">     473 </span><span class="lineCov">        316 :     render_result_restore_ppm();</span></a>
+<a name="474"><span class="lineNum">     474 </span><span class="lineCov">        316 :     BKE_image_release_renderresult(opts-&gt;scene, ima, rr);</span></a>
+<a name="475"><span class="lineNum">     475 </span><span class="lineCov">        316 :     image_save_post(reports,</span></a>
+<a name="476"><span class="lineNum">     476 </span>            :                     ima,</a>
+<a name="477"><span class="lineNum">     477 </span>            :                     ibuf,</a>
+<a name="478"><span class="lineNum">     478 </span>            :                     ok,</a>
+<a name="479"><span class="lineNum">     479 </span>            :                     opts,</a>
+<a name="480"><span class="lineNum">     480 </span>            :                     (is_exr_rr ? true : save_copy),</a>
+<a name="481"><span class="lineNum">     481 </span><span class="lineCov">        316 :                     opts-&gt;filepath,</span></a>
+<a name="482"><span class="lineNum">     482 </span>            :                     r_colorspace_changed);</a>
+<a name="483"><span class="lineNum">     483 </span><span class="lineCov">        316 :     BKE_image_release_ibuf(ima, ibuf, lock);</span></a>
+<a name="484"><span class="lineNum">     484 </span>            :   }</a>
+<a name="485"><span class="lineNum">     485 </span>            :   /* individual multiview images */</a>
+<a name="486"><span class="lineNum">     486 </span><span class="lineNoCov">          0 :   else if (imf-&gt;views_format == R_IMF_VIEWS_INDIVIDUAL) {</span></a>
+<a name="487"><span class="lineNum">     487 </span><span class="lineNoCov">          0 :     ImColorMode color_mode = ibuf-&gt;color_mode;</span></a>
+<a name="488"><span class="lineNum">     488 </span><span class="lineNoCov">          0 :     const int totviews = (rr ? rr-&gt;views.count() : ima-&gt;views.count());</span></a>
+<a name="489"><span class="lineNum">     489 </span>            : </a>
+<a name="490"><span class="lineNum">     490 </span><span class="lineNoCov">          0 :     if (!is_exr_rr) {</span></a>
+<a name="491"><span class="lineNum">     491 </span><span class="lineNoCov">          0 :       BKE_image_release_ibuf(ima, ibuf, lock);</span></a>
+<a name="492"><span class="lineNum">     492 </span>            :     }</a>
+<a name="493"><span class="lineNum">     493 </span>            : </a>
+<a name="494"><span class="lineNum">     494 </span><span class="lineNoCov">          0 :     for (int i = 0; i &lt; totviews; i++) {</span></a>
+<a name="495"><span class="lineNum">     495 </span>            :       char filepath[FILE_MAX];</a>
+<a name="496"><span class="lineNum">     496 </span><span class="lineNoCov">          0 :       bool ok_view = false;</span></a>
+<a name="497"><span class="lineNum">     497 </span><span class="lineNoCov">          0 :       const char *view = rr ? (static_cast&lt;RenderView *&gt;(BLI_findlink(&amp;rr-&gt;views, i)))-&gt;name :</span></a>
+<a name="498"><span class="lineNum">     498 </span><span class="lineNoCov">          0 :                               (static_cast&lt;ImageView *&gt;(BLI_findlink(&amp;ima-&gt;views, i)))-&gt;name;</span></a>
+<a name="499"><span class="lineNum">     499 </span>            : </a>
+<a name="500"><span class="lineNum">     500 </span><span class="lineNoCov">          0 :       if (is_exr_rr) {</span></a>
+<a name="501"><span class="lineNum">     501 </span><span class="lineNoCov">          0 :         BKE_scene_multiview_view_filepath_get(&amp;opts-&gt;scene-&gt;r, opts-&gt;filepath, view, filepath);</span></a>
+<a name="502"><span class="lineNum">     502 </span><span class="lineNoCov">          0 :         ok_view = BKE_image_render_write_exr(</span></a>
+<a name="503"><span class="lineNum">     503 </span>            :             reports, rr, filepath, imf, save_as_render, view, layer);</a>
+<a name="504"><span class="lineNum">     504 </span><span class="lineNoCov">          0 :         image_save_post(reports, ima, ibuf, ok_view, opts, true, filepath, r_colorspace_changed);</span></a>
+<a name="505"><span class="lineNum">     505 </span>            :       }</a>
+<a name="506"><span class="lineNum">     506 </span>            :       else {</a>
+<a name="507"><span class="lineNum">     507 </span>            :         /* copy iuser to get the correct ibuf for this view */</a>
+<a name="508"><span class="lineNum">     508 </span><span class="lineNoCov">          0 :         ImageUser view_iuser;</span></a>
+<a name="509"><span class="lineNum">     509 </span>            : </a>
+<a name="510"><span class="lineNum">     510 </span><span class="lineNoCov">          0 :         if (iuser) {</span></a>
+<a name="511"><span class="lineNum">     511 </span>            :           /* copy iuser to get the correct ibuf for this view */</a>
+<a name="512"><span class="lineNum">     512 </span><span class="lineNoCov">          0 :           view_iuser = *iuser;</span></a>
+<a name="513"><span class="lineNum">     513 </span>            :         }</a>
+<a name="514"><span class="lineNum">     514 </span>            :         else {</a>
+<a name="515"><span class="lineNum">     515 </span><span class="lineNoCov">          0 :           BKE_imageuser_default(&amp;view_iuser);</span></a>
+<a name="516"><span class="lineNum">     516 </span>            :         }</a>
+<a name="517"><span class="lineNum">     517 </span>            : </a>
+<a name="518"><span class="lineNum">     518 </span><span class="lineNoCov">          0 :         view_iuser.view = i;</span></a>
+<a name="519"><span class="lineNum">     519 </span><span class="lineNoCov">          0 :         view_iuser.flag &amp;= ~IMA_SHOW_STEREO;</span></a>
+<a name="520"><span class="lineNum">     520 </span>            : </a>
+<a name="521"><span class="lineNum">     521 </span><span class="lineNoCov">          0 :         if (rr) {</span></a>
+<a name="522"><span class="lineNum">     522 </span><span class="lineNoCov">          0 :           BKE_image_multilayer_index(rr, &amp;view_iuser);</span></a>
+<a name="523"><span class="lineNum">     523 </span>            :         }</a>
+<a name="524"><span class="lineNum">     524 </span>            :         else {</a>
+<a name="525"><span class="lineNum">     525 </span><span class="lineNoCov">          0 :           BKE_image_multiview_index(ima, &amp;view_iuser);</span></a>
+<a name="526"><span class="lineNum">     526 </span>            :         }</a>
+<a name="527"><span class="lineNum">     527 </span>            : </a>
+<a name="528"><span class="lineNum">     528 </span><span class="lineNoCov">          0 :         ibuf = BKE_image_acquire_ibuf(ima, &amp;view_iuser, &amp;lock);</span></a>
+<a name="529"><span class="lineNum">     529 </span><span class="lineNoCov">          0 :         ibuf-&gt;color_mode = color_mode;</span></a>
+<a name="530"><span class="lineNum">     530 </span>            : </a>
+<a name="531"><span class="lineNum">     531 </span><span class="lineNoCov">          0 :         BKE_scene_multiview_view_filepath_get(&amp;opts-&gt;scene-&gt;r, opts-&gt;filepath, view, filepath);</span></a>
+<a name="532"><span class="lineNum">     532 </span>            : </a>
+<a name="533"><span class="lineNum">     533 </span><span class="lineNoCov">          0 :         colormanaged_ibuf = IMB_colormanagement_imbuf_for_write(ibuf, save_as_render, true, imf);</span></a>
+<a name="534"><span class="lineNum">     534 </span><span class="lineNoCov">          0 :         ok_view = BKE_imbuf_write_as(colormanaged_ibuf, filepath, &amp;opts-&gt;im_format, save_copy);</span></a>
+<a name="535"><span class="lineNum">     535 </span><span class="lineNoCov">          0 :         imbuf_save_post(ibuf, colormanaged_ibuf);</span></a>
+<a name="536"><span class="lineNum">     536 </span><span class="lineNoCov">          0 :         image_save_post(reports, ima, ibuf, ok_view, opts, true, filepath, r_colorspace_changed);</span></a>
+<a name="537"><span class="lineNum">     537 </span><span class="lineNoCov">          0 :         BKE_image_release_ibuf(ima, ibuf, lock);</span></a>
+<a name="538"><span class="lineNum">     538 </span>            :       }</a>
+<a name="539"><span class="lineNum">     539 </span><span class="lineNoCov">          0 :       ok &amp;= ok_view;</span></a>
+<a name="540"><span class="lineNum">     540 </span>            :     }</a>
+<a name="541"><span class="lineNum">     541 </span>            : </a>
+<a name="542"><span class="lineNum">     542 </span><span class="lineNoCov">          0 :     render_result_restore_ppm();</span></a>
+<a name="543"><span class="lineNum">     543 </span><span class="lineNoCov">          0 :     BKE_image_release_renderresult(opts-&gt;scene, ima, rr);</span></a>
+<a name="544"><span class="lineNum">     544 </span>            : </a>
+<a name="545"><span class="lineNum">     545 </span><span class="lineNoCov">          0 :     if (is_exr_rr) {</span></a>
+<a name="546"><span class="lineNum">     546 </span><span class="lineNoCov">          0 :       BKE_image_release_ibuf(ima, ibuf, lock);</span></a>
+<a name="547"><span class="lineNum">     547 </span>            :     }</a>
+<a name="548"><span class="lineNum">     548 </span>            :   }</a>
+<a name="549"><span class="lineNum">     549 </span>            :   /* stereo (multiview) images */</a>
+<a name="550"><span class="lineNum">     550 </span><span class="lineNoCov">          0 :   else if (opts-&gt;im_format.views_format == R_IMF_VIEWS_STEREO_3D) {</span></a>
+<a name="551"><span class="lineNum">     551 </span><span class="lineNoCov">          0 :     if (imf-&gt;imtype == R_IMF_IMTYPE_MULTILAYER) {</span></a>
+<a name="552"><span class="lineNum">     552 </span><span class="lineNoCov">          0 :       ok = BKE_image_render_write_exr(</span></a>
+<a name="553"><span class="lineNum">     553 </span><span class="lineNoCov">          0 :           reports, rr, opts-&gt;filepath, imf, save_as_render, nullptr, layer);</span></a>
+<a name="554"><span class="lineNum">     554 </span>            : </a>
+<a name="555"><span class="lineNum">     555 </span><span class="lineNoCov">          0 :       render_result_restore_ppm();</span></a>
+<a name="556"><span class="lineNum">     556 </span><span class="lineNoCov">          0 :       BKE_image_release_renderresult(opts-&gt;scene, ima, rr);</span></a>
+<a name="557"><span class="lineNum">     557 </span><span class="lineNoCov">          0 :       image_save_post(reports, ima, ibuf, ok, opts, true, opts-&gt;filepath, r_colorspace_changed);</span></a>
+<a name="558"><span class="lineNum">     558 </span><span class="lineNoCov">          0 :       BKE_image_release_ibuf(ima, ibuf, lock);</span></a>
+<a name="559"><span class="lineNum">     559 </span>            :     }</a>
+<a name="560"><span class="lineNum">     560 </span>            :     else {</a>
+<a name="561"><span class="lineNum">     561 </span><span class="lineNoCov">          0 :       ImBuf *ibuf_stereo[2] = {nullptr};</span></a>
+<a name="562"><span class="lineNum">     562 </span>            : </a>
+<a name="563"><span class="lineNum">     563 </span><span class="lineNoCov">          0 :       ImColorMode color_mode = ibuf-&gt;color_mode;</span></a>
+<a name="564"><span class="lineNum">     564 </span><span class="lineNoCov">          0 :       const char *names[2] = {STEREO_LEFT_NAME, STEREO_RIGHT_NAME};</span></a>
+<a name="565"><span class="lineNum">     565 </span>            : </a>
+<a name="566"><span class="lineNum">     566 </span>            :       /* we need to get the specific per-view buffers */</a>
+<a name="567"><span class="lineNum">     567 </span><span class="lineNoCov">          0 :       BKE_image_release_ibuf(ima, ibuf, lock);</span></a>
+<a name="568"><span class="lineNum">     568 </span><span class="lineNoCov">          0 :       bool stereo_ok = true;</span></a>
+<a name="569"><span class="lineNum">     569 </span>            : </a>
+<a name="570"><span class="lineNum">     570 </span><span class="lineNoCov">          0 :       for (int i = 0; i &lt; 2; i++) {</span></a>
+<a name="571"><span class="lineNum">     571 </span><span class="lineNoCov">          0 :         ImageUser view_iuser;</span></a>
+<a name="572"><span class="lineNum">     572 </span>            : </a>
+<a name="573"><span class="lineNum">     573 </span><span class="lineNoCov">          0 :         if (iuser) {</span></a>
+<a name="574"><span class="lineNum">     574 </span><span class="lineNoCov">          0 :           view_iuser = *iuser;</span></a>
+<a name="575"><span class="lineNum">     575 </span>            :         }</a>
+<a name="576"><span class="lineNum">     576 </span>            :         else {</a>
+<a name="577"><span class="lineNum">     577 </span><span class="lineNoCov">          0 :           BKE_imageuser_default(&amp;view_iuser);</span></a>
+<a name="578"><span class="lineNum">     578 </span>            :         }</a>
+<a name="579"><span class="lineNum">     579 </span>            : </a>
+<a name="580"><span class="lineNum">     580 </span><span class="lineNoCov">          0 :         view_iuser.flag &amp;= ~IMA_SHOW_STEREO;</span></a>
+<a name="581"><span class="lineNum">     581 </span>            : </a>
+<a name="582"><span class="lineNum">     582 </span><span class="lineNoCov">          0 :         if (rr) {</span></a>
+<a name="583"><span class="lineNum">     583 </span><span class="lineNoCov">          0 :           int id = BLI_findstringindex(&amp;rr-&gt;views, names[i], offsetof(RenderView, name));</span></a>
+<a name="584"><span class="lineNum">     584 </span><span class="lineNoCov">          0 :           view_iuser.view = id;</span></a>
+<a name="585"><span class="lineNum">     585 </span><span class="lineNoCov">          0 :           BKE_image_multilayer_index(rr, &amp;view_iuser);</span></a>
+<a name="586"><span class="lineNum">     586 </span>            :         }</a>
+<a name="587"><span class="lineNum">     587 </span>            :         else {</a>
+<a name="588"><span class="lineNum">     588 </span><span class="lineNoCov">          0 :           view_iuser.view = i;</span></a>
+<a name="589"><span class="lineNum">     589 </span><span class="lineNoCov">          0 :           BKE_image_multiview_index(ima, &amp;view_iuser);</span></a>
+<a name="590"><span class="lineNum">     590 </span>            :         }</a>
+<a name="591"><span class="lineNum">     591 </span>            : </a>
+<a name="592"><span class="lineNum">     592 </span><span class="lineNoCov">          0 :         ibuf = BKE_image_acquire_ibuf(ima, &amp;view_iuser, &amp;lock);</span></a>
+<a name="593"><span class="lineNum">     593 </span>            : </a>
+<a name="594"><span class="lineNum">     594 </span><span class="lineNoCov">          0 :         if (ibuf == nullptr) {</span></a>
+<a name="595"><span class="lineNum">     595 </span><span class="lineNoCov">          0 :           BKE_report(</span></a>
+<a name="596"><span class="lineNum">     596 </span>            :               reports, RPT_ERROR, &quot;Did not write, unexpected error when saving stereo image&quot;);</a>
+<a name="597"><span class="lineNum">     597 </span><span class="lineNoCov">          0 :           BKE_image_release_ibuf(ima, ibuf, lock);</span></a>
+<a name="598"><span class="lineNum">     598 </span><span class="lineNoCov">          0 :           stereo_ok = false;</span></a>
+<a name="599"><span class="lineNum">     599 </span><span class="lineNoCov">          0 :           break;</span></a>
+<a name="600"><span class="lineNum">     600 </span>            :         }</a>
+<a name="601"><span class="lineNum">     601 </span>            : </a>
+<a name="602"><span class="lineNum">     602 </span><span class="lineNoCov">          0 :         ibuf-&gt;color_mode = color_mode;</span></a>
+<a name="603"><span class="lineNum">     603 </span>            : </a>
+<a name="604"><span class="lineNum">     604 </span>            :         /* color manage the ImBuf leaving it ready for saving */</a>
+<a name="605"><span class="lineNum">     605 </span><span class="lineNoCov">          0 :         colormanaged_ibuf = IMB_colormanagement_imbuf_for_write(ibuf, save_as_render, true, imf);</span></a>
+<a name="606"><span class="lineNum">     606 </span>            : </a>
+<a name="607"><span class="lineNum">     607 </span><span class="lineNoCov">          0 :         BKE_image_format_to_imbuf(colormanaged_ibuf, imf);</span></a>
+<a name="608"><span class="lineNum">     608 </span>            : </a>
+<a name="609"><span class="lineNum">     609 </span>            :         /* duplicate buffer to prevent locker issue when using render result */</a>
+<a name="610"><span class="lineNum">     610 </span><span class="lineNoCov">          0 :         ibuf_stereo[i] = IMB_dupImBuf(colormanaged_ibuf);</span></a>
+<a name="611"><span class="lineNum">     611 </span>            : </a>
+<a name="612"><span class="lineNum">     612 </span><span class="lineNoCov">          0 :         imbuf_save_post(ibuf, colormanaged_ibuf);</span></a>
+<a name="613"><span class="lineNum">     613 </span>            : </a>
+<a name="614"><span class="lineNum">     614 </span><span class="lineNoCov">          0 :         BKE_image_release_ibuf(ima, ibuf, lock);</span></a>
+<a name="615"><span class="lineNum">     615 </span>            :       }</a>
+<a name="616"><span class="lineNum">     616 </span>            : </a>
+<a name="617"><span class="lineNum">     617 </span><span class="lineNoCov">          0 :       if (stereo_ok) {</span></a>
+<a name="618"><span class="lineNum">     618 </span><span class="lineNoCov">          0 :         ibuf = IMB_stereo3d_ImBuf(imf, ibuf_stereo[0], ibuf_stereo[1]);</span></a>
+<a name="619"><span class="lineNum">     619 </span>            : </a>
+<a name="620"><span class="lineNum">     620 </span>            :         /* save via traditional path */</a>
+<a name="621"><span class="lineNum">     621 </span><span class="lineNoCov">          0 :         if (ibuf) {</span></a>
+<a name="622"><span class="lineNum">     622 </span><span class="lineNoCov">          0 :           ok = BKE_imbuf_write_as(ibuf, opts-&gt;filepath, imf, save_copy);</span></a>
+<a name="623"><span class="lineNum">     623 </span>            : </a>
+<a name="624"><span class="lineNum">     624 </span><span class="lineNoCov">          0 :           IMB_freeImBuf(ibuf);</span></a>
+<a name="625"><span class="lineNum">     625 </span>            :         }</a>
+<a name="626"><span class="lineNum">     626 </span>            :       }</a>
+<a name="627"><span class="lineNum">     627 </span>            : </a>
+<a name="628"><span class="lineNum">     628 </span><span class="lineNoCov">          0 :       for (int i = 0; i &lt; 2; i++) {</span></a>
+<a name="629"><span class="lineNum">     629 </span><span class="lineNoCov">          0 :         IMB_freeImBuf(ibuf_stereo[i]);</span></a>
+<a name="630"><span class="lineNum">     630 </span>            :       }</a>
+<a name="631"><span class="lineNum">     631 </span>            : </a>
+<a name="632"><span class="lineNum">     632 </span><span class="lineNoCov">          0 :       render_result_restore_ppm();</span></a>
+<a name="633"><span class="lineNum">     633 </span><span class="lineNoCov">          0 :       BKE_image_release_renderresult(opts-&gt;scene, ima, rr);</span></a>
+<a name="634"><span class="lineNum">     634 </span>            :     }</a>
+<a name="635"><span class="lineNum">     635 </span>            :   }</a>
+<a name="636"><span class="lineNum">     636 </span>            :   else {</a>
+<a name="637"><span class="lineNum">     637 </span><span class="lineNoCov">          0 :     render_result_restore_ppm();</span></a>
+<a name="638"><span class="lineNum">     638 </span><span class="lineNoCov">          0 :     BKE_image_release_renderresult(opts-&gt;scene, ima, rr);</span></a>
+<a name="639"><span class="lineNum">     639 </span><span class="lineNoCov">          0 :     BKE_image_release_ibuf(ima, ibuf, lock);</span></a>
+<a name="640"><span class="lineNum">     640 </span>            :   }</a>
+<a name="641"><span class="lineNum">     641 </span>            : </a>
+<a name="642"><span class="lineNum">     642 </span><span class="lineCov">        316 :   return ok;</span></a>
+<a name="643"><span class="lineNum">     643 </span>            : }</a>
+<a name="644"><span class="lineNum">     644 </span>            : </a>
+<a name="645"><span class="lineNum">     645 </span><span class="lineCov">        316 : bool BKE_image_save(</span></a>
+<a name="646"><span class="lineNum">     646 </span>            :     ReportList *reports, Main *bmain, Image *ima, ImageUser *iuser, const ImageSaveOptions *opts)</a>
+<a name="647"><span class="lineNum">     647 </span>            : {</a>
+<a name="648"><span class="lineNum">     648 </span>            :   /* For saving a tiled image we need an iuser, so use a local one if there isn't already one. */</a>
+<a name="649"><span class="lineNum">     649 </span><span class="lineCov">        316 :   ImageUser save_iuser;</span></a>
+<a name="650"><span class="lineNum">     650 </span><span class="lineCov">        316 :   if (iuser == nullptr) {</span></a>
+<a name="651"><span class="lineNum">     651 </span><span class="lineCov">        316 :     BKE_imageuser_default(&amp;save_iuser);</span></a>
+<a name="652"><span class="lineNum">     652 </span><span class="lineCov">        316 :     iuser = &amp;save_iuser;</span></a>
+<a name="653"><span class="lineNum">     653 </span><span class="lineCov">        316 :     iuser-&gt;scene = opts-&gt;scene;</span></a>
+<a name="654"><span class="lineNum">     654 </span>            :   }</a>
+<a name="655"><span class="lineNum">     655 </span>            : </a>
+<a name="656"><span class="lineNum">     656 </span><span class="lineCov">        316 :   bool colorspace_changed = false;</span></a>
+<a name="657"><span class="lineNum">     657 </span>            : </a>
+<a name="658"><span class="lineNum">     658 </span>            :   eUDIM_TILE_FORMAT tile_format;</a>
+<a name="659"><span class="lineNum">     659 </span><span class="lineCov">        316 :   char *udim_pattern = nullptr;</span></a>
+<a name="660"><span class="lineNum">     660 </span>            : </a>
+<a name="661"><span class="lineNum">     661 </span><span class="lineCov">        316 :   if (ima-&gt;source == IMA_SRC_TILED) {</span></a>
+<a name="662"><span class="lineNum">     662 </span>            :     /* Verify filepath for tiled images contains a valid UDIM marker. */</a>
+<a name="663"><span class="lineNum">     663 </span><span class="lineNoCov">          0 :     udim_pattern = BKE_image_get_tile_strformat(opts-&gt;filepath, &amp;tile_format);</span></a>
+<a name="664"><span class="lineNum">     664 </span><span class="lineNoCov">          0 :     if (tile_format == UDIM_TILE_FORMAT_NONE) {</span></a>
+<a name="665"><span class="lineNum">     665 </span><span class="lineNoCov">          0 :       BKE_reportf(reports,</span></a>
+<a name="666"><span class="lineNum">     666 </span>            :                   RPT_ERROR,</a>
+<a name="667"><span class="lineNum">     667 </span>            :                   &quot;When saving a tiled image, the path '%s' must contain a valid UDIM marker&quot;,</a>
+<a name="668"><span class="lineNum">     668 </span><span class="lineNoCov">          0 :                   opts-&gt;filepath);</span></a>
+<a name="669"><span class="lineNum">     669 </span><span class="lineNoCov">          0 :       return false;</span></a>
+<a name="670"><span class="lineNum">     670 </span>            :     }</a>
+<a name="671"><span class="lineNum">     671 </span>            :   }</a>
+<a name="672"><span class="lineNum">     672 </span>            : </a>
+<a name="673"><span class="lineNum">     673 </span>            :   /* Save images */</a>
+<a name="674"><span class="lineNum">     674 </span><span class="lineCov">        316 :   bool ok = false;</span></a>
+<a name="675"><span class="lineNum">     675 </span><span class="lineCov">        316 :   if (ima-&gt;source != IMA_SRC_TILED) {</span></a>
+<a name="676"><span class="lineNum">     676 </span><span class="lineCov">        316 :     ok = image_save_single(reports, ima, iuser, opts, &amp;colorspace_changed);</span></a>
+<a name="677"><span class="lineNum">     677 </span>            :   }</a>
+<a name="678"><span class="lineNum">     678 </span>            :   else {</a>
+<a name="679"><span class="lineNum">     679 </span>            :     /* Save all the tiles. */</a>
+<a name="680"><span class="lineNum">     680 </span><span class="lineNoCov">          0 :     for (ImageTile &amp;tile : ima-&gt;tiles) {</span></a>
+<a name="681"><span class="lineNum">     681 </span><span class="lineNoCov">          0 :       ImageSaveOptions tile_opts = *opts;</span></a>
+<a name="682"><span class="lineNum">     682 </span><span class="lineNoCov">          0 :       BKE_image_set_filepath_from_tile_number(</span></a>
+<a name="683"><span class="lineNum">     683 </span>            :           tile_opts.filepath, udim_pattern, tile_format, tile.tile_number);</a>
+<a name="684"><span class="lineNum">     684 </span>            : </a>
+<a name="685"><span class="lineNum">     685 </span><span class="lineNoCov">          0 :       iuser-&gt;tile = tile.tile_number;</span></a>
+<a name="686"><span class="lineNum">     686 </span><span class="lineNoCov">          0 :       ok = image_save_single(reports, ima, iuser, &amp;tile_opts, &amp;colorspace_changed);</span></a>
+<a name="687"><span class="lineNum">     687 </span><span class="lineNoCov">          0 :       if (!ok) {</span></a>
+<a name="688"><span class="lineNum">     688 </span><span class="lineNoCov">          0 :         break;</span></a>
+<a name="689"><span class="lineNum">     689 </span>            :       }</a>
+<a name="690"><span class="lineNum">     690 </span>            :     }</a>
+<a name="691"><span class="lineNum">     691 </span>            : </a>
+<a name="692"><span class="lineNum">     692 </span>            :     /* Set the image path and clear the per-tile generated flag only if all tiles were ok. */</a>
+<a name="693"><span class="lineNum">     693 </span><span class="lineNoCov">          0 :     if (ok) {</span></a>
+<a name="694"><span class="lineNum">     694 </span><span class="lineNoCov">          0 :       for (ImageTile &amp;tile : ima-&gt;tiles) {</span></a>
+<a name="695"><span class="lineNum">     695 </span><span class="lineNoCov">          0 :         tile.gen_flag &amp;= ~IMA_GEN_TILE;</span></a>
+<a name="696"><span class="lineNum">     696 </span>            :       }</a>
+<a name="697"><span class="lineNum">     697 </span><span class="lineNoCov">          0 :       image_save_update_filepath(ima, opts-&gt;filepath, opts);</span></a>
+<a name="698"><span class="lineNum">     698 </span>            :     }</a>
+<a name="699"><span class="lineNum">     699 </span><span class="lineNoCov">          0 :     MEM_delete(udim_pattern);</span></a>
+<a name="700"><span class="lineNum">     700 </span>            :   }</a>
+<a name="701"><span class="lineNum">     701 </span>            : </a>
+<a name="702"><span class="lineNum">     702 </span><span class="lineCov">        316 :   if (ok) {</span></a>
+<a name="703"><span class="lineNum">     703 </span><span class="lineCov">        316 :     if (ima-&gt;flag &amp; IMA_AUTOSAVE_TEMPPACK) {</span></a>
+<a name="704"><span class="lineNum">     704 </span><span class="lineNoCov">          0 :       BKE_image_clear_autosave(ima);</span></a>
+<a name="705"><span class="lineNum">     705 </span>            :     }</a>
+<a name="706"><span class="lineNum">     706 </span>            :   }</a>
+<a name="707"><span class="lineNum">     707 </span>            : </a>
+<a name="708"><span class="lineNum">     708 </span><span class="lineCov">        316 :   if (colorspace_changed) {</span></a>
+<a name="709"><span class="lineNum">     709 </span><span class="lineNoCov">          0 :     BKE_image_signal(bmain, ima, nullptr, IMA_SIGNAL_COLORMANAGE);</span></a>
+<a name="710"><span class="lineNum">     710 </span>            :   }</a>
+<a name="711"><span class="lineNum">     711 </span>            : </a>
+<a name="712"><span class="lineNum">     712 </span><span class="lineCov">        316 :   return ok;</span></a>
+<a name="713"><span class="lineNum">     713 </span>            : }</a>
+<a name="714"><span class="lineNum">     714 </span>            : </a>
+<a name="715"><span class="lineNum">     715 </span>            : /* OpenEXR saving, single and multilayer. */</a>
+<a name="716"><span class="lineNum">     716 </span>            : </a>
+<a name="717"><span class="lineNum">     717 </span><span class="lineCov">         23 : static const float *image_exr_from_scene_linear_to_output(const float *rect,</span></a>
+<a name="718"><span class="lineNum">     718 </span>            :                                                           const int width,</a>
+<a name="719"><span class="lineNum">     719 </span>            :                                                           const int height,</a>
+<a name="720"><span class="lineNum">     720 </span>            :                                                           const int channels,</a>
+<a name="721"><span class="lineNum">     721 </span>            :                                                           const ImageFormatData *imf,</a>
+<a name="722"><span class="lineNum">     722 </span>            :                                                           Vector&lt;float *&gt; &amp;tmp_output_rects,</a>
+<a name="723"><span class="lineNum">     723 </span>            :                                                           StringRefNull &amp;r_colorspace)</a>
+<a name="724"><span class="lineNum">     724 </span>            : {</a>
+<a name="725"><span class="lineNum">     725 </span><span class="lineCov">         23 :   if (imf == nullptr) {</span></a>
+<a name="726"><span class="lineNum">     726 </span><span class="lineNoCov">          0 :     return rect;</span></a>
+<a name="727"><span class="lineNum">     727 </span>            :   }</a>
+<a name="728"><span class="lineNum">     728 </span>            : </a>
+<a name="729"><span class="lineNum">     729 </span><span class="lineCov">         23 :   const char *to_colorspace = imf-&gt;linear_colorspace_settings.name;</span></a>
+<a name="730"><span class="lineNum">     730 </span><span class="lineCov">         23 :   if (to_colorspace[0] == '\0' || IMB_colormanagement_space_name_is_scene_linear(to_colorspace)) {</span></a>
+<a name="731"><span class="lineNum">     731 </span><span class="lineCov">         23 :     return rect;</span></a>
+<a name="732"><span class="lineNum">     732 </span>            :   }</a>
+<a name="733"><span class="lineNum">     733 </span>            : </a>
+<a name="734"><span class="lineNum">     734 </span><span class="lineNoCov">          0 :   const size_t size = size_t(width) * size_t(height) * size_t(channels);</span></a>
+<a name="735"><span class="lineNum">     735 </span><span class="lineNoCov">          0 :   float *output_rect = MEM_new_array_uninitialized&lt;float&gt;(size, __func__);</span></a>
+<a name="736"><span class="lineNum">     736 </span><span class="lineNoCov">          0 :   std::copy_n(rect, size, output_rect);</span></a>
+<a name="737"><span class="lineNum">     737 </span><span class="lineNoCov">          0 :   tmp_output_rects.append(output_rect);</span></a>
+<a name="738"><span class="lineNum">     738 </span>            : </a>
+<a name="739"><span class="lineNum">     739 </span><span class="lineNoCov">          0 :   const char *from_colorspace = IMB_colormanagement_role_colorspace_name_get(</span></a>
+<a name="740"><span class="lineNum">     740 </span>            :       COLOR_ROLE_SCENE_LINEAR);</a>
+<a name="741"><span class="lineNum">     741 </span><span class="lineNoCov">          0 :   IMB_colormanagement_transform_float(</span></a>
+<a name="742"><span class="lineNum">     742 </span>            :       output_rect, width, height, channels, from_colorspace, to_colorspace, false);</a>
+<a name="743"><span class="lineNum">     743 </span>            : </a>
+<a name="744"><span class="lineNum">     744 </span><span class="lineNoCov">          0 :   r_colorspace = to_colorspace;</span></a>
+<a name="745"><span class="lineNum">     745 </span>            : </a>
+<a name="746"><span class="lineNum">     746 </span><span class="lineNoCov">          0 :   return output_rect;</span></a>
+<a name="747"><span class="lineNum">     747 </span>            : }</a>
+<a name="748"><span class="lineNum">     748 </span>            : </a>
+<a name="749"><span class="lineNum">     749 </span><span class="lineNoCov">          0 : static const float *image_exr_from_rgb_to_bw(const float *input_buffer,</span></a>
+<a name="750"><span class="lineNum">     750 </span>            :                                              int width,</a>
+<a name="751"><span class="lineNum">     751 </span>            :                                              int height,</a>
+<a name="752"><span class="lineNum">     752 </span>            :                                              int channels,</a>
+<a name="753"><span class="lineNum">     753 </span>            :                                              Vector&lt;float *&gt; &amp;temporary_buffers)</a>
+<a name="754"><span class="lineNum">     754 </span>            : {</a>
+<a name="755"><span class="lineNum">     755 </span><span class="lineNoCov">          0 :   float *gray_scale_output = MEM_new_array_uninitialized&lt;float&gt;(size_t(width) * size_t(height),</span></a>
+<a name="756"><span class="lineNum">     756 </span><span class="lineNoCov">          0 :                                                                 &quot;Gray Scale Buffer For EXR&quot;);</span></a>
+<a name="757"><span class="lineNum">     757 </span><span class="lineNoCov">          0 :   temporary_buffers.append(gray_scale_output);</span></a>
+<a name="758"><span class="lineNum">     758 </span>            : </a>
+<a name="759"><span class="lineNum">     759 </span><span class="lineNoCov">          0 :   threading::parallel_for(IndexRange(height), 1, [&amp;](const IndexRange sub_y_range) {</span></a>
+<a name="760"><span class="lineNum">     760 </span><span class="lineNoCov">          0 :     for (const int64_t y : sub_y_range) {</span></a>
+<a name="761"><span class="lineNum">     761 </span><span class="lineNoCov">          0 :       for (const int64_t x : IndexRange(width)) {</span></a>
+<a name="762"><span class="lineNum">     762 </span><span class="lineNoCov">          0 :         const int64_t index = y * int64_t(width) + x;</span></a>
+<a name="763"><span class="lineNum">     763 </span><span class="lineNoCov">          0 :         gray_scale_output[index] = IMB_colormanagement_get_luminance(input_buffer +</span></a>
+<a name="764"><span class="lineNum">     764 </span><span class="lineNoCov">          0 :                                                                      index * channels);</span></a>
+<a name="765"><span class="lineNum">     765 </span>            :       }</a>
+<a name="766"><span class="lineNum">     766 </span>            :     }</a>
+<a name="767"><span class="lineNum">     767 </span><span class="lineNoCov">          0 :   });</span></a>
+<a name="768"><span class="lineNum">     768 </span>            : </a>
+<a name="769"><span class="lineNum">     769 </span><span class="lineNoCov">          0 :   return gray_scale_output;</span></a>
+<a name="770"><span class="lineNum">     770 </span>            : }</a>
+<a name="771"><span class="lineNum">     771 </span>            : </a>
+<a name="772"><span class="lineNum">     772 </span><span class="lineCov">          9 : static float *image_exr_opaque_alpha_buffer(int width,</span></a>
+<a name="773"><span class="lineNum">     773 </span>            :                                             int height,</a>
+<a name="774"><span class="lineNum">     774 </span>            :                                             Vector&lt;float *&gt; &amp;temporary_buffers)</a>
+<a name="775"><span class="lineNum">     775 </span>            : {</a>
+<a name="776"><span class="lineNum">     776 </span><span class="lineCov">          9 :   float *alpha_output = MEM_new_array_uninitialized&lt;float&gt;(size_t(width) * size_t(height),</span></a>
+<a name="777"><span class="lineNum">     777 </span><span class="lineCov">          9 :                                                            &quot;Opaque Alpha Buffer For EXR&quot;);</span></a>
+<a name="778"><span class="lineNum">     778 </span><span class="lineCov">          9 :   temporary_buffers.append(alpha_output);</span></a>
+<a name="779"><span class="lineNum">     779 </span>            : </a>
+<a name="780"><span class="lineNum">     780 </span><span class="lineCov">          9 :   threading::parallel_for(IndexRange(height), 1, [&amp;](const IndexRange sub_y_range) {</span></a>
+<a name="781"><span class="lineNum">     781 </span><span class="lineNoCov">          0 :     for (const int64_t y : sub_y_range) {</span></a>
+<a name="782"><span class="lineNum">     782 </span><span class="lineCov">      22213 :       for (const int64_t x : IndexRange(width)) {</span></a>
+<a name="783"><span class="lineNum">     783 </span><span class="lineCov">      22370 :         alpha_output[y * int64_t(width) + x] = 1.0;</span></a>
+<a name="784"><span class="lineNum">     784 </span>            :       }</a>
+<a name="785"><span class="lineNum">     785 </span>            :     }</a>
+<a name="786"><span class="lineNum">     786 </span><span class="lineCov">        414 :   });</span></a>
+<a name="787"><span class="lineNum">     787 </span>            : </a>
+<a name="788"><span class="lineNum">     788 </span><span class="lineCov">          9 :   return alpha_output;</span></a>
+<a name="789"><span class="lineNum">     789 </span>            : }</a>
+<a name="790"><span class="lineNum">     790 </span>            : </a>
+<a name="791"><span class="lineNum">     791 </span><span class="lineCov">         22 : static void add_exr_compositing_result(ExrWriteHandle *exr_handle,</span></a>
+<a name="792"><span class="lineNum">     792 </span>            :                                        const RenderResult *render_result,</a>
+<a name="793"><span class="lineNum">     793 </span>            :                                        const ImageFormatData *imf,</a>
+<a name="794"><span class="lineNum">     794 </span>            :                                        bool save_as_render,</a>
+<a name="795"><span class="lineNum">     795 </span>            :                                        const char *view_name,</a>
+<a name="796"><span class="lineNum">     796 </span>            :                                        int layer,</a>
+<a name="797"><span class="lineNum">     797 </span>            :                                        Vector&lt;float *&gt; &amp;temporary_buffers)</a>
+<a name="798"><span class="lineNum">     798 </span>            : {</a>
+<a name="799"><span class="lineNum">     799 </span>            :   /* Render result has no compositing result. */</a>
+<a name="800"><span class="lineNum">     800 </span><span class="lineCov">         22 :   if (!render_result-&gt;have_combined) {</span></a>
+<a name="801"><span class="lineNum">     801 </span><span class="lineCov">         22 :     return;</span></a>
+<a name="802"><span class="lineNum">     802 </span>            :   }</a>
+<a name="803"><span class="lineNum">     803 </span>            : </a>
+<a name="804"><span class="lineNum">     804 </span>            :   /* Skip compositing result if we are saving a single layer EXR that is not the compositing</a>
+<a name="805"><span class="lineNum">     805 </span>            :    * layer, which always has the layer index of 0. */</a>
+<a name="806"><span class="lineNum">     806 </span><span class="lineNoCov">          0 :   const bool is_multi_layer = !(imf &amp;&amp; imf-&gt;imtype == R_IMF_IMTYPE_OPENEXR);</span></a>
+<a name="807"><span class="lineNum">     807 </span><span class="lineNoCov">          0 :   if (!is_multi_layer &amp;&amp; layer != 0) {</span></a>
+<a name="808"><span class="lineNum">     808 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="809"><span class="lineNum">     809 </span>            :   }</a>
+<a name="810"><span class="lineNum">     810 </span>            : </a>
+<a name="811"><span class="lineNum">     811 </span>            :   /* Write the compositing result for the view with the given view name, or for all views if no</a>
+<a name="812"><span class="lineNum">     812 </span>            :    * view name is given. */</a>
+<a name="813"><span class="lineNum">     813 </span><span class="lineNoCov">          0 :   for (RenderView &amp;render_view : render_result-&gt;views) {</span></a>
+<a name="814"><span class="lineNum">     814 </span><span class="lineNoCov">          0 :     if (!render_view.ibuf || !render_view.ibuf-&gt;float_data()) {</span></a>
+<a name="815"><span class="lineNum">     815 </span><span class="lineNoCov">          0 :       continue;</span></a>
+<a name="816"><span class="lineNum">     816 </span>            :     }</a>
+<a name="817"><span class="lineNum">     817 </span>            : </a>
+<a name="818"><span class="lineNum">     818 </span>            :     /* If a view name is given, then we skip views that do not match the given view name.</a>
+<a name="819"><span class="lineNum">     819 </span>            :      * Otherwise, we always add the views. */</a>
+<a name="820"><span class="lineNum">     820 </span><span class="lineNoCov">          0 :     if (view_name &amp;&amp; !STREQ(view_name, render_view.name)) {</span></a>
+<a name="821"><span class="lineNum">     821 </span><span class="lineNoCov">          0 :       continue;</span></a>
+<a name="822"><span class="lineNum">     822 </span>            :     }</a>
+<a name="823"><span class="lineNum">     823 </span>            : </a>
+<a name="824"><span class="lineNum">     824 </span>            :     /* If a view name is given, that means we are writing a single view, so no need to identify the</a>
+<a name="825"><span class="lineNum">     825 </span>            :      * channel by the view name, and we supply an empty view to the rest of the code. */</a>
+<a name="826"><span class="lineNum">     826 </span><span class="lineNoCov">          0 :     const char *render_view_name = view_name ? &quot;&quot; : render_view.name;</span></a>
+<a name="827"><span class="lineNum">     827 </span>            : </a>
+<a name="828"><span class="lineNum">     828 </span>            :     /* Compositing results is always a 4-channel RGBA. */</a>
+<a name="829"><span class="lineNum">     829 </span><span class="lineNoCov">          0 :     const int channels_count_in_buffer = 4;</span></a>
+<a name="830"><span class="lineNum">     830 </span><span class="lineNoCov">          0 :     const float *output_buffer = render_view.ibuf-&gt;float_data();</span></a>
+<a name="831"><span class="lineNum">     831 </span>            :     StringRefNull colorspace = IMB_colormanagement_role_colorspace_name_get(</a>
+<a name="832"><span class="lineNum">     832 </span><span class="lineNoCov">          0 :         COLOR_ROLE_SCENE_LINEAR);</span></a>
+<a name="833"><span class="lineNum">     833 </span>            : </a>
+<a name="834"><span class="lineNum">     834 </span><span class="lineNoCov">          0 :     if (save_as_render) {</span></a>
+<a name="835"><span class="lineNum">     835 </span><span class="lineNoCov">          0 :       output_buffer = image_exr_from_scene_linear_to_output(output_buffer,</span></a>
+<a name="836"><span class="lineNum">     836 </span><span class="lineNoCov">          0 :                                                             render_result-&gt;rectx,</span></a>
+<a name="837"><span class="lineNum">     837 </span><span class="lineNoCov">          0 :                                                             render_result-&gt;recty,</span></a>
+<a name="838"><span class="lineNum">     838 </span>            :                                                             channels_count_in_buffer,</a>
+<a name="839"><span class="lineNum">     839 </span>            :                                                             imf,</a>
+<a name="840"><span class="lineNum">     840 </span>            :                                                             temporary_buffers,</a>
+<a name="841"><span class="lineNum">     841 </span>            :                                                             colorspace);</a>
+<a name="842"><span class="lineNum">     842 </span>            :     }</a>
+<a name="843"><span class="lineNum">     843 </span>            : </a>
+<a name="844"><span class="lineNum">     844 </span>            :     /* For multi-layer EXRs, we write the buffer as is with all its 4 channels. */</a>
+<a name="845"><span class="lineNum">     845 </span><span class="lineNoCov">          0 :     const bool half_float = (imf &amp;&amp; imf-&gt;depth == R_IMF_CHAN_DEPTH_16);</span></a>
+<a name="846"><span class="lineNum">     846 </span><span class="lineNoCov">          0 :     if (is_multi_layer) {</span></a>
+<a name="847"><span class="lineNum">     847 </span><span class="lineNoCov">          0 :       IMB_exr_write_pass(exr_handle,</span></a>
+<a name="848"><span class="lineNum">     848 </span>            :                          &quot;Composite.Combined&quot;,</a>
+<a name="849"><span class="lineNum">     849 </span>            :                          &quot;RGBA&quot;,</a>
+<a name="850"><span class="lineNum">     850 </span>            :                          render_view_name,</a>
+<a name="851"><span class="lineNum">     851 </span>            :                          colorspace,</a>
+<a name="852"><span class="lineNum">     852 </span>            :                          channels_count_in_buffer,</a>
+<a name="853"><span class="lineNum">     853 </span><span class="lineNoCov">          0 :                          channels_count_in_buffer * render_result-&gt;rectx,</span></a>
+<a name="854"><span class="lineNum">     854 </span>            :                          output_buffer,</a>
+<a name="855"><span class="lineNum">     855 </span>            :                          half_float);</a>
+<a name="856"><span class="lineNum">     856 </span><span class="lineNoCov">          0 :       continue;</span></a>
+<a name="857"><span class="lineNum">     857 </span>            :     }</a>
+<a name="858"><span class="lineNum">     858 </span>            : </a>
+<a name="859"><span class="lineNum">     859 </span>            :     /* For single layer EXR, we only add the channels specified in the image format and do any</a>
+<a name="860"><span class="lineNum">     860 </span>            :      * needed color format conversion.</a>
+<a name="861"><span class="lineNum">     861 </span>            :      *</a>
+<a name="862"><span class="lineNum">     862 </span>            :      * In case of a single required channel, we need to do RGBA to BW conversion. */</a>
+<a name="863"><span class="lineNum">     863 </span>            : </a>
+<a name="864"><span class="lineNum">     864 </span><span class="lineNoCov">          0 :     const ImColorMode color_mode = imf ? imf-&gt;color_mode : ImColorMode::RGBA;</span></a>
+<a name="865"><span class="lineNum">     865 </span><span class="lineNoCov">          0 :     if (color_mode == ImColorMode::BW) {</span></a>
+<a name="866"><span class="lineNum">     866 </span><span class="lineNoCov">          0 :       const float *gray_scale_output = image_exr_from_rgb_to_bw(output_buffer,</span></a>
+<a name="867"><span class="lineNum">     867 </span><span class="lineNoCov">          0 :                                                                 render_result-&gt;rectx,</span></a>
+<a name="868"><span class="lineNum">     868 </span><span class="lineNoCov">          0 :                                                                 render_result-&gt;recty,</span></a>
+<a name="869"><span class="lineNum">     869 </span>            :                                                                 channels_count_in_buffer,</a>
+<a name="870"><span class="lineNum">     870 </span>            :                                                                 temporary_buffers);</a>
+<a name="871"><span class="lineNum">     871 </span><span class="lineNoCov">          0 :       IMB_exr_write_pass(exr_handle,</span></a>
+<a name="872"><span class="lineNum">     872 </span>            :                          &quot;&quot;,</a>
+<a name="873"><span class="lineNum">     873 </span>            :                          &quot;V&quot;,</a>
+<a name="874"><span class="lineNum">     874 </span>            :                          render_view_name,</a>
+<a name="875"><span class="lineNum">     875 </span>            :                          colorspace,</a>
+<a name="876"><span class="lineNum">     876 </span>            :                          1,</a>
+<a name="877"><span class="lineNum">     877 </span><span class="lineNoCov">          0 :                          render_result-&gt;rectx,</span></a>
+<a name="878"><span class="lineNum">     878 </span>            :                          gray_scale_output,</a>
+<a name="879"><span class="lineNum">     879 </span>            :                          half_float);</a>
+<a name="880"><span class="lineNum">     880 </span><span class="lineNoCov">          0 :       continue;</span></a>
+<a name="881"><span class="lineNum">     881 </span><span class="lineNoCov">          0 :     }</span></a>
+<a name="882"><span class="lineNum">     882 </span>            : </a>
+<a name="883"><span class="lineNum">     883 </span>            :     /* Add RGB[A] channels. This will essentially skip the alpha channel if only three channels</a>
+<a name="884"><span class="lineNum">     884 </span>            :      * were required. */</a>
+<a name="885"><span class="lineNum">     885 </span><span class="lineNoCov">          0 :     StringRefNull channelnames = color_mode == ImColorMode::RGBA ? &quot;RGBA&quot; : &quot;RGB&quot;;</span></a>
+<a name="886"><span class="lineNum">     886 </span><span class="lineNoCov">          0 :     IMB_exr_write_pass(exr_handle,</span></a>
+<a name="887"><span class="lineNum">     887 </span>            :                        &quot;&quot;,</a>
+<a name="888"><span class="lineNum">     888 </span>            :                        channelnames,</a>
+<a name="889"><span class="lineNum">     889 </span>            :                        render_view_name,</a>
+<a name="890"><span class="lineNum">     890 </span>            :                        colorspace,</a>
+<a name="891"><span class="lineNum">     891 </span>            :                        channels_count_in_buffer,</a>
+<a name="892"><span class="lineNum">     892 </span><span class="lineNoCov">          0 :                        channels_count_in_buffer * render_result-&gt;rectx,</span></a>
+<a name="893"><span class="lineNum">     893 </span>            :                        output_buffer,</a>
+<a name="894"><span class="lineNum">     894 </span>            :                        half_float);</a>
+<a name="895"><span class="lineNum">     895 </span>            :   }</a>
+<a name="896"><span class="lineNum">     896 </span>            : }</a>
+<a name="897"><span class="lineNum">     897 </span>            : </a>
+<a name="898"><span class="lineNum">     898 </span><span class="lineCov">         22 : bool BKE_image_render_write_exr(ReportList *reports,</span></a>
+<a name="899"><span class="lineNum">     899 </span>            :                                 const RenderResult *rr,</a>
+<a name="900"><span class="lineNum">     900 </span>            :                                 const char *filepath,</a>
+<a name="901"><span class="lineNum">     901 </span>            :                                 const ImageFormatData *imf,</a>
+<a name="902"><span class="lineNum">     902 </span>            :                                 const bool save_as_render,</a>
+<a name="903"><span class="lineNum">     903 </span>            :                                 const char *view,</a>
+<a name="904"><span class="lineNum">     904 </span>            :                                 int layer)</a>
+<a name="905"><span class="lineNum">     905 </span>            : {</a>
+<a name="906"><span class="lineNum">     906 </span><span class="lineCov">         22 :   const int write_multipart = (imf ? imf-&gt;exr_flag &amp; R_IMF_EXR_FLAG_MULTIPART : true);</span></a>
+<a name="907"><span class="lineNum">     907 </span><span class="lineCov">         22 :   ExrWriteHandle *exrhandle = IMB_exr_write_begin(write_multipart);</span></a>
+<a name="908"><span class="lineNum">     908 </span><span class="lineCov">         22 :   const bool multi_layer = !(imf &amp;&amp; imf-&gt;imtype == R_IMF_IMTYPE_OPENEXR);</span></a>
+<a name="909"><span class="lineNum">     909 </span>            : </a>
+<a name="910"><span class="lineNum">     910 </span>            :   /* Write first layer if not multilayer and no layer was specified. */</a>
+<a name="911"><span class="lineNum">     911 </span><span class="lineCov">         22 :   if (!multi_layer &amp;&amp; layer == -1) {</span></a>
+<a name="912"><span class="lineNum">     912 </span><span class="lineCov">         14 :     layer = 0;</span></a>
+<a name="913"><span class="lineNum">     913 </span>            :   }</a>
+<a name="914"><span class="lineNum">     914 </span>            : </a>
+<a name="915"><span class="lineNum">     915 </span>            :   /* First add views since IMB_exr_add_channels checks number of views. */</a>
+<a name="916"><span class="lineNum">     916 </span><span class="lineCov">         22 :   const RenderView *first_rview = rr-&gt;views.first();</span></a>
+<a name="917"><span class="lineNum">     917 </span><span class="lineCov">         22 :   if (first_rview &amp;&amp; (first_rview-&gt;next || first_rview-&gt;name[0])) {</span></a>
+<a name="918"><span class="lineNum">     918 </span><span class="lineCov">          6 :     for (RenderView &amp;rview : rr-&gt;views) {</span></a>
+<a name="919"><span class="lineNum">     919 </span><span class="lineCov">          4 :       if (!view || STREQ(view, rview.name)) {</span></a>
+<a name="920"><span class="lineNum">     920 </span><span class="lineCov">          4 :         IMB_exr_write_view(exrhandle, rview.name);</span></a>
+<a name="921"><span class="lineNum">     921 </span>            :       }</a>
+<a name="922"><span class="lineNum">     922 </span>            :     }</a>
+<a name="923"><span class="lineNum">     923 </span>            :   }</a>
+<a name="924"><span class="lineNum">     924 </span>            : </a>
+<a name="925"><span class="lineNum">     925 </span><span class="lineCov">         22 :   Vector&lt;float *&gt; tmp_output_rects;</span></a>
+<a name="926"><span class="lineNum">     926 </span><span class="lineCov">         22 :   add_exr_compositing_result(exrhandle, rr, imf, save_as_render, view, layer, tmp_output_rects);</span></a>
+<a name="927"><span class="lineNum">     927 </span>            : </a>
+<a name="928"><span class="lineNum">     928 </span>            :   /* Other render layers. */</a>
+<a name="929"><span class="lineNum">     929 </span><span class="lineCov">         22 :   int nr = (rr-&gt;have_combined) ? 1 : 0;</span></a>
+<a name="930"><span class="lineNum">     930 </span><span class="lineCov">         22 :   const bool has_multiple_layers = BLI_listbase_count_at_most(&amp;rr-&gt;layers, 2) &gt; 1;</span></a>
+<a name="931"><span class="lineNum">     931 </span><span class="lineCov">         44 :   for (RenderLayer &amp;rl : rr-&gt;layers) {</span></a>
+<a name="932"><span class="lineNum">     932 </span>            :     /* Skip other render layers if requested. */</a>
+<a name="933"><span class="lineNum">     933 </span><span class="lineCov">         22 :     if (!multi_layer &amp;&amp; nr != layer) {</span></a>
+<a name="934"><span class="lineNum">     934 </span><span class="lineNoCov">          0 :       nr++;</span></a>
+<a name="935"><span class="lineNum">     935 </span><span class="lineNoCov">          0 :       continue;</span></a>
+<a name="936"><span class="lineNum">     936 </span>            :     }</a>
+<a name="937"><span class="lineNum">     937 </span><span class="lineCov">         22 :     nr++;</span></a>
+<a name="938"><span class="lineNum">     938 </span>            : </a>
+<a name="939"><span class="lineNum">     939 </span><span class="lineCov">         84 :     for (RenderPass &amp;render_pass : rl.passes) {</span></a>
+<a name="940"><span class="lineNum">     940 </span>            :       /* Skip non-RGBA and Z passes if not using multi layer. */</a>
+<a name="941"><span class="lineNum">     941 </span><span class="lineCov">         62 :       if (!multi_layer &amp;&amp; !STR_ELEM(render_pass.name, RE_PASSNAME_COMBINED, &quot;&quot;)) {</span></a>
+<a name="942"><span class="lineNum">     942 </span><span class="lineCov">         48 :         continue;</span></a>
+<a name="943"><span class="lineNum">     943 </span>            :       }</a>
+<a name="944"><span class="lineNum">     944 </span>            : </a>
+<a name="945"><span class="lineNum">     945 </span>            :       /* Skip pass if it does not match the requested view(s). */</a>
+<a name="946"><span class="lineNum">     946 </span><span class="lineCov">         62 :       const char *viewname = render_pass.view;</span></a>
+<a name="947"><span class="lineNum">     947 </span><span class="lineCov">         62 :       if (view) {</span></a>
+<a name="948"><span class="lineNum">     948 </span><span class="lineCov">         46 :         if (!STREQ(view, viewname)) {</span></a>
+<a name="949"><span class="lineNum">     949 </span><span class="lineNoCov">          0 :           continue;</span></a>
+<a name="950"><span class="lineNum">     950 </span>            :         }</a>
+<a name="951"><span class="lineNum">     951 </span>            : </a>
+<a name="952"><span class="lineNum">     952 </span><span class="lineCov">         46 :         viewname = &quot;&quot;;</span></a>
+<a name="953"><span class="lineNum">     953 </span>            :       }</a>
+<a name="954"><span class="lineNum">     954 </span>            : </a>
+<a name="955"><span class="lineNum">     955 </span>            :       /* We only store RGBA passes as half float, for</a>
+<a name="956"><span class="lineNum">     956 </span>            :        * others precision loss can be problematic. */</a>
+<a name="957"><span class="lineNum">     957 </span><span class="lineCov">         62 :       const bool pass_RGBA = RE_RenderPassIsColor(&amp;render_pass);</span></a>
+<a name="958"><span class="lineNum">     958 </span><span class="lineCov">         62 :       const bool half_float = (imf &amp;&amp; imf-&gt;depth == R_IMF_CHAN_DEPTH_16);</span></a>
+<a name="959"><span class="lineNum">     959 </span><span class="lineCov">         62 :       const bool pass_half_float = half_float &amp;&amp; pass_RGBA;</span></a>
+<a name="960"><span class="lineNum">     960 </span>            : </a>
+<a name="961"><span class="lineNum">     961 </span>            :       /* Color-space conversion only happens on RGBA passes. */</a>
+<a name="962"><span class="lineNum">     962 </span><span class="lineCov">         62 :       const float *output_rect = render_pass.ibuf-&gt;float_data();</span></a>
+<a name="963"><span class="lineNum">     963 </span>            :       StringRefNull colorspace = IMB_colormanagement_role_colorspace_name_get(</a>
+<a name="964"><span class="lineNum">     964 </span><span class="lineCov">         62 :           (pass_RGBA) ? COLOR_ROLE_SCENE_LINEAR : COLOR_ROLE_DATA);</span></a>
+<a name="965"><span class="lineNum">     965 </span>            : </a>
+<a name="966"><span class="lineNum">     966 </span><span class="lineCov">         62 :       if (save_as_render &amp;&amp; pass_RGBA) {</span></a>
+<a name="967"><span class="lineNum">     967 </span><span class="lineCov">         23 :         output_rect = image_exr_from_scene_linear_to_output(output_rect,</span></a>
+<a name="968"><span class="lineNum">     968 </span><span class="lineCov">         23 :                                                             rr-&gt;rectx,</span></a>
+<a name="969"><span class="lineNum">     969 </span><span class="lineCov">         23 :                                                             rr-&gt;recty,</span></a>
+<a name="970"><span class="lineNum">     970 </span>            :                                                             render_pass.channels,</a>
+<a name="971"><span class="lineNum">     971 </span>            :                                                             imf,</a>
+<a name="972"><span class="lineNum">     972 </span>            :                                                             tmp_output_rects,</a>
+<a name="973"><span class="lineNum">     973 </span>            :                                                             colorspace);</a>
+<a name="974"><span class="lineNum">     974 </span>            :       }</a>
+<a name="975"><span class="lineNum">     975 </span>            : </a>
+<a name="976"><span class="lineNum">     976 </span>            :       /* For multi-layer EXRs, we write the pass as is with all of its channels. */</a>
+<a name="977"><span class="lineNum">     977 </span><span class="lineCov">         62 :       if (multi_layer) {</span></a>
+<a name="978"><span class="lineNum">     978 </span><span class="lineCov">         48 :         std::string layer_pass_name = render_pass.name;</span></a>
+<a name="979"><span class="lineNum">     979 </span>            : </a>
+<a name="980"><span class="lineNum">     980 </span>            :         /* Unless we have a single unnamed layer, include the layer name. */</a>
+<a name="981"><span class="lineNum">     981 </span><span class="lineCov">         48 :         if (has_multiple_layers || rl.name[0] != '\0') {</span></a>
+<a name="982"><span class="lineNum">     982 </span><span class="lineNoCov">          0 :           layer_pass_name = rl.name + (&quot;.&quot; + layer_pass_name);</span></a>
+<a name="983"><span class="lineNum">     983 </span>            :         }</a>
+<a name="984"><span class="lineNum">     984 </span>            : </a>
+<a name="985"><span class="lineNum">     985 </span><span class="lineCov">         48 :         std::string channelnames = StringRef(render_pass.chan_id, render_pass.channels);</span></a>
+<a name="986"><span class="lineNum">     986 </span><span class="lineCov">         48 :         IMB_exr_write_pass(exrhandle,</span></a>
+<a name="987"><span class="lineNum">     987 </span>            :                            layer_pass_name,</a>
+<a name="988"><span class="lineNum">     988 </span>            :                            channelnames,</a>
+<a name="989"><span class="lineNum">     989 </span>            :                            viewname,</a>
+<a name="990"><span class="lineNum">     990 </span>            :                            colorspace,</a>
+<a name="991"><span class="lineNum">     991 </span><span class="lineCov">         48 :                            render_pass.channels,</span></a>
+<a name="992"><span class="lineNum">     992 </span><span class="lineCov">         48 :                            render_pass.channels * rr-&gt;rectx,</span></a>
+<a name="993"><span class="lineNum">     993 </span>            :                            output_rect,</a>
+<a name="994"><span class="lineNum">     994 </span>            :                            pass_half_float);</a>
+<a name="995"><span class="lineNum">     995 </span><span class="lineCov">         48 :         continue;</span></a>
+<a name="996"><span class="lineNum">     996 </span><span class="lineCov">         48 :       }</span></a>
+<a name="997"><span class="lineNum">     997 </span>            : </a>
+<a name="998"><span class="lineNum">     998 </span>            :       /* For single layer EXR, we only add the channels specified in the image format and do any</a>
+<a name="999"><span class="lineNum">     999 </span>            :        * needed color format conversion.</a>
+<a name="1000"><span class="lineNum">    1000 </span>            :        *</a>
+<a name="1001"><span class="lineNum">    1001 </span>            :        * First, if the required channels equal the pass channels, we add the channels as is. Or,</a>
+<a name="1002"><span class="lineNum">    1002 </span>            :        * we add the RGB[A] channels if the pass is RGB[A] and we require RGB[A]. If the alpha</a>
+<a name="1003"><span class="lineNum">    1003 </span>            :        * channel is required but does not exist in the pass, it will be added below. */</a>
+<a name="1004"><span class="lineNum">    1004 </span><span class="lineCov">         14 :       const int required_channels = imf ? int(imf-&gt;color_mode) / 8 : 4;</span></a>
+<a name="1005"><span class="lineNum">    1005 </span><span class="lineCov">         14 :       if (required_channels == render_pass.channels ||</span></a>
+<a name="1006"><span class="lineNum">    1006 </span><span class="lineCov">          9 :           (required_channels != 1 &amp;&amp; render_pass.channels != 1))</span></a>
+<a name="1007"><span class="lineNum">    1007 </span>            :       {</a>
+<a name="1008"><span class="lineNum">    1008 </span><span class="lineNoCov">          0 :         std::string channelnames = StringRef(render_pass.chan_id,</span></a>
+<a name="1009"><span class="lineNum">    1009 </span><span class="lineCov">          7 :                                              std::min(required_channels, render_pass.channels));</span></a>
+<a name="1010"><span class="lineNum">    1010 </span><span class="lineCov">          7 :         IMB_exr_write_pass(exrhandle,</span></a>
+<a name="1011"><span class="lineNum">    1011 </span>            :                            &quot;&quot;,</a>
+<a name="1012"><span class="lineNum">    1012 </span>            :                            channelnames,</a>
+<a name="1013"><span class="lineNum">    1013 </span>            :                            viewname,</a>
+<a name="1014"><span class="lineNum">    1014 </span>            :                            colorspace,</a>
+<a name="1015"><span class="lineNum">    1015 </span><span class="lineCov">          7 :                            render_pass.channels,</span></a>
+<a name="1016"><span class="lineNum">    1016 </span><span class="lineCov">          7 :                            render_pass.channels * rr-&gt;rectx,</span></a>
+<a name="1017"><span class="lineNum">    1017 </span>            :                            output_rect,</a>
+<a name="1018"><span class="lineNum">    1018 </span>            :                            pass_half_float);</a>
+<a name="1019"><span class="lineNum">    1019 </span><span class="lineCov">          7 :       }</span></a>
+<a name="1020"><span class="lineNum">    1020 </span><span class="lineCov">          7 :       else if (required_channels == 1) {</span></a>
+<a name="1021"><span class="lineNum">    1021 </span>            :         /* In case of a single required channel, we need to do RGB[A] to BW conversion. We know</a>
+<a name="1022"><span class="lineNum">    1022 </span>            :          * the input is RGB[A] and not single channel because it filed the condition above. */</a>
+<a name="1023"><span class="lineNum">    1023 </span><span class="lineNoCov">          0 :         const float *gray_scale_output = image_exr_from_rgb_to_bw(</span></a>
+<a name="1024"><span class="lineNum">    1024 </span><span class="lineNoCov">          0 :             output_rect, rr-&gt;rectx, rr-&gt;recty, render_pass.channels, tmp_output_rects);</span></a>
+<a name="1025"><span class="lineNum">    1025 </span><span class="lineNoCov">          0 :         IMB_exr_write_pass(exrhandle,</span></a>
+<a name="1026"><span class="lineNum">    1026 </span>            :                            &quot;&quot;,</a>
+<a name="1027"><span class="lineNum">    1027 </span>            :                            &quot;V&quot;,</a>
+<a name="1028"><span class="lineNum">    1028 </span>            :                            viewname,</a>
+<a name="1029"><span class="lineNum">    1029 </span>            :                            colorspace,</a>
+<a name="1030"><span class="lineNum">    1030 </span>            :                            1,</a>
+<a name="1031"><span class="lineNum">    1031 </span><span class="lineNoCov">          0 :                            rr-&gt;rectx,</span></a>
+<a name="1032"><span class="lineNum">    1032 </span>            :                            gray_scale_output,</a>
+<a name="1033"><span class="lineNum">    1033 </span>            :                            pass_half_float);</a>
+<a name="1034"><span class="lineNum">    1034 </span>            :       }</a>
+<a name="1035"><span class="lineNum">    1035 </span><span class="lineCov">          7 :       else if (render_pass.channels == 1) {</span></a>
+<a name="1036"><span class="lineNum">    1036 </span>            :         /* In case of a single channel pass, we need to broadcast the same channel for each of</a>
+<a name="1037"><span class="lineNum">    1037 </span>            :          * the RGB channels that are required. We know the RGB is required because single channel</a>
+<a name="1038"><span class="lineNum">    1038 </span>            :          * requirement was handled above. The alpha channel will be added later. */</a>
+<a name="1039"><span class="lineNum">    1039 </span><span class="lineCov">         28 :         for (int i = 0; i &lt; 3; i++) {</span></a>
+<a name="1040"><span class="lineNum">    1040 </span><span class="lineCov">         21 :           IMB_exr_write_pass(exrhandle,</span></a>
+<a name="1041"><span class="lineNum">    1041 </span>            :                              &quot;&quot;,</a>
+<a name="1042"><span class="lineNum">    1042 </span><span class="lineCov">         63 :                              std::string(1, &quot;RGB&quot;[i]).c_str(),</span></a>
+<a name="1043"><span class="lineNum">    1043 </span>            :                              viewname,</a>
+<a name="1044"><span class="lineNum">    1044 </span>            :                              colorspace,</a>
+<a name="1045"><span class="lineNum">    1045 </span>            :                              1,</a>
+<a name="1046"><span class="lineNum">    1046 </span><span class="lineCov">         21 :                              rr-&gt;rectx,</span></a>
+<a name="1047"><span class="lineNum">    1047 </span>            :                              output_rect,</a>
+<a name="1048"><span class="lineNum">    1048 </span>            :                              pass_half_float);</a>
+<a name="1049"><span class="lineNum">    1049 </span>            :         }</a>
+<a name="1050"><span class="lineNum">    1050 </span>            :       }</a>
+<a name="1051"><span class="lineNum">    1051 </span>            : </a>
+<a name="1052"><span class="lineNum">    1052 </span>            :       /* Add an opaque alpha channel if the pass contains no alpha channel but an alpha channel</a>
+<a name="1053"><span class="lineNum">    1053 </span>            :        * is required. */</a>
+<a name="1054"><span class="lineNum">    1054 </span><span class="lineCov">         14 :       if (required_channels == 4 &amp;&amp; render_pass.channels &lt; 4) {</span></a>
+<a name="1055"><span class="lineNum">    1055 </span><span class="lineCov">         18 :         float *alpha_output = image_exr_opaque_alpha_buffer(</span></a>
+<a name="1056"><span class="lineNum">    1056 </span><span class="lineCov">          9 :             rr-&gt;rectx, rr-&gt;recty, tmp_output_rects);</span></a>
+<a name="1057"><span class="lineNum">    1057 </span><span class="lineCov">          9 :         IMB_exr_write_pass(</span></a>
+<a name="1058"><span class="lineNum">    1058 </span><span class="lineCov">          9 :             exrhandle, &quot;&quot;, &quot;A&quot;, viewname, colorspace, 1, rr-&gt;rectx, alpha_output, pass_half_float);</span></a>
+<a name="1059"><span class="lineNum">    1059 </span>            :       }</a>
+<a name="1060"><span class="lineNum">    1060 </span>            :     }</a>
+<a name="1061"><span class="lineNum">    1061 </span>            :   }</a>
+<a name="1062"><span class="lineNum">    1062 </span>            : </a>
+<a name="1063"><span class="lineNum">    1063 </span><span class="lineCov">         22 :   errno = 0;</span></a>
+<a name="1064"><span class="lineNum">    1064 </span>            : </a>
+<a name="1065"><span class="lineNum">    1065 </span><span class="lineCov">         22 :   BLI_file_ensure_parent_dir_exists(filepath);</span></a>
+<a name="1066"><span class="lineNum">    1066 </span>            : </a>
+<a name="1067"><span class="lineNum">    1067 </span><span class="lineCov">         22 :   const int compress = (imf ? imf-&gt;exr_codec : 0);</span></a>
+<a name="1068"><span class="lineNum">    1068 </span><span class="lineCov">         22 :   const int quality = (imf ? imf-&gt;quality : 90);</span></a>
+<a name="1069"><span class="lineNum">    1069 </span><span class="lineCov">         44 :   bool success = IMB_exr_write_end(</span></a>
+<a name="1070"><span class="lineNum">    1070 </span><span class="lineCov">         22 :       exrhandle, filepath, rr-&gt;rectx, rr-&gt;recty, rr-&gt;ppm, compress, quality, rr-&gt;stamp_data);</span></a>
+<a name="1071"><span class="lineNum">    1071 </span><span class="lineCov">         22 :   if (!success) {</span></a>
+<a name="1072"><span class="lineNum">    1072 </span>            :     /* TODO: get the error from openexr's exception. */</a>
+<a name="1073"><span class="lineNum">    1073 </span><span class="lineNoCov">          0 :     BKE_reportf(</span></a>
+<a name="1074"><span class="lineNum">    1074 </span><span class="lineNoCov">          0 :         reports, RPT_ERROR, &quot;Error writing render result, %s (see console)&quot;, strerror(errno));</span></a>
+<a name="1075"><span class="lineNum">    1075 </span>            :   }</a>
+<a name="1076"><span class="lineNum">    1076 </span>            : </a>
+<a name="1077"><span class="lineNum">    1077 </span><span class="lineCov">         31 :   for (float *rect : tmp_output_rects) {</span></a>
+<a name="1078"><span class="lineNum">    1078 </span><span class="lineCov">          9 :     MEM_delete(rect);</span></a>
+<a name="1079"><span class="lineNum">    1079 </span>            :   }</a>
+<a name="1080"><span class="lineNum">    1080 </span>            : </a>
+<a name="1081"><span class="lineNum">    1081 </span><span class="lineCov">         22 :   return success;</span></a>
+<a name="1082"><span class="lineNum">    1082 </span><span class="lineCov">         22 : }</span></a>
+<a name="1083"><span class="lineNum">    1083 </span>            : </a>
+<a name="1084"><span class="lineNum">    1084 </span>            : /* Render output. */</a>
+<a name="1085"><span class="lineNum">    1085 </span>            : </a>
+<a name="1086"><span class="lineNum">    1086 </span><span class="lineCov">       1377 : static void image_render_print_save_message(ReportList *reports,</span></a>
+<a name="1087"><span class="lineNum">    1087 </span>            :                                             const char *filepath,</a>
+<a name="1088"><span class="lineNum">    1088 </span>            :                                             int ok,</a>
+<a name="1089"><span class="lineNum">    1089 </span>            :                                             int err)</a>
+<a name="1090"><span class="lineNum">    1090 </span>            : {</a>
+<a name="1091"><span class="lineNum">    1091 </span><span class="lineCov">       1377 :   if (ok) {</span></a>
+<a name="1092"><span class="lineNum">    1092 </span>            :     /* no need to report, just some helpful console info */</a>
+<a name="1093"><span class="lineNum">    1093 </span><span class="lineCov">       1377 :     CLOG_INFO_NOCHECK(&amp;LOG_RENDER, &quot;Saved: '%s'&quot;, filepath);</span></a>
+<a name="1094"><span class="lineNum">    1094 </span>            :   }</a>
+<a name="1095"><span class="lineNum">    1095 </span>            :   else {</a>
+<a name="1096"><span class="lineNum">    1096 </span>            :     /* report on error since users will want to know what failed */</a>
+<a name="1097"><span class="lineNum">    1097 </span><span class="lineNoCov">          0 :     BKE_reportf(</span></a>
+<a name="1098"><span class="lineNum">    1098 </span>            :         reports, RPT_ERROR, &quot;Render error (%s) cannot save: '%s'&quot;, strerror(err), filepath);</a>
+<a name="1099"><span class="lineNum">    1099 </span>            :   }</a>
+<a name="1100"><span class="lineNum">    1100 </span><span class="lineCov">       1377 : }</span></a>
+<a name="1101"><span class="lineNum">    1101 </span>            : </a>
+<a name="1102"><span class="lineNum">    1102 </span><span class="lineCov">       1355 : static bool image_render_write_stamp_test(ReportList *reports,</span></a>
+<a name="1103"><span class="lineNum">    1103 </span>            :                                           const Scene *scene,</a>
+<a name="1104"><span class="lineNum">    1104 </span>            :                                           const RenderResult *rr,</a>
+<a name="1105"><span class="lineNum">    1105 </span>            :                                           ImBuf *ibuf,</a>
+<a name="1106"><span class="lineNum">    1106 </span>            :                                           const char *filepath,</a>
+<a name="1107"><span class="lineNum">    1107 </span>            :                                           const ImageFormatData *imf,</a>
+<a name="1108"><span class="lineNum">    1108 </span>            :                                           const bool stamp)</a>
+<a name="1109"><span class="lineNum">    1109 </span>            : {</a>
+<a name="1110"><span class="lineNum">    1110 </span>            :   bool ok;</a>
+<a name="1111"><span class="lineNum">    1111 </span>            : </a>
+<a name="1112"><span class="lineNum">    1112 </span><span class="lineCov">       1355 :   if (stamp) {</span></a>
+<a name="1113"><span class="lineNum">    1113 </span>            :     /* writes the name of the individual cameras */</a>
+<a name="1114"><span class="lineNum">    1114 </span><span class="lineCov">       1355 :     ok = BKE_imbuf_write_stamp(scene, rr, ibuf, filepath, imf);</span></a>
+<a name="1115"><span class="lineNum">    1115 </span>            :   }</a>
+<a name="1116"><span class="lineNum">    1116 </span>            :   else {</a>
+<a name="1117"><span class="lineNum">    1117 </span><span class="lineNoCov">          0 :     ok = BKE_imbuf_write(ibuf, filepath, imf);</span></a>
+<a name="1118"><span class="lineNum">    1118 </span>            :   }</a>
+<a name="1119"><span class="lineNum">    1119 </span>            : </a>
+<a name="1120"><span class="lineNum">    1120 </span><span class="lineCov">       1355 :   image_render_print_save_message(reports, filepath, ok, errno);</span></a>
+<a name="1121"><span class="lineNum">    1121 </span>            : </a>
+<a name="1122"><span class="lineNum">    1122 </span><span class="lineCov">       1355 :   return ok;</span></a>
+<a name="1123"><span class="lineNum">    1123 </span>            : }</a>
+<a name="1124"><span class="lineNum">    1124 </span>            : </a>
+<a name="1125"><span class="lineNum">    1125 </span><span class="lineCov">       1372 : bool BKE_image_render_write(ReportList *reports,</span></a>
+<a name="1126"><span class="lineNum">    1126 </span>            :                             RenderResult *rr,</a>
+<a name="1127"><span class="lineNum">    1127 </span>            :                             const Scene *scene,</a>
+<a name="1128"><span class="lineNum">    1128 </span>            :                             const bool stamp,</a>
+<a name="1129"><span class="lineNum">    1129 </span>            :                             const char *filepath_basis,</a>
+<a name="1130"><span class="lineNum">    1130 </span>            :                             const ImageFormatData *format,</a>
+<a name="1131"><span class="lineNum">    1131 </span>            :                             bool save_as_render)</a>
+<a name="1132"><span class="lineNum">    1132 </span>            : {</a>
+<a name="1133"><span class="lineNum">    1133 </span><span class="lineCov">       1372 :   bool ok = true;</span></a>
+<a name="1134"><span class="lineNum">    1134 </span>            : </a>
+<a name="1135"><span class="lineNum">    1135 </span><span class="lineCov">       1372 :   if (!rr) {</span></a>
+<a name="1136"><span class="lineNum">    1136 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="1137"><span class="lineNum">    1137 </span>            :   }</a>
+<a name="1138"><span class="lineNum">    1138 </span>            : </a>
+<a name="1139"><span class="lineNum">    1139 </span><span class="lineCov">       1372 :   ImageFormatData image_format;</span></a>
+<a name="1140"><span class="lineNum">    1140 </span><span class="lineCov">       1372 :   BKE_image_format_init_for_write(&amp;image_format, scene, format);</span></a>
+<a name="1141"><span class="lineNum">    1141 </span>            : </a>
+<a name="1142"><span class="lineNum">    1142 </span><span class="lineCov">       1372 :   if (!save_as_render) {</span></a>
+<a name="1143"><span class="lineNum">    1143 </span><span class="lineCov">          1 :     BKE_color_managed_colorspace_settings_copy(&amp;image_format.linear_colorspace_settings,</span></a>
+<a name="1144"><span class="lineNum">    1144 </span>            :                                                &amp;format-&gt;linear_colorspace_settings);</a>
+<a name="1145"><span class="lineNum">    1145 </span>            :   }</a>
+<a name="1146"><span class="lineNum">    1146 </span>            : </a>
+<a name="1147"><span class="lineNum">    1147 </span><span class="lineCov">       1372 :   const bool is_mono = !RE_ResultIsMultiView(rr);</span></a>
+<a name="1148"><span class="lineNum">    1148 </span><span class="lineCov">       1358 :   const bool is_exr_rr = ELEM(</span></a>
+<a name="1149"><span class="lineNum">    1149 </span><span class="lineCov">       2744 :                              image_format.imtype, R_IMF_IMTYPE_OPENEXR, R_IMF_IMTYPE_MULTILAYER) &amp;&amp;</span></a>
+<a name="1150"><span class="lineNum">    1150 </span><span class="lineCov">         22 :                          RE_HasFloatPixels(rr);</span></a>
+<a name="1151"><span class="lineNum">    1151 </span><span class="lineCov">       1372 :   const float dither = scene-&gt;r.dither_intensity;</span></a>
+<a name="1152"><span class="lineNum">    1152 </span>            : </a>
+<a name="1153"><span class="lineNum">    1153 </span><span class="lineCov">       1372 :   if (image_format.views_format == R_IMF_VIEWS_MULTIVIEW &amp;&amp; is_exr_rr) {</span></a>
+<a name="1154"><span class="lineNum">    1154 </span><span class="lineCov">          2 :     ok = BKE_image_render_write_exr(</span></a>
+<a name="1155"><span class="lineNum">    1155 </span>            :         reports, rr, filepath_basis, &amp;image_format, save_as_render, nullptr, -1);</a>
+<a name="1156"><span class="lineNum">    1156 </span><span class="lineCov">          2 :     image_render_print_save_message(reports, filepath_basis, ok, errno);</span></a>
+<a name="1157"><span class="lineNum">    1157 </span>            :   }</a>
+<a name="1158"><span class="lineNum">    1158 </span>            : </a>
+<a name="1159"><span class="lineNum">    1159 </span>            :   /* mono, legacy code */</a>
+<a name="1160"><span class="lineNum">    1160 </span><span class="lineCov">       1370 :   else if (is_mono || (image_format.views_format == R_IMF_VIEWS_INDIVIDUAL)) {</span></a>
+<a name="1161"><span class="lineNum">    1161 </span><span class="lineCov">       1368 :     int view_id = 0;</span></a>
+<a name="1162"><span class="lineNum">    1162 </span><span class="lineCov">       2741 :     for (const RenderView *rv = rr-&gt;views.first(); rv; rv = rv-&gt;next, view_id++) {</span></a>
+<a name="1163"><span class="lineNum">    1163 </span>            :       char filepath[FILE_MAX];</a>
+<a name="1164"><span class="lineNum">    1164 </span><span class="lineCov">       1373 :       if (is_mono) {</span></a>
+<a name="1165"><span class="lineNum">    1165 </span><span class="lineCov">       1363 :         STRNCPY(filepath, filepath_basis);</span></a>
+<a name="1166"><span class="lineNum">    1166 </span>            :       }</a>
+<a name="1167"><span class="lineNum">    1167 </span>            :       else {</a>
+<a name="1168"><span class="lineNum">    1168 </span><span class="lineCov">         10 :         BKE_scene_multiview_view_filepath_get(&amp;scene-&gt;r, filepath_basis, rv-&gt;name, filepath);</span></a>
+<a name="1169"><span class="lineNum">    1169 </span>            :       }</a>
+<a name="1170"><span class="lineNum">    1170 </span>            : </a>
+<a name="1171"><span class="lineNum">    1171 </span><span class="lineCov">       1373 :       if (is_exr_rr) {</span></a>
+<a name="1172"><span class="lineNum">    1172 </span><span class="lineCov">         40 :         ok = BKE_image_render_write_exr(</span></a>
+<a name="1173"><span class="lineNum">    1173 </span><span class="lineCov">         20 :             reports, rr, filepath, &amp;image_format, save_as_render, rv-&gt;name, -1);</span></a>
+<a name="1174"><span class="lineNum">    1174 </span><span class="lineCov">         20 :         image_render_print_save_message(reports, filepath, ok, errno);</span></a>
+<a name="1175"><span class="lineNum">    1175 </span>            : </a>
+<a name="1176"><span class="lineNum">    1176 </span>            :         /* optional preview images for exr */</a>
+<a name="1177"><span class="lineNum">    1177 </span><span class="lineCov">         20 :         if (ok &amp;&amp; (image_format.flag &amp; R_IMF_FLAG_PREVIEW_JPG)) {</span></a>
+<a name="1178"><span class="lineNum">    1178 </span><span class="lineNoCov">          0 :           image_format.imtype = R_IMF_IMTYPE_JPEG90;</span></a>
+<a name="1179"><span class="lineNum">    1179 </span><span class="lineNoCov">          0 :           image_format.depth = R_IMF_CHAN_DEPTH_8;</span></a>
+<a name="1180"><span class="lineNum">    1180 </span>            : </a>
+<a name="1181"><span class="lineNum">    1181 </span><span class="lineNoCov">          0 :           if (BLI_path_extension_check(filepath, &quot;.exr&quot;)) {</span></a>
+<a name="1182"><span class="lineNum">    1182 </span><span class="lineNoCov">          0 :             filepath[strlen(filepath) - 4] = 0;</span></a>
+<a name="1183"><span class="lineNum">    1183 </span>            :           }</a>
+<a name="1184"><span class="lineNum">    1184 </span><span class="lineNoCov">          0 :           BKE_image_path_ext_from_imformat_ensure(filepath, sizeof(filepath), &amp;image_format);</span></a>
+<a name="1185"><span class="lineNum">    1185 </span>            : </a>
+<a name="1186"><span class="lineNum">    1186 </span><span class="lineNoCov">          0 :           ImBuf *ibuf = RE_render_result_rect_to_ibuf(rr, &amp;image_format, dither, view_id);</span></a>
+<a name="1187"><span class="lineNum">    1187 </span><span class="lineNoCov">          0 :           ibuf-&gt;color_mode = ImColorMode::RGB;</span></a>
+<a name="1188"><span class="lineNum">    1188 </span><span class="lineNoCov">          0 :           IMB_colormanagement_imbuf_for_write(ibuf, save_as_render, false, &amp;image_format);</span></a>
+<a name="1189"><span class="lineNum">    1189 </span>            : </a>
+<a name="1190"><span class="lineNum">    1190 </span><span class="lineNoCov">          0 :           ok = image_render_write_stamp_test(</span></a>
+<a name="1191"><span class="lineNum">    1191 </span>            :               reports, scene, rr, ibuf, filepath, &amp;image_format, stamp);</a>
+<a name="1192"><span class="lineNum">    1192 </span>            : </a>
+<a name="1193"><span class="lineNum">    1193 </span><span class="lineNoCov">          0 :           IMB_freeImBuf(ibuf);</span></a>
+<a name="1194"><span class="lineNum">    1194 </span>            :         }</a>
+<a name="1195"><span class="lineNum">    1195 </span>            :       }</a>
+<a name="1196"><span class="lineNum">    1196 </span>            :       else {</a>
+<a name="1197"><span class="lineNum">    1197 </span><span class="lineCov">       1353 :         ImBuf *ibuf = RE_render_result_rect_to_ibuf(rr, &amp;image_format, dither, view_id);</span></a>
+<a name="1198"><span class="lineNum">    1198 </span>            : </a>
+<a name="1199"><span class="lineNum">    1199 </span><span class="lineCov">       1353 :         IMB_colormanagement_imbuf_for_write(ibuf, save_as_render, false, &amp;image_format);</span></a>
+<a name="1200"><span class="lineNum">    1200 </span>            : </a>
+<a name="1201"><span class="lineNum">    1201 </span><span class="lineCov">       1353 :         ok = image_render_write_stamp_test(</span></a>
+<a name="1202"><span class="lineNum">    1202 </span>            :             reports, scene, rr, ibuf, filepath, &amp;image_format, stamp);</a>
+<a name="1203"><span class="lineNum">    1203 </span>            : </a>
+<a name="1204"><span class="lineNum">    1204 </span>            :         /* imbuf knows which rects are not part of ibuf */</a>
+<a name="1205"><span class="lineNum">    1205 </span><span class="lineCov">       1353 :         IMB_freeImBuf(ibuf);</span></a>
+<a name="1206"><span class="lineNum">    1206 </span>            :       }</a>
+<a name="1207"><span class="lineNum">    1207 </span>            :     }</a>
+<a name="1208"><span class="lineNum">    1208 </span><span class="lineCov">       1368 :   }</span></a>
+<a name="1209"><span class="lineNum">    1209 </span>            :   else { /* R_IMF_VIEWS_STEREO_3D */</a>
+<a name="1210"><span class="lineNum">    1210 </span><span class="lineCov">          2 :     BLI_assert(image_format.views_format == R_IMF_VIEWS_STEREO_3D);</span></a>
+<a name="1211"><span class="lineNum">    1211 </span>            : </a>
+<a name="1212"><span class="lineNum">    1212 </span>            :     char filepath[FILE_MAX];</a>
+<a name="1213"><span class="lineNum">    1213 </span><span class="lineCov">          2 :     STRNCPY(filepath, filepath_basis);</span></a>
+<a name="1214"><span class="lineNum">    1214 </span>            : </a>
+<a name="1215"><span class="lineNum">    1215 </span><span class="lineCov">          2 :     if (image_format.imtype == R_IMF_IMTYPE_MULTILAYER) {</span></a>
+<a name="1216"><span class="lineNum">    1216 </span><span class="lineNoCov">          0 :       printf(&quot;Stereo 3D not supported for MultiLayer image: %s\n&quot;, filepath);</span></a>
+<a name="1217"><span class="lineNum">    1217 </span>            :     }</a>
+<a name="1218"><span class="lineNum">    1218 </span>            :     else {</a>
+<a name="1219"><span class="lineNum">    1219 </span><span class="lineCov">          2 :       ImBuf *ibuf_arr[3] = {nullptr};</span></a>
+<a name="1220"><span class="lineNum">    1220 </span><span class="lineCov">          2 :       const char *names[2] = {STEREO_LEFT_NAME, STEREO_RIGHT_NAME};</span></a>
+<a name="1221"><span class="lineNum">    1221 </span>            :       int i;</a>
+<a name="1222"><span class="lineNum">    1222 </span>            : </a>
+<a name="1223"><span class="lineNum">    1223 </span><span class="lineCov">          6 :       for (i = 0; i &lt; 2; i++) {</span></a>
+<a name="1224"><span class="lineNum">    1224 </span><span class="lineCov">          4 :         int view_id = BLI_findstringindex(&amp;rr-&gt;views, names[i], offsetof(RenderView, name));</span></a>
+<a name="1225"><span class="lineNum">    1225 </span><span class="lineCov">          4 :         ibuf_arr[i] = RE_render_result_rect_to_ibuf(rr, &amp;image_format, dither, view_id);</span></a>
+<a name="1226"><span class="lineNum">    1226 </span><span class="lineCov">          4 :         IMB_colormanagement_imbuf_for_write(ibuf_arr[i], save_as_render, false, &amp;image_format);</span></a>
+<a name="1227"><span class="lineNum">    1227 </span>            :       }</a>
+<a name="1228"><span class="lineNum">    1228 </span>            : </a>
+<a name="1229"><span class="lineNum">    1229 </span><span class="lineCov">          2 :       ibuf_arr[2] = IMB_stereo3d_ImBuf(&amp;image_format, ibuf_arr[0], ibuf_arr[1]);</span></a>
+<a name="1230"><span class="lineNum">    1230 </span>            : </a>
+<a name="1231"><span class="lineNum">    1231 </span><span class="lineCov">          2 :       if (ibuf_arr[2]) {</span></a>
+<a name="1232"><span class="lineNum">    1232 </span><span class="lineCov">          2 :         ok = image_render_write_stamp_test(</span></a>
+<a name="1233"><span class="lineNum">    1233 </span>            :             reports, scene, rr, ibuf_arr[2], filepath, &amp;image_format, stamp);</a>
+<a name="1234"><span class="lineNum">    1234 </span>            : </a>
+<a name="1235"><span class="lineNum">    1235 </span>            :         /* optional preview images for exr */</a>
+<a name="1236"><span class="lineNum">    1236 </span><span class="lineCov">          2 :         if (ok &amp;&amp; is_exr_rr &amp;&amp; (image_format.flag &amp; R_IMF_FLAG_PREVIEW_JPG)) {</span></a>
+<a name="1237"><span class="lineNum">    1237 </span><span class="lineNoCov">          0 :           image_format.imtype = R_IMF_IMTYPE_JPEG90;</span></a>
+<a name="1238"><span class="lineNum">    1238 </span><span class="lineNoCov">          0 :           image_format.depth = R_IMF_CHAN_DEPTH_8;</span></a>
+<a name="1239"><span class="lineNum">    1239 </span>            : </a>
+<a name="1240"><span class="lineNum">    1240 </span><span class="lineNoCov">          0 :           if (BLI_path_extension_check(filepath, &quot;.exr&quot;)) {</span></a>
+<a name="1241"><span class="lineNum">    1241 </span><span class="lineNoCov">          0 :             filepath[strlen(filepath) - 4] = 0;</span></a>
+<a name="1242"><span class="lineNum">    1242 </span>            :           }</a>
+<a name="1243"><span class="lineNum">    1243 </span>            : </a>
+<a name="1244"><span class="lineNum">    1244 </span><span class="lineNoCov">          0 :           BKE_image_path_ext_from_imformat_ensure(filepath, sizeof(filepath), &amp;image_format);</span></a>
+<a name="1245"><span class="lineNum">    1245 </span><span class="lineNoCov">          0 :           ibuf_arr[2]-&gt;color_mode = ImColorMode::RGB;</span></a>
+<a name="1246"><span class="lineNum">    1246 </span>            : </a>
+<a name="1247"><span class="lineNum">    1247 </span><span class="lineNoCov">          0 :           ok = image_render_write_stamp_test(</span></a>
+<a name="1248"><span class="lineNum">    1248 </span>            :               reports, scene, rr, ibuf_arr[2], filepath, &amp;image_format, stamp);</a>
+<a name="1249"><span class="lineNum">    1249 </span>            :         }</a>
+<a name="1250"><span class="lineNum">    1250 </span>            :       }</a>
+<a name="1251"><span class="lineNum">    1251 </span>            :       else {</a>
+<a name="1252"><span class="lineNum">    1252 </span><span class="lineNoCov">          0 :         BKE_reportf(reports, RPT_ERROR, &quot;Failed to create stereo image buffer&quot;);</span></a>
+<a name="1253"><span class="lineNum">    1253 </span><span class="lineNoCov">          0 :         ok = false;</span></a>
+<a name="1254"><span class="lineNum">    1254 </span>            :       }</a>
+<a name="1255"><span class="lineNum">    1255 </span>            : </a>
+<a name="1256"><span class="lineNum">    1256 </span>            :       /* imbuf knows which rects are not part of ibuf */</a>
+<a name="1257"><span class="lineNum">    1257 </span><span class="lineCov">          8 :       for (i = 0; i &lt; 3; i++) {</span></a>
+<a name="1258"><span class="lineNum">    1258 </span><span class="lineCov">          6 :         if (ibuf_arr[i]) {</span></a>
+<a name="1259"><span class="lineNum">    1259 </span><span class="lineCov">          6 :           IMB_freeImBuf(ibuf_arr[i]);</span></a>
+<a name="1260"><span class="lineNum">    1260 </span>            :         }</a>
+<a name="1261"><span class="lineNum">    1261 </span>            :       }</a>
+<a name="1262"><span class="lineNum">    1262 </span>            :     }</a>
+<a name="1263"><span class="lineNum">    1263 </span>            :   }</a>
+<a name="1264"><span class="lineNum">    1264 </span>            : </a>
+<a name="1265"><span class="lineNum">    1265 </span><span class="lineCov">       1372 :   BKE_image_format_free(&amp;image_format);</span></a>
+<a name="1266"><span class="lineNum">    1266 </span>            : </a>
+<a name="1267"><span class="lineNum">    1267 </span><span class="lineCov">       1372 :   return ok;</span></a>
+<a name="1268"><span class="lineNum">    1268 </span>            : }</a>
+<a name="1269"><span class="lineNum">    1269 </span>            : </a>
+<a name="1270"><span class="lineNum">    1270 </span>            : }  // namespace blender</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

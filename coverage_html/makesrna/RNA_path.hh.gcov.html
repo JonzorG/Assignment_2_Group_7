@@ -1,0 +1,521 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - makesrna/RNA_path.hh</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">makesrna</a> - RNA_path.hh<span style="font-size: 80%;"> (source / <a href="RNA_path.hh.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntryHi">94.4 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryHi">90.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2023 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : #pragma once</a>
+<a name="6"><span class="lineNum">       6 </span>            : </a>
+<a name="7"><span class="lineNum">       7 </span>            : /** \file</a>
+<a name="8"><span class="lineNum">       8 </span>            :  * \ingroup RNA</a>
+<a name="9"><span class="lineNum">       9 </span>            :  *</a>
+<a name="10"><span class="lineNum">      10 </span>            :  * RNA paths are a way to refer to pointers and properties with a string,</a>
+<a name="11"><span class="lineNum">      11 </span>            :  * using a syntax like: scenes[0].objects[&quot;Cube&quot;].data.verts[7].co</a>
+<a name="12"><span class="lineNum">      12 </span>            :  *</a>
+<a name="13"><span class="lineNum">      13 </span>            :  * This provides a way to refer to RNA data while being detached from any</a>
+<a name="14"><span class="lineNum">      14 </span>            :  * particular pointers, which is useful in a number of applications, like</a>
+<a name="15"><span class="lineNum">      15 </span>            :  * UI code or Actions, though efficiency is a concern.</a>
+<a name="16"><span class="lineNum">      16 </span>            :  */</a>
+<a name="17"><span class="lineNum">      17 </span>            : </a>
+<a name="18"><span class="lineNum">      18 </span>            : #include &lt;optional&gt;</a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &lt;string&gt;</a>
+<a name="20"><span class="lineNum">      20 </span>            : #include &lt;variant&gt;</a>
+<a name="21"><span class="lineNum">      21 </span>            : </a>
+<a name="22"><span class="lineNum">      22 </span>            : #include &lt;utility&gt;</a>
+<a name="23"><span class="lineNum">      23 </span>            : </a>
+<a name="24"><span class="lineNum">      24 </span>            : #include &quot;DNA_listBase.h&quot;</a>
+<a name="25"><span class="lineNum">      25 </span>            : </a>
+<a name="26"><span class="lineNum">      26 </span>            : #include &quot;RNA_types.hh&quot;</a>
+<a name="27"><span class="lineNum">      27 </span>            : </a>
+<a name="28"><span class="lineNum">      28 </span>            : #include &quot;BLI_string_ref.hh&quot;</a>
+<a name="29"><span class="lineNum">      29 </span>            : #include &quot;BLI_ustring.hh&quot;</a>
+<a name="30"><span class="lineNum">      30 </span>            : </a>
+<a name="31"><span class="lineNum">      31 </span>            : namespace blender {</a>
+<a name="32"><span class="lineNum">      32 </span>            : </a>
+<a name="33"><span class="lineNum">      33 </span>            : struct IDProperty;</a>
+<a name="34"><span class="lineNum">      34 </span>            : </a>
+<a name="35"><span class="lineNum">      35 </span>            : /**</a>
+<a name="36"><span class="lineNum">      36 </span>            :  * An RNA path to a property, including an optional key/index for array and</a>
+<a name="37"><span class="lineNum">      37 </span>            :  * collection properties.</a>
+<a name="38"><span class="lineNum">      38 </span>            :  *</a>
+<a name="39"><span class="lineNum">      39 </span>            :  * The semantics around the key and index fields are specific:</a>
+<a name="40"><span class="lineNum">      40 </span>            :  * - If a key is specified, that indicates an element of a key-based array</a>
+<a name="41"><span class="lineNum">      41 </span>            :  *   property. If an index is *also* specified alongside the key then the index</a>
+<a name="42"><span class="lineNum">      42 </span>            :  *   is just a fallback.</a>
+<a name="43"><span class="lineNum">      43 </span>            :  * - If an index is specified but *not* a key, that indicates an element of an</a>
+<a name="44"><span class="lineNum">      44 </span>            :  *   index-based array property.</a>
+<a name="45"><span class="lineNum">      45 </span>            :  * - If neither the key nor index are specified, that indicates a property as a</a>
+<a name="46"><span class="lineNum">      46 </span>            :  *   whole.</a>
+<a name="47"><span class="lineNum">      47 </span>            :  *</a>
+<a name="48"><span class="lineNum">      48 </span>            :  * This type is intended to be convenient to construct with initializer lists:</a>
+<a name="49"><span class="lineNum">      49 </span>            :  *</a>
+<a name="50"><span class="lineNum">      50 </span>            :  * \code{.cpp}</a>
+<a name="51"><span class="lineNum">      51 </span>            :  * RNAPath path_only =               {&quot;dof.focus_distance&quot;};</a>
+<a name="52"><span class="lineNum">      52 </span>            :  * RNAPath path_with_index =         {&quot;location&quot;, {}, 2};</a>
+<a name="53"><span class="lineNum">      53 </span>            :  * RNAPath path_with_key =           {&quot;modifiers&quot;, &quot;SimpleDeform&quot;};</a>
+<a name="54"><span class="lineNum">      54 </span>            :  * RNAPath path_with_key_and_index = {&quot;modifiers&quot;, &quot;SimpleDeform&quot;, 5};</a>
+<a name="55"><span class="lineNum">      55 </span>            :  * \endcode</a>
+<a name="56"><span class="lineNum">      56 </span>            :  *</a>
+<a name="57"><span class="lineNum">      57 </span>            :  * NOTE: some older parts of Blender's code base use negative array indices as a</a>
+<a name="58"><span class="lineNum">      58 </span>            :  * magic value to mean things like &quot;all array elements&quot;. However, magic values</a>
+<a name="59"><span class="lineNum">      59 </span>            :  * should specifically NOT be used in this type. Instead, simply leave the index</a>
+<a name="60"><span class="lineNum">      60 </span>            :  * unspecified. Unspecified indices can then be converted to a negative magic</a>
+<a name="61"><span class="lineNum">      61 </span>            :  * value at the API boundaries that need it, like so:</a>
+<a name="62"><span class="lineNum">      62 </span>            :  *</a>
+<a name="63"><span class="lineNum">      63 </span>            :  * \code{.cpp}</a>
+<a name="64"><span class="lineNum">      64 </span>            :  * some_older_function(rna_path.index.value_or(-1));</a>
+<a name="65"><span class="lineNum">      65 </span>            :  * \endcode</a>
+<a name="66"><span class="lineNum">      66 </span>            :  */</a>
+<a name="67"><span class="lineNum">      67 </span>            : struct RNAPath {</a>
+<a name="68"><span class="lineNum">      68 </span>            :   std::string path;</a>
+<a name="69"><span class="lineNum">      69 </span>            :   /**</a>
+<a name="70"><span class="lineNum">      70 </span>            :    * Key/index for array and collection properties. Any combination of index and</a>
+<a name="71"><span class="lineNum">      71 </span>            :    * key can be specified (including neither). In the case that both are</a>
+<a name="72"><span class="lineNum">      72 </span>            :    * specified, they should be redundant ways to access the same element.</a>
+<a name="73"><span class="lineNum">      73 </span>            :    */</a>
+<a name="74"><span class="lineNum">      74 </span>            :   std::optional&lt;std::string&gt; key = std::nullopt;</a>
+<a name="75"><span class="lineNum">      75 </span>            :   std::optional&lt;int&gt; index = std::nullopt;</a>
+<a name="76"><span class="lineNum">      76 </span>            : </a>
+<a name="77"><span class="lineNum">      77 </span>            :   int64_t hash() const;</a>
+<a name="78"><span class="lineNum">      78 </span>            : };</a>
+<a name="79"><span class="lineNum">      79 </span>            : </a>
+<a name="80"><span class="lineNum">      80 </span>            : namespace rna_path {</a>
+<a name="81"><span class="lineNum">      81 </span>            : </a>
+<a name="82"><span class="lineNum">      82 </span>            : /** Access a property of an RNA type, like &quot;object.location&quot;. */</a>
+<a name="83"><span class="lineNum">      83 </span>            : struct Member {</a>
+<a name="84"><span class="lineNum">      84 </span><span class="lineCov">       9441 :   UString identifier;</span></a>
+<a name="85"><span class="lineNum">      85 </span>            : </a>
+<a name="86"><span class="lineNum">      86 </span><span class="lineCov">       9441 :   bool operator==(const Member &amp;other) const = default;</span></a>
+<a name="87"><span class="lineNum">      87 </span>            : };</a>
+<a name="88"><span class="lineNum">      88 </span>            : </a>
+<a name="89"><span class="lineNum">      89 </span>            : /**</a>
+<a name="90"><span class="lineNum">      90 </span>            :  * Access an element in a collection property, like &quot;data.points[10]&quot;, or an element from a</a>
+<a name="91"><span class="lineNum">      91 </span>            :  * property like &quot;location[1]&quot;.</a>
+<a name="92"><span class="lineNum">      92 </span>            :  */</a>
+<a name="93"><span class="lineNum">      93 </span>            : struct LookupIndex {</a>
+<a name="94"><span class="lineNum">      94 </span><span class="lineCov">        507 :   int64_t index;</span></a>
+<a name="95"><span class="lineNum">      95 </span>            : </a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineCov">        507 :   bool operator==(const LookupIndex &amp;other) const = default;</span></a>
+<a name="97"><span class="lineNum">      97 </span>            : };</a>
+<a name="98"><span class="lineNum">      98 </span>            : </a>
+<a name="99"><span class="lineNum">      99 </span>            : /** Quoted access with brackets, like &quot;object[&quot;my_custom_property&quot;]&quot;. */</a>
+<a name="100"><span class="lineNum">     100 </span>            : struct LookupKey {</a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineCov">       5511 :   UString key;</span></a>
+<a name="102"><span class="lineNum">     102 </span>            : </a>
+<a name="103"><span class="lineNum">     103 </span><span class="lineCov">       5511 :   bool operator==(const LookupKey &amp;other) const = default;</span></a>
+<a name="104"><span class="lineNum">     104 </span>            : };</a>
+<a name="105"><span class="lineNum">     105 </span>            : </a>
+<a name="106"><span class="lineNum">     106 </span>            : using Item = std::variant&lt;Member, LookupIndex, LookupKey&gt;;</a>
+<a name="107"><span class="lineNum">     107 </span>            : </a>
+<a name="108"><span class="lineNum">     108 </span>            : /** Convert a parsed path back to a string representation. */</a>
+<a name="109"><span class="lineNum">     109 </span>            : std::string to_string(Span&lt;Item&gt; items);</a>
+<a name="110"><span class="lineNum">     110 </span>            : </a>
+<a name="111"><span class="lineNum">     111 </span>            : }  // namespace rna_path</a>
+<a name="112"><span class="lineNum">     112 </span>            : </a>
+<a name="113"><span class="lineNum">     113 </span>            : using ParsedRNAPathRef = Span&lt;rna_path::Item&gt;;</a>
+<a name="114"><span class="lineNum">     114 </span>            : </a>
+<a name="115"><span class="lineNum">     115 </span>            : template&lt;&gt; struct DefaultHash&lt;rna_path::Item&gt; {</a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineCov">     607835 :   uint64_t operator()(const rna_path::Item &amp;value) const</span></a>
+<a name="117"><span class="lineNum">     117 </span>            :   {</a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineCov">     606675 :     return get_default_hash(uint64_t(value.index()),</span></a>
+<a name="119"><span class="lineNum">     119 </span><span class="lineCov">     607835 :                             std::visit(</span></a>
+<a name="120"><span class="lineNum">     120 </span><span class="lineCov">    1219675 :                                 []&lt;typename T&gt;(const T &amp;value) -&gt; uint64_t {</span></a>
+<a name="121"><span class="lineNum">     121 </span>            :                                   if constexpr (std::is_same_v&lt;T, rna_path::Member&gt;) {</a>
+<a name="122"><span class="lineNum">     122 </span><span class="lineCov">     423986 :                                     return get_default_hash(value.identifier);</span></a>
+<a name="123"><span class="lineNum">     123 </span>            :                                   }</a>
+<a name="124"><span class="lineNum">     124 </span>            :                                   else if constexpr (std::is_same_v&lt;T, rna_path::LookupIndex&gt;) {</a>
+<a name="125"><span class="lineNum">     125 </span><span class="lineCov">      58554 :                                     return get_default_hash(value.index);</span></a>
+<a name="126"><span class="lineNum">     126 </span>            :                                   }</a>
+<a name="127"><span class="lineNum">     127 </span>            :                                   else if constexpr (std::is_same_v&lt;T, rna_path::LookupKey&gt;) {</a>
+<a name="128"><span class="lineNum">     128 </span><span class="lineCov">     128155 :                                     return get_default_hash(value.key);</span></a>
+<a name="129"><span class="lineNum">     129 </span>            :                                   }</a>
+<a name="130"><span class="lineNum">     130 </span>            :                                 },</a>
+<a name="131"><span class="lineNum">     131 </span><span class="lineCov">    1217960 :                                 value));</span></a>
+<a name="132"><span class="lineNum">     132 </span>            :   }</a>
+<a name="133"><span class="lineNum">     133 </span>            : };</a>
+<a name="134"><span class="lineNum">     134 </span>            : </a>
+<a name="135"><span class="lineNum">     135 </span>            : /**</a>
+<a name="136"><span class="lineNum">     136 </span>            :  * Storage for a parsed path, using a variable inline buffer to avoid allocations. This class helps</a>
+<a name="137"><span class="lineNum">     137 </span>            :  * to amortize the cost of string parsing across multiple uses of the RNA path. If this is just</a>
+<a name="138"><span class="lineNum">     138 </span>            :  * stored on the stack, a larger inline buffer can make more sense.</a>
+<a name="139"><span class="lineNum">     139 </span>            :  *</a>
+<a name="140"><span class="lineNum">     140 </span>            :  * \param N: The inline buffer size of the vector for optimized storage of common shorter paths.</a>
+<a name="141"><span class="lineNum">     141 </span>            :  */</a>
+<a name="142"><span class="lineNum">     142 </span>            : template&lt;int64_t N = 4&gt; class ParsedRNAPath {</a>
+<a name="143"><span class="lineNum">     143 </span>            :  public:</a>
+<a name="144"><span class="lineNum">     144 </span>            :   Vector&lt;rna_path::Item, N&gt; items;</a>
+<a name="145"><span class="lineNum">     145 </span>            : </a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineCov">     603166 :   ParsedRNAPath() = default;</span></a>
+<a name="147"><span class="lineNum">     147 </span><span class="lineNoCov">          0 :   ParsedRNAPath(ParsedRNAPathRef path) : items(path) {}</span></a>
+<a name="148"><span class="lineNum">     148 </span>            : </a>
+<a name="149"><span class="lineNum">     149 </span>            :   static std::optional&lt;ParsedRNAPath&gt; from_string(StringRefNull path);</a>
+<a name="150"><span class="lineNum">     150 </span>            : </a>
+<a name="151"><span class="lineNum">     151 </span>            :   std::string to_string() const;</a>
+<a name="152"><span class="lineNum">     152 </span>            : </a>
+<a name="153"><span class="lineNum">     153 </span><span class="lineCov">     945636 :   operator ParsedRNAPathRef() const</span></a>
+<a name="154"><span class="lineNum">     154 </span>            :   {</a>
+<a name="155"><span class="lineNum">     155 </span><span class="lineCov">     945636 :     return this-&gt;items;</span></a>
+<a name="156"><span class="lineNum">     156 </span>            :   }</a>
+<a name="157"><span class="lineNum">     157 </span>            : };</a>
+<a name="158"><span class="lineNum">     158 </span>            : </a>
+<a name="159"><span class="lineNum">     159 </span>            : /**</a>
+<a name="160"><span class="lineNum">     160 </span>            :  * NOTE: equality is defined in a specific way here to reflect the semantic</a>
+<a name="161"><span class="lineNum">     161 </span>            :  * meaning of `RNAPath`. Since the key existing indicates a key-based array</a>
+<a name="162"><span class="lineNum">     162 </span>            :  * element, with the index then only serving as a fallback, the index only</a>
+<a name="163"><span class="lineNum">     163 </span>            :  * affects the equality result if *neither* `RNAPath` has a key specified.</a>
+<a name="164"><span class="lineNum">     164 </span>            :  * (See the main `RNAPath` documentation above for the specific semantics of</a>
+<a name="165"><span class="lineNum">     165 </span>            :  * key and index.)</a>
+<a name="166"><span class="lineNum">     166 </span>            :  */</a>
+<a name="167"><span class="lineNum">     167 </span>            : bool operator==(const RNAPath &amp;left, const RNAPath &amp;right);</a>
+<a name="168"><span class="lineNum">     168 </span>            : </a>
+<a name="169"><span class="lineNum">     169 </span>            : char *RNA_path_append(</a>
+<a name="170"><span class="lineNum">     170 </span>            :     const char *path, const PointerRNA *ptr, PropertyRNA *prop, int intkey, const char *strkey);</a>
+<a name="171"><span class="lineNum">     171 </span>            : #if 0 /* UNUSED. */</a>
+<a name="172"><span class="lineNum">     172 </span>            : char *RNA_path_back(const char *path);</a>
+<a name="173"><span class="lineNum">     173 </span>            : #endif</a>
+<a name="174"><span class="lineNum">     174 </span>            : </a>
+<a name="175"><span class="lineNum">     175 </span>            : /**</a>
+<a name="176"><span class="lineNum">     176 </span>            :  * Search for the start of the 'rna array index' part of the given `rna_path`.</a>
+<a name="177"><span class="lineNum">     177 </span>            :  *</a>
+<a name="178"><span class="lineNum">     178 </span>            :  * Given the root RNA pointer and resolved RNA property, and the RNA path, return the first</a>
+<a name="179"><span class="lineNum">     179 </span>            :  * character in `rna_path` that is part of the array index for the given property. Return NULL if</a>
+<a name="180"><span class="lineNum">     180 </span>            :  * none can be found, e.g. because the property is not an RNA array.</a>
+<a name="181"><span class="lineNum">     181 </span>            :  *</a>
+<a name="182"><span class="lineNum">     182 </span>            :  * \param array_prop: if not NULL, the #PropertyRNA assumed to be the last one from the RNA path.</a>
+<a name="183"><span class="lineNum">     183 </span>            :  * Only used to ensure it is a valid array property.</a>
+<a name="184"><span class="lineNum">     184 </span>            :  */</a>
+<a name="185"><span class="lineNum">     185 </span>            : const char *RNA_path_array_index_token_find(const char *rna_path, const PropertyRNA *array_prop);</a>
+<a name="186"><span class="lineNum">     186 </span>            : </a>
+<a name="187"><span class="lineNum">     187 </span>            : /* RNA_path_resolve() variants only ensure that a valid pointer (and optionally property) exist. */</a>
+<a name="188"><span class="lineNum">     188 </span>            : </a>
+<a name="189"><span class="lineNum">     189 </span>            : /**</a>
+<a name="190"><span class="lineNum">     190 </span>            :  * Resolve the given RNA Path to find the pointer and/or property</a>
+<a name="191"><span class="lineNum">     191 </span>            :  * indicated by fully resolving the path.</a>
+<a name="192"><span class="lineNum">     192 </span>            :  *</a>
+<a name="193"><span class="lineNum">     193 </span>            :  * \warning Unlike \a RNA_path_resolve_property(), that one *will* try to follow RNAPointers,</a>
+<a name="194"><span class="lineNum">     194 </span>            :  * e.g. the path 'parent' applied to a RNAObject \a ptr will return the object.parent in \a r_ptr,</a>
+<a name="195"><span class="lineNum">     195 </span>            :  * and a NULL \a r_prop...</a>
+<a name="196"><span class="lineNum">     196 </span>            :  *</a>
+<a name="197"><span class="lineNum">     197 </span>            :  * \note Assumes all pointers provided are valid</a>
+<a name="198"><span class="lineNum">     198 </span>            :  * \return True if path can be resolved to a valid &quot;pointer + property&quot; OR &quot;pointer only&quot;</a>
+<a name="199"><span class="lineNum">     199 </span>            :  */</a>
+<a name="200"><span class="lineNum">     200 </span>            : bool RNA_path_resolve(const PointerRNA *ptr,</a>
+<a name="201"><span class="lineNum">     201 </span>            :                       const char *path,</a>
+<a name="202"><span class="lineNum">     202 </span>            :                       PointerRNA *r_ptr,</a>
+<a name="203"><span class="lineNum">     203 </span>            :                       PropertyRNA **r_prop);</a>
+<a name="204"><span class="lineNum">     204 </span>            : </a>
+<a name="205"><span class="lineNum">     205 </span>            : /**</a>
+<a name="206"><span class="lineNum">     206 </span>            :  * Resolve the given RNA Path to find the pointer and/or property + array index</a>
+<a name="207"><span class="lineNum">     207 </span>            :  * indicated by fully resolving the path.</a>
+<a name="208"><span class="lineNum">     208 </span>            :  *</a>
+<a name="209"><span class="lineNum">     209 </span>            :  * \note Assumes all pointers provided are valid.</a>
+<a name="210"><span class="lineNum">     210 </span>            :  * \return True if path can be resolved to a valid &quot;pointer + property&quot; OR &quot;pointer only&quot;</a>
+<a name="211"><span class="lineNum">     211 </span>            :  */</a>
+<a name="212"><span class="lineNum">     212 </span>            : bool RNA_path_resolve_full(const PointerRNA *ptr,</a>
+<a name="213"><span class="lineNum">     213 </span>            :                            const char *path,</a>
+<a name="214"><span class="lineNum">     214 </span>            :                            PointerRNA *r_ptr,</a>
+<a name="215"><span class="lineNum">     215 </span>            :                            PropertyRNA **r_prop,</a>
+<a name="216"><span class="lineNum">     216 </span>            :                            int *r_index);</a>
+<a name="217"><span class="lineNum">     217 </span>            : /**</a>
+<a name="218"><span class="lineNum">     218 </span>            :  * A version of #RNA_path_resolve_full doesn't check the value of #PointerRNA.data.</a>
+<a name="219"><span class="lineNum">     219 </span>            :  *</a>
+<a name="220"><span class="lineNum">     220 </span>            :  * \note While it's correct to ignore the value of #PointerRNA.data</a>
+<a name="221"><span class="lineNum">     221 </span>            :  * most callers need to know if the resulting pointer was found and not null.</a>
+<a name="222"><span class="lineNum">     222 </span>            :  */</a>
+<a name="223"><span class="lineNum">     223 </span>            : bool RNA_path_resolve_full_maybe_null(const PointerRNA *ptr,</a>
+<a name="224"><span class="lineNum">     224 </span>            :                                       const char *path,</a>
+<a name="225"><span class="lineNum">     225 </span>            :                                       PointerRNA *r_ptr,</a>
+<a name="226"><span class="lineNum">     226 </span>            :                                       PropertyRNA **r_prop,</a>
+<a name="227"><span class="lineNum">     227 </span>            :                                       int *r_index);</a>
+<a name="228"><span class="lineNum">     228 </span>            : </a>
+<a name="229"><span class="lineNum">     229 </span>            : /* RNA_path_resolve_property() variants ensure that pointer + property both exist. */</a>
+<a name="230"><span class="lineNum">     230 </span>            : </a>
+<a name="231"><span class="lineNum">     231 </span>            : /**</a>
+<a name="232"><span class="lineNum">     232 </span>            :  * Resolve the given RNA Path to find both the pointer AND property</a>
+<a name="233"><span class="lineNum">     233 </span>            :  * indicated by fully resolving the path.</a>
+<a name="234"><span class="lineNum">     234 </span>            :  *</a>
+<a name="235"><span class="lineNum">     235 </span>            :  * This is a convenience method to avoid logic errors and ugly syntax.</a>
+<a name="236"><span class="lineNum">     236 </span>            :  * \note Assumes all pointers provided are valid</a>
+<a name="237"><span class="lineNum">     237 </span>            :  * \return True only if both a valid pointer and property are found after resolving the path</a>
+<a name="238"><span class="lineNum">     238 </span>            :  */</a>
+<a name="239"><span class="lineNum">     239 </span>            : bool RNA_path_resolve_property(const PointerRNA *ptr,</a>
+<a name="240"><span class="lineNum">     240 </span>            :                                const char *path,</a>
+<a name="241"><span class="lineNum">     241 </span>            :                                PointerRNA *r_ptr,</a>
+<a name="242"><span class="lineNum">     242 </span>            :                                PropertyRNA **r_prop);</a>
+<a name="243"><span class="lineNum">     243 </span>            : bool RNA_path_resolve_property(const PointerRNA *ptr,</a>
+<a name="244"><span class="lineNum">     244 </span>            :                                ParsedRNAPathRef path,</a>
+<a name="245"><span class="lineNum">     245 </span>            :                                PointerRNA *r_ptr,</a>
+<a name="246"><span class="lineNum">     246 </span>            :                                PropertyRNA **r_prop);</a>
+<a name="247"><span class="lineNum">     247 </span>            : </a>
+<a name="248"><span class="lineNum">     248 </span>            : /**</a>
+<a name="249"><span class="lineNum">     249 </span>            :  * Resolve the given RNA Path to find the pointer AND property (as well as the array index)</a>
+<a name="250"><span class="lineNum">     250 </span>            :  * indicated by fully resolving the path.</a>
+<a name="251"><span class="lineNum">     251 </span>            :  *</a>
+<a name="252"><span class="lineNum">     252 </span>            :  * This is a convenience method to avoid logic errors and ugly syntax.</a>
+<a name="253"><span class="lineNum">     253 </span>            :  * \note Assumes all pointers provided are valid</a>
+<a name="254"><span class="lineNum">     254 </span>            :  * \return True only if both a valid pointer and property are found after resolving the path</a>
+<a name="255"><span class="lineNum">     255 </span>            :  */</a>
+<a name="256"><span class="lineNum">     256 </span>            : bool RNA_path_resolve_property_full(const PointerRNA *ptr,</a>
+<a name="257"><span class="lineNum">     257 </span>            :                                     const char *path,</a>
+<a name="258"><span class="lineNum">     258 </span>            :                                     PointerRNA *r_ptr,</a>
+<a name="259"><span class="lineNum">     259 </span>            :                                     PropertyRNA **r_prop,</a>
+<a name="260"><span class="lineNum">     260 </span>            :                                     int *r_index);</a>
+<a name="261"><span class="lineNum">     261 </span>            : </a>
+<a name="262"><span class="lineNum">     262 </span>            : /* RNA_path_resolve_property_and_item_pointer() variants ensure that pointer + property both exist,</a>
+<a name="263"><span class="lineNum">     263 </span>            :  * and resolve last Pointer value if possible (Pointer prop or item of a Collection prop). */</a>
+<a name="264"><span class="lineNum">     264 </span>            : </a>
+<a name="265"><span class="lineNum">     265 </span>            : /**</a>
+<a name="266"><span class="lineNum">     266 </span>            :  * Resolve the given RNA Path to find both the pointer AND property</a>
+<a name="267"><span class="lineNum">     267 </span>            :  * indicated by fully resolving the path, and get the value of the Pointer property</a>
+<a name="268"><span class="lineNum">     268 </span>            :  * (or item of the collection).</a>
+<a name="269"><span class="lineNum">     269 </span>            :  *</a>
+<a name="270"><span class="lineNum">     270 </span>            :  * This is a convenience method to avoid logic errors and ugly syntax,</a>
+<a name="271"><span class="lineNum">     271 </span>            :  * it combines both \a RNA_path_resolve and #RNA_path_resolve_property in a single call.</a>
+<a name="272"><span class="lineNum">     272 </span>            :  * \note Assumes all pointers provided are valid.</a>
+<a name="273"><span class="lineNum">     273 </span>            :  * \param r_item_ptr: The final Pointer or Collection item value.</a>
+<a name="274"><span class="lineNum">     274 </span>            :  * You must check for its validity before use!</a>
+<a name="275"><span class="lineNum">     275 </span>            :  * \return True only if both a valid pointer and property are found after resolving the path</a>
+<a name="276"><span class="lineNum">     276 </span>            :  */</a>
+<a name="277"><span class="lineNum">     277 </span>            : bool RNA_path_resolve_property_and_item_pointer(const PointerRNA *ptr,</a>
+<a name="278"><span class="lineNum">     278 </span>            :                                                 const char *path,</a>
+<a name="279"><span class="lineNum">     279 </span>            :                                                 PointerRNA *r_ptr,</a>
+<a name="280"><span class="lineNum">     280 </span>            :                                                 PropertyRNA **r_prop,</a>
+<a name="281"><span class="lineNum">     281 </span>            :                                                 PointerRNA *r_item_ptr);</a>
+<a name="282"><span class="lineNum">     282 </span>            : </a>
+<a name="283"><span class="lineNum">     283 </span>            : /**</a>
+<a name="284"><span class="lineNum">     284 </span>            :  * Resolve the given RNA Path to find both the pointer AND property (as well as the array index)</a>
+<a name="285"><span class="lineNum">     285 </span>            :  * indicated by fully resolving the path,</a>
+<a name="286"><span class="lineNum">     286 </span>            :  * and get the value of the Pointer property (or item of the collection).</a>
+<a name="287"><span class="lineNum">     287 </span>            :  *</a>
+<a name="288"><span class="lineNum">     288 </span>            :  * This is a convenience method to avoid logic errors and ugly syntax,</a>
+<a name="289"><span class="lineNum">     289 </span>            :  * it combines both \a RNA_path_resolve_full and</a>
+<a name="290"><span class="lineNum">     290 </span>            :  * \a RNA_path_resolve_property_full in a single call.</a>
+<a name="291"><span class="lineNum">     291 </span>            :  * \note Assumes all pointers provided are valid.</a>
+<a name="292"><span class="lineNum">     292 </span>            :  * \param r_item_ptr: The final Pointer or Collection item value.</a>
+<a name="293"><span class="lineNum">     293 </span>            :  * You must check for its validity before use!</a>
+<a name="294"><span class="lineNum">     294 </span>            :  * \return True only if both a valid pointer and property are found after resolving the path</a>
+<a name="295"><span class="lineNum">     295 </span>            :  */</a>
+<a name="296"><span class="lineNum">     296 </span>            : bool RNA_path_resolve_property_and_item_pointer_full(const PointerRNA *ptr,</a>
+<a name="297"><span class="lineNum">     297 </span>            :                                                      const char *path,</a>
+<a name="298"><span class="lineNum">     298 </span>            :                                                      PointerRNA *r_ptr,</a>
+<a name="299"><span class="lineNum">     299 </span>            :                                                      PropertyRNA **r_prop,</a>
+<a name="300"><span class="lineNum">     300 </span>            :                                                      int *r_index,</a>
+<a name="301"><span class="lineNum">     301 </span>            :                                                      PointerRNA *r_item_ptr);</a>
+<a name="302"><span class="lineNum">     302 </span>            : </a>
+<a name="303"><span class="lineNum">     303 </span>            : struct PropertyElemRNA {</a>
+<a name="304"><span class="lineNum">     304 </span>            :   PointerRNA ptr;</a>
+<a name="305"><span class="lineNum">     305 </span>            :   PropertyRNA *prop;</a>
+<a name="306"><span class="lineNum">     306 </span>            :   int index;</a>
+<a name="307"><span class="lineNum">     307 </span>            : };</a>
+<a name="308"><span class="lineNum">     308 </span>            : /**</a>
+<a name="309"><span class="lineNum">     309 </span>            :  * Resolve the given RNA Path into a linked list of #PropertyElemRNA's.</a>
+<a name="310"><span class="lineNum">     310 </span>            :  *</a>
+<a name="311"><span class="lineNum">     311 </span>            :  * To be used when complex operations over path are needed, like e.g. get relative paths,</a>
+<a name="312"><span class="lineNum">     312 </span>            :  * to avoid too much string operations.</a>
+<a name="313"><span class="lineNum">     313 </span>            :  *</a>
+<a name="314"><span class="lineNum">     314 </span>            :  * \return True if there was no error while resolving the path</a>
+<a name="315"><span class="lineNum">     315 </span>            :  * \note Assumes all pointers provided are valid</a>
+<a name="316"><span class="lineNum">     316 </span>            :  */</a>
+<a name="317"><span class="lineNum">     317 </span>            : bool RNA_path_resolve_elements(PointerRNA *ptr,</a>
+<a name="318"><span class="lineNum">     318 </span>            :                                const char *path,</a>
+<a name="319"><span class="lineNum">     319 </span>            :                                Vector&lt;PropertyElemRNA&gt; *r_elements);</a>
+<a name="320"><span class="lineNum">     320 </span>            : </a>
+<a name="321"><span class="lineNum">     321 </span>            : /**</a>
+<a name="322"><span class="lineNum">     322 </span>            :  * Find the path from the structure referenced by the pointer to the runtime RNA-defined</a>
+<a name="323"><span class="lineNum">     323 </span>            :  * #IDProperty object.</a>
+<a name="324"><span class="lineNum">     324 </span>            :  *</a>
+<a name="325"><span class="lineNum">     325 </span>            :  * \note Does *not* handle pure user-defined IDProperties (a.k.a. custom properties).</a>
+<a name="326"><span class="lineNum">     326 </span>            :  *</a>
+<a name="327"><span class="lineNum">     327 </span>            :  * \param ptr: Reference to the object owning the custom property storage.</a>
+<a name="328"><span class="lineNum">     328 </span>            :  * \param needle: Custom property object to find.</a>
+<a name="329"><span class="lineNum">     329 </span>            :  * \return Relative path or NULL.</a>
+<a name="330"><span class="lineNum">     330 </span>            :  */</a>
+<a name="331"><span class="lineNum">     331 </span>            : std::optional&lt;std::string&gt; RNA_path_from_struct_to_idproperty(PointerRNA *ptr,</a>
+<a name="332"><span class="lineNum">     332 </span>            :                                                               const IDProperty *needle);</a>
+<a name="333"><span class="lineNum">     333 </span>            : </a>
+<a name="334"><span class="lineNum">     334 </span>            : /**</a>
+<a name="335"><span class="lineNum">     335 </span>            :  * Find the actual ID pointer and path from it to the given ID.</a>
+<a name="336"><span class="lineNum">     336 </span>            :  *</a>
+<a name="337"><span class="lineNum">     337 </span>            :  * \param id: ID reference to search the global owner for.</a>
+<a name="338"><span class="lineNum">     338 </span>            :  * \param[out] r_path: Path from the real ID to the initial ID.</a>
+<a name="339"><span class="lineNum">     339 </span>            :  * \return The ID pointer, or NULL in case of failure.</a>
+<a name="340"><span class="lineNum">     340 </span>            :  */</a>
+<a name="341"><span class="lineNum">     341 </span>            : ID *RNA_find_real_ID_and_path(ID *id, const char **r_path);</a>
+<a name="342"><span class="lineNum">     342 </span>            : </a>
+<a name="343"><span class="lineNum">     343 </span>            : std::optional&lt;std::string&gt; RNA_path_from_ID_to_struct(const PointerRNA *ptr);</a>
+<a name="344"><span class="lineNum">     344 </span>            : </a>
+<a name="345"><span class="lineNum">     345 </span>            : std::optional&lt;std::string&gt; RNA_path_from_real_ID_to_struct(Main *bmain,</a>
+<a name="346"><span class="lineNum">     346 </span>            :                                                            const PointerRNA *ptr,</a>
+<a name="347"><span class="lineNum">     347 </span>            :                                                            ID **r_real);</a>
+<a name="348"><span class="lineNum">     348 </span>            : </a>
+<a name="349"><span class="lineNum">     349 </span>            : std::optional&lt;std::string&gt; RNA_path_from_ID_to_property(const PointerRNA *ptr, PropertyRNA *prop);</a>
+<a name="350"><span class="lineNum">     350 </span>            : </a>
+<a name="351"><span class="lineNum">     351 </span>            : std::string RNA_path_from_ptr_to_property_index(const PointerRNA *ptr,</a>
+<a name="352"><span class="lineNum">     352 </span>            :                                                 PropertyRNA *prop,</a>
+<a name="353"><span class="lineNum">     353 </span>            :                                                 int index_dim,</a>
+<a name="354"><span class="lineNum">     354 </span>            :                                                 int index);</a>
+<a name="355"><span class="lineNum">     355 </span>            : /**</a>
+<a name="356"><span class="lineNum">     356 </span>            :  * \param index_dim: The dimension to show, 0 disables. 1 for 1d array, 2 for 2d. etc.</a>
+<a name="357"><span class="lineNum">     357 </span>            :  * \param index: The *flattened* index to use when \a index_dim &gt; 0,</a>
+<a name="358"><span class="lineNum">     358 </span>            :  * this is expanded when used with multi-dimensional arrays.</a>
+<a name="359"><span class="lineNum">     359 </span>            :  */</a>
+<a name="360"><span class="lineNum">     360 </span>            : std::optional&lt;std::string&gt; RNA_path_from_ID_to_property_index(const PointerRNA *ptr,</a>
+<a name="361"><span class="lineNum">     361 </span>            :                                                               PropertyRNA *prop,</a>
+<a name="362"><span class="lineNum">     362 </span>            :                                                               int index_dim,</a>
+<a name="363"><span class="lineNum">     363 </span>            :                                                               int index);</a>
+<a name="364"><span class="lineNum">     364 </span>            : </a>
+<a name="365"><span class="lineNum">     365 </span>            : std::optional&lt;std::string&gt; RNA_path_from_real_ID_to_property_index(Main *bmain,</a>
+<a name="366"><span class="lineNum">     366 </span>            :                                                                    const PointerRNA *ptr,</a>
+<a name="367"><span class="lineNum">     367 </span>            :                                                                    PropertyRNA *prop,</a>
+<a name="368"><span class="lineNum">     368 </span>            :                                                                    int index_dim,</a>
+<a name="369"><span class="lineNum">     369 </span>            :                                                                    int index,</a>
+<a name="370"><span class="lineNum">     370 </span>            :                                                                    ID **r_real_id);</a>
+<a name="371"><span class="lineNum">     371 </span>            : </a>
+<a name="372"><span class="lineNum">     372 </span>            : /**</a>
+<a name="373"><span class="lineNum">     373 </span>            :  * \return the path to given ptr/prop from the closest ancestor of given type,</a>
+<a name="374"><span class="lineNum">     374 </span>            :  * if any (else return NULL).</a>
+<a name="375"><span class="lineNum">     375 </span>            :  */</a>
+<a name="376"><span class="lineNum">     376 </span>            : std::optional&lt;std::string&gt; RNA_path_resolve_from_type_to_property(const PointerRNA *ptr,</a>
+<a name="377"><span class="lineNum">     377 </span>            :                                                                   PropertyRNA *prop,</a>
+<a name="378"><span class="lineNum">     378 </span>            :                                                                   const StructRNA *type);</a>
+<a name="379"><span class="lineNum">     379 </span>            : </a>
+<a name="380"><span class="lineNum">     380 </span>            : /**</a>
+<a name="381"><span class="lineNum">     381 </span>            :  * Get the ID as a python representation, eg:</a>
+<a name="382"><span class="lineNum">     382 </span>            :  *   bpy.data.foo[&quot;bar&quot;]</a>
+<a name="383"><span class="lineNum">     383 </span>            :  */</a>
+<a name="384"><span class="lineNum">     384 </span>            : std::string RNA_path_full_ID_py(ID *id);</a>
+<a name="385"><span class="lineNum">     385 </span>            : /**</a>
+<a name="386"><span class="lineNum">     386 </span>            :  * Get the ID.struct as a python representation, eg:</a>
+<a name="387"><span class="lineNum">     387 </span>            :  *   bpy.data.foo[&quot;bar&quot;].some_struct</a>
+<a name="388"><span class="lineNum">     388 </span>            :  */</a>
+<a name="389"><span class="lineNum">     389 </span>            : std::optional&lt;std::string&gt; RNA_path_full_struct_py(const PointerRNA *ptr);</a>
+<a name="390"><span class="lineNum">     390 </span>            : /**</a>
+<a name="391"><span class="lineNum">     391 </span>            :  * Get the ID.struct.property as a python representation, eg:</a>
+<a name="392"><span class="lineNum">     392 </span>            :  *   bpy.data.foo[&quot;bar&quot;].some_struct.some_prop[10]</a>
+<a name="393"><span class="lineNum">     393 </span>            :  */</a>
+<a name="394"><span class="lineNum">     394 </span>            : std::optional&lt;std::string&gt; RNA_path_full_property_py_ex(const PointerRNA *ptr,</a>
+<a name="395"><span class="lineNum">     395 </span>            :                                                         PropertyRNA *prop,</a>
+<a name="396"><span class="lineNum">     396 </span>            :                                                         int index,</a>
+<a name="397"><span class="lineNum">     397 </span>            :                                                         bool use_fallback);</a>
+<a name="398"><span class="lineNum">     398 </span>            : std::optional&lt;std::string&gt; RNA_path_full_property_py(const PointerRNA *ptr,</a>
+<a name="399"><span class="lineNum">     399 </span>            :                                                      PropertyRNA *prop,</a>
+<a name="400"><span class="lineNum">     400 </span>            :                                                      int index);</a>
+<a name="401"><span class="lineNum">     401 </span>            : /**</a>
+<a name="402"><span class="lineNum">     402 </span>            :  * Get the struct.property as a python representation, eg:</a>
+<a name="403"><span class="lineNum">     403 </span>            :  *   some_struct.some_prop[10]</a>
+<a name="404"><span class="lineNum">     404 </span>            :  */</a>
+<a name="405"><span class="lineNum">     405 </span>            : std::optional&lt;std::string&gt; RNA_path_struct_property_py(PointerRNA *ptr,</a>
+<a name="406"><span class="lineNum">     406 </span>            :                                                        PropertyRNA *prop,</a>
+<a name="407"><span class="lineNum">     407 </span>            :                                                        int index);</a>
+<a name="408"><span class="lineNum">     408 </span>            : /**</a>
+<a name="409"><span class="lineNum">     409 </span>            :  * Get the struct.property as a python representation, eg:</a>
+<a name="410"><span class="lineNum">     410 </span>            :  *   some_prop[10]</a>
+<a name="411"><span class="lineNum">     411 </span>            :  */</a>
+<a name="412"><span class="lineNum">     412 </span>            : std::string RNA_path_property_py(const PointerRNA *ptr, PropertyRNA *prop, int index);</a>
+<a name="413"><span class="lineNum">     413 </span>            : /**</a>
+<a name="414"><span class="lineNum">     414 </span>            :  * Escapes the given string and formats it to be within square brackets and quotation marks.</a>
+<a name="415"><span class="lineNum">     415 </span>            :  * For example `Bone &quot;test&quot;` -&gt; `[&quot;Bone \&quot;test\&quot;&quot;]`.</a>
+<a name="416"><span class="lineNum">     416 </span>            :  */</a>
+<a name="417"><span class="lineNum">     417 </span>            : std::string RNA_path_name_to_infix(StringRefNull string);</a>
+<a name="418"><span class="lineNum">     418 </span>            : /**</a>
+<a name="419"><span class="lineNum">     419 </span>            :  * Turns the number into a string surrounded by square brackets.</a>
+<a name="420"><span class="lineNum">     420 </span>            :  * For example `1` -&gt; `[1]`.</a>
+<a name="421"><span class="lineNum">     421 </span>            :  */</a>
+<a name="422"><span class="lineNum">     422 </span>            : std::string RNA_path_number_to_infix(int number);</a>
+<a name="423"><span class="lineNum">     423 </span>            : /**</a>
+<a name="424"><span class="lineNum">     424 </span>            :  * Generate RNA path keys matching the given infixes (or subscript if the infixes are empty),</a>
+<a name="425"><span class="lineNum">     425 </span>            :  * including the opening and closing braces (e.g. `[&quot;OldModifierName&quot;]` and `[&quot;NewModifierName&quot;]`).</a>
+<a name="426"><span class="lineNum">     426 </span>            :  *</a>
+<a name="427"><span class="lineNum">     427 </span>            :  * Typically used by code updating RNA paths after some sub-data (modifier, bone...) has been</a>
+<a name="428"><span class="lineNum">     428 </span>            :  * renamed or re-arranged inside a collection.</a>
+<a name="429"><span class="lineNum">     429 </span>            :  *</a>
+<a name="430"><span class="lineNum">     430 </span>            :  * \param old_infix: Old string form of the renamed item identifier.</a>
+<a name="431"><span class="lineNum">     431 </span>            :  * \param new_infix: New string form of the renamed item identifier.</a>
+<a name="432"><span class="lineNum">     432 </span>            :  * \param old_subscript: Old numeric index of the renamed item identifier.</a>
+<a name="433"><span class="lineNum">     433 </span>            :  * \param new_subscript: New numeric index of the renamed item identifier.</a>
+<a name="434"><span class="lineNum">     434 </span>            :  * \param infix_is_name: Whether the given infixes are actual item names (need to be escaped and</a>
+<a name="435"><span class="lineNum">     435 </span>            :  * quoted) or not.</a>
+<a name="436"><span class="lineNum">     436 </span>            :  * \return A pair of old &amp; new std::string keys.</a>
+<a name="437"><span class="lineNum">     437 </span>            :  */</a>
+<a name="438"><span class="lineNum">     438 </span>            : std::pair&lt;std::string, std::string&gt; RNA_generate_keys_for_path_rename(</a>
+<a name="439"><span class="lineNum">     439 </span>            :     const StringRefNull old_infix,</a>
+<a name="440"><span class="lineNum">     440 </span>            :     const StringRefNull new_infix,</a>
+<a name="441"><span class="lineNum">     441 </span>            :     int old_subscript,</a>
+<a name="442"><span class="lineNum">     442 </span>            :     int new_subscript,</a>
+<a name="443"><span class="lineNum">     443 </span>            :     bool infix_is_name);</a>
+<a name="444"><span class="lineNum">     444 </span>            : </a>
+<a name="445"><span class="lineNum">     445 </span>            : }  // namespace blender</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

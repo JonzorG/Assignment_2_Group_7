@@ -1,0 +1,1508 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - editors/interface/interface_context_menu.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">editors/interface</a> - interface_context_menu.cc<span style="font-size: 80%;"> (source / <a href="interface_context_menu.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">747</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2023 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup edinterface</a>
+<a name="7"><span class="lineNum">       7 </span>            :  *</a>
+<a name="8"><span class="lineNum">       8 </span>            :  * Generic context popup menus.</a>
+<a name="9"><span class="lineNum">       9 </span>            :  */</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &lt;cstring&gt;</a>
+<a name="12"><span class="lineNum">      12 </span>            : </a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;MEM_guardedalloc.h&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : </a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;DNA_screen_types.h&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : </a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;AS_asset_representation.hh&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : </a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &quot;BLI_fileops.hh&quot;</a>
+<a name="20"><span class="lineNum">      20 </span>            : #include &quot;BLI_path_utils.hh&quot;</a>
+<a name="21"><span class="lineNum">      21 </span>            : #include &quot;BLI_string_utf8.hh&quot;</a>
+<a name="22"><span class="lineNum">      22 </span>            : #include &quot;BLI_utildefines.hh&quot;</a>
+<a name="23"><span class="lineNum">      23 </span>            : </a>
+<a name="24"><span class="lineNum">      24 </span>            : #include &quot;BLT_translation.hh&quot;</a>
+<a name="25"><span class="lineNum">      25 </span>            : </a>
+<a name="26"><span class="lineNum">      26 </span>            : #include &quot;BKE_context.hh&quot;</a>
+<a name="27"><span class="lineNum">      27 </span>            : #include &quot;BKE_idprop.hh&quot;</a>
+<a name="28"><span class="lineNum">      28 </span>            : #include &quot;BKE_main.hh&quot;</a>
+<a name="29"><span class="lineNum">      29 </span>            : #include &quot;BKE_screen.hh&quot;</a>
+<a name="30"><span class="lineNum">      30 </span>            : </a>
+<a name="31"><span class="lineNum">      31 </span>            : #include &quot;ED_asset.hh&quot;</a>
+<a name="32"><span class="lineNum">      32 </span>            : #include &quot;ED_asset_menu_utils.hh&quot;</a>
+<a name="33"><span class="lineNum">      33 </span>            : #include &quot;ED_buttons.hh&quot;</a>
+<a name="34"><span class="lineNum">      34 </span>            : #include &quot;ED_keyframing.hh&quot;</a>
+<a name="35"><span class="lineNum">      35 </span>            : #include &quot;ED_screen.hh&quot;</a>
+<a name="36"><span class="lineNum">      36 </span>            : </a>
+<a name="37"><span class="lineNum">      37 </span>            : #include &quot;UI_abstract_view.hh&quot;</a>
+<a name="38"><span class="lineNum">      38 </span>            : #include &quot;UI_interface_layout.hh&quot;</a>
+<a name="39"><span class="lineNum">      39 </span>            : </a>
+<a name="40"><span class="lineNum">      40 </span>            : #include &quot;interface_intern.hh&quot;</a>
+<a name="41"><span class="lineNum">      41 </span>            : </a>
+<a name="42"><span class="lineNum">      42 </span>            : #include &quot;RNA_access.hh&quot;</a>
+<a name="43"><span class="lineNum">      43 </span>            : #include &quot;RNA_path.hh&quot;</a>
+<a name="44"><span class="lineNum">      44 </span>            : #include &quot;RNA_prototypes.hh&quot;</a>
+<a name="45"><span class="lineNum">      45 </span>            : </a>
+<a name="46"><span class="lineNum">      46 </span>            : #ifdef WITH_PYTHON</a>
+<a name="47"><span class="lineNum">      47 </span>            : #  include &quot;BPY_extern.hh&quot;</a>
+<a name="48"><span class="lineNum">      48 </span>            : #  include &quot;BPY_extern_run.hh&quot;</a>
+<a name="49"><span class="lineNum">      49 </span>            : #endif</a>
+<a name="50"><span class="lineNum">      50 </span>            : </a>
+<a name="51"><span class="lineNum">      51 </span>            : #include &quot;WM_api.hh&quot;</a>
+<a name="52"><span class="lineNum">      52 </span>            : #include &quot;WM_types.hh&quot;</a>
+<a name="53"><span class="lineNum">      53 </span>            : </a>
+<a name="54"><span class="lineNum">      54 </span>            : /* This hack is needed because we don't have a good way to</a>
+<a name="55"><span class="lineNum">      55 </span>            :  * re-reference keymap items once added: #42944 */</a>
+<a name="56"><span class="lineNum">      56 </span>            : #define USE_KEYMAP_ADD_HACK</a>
+<a name="57"><span class="lineNum">      57 </span>            : </a>
+<a name="58"><span class="lineNum">      58 </span>            : namespace blender::ui {</a>
+<a name="59"><span class="lineNum">      59 </span>            : </a>
+<a name="60"><span class="lineNum">      60 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="61"><span class="lineNum">      61 </span>            : /** \name Button Context Menu</a>
+<a name="62"><span class="lineNum">      62 </span>            :  * \{ */</a>
+<a name="63"><span class="lineNum">      63 </span>            : </a>
+<a name="64"><span class="lineNum">      64 </span><span class="lineNoCov">          0 : static IDProperty *shortcut_property_from_rna(bContext *C, Button *but)</span></a>
+<a name="65"><span class="lineNum">      65 </span>            : {</a>
+<a name="66"><span class="lineNum">      66 </span>            :   /* Compute data path from context to property. */</a>
+<a name="67"><span class="lineNum">      67 </span>            : </a>
+<a name="68"><span class="lineNum">      68 </span>            :   /* If this returns null, we won't be able to bind shortcuts to these RNA properties.</a>
+<a name="69"><span class="lineNum">      69 </span>            :    * Support can be added at #wm_context_member_from_ptr. */</a>
+<a name="70"><span class="lineNum">      70 </span>            :   std::optional&lt;std::string&gt; final_data_path = WM_context_path_resolve_property_full(</a>
+<a name="71"><span class="lineNum">      71 </span><span class="lineNoCov">          0 :       C, &amp;but-&gt;rnapoin, but-&gt;rnaprop, but-&gt;rnaindex);</span></a>
+<a name="72"><span class="lineNum">      72 </span><span class="lineNoCov">          0 :   if (!final_data_path.has_value()) {</span></a>
+<a name="73"><span class="lineNum">      73 </span><span class="lineNoCov">          0 :     return nullptr;</span></a>
+<a name="74"><span class="lineNum">      74 </span>            :   }</a>
+<a name="75"><span class="lineNum">      75 </span>            : </a>
+<a name="76"><span class="lineNum">      76 </span>            :   /* Create ID property of data path, to pass to the operator. */</a>
+<a name="77"><span class="lineNum">      77 </span><span class="lineNoCov">          0 :   IDProperty *prop = bke::idprop::create_group(__func__).release();</span></a>
+<a name="78"><span class="lineNum">      78 </span><span class="lineNoCov">          0 :   IDP_AddToGroup(prop, bke::idprop::create(&quot;data_path&quot;, final_data_path.value()).release());</span></a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineNoCov">          0 :   return prop;</span></a>
+<a name="80"><span class="lineNum">      80 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="81"><span class="lineNum">      81 </span>            : </a>
+<a name="82"><span class="lineNum">      82 </span><span class="lineNoCov">          0 : static IDProperty *shortcut_property_from_rna_for_enum(bContext *C,</span></a>
+<a name="83"><span class="lineNum">      83 </span>            :                                                        Button *but_parent,</a>
+<a name="84"><span class="lineNum">      84 </span>            :                                                        Button *but)</a>
+<a name="85"><span class="lineNum">      85 </span>            : {</a>
+<a name="86"><span class="lineNum">      86 </span>            :   /* This is basically same as #shortcut_property_from_rna but with &quot;value&quot; in IDProperty in group.</a>
+<a name="87"><span class="lineNum">      87 </span>            :    * It's required for creating keyitem for enum values. */</a>
+<a name="88"><span class="lineNum">      88 </span>            : </a>
+<a name="89"><span class="lineNum">      89 </span>            :   /* If this returns null, we won't be able to bind shortcuts to these RNA properties.</a>
+<a name="90"><span class="lineNum">      90 </span>            :    * Support can be added at #wm_context_member_from_ptr. */</a>
+<a name="91"><span class="lineNum">      91 </span>            :   std::optional&lt;std::string&gt; final_data_path = WM_context_path_resolve_property_full(</a>
+<a name="92"><span class="lineNum">      92 </span><span class="lineNoCov">          0 :       C, &amp;but_parent-&gt;rnapoin, but_parent-&gt;rnaprop, but_parent-&gt;rnaindex);</span></a>
+<a name="93"><span class="lineNum">      93 </span><span class="lineNoCov">          0 :   if (!final_data_path.has_value()) {</span></a>
+<a name="94"><span class="lineNum">      94 </span><span class="lineNoCov">          0 :     return nullptr;</span></a>
+<a name="95"><span class="lineNum">      95 </span>            :   }</a>
+<a name="96"><span class="lineNum">      96 </span>            : </a>
+<a name="97"><span class="lineNum">      97 </span><span class="lineNoCov">          0 :   const char *identifier = nullptr;</span></a>
+<a name="98"><span class="lineNum">      98 </span><span class="lineNoCov">          0 :   RNA_property_enum_identifier(</span></a>
+<a name="99"><span class="lineNum">      99 </span>            :       C, &amp;but_parent-&gt;rnapoin, but_parent-&gt;rnaprop, but-&gt;retval, &amp;identifier);</a>
+<a name="100"><span class="lineNum">     100 </span>            : </a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineNoCov">          0 :   if (identifier == nullptr) {</span></a>
+<a name="102"><span class="lineNum">     102 </span>            :     /* Return early when valid identifier is not found for the button representing enum value. */</a>
+<a name="103"><span class="lineNum">     103 </span><span class="lineNoCov">          0 :     return nullptr;</span></a>
+<a name="104"><span class="lineNum">     104 </span>            :   }</a>
+<a name="105"><span class="lineNum">     105 </span>            :   /* Create ID property of data path and value, to pass to the operator. */</a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineNoCov">          0 :   IDProperty *prop = bke::idprop::create_group(__func__).release();</span></a>
+<a name="107"><span class="lineNum">     107 </span><span class="lineNoCov">          0 :   IDP_AddToGroup(prop, bke::idprop::create(&quot;data_path&quot;, final_data_path.value()).release());</span></a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineNoCov">          0 :   IDP_AddToGroup(prop, bke::idprop::create(&quot;value&quot;, identifier).release());</span></a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineNoCov">          0 :   return prop;</span></a>
+<a name="110"><span class="lineNum">     110 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="111"><span class="lineNum">     111 </span>            : </a>
+<a name="112"><span class="lineNum">     112 </span><span class="lineNoCov">          0 : static const char *shortcut_get_operator_property(bContext *C, Button *but, IDProperty **r_prop)</span></a>
+<a name="113"><span class="lineNum">     113 </span>            : {</a>
+<a name="114"><span class="lineNum">     114 </span><span class="lineNoCov">          0 :   if (but-&gt;optype) {</span></a>
+<a name="115"><span class="lineNum">     115 </span>            :     /* Operator */</a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineNoCov">          0 :     *r_prop = (but-&gt;opptr &amp;&amp; *but-&gt;opptr) ?</span></a>
+<a name="117"><span class="lineNum">     117 </span><span class="lineNoCov">          0 :                   IDP_CopyProperty(static_cast&lt;IDProperty *&gt;(but-&gt;opptr-&gt;data)) :</span></a>
+<a name="118"><span class="lineNum">     118 </span>            :                   nullptr;</a>
+<a name="119"><span class="lineNum">     119 </span><span class="lineNoCov">          0 :     return but-&gt;optype-&gt;idname;</span></a>
+<a name="120"><span class="lineNum">     120 </span>            :   }</a>
+<a name="121"><span class="lineNum">     121 </span>            : </a>
+<a name="122"><span class="lineNum">     122 </span><span class="lineNoCov">          0 :   if (but-&gt;rnaprop) {</span></a>
+<a name="123"><span class="lineNum">     123 </span><span class="lineNoCov">          0 :     const PropertyType rnaprop_type = RNA_property_type(but-&gt;rnaprop);</span></a>
+<a name="124"><span class="lineNum">     124 </span>            : </a>
+<a name="125"><span class="lineNum">     125 </span><span class="lineNoCov">          0 :     if (rnaprop_type == PROP_BOOLEAN) {</span></a>
+<a name="126"><span class="lineNum">     126 </span>            :       /* Boolean */</a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineNoCov">          0 :       *r_prop = shortcut_property_from_rna(C, but);</span></a>
+<a name="128"><span class="lineNum">     128 </span><span class="lineNoCov">          0 :       if (*r_prop == nullptr) {</span></a>
+<a name="129"><span class="lineNum">     129 </span><span class="lineNoCov">          0 :         return nullptr;</span></a>
+<a name="130"><span class="lineNum">     130 </span>            :       }</a>
+<a name="131"><span class="lineNum">     131 </span><span class="lineNoCov">          0 :       return &quot;WM_OT_context_toggle&quot;;</span></a>
+<a name="132"><span class="lineNum">     132 </span>            :     }</a>
+<a name="133"><span class="lineNum">     133 </span><span class="lineNoCov">          0 :     if (rnaprop_type == PROP_ENUM) {</span></a>
+<a name="134"><span class="lineNum">     134 </span>            :       /* `is_enum_menu` is true for expanded enum properties. It's to add shortcut to individual</a>
+<a name="135"><span class="lineNum">     135 </span>            :        * enum item, see: !163600 */</a>
+<a name="136"><span class="lineNum">     136 </span><span class="lineNoCov">          0 :       const bool is_enum_menu = but-&gt;type == ButtonType::Menu;</span></a>
+<a name="137"><span class="lineNum">     137 </span><span class="lineNoCov">          0 :       *r_prop = is_enum_menu ? shortcut_property_from_rna(C, but) :</span></a>
+<a name="138"><span class="lineNum">     138 </span><span class="lineNoCov">          0 :                                shortcut_property_from_rna_for_enum(C, but, but);</span></a>
+<a name="139"><span class="lineNum">     139 </span><span class="lineNoCov">          0 :       if (*r_prop == nullptr) {</span></a>
+<a name="140"><span class="lineNum">     140 </span><span class="lineNoCov">          0 :         return nullptr;</span></a>
+<a name="141"><span class="lineNum">     141 </span>            :       }</a>
+<a name="142"><span class="lineNum">     142 </span><span class="lineNoCov">          0 :       return is_enum_menu ? &quot;WM_OT_context_menu_enum&quot; : &quot;WM_OT_context_set_enum&quot;;</span></a>
+<a name="143"><span class="lineNum">     143 </span>            :     }</a>
+<a name="144"><span class="lineNum">     144 </span>            :   }</a>
+<a name="145"><span class="lineNum">     145 </span>            : </a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineNoCov">          0 :   if (but-&gt;type == ButtonType::ButMenu) {</span></a>
+<a name="147"><span class="lineNum">     147 </span><span class="lineNoCov">          0 :     if ((but-&gt;block-&gt;handle != nullptr)) {</span></a>
+<a name="148"><span class="lineNum">     148 </span><span class="lineNoCov">          0 :       Button *but_parent = but-&gt;block-&gt;handle-&gt;popup_create_vars.but;</span></a>
+<a name="149"><span class="lineNum">     149 </span><span class="lineNoCov">          0 :       if (but_parent &amp;&amp; but_parent-&gt;rnaprop &amp;&amp;</span></a>
+<a name="150"><span class="lineNum">     150 </span><span class="lineNoCov">          0 :           (RNA_property_type(but_parent-&gt;rnaprop) == PROP_ENUM))</span></a>
+<a name="151"><span class="lineNum">     151 </span>            :       {</a>
+<a name="152"><span class="lineNum">     152 </span><span class="lineNoCov">          0 :         *r_prop = shortcut_property_from_rna_for_enum(C, but_parent, but);</span></a>
+<a name="153"><span class="lineNum">     153 </span><span class="lineNoCov">          0 :         if (*r_prop == nullptr) {</span></a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineNoCov">          0 :           return nullptr;</span></a>
+<a name="155"><span class="lineNum">     155 </span>            :         }</a>
+<a name="156"><span class="lineNum">     156 </span><span class="lineNoCov">          0 :         return &quot;WM_OT_context_set_enum&quot;;</span></a>
+<a name="157"><span class="lineNum">     157 </span>            :       }</a>
+<a name="158"><span class="lineNum">     158 </span>            :     }</a>
+<a name="159"><span class="lineNum">     159 </span>            :   }</a>
+<a name="160"><span class="lineNum">     160 </span>            : </a>
+<a name="161"><span class="lineNum">     161 </span><span class="lineNoCov">          0 :   if (MenuType *mt = button_menutype_get(but)) {</span></a>
+<a name="162"><span class="lineNum">     162 </span><span class="lineNoCov">          0 :     IDProperty *prop = bke::idprop::create_group(__func__).release();</span></a>
+<a name="163"><span class="lineNum">     163 </span><span class="lineNoCov">          0 :     IDP_AddToGroup(prop, bke::idprop::create(&quot;name&quot;, mt-&gt;idname).release());</span></a>
+<a name="164"><span class="lineNum">     164 </span><span class="lineNoCov">          0 :     *r_prop = prop;</span></a>
+<a name="165"><span class="lineNum">     165 </span><span class="lineNoCov">          0 :     return &quot;WM_OT_call_menu&quot;;</span></a>
+<a name="166"><span class="lineNum">     166 </span>            :   }</a>
+<a name="167"><span class="lineNum">     167 </span>            : </a>
+<a name="168"><span class="lineNum">     168 </span><span class="lineNoCov">          0 :   if (std::optional asset_shelf_idname = button_asset_shelf_type_idname_get(but)) {</span></a>
+<a name="169"><span class="lineNum">     169 </span><span class="lineNoCov">          0 :     IDProperty *prop = bke::idprop::create_group(__func__).release();</span></a>
+<a name="170"><span class="lineNum">     170 </span><span class="lineNoCov">          0 :     IDP_AddToGroup(prop, bke::idprop::create(&quot;name&quot;, *asset_shelf_idname).release());</span></a>
+<a name="171"><span class="lineNum">     171 </span><span class="lineNoCov">          0 :     *r_prop = prop;</span></a>
+<a name="172"><span class="lineNum">     172 </span><span class="lineNoCov">          0 :     return &quot;WM_OT_call_asset_shelf_popover&quot;;</span></a>
+<a name="173"><span class="lineNum">     173 </span>            :   }</a>
+<a name="174"><span class="lineNum">     174 </span>            : </a>
+<a name="175"><span class="lineNum">     175 </span><span class="lineNoCov">          0 :   if (PanelType *pt = button_paneltype_get(but)) {</span></a>
+<a name="176"><span class="lineNum">     176 </span><span class="lineNoCov">          0 :     IDProperty *prop = bke::idprop::create_group(__func__).release();</span></a>
+<a name="177"><span class="lineNum">     177 </span><span class="lineNoCov">          0 :     IDP_AddToGroup(prop, bke::idprop::create(&quot;name&quot;, pt-&gt;idname).release());</span></a>
+<a name="178"><span class="lineNum">     178 </span><span class="lineNoCov">          0 :     *r_prop = prop;</span></a>
+<a name="179"><span class="lineNum">     179 </span><span class="lineNoCov">          0 :     return &quot;WM_OT_call_panel&quot;;</span></a>
+<a name="180"><span class="lineNum">     180 </span>            :   }</a>
+<a name="181"><span class="lineNum">     181 </span>            : </a>
+<a name="182"><span class="lineNum">     182 </span><span class="lineNoCov">          0 :   *r_prop = nullptr;</span></a>
+<a name="183"><span class="lineNum">     183 </span><span class="lineNoCov">          0 :   return nullptr;</span></a>
+<a name="184"><span class="lineNum">     184 </span>            : }</a>
+<a name="185"><span class="lineNum">     185 </span>            : </a>
+<a name="186"><span class="lineNum">     186 </span><span class="lineNoCov">          0 : static void shortcut_free_operator_property(IDProperty *prop)</span></a>
+<a name="187"><span class="lineNum">     187 </span>            : {</a>
+<a name="188"><span class="lineNum">     188 </span><span class="lineNoCov">          0 :   if (prop) {</span></a>
+<a name="189"><span class="lineNum">     189 </span><span class="lineNoCov">          0 :     IDP_FreeProperty(prop);</span></a>
+<a name="190"><span class="lineNum">     190 </span>            :   }</a>
+<a name="191"><span class="lineNum">     191 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="192"><span class="lineNum">     192 </span>            : </a>
+<a name="193"><span class="lineNum">     193 </span><span class="lineNoCov">          0 : static void but_shortcut_name_func(bContext *C, void *arg1, int /*event*/)</span></a>
+<a name="194"><span class="lineNum">     194 </span>            : {</a>
+<a name="195"><span class="lineNum">     195 </span><span class="lineNoCov">          0 :   Button *but = static_cast&lt;Button *&gt;(arg1);</span></a>
+<a name="196"><span class="lineNum">     196 </span>            : </a>
+<a name="197"><span class="lineNum">     197 </span>            :   IDProperty *prop;</a>
+<a name="198"><span class="lineNum">     198 </span><span class="lineNoCov">          0 :   const char *idname = shortcut_get_operator_property(C, but, &amp;prop);</span></a>
+<a name="199"><span class="lineNum">     199 </span><span class="lineNoCov">          0 :   if (idname == nullptr) {</span></a>
+<a name="200"><span class="lineNum">     200 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="201"><span class="lineNum">     201 </span>            :   }</a>
+<a name="202"><span class="lineNum">     202 </span>            : </a>
+<a name="203"><span class="lineNum">     203 </span>            :   /* complex code to change name of button */</a>
+<a name="204"><span class="lineNum">     204 </span><span class="lineNoCov">          0 :   if (std::optional&lt;std::string&gt; shortcut_str = WM_key_event_operator_string(</span></a>
+<a name="205"><span class="lineNum">     205 </span><span class="lineNoCov">          0 :           C, idname, but-&gt;opcontext, prop, true))</span></a>
+<a name="206"><span class="lineNum">     206 </span>            :   {</a>
+<a name="207"><span class="lineNum">     207 </span><span class="lineNoCov">          0 :     button_add_shortcut(but, shortcut_str-&gt;c_str(), true);</span></a>
+<a name="208"><span class="lineNum">     208 </span>            :   }</a>
+<a name="209"><span class="lineNum">     209 </span>            :   else {</a>
+<a name="210"><span class="lineNum">     210 </span>            :     /* simply strip the shortcut */</a>
+<a name="211"><span class="lineNum">     211 </span><span class="lineNoCov">          0 :     button_add_shortcut(but, nullptr, true);</span></a>
+<a name="212"><span class="lineNum">     212 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="213"><span class="lineNum">     213 </span>            : </a>
+<a name="214"><span class="lineNum">     214 </span><span class="lineNoCov">          0 :   shortcut_free_operator_property(prop);</span></a>
+<a name="215"><span class="lineNum">     215 </span>            : }</a>
+<a name="216"><span class="lineNum">     216 </span>            : </a>
+<a name="217"><span class="lineNum">     217 </span><span class="lineNoCov">          0 : static Block *menu_change_shortcut(bContext *C, ARegion *region, void *arg)</span></a>
+<a name="218"><span class="lineNum">     218 </span>            : {</a>
+<a name="219"><span class="lineNum">     219 </span><span class="lineNoCov">          0 :   wmWindowManager *wm = CTX_wm_manager(C);</span></a>
+<a name="220"><span class="lineNum">     220 </span><span class="lineNoCov">          0 :   Button *but = static_cast&lt;Button *&gt;(arg);</span></a>
+<a name="221"><span class="lineNum">     221 </span><span class="lineNoCov">          0 :   const uiStyle *style = style_get_dpi();</span></a>
+<a name="222"><span class="lineNum">     222 </span>            :   IDProperty *prop;</a>
+<a name="223"><span class="lineNum">     223 </span><span class="lineNoCov">          0 :   const char *idname = shortcut_get_operator_property(C, but, &amp;prop);</span></a>
+<a name="224"><span class="lineNum">     224 </span>            : </a>
+<a name="225"><span class="lineNum">     225 </span>            :   wmKeyMap *km;</a>
+<a name="226"><span class="lineNum">     226 </span><span class="lineNoCov">          0 :   wmKeyMapItem *kmi = WM_key_event_operator(C,</span></a>
+<a name="227"><span class="lineNum">     227 </span>            :                                             idname,</a>
+<a name="228"><span class="lineNum">     228 </span>            :                                             but-&gt;opcontext,</a>
+<a name="229"><span class="lineNum">     229 </span>            :                                             prop,</a>
+<a name="230"><span class="lineNum">     230 </span>            :                                             EVT_TYPE_MASK_HOTKEY_INCLUDE,</a>
+<a name="231"><span class="lineNum">     231 </span>            :                                             EVT_TYPE_MASK_HOTKEY_EXCLUDE,</a>
+<a name="232"><span class="lineNum">     232 </span>            :                                             &amp;km);</a>
+<a name="233"><span class="lineNum">     233 </span><span class="lineNoCov">          0 :   U.runtime.is_dirty = true;</span></a>
+<a name="234"><span class="lineNum">     234 </span>            : </a>
+<a name="235"><span class="lineNum">     235 </span><span class="lineNoCov">          0 :   BLI_assert(kmi != nullptr);</span></a>
+<a name="236"><span class="lineNum">     236 </span>            : </a>
+<a name="237"><span class="lineNum">     237 </span><span class="lineNoCov">          0 :   PointerRNA ptr = RNA_pointer_create_discrete(&amp;wm-&gt;id, RNA_KeyMapItem, kmi);</span></a>
+<a name="238"><span class="lineNum">     238 </span>            : </a>
+<a name="239"><span class="lineNum">     239 </span><span class="lineNoCov">          0 :   Block *block = block_begin(C, region, &quot;_popup&quot;, EmbossType::Emboss);</span></a>
+<a name="240"><span class="lineNum">     240 </span><span class="lineNoCov">          0 :   block_func_handle_set(block, but_shortcut_name_func, but);</span></a>
+<a name="241"><span class="lineNum">     241 </span><span class="lineNoCov">          0 :   block_flag_enable(block, BLOCK_MOVEMOUSE_QUIT);</span></a>
+<a name="242"><span class="lineNum">     242 </span><span class="lineNoCov">          0 :   block_direction_set(block, UI_DIR_CENTER_Y);</span></a>
+<a name="243"><span class="lineNum">     243 </span>            : </a>
+<a name="244"><span class="lineNum">     244 </span><span class="lineNoCov">          0 :   Layout &amp;layout = block_layout(block,</span></a>
+<a name="245"><span class="lineNum">     245 </span>            :                                 LayoutDirection::Vertical,</a>
+<a name="246"><span class="lineNum">     246 </span>            :                                 LayoutType::Panel,</a>
+<a name="247"><span class="lineNum">     247 </span>            :                                 0,</a>
+<a name="248"><span class="lineNum">     248 </span>            :                                 0,</a>
+<a name="249"><span class="lineNum">     249 </span><span class="lineNoCov">          0 :                                 U.widget_unit * 10,</span></a>
+<a name="250"><span class="lineNum">     250 </span><span class="lineNoCov">          0 :                                 U.widget_unit * 2,</span></a>
+<a name="251"><span class="lineNum">     251 </span>            :                                 0,</a>
+<a name="252"><span class="lineNum">     252 </span>            :                                 style);</a>
+<a name="253"><span class="lineNum">     253 </span>            : </a>
+<a name="254"><span class="lineNum">     254 </span><span class="lineNoCov">          0 :   layout.label(CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Change Shortcut...&quot;), ICON_HAND);</span></a>
+<a name="255"><span class="lineNum">     255 </span><span class="lineNoCov">          0 :   layout.prop(&amp;ptr, &quot;type&quot;, ITEM_R_FULL_EVENT | ITEM_R_IMMEDIATE, &quot;&quot;, ICON_NONE);</span></a>
+<a name="256"><span class="lineNum">     256 </span>            : </a>
+<a name="257"><span class="lineNum">     257 </span><span class="lineNoCov">          0 :   const int bounds_offset[2] = {int(-100 * UI_SCALE_FAC), int(36 * UI_SCALE_FAC)};</span></a>
+<a name="258"><span class="lineNum">     258 </span><span class="lineNoCov">          0 :   block_bounds_set_popup(block, 6 * UI_SCALE_FAC, bounds_offset);</span></a>
+<a name="259"><span class="lineNum">     259 </span>            : </a>
+<a name="260"><span class="lineNum">     260 </span><span class="lineNoCov">          0 :   shortcut_free_operator_property(prop);</span></a>
+<a name="261"><span class="lineNum">     261 </span>            : </a>
+<a name="262"><span class="lineNum">     262 </span><span class="lineNoCov">          0 :   return block;</span></a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="264"><span class="lineNum">     264 </span>            : </a>
+<a name="265"><span class="lineNum">     265 </span>            : #ifdef USE_KEYMAP_ADD_HACK</a>
+<a name="266"><span class="lineNum">     266 </span>            : static int g_kmi_id_hack;</a>
+<a name="267"><span class="lineNum">     267 </span>            : #endif</a>
+<a name="268"><span class="lineNum">     268 </span>            : </a>
+<a name="269"><span class="lineNum">     269 </span><span class="lineNoCov">          0 : static Block *menu_add_shortcut(bContext *C, ARegion *region, void *arg)</span></a>
+<a name="270"><span class="lineNum">     270 </span>            : {</a>
+<a name="271"><span class="lineNum">     271 </span><span class="lineNoCov">          0 :   wmWindowManager *wm = CTX_wm_manager(C);</span></a>
+<a name="272"><span class="lineNum">     272 </span><span class="lineNoCov">          0 :   Button *but = static_cast&lt;Button *&gt;(arg);</span></a>
+<a name="273"><span class="lineNum">     273 </span><span class="lineNoCov">          0 :   const uiStyle *style = style_get_dpi();</span></a>
+<a name="274"><span class="lineNum">     274 </span>            :   IDProperty *prop;</a>
+<a name="275"><span class="lineNum">     275 </span><span class="lineNoCov">          0 :   const char *idname = shortcut_get_operator_property(C, but, &amp;prop);</span></a>
+<a name="276"><span class="lineNum">     276 </span>            : </a>
+<a name="277"><span class="lineNum">     277 </span>            :   /* XXX this guess_opname can potentially return a different keymap</a>
+<a name="278"><span class="lineNum">     278 </span>            :    * than being found on adding later... */</a>
+<a name="279"><span class="lineNum">     279 </span><span class="lineNoCov">          0 :   wmKeyMap *km = WM_keymap_guess_opname(C, idname);</span></a>
+<a name="280"><span class="lineNum">     280 </span><span class="lineNoCov">          0 :   KeyMapItem_Params params{};</span></a>
+<a name="281"><span class="lineNum">     281 </span><span class="lineNoCov">          0 :   params.type = EVT_AKEY;</span></a>
+<a name="282"><span class="lineNum">     282 </span><span class="lineNoCov">          0 :   params.value = KM_PRESS;</span></a>
+<a name="283"><span class="lineNum">     283 </span><span class="lineNoCov">          0 :   params.modifier = 0;</span></a>
+<a name="284"><span class="lineNum">     284 </span><span class="lineNoCov">          0 :   params.direction = KM_ANY;</span></a>
+<a name="285"><span class="lineNum">     285 </span><span class="lineNoCov">          0 :   wmKeyMapItem *kmi = WM_keymap_add_item(km, idname, &amp;params);</span></a>
+<a name="286"><span class="lineNum">     286 </span><span class="lineNoCov">          0 :   const int kmi_id = kmi-&gt;id;</span></a>
+<a name="287"><span class="lineNum">     287 </span>            : </a>
+<a name="288"><span class="lineNum">     288 </span>            :   /* This takes ownership of prop, or prop can be nullptr for reset. */</a>
+<a name="289"><span class="lineNum">     289 </span><span class="lineNoCov">          0 :   WM_keymap_item_properties_reset(kmi, prop);</span></a>
+<a name="290"><span class="lineNum">     290 </span>            : </a>
+<a name="291"><span class="lineNum">     291 </span>            :   /* update and get pointers again */</a>
+<a name="292"><span class="lineNum">     292 </span><span class="lineNoCov">          0 :   WM_keyconfig_update(wm);</span></a>
+<a name="293"><span class="lineNum">     293 </span><span class="lineNoCov">          0 :   U.runtime.is_dirty = true;</span></a>
+<a name="294"><span class="lineNum">     294 </span>            : </a>
+<a name="295"><span class="lineNum">     295 </span><span class="lineNoCov">          0 :   km = WM_keymap_guess_opname(C, idname);</span></a>
+<a name="296"><span class="lineNum">     296 </span><span class="lineNoCov">          0 :   kmi = WM_keymap_item_find_id(km, kmi_id);</span></a>
+<a name="297"><span class="lineNum">     297 </span>            : </a>
+<a name="298"><span class="lineNum">     298 </span><span class="lineNoCov">          0 :   PointerRNA ptr = RNA_pointer_create_discrete(&amp;wm-&gt;id, RNA_KeyMapItem, kmi);</span></a>
+<a name="299"><span class="lineNum">     299 </span>            : </a>
+<a name="300"><span class="lineNum">     300 </span><span class="lineNoCov">          0 :   Block *block = block_begin(C, region, &quot;_popup&quot;, EmbossType::Emboss);</span></a>
+<a name="301"><span class="lineNum">     301 </span><span class="lineNoCov">          0 :   block_func_handle_set(block, but_shortcut_name_func, but);</span></a>
+<a name="302"><span class="lineNum">     302 </span><span class="lineNoCov">          0 :   block_direction_set(block, UI_DIR_CENTER_Y);</span></a>
+<a name="303"><span class="lineNum">     303 </span>            : </a>
+<a name="304"><span class="lineNum">     304 </span><span class="lineNoCov">          0 :   Layout &amp;layout = block_layout(block,</span></a>
+<a name="305"><span class="lineNum">     305 </span>            :                                 LayoutDirection::Vertical,</a>
+<a name="306"><span class="lineNum">     306 </span>            :                                 LayoutType::Panel,</a>
+<a name="307"><span class="lineNum">     307 </span>            :                                 0,</a>
+<a name="308"><span class="lineNum">     308 </span>            :                                 0,</a>
+<a name="309"><span class="lineNum">     309 </span><span class="lineNoCov">          0 :                                 U.widget_unit * 10,</span></a>
+<a name="310"><span class="lineNum">     310 </span><span class="lineNoCov">          0 :                                 U.widget_unit * 2,</span></a>
+<a name="311"><span class="lineNum">     311 </span>            :                                 0,</a>
+<a name="312"><span class="lineNum">     312 </span>            :                                 style);</a>
+<a name="313"><span class="lineNum">     313 </span>            : </a>
+<a name="314"><span class="lineNum">     314 </span><span class="lineNoCov">          0 :   layout.label(CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Assign Shortcut...&quot;), ICON_HAND);</span></a>
+<a name="315"><span class="lineNum">     315 </span><span class="lineNoCov">          0 :   layout.prop(&amp;ptr, &quot;type&quot;, ITEM_R_FULL_EVENT | ITEM_R_IMMEDIATE, &quot;&quot;, ICON_NONE);</span></a>
+<a name="316"><span class="lineNum">     316 </span>            : </a>
+<a name="317"><span class="lineNum">     317 </span><span class="lineNoCov">          0 :   const int bounds_offset[2] = {int(-100 * UI_SCALE_FAC), int(36 * UI_SCALE_FAC)};</span></a>
+<a name="318"><span class="lineNum">     318 </span><span class="lineNoCov">          0 :   block_bounds_set_popup(block, 6 * UI_SCALE_FAC, bounds_offset);</span></a>
+<a name="319"><span class="lineNum">     319 </span>            : </a>
+<a name="320"><span class="lineNum">     320 </span>            : #ifdef USE_KEYMAP_ADD_HACK</a>
+<a name="321"><span class="lineNum">     321 </span><span class="lineNoCov">          0 :   g_kmi_id_hack = kmi_id;</span></a>
+<a name="322"><span class="lineNum">     322 </span>            : #endif</a>
+<a name="323"><span class="lineNum">     323 </span>            : </a>
+<a name="324"><span class="lineNum">     324 </span><span class="lineNoCov">          0 :   return block;</span></a>
+<a name="325"><span class="lineNum">     325 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="326"><span class="lineNum">     326 </span>            : </a>
+<a name="327"><span class="lineNum">     327 </span><span class="lineNoCov">          0 : static void menu_add_shortcut_cancel(bContext *C, void *arg1)</span></a>
+<a name="328"><span class="lineNum">     328 </span>            : {</a>
+<a name="329"><span class="lineNum">     329 </span><span class="lineNoCov">          0 :   Button *but = static_cast&lt;Button *&gt;(arg1);</span></a>
+<a name="330"><span class="lineNum">     330 </span>            : </a>
+<a name="331"><span class="lineNum">     331 </span>            :   IDProperty *prop;</a>
+<a name="332"><span class="lineNum">     332 </span><span class="lineNoCov">          0 :   const char *idname = shortcut_get_operator_property(C, but, &amp;prop);</span></a>
+<a name="333"><span class="lineNum">     333 </span>            : </a>
+<a name="334"><span class="lineNum">     334 </span>            : #ifdef USE_KEYMAP_ADD_HACK</a>
+<a name="335"><span class="lineNum">     335 </span><span class="lineNoCov">          0 :   wmKeyMap *km = WM_keymap_guess_opname(C, idname);</span></a>
+<a name="336"><span class="lineNum">     336 </span><span class="lineNoCov">          0 :   const int kmi_id = g_kmi_id_hack;</span></a>
+<a name="337"><span class="lineNum">     337 </span>            :   UNUSED_VARS(but);</a>
+<a name="338"><span class="lineNum">     338 </span>            : #else</a>
+<a name="339"><span class="lineNum">     339 </span>            :   int kmi_id = WM_key_event_operator_id(C, idname, but-&gt;opcontext, prop, true, &amp;km);</a>
+<a name="340"><span class="lineNum">     340 </span>            : #endif</a>
+<a name="341"><span class="lineNum">     341 </span>            : </a>
+<a name="342"><span class="lineNum">     342 </span><span class="lineNoCov">          0 :   shortcut_free_operator_property(prop);</span></a>
+<a name="343"><span class="lineNum">     343 </span>            : </a>
+<a name="344"><span class="lineNum">     344 </span><span class="lineNoCov">          0 :   wmKeyMapItem *kmi = WM_keymap_item_find_id(km, kmi_id);</span></a>
+<a name="345"><span class="lineNum">     345 </span><span class="lineNoCov">          0 :   WM_keymap_remove_item(km, kmi);</span></a>
+<a name="346"><span class="lineNum">     346 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="347"><span class="lineNum">     347 </span>            : </a>
+<a name="348"><span class="lineNum">     348 </span><span class="lineNoCov">          0 : static void remove_shortcut_func(bContext *C, Button *but)</span></a>
+<a name="349"><span class="lineNum">     349 </span>            : {</a>
+<a name="350"><span class="lineNum">     350 </span>            :   IDProperty *prop;</a>
+<a name="351"><span class="lineNum">     351 </span><span class="lineNoCov">          0 :   const char *idname = shortcut_get_operator_property(C, but, &amp;prop);</span></a>
+<a name="352"><span class="lineNum">     352 </span>            : </a>
+<a name="353"><span class="lineNum">     353 </span>            :   wmKeyMap *km;</a>
+<a name="354"><span class="lineNum">     354 </span><span class="lineNoCov">          0 :   wmKeyMapItem *kmi = WM_key_event_operator(C,</span></a>
+<a name="355"><span class="lineNum">     355 </span>            :                                             idname,</a>
+<a name="356"><span class="lineNum">     356 </span>            :                                             but-&gt;opcontext,</a>
+<a name="357"><span class="lineNum">     357 </span>            :                                             prop,</a>
+<a name="358"><span class="lineNum">     358 </span>            :                                             EVT_TYPE_MASK_HOTKEY_INCLUDE,</a>
+<a name="359"><span class="lineNum">     359 </span>            :                                             EVT_TYPE_MASK_HOTKEY_EXCLUDE,</a>
+<a name="360"><span class="lineNum">     360 </span>            :                                             &amp;km);</a>
+<a name="361"><span class="lineNum">     361 </span><span class="lineNoCov">          0 :   BLI_assert(kmi != nullptr);</span></a>
+<a name="362"><span class="lineNum">     362 </span>            : </a>
+<a name="363"><span class="lineNum">     363 </span><span class="lineNoCov">          0 :   WM_keymap_remove_item(km, kmi);</span></a>
+<a name="364"><span class="lineNum">     364 </span><span class="lineNoCov">          0 :   U.runtime.is_dirty = true;</span></a>
+<a name="365"><span class="lineNum">     365 </span>            : </a>
+<a name="366"><span class="lineNum">     366 </span><span class="lineNoCov">          0 :   shortcut_free_operator_property(prop);</span></a>
+<a name="367"><span class="lineNum">     367 </span><span class="lineNoCov">          0 :   but_shortcut_name_func(C, but, 0);</span></a>
+<a name="368"><span class="lineNum">     368 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="369"><span class="lineNum">     369 </span>            : </a>
+<a name="370"><span class="lineNum">     370 </span><span class="lineNoCov">          0 : static bool but_is_user_menu_compatible(bContext *C, Button *but)</span></a>
+<a name="371"><span class="lineNum">     371 </span>            : {</a>
+<a name="372"><span class="lineNum">     372 </span><span class="lineNoCov">          0 :   bool result = false;</span></a>
+<a name="373"><span class="lineNum">     373 </span><span class="lineNoCov">          0 :   if (but-&gt;optype) {</span></a>
+<a name="374"><span class="lineNum">     374 </span><span class="lineNoCov">          0 :     result = true;</span></a>
+<a name="375"><span class="lineNum">     375 </span>            :   }</a>
+<a name="376"><span class="lineNum">     376 </span><span class="lineNoCov">          0 :   else if (but-&gt;rnaprop) {</span></a>
+<a name="377"><span class="lineNum">     377 </span><span class="lineNoCov">          0 :     if (RNA_property_type(but-&gt;rnaprop) == PROP_BOOLEAN) {</span></a>
+<a name="378"><span class="lineNum">     378 </span><span class="lineNoCov">          0 :       std::optional&lt;std::string&gt; data_path = WM_context_path_resolve_full(C, &amp;but-&gt;rnapoin);</span></a>
+<a name="379"><span class="lineNum">     379 </span><span class="lineNoCov">          0 :       if (data_path.has_value()) {</span></a>
+<a name="380"><span class="lineNum">     380 </span><span class="lineNoCov">          0 :         result = true;</span></a>
+<a name="381"><span class="lineNum">     381 </span>            :       }</a>
+<a name="382"><span class="lineNum">     382 </span><span class="lineNoCov">          0 :     }</span></a>
+<a name="383"><span class="lineNum">     383 </span>            :   }</a>
+<a name="384"><span class="lineNum">     384 </span><span class="lineNoCov">          0 :   else if (button_menutype_get(but)) {</span></a>
+<a name="385"><span class="lineNum">     385 </span><span class="lineNoCov">          0 :     result = true;</span></a>
+<a name="386"><span class="lineNum">     386 </span>            :   }</a>
+<a name="387"><span class="lineNum">     387 </span><span class="lineNoCov">          0 :   else if (button_operatortype_get_from_enum_menu(but, nullptr)) {</span></a>
+<a name="388"><span class="lineNum">     388 </span><span class="lineNoCov">          0 :     result = true;</span></a>
+<a name="389"><span class="lineNum">     389 </span>            :   }</a>
+<a name="390"><span class="lineNum">     390 </span>            : </a>
+<a name="391"><span class="lineNum">     391 </span><span class="lineNoCov">          0 :   return result;</span></a>
+<a name="392"><span class="lineNum">     392 </span>            : }</a>
+<a name="393"><span class="lineNum">     393 </span>            : </a>
+<a name="394"><span class="lineNum">     394 </span><span class="lineNoCov">          0 : static bUserMenuItem *but_user_menu_find(bContext *C, Button *but, bUserMenu *um)</span></a>
+<a name="395"><span class="lineNum">     395 </span>            : {</a>
+<a name="396"><span class="lineNum">     396 </span><span class="lineNoCov">          0 :   if (but-&gt;optype) {</span></a>
+<a name="397"><span class="lineNum">     397 </span><span class="lineNoCov">          0 :     IDProperty *prop = (but-&gt;opptr) ? static_cast&lt;IDProperty *&gt;(but-&gt;opptr-&gt;data) : nullptr;</span></a>
+<a name="398"><span class="lineNum">     398 </span>            :     return reinterpret_cast&lt;bUserMenuItem *&gt;(</a>
+<a name="399"><span class="lineNum">     399 </span><span class="lineNoCov">          0 :         ED_screen_user_menu_item_find_operator(&amp;um-&gt;items, but-&gt;optype, prop, &quot;&quot;, but-&gt;opcontext));</span></a>
+<a name="400"><span class="lineNum">     400 </span>            :   }</a>
+<a name="401"><span class="lineNum">     401 </span><span class="lineNoCov">          0 :   if (but-&gt;rnaprop) {</span></a>
+<a name="402"><span class="lineNum">     402 </span>            :     std::optional&lt;std::string&gt; member_id_data_path = WM_context_path_resolve_full(C,</a>
+<a name="403"><span class="lineNum">     403 </span><span class="lineNoCov">          0 :                                                                                   &amp;but-&gt;rnapoin);</span></a>
+<a name="404"><span class="lineNum">     404 </span>            :     /* NOTE(@ideasman42): It's highly unlikely this ever occurs since the path must be resolved</a>
+<a name="405"><span class="lineNum">     405 </span>            :      * for this to be added in the first place, there might be some cases where manually</a>
+<a name="406"><span class="lineNum">     406 </span>            :      * constructed RNA paths don't resolve and in this case a crash should be avoided. */</a>
+<a name="407"><span class="lineNum">     407 </span><span class="lineNoCov">          0 :     if (!member_id_data_path.has_value()) [[unlikely]] {</span></a>
+<a name="408"><span class="lineNum">     408 </span>            :       /* Assert because this should never happen for typical usage. */</a>
+<a name="409"><span class="lineNum">     409 </span><span class="lineNoCov">          0 :       BLI_assert_unreachable();</span></a>
+<a name="410"><span class="lineNum">     410 </span><span class="lineNoCov">          0 :       return nullptr;</span></a>
+<a name="411"><span class="lineNum">     411 </span>            :     }</a>
+<a name="412"><span class="lineNum">     412 </span>            :     /* Ignore the actual array index [pass -1] since the index is handled separately. */</a>
+<a name="413"><span class="lineNum">     413 </span><span class="lineNoCov">          0 :     const std::string prop_id = RNA_property_is_idprop(but-&gt;rnaprop) ?</span></a>
+<a name="414"><span class="lineNum">     414 </span><span class="lineNoCov">          0 :                                     RNA_path_property_py(&amp;but-&gt;rnapoin, but-&gt;rnaprop, -1) :</span></a>
+<a name="415"><span class="lineNum">     415 </span><span class="lineNoCov">          0 :                                     RNA_property_identifier(but-&gt;rnaprop);</span></a>
+<a name="416"><span class="lineNum">     416 </span><span class="lineNoCov">          0 :     bUserMenuItem *umi = reinterpret_cast&lt;bUserMenuItem *&gt;(ED_screen_user_menu_item_find_prop(</span></a>
+<a name="417"><span class="lineNum">     417 </span>            :         &amp;um-&gt;items, member_id_data_path-&gt;c_str(), prop_id.c_str(), but-&gt;rnaindex));</a>
+<a name="418"><span class="lineNum">     418 </span><span class="lineNoCov">          0 :     return umi;</span></a>
+<a name="419"><span class="lineNum">     419 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="420"><span class="lineNum">     420 </span>            : </a>
+<a name="421"><span class="lineNum">     421 </span><span class="lineNoCov">          0 :   wmOperatorType *ot = nullptr;</span></a>
+<a name="422"><span class="lineNum">     422 </span><span class="lineNoCov">          0 :   PropertyRNA *prop_enum = nullptr;</span></a>
+<a name="423"><span class="lineNum">     423 </span><span class="lineNoCov">          0 :   if ((ot = button_operatortype_get_from_enum_menu(but, &amp;prop_enum))) {</span></a>
+<a name="424"><span class="lineNum">     424 </span><span class="lineNoCov">          0 :     return reinterpret_cast&lt;bUserMenuItem *&gt;(ED_screen_user_menu_item_find_operator(</span></a>
+<a name="425"><span class="lineNum">     425 </span><span class="lineNoCov">          0 :         &amp;um-&gt;items, ot, nullptr, RNA_property_identifier(prop_enum), but-&gt;opcontext));</span></a>
+<a name="426"><span class="lineNum">     426 </span>            :   }</a>
+<a name="427"><span class="lineNum">     427 </span>            : </a>
+<a name="428"><span class="lineNum">     428 </span><span class="lineNoCov">          0 :   MenuType *mt = button_menutype_get(but);</span></a>
+<a name="429"><span class="lineNum">     429 </span><span class="lineNoCov">          0 :   if (mt != nullptr) {</span></a>
+<a name="430"><span class="lineNum">     430 </span><span class="lineNoCov">          0 :     return reinterpret_cast&lt;bUserMenuItem *&gt;(ED_screen_user_menu_item_find_menu(&amp;um-&gt;items, mt));</span></a>
+<a name="431"><span class="lineNum">     431 </span>            :   }</a>
+<a name="432"><span class="lineNum">     432 </span><span class="lineNoCov">          0 :   return nullptr;</span></a>
+<a name="433"><span class="lineNum">     433 </span>            : }</a>
+<a name="434"><span class="lineNum">     434 </span>            : </a>
+<a name="435"><span class="lineNum">     435 </span><span class="lineNoCov">          0 : static void but_user_menu_add(bContext *C, Button *but, bUserMenu *um)</span></a>
+<a name="436"><span class="lineNum">     436 </span>            : {</a>
+<a name="437"><span class="lineNum">     437 </span><span class="lineNoCov">          0 :   BLI_assert(but_is_user_menu_compatible(C, but));</span></a>
+<a name="438"><span class="lineNum">     438 </span>            : </a>
+<a name="439"><span class="lineNum">     439 </span><span class="lineNoCov">          0 :   std::string drawstr = button_drawstr_without_sep_char(but);</span></a>
+<a name="440"><span class="lineNum">     440 </span>            : </a>
+<a name="441"><span class="lineNum">     441 </span>            :   /* Used for USER_MENU_TYPE_MENU. */</a>
+<a name="442"><span class="lineNum">     442 </span><span class="lineNoCov">          0 :   MenuType *mt = nullptr;</span></a>
+<a name="443"><span class="lineNum">     443 </span>            :   /* Used for USER_MENU_TYPE_OPERATOR (property enum used). */</a>
+<a name="444"><span class="lineNum">     444 </span><span class="lineNoCov">          0 :   wmOperatorType *ot = nullptr;</span></a>
+<a name="445"><span class="lineNum">     445 </span><span class="lineNoCov">          0 :   PropertyRNA *prop = nullptr;</span></a>
+<a name="446"><span class="lineNum">     446 </span><span class="lineNoCov">          0 :   if (but-&gt;optype) {</span></a>
+<a name="447"><span class="lineNum">     447 </span><span class="lineNoCov">          0 :     if (drawstr[0] == '\0') {</span></a>
+<a name="448"><span class="lineNum">     448 </span>            :       /* Hard code overrides for generic operators. */</a>
+<a name="449"><span class="lineNum">     449 </span><span class="lineNoCov">          0 :       if (but_is_tool(but)) {</span></a>
+<a name="450"><span class="lineNum">     450 </span>            :         char idname[64];</a>
+<a name="451"><span class="lineNum">     451 </span><span class="lineNoCov">          0 :         RNA_string_get(but-&gt;opptr, &quot;name&quot;, idname);</span></a>
+<a name="452"><span class="lineNum">     452 </span>            : #ifdef WITH_PYTHON</a>
+<a name="453"><span class="lineNum">     453 </span>            :         {</a>
+<a name="454"><span class="lineNum">     454 </span><span class="lineNoCov">          0 :           const char *expr_imports[] = {&quot;bpy&quot;, &quot;bl_ui&quot;, nullptr};</span></a>
+<a name="455"><span class="lineNum">     455 </span>            :           char expr[256];</a>
+<a name="456"><span class="lineNum">     456 </span><span class="lineNoCov">          0 :           SNPRINTF_UTF8(expr,</span></a>
+<a name="457"><span class="lineNum">     457 </span>            :                         &quot;bl_ui.space_toolsystem_common.item_from_id(&quot;</a>
+<a name="458"><span class="lineNum">     458 </span>            :                         &quot;bpy.context, &quot;</a>
+<a name="459"><span class="lineNum">     459 </span>            :                         &quot;bpy.context.space_data.type, &quot;</a>
+<a name="460"><span class="lineNum">     460 </span>            :                         &quot;'%s').label&quot;,</a>
+<a name="461"><span class="lineNum">     461 </span>            :                         idname);</a>
+<a name="462"><span class="lineNum">     462 </span><span class="lineNoCov">          0 :           char *expr_result = nullptr;</span></a>
+<a name="463"><span class="lineNum">     463 </span><span class="lineNoCov">          0 :           if (BPY_run_string_as_string(C, expr_imports, expr, nullptr, &amp;expr_result)) {</span></a>
+<a name="464"><span class="lineNum">     464 </span><span class="lineNoCov">          0 :             drawstr = expr_result;</span></a>
+<a name="465"><span class="lineNum">     465 </span><span class="lineNoCov">          0 :             MEM_delete(expr_result);</span></a>
+<a name="466"><span class="lineNum">     466 </span>            :           }</a>
+<a name="467"><span class="lineNum">     467 </span>            :           else {</a>
+<a name="468"><span class="lineNum">     468 </span><span class="lineNoCov">          0 :             BLI_assert(0);</span></a>
+<a name="469"><span class="lineNum">     469 </span><span class="lineNoCov">          0 :             drawstr = idname;</span></a>
+<a name="470"><span class="lineNum">     470 </span>            :           }</a>
+<a name="471"><span class="lineNum">     471 </span>            :         }</a>
+<a name="472"><span class="lineNum">     472 </span>            : #else</a>
+<a name="473"><span class="lineNum">     473 </span>            :         drawstr = idname;</a>
+<a name="474"><span class="lineNum">     474 </span>            : #endif</a>
+<a name="475"><span class="lineNum">     475 </span>            :       }</a>
+<a name="476"><span class="lineNum">     476 </span><span class="lineNoCov">          0 :       else if (but-&gt;tip_quick_func) {</span></a>
+<a name="477"><span class="lineNum">     477 </span>            :         /* The &quot;quick tooltip&quot; often contains a short string that can be used as a fallback. */</a>
+<a name="478"><span class="lineNum">     478 </span><span class="lineNoCov">          0 :         drawstr = but-&gt;tip_quick_func(but);</span></a>
+<a name="479"><span class="lineNum">     479 </span>            :       }</a>
+<a name="480"><span class="lineNum">     480 </span>            :     }</a>
+<a name="481"><span class="lineNum">     481 </span><span class="lineNoCov">          0 :     ED_screen_user_menu_item_add_operator(</span></a>
+<a name="482"><span class="lineNum">     482 </span>            :         &amp;um-&gt;items,</a>
+<a name="483"><span class="lineNum">     483 </span>            :         drawstr.c_str(),</a>
+<a name="484"><span class="lineNum">     484 </span><span class="lineNoCov">          0 :         but-&gt;optype,</span></a>
+<a name="485"><span class="lineNum">     485 </span><span class="lineNoCov">          0 :         but-&gt;opptr ? static_cast&lt;const IDProperty *&gt;(but-&gt;opptr-&gt;data) : nullptr,</span></a>
+<a name="486"><span class="lineNum">     486 </span>            :         &quot;&quot;,</a>
+<a name="487"><span class="lineNum">     487 </span>            :         but-&gt;opcontext);</a>
+<a name="488"><span class="lineNum">     488 </span>            :   }</a>
+<a name="489"><span class="lineNum">     489 </span><span class="lineNoCov">          0 :   else if (but-&gt;rnaprop) {</span></a>
+<a name="490"><span class="lineNum">     490 </span>            :     /* NOTE: 'member_id' may be a path. */</a>
+<a name="491"><span class="lineNum">     491 </span>            :     std::optional&lt;std::string&gt; member_id_data_path = WM_context_path_resolve_full(C,</a>
+<a name="492"><span class="lineNum">     492 </span><span class="lineNoCov">          0 :                                                                                   &amp;but-&gt;rnapoin);</span></a>
+<a name="493"><span class="lineNum">     493 </span><span class="lineNoCov">          0 :     if (!member_id_data_path.has_value()) {</span></a>
+<a name="494"><span class="lineNum">     494 </span>            :       /* See #but_user_menu_find code-comment. */</a>
+<a name="495"><span class="lineNum">     495 </span><span class="lineNoCov">          0 :       BLI_assert_unreachable();</span></a>
+<a name="496"><span class="lineNum">     496 </span>            :     }</a>
+<a name="497"><span class="lineNum">     497 </span>            :     else {</a>
+<a name="498"><span class="lineNum">     498 </span>            :       /* Ignore the actual array index [pass -1] since the index is handled separately. */</a>
+<a name="499"><span class="lineNum">     499 </span><span class="lineNoCov">          0 :       const std::string prop_id = RNA_property_is_idprop(but-&gt;rnaprop) ?</span></a>
+<a name="500"><span class="lineNum">     500 </span><span class="lineNoCov">          0 :                                       RNA_path_property_py(&amp;but-&gt;rnapoin, but-&gt;rnaprop, -1) :</span></a>
+<a name="501"><span class="lineNum">     501 </span><span class="lineNoCov">          0 :                                       RNA_property_identifier(but-&gt;rnaprop);</span></a>
+<a name="502"><span class="lineNum">     502 </span>            :       /* NOTE: ignore 'drawstr', use property idname always. */</a>
+<a name="503"><span class="lineNum">     503 </span><span class="lineNoCov">          0 :       ED_screen_user_menu_item_add_prop(</span></a>
+<a name="504"><span class="lineNum">     504 </span>            :           &amp;um-&gt;items, &quot;&quot;, member_id_data_path-&gt;c_str(), prop_id.c_str(), but-&gt;rnaindex);</a>
+<a name="505"><span class="lineNum">     505 </span><span class="lineNoCov">          0 :     }</span></a>
+<a name="506"><span class="lineNum">     506 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="507"><span class="lineNum">     507 </span><span class="lineNoCov">          0 :   else if ((mt = button_menutype_get(but))) {</span></a>
+<a name="508"><span class="lineNum">     508 </span><span class="lineNoCov">          0 :     ED_screen_user_menu_item_add_menu(&amp;um-&gt;items, drawstr.c_str(), mt);</span></a>
+<a name="509"><span class="lineNum">     509 </span>            :   }</a>
+<a name="510"><span class="lineNum">     510 </span><span class="lineNoCov">          0 :   else if ((ot = button_operatortype_get_from_enum_menu(but, &amp;prop))) {</span></a>
+<a name="511"><span class="lineNum">     511 </span><span class="lineNoCov">          0 :     ED_screen_user_menu_item_add_operator(&amp;um-&gt;items,</span></a>
+<a name="512"><span class="lineNum">     512 </span><span class="lineNoCov">          0 :                                           WM_operatortype_name(ot, nullptr).c_str(),</span></a>
+<a name="513"><span class="lineNum">     513 </span>            :                                           ot,</a>
+<a name="514"><span class="lineNum">     514 </span>            :                                           nullptr,</a>
+<a name="515"><span class="lineNum">     515 </span>            :                                           RNA_property_identifier(prop),</a>
+<a name="516"><span class="lineNum">     516 </span>            :                                           but-&gt;opcontext);</a>
+<a name="517"><span class="lineNum">     517 </span>            :   }</a>
+<a name="518"><span class="lineNum">     518 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="519"><span class="lineNum">     519 </span>            : </a>
+<a name="520"><span class="lineNum">     520 </span><span class="lineNoCov">          0 : static bool but_menu_add_path_operators(Layout &amp;layout, PointerRNA *ptr, PropertyRNA *prop)</span></a>
+<a name="521"><span class="lineNum">     521 </span>            : {</a>
+<a name="522"><span class="lineNum">     522 </span><span class="lineNoCov">          0 :   const PropertySubType subtype = RNA_property_subtype(prop);</span></a>
+<a name="523"><span class="lineNum">     523 </span><span class="lineNoCov">          0 :   wmOperatorType *ot = WM_operatortype_find(&quot;WM_OT_path_open&quot;, true);</span></a>
+<a name="524"><span class="lineNum">     524 </span>            :   char filepath[FILE_MAX];</a>
+<a name="525"><span class="lineNum">     525 </span>            :   char dir[FILE_MAXDIR];</a>
+<a name="526"><span class="lineNum">     526 </span>            :   char file[FILE_MAXFILE];</a>
+<a name="527"><span class="lineNum">     527 </span><span class="lineNoCov">          0 :   PointerRNA props_ptr;</span></a>
+<a name="528"><span class="lineNum">     528 </span>            : </a>
+<a name="529"><span class="lineNum">     529 </span><span class="lineNoCov">          0 :   BLI_assert(ELEM(subtype, PROP_FILEPATH, PROP_DIRPATH));</span></a>
+<a name="530"><span class="lineNum">     530 </span>            :   UNUSED_VARS_NDEBUG(subtype);</a>
+<a name="531"><span class="lineNum">     531 </span>            : </a>
+<a name="532"><span class="lineNum">     532 </span><span class="lineNoCov">          0 :   RNA_property_string_get(ptr, prop, filepath);</span></a>
+<a name="533"><span class="lineNum">     533 </span>            : </a>
+<a name="534"><span class="lineNum">     534 </span><span class="lineNoCov">          0 :   if (BLI_path_is_rel(filepath)) {</span></a>
+<a name="535"><span class="lineNum">     535 </span><span class="lineNoCov">          0 :     if (ptr-&gt;owner_id == nullptr) {</span></a>
+<a name="536"><span class="lineNum">     536 </span><span class="lineNoCov">          0 :       return false;</span></a>
+<a name="537"><span class="lineNum">     537 </span>            :     }</a>
+<a name="538"><span class="lineNum">     538 </span><span class="lineNoCov">          0 :     const char *base_path = ID_BLEND_PATH_FROM_GLOBAL(ptr-&gt;owner_id);</span></a>
+<a name="539"><span class="lineNum">     539 </span><span class="lineNoCov">          0 :     if (base_path[0] == '\0') {</span></a>
+<a name="540"><span class="lineNum">     540 </span><span class="lineNoCov">          0 :       return false;</span></a>
+<a name="541"><span class="lineNum">     541 </span>            :     }</a>
+<a name="542"><span class="lineNum">     542 </span><span class="lineNoCov">          0 :     BLI_path_abs(filepath, base_path);</span></a>
+<a name="543"><span class="lineNum">     543 </span>            :   }</a>
+<a name="544"><span class="lineNum">     544 </span>            : </a>
+<a name="545"><span class="lineNum">     545 </span><span class="lineNoCov">          0 :   if (!BLI_exists(filepath)) {</span></a>
+<a name="546"><span class="lineNum">     546 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="547"><span class="lineNum">     547 </span>            :   }</a>
+<a name="548"><span class="lineNum">     548 </span>            : </a>
+<a name="549"><span class="lineNum">     549 </span><span class="lineNoCov">          0 :   if (BLI_is_file(filepath)) {</span></a>
+<a name="550"><span class="lineNum">     550 </span><span class="lineNoCov">          0 :     BLI_assert(subtype == PROP_FILEPATH);</span></a>
+<a name="551"><span class="lineNum">     551 </span><span class="lineNoCov">          0 :     props_ptr = layout.op(ot,</span></a>
+<a name="552"><span class="lineNum">     552 </span><span class="lineNoCov">          0 :                           CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Open File Externally&quot;),</span></a>
+<a name="553"><span class="lineNum">     553 </span>            :                           ICON_NONE,</a>
+<a name="554"><span class="lineNum">     554 </span>            :                           wm::OpCallContext::InvokeDefault,</a>
+<a name="555"><span class="lineNum">     555 </span><span class="lineNoCov">          0 :                           UI_ITEM_NONE);</span></a>
+<a name="556"><span class="lineNum">     556 </span><span class="lineNoCov">          0 :     RNA_string_set(&amp;props_ptr, &quot;filepath&quot;, filepath);</span></a>
+<a name="557"><span class="lineNum">     557 </span>            :   }</a>
+<a name="558"><span class="lineNum">     558 </span>            :   else {</a>
+<a name="559"><span class="lineNum">     559 </span>            :     /* This is a directory, so ensure it ends in a slash. */</a>
+<a name="560"><span class="lineNum">     560 </span><span class="lineNoCov">          0 :     BLI_path_slash_ensure(filepath, ARRAY_SIZE(filepath));</span></a>
+<a name="561"><span class="lineNum">     561 </span>            :   }</a>
+<a name="562"><span class="lineNum">     562 </span>            : </a>
+<a name="563"><span class="lineNum">     563 </span><span class="lineNoCov">          0 :   BLI_path_split_dir_file(filepath, dir, sizeof(dir), file, sizeof(file));</span></a>
+<a name="564"><span class="lineNum">     564 </span>            : </a>
+<a name="565"><span class="lineNum">     565 </span><span class="lineNoCov">          0 :   props_ptr = layout.op(ot,</span></a>
+<a name="566"><span class="lineNum">     566 </span><span class="lineNoCov">          0 :                         CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Open Location Externally&quot;),</span></a>
+<a name="567"><span class="lineNum">     567 </span>            :                         ICON_NONE,</a>
+<a name="568"><span class="lineNum">     568 </span>            :                         wm::OpCallContext::InvokeDefault,</a>
+<a name="569"><span class="lineNum">     569 </span><span class="lineNoCov">          0 :                         UI_ITEM_NONE);</span></a>
+<a name="570"><span class="lineNum">     570 </span><span class="lineNoCov">          0 :   RNA_string_set(&amp;props_ptr, &quot;filepath&quot;, dir);</span></a>
+<a name="571"><span class="lineNum">     571 </span>            : </a>
+<a name="572"><span class="lineNum">     572 </span><span class="lineNoCov">          0 :   return true;</span></a>
+<a name="573"><span class="lineNum">     573 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="574"><span class="lineNum">     574 </span>            : </a>
+<a name="575"><span class="lineNum">     575 </span><span class="lineNoCov">          0 : static void set_layout_context_from_button(bContext *C, Layout &amp;layout, Button *but)</span></a>
+<a name="576"><span class="lineNum">     576 </span>            : {</a>
+<a name="577"><span class="lineNum">     577 </span><span class="lineNoCov">          0 :   if (!but-&gt;context) {</span></a>
+<a name="578"><span class="lineNum">     578 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="579"><span class="lineNum">     579 </span>            :   }</a>
+<a name="580"><span class="lineNum">     580 </span><span class="lineNoCov">          0 :   layout.context_copy(but-&gt;context);</span></a>
+<a name="581"><span class="lineNum">     581 </span><span class="lineNoCov">          0 :   CTX_store_set(C, layout.context_store());</span></a>
+<a name="582"><span class="lineNum">     582 </span>            : }</a>
+<a name="583"><span class="lineNum">     583 </span>            : </a>
+<a name="584"><span class="lineNum">     584 </span><span class="lineNoCov">          0 : bool popup_context_menu_for_button(bContext *C, Button *but, const wmEvent *event)</span></a>
+<a name="585"><span class="lineNum">     585 </span>            : {</a>
+<a name="586"><span class="lineNum">     586 </span>            :   /* but_is_interactive() may let some buttons through that should not get a context menu - it</a>
+<a name="587"><span class="lineNum">     587 </span>            :    * doesn't make sense for them. */</a>
+<a name="588"><span class="lineNum">     588 </span><span class="lineNoCov">          0 :   if (ELEM(but-&gt;type, ButtonType::Label, ButtonType::Image)) {</span></a>
+<a name="589"><span class="lineNum">     589 </span><span class="lineNoCov">          0 :     return false;</span></a>
+<a name="590"><span class="lineNum">     590 </span>            :   }</a>
+<a name="591"><span class="lineNum">     591 </span>            : </a>
+<a name="592"><span class="lineNum">     592 </span><span class="lineNoCov">          0 :   const bContextStore *previous_ctx = CTX_store_get(C);</span></a>
+<a name="593"><span class="lineNum">     593 </span><span class="lineNoCov">          0 :   PopupMenu *pup = popup_menu_begin(</span></a>
+<a name="594"><span class="lineNum">     594 </span><span class="lineNoCov">          0 :       C, button_context_menu_title_from_button(*but).c_str(), ICON_NONE);</span></a>
+<a name="595"><span class="lineNum">     595 </span><span class="lineNoCov">          0 :   Layout &amp;layout = *popup_menu_layout(pup);</span></a>
+<a name="596"><span class="lineNum">     596 </span>            : </a>
+<a name="597"><span class="lineNum">     597 </span><span class="lineNoCov">          0 :   set_layout_context_from_button(C, layout, but);</span></a>
+<a name="598"><span class="lineNum">     598 </span><span class="lineNoCov">          0 :   layout.operator_context_set(wm::OpCallContext::InvokeDefault);</span></a>
+<a name="599"><span class="lineNum">     599 </span>            : </a>
+<a name="600"><span class="lineNum">     600 </span><span class="lineNoCov">          0 :   const bool is_disabled = but-&gt;flag &amp; BUT_DISABLED;</span></a>
+<a name="601"><span class="lineNum">     601 </span>            : </a>
+<a name="602"><span class="lineNum">     602 </span><span class="lineNoCov">          0 :   if (is_disabled) {</span></a>
+<a name="603"><span class="lineNum">     603 </span>            :     /* Suppress editing commands. */</a>
+<a name="604"><span class="lineNum">     604 </span>            :   }</a>
+<a name="605"><span class="lineNum">     605 </span><span class="lineNoCov">          0 :   else if (but-&gt;type == ButtonType::Tab) {</span></a>
+<a name="606"><span class="lineNum">     606 </span><span class="lineNoCov">          0 :     ButtonTab *tab = static_cast&lt;ButtonTab *&gt;(but);</span></a>
+<a name="607"><span class="lineNum">     607 </span><span class="lineNoCov">          0 :     if (tab-&gt;menu) {</span></a>
+<a name="608"><span class="lineNum">     608 </span><span class="lineNoCov">          0 :       menutype_draw(C, tab-&gt;menu, &amp;layout);</span></a>
+<a name="609"><span class="lineNum">     609 </span><span class="lineNoCov">          0 :       layout.separator();</span></a>
+<a name="610"><span class="lineNum">     610 </span>            :     }</a>
+<a name="611"><span class="lineNum">     611 </span>            :   }</a>
+<a name="612"><span class="lineNum">     612 </span><span class="lineNoCov">          0 :   else if (but-&gt;rnapoin &amp;&amp; but-&gt;rnaprop) {</span></a>
+<a name="613"><span class="lineNum">     613 </span><span class="lineNoCov">          0 :     PointerRNA *ptr = &amp;but-&gt;rnapoin;</span></a>
+<a name="614"><span class="lineNum">     614 </span><span class="lineNoCov">          0 :     PropertyRNA *prop = but-&gt;rnaprop;</span></a>
+<a name="615"><span class="lineNum">     615 </span><span class="lineNoCov">          0 :     const PropertyType type = RNA_property_type(prop);</span></a>
+<a name="616"><span class="lineNum">     616 </span><span class="lineNoCov">          0 :     const PropertySubType subtype = RNA_property_subtype(prop);</span></a>
+<a name="617"><span class="lineNum">     617 </span><span class="lineNoCov">          0 :     bool is_anim = RNA_property_anim_editable(ptr, prop);</span></a>
+<a name="618"><span class="lineNum">     618 </span><span class="lineNoCov">          0 :     const bool is_idprop = RNA_property_is_idprop(prop);</span></a>
+<a name="619"><span class="lineNum">     619 </span>            : </a>
+<a name="620"><span class="lineNum">     620 </span>            :     /* second slower test,</a>
+<a name="621"><span class="lineNum">     621 </span>            :      * saved people finding keyframe items in menus when its not possible */</a>
+<a name="622"><span class="lineNum">     622 </span><span class="lineNoCov">          0 :     if (is_anim) {</span></a>
+<a name="623"><span class="lineNum">     623 </span><span class="lineNoCov">          0 :       is_anim = RNA_property_path_from_ID_check(&amp;but-&gt;rnapoin, but-&gt;rnaprop);</span></a>
+<a name="624"><span class="lineNum">     624 </span>            :     }</a>
+<a name="625"><span class="lineNum">     625 </span>            : </a>
+<a name="626"><span class="lineNum">     626 </span>            :     /* determine if we can key a single component of an array */</a>
+<a name="627"><span class="lineNum">     627 </span><span class="lineNoCov">          0 :     const bool is_array = RNA_property_array_length(&amp;but-&gt;rnapoin, but-&gt;rnaprop) != 0;</span></a>
+<a name="628"><span class="lineNum">     628 </span><span class="lineNoCov">          0 :     const bool is_array_component = (is_array &amp;&amp; but-&gt;rnaindex != -1);</span></a>
+<a name="629"><span class="lineNum">     629 </span><span class="lineNoCov">          0 :     const bool is_whole_array = (is_array &amp;&amp; but-&gt;rnaindex == -1);</span></a>
+<a name="630"><span class="lineNum">     630 </span>            : </a>
+<a name="631"><span class="lineNum">     631 </span><span class="lineNoCov">          0 :     const eRNAOverrideStatus override_status = RNA_property_override_library_status(</span></a>
+<a name="632"><span class="lineNum">     632 </span>            :         CTX_data_main(C), ptr, prop, -1);</a>
+<a name="633"><span class="lineNum">     633 </span><span class="lineNoCov">          0 :     const bool is_overridable = flag_is_set(override_status, eRNAOverrideStatus::LibOverridable);</span></a>
+<a name="634"><span class="lineNum">     634 </span>            : </a>
+<a name="635"><span class="lineNum">     635 </span>            :     /* Set the (button_pointer, button_prop)</a>
+<a name="636"><span class="lineNum">     636 </span>            :      * and pointer data for Python access to the hovered UI element. */</a>
+<a name="637"><span class="lineNum">     637 </span><span class="lineNoCov">          0 :     layout.context_set_from_but(but);</span></a>
+<a name="638"><span class="lineNum">     638 </span>            : </a>
+<a name="639"><span class="lineNum">     639 </span>            :     /* Keyframes */</a>
+<a name="640"><span class="lineNum">     640 </span><span class="lineNoCov">          0 :     if (but-&gt;flag &amp; BUT_ANIMATED_KEY) {</span></a>
+<a name="641"><span class="lineNum">     641 </span>            :       /* Replace/delete keyframes. */</a>
+<a name="642"><span class="lineNum">     642 </span><span class="lineNoCov">          0 :       if (is_array_component) {</span></a>
+<a name="643"><span class="lineNum">     643 </span><span class="lineNoCov">          0 :         PointerRNA op_ptr = layout.op(</span></a>
+<a name="644"><span class="lineNum">     644 </span>            :             &quot;ANIM_OT_keyframe_insert_button&quot;,</a>
+<a name="645"><span class="lineNum">     645 </span><span class="lineNoCov">          0 :             CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Replace Keyframes&quot;),</span></a>
+<a name="646"><span class="lineNum">     646 </span><span class="lineNoCov">          0 :             ICON_KEY_HLT);</span></a>
+<a name="647"><span class="lineNum">     647 </span><span class="lineNoCov">          0 :         RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, true);</span></a>
+<a name="648"><span class="lineNum">     648 </span><span class="lineNoCov">          0 :         op_ptr = layout.op(&quot;ANIM_OT_keyframe_insert_button&quot;,</span></a>
+<a name="649"><span class="lineNum">     649 </span><span class="lineNoCov">          0 :                            CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Replace Single Keyframe&quot;),</span></a>
+<a name="650"><span class="lineNum">     650 </span><span class="lineNoCov">          0 :                            ICON_NONE);</span></a>
+<a name="651"><span class="lineNum">     651 </span><span class="lineNoCov">          0 :         RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, false);</span></a>
+<a name="652"><span class="lineNum">     652 </span><span class="lineNoCov">          0 :         op_ptr = layout.op(&quot;ANIM_OT_keyframe_delete_button&quot;,</span></a>
+<a name="653"><span class="lineNum">     653 </span><span class="lineNoCov">          0 :                            CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Delete Keyframes&quot;),</span></a>
+<a name="654"><span class="lineNum">     654 </span><span class="lineNoCov">          0 :                            ICON_NONE);</span></a>
+<a name="655"><span class="lineNum">     655 </span><span class="lineNoCov">          0 :         RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, true);</span></a>
+<a name="656"><span class="lineNum">     656 </span><span class="lineNoCov">          0 :         op_ptr = layout.op(&quot;ANIM_OT_keyframe_delete_button&quot;,</span></a>
+<a name="657"><span class="lineNum">     657 </span><span class="lineNoCov">          0 :                            CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Delete Single Keyframe&quot;),</span></a>
+<a name="658"><span class="lineNum">     658 </span><span class="lineNoCov">          0 :                            ICON_NONE);</span></a>
+<a name="659"><span class="lineNum">     659 </span><span class="lineNoCov">          0 :         RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, false);</span></a>
+<a name="660"><span class="lineNum">     660 </span><span class="lineNoCov">          0 :       }</span></a>
+<a name="661"><span class="lineNum">     661 </span>            :       else {</a>
+<a name="662"><span class="lineNum">     662 </span><span class="lineNoCov">          0 :         PointerRNA op_ptr = layout.op(</span></a>
+<a name="663"><span class="lineNum">     663 </span>            :             &quot;ANIM_OT_keyframe_insert_button&quot;,</a>
+<a name="664"><span class="lineNum">     664 </span><span class="lineNoCov">          0 :             CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Replace Keyframe&quot;),</span></a>
+<a name="665"><span class="lineNum">     665 </span><span class="lineNoCov">          0 :             ICON_KEY_HLT);</span></a>
+<a name="666"><span class="lineNum">     666 </span><span class="lineNoCov">          0 :         RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, true);</span></a>
+<a name="667"><span class="lineNum">     667 </span><span class="lineNoCov">          0 :         op_ptr = layout.op(&quot;ANIM_OT_keyframe_delete_button&quot;,</span></a>
+<a name="668"><span class="lineNum">     668 </span><span class="lineNoCov">          0 :                            CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Delete Keyframe&quot;),</span></a>
+<a name="669"><span class="lineNum">     669 </span><span class="lineNoCov">          0 :                            ICON_NONE);</span></a>
+<a name="670"><span class="lineNum">     670 </span><span class="lineNoCov">          0 :         RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, true);</span></a>
+<a name="671"><span class="lineNum">     671 </span><span class="lineNoCov">          0 :       }</span></a>
+<a name="672"><span class="lineNum">     672 </span>            : </a>
+<a name="673"><span class="lineNum">     673 </span>            :       /* keyframe settings */</a>
+<a name="674"><span class="lineNum">     674 </span><span class="lineNoCov">          0 :       layout.separator();</span></a>
+<a name="675"><span class="lineNum">     675 </span>            :     }</a>
+<a name="676"><span class="lineNum">     676 </span><span class="lineNoCov">          0 :     else if (but-&gt;flag &amp; BUT_DRIVEN) {</span></a>
+<a name="677"><span class="lineNum">     677 </span>            :       /* pass */</a>
+<a name="678"><span class="lineNum">     678 </span>            :     }</a>
+<a name="679"><span class="lineNum">     679 </span><span class="lineNoCov">          0 :     else if (is_anim) {</span></a>
+<a name="680"><span class="lineNum">     680 </span><span class="lineNoCov">          0 :       if (is_array_component) {</span></a>
+<a name="681"><span class="lineNum">     681 </span><span class="lineNoCov">          0 :         PointerRNA op_ptr = layout.op(</span></a>
+<a name="682"><span class="lineNum">     682 </span>            :             &quot;ANIM_OT_keyframe_insert_button&quot;,</a>
+<a name="683"><span class="lineNum">     683 </span><span class="lineNoCov">          0 :             CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Insert Keyframes&quot;),</span></a>
+<a name="684"><span class="lineNum">     684 </span><span class="lineNoCov">          0 :             ICON_KEY_HLT);</span></a>
+<a name="685"><span class="lineNum">     685 </span><span class="lineNoCov">          0 :         RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, true);</span></a>
+<a name="686"><span class="lineNum">     686 </span><span class="lineNoCov">          0 :         op_ptr = layout.op(&quot;ANIM_OT_keyframe_insert_button&quot;,</span></a>
+<a name="687"><span class="lineNum">     687 </span><span class="lineNoCov">          0 :                            CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Insert Single Keyframe&quot;),</span></a>
+<a name="688"><span class="lineNum">     688 </span><span class="lineNoCov">          0 :                            ICON_NONE);</span></a>
+<a name="689"><span class="lineNum">     689 </span><span class="lineNoCov">          0 :         RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, false);</span></a>
+<a name="690"><span class="lineNum">     690 </span><span class="lineNoCov">          0 :       }</span></a>
+<a name="691"><span class="lineNum">     691 </span>            :       else {</a>
+<a name="692"><span class="lineNum">     692 </span><span class="lineNoCov">          0 :         PointerRNA op_ptr = layout.op(</span></a>
+<a name="693"><span class="lineNum">     693 </span>            :             &quot;ANIM_OT_keyframe_insert_button&quot;,</a>
+<a name="694"><span class="lineNum">     694 </span><span class="lineNoCov">          0 :             CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Insert Keyframe&quot;),</span></a>
+<a name="695"><span class="lineNum">     695 </span><span class="lineNoCov">          0 :             ICON_KEY_HLT);</span></a>
+<a name="696"><span class="lineNum">     696 </span><span class="lineNoCov">          0 :         RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, true);</span></a>
+<a name="697"><span class="lineNum">     697 </span><span class="lineNoCov">          0 :       }</span></a>
+<a name="698"><span class="lineNum">     698 </span>            :     }</a>
+<a name="699"><span class="lineNum">     699 </span>            : </a>
+<a name="700"><span class="lineNum">     700 </span><span class="lineNoCov">          0 :     if ((but-&gt;flag &amp; BUT_ANIMATED) &amp;&amp; (but-&gt;rnapoin.type != RNA_NlaStrip)) {</span></a>
+<a name="701"><span class="lineNum">     701 </span><span class="lineNoCov">          0 :       if (is_array_component) {</span></a>
+<a name="702"><span class="lineNum">     702 </span><span class="lineNoCov">          0 :         PointerRNA op_ptr = layout.op(</span></a>
+<a name="703"><span class="lineNum">     703 </span>            :             &quot;ANIM_OT_keyframe_clear_button&quot;,</a>
+<a name="704"><span class="lineNum">     704 </span><span class="lineNoCov">          0 :             CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Clear Keyframes&quot;),</span></a>
+<a name="705"><span class="lineNum">     705 </span><span class="lineNoCov">          0 :             ICON_KEY_DEHLT);</span></a>
+<a name="706"><span class="lineNum">     706 </span><span class="lineNoCov">          0 :         RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, true);</span></a>
+<a name="707"><span class="lineNum">     707 </span><span class="lineNoCov">          0 :         op_ptr = layout.op(&quot;ANIM_OT_keyframe_clear_button&quot;,</span></a>
+<a name="708"><span class="lineNum">     708 </span><span class="lineNoCov">          0 :                            CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Clear Single Keyframes&quot;),</span></a>
+<a name="709"><span class="lineNum">     709 </span><span class="lineNoCov">          0 :                            ICON_NONE);</span></a>
+<a name="710"><span class="lineNum">     710 </span><span class="lineNoCov">          0 :         RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, false);</span></a>
+<a name="711"><span class="lineNum">     711 </span><span class="lineNoCov">          0 :       }</span></a>
+<a name="712"><span class="lineNum">     712 </span>            :       else {</a>
+<a name="713"><span class="lineNum">     713 </span><span class="lineNoCov">          0 :         PointerRNA op_ptr = layout.op(</span></a>
+<a name="714"><span class="lineNum">     714 </span>            :             &quot;ANIM_OT_keyframe_clear_button&quot;,</a>
+<a name="715"><span class="lineNum">     715 </span><span class="lineNoCov">          0 :             CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Clear Keyframes&quot;),</span></a>
+<a name="716"><span class="lineNum">     716 </span><span class="lineNoCov">          0 :             ICON_KEY_DEHLT);</span></a>
+<a name="717"><span class="lineNum">     717 </span><span class="lineNoCov">          0 :         RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, true);</span></a>
+<a name="718"><span class="lineNum">     718 </span><span class="lineNoCov">          0 :       }</span></a>
+<a name="719"><span class="lineNum">     719 </span>            :     }</a>
+<a name="720"><span class="lineNum">     720 </span>            : </a>
+<a name="721"><span class="lineNum">     721 </span><span class="lineNoCov">          0 :     if (but-&gt;flag &amp; BUT_ANIMATED) {</span></a>
+<a name="722"><span class="lineNum">     722 </span><span class="lineNoCov">          0 :       layout.separator();</span></a>
+<a name="723"><span class="lineNum">     723 </span><span class="lineNoCov">          0 :       if (is_array_component) {</span></a>
+<a name="724"><span class="lineNum">     724 </span><span class="lineNoCov">          0 :         PointerRNA op_ptr;</span></a>
+<a name="725"><span class="lineNum">     725 </span>            :         wmOperatorType *ot;</a>
+<a name="726"><span class="lineNum">     726 </span><span class="lineNoCov">          0 :         ot = WM_operatortype_find(&quot;ANIM_OT_view_curve_in_graph_editor&quot;, false);</span></a>
+<a name="727"><span class="lineNum">     727 </span><span class="lineNoCov">          0 :         op_ptr = layout.op(</span></a>
+<a name="728"><span class="lineNum">     728 </span>            :             ot,</a>
+<a name="729"><span class="lineNum">     729 </span><span class="lineNoCov">          0 :             CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;View All in Graph Editor&quot;),</span></a>
+<a name="730"><span class="lineNum">     730 </span>            :             ICON_GRAPH,</a>
+<a name="731"><span class="lineNum">     731 </span>            :             wm::OpCallContext::InvokeDefault,</a>
+<a name="732"><span class="lineNum">     732 </span><span class="lineNoCov">          0 :             UI_ITEM_NONE);</span></a>
+<a name="733"><span class="lineNum">     733 </span><span class="lineNoCov">          0 :         RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, true);</span></a>
+<a name="734"><span class="lineNum">     734 </span>            : </a>
+<a name="735"><span class="lineNum">     735 </span><span class="lineNoCov">          0 :         op_ptr = layout.op(</span></a>
+<a name="736"><span class="lineNum">     736 </span>            :             ot,</a>
+<a name="737"><span class="lineNum">     737 </span><span class="lineNoCov">          0 :             CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;View Single in Graph Editor&quot;),</span></a>
+<a name="738"><span class="lineNum">     738 </span>            :             ICON_NONE,</a>
+<a name="739"><span class="lineNum">     739 </span>            :             wm::OpCallContext::InvokeDefault,</a>
+<a name="740"><span class="lineNum">     740 </span><span class="lineNoCov">          0 :             UI_ITEM_NONE);</span></a>
+<a name="741"><span class="lineNum">     741 </span><span class="lineNoCov">          0 :         RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, false);</span></a>
+<a name="742"><span class="lineNum">     742 </span><span class="lineNoCov">          0 :       }</span></a>
+<a name="743"><span class="lineNum">     743 </span>            :       else {</a>
+<a name="744"><span class="lineNum">     744 </span><span class="lineNoCov">          0 :         PointerRNA op_ptr;</span></a>
+<a name="745"><span class="lineNum">     745 </span>            :         wmOperatorType *ot;</a>
+<a name="746"><span class="lineNum">     746 </span><span class="lineNoCov">          0 :         ot = WM_operatortype_find(&quot;ANIM_OT_view_curve_in_graph_editor&quot;, false);</span></a>
+<a name="747"><span class="lineNum">     747 </span>            : </a>
+<a name="748"><span class="lineNum">     748 </span><span class="lineNoCov">          0 :         op_ptr = layout.op(ot,</span></a>
+<a name="749"><span class="lineNum">     749 </span><span class="lineNoCov">          0 :                            CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;View in Graph Editor&quot;),</span></a>
+<a name="750"><span class="lineNum">     750 </span>            :                            ICON_NONE,</a>
+<a name="751"><span class="lineNum">     751 </span>            :                            wm::OpCallContext::InvokeDefault,</a>
+<a name="752"><span class="lineNum">     752 </span><span class="lineNoCov">          0 :                            UI_ITEM_NONE);</span></a>
+<a name="753"><span class="lineNum">     753 </span><span class="lineNoCov">          0 :         RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, false);</span></a>
+<a name="754"><span class="lineNum">     754 </span><span class="lineNoCov">          0 :       }</span></a>
+<a name="755"><span class="lineNum">     755 </span>            :     }</a>
+<a name="756"><span class="lineNum">     756 </span>            : </a>
+<a name="757"><span class="lineNum">     757 </span>            :     /* Drivers */</a>
+<a name="758"><span class="lineNum">     758 </span><span class="lineNoCov">          0 :     if (but-&gt;flag &amp; BUT_DRIVEN) {</span></a>
+<a name="759"><span class="lineNum">     759 </span><span class="lineNoCov">          0 :       layout.separator();</span></a>
+<a name="760"><span class="lineNum">     760 </span>            : </a>
+<a name="761"><span class="lineNum">     761 </span><span class="lineNoCov">          0 :       if (is_array_component) {</span></a>
+<a name="762"><span class="lineNum">     762 </span><span class="lineNoCov">          0 :         PointerRNA op_ptr = layout.op(</span></a>
+<a name="763"><span class="lineNum">     763 </span>            :             &quot;ANIM_OT_driver_button_remove&quot;,</a>
+<a name="764"><span class="lineNum">     764 </span><span class="lineNoCov">          0 :             CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Delete Drivers&quot;),</span></a>
+<a name="765"><span class="lineNum">     765 </span><span class="lineNoCov">          0 :             ICON_X);</span></a>
+<a name="766"><span class="lineNum">     766 </span><span class="lineNoCov">          0 :         RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, true);</span></a>
+<a name="767"><span class="lineNum">     767 </span><span class="lineNoCov">          0 :         op_ptr = layout.op(&quot;ANIM_OT_driver_button_remove&quot;,</span></a>
+<a name="768"><span class="lineNum">     768 </span><span class="lineNoCov">          0 :                            CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Delete Single Driver&quot;),</span></a>
+<a name="769"><span class="lineNum">     769 </span><span class="lineNoCov">          0 :                            ICON_NONE);</span></a>
+<a name="770"><span class="lineNum">     770 </span><span class="lineNoCov">          0 :         RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, false);</span></a>
+<a name="771"><span class="lineNum">     771 </span><span class="lineNoCov">          0 :       }</span></a>
+<a name="772"><span class="lineNum">     772 </span>            :       else {</a>
+<a name="773"><span class="lineNum">     773 </span><span class="lineNoCov">          0 :         PointerRNA op_ptr = layout.op(</span></a>
+<a name="774"><span class="lineNum">     774 </span>            :             &quot;ANIM_OT_driver_button_remove&quot;,</a>
+<a name="775"><span class="lineNum">     775 </span><span class="lineNoCov">          0 :             CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Delete Driver&quot;),</span></a>
+<a name="776"><span class="lineNum">     776 </span><span class="lineNoCov">          0 :             ICON_X);</span></a>
+<a name="777"><span class="lineNum">     777 </span><span class="lineNoCov">          0 :         RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, true);</span></a>
+<a name="778"><span class="lineNum">     778 </span><span class="lineNoCov">          0 :       }</span></a>
+<a name="779"><span class="lineNum">     779 </span>            : </a>
+<a name="780"><span class="lineNum">     780 </span><span class="lineNoCov">          0 :       if (is_whole_array) {</span></a>
+<a name="781"><span class="lineNum">     781 </span><span class="lineNoCov">          0 :         PointerRNA op_ptr = layout.op(</span></a>
+<a name="782"><span class="lineNum">     782 </span>            :             &quot;UI_OT_copy_driver_to_selected_button&quot;,</a>
+<a name="783"><span class="lineNum">     783 </span><span class="lineNoCov">          0 :             CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Copy Drivers to Selected&quot;),</span></a>
+<a name="784"><span class="lineNum">     784 </span><span class="lineNoCov">          0 :             ICON_NONE);</span></a>
+<a name="785"><span class="lineNum">     785 </span><span class="lineNoCov">          0 :         RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, true);</span></a>
+<a name="786"><span class="lineNum">     786 </span><span class="lineNoCov">          0 :       }</span></a>
+<a name="787"><span class="lineNum">     787 </span>            :       else {</a>
+<a name="788"><span class="lineNum">     788 </span><span class="lineNoCov">          0 :         layout.op(&quot;ANIM_OT_copy_driver_button&quot;,</span></a>
+<a name="789"><span class="lineNum">     789 </span><span class="lineNoCov">          0 :                   CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Copy Driver&quot;),</span></a>
+<a name="790"><span class="lineNum">     790 </span>            :                   ICON_NONE);</a>
+<a name="791"><span class="lineNum">     791 </span><span class="lineNoCov">          0 :         if (ANIM_driver_can_paste()) {</span></a>
+<a name="792"><span class="lineNum">     792 </span><span class="lineNoCov">          0 :           layout.op(&quot;ANIM_OT_paste_driver_button&quot;,</span></a>
+<a name="793"><span class="lineNum">     793 </span><span class="lineNoCov">          0 :                     CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Paste Driver&quot;),</span></a>
+<a name="794"><span class="lineNum">     794 </span>            :                     ICON_NONE);</a>
+<a name="795"><span class="lineNum">     795 </span>            :         }</a>
+<a name="796"><span class="lineNum">     796 </span><span class="lineNoCov">          0 :         PointerRNA op_ptr = layout.op(</span></a>
+<a name="797"><span class="lineNum">     797 </span>            :             &quot;UI_OT_copy_driver_to_selected_button&quot;,</a>
+<a name="798"><span class="lineNum">     798 </span><span class="lineNoCov">          0 :             CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Copy Driver to Selected&quot;),</span></a>
+<a name="799"><span class="lineNum">     799 </span><span class="lineNoCov">          0 :             ICON_NONE);</span></a>
+<a name="800"><span class="lineNum">     800 </span><span class="lineNoCov">          0 :         RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, false);</span></a>
+<a name="801"><span class="lineNum">     801 </span><span class="lineNoCov">          0 :         if (is_array_component) {</span></a>
+<a name="802"><span class="lineNum">     802 </span><span class="lineNoCov">          0 :           PointerRNA op_ptr = layout.op(</span></a>
+<a name="803"><span class="lineNum">     803 </span>            :               &quot;UI_OT_copy_driver_to_selected_button&quot;,</a>
+<a name="804"><span class="lineNum">     804 </span><span class="lineNoCov">          0 :               CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Copy All Drivers to Selected&quot;),</span></a>
+<a name="805"><span class="lineNum">     805 </span><span class="lineNoCov">          0 :               ICON_NONE);</span></a>
+<a name="806"><span class="lineNum">     806 </span><span class="lineNoCov">          0 :           RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, true);</span></a>
+<a name="807"><span class="lineNum">     807 </span><span class="lineNoCov">          0 :         }</span></a>
+<a name="808"><span class="lineNum">     808 </span>            : </a>
+<a name="809"><span class="lineNum">     809 </span><span class="lineNoCov">          0 :         layout.op(&quot;ANIM_OT_driver_button_edit&quot;,</span></a>
+<a name="810"><span class="lineNum">     810 </span><span class="lineNoCov">          0 :                   CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Edit Driver...&quot;),</span></a>
+<a name="811"><span class="lineNum">     811 </span>            :                   ICON_DRIVER);</a>
+<a name="812"><span class="lineNum">     812 </span><span class="lineNoCov">          0 :       }</span></a>
+<a name="813"><span class="lineNum">     813 </span>            : </a>
+<a name="814"><span class="lineNum">     814 </span><span class="lineNoCov">          0 :       layout.op(&quot;SCREEN_OT_drivers_editor_show&quot;,</span></a>
+<a name="815"><span class="lineNum">     815 </span><span class="lineNoCov">          0 :                 CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Open Drivers Editor&quot;),</span></a>
+<a name="816"><span class="lineNum">     816 </span>            :                 ICON_NONE);</a>
+<a name="817"><span class="lineNum">     817 </span>            :     }</a>
+<a name="818"><span class="lineNum">     818 </span><span class="lineNoCov">          0 :     else if (but-&gt;flag &amp; (BUT_ANIMATED_KEY | BUT_ANIMATED)) {</span></a>
+<a name="819"><span class="lineNum">     819 </span>            :       /* pass */</a>
+<a name="820"><span class="lineNum">     820 </span>            :     }</a>
+<a name="821"><span class="lineNum">     821 </span><span class="lineNoCov">          0 :     else if (is_anim) {</span></a>
+<a name="822"><span class="lineNum">     822 </span><span class="lineNoCov">          0 :       layout.separator();</span></a>
+<a name="823"><span class="lineNum">     823 </span>            : </a>
+<a name="824"><span class="lineNum">     824 </span><span class="lineNoCov">          0 :       layout.op(&quot;ANIM_OT_driver_button_add&quot;,</span></a>
+<a name="825"><span class="lineNum">     825 </span><span class="lineNoCov">          0 :                 CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Add Driver...&quot;),</span></a>
+<a name="826"><span class="lineNum">     826 </span>            :                 ICON_DRIVER);</a>
+<a name="827"><span class="lineNum">     827 </span>            : </a>
+<a name="828"><span class="lineNum">     828 </span><span class="lineNoCov">          0 :       if (!is_whole_array) {</span></a>
+<a name="829"><span class="lineNum">     829 </span><span class="lineNoCov">          0 :         if (ANIM_driver_can_paste()) {</span></a>
+<a name="830"><span class="lineNum">     830 </span><span class="lineNoCov">          0 :           layout.op(&quot;ANIM_OT_paste_driver_button&quot;,</span></a>
+<a name="831"><span class="lineNum">     831 </span><span class="lineNoCov">          0 :                     CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Paste Driver&quot;),</span></a>
+<a name="832"><span class="lineNum">     832 </span>            :                     ICON_NONE);</a>
+<a name="833"><span class="lineNum">     833 </span>            :         }</a>
+<a name="834"><span class="lineNum">     834 </span>            :       }</a>
+<a name="835"><span class="lineNum">     835 </span>            : </a>
+<a name="836"><span class="lineNum">     836 </span><span class="lineNoCov">          0 :       layout.op(&quot;SCREEN_OT_drivers_editor_show&quot;,</span></a>
+<a name="837"><span class="lineNum">     837 </span><span class="lineNoCov">          0 :                 CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Open Drivers Editor&quot;),</span></a>
+<a name="838"><span class="lineNum">     838 </span>            :                 ICON_NONE);</a>
+<a name="839"><span class="lineNum">     839 </span>            :     }</a>
+<a name="840"><span class="lineNum">     840 </span>            : </a>
+<a name="841"><span class="lineNum">     841 </span>            :     /* Keying Sets */</a>
+<a name="842"><span class="lineNum">     842 </span>            :     /* TODO: check on modifiability of Keying Set when doing this. */</a>
+<a name="843"><span class="lineNum">     843 </span><span class="lineNoCov">          0 :     if (is_anim) {</span></a>
+<a name="844"><span class="lineNum">     844 </span><span class="lineNoCov">          0 :       layout.separator();</span></a>
+<a name="845"><span class="lineNum">     845 </span>            : </a>
+<a name="846"><span class="lineNum">     846 </span><span class="lineNoCov">          0 :       if (is_array_component) {</span></a>
+<a name="847"><span class="lineNum">     847 </span><span class="lineNoCov">          0 :         PointerRNA op_ptr = layout.op(</span></a>
+<a name="848"><span class="lineNum">     848 </span>            :             &quot;ANIM_OT_keyingset_button_add&quot;,</a>
+<a name="849"><span class="lineNum">     849 </span><span class="lineNoCov">          0 :             CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Add All to Keying Set&quot;),</span></a>
+<a name="850"><span class="lineNum">     850 </span><span class="lineNoCov">          0 :             ICON_KEYINGSET);</span></a>
+<a name="851"><span class="lineNum">     851 </span><span class="lineNoCov">          0 :         RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, true);</span></a>
+<a name="852"><span class="lineNum">     852 </span><span class="lineNoCov">          0 :         op_ptr = layout.op(</span></a>
+<a name="853"><span class="lineNum">     853 </span>            :             &quot;ANIM_OT_keyingset_button_add&quot;,</a>
+<a name="854"><span class="lineNum">     854 </span><span class="lineNoCov">          0 :             CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Add Single to Keying Set&quot;),</span></a>
+<a name="855"><span class="lineNum">     855 </span><span class="lineNoCov">          0 :             ICON_NONE);</span></a>
+<a name="856"><span class="lineNum">     856 </span><span class="lineNoCov">          0 :         RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, false);</span></a>
+<a name="857"><span class="lineNum">     857 </span><span class="lineNoCov">          0 :         layout.op(&quot;ANIM_OT_keyingset_button_remove&quot;,</span></a>
+<a name="858"><span class="lineNum">     858 </span><span class="lineNoCov">          0 :                   CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Remove from Keying Set&quot;),</span></a>
+<a name="859"><span class="lineNum">     859 </span>            :                   ICON_NONE);</a>
+<a name="860"><span class="lineNum">     860 </span><span class="lineNoCov">          0 :       }</span></a>
+<a name="861"><span class="lineNum">     861 </span>            :       else {</a>
+<a name="862"><span class="lineNum">     862 </span><span class="lineNoCov">          0 :         PointerRNA op_ptr = layout.op(</span></a>
+<a name="863"><span class="lineNum">     863 </span>            :             &quot;ANIM_OT_keyingset_button_add&quot;,</a>
+<a name="864"><span class="lineNum">     864 </span><span class="lineNoCov">          0 :             CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Add to Keying Set&quot;),</span></a>
+<a name="865"><span class="lineNum">     865 </span><span class="lineNoCov">          0 :             ICON_KEYINGSET);</span></a>
+<a name="866"><span class="lineNum">     866 </span><span class="lineNoCov">          0 :         RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, true);</span></a>
+<a name="867"><span class="lineNum">     867 </span><span class="lineNoCov">          0 :         layout.op(&quot;ANIM_OT_keyingset_button_remove&quot;,</span></a>
+<a name="868"><span class="lineNum">     868 </span><span class="lineNoCov">          0 :                   CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Remove from Keying Set&quot;),</span></a>
+<a name="869"><span class="lineNum">     869 </span>            :                   ICON_NONE);</a>
+<a name="870"><span class="lineNum">     870 </span><span class="lineNoCov">          0 :       }</span></a>
+<a name="871"><span class="lineNum">     871 </span>            :     }</a>
+<a name="872"><span class="lineNum">     872 </span>            : </a>
+<a name="873"><span class="lineNum">     873 </span><span class="lineNoCov">          0 :     if (is_overridable) {</span></a>
+<a name="874"><span class="lineNum">     874 </span>            :       wmOperatorType *ot;</a>
+<a name="875"><span class="lineNum">     875 </span><span class="lineNoCov">          0 :       PointerRNA op_ptr;</span></a>
+<a name="876"><span class="lineNum">     876 </span>            :       /* Override Operators */</a>
+<a name="877"><span class="lineNum">     877 </span><span class="lineNoCov">          0 :       layout.separator();</span></a>
+<a name="878"><span class="lineNum">     878 </span>            : </a>
+<a name="879"><span class="lineNum">     879 </span><span class="lineNoCov">          0 :       if (but-&gt;flag &amp; BUT_OVERRIDDEN) {</span></a>
+<a name="880"><span class="lineNum">     880 </span><span class="lineNoCov">          0 :         if (is_array_component) {</span></a>
+<a name="881"><span class="lineNum">     881 </span><span class="lineNoCov">          0 :           PointerRNA op_ptr = layout.op(</span></a>
+<a name="882"><span class="lineNum">     882 </span>            :               &quot;UI_OT_override_remove_button&quot;,</a>
+<a name="883"><span class="lineNum">     883 </span><span class="lineNoCov">          0 :               CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Remove Overrides&quot;),</span></a>
+<a name="884"><span class="lineNum">     884 </span><span class="lineNoCov">          0 :               ICON_X);</span></a>
+<a name="885"><span class="lineNum">     885 </span><span class="lineNoCov">          0 :           RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, true);</span></a>
+<a name="886"><span class="lineNum">     886 </span><span class="lineNoCov">          0 :           op_ptr = layout.op(</span></a>
+<a name="887"><span class="lineNum">     887 </span>            :               &quot;UI_OT_override_remove_button&quot;,</a>
+<a name="888"><span class="lineNum">     888 </span><span class="lineNoCov">          0 :               CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Remove Single Override&quot;),</span></a>
+<a name="889"><span class="lineNum">     889 </span><span class="lineNoCov">          0 :               ICON_X);</span></a>
+<a name="890"><span class="lineNum">     890 </span><span class="lineNoCov">          0 :           RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, false);</span></a>
+<a name="891"><span class="lineNum">     891 </span><span class="lineNoCov">          0 :         }</span></a>
+<a name="892"><span class="lineNum">     892 </span>            :         else {</a>
+<a name="893"><span class="lineNum">     893 </span><span class="lineNoCov">          0 :           PointerRNA op_ptr = layout.op(</span></a>
+<a name="894"><span class="lineNum">     894 </span>            :               &quot;UI_OT_override_remove_button&quot;,</a>
+<a name="895"><span class="lineNum">     895 </span><span class="lineNoCov">          0 :               CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Remove Override&quot;),</span></a>
+<a name="896"><span class="lineNum">     896 </span><span class="lineNoCov">          0 :               ICON_X);</span></a>
+<a name="897"><span class="lineNum">     897 </span><span class="lineNoCov">          0 :           RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, true);</span></a>
+<a name="898"><span class="lineNum">     898 </span><span class="lineNoCov">          0 :         }</span></a>
+<a name="899"><span class="lineNum">     899 </span>            :       }</a>
+<a name="900"><span class="lineNum">     900 </span>            :       else {</a>
+<a name="901"><span class="lineNum">     901 </span><span class="lineNoCov">          0 :         ot = WM_operatortype_find(&quot;UI_OT_override_add_button&quot;, false);</span></a>
+<a name="902"><span class="lineNum">     902 </span><span class="lineNoCov">          0 :         if (is_array_component) {</span></a>
+<a name="903"><span class="lineNum">     903 </span><span class="lineNoCov">          0 :           op_ptr = layout.op(ot,</span></a>
+<a name="904"><span class="lineNum">     904 </span><span class="lineNoCov">          0 :                              CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Add Overrides&quot;),</span></a>
+<a name="905"><span class="lineNum">     905 </span>            :                              ICON_NONE,</a>
+<a name="906"><span class="lineNum">     906 </span>            :                              wm::OpCallContext::InvokeDefault,</a>
+<a name="907"><span class="lineNum">     907 </span><span class="lineNoCov">          0 :                              UI_ITEM_NONE);</span></a>
+<a name="908"><span class="lineNum">     908 </span><span class="lineNoCov">          0 :           RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, true);</span></a>
+<a name="909"><span class="lineNum">     909 </span><span class="lineNoCov">          0 :           op_ptr = layout.op(ot,</span></a>
+<a name="910"><span class="lineNum">     910 </span><span class="lineNoCov">          0 :                              CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Add Single Override&quot;),</span></a>
+<a name="911"><span class="lineNum">     911 </span>            :                              ICON_NONE,</a>
+<a name="912"><span class="lineNum">     912 </span>            :                              wm::OpCallContext::InvokeDefault,</a>
+<a name="913"><span class="lineNum">     913 </span><span class="lineNoCov">          0 :                              UI_ITEM_NONE);</span></a>
+<a name="914"><span class="lineNum">     914 </span><span class="lineNoCov">          0 :           RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, false);</span></a>
+<a name="915"><span class="lineNum">     915 </span>            :         }</a>
+<a name="916"><span class="lineNum">     916 </span>            :         else {</a>
+<a name="917"><span class="lineNum">     917 </span><span class="lineNoCov">          0 :           op_ptr = layout.op(ot,</span></a>
+<a name="918"><span class="lineNum">     918 </span><span class="lineNoCov">          0 :                              CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Add Override&quot;),</span></a>
+<a name="919"><span class="lineNum">     919 </span>            :                              ICON_NONE,</a>
+<a name="920"><span class="lineNum">     920 </span>            :                              wm::OpCallContext::InvokeDefault,</a>
+<a name="921"><span class="lineNum">     921 </span><span class="lineNoCov">          0 :                              UI_ITEM_NONE);</span></a>
+<a name="922"><span class="lineNum">     922 </span><span class="lineNoCov">          0 :           RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, false);</span></a>
+<a name="923"><span class="lineNum">     923 </span>            :         }</a>
+<a name="924"><span class="lineNum">     924 </span>            :       }</a>
+<a name="925"><span class="lineNum">     925 </span><span class="lineNoCov">          0 :     }</span></a>
+<a name="926"><span class="lineNum">     926 </span>            : </a>
+<a name="927"><span class="lineNum">     927 </span><span class="lineNoCov">          0 :     layout.separator();</span></a>
+<a name="928"><span class="lineNum">     928 </span>            : </a>
+<a name="929"><span class="lineNum">     929 </span>            :     /* Property Operators */</a>
+<a name="930"><span class="lineNum">     930 </span>            :     /* Swap render X and Y dimensions. */</a>
+<a name="931"><span class="lineNum">     931 </span><span class="lineNoCov">          0 :     if (but-&gt;rnaprop &amp;&amp; but-&gt;rnapoin.type == RNA_RenderSettings) {</span></a>
+<a name="932"><span class="lineNum">     932 </span><span class="lineNoCov">          0 :       const std::string prop_id = RNA_property_identifier(but-&gt;rnaprop);</span></a>
+<a name="933"><span class="lineNum">     933 </span><span class="lineNoCov">          0 :       if (ELEM(prop_id, &quot;resolution_x&quot;, &quot;resolution_y&quot;)) {</span></a>
+<a name="934"><span class="lineNum">     934 </span><span class="lineNoCov">          0 :         layout.op(&quot;RENDER_OT_swap_dimensions&quot;,</span></a>
+<a name="935"><span class="lineNum">     935 </span><span class="lineNoCov">          0 :                   CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Swap Dimensions&quot;),</span></a>
+<a name="936"><span class="lineNum">     936 </span>            :                   ICON_RENDER_SWAP_DIMENSIONS);</a>
+<a name="937"><span class="lineNum">     937 </span><span class="lineNoCov">          0 :         layout.separator();</span></a>
+<a name="938"><span class="lineNum">     938 </span>            :       }</a>
+<a name="939"><span class="lineNum">     939 </span><span class="lineNoCov">          0 :     }</span></a>
+<a name="940"><span class="lineNum">     940 </span>            : </a>
+<a name="941"><span class="lineNum">     941 </span>            :     /* Copy Property Value</a>
+<a name="942"><span class="lineNum">     942 </span>            :      * Paste Property Value */</a>
+<a name="943"><span class="lineNum">     943 </span>            : </a>
+<a name="944"><span class="lineNum">     944 </span><span class="lineNoCov">          0 :     if (is_array_component) {</span></a>
+<a name="945"><span class="lineNum">     945 </span><span class="lineNoCov">          0 :       PointerRNA op_ptr = layout.op(</span></a>
+<a name="946"><span class="lineNum">     946 </span>            :           &quot;UI_OT_reset_default_button&quot;,</a>
+<a name="947"><span class="lineNum">     947 </span><span class="lineNoCov">          0 :           CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Reset All to Default Values&quot;),</span></a>
+<a name="948"><span class="lineNum">     948 </span><span class="lineNoCov">          0 :           ICON_LOOP_BACK);</span></a>
+<a name="949"><span class="lineNum">     949 </span><span class="lineNoCov">          0 :       RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, true);</span></a>
+<a name="950"><span class="lineNum">     950 </span><span class="lineNoCov">          0 :       op_ptr = layout.op(</span></a>
+<a name="951"><span class="lineNum">     951 </span>            :           &quot;UI_OT_reset_default_button&quot;,</a>
+<a name="952"><span class="lineNum">     952 </span><span class="lineNoCov">          0 :           CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Reset Single to Default Value&quot;),</span></a>
+<a name="953"><span class="lineNum">     953 </span><span class="lineNoCov">          0 :           ICON_NONE);</span></a>
+<a name="954"><span class="lineNum">     954 </span><span class="lineNoCov">          0 :       RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, false);</span></a>
+<a name="955"><span class="lineNum">     955 </span><span class="lineNoCov">          0 :     }</span></a>
+<a name="956"><span class="lineNum">     956 </span>            :     else {</a>
+<a name="957"><span class="lineNum">     957 </span><span class="lineNoCov">          0 :       PointerRNA op_ptr = layout.op(</span></a>
+<a name="958"><span class="lineNum">     958 </span>            :           &quot;UI_OT_reset_default_button&quot;,</a>
+<a name="959"><span class="lineNum">     959 </span><span class="lineNoCov">          0 :           CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Reset to Default Value&quot;),</span></a>
+<a name="960"><span class="lineNum">     960 </span><span class="lineNoCov">          0 :           ICON_LOOP_BACK);</span></a>
+<a name="961"><span class="lineNum">     961 </span><span class="lineNoCov">          0 :       RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, true);</span></a>
+<a name="962"><span class="lineNum">     962 </span><span class="lineNoCov">          0 :     }</span></a>
+<a name="963"><span class="lineNum">     963 </span>            : </a>
+<a name="964"><span class="lineNum">     964 </span><span class="lineNoCov">          0 :     if (is_idprop &amp;&amp; !is_array &amp;&amp; ELEM(type, PROP_INT, PROP_FLOAT)) {</span></a>
+<a name="965"><span class="lineNum">     965 </span><span class="lineNoCov">          0 :       layout.op(&quot;UI_OT_assign_default_button&quot;,</span></a>
+<a name="966"><span class="lineNum">     966 </span><span class="lineNoCov">          0 :                 CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Assign Value as Default&quot;),</span></a>
+<a name="967"><span class="lineNum">     967 </span>            :                 ICON_NONE);</a>
+<a name="968"><span class="lineNum">     968 </span>            : </a>
+<a name="969"><span class="lineNum">     969 </span><span class="lineNoCov">          0 :       layout.separator();</span></a>
+<a name="970"><span class="lineNum">     970 </span>            :     }</a>
+<a name="971"><span class="lineNum">     971 </span>            : </a>
+<a name="972"><span class="lineNum">     972 </span><span class="lineNoCov">          0 :     if (is_array_component) {</span></a>
+<a name="973"><span class="lineNum">     973 </span><span class="lineNoCov">          0 :       PointerRNA op_ptr = layout.op(</span></a>
+<a name="974"><span class="lineNum">     974 </span>            :           &quot;UI_OT_copy_to_selected_button&quot;,</a>
+<a name="975"><span class="lineNum">     975 </span><span class="lineNoCov">          0 :           CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Copy All to Selected&quot;),</span></a>
+<a name="976"><span class="lineNum">     976 </span><span class="lineNoCov">          0 :           ICON_NONE);</span></a>
+<a name="977"><span class="lineNum">     977 </span><span class="lineNoCov">          0 :       RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, true);</span></a>
+<a name="978"><span class="lineNum">     978 </span><span class="lineNoCov">          0 :       op_ptr = layout.op(&quot;UI_OT_copy_to_selected_button&quot;,</span></a>
+<a name="979"><span class="lineNum">     979 </span><span class="lineNoCov">          0 :                          CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Copy Single to Selected&quot;),</span></a>
+<a name="980"><span class="lineNum">     980 </span><span class="lineNoCov">          0 :                          ICON_NONE);</span></a>
+<a name="981"><span class="lineNum">     981 </span><span class="lineNoCov">          0 :       RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, false);</span></a>
+<a name="982"><span class="lineNum">     982 </span><span class="lineNoCov">          0 :     }</span></a>
+<a name="983"><span class="lineNum">     983 </span>            :     else {</a>
+<a name="984"><span class="lineNum">     984 </span><span class="lineNoCov">          0 :       PointerRNA op_ptr = layout.op(</span></a>
+<a name="985"><span class="lineNum">     985 </span>            :           &quot;UI_OT_copy_to_selected_button&quot;,</a>
+<a name="986"><span class="lineNum">     986 </span><span class="lineNoCov">          0 :           CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Copy to Selected&quot;),</span></a>
+<a name="987"><span class="lineNum">     987 </span><span class="lineNoCov">          0 :           ICON_NONE);</span></a>
+<a name="988"><span class="lineNum">     988 </span><span class="lineNoCov">          0 :       RNA_boolean_set(&amp;op_ptr, &quot;all&quot;, true);</span></a>
+<a name="989"><span class="lineNum">     989 </span><span class="lineNoCov">          0 :     }</span></a>
+<a name="990"><span class="lineNum">     990 </span>            : </a>
+<a name="991"><span class="lineNum">     991 </span><span class="lineNoCov">          0 :     layout.op(&quot;UI_OT_copy_data_path_button&quot;,</span></a>
+<a name="992"><span class="lineNum">     992 </span><span class="lineNoCov">          0 :               CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Copy Data Path&quot;),</span></a>
+<a name="993"><span class="lineNum">     993 </span>            :               ICON_NONE);</a>
+<a name="994"><span class="lineNum">     994 </span><span class="lineNoCov">          0 :     PointerRNA op_ptr = layout.op(</span></a>
+<a name="995"><span class="lineNum">     995 </span>            :         &quot;UI_OT_copy_data_path_button&quot;,</a>
+<a name="996"><span class="lineNum">     996 </span><span class="lineNoCov">          0 :         CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Copy Full Data Path&quot;),</span></a>
+<a name="997"><span class="lineNum">     997 </span><span class="lineNoCov">          0 :         ICON_NONE);</span></a>
+<a name="998"><span class="lineNum">     998 </span><span class="lineNoCov">          0 :     RNA_boolean_set(&amp;op_ptr, &quot;full_path&quot;, true);</span></a>
+<a name="999"><span class="lineNum">     999 </span>            : </a>
+<a name="1000"><span class="lineNum">    1000 </span><span class="lineNoCov">          0 :     if (ptr-&gt;owner_id &amp;&amp; !is_whole_array &amp;&amp;</span></a>
+<a name="1001"><span class="lineNum">    1001 </span><span class="lineNoCov">          0 :         ELEM(type, PROP_BOOLEAN, PROP_INT, PROP_FLOAT, PROP_ENUM))</span></a>
+<a name="1002"><span class="lineNum">    1002 </span>            :     {</a>
+<a name="1003"><span class="lineNum">    1003 </span><span class="lineNoCov">          0 :       layout.op(&quot;UI_OT_copy_as_driver_button&quot;,</span></a>
+<a name="1004"><span class="lineNum">    1004 </span><span class="lineNoCov">          0 :                 CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Copy as New Driver&quot;),</span></a>
+<a name="1005"><span class="lineNum">    1005 </span>            :                 ICON_NONE);</a>
+<a name="1006"><span class="lineNum">    1006 </span>            :     }</a>
+<a name="1007"><span class="lineNum">    1007 </span>            : </a>
+<a name="1008"><span class="lineNum">    1008 </span><span class="lineNoCov">          0 :     layout.separator();</span></a>
+<a name="1009"><span class="lineNum">    1009 </span>            : </a>
+<a name="1010"><span class="lineNum">    1010 </span><span class="lineNoCov">          0 :     if (type == PROP_STRING &amp;&amp; ELEM(subtype, PROP_FILEPATH, PROP_DIRPATH)) {</span></a>
+<a name="1011"><span class="lineNum">    1011 </span><span class="lineNoCov">          0 :       if (but_menu_add_path_operators(layout, ptr, prop)) {</span></a>
+<a name="1012"><span class="lineNum">    1012 </span><span class="lineNoCov">          0 :         layout.separator();</span></a>
+<a name="1013"><span class="lineNum">    1013 </span>            :       }</a>
+<a name="1014"><span class="lineNum">    1014 </span>            :     }</a>
+<a name="1015"><span class="lineNum">    1015 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="1016"><span class="lineNum">    1016 </span><span class="lineNoCov">          0 :   else if (button_opens_link(but)) {</span></a>
+<a name="1017"><span class="lineNum">    1017 </span><span class="lineNoCov">          0 :     std::string link = button_get_link(but, C);</span></a>
+<a name="1018"><span class="lineNum">    1018 </span><span class="lineNoCov">          0 :     layout.button(</span></a>
+<a name="1019"><span class="lineNum">    1019 </span><span class="lineNoCov">          0 :         IFACE_(&quot;Copy Link&quot;), ICON_COPYDOWN, [link = std::move(link)](blender::bContext &amp; /*C*/) {</span></a>
+<a name="1020"><span class="lineNum">    1020 </span><span class="lineNoCov">          0 :           WM_clipboard_text_set(link.c_str(), false);</span></a>
+<a name="1021"><span class="lineNum">    1021 </span><span class="lineNoCov">          0 :         });</span></a>
+<a name="1022"><span class="lineNum">    1022 </span><span class="lineNoCov">          0 :     layout.separator();</span></a>
+<a name="1023"><span class="lineNum">    1023 </span><span class="lineNoCov">          0 :   }</span></a>
+<a name="1024"><span class="lineNum">    1024 </span><span class="lineNoCov">          0 :   else if (but-&gt;optype &amp;&amp; but-&gt;opptr &amp;&amp; RNA_struct_property_is_set(but-&gt;opptr, &quot;filepath&quot;)) {</span></a>
+<a name="1025"><span class="lineNum">    1025 </span>            :     /* Operator with &quot;filepath&quot; string property of PROP_FILEPATH subtype. */</a>
+<a name="1026"><span class="lineNum">    1026 </span><span class="lineNoCov">          0 :     PropertyRNA *prop = RNA_struct_find_property(but-&gt;opptr, &quot;filepath&quot;);</span></a>
+<a name="1027"><span class="lineNum">    1027 </span><span class="lineNoCov">          0 :     const PropertySubType subtype = RNA_property_subtype(prop);</span></a>
+<a name="1028"><span class="lineNum">    1028 </span>            : </a>
+<a name="1029"><span class="lineNum">    1029 </span><span class="lineNoCov">          0 :     if (prop &amp;&amp; RNA_property_type(prop) == PROP_STRING &amp;&amp;</span></a>
+<a name="1030"><span class="lineNum">    1030 </span>            :         subtype == PropertySubType::PROP_FILEPATH)</a>
+<a name="1031"><span class="lineNum">    1031 </span>            :     {</a>
+<a name="1032"><span class="lineNum">    1032 </span><span class="lineNoCov">          0 :       char filepath[FILE_MAX] = {0};</span></a>
+<a name="1033"><span class="lineNum">    1033 </span><span class="lineNoCov">          0 :       RNA_property_string_get(but-&gt;opptr, prop, filepath);</span></a>
+<a name="1034"><span class="lineNum">    1034 </span><span class="lineNoCov">          0 :       if (filepath[0] &amp;&amp; BLI_exists(filepath)) {</span></a>
+<a name="1035"><span class="lineNum">    1035 </span><span class="lineNoCov">          0 :         wmOperatorType *ot = WM_operatortype_find(&quot;WM_OT_path_open&quot;, true);</span></a>
+<a name="1036"><span class="lineNum">    1036 </span><span class="lineNoCov">          0 :         PointerRNA props_ptr;</span></a>
+<a name="1037"><span class="lineNum">    1037 </span>            :         char dir[FILE_MAXDIR];</a>
+<a name="1038"><span class="lineNum">    1038 </span><span class="lineNoCov">          0 :         BLI_path_split_dir_part(filepath, dir, sizeof(dir));</span></a>
+<a name="1039"><span class="lineNum">    1039 </span><span class="lineNoCov">          0 :         props_ptr = layout.op(ot,</span></a>
+<a name="1040"><span class="lineNum">    1040 </span><span class="lineNoCov">          0 :                               CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Open File Location&quot;),</span></a>
+<a name="1041"><span class="lineNum">    1041 </span>            :                               ICON_NONE,</a>
+<a name="1042"><span class="lineNum">    1042 </span>            :                               wm::OpCallContext::InvokeDefault,</a>
+<a name="1043"><span class="lineNum">    1043 </span><span class="lineNoCov">          0 :                               UI_ITEM_NONE);</span></a>
+<a name="1044"><span class="lineNum">    1044 </span><span class="lineNoCov">          0 :         RNA_string_set(&amp;props_ptr, &quot;filepath&quot;, dir);</span></a>
+<a name="1045"><span class="lineNum">    1045 </span><span class="lineNoCov">          0 :         layout.separator();</span></a>
+<a name="1046"><span class="lineNum">    1046 </span><span class="lineNoCov">          0 :       }</span></a>
+<a name="1047"><span class="lineNum">    1047 </span>            :     }</a>
+<a name="1048"><span class="lineNum">    1048 </span>            :   }</a>
+<a name="1049"><span class="lineNum">    1049 </span>            : </a>
+<a name="1050"><span class="lineNum">    1050 </span>            :   /* Download online assets. */</a>
+<a name="1051"><span class="lineNum">    1051 </span><span class="lineNoCov">          0 :   if (but-&gt;optype &amp;&amp; but-&gt;opptr &amp;&amp; ed::asset::operator_asset_reference_props_is_set(*but-&gt;opptr)) {</span></a>
+<a name="1052"><span class="lineNum">    1052 </span><span class="lineNoCov">          0 :     const asset_system::AssetRepresentation *asset = CTX_wm_asset(C);</span></a>
+<a name="1053"><span class="lineNum">    1053 </span><span class="lineNoCov">          0 :     if (asset &amp;&amp; asset-&gt;is_online_only()) {</span></a>
+<a name="1054"><span class="lineNum">    1054 </span><span class="lineNoCov">          0 :       layout.op(&quot;ASSET_OT_assets_download&quot;, {}, ICON_DOWNLOAD);</span></a>
+<a name="1055"><span class="lineNum">    1055 </span>            :     }</a>
+<a name="1056"><span class="lineNum">    1056 </span>            :   }</a>
+<a name="1057"><span class="lineNum">    1057 </span>            : </a>
+<a name="1058"><span class="lineNum">    1058 </span>            :   {</a>
+<a name="1059"><span class="lineNum">    1059 </span><span class="lineNoCov">          0 :     const ARegion *region = CTX_wm_region_popup(C) ? CTX_wm_region_popup(C) : CTX_wm_region(C);</span></a>
+<a name="1060"><span class="lineNum">    1060 </span><span class="lineNoCov">          0 :     ButtonViewItem *view_item_but = (but-&gt;type == ButtonType::ViewItem) ?</span></a>
+<a name="1061"><span class="lineNum">    1061 </span>            :                                         static_cast&lt;ButtonViewItem *&gt;(but) :</a>
+<a name="1062"><span class="lineNum">    1062 </span>            :                                         static_cast&lt;ButtonViewItem *&gt;(</a>
+<a name="1063"><span class="lineNum">    1063 </span><span class="lineNoCov">          0 :                                             view_item_find_mouse_over(region, event-&gt;xy));</span></a>
+<a name="1064"><span class="lineNum">    1064 </span><span class="lineNoCov">          0 :     if (view_item_but) {</span></a>
+<a name="1065"><span class="lineNum">    1065 </span><span class="lineNoCov">          0 :       BLI_assert(view_item_but-&gt;type == ButtonType::ViewItem);</span></a>
+<a name="1066"><span class="lineNum">    1066 </span>            : </a>
+<a name="1067"><span class="lineNum">    1067 </span><span class="lineNoCov">          0 :       const bContextStore *prev_ctx = CTX_store_get(C);</span></a>
+<a name="1068"><span class="lineNum">    1068 </span>            :       /* Sub-layout for context override. */</a>
+<a name="1069"><span class="lineNum">    1069 </span><span class="lineNoCov">          0 :       Layout &amp;sub = layout.column(false);</span></a>
+<a name="1070"><span class="lineNum">    1070 </span><span class="lineNoCov">          0 :       set_layout_context_from_button(C, sub, view_item_but);</span></a>
+<a name="1071"><span class="lineNum">    1071 </span><span class="lineNoCov">          0 :       view_item_but-&gt;view_item-&gt;build_context_menu(*C, sub);</span></a>
+<a name="1072"><span class="lineNum">    1072 </span>            : </a>
+<a name="1073"><span class="lineNum">    1073 </span>            :       /* Reset context. */</a>
+<a name="1074"><span class="lineNum">    1074 </span><span class="lineNoCov">          0 :       CTX_store_set(C, prev_ctx);</span></a>
+<a name="1075"><span class="lineNum">    1075 </span>            : </a>
+<a name="1076"><span class="lineNum">    1076 </span><span class="lineNoCov">          0 :       layout.separator();</span></a>
+<a name="1077"><span class="lineNum">    1077 </span>            :     }</a>
+<a name="1078"><span class="lineNum">    1078 </span>            :   }</a>
+<a name="1079"><span class="lineNum">    1079 </span>            : </a>
+<a name="1080"><span class="lineNum">    1080 </span>            :   /* Expose id specific operators in context menu when button has no operator associated. Otherwise</a>
+<a name="1081"><span class="lineNum">    1081 </span>            :    * they would appear in nested context menus, see: #126006. */</a>
+<a name="1082"><span class="lineNum">    1082 </span><span class="lineNoCov">          0 :   if ((but-&gt;optype == nullptr) &amp;&amp; (but-&gt;menu_create_func == nullptr)) {</span></a>
+<a name="1083"><span class="lineNum">    1083 </span>            :     /* If the button represents an id, it can set the &quot;id&quot; context pointer. */</a>
+<a name="1084"><span class="lineNum">    1084 </span><span class="lineNoCov">          0 :     if (ed::asset::can_mark_single_from_context(C)) {</span></a>
+<a name="1085"><span class="lineNum">    1085 </span><span class="lineNoCov">          0 :       const ID *id = static_cast&lt;const ID *&gt;(CTX_data_pointer_get_type(C, &quot;id&quot;, RNA_ID).data);</span></a>
+<a name="1086"><span class="lineNum">    1086 </span>            : </a>
+<a name="1087"><span class="lineNum">    1087 </span>            :       /* Gray out items depending on if data-block is an asset. Preferably this could be done via</a>
+<a name="1088"><span class="lineNum">    1088 </span>            :        * operator poll, but that doesn't work since the operator also works with &quot;selected_ids&quot;,</a>
+<a name="1089"><span class="lineNum">    1089 </span>            :        * which isn't cheap to check. */</a>
+<a name="1090"><span class="lineNum">    1090 </span><span class="lineNoCov">          0 :       Layout *sub = &amp;layout.column(true);</span></a>
+<a name="1091"><span class="lineNum">    1091 </span><span class="lineNoCov">          0 :       sub-&gt;enabled_set(!id-&gt;asset_data);</span></a>
+<a name="1092"><span class="lineNum">    1092 </span><span class="lineNoCov">          0 :       sub-&gt;op(&quot;ASSET_OT_mark_single&quot;,</span></a>
+<a name="1093"><span class="lineNum">    1093 </span><span class="lineNoCov">          0 :               CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Mark as Asset&quot;),</span></a>
+<a name="1094"><span class="lineNum">    1094 </span>            :               ICON_ASSET_MANAGER);</a>
+<a name="1095"><span class="lineNum">    1095 </span><span class="lineNoCov">          0 :       sub = &amp;layout.column(true);</span></a>
+<a name="1096"><span class="lineNum">    1096 </span><span class="lineNoCov">          0 :       sub-&gt;enabled_set(id-&gt;asset_data);</span></a>
+<a name="1097"><span class="lineNum">    1097 </span><span class="lineNoCov">          0 :       sub-&gt;op(&quot;ASSET_OT_clear_single&quot;,</span></a>
+<a name="1098"><span class="lineNum">    1098 </span><span class="lineNoCov">          0 :               CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Clear Asset&quot;),</span></a>
+<a name="1099"><span class="lineNum">    1099 </span>            :               ICON_NONE);</a>
+<a name="1100"><span class="lineNum">    1100 </span><span class="lineNoCov">          0 :       layout.separator();</span></a>
+<a name="1101"><span class="lineNum">    1101 </span>            :     }</a>
+<a name="1102"><span class="lineNum">    1102 </span>            : </a>
+<a name="1103"><span class="lineNum">    1103 </span><span class="lineNoCov">          0 :     MenuType *mt_idtemplate_liboverride = WM_menutype_find(&quot;UI_MT_idtemplate_liboverride&quot;, true);</span></a>
+<a name="1104"><span class="lineNum">    1104 </span><span class="lineNoCov">          0 :     if (mt_idtemplate_liboverride &amp;&amp; mt_idtemplate_liboverride-&gt;poll(C, mt_idtemplate_liboverride))</span></a>
+<a name="1105"><span class="lineNum">    1105 </span>            :     {</a>
+<a name="1106"><span class="lineNum">    1106 </span><span class="lineNoCov">          0 :       layout.menu(mt_idtemplate_liboverride, IFACE_(&quot;Library Override&quot;), ICON_NONE);</span></a>
+<a name="1107"><span class="lineNum">    1107 </span><span class="lineNoCov">          0 :       layout.separator();</span></a>
+<a name="1108"><span class="lineNum">    1108 </span>            :     }</a>
+<a name="1109"><span class="lineNum">    1109 </span>            :   }</a>
+<a name="1110"><span class="lineNum">    1110 </span>            : </a>
+<a name="1111"><span class="lineNum">    1111 </span>            :   /* Pointer properties and string properties with</a>
+<a name="1112"><span class="lineNum">    1112 </span>            :    * prop_search support jumping to target object/bone. */</a>
+<a name="1113"><span class="lineNum">    1113 </span><span class="lineNoCov">          0 :   if (but-&gt;rnapoin &amp;&amp; but-&gt;rnaprop) {</span></a>
+<a name="1114"><span class="lineNum">    1114 </span><span class="lineNoCov">          0 :     const PropertyType prop_type = RNA_property_type(but-&gt;rnaprop);</span></a>
+<a name="1115"><span class="lineNum">    1115 </span><span class="lineNoCov">          0 :     if (((prop_type == PROP_POINTER) ||</span></a>
+<a name="1116"><span class="lineNum">    1116 </span><span class="lineNoCov">          0 :          (prop_type == PROP_STRING &amp;&amp; but-&gt;type == ButtonType::SearchMenu &amp;&amp;</span></a>
+<a name="1117"><span class="lineNum">    1117 </span><span class="lineNoCov">          0 :           (static_cast&lt;ButtonSearch *&gt;(but))-&gt;items_update_fn ==</span></a>
+<a name="1118"><span class="lineNum">    1118 </span><span class="lineNoCov">          0 :               rna_collection_search_update_fn)) &amp;&amp;</span></a>
+<a name="1119"><span class="lineNum">    1119 </span><span class="lineNoCov">          0 :         jump_to_target_button_poll(C))</span></a>
+<a name="1120"><span class="lineNum">    1120 </span>            :     {</a>
+<a name="1121"><span class="lineNum">    1121 </span><span class="lineNoCov">          0 :       layout.op(&quot;UI_OT_jump_to_target_button&quot;,</span></a>
+<a name="1122"><span class="lineNum">    1122 </span><span class="lineNoCov">          0 :                 CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Jump to Target&quot;),</span></a>
+<a name="1123"><span class="lineNum">    1123 </span>            :                 ICON_NONE);</a>
+<a name="1124"><span class="lineNum">    1124 </span><span class="lineNoCov">          0 :       layout.separator();</span></a>
+<a name="1125"><span class="lineNum">    1125 </span>            :     }</a>
+<a name="1126"><span class="lineNum">    1126 </span>            :   }</a>
+<a name="1127"><span class="lineNum">    1127 </span>            : </a>
+<a name="1128"><span class="lineNum">    1128 </span>            :   /* Favorites Menu */</a>
+<a name="1129"><span class="lineNum">    1129 </span><span class="lineNoCov">          0 :   if (but_is_user_menu_compatible(C, but)) {</span></a>
+<a name="1130"><span class="lineNum">    1130 </span><span class="lineNoCov">          0 :     Block *block = layout.block();</span></a>
+<a name="1131"><span class="lineNum">    1131 </span><span class="lineNoCov">          0 :     const int w = layout.width();</span></a>
+<a name="1132"><span class="lineNum">    1132 </span><span class="lineNoCov">          0 :     bool item_found = false;</span></a>
+<a name="1133"><span class="lineNum">    1133 </span>            : </a>
+<a name="1134"><span class="lineNum">    1134 </span>            :     uint um_array_len;</a>
+<a name="1135"><span class="lineNum">    1135 </span><span class="lineNoCov">          0 :     bUserMenu **um_array = ED_screen_user_menus_find(C, &amp;um_array_len);</span></a>
+<a name="1136"><span class="lineNum">    1136 </span><span class="lineNoCov">          0 :     for (int um_index = 0; um_index &lt; um_array_len; um_index++) {</span></a>
+<a name="1137"><span class="lineNum">    1137 </span><span class="lineNoCov">          0 :       bUserMenu *um = um_array[um_index];</span></a>
+<a name="1138"><span class="lineNum">    1138 </span><span class="lineNoCov">          0 :       if (um == nullptr) {</span></a>
+<a name="1139"><span class="lineNum">    1139 </span><span class="lineNoCov">          0 :         continue;</span></a>
+<a name="1140"><span class="lineNum">    1140 </span>            :       }</a>
+<a name="1141"><span class="lineNum">    1141 </span><span class="lineNoCov">          0 :       bUserMenuItem *umi = but_user_menu_find(C, but, um);</span></a>
+<a name="1142"><span class="lineNum">    1142 </span><span class="lineNoCov">          0 :       if (umi != nullptr) {</span></a>
+<a name="1143"><span class="lineNum">    1143 </span><span class="lineNoCov">          0 :         Button *but2 = uiDefIconTextBut(</span></a>
+<a name="1144"><span class="lineNum">    1144 </span>            :             block,</a>
+<a name="1145"><span class="lineNum">    1145 </span>            :             ButtonType::But,</a>
+<a name="1146"><span class="lineNum">    1146 </span>            :             ICON_MENU_PANEL,</a>
+<a name="1147"><span class="lineNum">    1147 </span>            :             CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Remove from Quick Favorites&quot;),</a>
+<a name="1148"><span class="lineNum">    1148 </span>            :             0,</a>
+<a name="1149"><span class="lineNum">    1149 </span>            :             0,</a>
+<a name="1150"><span class="lineNum">    1150 </span>            :             w,</a>
+<a name="1151"><span class="lineNum">    1151 </span><span class="lineNoCov">          0 :             UI_UNIT_Y,</span></a>
+<a name="1152"><span class="lineNum">    1152 </span>            :             nullptr,</a>
+<a name="1153"><span class="lineNum">    1153 </span>            :             &quot;&quot;);</a>
+<a name="1154"><span class="lineNum">    1154 </span><span class="lineNoCov">          0 :         item_found = true;</span></a>
+<a name="1155"><span class="lineNum">    1155 </span><span class="lineNoCov">          0 :         button_func_set(but2, [um, umi](bContext &amp;) {</span></a>
+<a name="1156"><span class="lineNum">    1156 </span><span class="lineNoCov">          0 :           U.runtime.is_dirty = true;</span></a>
+<a name="1157"><span class="lineNum">    1157 </span><span class="lineNoCov">          0 :           ED_screen_user_menu_item_remove(&amp;um-&gt;items, umi);</span></a>
+<a name="1158"><span class="lineNum">    1158 </span><span class="lineNoCov">          0 :         });</span></a>
+<a name="1159"><span class="lineNum">    1159 </span>            :       }</a>
+<a name="1160"><span class="lineNum">    1160 </span>            :     }</a>
+<a name="1161"><span class="lineNum">    1161 </span><span class="lineNoCov">          0 :     if (um_array) {</span></a>
+<a name="1162"><span class="lineNum">    1162 </span><span class="lineNoCov">          0 :       MEM_delete(um_array);</span></a>
+<a name="1163"><span class="lineNum">    1163 </span>            :     }</a>
+<a name="1164"><span class="lineNum">    1164 </span>            : </a>
+<a name="1165"><span class="lineNum">    1165 </span><span class="lineNoCov">          0 :     if (!item_found) {</span></a>
+<a name="1166"><span class="lineNum">    1166 </span><span class="lineNoCov">          0 :       Button *but2 = uiDefIconTextBut(</span></a>
+<a name="1167"><span class="lineNum">    1167 </span>            :           block,</a>
+<a name="1168"><span class="lineNum">    1168 </span>            :           ButtonType::But,</a>
+<a name="1169"><span class="lineNum">    1169 </span>            :           ICON_MENU_PANEL,</a>
+<a name="1170"><span class="lineNum">    1170 </span>            :           CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Add to Quick Favorites&quot;),</a>
+<a name="1171"><span class="lineNum">    1171 </span>            :           0,</a>
+<a name="1172"><span class="lineNum">    1172 </span>            :           0,</a>
+<a name="1173"><span class="lineNum">    1173 </span>            :           w,</a>
+<a name="1174"><span class="lineNum">    1174 </span><span class="lineNoCov">          0 :           UI_UNIT_Y,</span></a>
+<a name="1175"><span class="lineNum">    1175 </span>            :           nullptr,</a>
+<a name="1176"><span class="lineNum">    1176 </span><span class="lineNoCov">          0 :           TIP_(&quot;Add to a user defined context menu (stored in the user preferences)&quot;));</span></a>
+<a name="1177"><span class="lineNum">    1177 </span><span class="lineNoCov">          0 :       button_func_set(but2, [but](bContext &amp;C) {</span></a>
+<a name="1178"><span class="lineNum">    1178 </span><span class="lineNoCov">          0 :         bUserMenu *um = ED_screen_user_menu_ensure(&amp;C);</span></a>
+<a name="1179"><span class="lineNum">    1179 </span><span class="lineNoCov">          0 :         U.runtime.is_dirty = true;</span></a>
+<a name="1180"><span class="lineNum">    1180 </span><span class="lineNoCov">          0 :         but_user_menu_add(&amp;C, but, um);</span></a>
+<a name="1181"><span class="lineNum">    1181 </span><span class="lineNoCov">          0 :       });</span></a>
+<a name="1182"><span class="lineNum">    1182 </span>            :     }</a>
+<a name="1183"><span class="lineNum">    1183 </span>            : </a>
+<a name="1184"><span class="lineNum">    1184 </span><span class="lineNoCov">          0 :     layout.separator();</span></a>
+<a name="1185"><span class="lineNum">    1185 </span>            :   }</a>
+<a name="1186"><span class="lineNum">    1186 </span>            : </a>
+<a name="1187"><span class="lineNum">    1187 </span>            :   /* Shortcut menu */</a>
+<a name="1188"><span class="lineNum">    1188 </span>            :   IDProperty *prop;</a>
+<a name="1189"><span class="lineNum">    1189 </span><span class="lineNoCov">          0 :   const char *idname = shortcut_get_operator_property(C, but, &amp;prop);</span></a>
+<a name="1190"><span class="lineNum">    1190 </span><span class="lineNoCov">          0 :   if (idname != nullptr) {</span></a>
+<a name="1191"><span class="lineNum">    1191 </span><span class="lineNoCov">          0 :     Block *block = layout.block();</span></a>
+<a name="1192"><span class="lineNum">    1192 </span><span class="lineNoCov">          0 :     const int w = layout.width();</span></a>
+<a name="1193"><span class="lineNum">    1193 </span>            : </a>
+<a name="1194"><span class="lineNum">    1194 </span>            :     /* We want to know if this op has a shortcut, be it hotkey or not. */</a>
+<a name="1195"><span class="lineNum">    1195 </span>            :     wmKeyMap *km;</a>
+<a name="1196"><span class="lineNum">    1196 </span><span class="lineNoCov">          0 :     wmKeyMapItem *kmi = WM_key_event_operator(</span></a>
+<a name="1197"><span class="lineNum">    1197 </span>            :         C, idname, but-&gt;opcontext, prop, EVT_TYPE_MASK_ALL, 0, &amp;km);</a>
+<a name="1198"><span class="lineNum">    1198 </span>            : </a>
+<a name="1199"><span class="lineNum">    1199 </span>            :     /* We do have a shortcut, but only keyboard ones are editable that way... */</a>
+<a name="1200"><span class="lineNum">    1200 </span><span class="lineNoCov">          0 :     if (kmi) {</span></a>
+<a name="1201"><span class="lineNum">    1201 </span><span class="lineNoCov">          0 :       if (ISKEYBOARD(kmi-&gt;type) || ISNDOF_BUTTON(kmi-&gt;type)) {</span></a>
+<a name="1202"><span class="lineNum">    1202 </span>            : #if 0 /* would rather use a block but, but gets weirdly positioned... */</a>
+<a name="1203"><span class="lineNum">    1203 </span>            :         uiDefBlockBut(block,</a>
+<a name="1204"><span class="lineNum">    1204 </span>            :                       menu_change_shortcut,</a>
+<a name="1205"><span class="lineNum">    1205 </span>            :                       but,</a>
+<a name="1206"><span class="lineNum">    1206 </span>            :                       &quot;Change Shortcut...&quot;,</a>
+<a name="1207"><span class="lineNum">    1207 </span>            :                       0,</a>
+<a name="1208"><span class="lineNum">    1208 </span>            :                       0,</a>
+<a name="1209"><span class="lineNum">    1209 </span>            :                       layout.width(),</a>
+<a name="1210"><span class="lineNum">    1210 </span>            :                       UI_UNIT_Y,</a>
+<a name="1211"><span class="lineNum">    1211 </span>            :                       &quot;&quot;);</a>
+<a name="1212"><span class="lineNum">    1212 </span>            : #endif</a>
+<a name="1213"><span class="lineNum">    1213 </span>            : </a>
+<a name="1214"><span class="lineNum">    1214 </span><span class="lineNoCov">          0 :         Button *but2 = uiDefIconTextBut(</span></a>
+<a name="1215"><span class="lineNum">    1215 </span>            :             block,</a>
+<a name="1216"><span class="lineNum">    1216 </span>            :             ButtonType::But,</a>
+<a name="1217"><span class="lineNum">    1217 </span>            :             ICON_HAND,</a>
+<a name="1218"><span class="lineNum">    1218 </span>            :             CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Change Shortcut...&quot;),</a>
+<a name="1219"><span class="lineNum">    1219 </span>            :             0,</a>
+<a name="1220"><span class="lineNum">    1220 </span>            :             0,</a>
+<a name="1221"><span class="lineNum">    1221 </span>            :             w,</a>
+<a name="1222"><span class="lineNum">    1222 </span><span class="lineNoCov">          0 :             UI_UNIT_Y,</span></a>
+<a name="1223"><span class="lineNum">    1223 </span>            :             nullptr,</a>
+<a name="1224"><span class="lineNum">    1224 </span>            :             &quot;&quot;);</a>
+<a name="1225"><span class="lineNum">    1225 </span><span class="lineNoCov">          0 :         button_func_set(but2, [but](bContext &amp;C) {</span></a>
+<a name="1226"><span class="lineNum">    1226 </span><span class="lineNoCov">          0 :           popup_block_invoke(&amp;C, menu_change_shortcut, but, nullptr);</span></a>
+<a name="1227"><span class="lineNum">    1227 </span><span class="lineNoCov">          0 :         });</span></a>
+<a name="1228"><span class="lineNum">    1228 </span><span class="lineNoCov">          0 :       }</span></a>
+<a name="1229"><span class="lineNum">    1229 </span>            :       else {</a>
+<a name="1230"><span class="lineNum">    1230 </span><span class="lineNoCov">          0 :         Button *but2 = uiDefIconTextBut(block,</span></a>
+<a name="1231"><span class="lineNum">    1231 </span>            :                                         ButtonType::But,</a>
+<a name="1232"><span class="lineNum">    1232 </span>            :                                         ICON_HAND,</a>
+<a name="1233"><span class="lineNum">    1233 </span>            :                                         IFACE_(&quot;Non-Keyboard Shortcut&quot;),</a>
+<a name="1234"><span class="lineNum">    1234 </span>            :                                         0,</a>
+<a name="1235"><span class="lineNum">    1235 </span>            :                                         0,</a>
+<a name="1236"><span class="lineNum">    1236 </span>            :                                         w,</a>
+<a name="1237"><span class="lineNum">    1237 </span><span class="lineNoCov">          0 :                                         UI_UNIT_Y,</span></a>
+<a name="1238"><span class="lineNum">    1238 </span>            :                                         nullptr,</a>
+<a name="1239"><span class="lineNum">    1239 </span><span class="lineNoCov">          0 :                                         TIP_(&quot;Only keyboard shortcuts can be edited that way, &quot;</span></a>
+<a name="1240"><span class="lineNum">    1240 </span>            :                                              &quot;please use User Preferences otherwise&quot;));</a>
+<a name="1241"><span class="lineNum">    1241 </span><span class="lineNoCov">          0 :         button_flag_enable(but2, BUT_DISABLED);</span></a>
+<a name="1242"><span class="lineNum">    1242 </span>            :       }</a>
+<a name="1243"><span class="lineNum">    1243 </span>            : </a>
+<a name="1244"><span class="lineNum">    1244 </span><span class="lineNoCov">          0 :       Button *but2 = uiDefIconTextBut(</span></a>
+<a name="1245"><span class="lineNum">    1245 </span>            :           block,</a>
+<a name="1246"><span class="lineNum">    1246 </span>            :           ButtonType::But,</a>
+<a name="1247"><span class="lineNum">    1247 </span>            :           ICON_BLANK1,</a>
+<a name="1248"><span class="lineNum">    1248 </span>            :           CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Remove Shortcut&quot;),</a>
+<a name="1249"><span class="lineNum">    1249 </span>            :           0,</a>
+<a name="1250"><span class="lineNum">    1250 </span>            :           0,</a>
+<a name="1251"><span class="lineNum">    1251 </span>            :           w,</a>
+<a name="1252"><span class="lineNum">    1252 </span><span class="lineNoCov">          0 :           UI_UNIT_Y,</span></a>
+<a name="1253"><span class="lineNum">    1253 </span>            :           nullptr,</a>
+<a name="1254"><span class="lineNum">    1254 </span>            :           &quot;&quot;);</a>
+<a name="1255"><span class="lineNum">    1255 </span><span class="lineNoCov">          0 :       button_func_set(but2, [but](bContext &amp;C) { remove_shortcut_func(&amp;C, but); });</span></a>
+<a name="1256"><span class="lineNum">    1256 </span>            :     }</a>
+<a name="1257"><span class="lineNum">    1257 </span>            :     /* only show 'assign' if there's a suitable key map for it to go in */</a>
+<a name="1258"><span class="lineNum">    1258 </span><span class="lineNoCov">          0 :     else if (WM_keymap_guess_opname(C, idname)) {</span></a>
+<a name="1259"><span class="lineNum">    1259 </span><span class="lineNoCov">          0 :       Button *but2 = uiDefIconTextBut(</span></a>
+<a name="1260"><span class="lineNum">    1260 </span>            :           block,</a>
+<a name="1261"><span class="lineNum">    1261 </span>            :           ButtonType::But,</a>
+<a name="1262"><span class="lineNum">    1262 </span>            :           ICON_HAND,</a>
+<a name="1263"><span class="lineNum">    1263 </span>            :           CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Assign Shortcut...&quot;),</a>
+<a name="1264"><span class="lineNum">    1264 </span>            :           0,</a>
+<a name="1265"><span class="lineNum">    1265 </span>            :           0,</a>
+<a name="1266"><span class="lineNum">    1266 </span>            :           w,</a>
+<a name="1267"><span class="lineNum">    1267 </span><span class="lineNoCov">          0 :           UI_UNIT_Y,</span></a>
+<a name="1268"><span class="lineNum">    1268 </span>            :           nullptr,</a>
+<a name="1269"><span class="lineNum">    1269 </span>            :           &quot;&quot;);</a>
+<a name="1270"><span class="lineNum">    1270 </span><span class="lineNoCov">          0 :       button_func_set(but2, [but](bContext &amp;C) {</span></a>
+<a name="1271"><span class="lineNum">    1271 </span><span class="lineNoCov">          0 :         popup_block_ex(&amp;C, menu_add_shortcut, nullptr, menu_add_shortcut_cancel, but, nullptr);</span></a>
+<a name="1272"><span class="lineNum">    1272 </span><span class="lineNoCov">          0 :       });</span></a>
+<a name="1273"><span class="lineNum">    1273 </span>            :     }</a>
+<a name="1274"><span class="lineNum">    1274 </span>            : </a>
+<a name="1275"><span class="lineNum">    1275 </span><span class="lineNoCov">          0 :     shortcut_free_operator_property(prop);</span></a>
+<a name="1276"><span class="lineNum">    1276 </span>            : </a>
+<a name="1277"><span class="lineNum">    1277 </span>            :     /* Set the operator pointer for python access */</a>
+<a name="1278"><span class="lineNum">    1278 </span><span class="lineNoCov">          0 :     layout.context_set_from_but(but);</span></a>
+<a name="1279"><span class="lineNum">    1279 </span>            : </a>
+<a name="1280"><span class="lineNum">    1280 </span><span class="lineNoCov">          0 :     layout.separator();</span></a>
+<a name="1281"><span class="lineNum">    1281 </span>            :   }</a>
+<a name="1282"><span class="lineNum">    1282 </span>            : </a>
+<a name="1283"><span class="lineNum">    1283 </span>            :   { /* Docs */</a>
+<a name="1284"><span class="lineNum">    1284 </span><span class="lineNoCov">          0 :     if (std::optional&lt;std::string&gt; manual_id = button_online_manual_id(but)) {</span></a>
+<a name="1285"><span class="lineNum">    1285 </span><span class="lineNoCov">          0 :       PointerRNA ptr_props;</span></a>
+<a name="1286"><span class="lineNum">    1286 </span><span class="lineNoCov">          0 :       layout.op(&quot;WM_OT_doc_view_manual_ui_context&quot;,</span></a>
+<a name="1287"><span class="lineNum">    1287 </span><span class="lineNoCov">          0 :                 CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Online Manual&quot;),</span></a>
+<a name="1288"><span class="lineNum">    1288 </span>            :                 ICON_URL);</a>
+<a name="1289"><span class="lineNum">    1289 </span>            : </a>
+<a name="1290"><span class="lineNum">    1290 </span><span class="lineNoCov">          0 :       if (U.flag &amp; USER_DEVELOPER_UI) {</span></a>
+<a name="1291"><span class="lineNum">    1291 </span><span class="lineNoCov">          0 :         ptr_props = layout.op(</span></a>
+<a name="1292"><span class="lineNum">    1292 </span>            :             &quot;WM_OT_doc_view&quot;,</a>
+<a name="1293"><span class="lineNum">    1293 </span><span class="lineNoCov">          0 :             CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, &quot;Online Python Reference&quot;),</span></a>
+<a name="1294"><span class="lineNum">    1294 </span>            :             ICON_NONE,</a>
+<a name="1295"><span class="lineNum">    1295 </span>            :             wm::OpCallContext::ExecDefault,</a>
+<a name="1296"><span class="lineNum">    1296 </span><span class="lineNoCov">          0 :             UI_ITEM_NONE);</span></a>
+<a name="1297"><span class="lineNum">    1297 </span><span class="lineNoCov">          0 :         RNA_string_set(&amp;ptr_props, &quot;doc_id&quot;, manual_id.value().c_str());</span></a>
+<a name="1298"><span class="lineNum">    1298 </span>            :       }</a>
+<a name="1299"><span class="lineNum">    1299 </span><span class="lineNoCov">          0 :     }</span></a>
+<a name="1300"><span class="lineNum">    1300 </span>            :   }</a>
+<a name="1301"><span class="lineNum">    1301 </span>            : </a>
+<a name="1302"><span class="lineNum">    1302 </span><span class="lineNoCov">          0 :   if (but-&gt;optype &amp;&amp; U.flag &amp; USER_DEVELOPER_UI) {</span></a>
+<a name="1303"><span class="lineNum">    1303 </span><span class="lineNoCov">          0 :     layout.op(&quot;UI_OT_copy_python_command_button&quot;, std::nullopt, ICON_NONE);</span></a>
+<a name="1304"><span class="lineNum">    1304 </span>            :   }</a>
+<a name="1305"><span class="lineNum">    1305 </span>            : </a>
+<a name="1306"><span class="lineNum">    1306 </span>            :   /* perhaps we should move this into (G.debug &amp; G_DEBUG) - campbell */</a>
+<a name="1307"><span class="lineNum">    1307 </span><span class="lineNoCov">          0 :   if (U.flag &amp; USER_DEVELOPER_UI) {</span></a>
+<a name="1308"><span class="lineNum">    1308 </span><span class="lineNoCov">          0 :     if (!block_is_menu(but-&gt;block) || (but-&gt;block-&gt;handle &amp;&amp; but-&gt;block-&gt;handle-&gt;can_refresh)) {</span></a>
+<a name="1309"><span class="lineNum">    1309 </span><span class="lineNoCov">          0 :       Layout &amp;sub = layout.column(true);</span></a>
+<a name="1310"><span class="lineNum">    1310 </span><span class="lineNoCov">          0 :       if (but-&gt;block-&gt;handle) {</span></a>
+<a name="1311"><span class="lineNum">    1311 </span>            :         PointerRNA region_ptr = RNA_pointer_create_discrete(</a>
+<a name="1312"><span class="lineNum">    1312 </span><span class="lineNoCov">          0 :             id_cast&lt;ID *&gt;(CTX_wm_screen(C)), RNA_Region, but-&gt;block-&gt;handle-&gt;region);</span></a>
+<a name="1313"><span class="lineNum">    1313 </span><span class="lineNoCov">          0 :         sub.context_ptr_set(&quot;popup_region&quot;, &amp;region_ptr);</span></a>
+<a name="1314"><span class="lineNum">    1314 </span><span class="lineNoCov">          0 :       }</span></a>
+<a name="1315"><span class="lineNum">    1315 </span><span class="lineNoCov">          0 :       sub.op(&quot;UI_OT_editsource&quot;,</span></a>
+<a name="1316"><span class="lineNum">    1316 </span>            :              std::nullopt,</a>
+<a name="1317"><span class="lineNum">    1317 </span>            :              ICON_NONE,</a>
+<a name="1318"><span class="lineNum">    1318 </span>            :              wm::OpCallContext::InvokeDefault,</a>
+<a name="1319"><span class="lineNum">    1319 </span>            :              UI_ITEM_NONE);</a>
+<a name="1320"><span class="lineNum">    1320 </span>            :     }</a>
+<a name="1321"><span class="lineNum">    1321 </span>            :   }</a>
+<a name="1322"><span class="lineNum">    1322 </span>            : </a>
+<a name="1323"><span class="lineNum">    1323 </span>            :   /* Show header tools for header buttons. */</a>
+<a name="1324"><span class="lineNum">    1324 </span><span class="lineNoCov">          0 :   if (block_is_popup_any(but-&gt;block) == false) {</span></a>
+<a name="1325"><span class="lineNum">    1325 </span><span class="lineNoCov">          0 :     const ARegion *region = CTX_wm_region(C);</span></a>
+<a name="1326"><span class="lineNum">    1326 </span>            : </a>
+<a name="1327"><span class="lineNum">    1327 </span><span class="lineNoCov">          0 :     if (!region) {</span></a>
+<a name="1328"><span class="lineNum">    1328 </span>            :       /* skip */</a>
+<a name="1329"><span class="lineNum">    1329 </span>            :     }</a>
+<a name="1330"><span class="lineNum">    1330 </span><span class="lineNoCov">          0 :     else if (ELEM(region-&gt;regiontype, RGN_TYPE_HEADER, RGN_TYPE_TOOL_HEADER)) {</span></a>
+<a name="1331"><span class="lineNum">    1331 </span><span class="lineNoCov">          0 :       layout.menu_fn(IFACE_(&quot;Header&quot;), ICON_NONE, ED_screens_header_tools_menu_create, nullptr);</span></a>
+<a name="1332"><span class="lineNum">    1332 </span>            :     }</a>
+<a name="1333"><span class="lineNum">    1333 </span><span class="lineNoCov">          0 :     else if (region-&gt;regiontype == RGN_TYPE_NAV_BAR) {</span></a>
+<a name="1334"><span class="lineNum">    1334 </span><span class="lineNoCov">          0 :       layout.menu_fn(IFACE_(&quot;Navigation Bar&quot;), ICON_NONE, ED_buttons_navbar_menu, nullptr);</span></a>
+<a name="1335"><span class="lineNum">    1335 </span><span class="lineNoCov">          0 :       const ScrArea *area = CTX_wm_area(C);</span></a>
+<a name="1336"><span class="lineNum">    1336 </span><span class="lineNoCov">          0 :       if (area &amp;&amp; area-&gt;spacetype == SPACE_PROPERTIES) {</span></a>
+<a name="1337"><span class="lineNum">    1337 </span><span class="lineNoCov">          0 :         layout.menu_fn(IFACE_(&quot;Visible Tabs&quot;), ICON_NONE, ED_buttons_visible_tabs_menu, nullptr);</span></a>
+<a name="1338"><span class="lineNum">    1338 </span>            :       }</a>
+<a name="1339"><span class="lineNum">    1339 </span>            :     }</a>
+<a name="1340"><span class="lineNum">    1340 </span><span class="lineNoCov">          0 :     else if (region-&gt;regiontype == RGN_TYPE_FOOTER) {</span></a>
+<a name="1341"><span class="lineNum">    1341 </span><span class="lineNoCov">          0 :       layout.menu_fn(IFACE_(&quot;Footer&quot;), ICON_NONE, ED_screens_footer_tools_menu_create, nullptr);</span></a>
+<a name="1342"><span class="lineNum">    1342 </span>            :     }</a>
+<a name="1343"><span class="lineNum">    1343 </span>            :   }</a>
+<a name="1344"><span class="lineNum">    1344 </span>            : </a>
+<a name="1345"><span class="lineNum">    1345 </span>            :   /* UI List item context menu. Scripts can add items to it, by default there's nothing shown. */</a>
+<a name="1346"><span class="lineNum">    1346 </span><span class="lineNoCov">          0 :   const ARegion *region = CTX_wm_region_popup(C) ? CTX_wm_region_popup(C) : CTX_wm_region(C);</span></a>
+<a name="1347"><span class="lineNum">    1347 </span><span class="lineNoCov">          0 :   const bool is_inside_listbox = listbox_find_mouse_over(region, event) != nullptr;</span></a>
+<a name="1348"><span class="lineNum">    1348 </span><span class="lineNoCov">          0 :   const bool is_inside_listrow = is_inside_listbox ?</span></a>
+<a name="1349"><span class="lineNum">    1349 </span><span class="lineNoCov">          0 :                                      listrow_find_mouse_over(region, event-&gt;xy) != nullptr :</span></a>
+<a name="1350"><span class="lineNum">    1350 </span><span class="lineNoCov">          0 :                                      false;</span></a>
+<a name="1351"><span class="lineNum">    1351 </span><span class="lineNoCov">          0 :   if (is_inside_listrow) {</span></a>
+<a name="1352"><span class="lineNum">    1352 </span><span class="lineNoCov">          0 :     MenuType *mt = WM_menutype_find(&quot;UI_MT_list_item_context_menu&quot;, true);</span></a>
+<a name="1353"><span class="lineNum">    1353 </span><span class="lineNoCov">          0 :     if (mt) {</span></a>
+<a name="1354"><span class="lineNum">    1354 </span><span class="lineNoCov">          0 :       menutype_draw(C, mt, &amp;layout.column(false));</span></a>
+<a name="1355"><span class="lineNum">    1355 </span>            :     }</a>
+<a name="1356"><span class="lineNum">    1356 </span>            :   }</a>
+<a name="1357"><span class="lineNum">    1357 </span>            : </a>
+<a name="1358"><span class="lineNum">    1358 </span><span class="lineNoCov">          0 :   MenuType *mt = WM_menutype_find(&quot;UI_MT_button_context_menu&quot;, true);</span></a>
+<a name="1359"><span class="lineNum">    1359 </span><span class="lineNoCov">          0 :   if (mt) {</span></a>
+<a name="1360"><span class="lineNum">    1360 </span><span class="lineNoCov">          0 :     menutype_draw(C, mt, &amp;layout.column(false));</span></a>
+<a name="1361"><span class="lineNum">    1361 </span>            :   }</a>
+<a name="1362"><span class="lineNum">    1362 </span>            : </a>
+<a name="1363"><span class="lineNum">    1363 </span><span class="lineNoCov">          0 :   if (but-&gt;context) {</span></a>
+<a name="1364"><span class="lineNum">    1364 </span><span class="lineNoCov">          0 :     CTX_store_set(C, previous_ctx);</span></a>
+<a name="1365"><span class="lineNum">    1365 </span>            :   }</a>
+<a name="1366"><span class="lineNum">    1366 </span>            : </a>
+<a name="1367"><span class="lineNum">    1367 </span><span class="lineNoCov">          0 :   return popup_menu_end_or_cancel(C, pup);</span></a>
+<a name="1368"><span class="lineNum">    1368 </span>            : }</a>
+<a name="1369"><span class="lineNum">    1369 </span>            : </a>
+<a name="1370"><span class="lineNum">    1370 </span>            : /** \} */</a>
+<a name="1371"><span class="lineNum">    1371 </span>            : </a>
+<a name="1372"><span class="lineNum">    1372 </span>            : /* -------------------------------------------------------------------- */</a>
+<a name="1373"><span class="lineNum">    1373 </span>            : /** \name Panel Context Menu</a>
+<a name="1374"><span class="lineNum">    1374 </span>            :  * \{ */</a>
+<a name="1375"><span class="lineNum">    1375 </span>            : </a>
+<a name="1376"><span class="lineNum">    1376 </span><span class="lineNoCov">          0 : int popup_context_menu_for_panel(bContext *C, ARegion *region, Panel *panel)</span></a>
+<a name="1377"><span class="lineNum">    1377 </span>            : {</a>
+<a name="1378"><span class="lineNum">    1378 </span><span class="lineNoCov">          0 :   bScreen *screen = CTX_wm_screen(C);</span></a>
+<a name="1379"><span class="lineNum">    1379 </span><span class="lineNoCov">          0 :   const bool has_panel_category = panel_category_tabs_is_visible(region);</span></a>
+<a name="1380"><span class="lineNum">    1380 </span><span class="lineNoCov">          0 :   const bool any_item_visible = has_panel_category;</span></a>
+<a name="1381"><span class="lineNum">    1381 </span>            : </a>
+<a name="1382"><span class="lineNum">    1382 </span><span class="lineNoCov">          0 :   if (!any_item_visible) {</span></a>
+<a name="1383"><span class="lineNum">    1383 </span><span class="lineNoCov">          0 :     return WM_UI_HANDLER_CONTINUE;</span></a>
+<a name="1384"><span class="lineNum">    1384 </span>            :   }</a>
+<a name="1385"><span class="lineNum">    1385 </span><span class="lineNoCov">          0 :   if (panel &amp;&amp; panel-&gt;type-&gt;parent != nullptr) {</span></a>
+<a name="1386"><span class="lineNum">    1386 </span><span class="lineNoCov">          0 :     return WM_UI_HANDLER_CONTINUE;</span></a>
+<a name="1387"><span class="lineNum">    1387 </span>            :   }</a>
+<a name="1388"><span class="lineNum">    1388 </span>            : </a>
+<a name="1389"><span class="lineNum">    1389 </span><span class="lineNoCov">          0 :   if (!BKE_regiontype_uses_category_tabs(region-&gt;runtime-&gt;type)) {</span></a>
+<a name="1390"><span class="lineNum">    1390 </span><span class="lineNoCov">          0 :     return WM_UI_HANDLER_CONTINUE;</span></a>
+<a name="1391"><span class="lineNum">    1391 </span>            :   }</a>
+<a name="1392"><span class="lineNum">    1392 </span>            : </a>
+<a name="1393"><span class="lineNum">    1393 </span><span class="lineNoCov">          0 :   PointerRNA ptr = RNA_pointer_create_discrete(&amp;screen-&gt;id, RNA_Panel, panel);</span></a>
+<a name="1394"><span class="lineNum">    1394 </span>            : </a>
+<a name="1395"><span class="lineNum">    1395 </span><span class="lineNoCov">          0 :   PopupMenu *pup = popup_menu_begin(C, IFACE_(&quot;Sidebar&quot;), ICON_NONE);</span></a>
+<a name="1396"><span class="lineNum">    1396 </span><span class="lineNoCov">          0 :   Layout &amp;layout = *popup_menu_layout(pup);</span></a>
+<a name="1397"><span class="lineNum">    1397 </span>            : </a>
+<a name="1398"><span class="lineNum">    1398 </span><span class="lineNoCov">          0 :   if (BKE_regiontype_uses_panel_categories_search(region-&gt;runtime-&gt;type)) {</span></a>
+<a name="1399"><span class="lineNum">    1399 </span><span class="lineNoCov">          0 :     layout.op(&quot;UI_OT_region_start_filter&quot;,</span></a>
+<a name="1400"><span class="lineNum">    1400 </span><span class="lineNoCov">          0 :               IFACE_(&quot;Search...&quot;),</span></a>
+<a name="1401"><span class="lineNum">    1401 </span>            :               ICON_VIEWZOOM,</a>
+<a name="1402"><span class="lineNum">    1402 </span>            :               wm::OpCallContext::ExecDefault,</a>
+<a name="1403"><span class="lineNum">    1403 </span>            :               UI_ITEM_NONE);</a>
+<a name="1404"><span class="lineNum">    1404 </span><span class="lineNoCov">          0 :     layout.separator();</span></a>
+<a name="1405"><span class="lineNum">    1405 </span>            :   }</a>
+<a name="1406"><span class="lineNum">    1406 </span>            : </a>
+<a name="1407"><span class="lineNum">    1407 </span><span class="lineNoCov">          0 :   if (has_panel_category &amp;&amp; panel &amp;&amp; panel_can_be_pinned(panel)) {</span></a>
+<a name="1408"><span class="lineNum">    1408 </span>            :     char tmpstr[80];</a>
+<a name="1409"><span class="lineNum">    1409 </span><span class="lineNoCov">          0 :     SNPRINTF_UTF8(</span></a>
+<a name="1410"><span class="lineNum">    1410 </span>            :         tmpstr, &quot;%s&quot; UI_SEP_CHAR_S &quot;%s&quot;, IFACE_(&quot;Pin Panel&quot;), IFACE_(&quot;Shift Left Mouse&quot;));</a>
+<a name="1411"><span class="lineNum">    1411 </span><span class="lineNoCov">          0 :     layout.prop(&amp;ptr, &quot;use_pin&quot;, UI_ITEM_NONE, tmpstr, ICON_NONE);</span></a>
+<a name="1412"><span class="lineNum">    1412 </span>            : </a>
+<a name="1413"><span class="lineNum">    1413 </span>            :     /* evil, force shortcut flag */</a>
+<a name="1414"><span class="lineNum">    1414 </span>            :     {</a>
+<a name="1415"><span class="lineNum">    1415 </span><span class="lineNoCov">          0 :       Block *block = layout.block();</span></a>
+<a name="1416"><span class="lineNum">    1416 </span><span class="lineNoCov">          0 :       Button *but = block-&gt;buttons_ptrs.last().get();</span></a>
+<a name="1417"><span class="lineNum">    1417 </span><span class="lineNoCov">          0 :       but-&gt;flag |= BUT_HAS_SEP_CHAR;</span></a>
+<a name="1418"><span class="lineNum">    1418 </span>            :     }</a>
+<a name="1419"><span class="lineNum">    1419 </span><span class="lineNoCov">          0 :     layout.separator();</span></a>
+<a name="1420"><span class="lineNum">    1420 </span>            :   }</a>
+<a name="1421"><span class="lineNum">    1421 </span>            : </a>
+<a name="1422"><span class="lineNum">    1422 </span><span class="lineNoCov">          0 :   PointerRNA prefs_ptr = RNA_pointer_create_discrete(nullptr, RNA_PreferencesSystem, &amp;U);</span></a>
+<a name="1423"><span class="lineNum">    1423 </span><span class="lineNoCov">          0 :   layout.prop(</span></a>
+<a name="1424"><span class="lineNum">    1424 </span><span class="lineNoCov">          0 :       &amp;prefs_ptr, &quot;show_panel_tabs_compact&quot;, UI_ITEM_NONE, IFACE_(&quot;Compact Tabs&quot;), ICON_NONE);</span></a>
+<a name="1425"><span class="lineNum">    1425 </span>            : </a>
+<a name="1426"><span class="lineNum">    1426 </span><span class="lineNoCov">          0 :   popup_menu_end(C, pup);</span></a>
+<a name="1427"><span class="lineNum">    1427 </span><span class="lineNoCov">          0 :   return WM_UI_HANDLER_BREAK;</span></a>
+<a name="1428"><span class="lineNum">    1428 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="1429"><span class="lineNum">    1429 </span>            : </a>
+<a name="1430"><span class="lineNum">    1430 </span>            : /** \} */</a>
+<a name="1431"><span class="lineNum">    1431 </span>            : </a>
+<a name="1432"><span class="lineNum">    1432 </span>            : }  // namespace blender::ui</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

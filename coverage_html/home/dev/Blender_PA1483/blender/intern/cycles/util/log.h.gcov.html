@@ -1,0 +1,245 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - /home/dev/Blender_PA1483/blender/intern/cycles/util/log.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../../index.html">top level</a> - <a href="index.html">home/dev/Blender_PA1483/blender/intern/cycles/util</a> - log.h<span style="font-size: 80%;"> (source / <a href="log.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntryLo">66.7 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntryLo">42.9 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2011-2022 Blender Foundation</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: Apache-2.0 */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : #pragma once</a>
+<a name="6"><span class="lineNum">       6 </span>            : </a>
+<a name="7"><span class="lineNum">       7 </span>            : #include &quot;util/defines.h&quot;</a>
+<a name="8"><span class="lineNum">       8 </span>            : #include &quot;util/string.h&quot;</a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &quot;util/types.h&quot;</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &lt;sstream&gt;</a>
+<a name="12"><span class="lineNum">      12 </span>            : </a>
+<a name="13"><span class="lineNum">      13 </span>            : CCL_NAMESPACE_BEGIN</a>
+<a name="14"><span class="lineNum">      14 </span>            : </a>
+<a name="15"><span class="lineNum">      15 </span>            : /* Log Levels */</a>
+<a name="16"><span class="lineNum">      16 </span>            : </a>
+<a name="17"><span class="lineNum">      17 </span>            : enum LogLevel {</a>
+<a name="18"><span class="lineNum">      18 </span>            :   LOG_LEVEL_FATAL = 0,          /* Fatal error, application will abort */</a>
+<a name="19"><span class="lineNum">      19 </span>            :   LOG_LEVEL_DFATAL = 1,         /* Fatal error in debug build only */</a>
+<a name="20"><span class="lineNum">      20 </span>            :   LOG_LEVEL_ERROR = 2,          /* Error */</a>
+<a name="21"><span class="lineNum">      21 </span>            :   LOG_LEVEL_DERROR = 3,         /* Error in debug build only */</a>
+<a name="22"><span class="lineNum">      22 </span>            :   LOG_LEVEL_WARNING = 4,        /* Warning */</a>
+<a name="23"><span class="lineNum">      23 </span>            :   LOG_LEVEL_DWARNING = 5,       /* Warning in debug build only */</a>
+<a name="24"><span class="lineNum">      24 </span>            :   LOG_LEVEL_INFO_IMPORTANT = 6, /* Important info that is printed by default */</a>
+<a name="25"><span class="lineNum">      25 </span>            :   LOG_LEVEL_INFO = 7,           /* Info about devices, scene contents and features used. */</a>
+<a name="26"><span class="lineNum">      26 </span>            :   LOG_LEVEL_DEBUG = 8,          /* Work being performed and timing/memory stats about that work. */</a>
+<a name="27"><span class="lineNum">      27 </span>            :   LOG_LEVEL_TRACE = 9,          /* Verbose debug messages, to trace code being executed. */</a>
+<a name="28"><span class="lineNum">      28 </span>            :   LOG_LEVEL_UNKNOWN = -1,</a>
+<a name="29"><span class="lineNum">      29 </span>            : };</a>
+<a name="30"><span class="lineNum">      30 </span>            : </a>
+<a name="31"><span class="lineNum">      31 </span>            : const char *log_level_to_string(const LogLevel level);</a>
+<a name="32"><span class="lineNum">      32 </span>            : LogLevel log_string_to_level(const string &amp;str);</a>
+<a name="33"><span class="lineNum">      33 </span>            : </a>
+<a name="34"><span class="lineNum">      34 </span>            : /* Log Configuration API</a>
+<a name="35"><span class="lineNum">      35 </span>            :  *</a>
+<a name="36"><span class="lineNum">      36 </span>            :  * By default will print to stdout and stderr, but a custom log function can be set</a>
+<a name="37"><span class="lineNum">      37 </span>            :  * to change this behavior. */</a>
+<a name="38"><span class="lineNum">      38 </span>            : </a>
+<a name="39"><span class="lineNum">      39 </span>            : using LogFunction = void (*)(const LogLevel level,</a>
+<a name="40"><span class="lineNum">      40 </span>            :                              const char *file_line,</a>
+<a name="41"><span class="lineNum">      41 </span>            :                              const char *func,</a>
+<a name="42"><span class="lineNum">      42 </span>            :                              const char *msg);</a>
+<a name="43"><span class="lineNum">      43 </span>            : </a>
+<a name="44"><span class="lineNum">      44 </span>            : void log_init(const LogFunction func = nullptr);</a>
+<a name="45"><span class="lineNum">      45 </span>            : void log_level_set(const LogLevel level);</a>
+<a name="46"><span class="lineNum">      46 </span>            : void log_level_set(const string &amp;level);</a>
+<a name="47"><span class="lineNum">      47 </span>            : </a>
+<a name="48"><span class="lineNum">      48 </span>            : /* Internal logging API */</a>
+<a name="49"><span class="lineNum">      49 </span>            : </a>
+<a name="50"><span class="lineNum">      50 </span>            : void _log_message(const LogLevel level, const char *file_line, const char *func, const char *msg);</a>
+<a name="51"><span class="lineNum">      51 </span>            : </a>
+<a name="52"><span class="lineNum">      52 </span>            : class LogMessage {</a>
+<a name="53"><span class="lineNum">      53 </span>            :  public:</a>
+<a name="54"><span class="lineNum">      54 </span><span class="lineCov">          4 :   LogMessage(enum LogLevel level, const char *file_line, const char *func)</span></a>
+<a name="55"><span class="lineNum">      55 </span><span class="lineCov">          4 :       : level_(level), file_line_(file_line), func_(func)</span></a>
+<a name="56"><span class="lineNum">      56 </span>            :   {</a>
+<a name="57"><span class="lineNum">      57 </span><span class="lineCov">          4 :   }</span></a>
+<a name="58"><span class="lineNum">      58 </span>            : </a>
+<a name="59"><span class="lineNum">      59 </span><span class="lineCov">          4 :   ~LogMessage()</span></a>
+<a name="60"><span class="lineNum">      60 </span>            :   {</a>
+<a name="61"><span class="lineNum">      61 </span><span class="lineCov">          4 :     _log_message(level_, file_line_, func_, stream_.str().c_str());</span></a>
+<a name="62"><span class="lineNum">      62 </span><span class="lineCov">          4 :   }</span></a>
+<a name="63"><span class="lineNum">      63 </span>            : </a>
+<a name="64"><span class="lineNum">      64 </span><span class="lineCov">          4 :   std::ostream &amp;stream()</span></a>
+<a name="65"><span class="lineNum">      65 </span>            :   {</a>
+<a name="66"><span class="lineNum">      66 </span><span class="lineCov">          4 :     return stream_;</span></a>
+<a name="67"><span class="lineNum">      67 </span>            :   }</a>
+<a name="68"><span class="lineNum">      68 </span>            : </a>
+<a name="69"><span class="lineNum">      69 </span>            :  protected:</a>
+<a name="70"><span class="lineNum">      70 </span>            :   LogLevel level_;</a>
+<a name="71"><span class="lineNum">      71 </span>            :   const char *file_line_;</a>
+<a name="72"><span class="lineNum">      72 </span>            :   const char *func_;</a>
+<a name="73"><span class="lineNum">      73 </span>            :   std::stringstream stream_;</a>
+<a name="74"><span class="lineNum">      74 </span>            : };</a>
+<a name="75"><span class="lineNum">      75 </span>            : </a>
+<a name="76"><span class="lineNum">      76 </span>            : extern LogLevel LOG_LEVEL;</a>
+<a name="77"><span class="lineNum">      77 </span>            : </a>
+<a name="78"><span class="lineNum">      78 </span>            : #define LOG_STRINGIFY_APPEND(a, b) &quot;&quot; a #b</a>
+<a name="79"><span class="lineNum">      79 </span>            : #define LOG_STRINGIFY(x) LOG_STRINGIFY_APPEND(&quot;&quot;, x)</a>
+<a name="80"><span class="lineNum">      80 </span>            : </a>
+<a name="81"><span class="lineNum">      81 </span>            : /* Macro to ensure lazy evaluation of both condition and logging text. */</a>
+<a name="82"><span class="lineNum">      82 </span>            : #ifdef NDEBUG</a>
+<a name="83"><span class="lineNum">      83 </span>            : #  define LOG_IF(level, condition) \</a>
+<a name="84"><span class="lineNum">      84 </span>            :     if constexpr (level != LOG_LEVEL_DFATAL &amp;&amp; level != LOG_LEVEL_DERROR &amp;&amp; \</a>
+<a name="85"><span class="lineNum">      85 </span>            :                   level != LOG_LEVEL_DWARNING) \</a>
+<a name="86"><span class="lineNum">      86 </span>            :       if (UNLIKELY(level &lt;= LOG_LEVEL &amp;&amp; (condition))) \</a>
+<a name="87"><span class="lineNum">      87 </span>            :     LogMessage(level, __FILE__ &quot;:&quot; LOG_STRINGIFY(__LINE__), __func__).stream()</a>
+<a name="88"><span class="lineNum">      88 </span>            : #else</a>
+<a name="89"><span class="lineNum">      89 </span>            : #  define LOG_IF(level, condition) \</a>
+<a name="90"><span class="lineNum">      90 </span>            :     if (UNLIKELY(level &lt;= LOG_LEVEL &amp;&amp; (condition))) \</a>
+<a name="91"><span class="lineNum">      91 </span>            :     LogMessage(level, __FILE__ &quot;:&quot; LOG_STRINGIFY(__LINE__), __func__).stream()</a>
+<a name="92"><span class="lineNum">      92 </span>            : #endif</a>
+<a name="93"><span class="lineNum">      93 </span>            : </a>
+<a name="94"><span class="lineNum">      94 </span>            : /* Log a message at the desired level.</a>
+<a name="95"><span class="lineNum">      95 </span>            :  *</a>
+<a name="96"><span class="lineNum">      96 </span>            :  * Example: LOG_INFO &lt;&lt; &quot;This is a log message&quot;; */</a>
+<a name="97"><span class="lineNum">      97 </span>            : #define LOG(level) LOG_IF(level, true)</a>
+<a name="98"><span class="lineNum">      98 </span>            : </a>
+<a name="99"><span class="lineNum">      99 </span>            : #define LOG_FATAL LOG(LOG_LEVEL_FATAL)</a>
+<a name="100"><span class="lineNum">     100 </span>            : #define LOG_DFATAL LOG(LOG_LEVEL_DFATAL)</a>
+<a name="101"><span class="lineNum">     101 </span>            : #define LOG_ERROR LOG(LOG_LEVEL_ERROR)</a>
+<a name="102"><span class="lineNum">     102 </span>            : #define LOG_DERROR LOG(LOG_LEVEL_DERROR)</a>
+<a name="103"><span class="lineNum">     103 </span>            : #define LOG_WARNING LOG(LOG_LEVEL_WARNING)</a>
+<a name="104"><span class="lineNum">     104 </span>            : #define LOG_DWARNING LOG(LOG_LEVEL_DWARNING)</a>
+<a name="105"><span class="lineNum">     105 </span>            : #define LOG_INFO_IMPORTANT LOG(LOG_LEVEL_INFO_IMPORTANT)</a>
+<a name="106"><span class="lineNum">     106 </span>            : #define LOG_INFO LOG(LOG_LEVEL_INFO)</a>
+<a name="107"><span class="lineNum">     107 </span>            : #define LOG_DEBUG LOG(LOG_LEVEL_DEBUG)</a>
+<a name="108"><span class="lineNum">     108 </span>            : #define LOG_TRACE LOG(LOG_LEVEL_TRACE)</a>
+<a name="109"><span class="lineNum">     109 </span>            : </a>
+<a name="110"><span class="lineNum">     110 </span>            : /* Check if logging is enabled, to avoid doing expensive work to compute</a>
+<a name="111"><span class="lineNum">     111 </span>            :  * the logging message. Note that any work to the right of LOG(level) will</a>
+<a name="112"><span class="lineNum">     112 </span>            :  * not be evaluated if logging for that level is disabled. */</a>
+<a name="113"><span class="lineNum">     113 </span>            : #define LOG_IS_ON(level) ((level) &lt;= LOG_LEVEL)</a>
+<a name="114"><span class="lineNum">     114 </span>            : </a>
+<a name="115"><span class="lineNum">     115 </span>            : /* Check if expression and conditions hold true, failure will exit the program. */</a>
+<a name="116"><span class="lineNum">     116 </span>            : #define CHECK(expression) LOG_IF(LOG_LEVEL_FATAL, !(expression))</a>
+<a name="117"><span class="lineNum">     117 </span>            : #define CHECK_OP(op, a, b) LOG_IF(LOG_LEVEL_FATAL, !((a)op(b)))</a>
+<a name="118"><span class="lineNum">     118 </span>            : #define CHECK_GE(a, b) CHECK_OP(&gt;=, a, b)</a>
+<a name="119"><span class="lineNum">     119 </span>            : #define CHECK_NE(a, b) CHECK_OP(!=, a, b)</a>
+<a name="120"><span class="lineNum">     120 </span>            : #define CHECK_EQ(a, b) CHECK_OP(==, a, b)</a>
+<a name="121"><span class="lineNum">     121 </span>            : #define CHECK_GT(a, b) CHECK_OP(&gt;, a, b)</a>
+<a name="122"><span class="lineNum">     122 </span>            : #define CHECK_LT(a, b) CHECK_OP(&lt;, a, b)</a>
+<a name="123"><span class="lineNum">     123 </span>            : #define CHECK_LE(a, b) CHECK_OP(&lt;=, a, b)</a>
+<a name="124"><span class="lineNum">     124 </span>            : </a>
+<a name="125"><span class="lineNum">     125 </span>            : /* Same checks for expressions and conditions, but only active in debug builds. */</a>
+<a name="126"><span class="lineNum">     126 </span>            : #ifndef NDEBUG</a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineNoCov">          0 : template&lt;typename T&gt; T DCheckNotNull(T &amp;&amp;t, const char *expression)</span></a>
+<a name="128"><span class="lineNum">     128 </span>            : {</a>
+<a name="129"><span class="lineNum">     129 </span><span class="lineNoCov">          0 :   if (t == nullptr) {</span></a>
+<a name="130"><span class="lineNum">     130 </span><span class="lineNoCov">          0 :     LOG_FATAL &lt;&lt; &quot;Failed &quot; &lt;&lt; expression &lt;&lt; &quot;is not null&quot;;</span></a>
+<a name="131"><span class="lineNum">     131 </span>            :   }</a>
+<a name="132"><span class="lineNum">     132 </span><span class="lineNoCov">          0 :   return std::forward&lt;T&gt;(t);</span></a>
+<a name="133"><span class="lineNum">     133 </span>            : }</a>
+<a name="134"><span class="lineNum">     134 </span>            : </a>
+<a name="135"><span class="lineNum">     135 </span>            : #  define DCHECK(expression) \</a>
+<a name="136"><span class="lineNum">     136 </span>            :     LOG_IF(LOG_LEVEL_DFATAL, !(expression)) &lt;&lt; LOG_STRINGIFY(expression) &lt;&lt; &quot; &quot;</a>
+<a name="137"><span class="lineNum">     137 </span>            : #  define DCHECK_NOTNULL(expression) DCheckNotNull(expression, LOG_STRINGIFY(expression))</a>
+<a name="138"><span class="lineNum">     138 </span>            : #  define DCHECK_OP(op, a, b) \</a>
+<a name="139"><span class="lineNum">     139 </span>            :     LOG_IF(LOG_LEVEL_DFATAL, !((a)op(b))) \</a>
+<a name="140"><span class="lineNum">     140 </span>            :         &lt;&lt; &quot;Failed &quot; &lt;&lt; LOG_STRINGIFY(a) &lt;&lt; &quot; (&quot; &lt;&lt; a &lt;&lt; &quot;) &quot; &lt;&lt; LOG_STRINGIFY(op) &lt;&lt; &quot; &quot; \</a>
+<a name="141"><span class="lineNum">     141 </span>            :         &lt;&lt; LOG_STRINGIFY(b) &lt;&lt; &quot; (&quot; &lt;&lt; b &lt;&lt; &quot;) &quot;</a>
+<a name="142"><span class="lineNum">     142 </span>            : #  define DCHECK_GE(a, b) DCHECK_OP(&gt;=, a, b)</a>
+<a name="143"><span class="lineNum">     143 </span>            : #  define DCHECK_NE(a, b) DCHECK_OP(!=, a, b)</a>
+<a name="144"><span class="lineNum">     144 </span>            : #  define DCHECK_EQ(a, b) DCHECK_OP(==, a, b)</a>
+<a name="145"><span class="lineNum">     145 </span>            : #  define DCHECK_GT(a, b) DCHECK_OP(&gt;, a, b)</a>
+<a name="146"><span class="lineNum">     146 </span>            : #  define DCHECK_LT(a, b) DCHECK_OP(&lt;, a, b)</a>
+<a name="147"><span class="lineNum">     147 </span>            : #  define DCHECK_LE(a, b) DCHECK_OP(&lt;=, a, b)</a>
+<a name="148"><span class="lineNum">     148 </span>            : #else</a>
+<a name="149"><span class="lineNum">     149 </span>            : #  define LOG_SUPPRESS() LOG_IF(LOG_LEVEL_TRACE, false)</a>
+<a name="150"><span class="lineNum">     150 </span>            : #  define DCHECK(expression) LOG_SUPPRESS()</a>
+<a name="151"><span class="lineNum">     151 </span>            : #  define DCHECK_NOTNULL(expression) (expression)</a>
+<a name="152"><span class="lineNum">     152 </span>            : #  define DCHECK_GE(a, b) LOG_SUPPRESS()</a>
+<a name="153"><span class="lineNum">     153 </span>            : #  define DCHECK_NE(a, b) LOG_SUPPRESS()</a>
+<a name="154"><span class="lineNum">     154 </span>            : #  define DCHECK_EQ(a, b) LOG_SUPPRESS()</a>
+<a name="155"><span class="lineNum">     155 </span>            : #  define DCHECK_GT(a, b) LOG_SUPPRESS()</a>
+<a name="156"><span class="lineNum">     156 </span>            : #  define DCHECK_LT(a, b) LOG_SUPPRESS()</a>
+<a name="157"><span class="lineNum">     157 </span>            : #  define DCHECK_LE(a, b) LOG_SUPPRESS()</a>
+<a name="158"><span class="lineNum">     158 </span>            : #endif</a>
+<a name="159"><span class="lineNum">     159 </span>            : </a>
+<a name="160"><span class="lineNum">     160 </span>            : /* Convenient logging of common data structures. */</a>
+<a name="161"><span class="lineNum">     161 </span>            : struct int2;</a>
+<a name="162"><span class="lineNum">     162 </span>            : struct float3;</a>
+<a name="163"><span class="lineNum">     163 </span>            : struct float4;</a>
+<a name="164"><span class="lineNum">     164 </span>            : </a>
+<a name="165"><span class="lineNum">     165 </span>            : std::ostream &amp;operator&lt;&lt;(std::ostream &amp;os, const int2 &amp;value);</a>
+<a name="166"><span class="lineNum">     166 </span>            : std::ostream &amp;operator&lt;&lt;(std::ostream &amp;os, const float3 &amp;value);</a>
+<a name="167"><span class="lineNum">     167 </span>            : std::ostream &amp;operator&lt;&lt;(std::ostream &amp;os, const float4 &amp;value);</a>
+<a name="168"><span class="lineNum">     168 </span>            : </a>
+<a name="169"><span class="lineNum">     169 </span>            : CCL_NAMESPACE_END</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

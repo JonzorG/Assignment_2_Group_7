@@ -1,0 +1,263 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - geometry/intern/curve_constraints.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">geometry/intern</a> - curve_constraints.cc<span style="font-size: 80%;"> (source / <a href="curve_constraints.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">83</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2023 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup geo</a>
+<a name="7"><span class="lineNum">       7 </span>            :  */</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &quot;BLI_math_matrix.hh&quot;</a>
+<a name="10"><span class="lineNum">      10 </span>            : #include &quot;BLI_task.hh&quot;</a>
+<a name="11"><span class="lineNum">      11 </span>            : </a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &quot;DNA_mesh_types.h&quot;</a>
+<a name="13"><span class="lineNum">      13 </span>            : </a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;GEO_curve_constraints.hh&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : </a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &quot;BKE_bvh.hh&quot;</a>
+<a name="17"><span class="lineNum">      17 </span>            : </a>
+<a name="18"><span class="lineNum">      18 </span>            : /**</a>
+<a name="19"><span class="lineNum">      19 </span>            :  * The code below uses a prefix naming convention to indicate the coordinate space:</a>
+<a name="20"><span class="lineNum">      20 </span>            :  * `cu`: Local space of the curves object that is being edited.</a>
+<a name="21"><span class="lineNum">      21 </span>            :  * `su`: Local space of the surface object.</a>
+<a name="22"><span class="lineNum">      22 </span>            :  * `wo`: World space.</a>
+<a name="23"><span class="lineNum">      23 </span>            :  */</a>
+<a name="24"><span class="lineNum">      24 </span>            : </a>
+<a name="25"><span class="lineNum">      25 </span>            : namespace blender::geometry::curve_constraints {</a>
+<a name="26"><span class="lineNum">      26 </span>            : </a>
+<a name="27"><span class="lineNum">      27 </span><span class="lineNoCov">          0 : void compute_segment_lengths(const OffsetIndices&lt;int&gt; points_by_curve,</span></a>
+<a name="28"><span class="lineNum">      28 </span>            :                              const Span&lt;float3&gt; positions,</a>
+<a name="29"><span class="lineNum">      29 </span>            :                              const IndexMask &amp;curve_selection,</a>
+<a name="30"><span class="lineNum">      30 </span>            :                              MutableSpan&lt;float&gt; r_segment_lengths)</a>
+<a name="31"><span class="lineNum">      31 </span>            : {</a>
+<a name="32"><span class="lineNum">      32 </span><span class="lineNoCov">          0 :   BLI_assert(r_segment_lengths.size() == points_by_curve.total_size());</span></a>
+<a name="33"><span class="lineNum">      33 </span>            : </a>
+<a name="34"><span class="lineNum">      34 </span><span class="lineNoCov">          0 :   curve_selection.foreach_segment(</span></a>
+<a name="35"><span class="lineNum">      35 </span><span class="lineNoCov">          0 :       [&amp;](const IndexMaskSegment segment) {</span></a>
+<a name="36"><span class="lineNum">      36 </span><span class="lineNoCov">          0 :         for (const int curve_i : segment) {</span></a>
+<a name="37"><span class="lineNum">      37 </span><span class="lineNoCov">          0 :           const IndexRange points = points_by_curve[curve_i].drop_back(1);</span></a>
+<a name="38"><span class="lineNum">      38 </span><span class="lineNoCov">          0 :           for (const int point_i : points) {</span></a>
+<a name="39"><span class="lineNum">      39 </span><span class="lineNoCov">          0 :             const float3 &amp;p1 = positions[point_i];</span></a>
+<a name="40"><span class="lineNum">      40 </span><span class="lineNoCov">          0 :             const float3 &amp;p2 = positions[point_i + 1];</span></a>
+<a name="41"><span class="lineNum">      41 </span><span class="lineNoCov">          0 :             const float length = math::distance(p1, p2);</span></a>
+<a name="42"><span class="lineNum">      42 </span><span class="lineNoCov">          0 :             r_segment_lengths[point_i] = length;</span></a>
+<a name="43"><span class="lineNum">      43 </span>            :           }</a>
+<a name="44"><span class="lineNum">      44 </span>            :         }</a>
+<a name="45"><span class="lineNum">      45 </span><span class="lineNoCov">          0 :       },</span></a>
+<a name="46"><span class="lineNum">      46 </span>            :       exec_mode::grain_size(256));</a>
+<a name="47"><span class="lineNum">      47 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="48"><span class="lineNum">      48 </span>            : </a>
+<a name="49"><span class="lineNum">      49 </span><span class="lineNoCov">          0 : void solve_length_constraints(const OffsetIndices&lt;int&gt; points_by_curve,</span></a>
+<a name="50"><span class="lineNum">      50 </span>            :                               const IndexMask &amp;curve_selection,</a>
+<a name="51"><span class="lineNum">      51 </span>            :                               const Span&lt;float&gt; segment_lenghts,</a>
+<a name="52"><span class="lineNum">      52 </span>            :                               MutableSpan&lt;float3&gt; positions)</a>
+<a name="53"><span class="lineNum">      53 </span>            : {</a>
+<a name="54"><span class="lineNum">      54 </span><span class="lineNoCov">          0 :   BLI_assert(segment_lenghts.size() == points_by_curve.total_size());</span></a>
+<a name="55"><span class="lineNum">      55 </span>            : </a>
+<a name="56"><span class="lineNum">      56 </span><span class="lineNoCov">          0 :   curve_selection.foreach_segment(</span></a>
+<a name="57"><span class="lineNum">      57 </span><span class="lineNoCov">          0 :       [&amp;](const IndexMaskSegment segment) {</span></a>
+<a name="58"><span class="lineNum">      58 </span><span class="lineNoCov">          0 :         for (const int curve_i : segment) {</span></a>
+<a name="59"><span class="lineNum">      59 </span><span class="lineNoCov">          0 :           const IndexRange points = points_by_curve[curve_i].drop_back(1);</span></a>
+<a name="60"><span class="lineNum">      60 </span><span class="lineNoCov">          0 :           for (const int point_i : points) {</span></a>
+<a name="61"><span class="lineNum">      61 </span><span class="lineNoCov">          0 :             const float3 &amp;p1 = positions[point_i];</span></a>
+<a name="62"><span class="lineNum">      62 </span><span class="lineNoCov">          0 :             float3 &amp;p2 = positions[point_i + 1];</span></a>
+<a name="63"><span class="lineNum">      63 </span><span class="lineNoCov">          0 :             const float3 direction = math::normalize(p2 - p1);</span></a>
+<a name="64"><span class="lineNum">      64 </span><span class="lineNoCov">          0 :             const float goal_length = segment_lenghts[point_i];</span></a>
+<a name="65"><span class="lineNum">      65 </span><span class="lineNoCov">          0 :             p2 = p1 + direction * goal_length;</span></a>
+<a name="66"><span class="lineNum">      66 </span>            :           }</a>
+<a name="67"><span class="lineNum">      67 </span>            :         }</a>
+<a name="68"><span class="lineNum">      68 </span><span class="lineNoCov">          0 :       },</span></a>
+<a name="69"><span class="lineNum">      69 </span>            :       exec_mode::grain_size(256));</a>
+<a name="70"><span class="lineNum">      70 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="71"><span class="lineNum">      71 </span>            : </a>
+<a name="72"><span class="lineNum">      72 </span><span class="lineNoCov">          0 : void solve_length_and_collision_constraints(const OffsetIndices&lt;int&gt; points_by_curve,</span></a>
+<a name="73"><span class="lineNum">      73 </span>            :                                             const IndexMask &amp;curve_selection,</a>
+<a name="74"><span class="lineNum">      74 </span>            :                                             const Span&lt;float&gt; segment_lengths_cu,</a>
+<a name="75"><span class="lineNum">      75 </span>            :                                             const Span&lt;float3&gt; start_positions_cu,</a>
+<a name="76"><span class="lineNum">      76 </span>            :                                             const Mesh &amp;surface,</a>
+<a name="77"><span class="lineNum">      77 </span>            :                                             const bke::CurvesSurfaceTransforms &amp;transforms,</a>
+<a name="78"><span class="lineNum">      78 </span>            :                                             MutableSpan&lt;float3&gt; positions_cu,</a>
+<a name="79"><span class="lineNum">      79 </span>            :                                             const float surface_collision_distance)</a>
+<a name="80"><span class="lineNum">      80 </span>            : {</a>
+<a name="81"><span class="lineNum">      81 </span><span class="lineNoCov">          0 :   solve_length_constraints(points_by_curve, curve_selection, segment_lengths_cu, positions_cu);</span></a>
+<a name="82"><span class="lineNum">      82 </span>            : </a>
+<a name="83"><span class="lineNum">      83 </span><span class="lineNoCov">          0 :   const bke::bvh::Tree &amp;surface_bvh = surface.bvh_tris();</span></a>
+<a name="84"><span class="lineNum">      84 </span>            : </a>
+<a name="85"><span class="lineNum">      85 </span><span class="lineNoCov">          0 :   const int max_collisions = 5;</span></a>
+<a name="86"><span class="lineNum">      86 </span>            : </a>
+<a name="87"><span class="lineNum">      87 </span><span class="lineNoCov">          0 :   curve_selection.foreach_segment(</span></a>
+<a name="88"><span class="lineNum">      88 </span><span class="lineNoCov">          0 :       [&amp;](const IndexMaskSegment segment) {</span></a>
+<a name="89"><span class="lineNum">      89 </span><span class="lineNoCov">          0 :         for (const int curve_i : segment) {</span></a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineNoCov">          0 :           const IndexRange points = points_by_curve[curve_i];</span></a>
+<a name="91"><span class="lineNum">      91 </span>            : </a>
+<a name="92"><span class="lineNum">      92 </span>            :           /* Sometimes not all collisions can be handled. This happens relatively rarely, but if it</a>
+<a name="93"><span class="lineNum">      93 </span>            :            * happens it's better to just not to move the curve instead of going into the surface.</a>
+<a name="94"><span class="lineNum">      94 </span>            :            */</a>
+<a name="95"><span class="lineNum">      95 </span><span class="lineNoCov">          0 :           bool revert_curve = false;</span></a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineNoCov">          0 :           for (const int point_i : points.drop_front(1)) {</span></a>
+<a name="97"><span class="lineNum">      97 </span><span class="lineNoCov">          0 :             const float goal_segment_length_cu = segment_lengths_cu[point_i - 1];</span></a>
+<a name="98"><span class="lineNum">      98 </span><span class="lineNoCov">          0 :             const float3 &amp;prev_pos_cu = positions_cu[point_i - 1];</span></a>
+<a name="99"><span class="lineNum">      99 </span><span class="lineNoCov">          0 :             const float3 &amp;start_pos_cu = start_positions_cu[point_i];</span></a>
+<a name="100"><span class="lineNum">     100 </span>            : </a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineNoCov">          0 :             int used_iterations = 0;</span></a>
+<a name="102"><span class="lineNum">     102 </span><span class="lineNoCov">          0 :             for ([[maybe_unused]] const int iteration : IndexRange(max_collisions)) {</span></a>
+<a name="103"><span class="lineNum">     103 </span><span class="lineNoCov">          0 :               used_iterations++;</span></a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineNoCov">          0 :               const float3 &amp;old_pos_cu = positions_cu[point_i];</span></a>
+<a name="105"><span class="lineNum">     105 </span><span class="lineNoCov">          0 :               if (start_pos_cu == old_pos_cu) {</span></a>
+<a name="106"><span class="lineNum">     106 </span>            :                 /* The point did not move, done. */</a>
+<a name="107"><span class="lineNum">     107 </span><span class="lineNoCov">          0 :                 break;</span></a>
+<a name="108"><span class="lineNum">     108 </span>            :               }</a>
+<a name="109"><span class="lineNum">     109 </span>            : </a>
+<a name="110"><span class="lineNum">     110 </span>            :               /* Check if the point moved through a surface. */</a>
+<a name="111"><span class="lineNum">     111 </span><span class="lineNoCov">          0 :               const float3 start_pos_su = math::transform_point(transforms.curves_to_surface,</span></a>
+<a name="112"><span class="lineNum">     112 </span>            :                                                                 start_pos_cu);</a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineNoCov">          0 :               const float3 old_pos_su = math::transform_point(transforms.curves_to_surface,</span></a>
+<a name="114"><span class="lineNum">     114 </span>            :                                                               old_pos_cu);</a>
+<a name="115"><span class="lineNum">     115 </span><span class="lineNoCov">          0 :               const float3 pos_diff_su = old_pos_su - start_pos_su;</span></a>
+<a name="116"><span class="lineNum">     116 </span>            :               float max_ray_length_su;</a>
+<a name="117"><span class="lineNum">     117 </span><span class="lineNoCov">          0 :               const float3 ray_direction_su = math::normalize_and_get_length(pos_diff_su,</span></a>
+<a name="118"><span class="lineNum">     118 </span>            :                                                                              max_ray_length_su);</a>
+<a name="119"><span class="lineNum">     119 </span>            : </a>
+<a name="120"><span class="lineNum">     120 </span>            :               const bke::bvh::Ray ray(</a>
+<a name="121"><span class="lineNum">     121 </span><span class="lineNoCov">          0 :                   start_pos_su, ray_direction_su, max_ray_length_su + surface_collision_distance);</span></a>
+<a name="122"><span class="lineNum">     122 </span>            : </a>
+<a name="123"><span class="lineNum">     123 </span><span class="lineNoCov">          0 :               const std::optional&lt;bke::bvh::RayHit&gt; hit = surface_bvh.ray_intersect(ray);</span></a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineNoCov">          0 :               if (!hit) {</span></a>
+<a name="125"><span class="lineNum">     125 </span><span class="lineNoCov">          0 :                 break;</span></a>
+<a name="126"><span class="lineNum">     126 </span>            :               }</a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineNoCov">          0 :               const float3 hit_pos_su = ray.origin + ray.direction * hit-&gt;distance;</span></a>
+<a name="128"><span class="lineNum">     128 </span><span class="lineNoCov">          0 :               const float3 hit_normal_su = math::normalize(hit-&gt;normal);</span></a>
+<a name="129"><span class="lineNum">     129 </span><span class="lineNoCov">          0 :               if (math::dot(hit_normal_su, ray_direction_su) &gt; 0.0f) {</span></a>
+<a name="130"><span class="lineNum">     130 </span>            :                 /* Moving from the inside to the outside is ok. */</a>
+<a name="131"><span class="lineNum">     131 </span><span class="lineNoCov">          0 :                 break;</span></a>
+<a name="132"><span class="lineNum">     132 </span>            :               }</a>
+<a name="133"><span class="lineNum">     133 </span>            : </a>
+<a name="134"><span class="lineNum">     134 </span>            :               /* The point was moved through a surface. Now put it back on the correct side of the</a>
+<a name="135"><span class="lineNum">     135 </span>            :                * surface and slide it on the surface to keep the length the same. */</a>
+<a name="136"><span class="lineNum">     136 </span>            : </a>
+<a name="137"><span class="lineNum">     137 </span><span class="lineNoCov">          0 :               const float3 hit_pos_cu = math::transform_point(transforms.surface_to_curves,</span></a>
+<a name="138"><span class="lineNum">     138 </span>            :                                                               hit_pos_su);</a>
+<a name="139"><span class="lineNum">     139 </span><span class="lineNoCov">          0 :               const float3 hit_normal_cu = math::normalize(</span></a>
+<a name="140"><span class="lineNum">     140 </span><span class="lineNoCov">          0 :                   math::transform_direction(transforms.surface_to_curves_normal, hit_normal_su));</span></a>
+<a name="141"><span class="lineNum">     141 </span>            : </a>
+<a name="142"><span class="lineNum">     142 </span>            :               /* Slide on a plane that is slightly above the surface. */</a>
+<a name="143"><span class="lineNum">     143 </span><span class="lineNoCov">          0 :               const float3 plane_pos_cu = hit_pos_cu + hit_normal_cu * surface_collision_distance;</span></a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineNoCov">          0 :               const float3 plane_normal_cu = hit_normal_cu;</span></a>
+<a name="145"><span class="lineNum">     145 </span>            : </a>
+<a name="146"><span class="lineNum">     146 </span>            :               /* Decompose the current segment into the part normal and tangent to the collision</a>
+<a name="147"><span class="lineNum">     147 </span>            :                * surface. */</a>
+<a name="148"><span class="lineNum">     148 </span><span class="lineNoCov">          0 :               const float3 collided_segment_cu = plane_pos_cu - prev_pos_cu;</span></a>
+<a name="149"><span class="lineNum">     149 </span>            :               const float3 slide_normal_cu = plane_normal_cu *</a>
+<a name="150"><span class="lineNum">     150 </span><span class="lineNoCov">          0 :                                              math::dot(collided_segment_cu, plane_normal_cu);</span></a>
+<a name="151"><span class="lineNum">     151 </span><span class="lineNoCov">          0 :               const float3 slide_direction_cu = collided_segment_cu - slide_normal_cu;</span></a>
+<a name="152"><span class="lineNum">     152 </span>            : </a>
+<a name="153"><span class="lineNum">     153 </span>            :               float slide_direction_length_cu;</a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineNoCov">          0 :               const float3 normalized_slide_direction_cu = math::normalize_and_get_length(</span></a>
+<a name="155"><span class="lineNum">     155 </span>            :                   slide_direction_cu, slide_direction_length_cu);</a>
+<a name="156"><span class="lineNum">     156 </span><span class="lineNoCov">          0 :               const float slide_normal_length_sq_cu = math::length_squared(slide_normal_cu);</span></a>
+<a name="157"><span class="lineNum">     157 </span>            : </a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineNoCov">          0 :               if (pow2f(goal_segment_length_cu) &gt; slide_normal_length_sq_cu) {</span></a>
+<a name="159"><span class="lineNum">     159 </span>            :                 /* Use Pythagorean theorem to determine how far to slide. */</a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineNoCov">          0 :                 const float slide_distance_cu = std::sqrt(pow2f(goal_segment_length_cu) -</span></a>
+<a name="161"><span class="lineNum">     161 </span><span class="lineNoCov">          0 :                                                           slide_normal_length_sq_cu) -</span></a>
+<a name="162"><span class="lineNum">     162 </span><span class="lineNoCov">          0 :                                                 slide_direction_length_cu;</span></a>
+<a name="163"><span class="lineNum">     163 </span><span class="lineNoCov">          0 :                 positions_cu[point_i] = plane_pos_cu +</span></a>
+<a name="164"><span class="lineNum">     164 </span><span class="lineNoCov">          0 :                                         normalized_slide_direction_cu * slide_distance_cu;</span></a>
+<a name="165"><span class="lineNum">     165 </span>            :               }</a>
+<a name="166"><span class="lineNum">     166 </span>            :               else {</a>
+<a name="167"><span class="lineNum">     167 </span>            :                 /* Minimum distance is larger than allowed segment length.</a>
+<a name="168"><span class="lineNum">     168 </span>            :                  * The unilateral collision constraint is satisfied by just clamping segment</a>
+<a name="169"><span class="lineNum">     169 </span>            :                  * length. */</a>
+<a name="170"><span class="lineNum">     170 </span><span class="lineNoCov">          0 :                 positions_cu[point_i] = prev_pos_cu + math::normalize(old_pos_su - prev_pos_cu) *</span></a>
+<a name="171"><span class="lineNum">     171 </span><span class="lineNoCov">          0 :                                                           goal_segment_length_cu;</span></a>
+<a name="172"><span class="lineNum">     172 </span>            :               }</a>
+<a name="173"><span class="lineNum">     173 </span>            :             }</a>
+<a name="174"><span class="lineNum">     174 </span><span class="lineNoCov">          0 :             if (used_iterations == max_collisions) {</span></a>
+<a name="175"><span class="lineNum">     175 </span><span class="lineNoCov">          0 :               revert_curve = true;</span></a>
+<a name="176"><span class="lineNum">     176 </span><span class="lineNoCov">          0 :               break;</span></a>
+<a name="177"><span class="lineNum">     177 </span>            :             }</a>
+<a name="178"><span class="lineNum">     178 </span>            :           }</a>
+<a name="179"><span class="lineNum">     179 </span><span class="lineNoCov">          0 :           if (revert_curve) {</span></a>
+<a name="180"><span class="lineNum">     180 </span><span class="lineNoCov">          0 :             positions_cu.slice(points).copy_from(start_positions_cu.slice(points));</span></a>
+<a name="181"><span class="lineNum">     181 </span>            :           }</a>
+<a name="182"><span class="lineNum">     182 </span>            :         }</a>
+<a name="183"><span class="lineNum">     183 </span><span class="lineNoCov">          0 :       },</span></a>
+<a name="184"><span class="lineNum">     184 </span>            :       exec_mode::grain_size(64));</a>
+<a name="185"><span class="lineNum">     185 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="186"><span class="lineNum">     186 </span>            : </a>
+<a name="187"><span class="lineNum">     187 </span>            : }  // namespace blender::geometry::curve_constraints</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,936 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage_filtered.info - editors/animation/anim_draw.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">editors/animation</a> - anim_draw.cc<span style="font-size: 80%;"> (source / <a href="anim_draw.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage_filtered.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">387</td>
+            <td class="headerCovTableEntryLo">0.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2026-10-08 15:08:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntryLo">5.6 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* SPDX-FileCopyrightText: 2008 Blender Authors</a>
+<a name="2"><span class="lineNum">       2 </span>            :  *</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * SPDX-License-Identifier: GPL-2.0-or-later */</a>
+<a name="4"><span class="lineNum">       4 </span>            : </a>
+<a name="5"><span class="lineNum">       5 </span>            : /** \file</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * \ingroup edanimation</a>
+<a name="7"><span class="lineNum">       7 </span>            :  */</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &quot;BLI_sys_types.hh&quot;</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &quot;DNA_anim_types.h&quot;</a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &quot;DNA_gpencil_legacy_types.h&quot;</a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &quot;DNA_grease_pencil_types.h&quot;</a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &quot;DNA_object_types.h&quot;</a>
+<a name="15"><span class="lineNum">      15 </span>            : #include &quot;DNA_scene_types.h&quot;</a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &quot;DNA_screen_types.h&quot;</a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &quot;DNA_sequence_types.h&quot;</a>
+<a name="18"><span class="lineNum">      18 </span>            : #include &quot;DNA_space_types.h&quot;</a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &quot;DNA_userdef_types.h&quot;</a>
+<a name="20"><span class="lineNum">      20 </span>            : #include &quot;DNA_workspace_types.h&quot;</a>
+<a name="21"><span class="lineNum">      21 </span>            : </a>
+<a name="22"><span class="lineNum">      22 </span>            : #include &quot;BLI_listbase.hh&quot;</a>
+<a name="23"><span class="lineNum">      23 </span>            : #include &quot;BLI_math_rotation_c.hh&quot;</a>
+<a name="24"><span class="lineNum">      24 </span>            : #include &quot;BLI_math_vector_c.hh&quot;</a>
+<a name="25"><span class="lineNum">      25 </span>            : #include &quot;BLI_rect.hh&quot;</a>
+<a name="26"><span class="lineNum">      26 </span>            : #include &quot;BLI_utildefines.hh&quot;</a>
+<a name="27"><span class="lineNum">      27 </span>            : </a>
+<a name="28"><span class="lineNum">      28 </span>            : #include &quot;BKE_context.hh&quot;</a>
+<a name="29"><span class="lineNum">      29 </span>            : #include &quot;BKE_curve.hh&quot;</a>
+<a name="30"><span class="lineNum">      30 </span>            : #include &quot;BKE_fcurve.hh&quot;</a>
+<a name="31"><span class="lineNum">      31 </span>            : #include &quot;BKE_global.hh&quot;</a>
+<a name="32"><span class="lineNum">      32 </span>            : #include &quot;BKE_mask.hh&quot;</a>
+<a name="33"><span class="lineNum">      33 </span>            : #include &quot;BKE_nla.hh&quot;</a>
+<a name="34"><span class="lineNum">      34 </span>            : #include &quot;BKE_scene_context.hh&quot;</a>
+<a name="35"><span class="lineNum">      35 </span>            : </a>
+<a name="36"><span class="lineNum">      36 </span>            : #include &quot;ED_anim_api.hh&quot;</a>
+<a name="37"><span class="lineNum">      37 </span>            : #include &quot;ED_keyframes_edit.hh&quot;</a>
+<a name="38"><span class="lineNum">      38 </span>            : #include &quot;ED_keyframes_keylist.hh&quot;</a>
+<a name="39"><span class="lineNum">      39 </span>            : #include &quot;ED_sequencer.hh&quot;</a>
+<a name="40"><span class="lineNum">      40 </span>            : </a>
+<a name="41"><span class="lineNum">      41 </span>            : #include &quot;RNA_access.hh&quot;</a>
+<a name="42"><span class="lineNum">      42 </span>            : #include &quot;RNA_path.hh&quot;</a>
+<a name="43"><span class="lineNum">      43 </span>            : </a>
+<a name="44"><span class="lineNum">      44 </span>            : #include &quot;UI_resources.hh&quot;</a>
+<a name="45"><span class="lineNum">      45 </span>            : #include &quot;UI_view2d.hh&quot;</a>
+<a name="46"><span class="lineNum">      46 </span>            : </a>
+<a name="47"><span class="lineNum">      47 </span>            : #include &quot;GPU_immediate.hh&quot;</a>
+<a name="48"><span class="lineNum">      48 </span>            : #include &quot;GPU_state.hh&quot;</a>
+<a name="49"><span class="lineNum">      49 </span>            : </a>
+<a name="50"><span class="lineNum">      50 </span>            : #include &quot;SEQ_time.hh&quot;</a>
+<a name="51"><span class="lineNum">      51 </span>            : </a>
+<a name="52"><span class="lineNum">      52 </span>            : #include &lt;utility&gt;</a>
+<a name="53"><span class="lineNum">      53 </span>            : </a>
+<a name="54"><span class="lineNum">      54 </span>            : namespace blender {</a>
+<a name="55"><span class="lineNum">      55 </span>            : </a>
+<a name="56"><span class="lineNum">      56 </span>            : /* *************************************************** */</a>
+<a name="57"><span class="lineNum">      57 </span>            : /* CURRENT FRAME DRAWING */</a>
+<a name="58"><span class="lineNum">      58 </span>            : </a>
+<a name="59"><span class="lineNum">      59 </span><span class="lineNoCov">          0 : void ANIM_draw_cfra(const bContext *C, View2D *v2d, short flag)</span></a>
+<a name="60"><span class="lineNum">      60 </span>            : {</a>
+<a name="61"><span class="lineNum">      61 </span><span class="lineNoCov">          0 :   Scene *scene = CTX_data_scene(C);</span></a>
+<a name="62"><span class="lineNum">      62 </span>            : </a>
+<a name="63"><span class="lineNum">      63 </span><span class="lineNoCov">          0 :   const float time = scene-&gt;r.cfra + scene-&gt;r.subframe;</span></a>
+<a name="64"><span class="lineNum">      64 </span><span class="lineNoCov">          0 :   const float x = float(time * scene-&gt;r.framelen);</span></a>
+<a name="65"><span class="lineNum">      65 </span>            : </a>
+<a name="66"><span class="lineNum">      66 </span><span class="lineNoCov">          0 :   GPU_line_width((flag &amp; DRAWCFRA_WIDE) ? 3.0 : 2.0);</span></a>
+<a name="67"><span class="lineNum">      67 </span>            : </a>
+<a name="68"><span class="lineNum">      68 </span><span class="lineNoCov">          0 :   GPUVertFormat *format = immVertexFormat();</span></a>
+<a name="69"><span class="lineNum">      69 </span><span class="lineNoCov">          0 :   uint pos = GPU_vertformat_attr_add(format, &quot;pos&quot;, gpu::VertAttrType::SFLOAT_32_32);</span></a>
+<a name="70"><span class="lineNum">      70 </span>            : </a>
+<a name="71"><span class="lineNum">      71 </span><span class="lineNoCov">          0 :   immBindBuiltinProgram(GPU_SHADER_3D_UNIFORM_COLOR);</span></a>
+<a name="72"><span class="lineNum">      72 </span>            : </a>
+<a name="73"><span class="lineNum">      73 </span>            :   /* Draw a light green line to indicate current frame */</a>
+<a name="74"><span class="lineNum">      74 </span><span class="lineNoCov">          0 :   immUniformThemeColor(TH_CFRAME);</span></a>
+<a name="75"><span class="lineNum">      75 </span>            : </a>
+<a name="76"><span class="lineNum">      76 </span><span class="lineNoCov">          0 :   immBegin(GPU_PRIM_LINES, 2);</span></a>
+<a name="77"><span class="lineNum">      77 </span><span class="lineNoCov">          0 :   immVertex2f(pos, x, v2d-&gt;cur.ymin - 500.0f); /* XXX arbitrary... want it go to bottom */</span></a>
+<a name="78"><span class="lineNum">      78 </span><span class="lineNoCov">          0 :   immVertex2f(pos, x, v2d-&gt;cur.ymax);</span></a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineNoCov">          0 :   immEnd();</span></a>
+<a name="80"><span class="lineNum">      80 </span><span class="lineNoCov">          0 :   immUnbindProgram();</span></a>
+<a name="81"><span class="lineNum">      81 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="82"><span class="lineNum">      82 </span>            : </a>
+<a name="83"><span class="lineNum">      83 </span>            : /* *************************************************** */</a>
+<a name="84"><span class="lineNum">      84 </span>            : /* PREVIEW RANGE 'CURTAINS' */</a>
+<a name="85"><span class="lineNum">      85 </span>            : /* NOTE: 'Preview Range' tools are defined in `anim_ops.cc`. */</a>
+<a name="86"><span class="lineNum">      86 </span>            : </a>
+<a name="87"><span class="lineNum">      87 </span><span class="lineNoCov">          0 : void ANIM_draw_previewrange(const Scene *scene, View2D *v2d, int end_frame_width)</span></a>
+<a name="88"><span class="lineNum">      88 </span>            : {</a>
+<a name="89"><span class="lineNum">      89 </span>            :   /* Only draw this if preview range is set. */</a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineNoCov">          0 :   if (PRVRANGEON) {</span></a>
+<a name="91"><span class="lineNum">      91 </span><span class="lineNoCov">          0 :     GPU_blend(GPU_BLEND_ALPHA);</span></a>
+<a name="92"><span class="lineNum">      92 </span>            : </a>
+<a name="93"><span class="lineNum">      93 </span><span class="lineNoCov">          0 :     GPUVertFormat *format = immVertexFormat();</span></a>
+<a name="94"><span class="lineNum">      94 </span><span class="lineNoCov">          0 :     uint pos = GPU_vertformat_attr_add(format, &quot;pos&quot;, gpu::VertAttrType::SFLOAT_32_32);</span></a>
+<a name="95"><span class="lineNum">      95 </span>            : </a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineNoCov">          0 :     immBindBuiltinProgram(GPU_SHADER_3D_UNIFORM_COLOR);</span></a>
+<a name="97"><span class="lineNum">      97 </span><span class="lineNoCov">          0 :     immUniformThemeColorShadeAlpha(TH_ANIM_PREVIEW_RANGE, -25, -30);</span></a>
+<a name="98"><span class="lineNum">      98 </span>            : </a>
+<a name="99"><span class="lineNum">      99 </span>            :     /* Only draw two separate 'curtains' if there's no overlap between them. */</a>
+<a name="100"><span class="lineNum">     100 </span><span class="lineNoCov">          0 :     if (scene-&gt;r.psfra &lt; scene-&gt;r.pefra + end_frame_width) {</span></a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineNoCov">          0 :       immRectf(pos, v2d-&gt;cur.xmin, v2d-&gt;cur.ymin, float(scene-&gt;r.psfra), v2d-&gt;cur.ymax);</span></a>
+<a name="102"><span class="lineNum">     102 </span><span class="lineNoCov">          0 :       immRectf(pos,</span></a>
+<a name="103"><span class="lineNum">     103 </span><span class="lineNoCov">          0 :                float(scene-&gt;r.pefra + end_frame_width),</span></a>
+<a name="104"><span class="lineNum">     104 </span>            :                v2d-&gt;cur.ymin,</a>
+<a name="105"><span class="lineNum">     105 </span>            :                v2d-&gt;cur.xmax,</a>
+<a name="106"><span class="lineNum">     106 </span>            :                v2d-&gt;cur.ymax);</a>
+<a name="107"><span class="lineNum">     107 </span>            :     }</a>
+<a name="108"><span class="lineNum">     108 </span>            :     else {</a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineNoCov">          0 :       immRectf(pos, v2d-&gt;cur.xmin, v2d-&gt;cur.ymin, v2d-&gt;cur.xmax, v2d-&gt;cur.ymax);</span></a>
+<a name="110"><span class="lineNum">     110 </span>            :     }</a>
+<a name="111"><span class="lineNum">     111 </span>            : </a>
+<a name="112"><span class="lineNum">     112 </span><span class="lineNoCov">          0 :     immUnbindProgram();</span></a>
+<a name="113"><span class="lineNum">     113 </span>            : </a>
+<a name="114"><span class="lineNum">     114 </span><span class="lineNoCov">          0 :     GPU_blend(GPU_BLEND_NONE);</span></a>
+<a name="115"><span class="lineNum">     115 </span>            :   }</a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="117"><span class="lineNum">     117 </span>            : </a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineNoCov">          0 : void ANIM_draw_scene_strip_range(const bContext *C, View2D *v2d)</span></a>
+<a name="119"><span class="lineNum">     119 </span>            : {</a>
+<a name="120"><span class="lineNum">     120 </span><span class="lineNoCov">          0 :   SpaceAction *space_action = CTX_wm_space_action(C);</span></a>
+<a name="121"><span class="lineNum">     121 </span><span class="lineNoCov">          0 :   if (!space_action || (space_action-&gt;overlays.flag &amp; ADS_OVERLAY_SHOW_OVERLAYS) == 0 ||</span></a>
+<a name="122"><span class="lineNum">     122 </span><span class="lineNoCov">          0 :       (space_action-&gt;overlays.flag &amp; ADS_SHOW_SCENE_STRIP_FRAME_RANGE) == 0)</span></a>
+<a name="123"><span class="lineNum">     123 </span>            :   {</a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="125"><span class="lineNum">     125 </span>            :   }</a>
+<a name="126"><span class="lineNum">     126 </span><span class="lineNoCov">          0 :   WorkSpace *workspace = CTX_wm_workspace(C);</span></a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineNoCov">          0 :   if (!workspace) {</span></a>
+<a name="128"><span class="lineNum">     128 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="129"><span class="lineNum">     129 </span>            :   }</a>
+<a name="130"><span class="lineNum">     130 </span><span class="lineNoCov">          0 :   if ((workspace-&gt;flags &amp; WORKSPACE_SYNC_SCENE_TIME) == 0) {</span></a>
+<a name="131"><span class="lineNum">     131 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="132"><span class="lineNum">     132 </span>            :   }</a>
+<a name="133"><span class="lineNum">     133 </span><span class="lineNoCov">          0 :   const Scene *sequencer_scene = workspace-&gt;sequencer_scene;</span></a>
+<a name="134"><span class="lineNum">     134 </span><span class="lineNoCov">          0 :   if (!sequencer_scene) {</span></a>
+<a name="135"><span class="lineNum">     135 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="136"><span class="lineNum">     136 </span>            :   }</a>
+<a name="137"><span class="lineNum">     137 </span><span class="lineNoCov">          0 :   const Strip *scene_strip = ed::vse::get_scene_strip_for_time_sync(sequencer_scene);</span></a>
+<a name="138"><span class="lineNum">     138 </span><span class="lineNoCov">          0 :   if (!scene_strip || !scene_strip-&gt;scene) {</span></a>
+<a name="139"><span class="lineNum">     139 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="140"><span class="lineNum">     140 </span>            :   }</a>
+<a name="141"><span class="lineNum">     141 </span><span class="lineNoCov">          0 :   GPU_blend(GPU_BLEND_ALPHA);</span></a>
+<a name="142"><span class="lineNum">     142 </span>            : </a>
+<a name="143"><span class="lineNum">     143 </span><span class="lineNoCov">          0 :   GPUVertFormat *format = immVertexFormat();</span></a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineNoCov">          0 :   uint pos = GPU_vertformat_attr_add(format, &quot;pos&quot;, gpu::VertAttrType::SFLOAT_32_32);</span></a>
+<a name="145"><span class="lineNum">     145 </span>            : </a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineNoCov">          0 :   immBindBuiltinProgram(GPU_SHADER_3D_UNIFORM_COLOR);</span></a>
+<a name="147"><span class="lineNum">     147 </span><span class="lineNoCov">          0 :   immUniformThemeColorShadeAlpha(TH_ANIM_SCENE_STRIP_RANGE, -25, -30);</span></a>
+<a name="148"><span class="lineNum">     148 </span>            : </a>
+<a name="149"><span class="lineNum">     149 </span>            :   /* ..._handle are frames in &quot;sequencer logic&quot;, meaning that on the right_handle point in time,</a>
+<a name="150"><span class="lineNum">     150 </span>            :    * the strip is not visible any more. The last visible frame of the strip is actually on</a>
+<a name="151"><span class="lineNum">     151 </span>            :    * (right_handle-1), hence the -1 when computing the end_frame. */</a>
+<a name="152"><span class="lineNum">     152 </span><span class="lineNoCov">          0 :   const float left_handle = scene_strip-&gt;left_handle();</span></a>
+<a name="153"><span class="lineNum">     153 </span><span class="lineNoCov">          0 :   const float right_handle = scene_strip-&gt;right_handle(sequencer_scene);</span></a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineNoCov">          0 :   float start_frame = seq::give_frame_index(sequencer_scene, scene_strip, left_handle) +</span></a>
+<a name="155"><span class="lineNum">     155 </span><span class="lineNoCov">          0 :                       scene_strip-&gt;scene-&gt;r.sfra + scene_strip-&gt;anim_startofs;</span></a>
+<a name="156"><span class="lineNum">     156 </span><span class="lineNoCov">          0 :   float end_frame = seq::give_frame_index(sequencer_scene, scene_strip, right_handle - 1) +</span></a>
+<a name="157"><span class="lineNum">     157 </span><span class="lineNoCov">          0 :                     scene_strip-&gt;scene-&gt;r.sfra + scene_strip-&gt;anim_startofs;</span></a>
+<a name="158"><span class="lineNum">     158 </span>            : </a>
+<a name="159"><span class="lineNum">     159 </span>            :   /* This can happen when the strip time is reversed. */</a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineNoCov">          0 :   if (start_frame &gt; end_frame) {</span></a>
+<a name="161"><span class="lineNum">     161 </span><span class="lineNoCov">          0 :     std::swap(start_frame, end_frame);</span></a>
+<a name="162"><span class="lineNum">     162 </span>            :   }</a>
+<a name="163"><span class="lineNum">     163 </span>            : </a>
+<a name="164"><span class="lineNum">     164 </span><span class="lineNoCov">          0 :   immRectf(pos, v2d-&gt;cur.xmin, v2d-&gt;cur.ymin, start_frame, v2d-&gt;cur.ymax);</span></a>
+<a name="165"><span class="lineNum">     165 </span><span class="lineNoCov">          0 :   immRectf(pos, end_frame, v2d-&gt;cur.ymin, v2d-&gt;cur.xmax, v2d-&gt;cur.ymax);</span></a>
+<a name="166"><span class="lineNum">     166 </span>            : </a>
+<a name="167"><span class="lineNum">     167 </span><span class="lineNoCov">          0 :   immUnbindProgram();</span></a>
+<a name="168"><span class="lineNum">     168 </span>            : </a>
+<a name="169"><span class="lineNum">     169 </span><span class="lineNoCov">          0 :   GPU_blend(GPU_BLEND_NONE);</span></a>
+<a name="170"><span class="lineNum">     170 </span>            : }</a>
+<a name="171"><span class="lineNum">     171 </span>            : </a>
+<a name="172"><span class="lineNum">     172 </span>            : /* *************************************************** */</a>
+<a name="173"><span class="lineNum">     173 </span>            : /* SCENE FRAME RANGE */</a>
+<a name="174"><span class="lineNum">     174 </span>            : </a>
+<a name="175"><span class="lineNum">     175 </span><span class="lineNoCov">          0 : void ANIM_draw_framerange(Scene *scene, View2D *v2d)</span></a>
+<a name="176"><span class="lineNum">     176 </span>            : {</a>
+<a name="177"><span class="lineNum">     177 </span>            :   /* draw darkened area outside of active timeline frame range */</a>
+<a name="178"><span class="lineNum">     178 </span><span class="lineNoCov">          0 :   GPU_blend(GPU_BLEND_ALPHA);</span></a>
+<a name="179"><span class="lineNum">     179 </span>            : </a>
+<a name="180"><span class="lineNum">     180 </span><span class="lineNoCov">          0 :   GPUVertFormat *format = immVertexFormat();</span></a>
+<a name="181"><span class="lineNum">     181 </span><span class="lineNoCov">          0 :   uint pos = GPU_vertformat_attr_add(format, &quot;pos&quot;, gpu::VertAttrType::SFLOAT_32_32);</span></a>
+<a name="182"><span class="lineNum">     182 </span>            : </a>
+<a name="183"><span class="lineNum">     183 </span><span class="lineNoCov">          0 :   immBindBuiltinProgram(GPU_SHADER_3D_UNIFORM_COLOR);</span></a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineNoCov">          0 :   immUniformThemeColorShadeAlpha(TH_BACK, -25, -100);</span></a>
+<a name="185"><span class="lineNum">     185 </span>            : </a>
+<a name="186"><span class="lineNum">     186 </span><span class="lineNoCov">          0 :   if (scene-&gt;r.sfra &lt; scene-&gt;r.efra) {</span></a>
+<a name="187"><span class="lineNum">     187 </span><span class="lineNoCov">          0 :     immRectf(pos, v2d-&gt;cur.xmin, v2d-&gt;cur.ymin, float(scene-&gt;r.sfra), v2d-&gt;cur.ymax);</span></a>
+<a name="188"><span class="lineNum">     188 </span><span class="lineNoCov">          0 :     immRectf(pos, float(scene-&gt;r.efra), v2d-&gt;cur.ymin, v2d-&gt;cur.xmax, v2d-&gt;cur.ymax);</span></a>
+<a name="189"><span class="lineNum">     189 </span>            :   }</a>
+<a name="190"><span class="lineNum">     190 </span>            :   else {</a>
+<a name="191"><span class="lineNum">     191 </span><span class="lineNoCov">          0 :     immRectf(pos, v2d-&gt;cur.xmin, v2d-&gt;cur.ymin, v2d-&gt;cur.xmax, v2d-&gt;cur.ymax);</span></a>
+<a name="192"><span class="lineNum">     192 </span>            :   }</a>
+<a name="193"><span class="lineNum">     193 </span>            : </a>
+<a name="194"><span class="lineNum">     194 </span><span class="lineNoCov">          0 :   GPU_blend(GPU_BLEND_NONE);</span></a>
+<a name="195"><span class="lineNum">     195 </span>            : </a>
+<a name="196"><span class="lineNum">     196 </span>            :   /* thin lines where the actual frames are */</a>
+<a name="197"><span class="lineNum">     197 </span><span class="lineNoCov">          0 :   immUniformThemeColorShade(TH_BACK, -60);</span></a>
+<a name="198"><span class="lineNum">     198 </span>            : </a>
+<a name="199"><span class="lineNum">     199 </span><span class="lineNoCov">          0 :   immBegin(GPU_PRIM_LINES, 4);</span></a>
+<a name="200"><span class="lineNum">     200 </span>            : </a>
+<a name="201"><span class="lineNum">     201 </span><span class="lineNoCov">          0 :   immVertex2f(pos, float(scene-&gt;r.sfra), v2d-&gt;cur.ymin);</span></a>
+<a name="202"><span class="lineNum">     202 </span><span class="lineNoCov">          0 :   immVertex2f(pos, float(scene-&gt;r.sfra), v2d-&gt;cur.ymax);</span></a>
+<a name="203"><span class="lineNum">     203 </span>            : </a>
+<a name="204"><span class="lineNum">     204 </span><span class="lineNoCov">          0 :   immVertex2f(pos, float(scene-&gt;r.efra), v2d-&gt;cur.ymin);</span></a>
+<a name="205"><span class="lineNum">     205 </span><span class="lineNoCov">          0 :   immVertex2f(pos, float(scene-&gt;r.efra), v2d-&gt;cur.ymax);</span></a>
+<a name="206"><span class="lineNum">     206 </span>            : </a>
+<a name="207"><span class="lineNum">     207 </span><span class="lineNoCov">          0 :   immEnd();</span></a>
+<a name="208"><span class="lineNum">     208 </span><span class="lineNoCov">          0 :   immUnbindProgram();</span></a>
+<a name="209"><span class="lineNum">     209 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="210"><span class="lineNum">     210 </span>            : </a>
+<a name="211"><span class="lineNum">     211 </span><span class="lineNoCov">          0 : void ANIM_draw_action_framerange(</span></a>
+<a name="212"><span class="lineNum">     212 </span>            :     AnimData *adt, bAction *action, View2D *v2d, float ymin, float ymax)</a>
+<a name="213"><span class="lineNum">     213 </span>            : {</a>
+<a name="214"><span class="lineNum">     214 </span><span class="lineNoCov">          0 :   if ((action-&gt;flag &amp; ACT_FRAME_RANGE) == 0) {</span></a>
+<a name="215"><span class="lineNum">     215 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="216"><span class="lineNum">     216 </span>            :   }</a>
+<a name="217"><span class="lineNum">     217 </span>            : </a>
+<a name="218"><span class="lineNum">     218 </span>            :   /* Compute the dimensions. */</a>
+<a name="219"><span class="lineNum">     219 </span><span class="lineNoCov">          0 :   CLAMP_MIN(ymin, v2d-&gt;cur.ymin);</span></a>
+<a name="220"><span class="lineNum">     220 </span><span class="lineNoCov">          0 :   CLAMP_MAX(ymax, v2d-&gt;cur.ymax);</span></a>
+<a name="221"><span class="lineNum">     221 </span>            : </a>
+<a name="222"><span class="lineNum">     222 </span><span class="lineNoCov">          0 :   if (ymin &gt; ymax) {</span></a>
+<a name="223"><span class="lineNum">     223 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="224"><span class="lineNum">     224 </span>            :   }</a>
+<a name="225"><span class="lineNum">     225 </span>            : </a>
+<a name="226"><span class="lineNum">     226 </span><span class="lineNoCov">          0 :   const float sfra = BKE_nla_tweakedit_remap(adt, action-&gt;frame_start, NLATIME_CONVERT_MAP);</span></a>
+<a name="227"><span class="lineNum">     227 </span><span class="lineNoCov">          0 :   const float efra = BKE_nla_tweakedit_remap(adt, action-&gt;frame_end, NLATIME_CONVERT_MAP);</span></a>
+<a name="228"><span class="lineNum">     228 </span>            : </a>
+<a name="229"><span class="lineNum">     229 </span>            :   /* Diagonal stripe filled area outside of the frame range. */</a>
+<a name="230"><span class="lineNum">     230 </span><span class="lineNoCov">          0 :   GPU_blend(GPU_BLEND_ALPHA);</span></a>
+<a name="231"><span class="lineNum">     231 </span>            : </a>
+<a name="232"><span class="lineNum">     232 </span><span class="lineNoCov">          0 :   GPUVertFormat *format = immVertexFormat();</span></a>
+<a name="233"><span class="lineNum">     233 </span><span class="lineNoCov">          0 :   uint pos = GPU_vertformat_attr_add(format, &quot;pos&quot;, gpu::VertAttrType::SFLOAT_32_32);</span></a>
+<a name="234"><span class="lineNum">     234 </span>            : </a>
+<a name="235"><span class="lineNum">     235 </span><span class="lineNoCov">          0 :   immBindBuiltinProgram(GPU_SHADER_2D_DIAG_STRIPES);</span></a>
+<a name="236"><span class="lineNum">     236 </span>            : </a>
+<a name="237"><span class="lineNum">     237 </span>            :   float color[4];</a>
+<a name="238"><span class="lineNum">     238 </span><span class="lineNoCov">          0 :   ui::theme::get_color_shade_alpha_4fv(TH_BACK, -40, -50, color);</span></a>
+<a name="239"><span class="lineNum">     239 </span>            : </a>
+<a name="240"><span class="lineNum">     240 </span><span class="lineNoCov">          0 :   immUniform4f(&quot;color1&quot;, color[0], color[1], color[2], color[3]);</span></a>
+<a name="241"><span class="lineNum">     241 </span><span class="lineNoCov">          0 :   immUniform4f(&quot;color2&quot;, 0.0f, 0.0f, 0.0f, 0.0f);</span></a>
+<a name="242"><span class="lineNum">     242 </span><span class="lineNoCov">          0 :   immUniform1i(&quot;size1&quot;, 2 * UI_SCALE_FAC);</span></a>
+<a name="243"><span class="lineNum">     243 </span><span class="lineNoCov">          0 :   immUniform1i(&quot;size2&quot;, 4 * UI_SCALE_FAC);</span></a>
+<a name="244"><span class="lineNum">     244 </span>            : </a>
+<a name="245"><span class="lineNum">     245 </span><span class="lineNoCov">          0 :   if (sfra &lt; efra) {</span></a>
+<a name="246"><span class="lineNum">     246 </span><span class="lineNoCov">          0 :     immRectf(pos, v2d-&gt;cur.xmin, ymin, sfra, ymax);</span></a>
+<a name="247"><span class="lineNum">     247 </span><span class="lineNoCov">          0 :     immRectf(pos, efra, ymin, v2d-&gt;cur.xmax, ymax);</span></a>
+<a name="248"><span class="lineNum">     248 </span>            :   }</a>
+<a name="249"><span class="lineNum">     249 </span>            :   else {</a>
+<a name="250"><span class="lineNum">     250 </span><span class="lineNoCov">          0 :     immRectf(pos, v2d-&gt;cur.xmin, ymin, v2d-&gt;cur.xmax, ymax);</span></a>
+<a name="251"><span class="lineNum">     251 </span>            :   }</a>
+<a name="252"><span class="lineNum">     252 </span>            : </a>
+<a name="253"><span class="lineNum">     253 </span><span class="lineNoCov">          0 :   immUnbindProgram();</span></a>
+<a name="254"><span class="lineNum">     254 </span>            : </a>
+<a name="255"><span class="lineNum">     255 </span><span class="lineNoCov">          0 :   GPU_blend(GPU_BLEND_NONE);</span></a>
+<a name="256"><span class="lineNum">     256 </span>            : </a>
+<a name="257"><span class="lineNum">     257 </span>            :   /* Thin lines where the actual frames are. */</a>
+<a name="258"><span class="lineNum">     258 </span><span class="lineNoCov">          0 :   immBindBuiltinProgram(GPU_SHADER_3D_UNIFORM_COLOR);</span></a>
+<a name="259"><span class="lineNum">     259 </span><span class="lineNoCov">          0 :   immUniformThemeColorShade(TH_BACK, -60);</span></a>
+<a name="260"><span class="lineNum">     260 </span>            : </a>
+<a name="261"><span class="lineNum">     261 </span><span class="lineNoCov">          0 :   GPU_line_width(1.0f);</span></a>
+<a name="262"><span class="lineNum">     262 </span>            : </a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineNoCov">          0 :   immBegin(GPU_PRIM_LINES, 4);</span></a>
+<a name="264"><span class="lineNum">     264 </span>            : </a>
+<a name="265"><span class="lineNum">     265 </span><span class="lineNoCov">          0 :   immVertex2f(pos, sfra, ymin);</span></a>
+<a name="266"><span class="lineNum">     266 </span><span class="lineNoCov">          0 :   immVertex2f(pos, sfra, ymax);</span></a>
+<a name="267"><span class="lineNum">     267 </span>            : </a>
+<a name="268"><span class="lineNum">     268 </span><span class="lineNoCov">          0 :   immVertex2f(pos, efra, ymin);</span></a>
+<a name="269"><span class="lineNum">     269 </span><span class="lineNoCov">          0 :   immVertex2f(pos, efra, ymax);</span></a>
+<a name="270"><span class="lineNum">     270 </span>            : </a>
+<a name="271"><span class="lineNum">     271 </span><span class="lineNoCov">          0 :   immEnd();</span></a>
+<a name="272"><span class="lineNum">     272 </span><span class="lineNoCov">          0 :   immUnbindProgram();</span></a>
+<a name="273"><span class="lineNum">     273 </span>            : }</a>
+<a name="274"><span class="lineNum">     274 </span>            : </a>
+<a name="275"><span class="lineNum">     275 </span>            : /* *************************************************** */</a>
+<a name="276"><span class="lineNum">     276 </span>            : /* NLA-MAPPING UTILITIES (required for drawing and also editing keyframes). */</a>
+<a name="277"><span class="lineNum">     277 </span>            : </a>
+<a name="278"><span class="lineNum">     278 </span><span class="lineNoCov">          0 : bool ANIM_nla_mapping_allowed(const bAnimListElem *ale)</span></a>
+<a name="279"><span class="lineNum">     279 </span>            : {</a>
+<a name="280"><span class="lineNum">     280 </span>            :   /* Historically, there was another check in the code that this function replaced:</a>
+<a name="281"><span class="lineNum">     281 </span>            :    * if (!ELEM(ac-&gt;datatype,</a>
+<a name="282"><span class="lineNum">     282 </span>            :    *           ANIMCONT_ACTION,</a>
+<a name="283"><span class="lineNum">     283 </span>            :    *           ANIMCONT_SHAPEKEY,</a>
+<a name="284"><span class="lineNum">     284 </span>            :    *           ANIMCONT_DOPESHEET,</a>
+<a name="285"><span class="lineNum">     285 </span>            :    *           ANIMCONT_FCURVES,</a>
+<a name="286"><span class="lineNum">     286 </span>            :    *           ANIMCONT_NLA,</a>
+<a name="287"><span class="lineNum">     287 </span>            :    *           ANIMCONT_CHANNEL,</a>
+<a name="288"><span class="lineNum">     288 </span>            :    *           ANIMCONT_TIMELINE))</a>
+<a name="289"><span class="lineNum">     289 </span>            :    * {</a>
+<a name="290"><span class="lineNum">     290 </span>            :    *   ... prevent NLA-remapping ...</a>
+<a name="291"><span class="lineNum">     291 </span>            :    * }</a>
+<a name="292"><span class="lineNum">     292 </span>            :    *</a>
+<a name="293"><span class="lineNum">     293 </span>            :    * I (Sybren) suspect that this was actually hiding some animation type check. When that code was</a>
+<a name="294"><span class="lineNum">     294 </span>            :    * written, I think there was no GreasePencil data showing in the regular Dope Sheet editor.</a>
+<a name="295"><span class="lineNum">     295 </span>            :    */</a>
+<a name="296"><span class="lineNum">     296 </span>            : </a>
+<a name="297"><span class="lineNum">     297 </span><span class="lineNoCov">          0 :   switch (ale-&gt;type) {</span></a>
+<a name="298"><span class="lineNum">     298 </span><span class="lineNoCov">          0 :     case ANIMTYPE_NLACURVE:</span></a>
+<a name="299"><span class="lineNum">     299 </span>            :       /* NLA Control Curves occur on NLA strips,</a>
+<a name="300"><span class="lineNum">     300 </span>            :        * and shouldn't be subjected to this kind of mapping. */</a>
+<a name="301"><span class="lineNum">     301 </span><span class="lineNoCov">          0 :       return false;</span></a>
+<a name="302"><span class="lineNum">     302 </span><span class="lineNoCov">          0 :     case ANIMTYPE_FCURVE: {</span></a>
+<a name="303"><span class="lineNum">     303 </span>            :       /* The F-Curve data of a driver should never get NLA-remapped. */</a>
+<a name="304"><span class="lineNum">     304 </span><span class="lineNoCov">          0 :       FCurve *fcurve = static_cast&lt;FCurve *&gt;(ale-&gt;key_data);</span></a>
+<a name="305"><span class="lineNum">     305 </span><span class="lineNoCov">          0 :       return !fcurve-&gt;driver;</span></a>
+<a name="306"><span class="lineNum">     306 </span>            :     }</a>
+<a name="307"><span class="lineNum">     307 </span><span class="lineNoCov">          0 :     case ANIMTYPE_DSGPENCIL:</span></a>
+<a name="308"><span class="lineNum">     308 </span>            :     case ANIMTYPE_GPLAYER:</a>
+<a name="309"><span class="lineNum">     309 </span>            :     case ANIMTYPE_GREASE_PENCIL_DATABLOCK:</a>
+<a name="310"><span class="lineNum">     310 </span>            :     case ANIMTYPE_GREASE_PENCIL_LAYER_GROUP:</a>
+<a name="311"><span class="lineNum">     311 </span>            :     case ANIMTYPE_GREASE_PENCIL_LAYER:</a>
+<a name="312"><span class="lineNum">     312 </span>            :       /* Grease Pencil doesn't use the NLA, so don't bother remapping. */</a>
+<a name="313"><span class="lineNum">     313 </span><span class="lineNoCov">          0 :       return false;</span></a>
+<a name="314"><span class="lineNum">     314 </span><span class="lineNoCov">          0 :     case ANIMTYPE_MASKDATABLOCK:</span></a>
+<a name="315"><span class="lineNum">     315 </span>            :     case ANIMTYPE_MASKLAYER:</a>
+<a name="316"><span class="lineNum">     316 </span>            :       /* I (Sybren) don't _think_ masks can use the NLA. */</a>
+<a name="317"><span class="lineNum">     317 </span><span class="lineNoCov">          0 :       return false;</span></a>
+<a name="318"><span class="lineNum">     318 </span><span class="lineNoCov">          0 :     case ANIMTYPE_SUMMARY:</span></a>
+<a name="319"><span class="lineNum">     319 </span>            :       /* The summary line cannot do NLA remapping since it may contain multiple actions. */</a>
+<a name="320"><span class="lineNum">     320 </span><span class="lineNoCov">          0 :       return false;</span></a>
+<a name="321"><span class="lineNum">     321 </span><span class="lineNoCov">          0 :     default:</span></a>
+<a name="322"><span class="lineNum">     322 </span>            :       /* NLA time remapping is the default behavior, and only should be</a>
+<a name="323"><span class="lineNum">     323 </span>            :        * prohibited for the above types. */</a>
+<a name="324"><span class="lineNum">     324 </span><span class="lineNoCov">          0 :       return true;</span></a>
+<a name="325"><span class="lineNum">     325 </span>            :   }</a>
+<a name="326"><span class="lineNum">     326 </span>            : }</a>
+<a name="327"><span class="lineNum">     327 </span>            : </a>
+<a name="328"><span class="lineNum">     328 </span><span class="lineNoCov">          0 : float ANIM_nla_tweakedit_remap(bAnimListElem *ale,</span></a>
+<a name="329"><span class="lineNum">     329 </span>            :                                const float cframe,</a>
+<a name="330"><span class="lineNum">     330 </span>            :                                const eNlaTime_ConvertModes mode)</a>
+<a name="331"><span class="lineNum">     331 </span>            : {</a>
+<a name="332"><span class="lineNum">     332 </span><span class="lineNoCov">          0 :   if (!ANIM_nla_mapping_allowed(ale)) {</span></a>
+<a name="333"><span class="lineNum">     333 </span><span class="lineNoCov">          0 :     return cframe;</span></a>
+<a name="334"><span class="lineNum">     334 </span>            :   }</a>
+<a name="335"><span class="lineNum">     335 </span><span class="lineNoCov">          0 :   return BKE_nla_tweakedit_remap(ale-&gt;adt, cframe, mode);</span></a>
+<a name="336"><span class="lineNum">     336 </span>            : }</a>
+<a name="337"><span class="lineNum">     337 </span>            : </a>
+<a name="338"><span class="lineNum">     338 </span>            : /* ------------------- */</a>
+<a name="339"><span class="lineNum">     339 </span>            : </a>
+<a name="340"><span class="lineNum">     340 </span>            : /* Helper function for ANIM_nla_mapping_apply_fcurve() -&gt; &quot;restore&quot;,</a>
+<a name="341"><span class="lineNum">     341 </span>            :  * i.e. mapping points back to action-time. */</a>
+<a name="342"><span class="lineNum">     342 </span><span class="lineNoCov">          0 : static short bezt_nlamapping_restore(KeyframeEditData *ked, BezTriple *bezt)</span></a>
+<a name="343"><span class="lineNum">     343 </span>            : {</a>
+<a name="344"><span class="lineNum">     344 </span>            :   /* AnimData block providing scaling is stored in 'data', only_keys option is stored in i1 */</a>
+<a name="345"><span class="lineNum">     345 </span><span class="lineNoCov">          0 :   AnimData *adt = static_cast&lt;AnimData *&gt;(ked-&gt;data);</span></a>
+<a name="346"><span class="lineNum">     346 </span><span class="lineNoCov">          0 :   short only_keys = short(ked-&gt;i1);</span></a>
+<a name="347"><span class="lineNum">     347 </span>            : </a>
+<a name="348"><span class="lineNum">     348 </span>            :   /* adjust BezTriple handles only if allowed to */</a>
+<a name="349"><span class="lineNum">     349 </span><span class="lineNoCov">          0 :   if (only_keys == 0) {</span></a>
+<a name="350"><span class="lineNum">     350 </span><span class="lineNoCov">          0 :     bezt-&gt;vec[0][0] = BKE_nla_tweakedit_remap(adt, bezt-&gt;vec[0][0], NLATIME_CONVERT_UNMAP);</span></a>
+<a name="351"><span class="lineNum">     351 </span><span class="lineNoCov">          0 :     bezt-&gt;vec[2][0] = BKE_nla_tweakedit_remap(adt, bezt-&gt;vec[2][0], NLATIME_CONVERT_UNMAP);</span></a>
+<a name="352"><span class="lineNum">     352 </span>            :   }</a>
+<a name="353"><span class="lineNum">     353 </span>            : </a>
+<a name="354"><span class="lineNum">     354 </span><span class="lineNoCov">          0 :   bezt-&gt;vec[1][0] = BKE_nla_tweakedit_remap(adt, bezt-&gt;vec[1][0], NLATIME_CONVERT_UNMAP);</span></a>
+<a name="355"><span class="lineNum">     355 </span>            : </a>
+<a name="356"><span class="lineNum">     356 </span><span class="lineNoCov">          0 :   return 0;</span></a>
+<a name="357"><span class="lineNum">     357 </span>            : }</a>
+<a name="358"><span class="lineNum">     358 </span>            : </a>
+<a name="359"><span class="lineNum">     359 </span>            : /* helper function for ANIM_nla_mapping_apply_fcurve() -&gt; &quot;apply&quot;,</a>
+<a name="360"><span class="lineNum">     360 </span>            :  * i.e. mapping points to NLA-mapped global time */</a>
+<a name="361"><span class="lineNum">     361 </span><span class="lineNoCov">          0 : static short bezt_nlamapping_apply(KeyframeEditData *ked, BezTriple *bezt)</span></a>
+<a name="362"><span class="lineNum">     362 </span>            : {</a>
+<a name="363"><span class="lineNum">     363 </span>            :   /* AnimData block providing scaling is stored in 'data', only_keys option is stored in i1 */</a>
+<a name="364"><span class="lineNum">     364 </span><span class="lineNoCov">          0 :   AnimData *adt = static_cast&lt;AnimData *&gt;(ked-&gt;data);</span></a>
+<a name="365"><span class="lineNum">     365 </span><span class="lineNoCov">          0 :   short only_keys = short(ked-&gt;i1);</span></a>
+<a name="366"><span class="lineNum">     366 </span>            : </a>
+<a name="367"><span class="lineNum">     367 </span>            :   /* adjust BezTriple handles only if allowed to */</a>
+<a name="368"><span class="lineNum">     368 </span><span class="lineNoCov">          0 :   if (only_keys == 0) {</span></a>
+<a name="369"><span class="lineNum">     369 </span><span class="lineNoCov">          0 :     bezt-&gt;vec[0][0] = BKE_nla_tweakedit_remap(adt, bezt-&gt;vec[0][0], NLATIME_CONVERT_MAP);</span></a>
+<a name="370"><span class="lineNum">     370 </span><span class="lineNoCov">          0 :     bezt-&gt;vec[2][0] = BKE_nla_tweakedit_remap(adt, bezt-&gt;vec[2][0], NLATIME_CONVERT_MAP);</span></a>
+<a name="371"><span class="lineNum">     371 </span>            :   }</a>
+<a name="372"><span class="lineNum">     372 </span>            : </a>
+<a name="373"><span class="lineNum">     373 </span><span class="lineNoCov">          0 :   bezt-&gt;vec[1][0] = BKE_nla_tweakedit_remap(adt, bezt-&gt;vec[1][0], NLATIME_CONVERT_MAP);</span></a>
+<a name="374"><span class="lineNum">     374 </span>            : </a>
+<a name="375"><span class="lineNum">     375 </span><span class="lineNoCov">          0 :   return 0;</span></a>
+<a name="376"><span class="lineNum">     376 </span>            : }</a>
+<a name="377"><span class="lineNum">     377 </span>            : </a>
+<a name="378"><span class="lineNum">     378 </span><span class="lineCov">        108 : void ANIM_nla_mapping_apply_fcurve(AnimData *adt, FCurve *fcu, bool restore, bool only_keys)</span></a>
+<a name="379"><span class="lineNum">     379 </span>            : {</a>
+<a name="380"><span class="lineNum">     380 </span><span class="lineCov">        108 :   if (adt == nullptr || adt-&gt;nla_tracks.is_empty()) {</span></a>
+<a name="381"><span class="lineNum">     381 </span><span class="lineCov">        108 :     return;</span></a>
+<a name="382"><span class="lineNum">     382 </span>            :   }</a>
+<a name="383"><span class="lineNum">     383 </span><span class="lineNoCov">          0 :   KeyframeEditData ked = {{nullptr}};</span></a>
+<a name="384"><span class="lineNum">     384 </span>            :   KeyframeEditFunc map_cb;</a>
+<a name="385"><span class="lineNum">     385 </span>            : </a>
+<a name="386"><span class="lineNum">     386 </span>            :   /* init edit data</a>
+<a name="387"><span class="lineNum">     387 </span>            :    * - AnimData is stored in 'data'</a>
+<a name="388"><span class="lineNum">     388 </span>            :    * - only_keys is stored in 'i1'</a>
+<a name="389"><span class="lineNum">     389 </span>            :    */</a>
+<a name="390"><span class="lineNum">     390 </span><span class="lineNoCov">          0 :   ked.data = static_cast&lt;void *&gt;(adt);</span></a>
+<a name="391"><span class="lineNum">     391 </span><span class="lineNoCov">          0 :   ked.i1 = int(only_keys);</span></a>
+<a name="392"><span class="lineNum">     392 </span>            : </a>
+<a name="393"><span class="lineNum">     393 </span>            :   /* get editing callback */</a>
+<a name="394"><span class="lineNum">     394 </span><span class="lineNoCov">          0 :   if (restore) {</span></a>
+<a name="395"><span class="lineNum">     395 </span><span class="lineNoCov">          0 :     map_cb = bezt_nlamapping_restore;</span></a>
+<a name="396"><span class="lineNum">     396 </span>            :   }</a>
+<a name="397"><span class="lineNum">     397 </span>            :   else {</a>
+<a name="398"><span class="lineNum">     398 </span><span class="lineNoCov">          0 :     map_cb = bezt_nlamapping_apply;</span></a>
+<a name="399"><span class="lineNum">     399 </span>            :   }</a>
+<a name="400"><span class="lineNum">     400 </span>            : </a>
+<a name="401"><span class="lineNum">     401 </span>            :   /* apply to F-Curve */</a>
+<a name="402"><span class="lineNum">     402 </span><span class="lineNoCov">          0 :   ANIM_fcurve_keyframes_loop(&amp;ked, fcu, nullptr, map_cb, nullptr);</span></a>
+<a name="403"><span class="lineNum">     403 </span>            : }</a>
+<a name="404"><span class="lineNum">     404 </span>            : </a>
+<a name="405"><span class="lineNum">     405 </span><span class="lineNoCov">          0 : void ANIM_nla_mapping_apply_if_needed_fcurve(bAnimListElem *ale,</span></a>
+<a name="406"><span class="lineNum">     406 </span>            :                                              FCurve *fcu,</a>
+<a name="407"><span class="lineNum">     407 </span>            :                                              const bool restore,</a>
+<a name="408"><span class="lineNum">     408 </span>            :                                              const bool only_keys)</a>
+<a name="409"><span class="lineNum">     409 </span>            : {</a>
+<a name="410"><span class="lineNum">     410 </span><span class="lineNoCov">          0 :   if (!ANIM_nla_mapping_allowed(ale)) {</span></a>
+<a name="411"><span class="lineNum">     411 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="412"><span class="lineNum">     412 </span>            :   }</a>
+<a name="413"><span class="lineNum">     413 </span><span class="lineNoCov">          0 :   ANIM_nla_mapping_apply_fcurve(ale-&gt;adt, fcu, restore, only_keys);</span></a>
+<a name="414"><span class="lineNum">     414 </span>            : }</a>
+<a name="415"><span class="lineNum">     415 </span>            : </a>
+<a name="416"><span class="lineNum">     416 </span>            : /* *************************************************** */</a>
+<a name="417"><span class="lineNum">     417 </span>            : /* UNITS CONVERSION MAPPING (required for drawing and editing keyframes) */</a>
+<a name="418"><span class="lineNum">     418 </span>            : </a>
+<a name="419"><span class="lineNum">     419 </span><span class="lineNoCov">          0 : short ANIM_get_normalization_flags(SpaceLink *space_link)</span></a>
+<a name="420"><span class="lineNum">     420 </span>            : {</a>
+<a name="421"><span class="lineNum">     421 </span><span class="lineNoCov">          0 :   if (space_link-&gt;spacetype == SPACE_GRAPH) {</span></a>
+<a name="422"><span class="lineNum">     422 </span><span class="lineNoCov">          0 :     SpaceGraph *sipo = reinterpret_cast&lt;SpaceGraph *&gt;(space_link);</span></a>
+<a name="423"><span class="lineNum">     423 </span><span class="lineNoCov">          0 :     bool use_normalization = (sipo-&gt;flag &amp; SIPO_NORMALIZE) != 0;</span></a>
+<a name="424"><span class="lineNum">     424 </span><span class="lineNoCov">          0 :     bool freeze_normalization = (sipo-&gt;flag &amp; SIPO_NORMALIZE_FREEZE) != 0;</span></a>
+<a name="425"><span class="lineNum">     425 </span>            :     return use_normalization ? (ANIM_UNITCONV_NORMALIZE |</a>
+<a name="426"><span class="lineNum">     426 </span>            :                                 (freeze_normalization ? ANIM_UNITCONV_NORMALIZE_FREEZE : 0)) :</a>
+<a name="427"><span class="lineNum">     427 </span><span class="lineNoCov">          0 :                                0;</span></a>
+<a name="428"><span class="lineNum">     428 </span>            :   }</a>
+<a name="429"><span class="lineNum">     429 </span>            : </a>
+<a name="430"><span class="lineNum">     430 </span><span class="lineNoCov">          0 :   return 0;</span></a>
+<a name="431"><span class="lineNum">     431 </span>            : }</a>
+<a name="432"><span class="lineNum">     432 </span>            : </a>
+<a name="433"><span class="lineNum">     433 </span><span class="lineNoCov">          0 : static void fcurve_scene_coord_range_get(Scene *scene,</span></a>
+<a name="434"><span class="lineNum">     434 </span>            :                                          const FCurve *fcu,</a>
+<a name="435"><span class="lineNum">     435 </span>            :                                          float *r_min_coord,</a>
+<a name="436"><span class="lineNum">     436 </span>            :                                          float *r_max_coord)</a>
+<a name="437"><span class="lineNum">     437 </span>            : {</a>
+<a name="438"><span class="lineNum">     438 </span><span class="lineNoCov">          0 :   float min_coord = FLT_MAX;</span></a>
+<a name="439"><span class="lineNum">     439 </span><span class="lineNoCov">          0 :   float max_coord = -FLT_MAX;</span></a>
+<a name="440"><span class="lineNum">     440 </span><span class="lineNoCov">          0 :   const bool use_preview_only = PRVRANGEON;</span></a>
+<a name="441"><span class="lineNum">     441 </span>            : </a>
+<a name="442"><span class="lineNum">     442 </span><span class="lineNoCov">          0 :   if (fcu-&gt;bezt || fcu-&gt;fpt) {</span></a>
+<a name="443"><span class="lineNum">     443 </span><span class="lineNoCov">          0 :     int start = 0;</span></a>
+<a name="444"><span class="lineNum">     444 </span><span class="lineNoCov">          0 :     int end = fcu-&gt;totvert;</span></a>
+<a name="445"><span class="lineNum">     445 </span>            : </a>
+<a name="446"><span class="lineNum">     446 </span><span class="lineNoCov">          0 :     if (use_preview_only) {</span></a>
+<a name="447"><span class="lineNum">     447 </span><span class="lineNoCov">          0 :       if (fcu-&gt;bezt) {</span></a>
+<a name="448"><span class="lineNum">     448 </span>            :         /* Preview frame ranges need to be converted to bezt array indices. */</a>
+<a name="449"><span class="lineNum">     449 </span><span class="lineNoCov">          0 :         bool replace = false;</span></a>
+<a name="450"><span class="lineNum">     450 </span><span class="lineNoCov">          0 :         start = BKE_fcurve_bezt_binarysearch_index(</span></a>
+<a name="451"><span class="lineNum">     451 </span><span class="lineNoCov">          0 :             fcu-&gt;bezt, scene-&gt;r.psfra, fcu-&gt;totvert, &amp;replace);</span></a>
+<a name="452"><span class="lineNum">     452 </span>            : </a>
+<a name="453"><span class="lineNum">     453 </span><span class="lineNoCov">          0 :         end = BKE_fcurve_bezt_binarysearch_index(</span></a>
+<a name="454"><span class="lineNum">     454 </span><span class="lineNoCov">          0 :             fcu-&gt;bezt, scene-&gt;r.pefra + 1, fcu-&gt;totvert, &amp;replace);</span></a>
+<a name="455"><span class="lineNum">     455 </span>            :       }</a>
+<a name="456"><span class="lineNum">     456 </span><span class="lineNoCov">          0 :       else if (fcu-&gt;fpt) {</span></a>
+<a name="457"><span class="lineNum">     457 </span><span class="lineNoCov">          0 :         const int unclamped_start = int(scene-&gt;r.psfra - fcu-&gt;fpt[0].vec[0]);</span></a>
+<a name="458"><span class="lineNum">     458 </span><span class="lineNoCov">          0 :         start = max_ii(unclamped_start, 0);</span></a>
+<a name="459"><span class="lineNum">     459 </span><span class="lineNoCov">          0 :         end = min_ii(unclamped_start + (scene-&gt;r.pefra - scene-&gt;r.psfra) + 1, fcu-&gt;totvert);</span></a>
+<a name="460"><span class="lineNum">     460 </span>            :       }</a>
+<a name="461"><span class="lineNum">     461 </span>            :     }</a>
+<a name="462"><span class="lineNum">     462 </span>            : </a>
+<a name="463"><span class="lineNum">     463 </span><span class="lineNoCov">          0 :     if (fcu-&gt;bezt) {</span></a>
+<a name="464"><span class="lineNum">     464 </span><span class="lineNoCov">          0 :       const BezTriple *bezt = fcu-&gt;bezt + start;</span></a>
+<a name="465"><span class="lineNum">     465 </span><span class="lineNoCov">          0 :       for (int i = start; i &lt; end; i++, bezt++) {</span></a>
+<a name="466"><span class="lineNum">     466 </span>            : </a>
+<a name="467"><span class="lineNum">     467 </span><span class="lineNoCov">          0 :         if (i == 0) {</span></a>
+<a name="468"><span class="lineNum">     468 </span>            :           /* We ignore extrapolation flags and handle here, and use the</a>
+<a name="469"><span class="lineNum">     469 </span>            :            * control point position only. so we normalize &quot;interesting&quot;</a>
+<a name="470"><span class="lineNum">     470 </span>            :            * part of the curve.</a>
+<a name="471"><span class="lineNum">     471 </span>            :            *</a>
+<a name="472"><span class="lineNum">     472 </span>            :            * Here we handle left extrapolation.</a>
+<a name="473"><span class="lineNum">     473 </span>            :            */</a>
+<a name="474"><span class="lineNum">     474 </span><span class="lineNoCov">          0 :           max_coord = max_ff(max_coord, bezt-&gt;vec[1][1]);</span></a>
+<a name="475"><span class="lineNum">     475 </span><span class="lineNoCov">          0 :           min_coord = min_ff(min_coord, bezt-&gt;vec[1][1]);</span></a>
+<a name="476"><span class="lineNum">     476 </span>            :         }</a>
+<a name="477"><span class="lineNum">     477 </span>            :         else {</a>
+<a name="478"><span class="lineNum">     478 </span><span class="lineNoCov">          0 :           const BezTriple *prev_bezt = bezt - 1;</span></a>
+<a name="479"><span class="lineNum">     479 </span><span class="lineNoCov">          0 :           if (!ELEM(prev_bezt-&gt;ipo, BEZT_IPO_BEZ, BEZT_IPO_BACK, BEZT_IPO_ELASTIC)) {</span></a>
+<a name="480"><span class="lineNum">     480 </span>            :             /* The points on the curve will lie inside the start and end points.</a>
+<a name="481"><span class="lineNum">     481 </span>            :              * Calculate min/max using both previous and current CV.</a>
+<a name="482"><span class="lineNum">     482 </span>            :              */</a>
+<a name="483"><span class="lineNum">     483 </span><span class="lineNoCov">          0 :             max_coord = max_ff(max_coord, bezt-&gt;vec[1][1]);</span></a>
+<a name="484"><span class="lineNum">     484 </span><span class="lineNoCov">          0 :             min_coord = min_ff(min_coord, bezt-&gt;vec[1][1]);</span></a>
+<a name="485"><span class="lineNum">     485 </span><span class="lineNoCov">          0 :             max_coord = max_ff(max_coord, prev_bezt-&gt;vec[1][1]);</span></a>
+<a name="486"><span class="lineNum">     486 </span><span class="lineNoCov">          0 :             min_coord = min_ff(min_coord, prev_bezt-&gt;vec[1][1]);</span></a>
+<a name="487"><span class="lineNum">     487 </span>            :           }</a>
+<a name="488"><span class="lineNum">     488 </span>            :           else {</a>
+<a name="489"><span class="lineNum">     489 </span><span class="lineNoCov">          0 :             const int resol = fcu-&gt;driver ?</span></a>
+<a name="490"><span class="lineNum">     490 </span>            :                                   32 :</a>
+<a name="491"><span class="lineNum">     491 </span><span class="lineNoCov">          0 :                                   min_ii(int(5.0f * len_v2v2(bezt-&gt;vec[1], prev_bezt-&gt;vec[1])),</span></a>
+<a name="492"><span class="lineNum">     492 </span><span class="lineNoCov">          0 :                                          32);</span></a>
+<a name="493"><span class="lineNum">     493 </span><span class="lineNoCov">          0 :             if (resol &lt; 2) {</span></a>
+<a name="494"><span class="lineNum">     494 </span><span class="lineNoCov">          0 :               max_coord = max_ff(max_coord, prev_bezt-&gt;vec[1][1]);</span></a>
+<a name="495"><span class="lineNum">     495 </span><span class="lineNoCov">          0 :               min_coord = min_ff(min_coord, prev_bezt-&gt;vec[1][1]);</span></a>
+<a name="496"><span class="lineNum">     496 </span>            :             }</a>
+<a name="497"><span class="lineNum">     497 </span>            :             else {</a>
+<a name="498"><span class="lineNum">     498 </span><span class="lineNoCov">          0 :               if (!ELEM(prev_bezt-&gt;ipo, BEZT_IPO_BACK, BEZT_IPO_ELASTIC)) {</span></a>
+<a name="499"><span class="lineNum">     499 </span>            :                 /* Calculate min/max using bezier forward differencing. */</a>
+<a name="500"><span class="lineNum">     500 </span>            :                 float data[120];</a>
+<a name="501"><span class="lineNum">     501 </span>            :                 float v1[2], v2[2], v3[2], v4[2];</a>
+<a name="502"><span class="lineNum">     502 </span>            : </a>
+<a name="503"><span class="lineNum">     503 </span><span class="lineNoCov">          0 :                 v1[0] = prev_bezt-&gt;vec[1][0];</span></a>
+<a name="504"><span class="lineNum">     504 </span><span class="lineNoCov">          0 :                 v1[1] = prev_bezt-&gt;vec[1][1];</span></a>
+<a name="505"><span class="lineNum">     505 </span><span class="lineNoCov">          0 :                 v2[0] = prev_bezt-&gt;vec[2][0];</span></a>
+<a name="506"><span class="lineNum">     506 </span><span class="lineNoCov">          0 :                 v2[1] = prev_bezt-&gt;vec[2][1];</span></a>
+<a name="507"><span class="lineNum">     507 </span>            : </a>
+<a name="508"><span class="lineNum">     508 </span><span class="lineNoCov">          0 :                 v3[0] = bezt-&gt;vec[0][0];</span></a>
+<a name="509"><span class="lineNum">     509 </span><span class="lineNoCov">          0 :                 v3[1] = bezt-&gt;vec[0][1];</span></a>
+<a name="510"><span class="lineNum">     510 </span><span class="lineNoCov">          0 :                 v4[0] = bezt-&gt;vec[1][0];</span></a>
+<a name="511"><span class="lineNum">     511 </span><span class="lineNoCov">          0 :                 v4[1] = bezt-&gt;vec[1][1];</span></a>
+<a name="512"><span class="lineNum">     512 </span>            : </a>
+<a name="513"><span class="lineNum">     513 </span><span class="lineNoCov">          0 :                 BKE_fcurve_correct_bezpart(v1, v2, v3, v4);</span></a>
+<a name="514"><span class="lineNum">     514 </span>            : </a>
+<a name="515"><span class="lineNum">     515 </span><span class="lineNoCov">          0 :                 BKE_curve_forward_diff_bezier(</span></a>
+<a name="516"><span class="lineNum">     516 </span>            :                     v1[0], v2[0], v3[0], v4[0], data, resol, sizeof(float[3]));</a>
+<a name="517"><span class="lineNum">     517 </span><span class="lineNoCov">          0 :                 BKE_curve_forward_diff_bezier(</span></a>
+<a name="518"><span class="lineNum">     518 </span>            :                     v1[1], v2[1], v3[1], v4[1], data + 1, resol, sizeof(float[3]));</a>
+<a name="519"><span class="lineNum">     519 </span>            : </a>
+<a name="520"><span class="lineNum">     520 </span><span class="lineNoCov">          0 :                 for (int j = 0; j &lt;= resol; ++j) {</span></a>
+<a name="521"><span class="lineNum">     521 </span><span class="lineNoCov">          0 :                   const float *fp = &amp;data[j * 3];</span></a>
+<a name="522"><span class="lineNum">     522 </span><span class="lineNoCov">          0 :                   max_coord = max_ff(max_coord, fp[1]);</span></a>
+<a name="523"><span class="lineNum">     523 </span><span class="lineNoCov">          0 :                   min_coord = min_ff(min_coord, fp[1]);</span></a>
+<a name="524"><span class="lineNum">     524 </span>            :                 }</a>
+<a name="525"><span class="lineNum">     525 </span><span class="lineNoCov">          0 :               }</span></a>
+<a name="526"><span class="lineNum">     526 </span>            :               else {</a>
+<a name="527"><span class="lineNum">     527 </span>            :                 /* Calculate min/max using full fcurve evaluation.</a>
+<a name="528"><span class="lineNum">     528 </span>            :                  * [slower than bezier forward differencing but evaluates Back/Elastic</a>
+<a name="529"><span class="lineNum">     529 </span>            :                  * interpolation as well]. */</a>
+<a name="530"><span class="lineNum">     530 </span><span class="lineNoCov">          0 :                 float step_size = (bezt-&gt;vec[1][0] - prev_bezt-&gt;vec[1][0]) / resol;</span></a>
+<a name="531"><span class="lineNum">     531 </span><span class="lineNoCov">          0 :                 for (int j = 0; j &lt;= resol; j++) {</span></a>
+<a name="532"><span class="lineNum">     532 </span><span class="lineNoCov">          0 :                   float eval_time = prev_bezt-&gt;vec[1][0] + step_size * j;</span></a>
+<a name="533"><span class="lineNum">     533 </span><span class="lineNoCov">          0 :                   float eval_value = evaluate_fcurve_only_curve(fcu, eval_time);</span></a>
+<a name="534"><span class="lineNum">     534 </span><span class="lineNoCov">          0 :                   max_coord = max_ff(max_coord, eval_value);</span></a>
+<a name="535"><span class="lineNum">     535 </span><span class="lineNoCov">          0 :                   min_coord = min_ff(min_coord, eval_value);</span></a>
+<a name="536"><span class="lineNum">     536 </span>            :                 }</a>
+<a name="537"><span class="lineNum">     537 </span>            :               }</a>
+<a name="538"><span class="lineNum">     538 </span>            :             }</a>
+<a name="539"><span class="lineNum">     539 </span>            :           }</a>
+<a name="540"><span class="lineNum">     540 </span>            :         }</a>
+<a name="541"><span class="lineNum">     541 </span>            :       }</a>
+<a name="542"><span class="lineNum">     542 </span>            :     }</a>
+<a name="543"><span class="lineNum">     543 </span><span class="lineNoCov">          0 :     else if (fcu-&gt;fpt) {</span></a>
+<a name="544"><span class="lineNum">     544 </span><span class="lineNoCov">          0 :       const FPoint *fpt = fcu-&gt;fpt + start;</span></a>
+<a name="545"><span class="lineNum">     545 </span><span class="lineNoCov">          0 :       for (int i = start; i &lt; end; ++i, ++fpt) {</span></a>
+<a name="546"><span class="lineNum">     546 </span><span class="lineNoCov">          0 :         min_coord = min_ff(min_coord, fpt-&gt;vec[1]);</span></a>
+<a name="547"><span class="lineNum">     547 </span><span class="lineNoCov">          0 :         max_coord = max_ff(max_coord, fpt-&gt;vec[1]);</span></a>
+<a name="548"><span class="lineNum">     548 </span>            :       }</a>
+<a name="549"><span class="lineNum">     549 </span>            :     }</a>
+<a name="550"><span class="lineNum">     550 </span>            :   }</a>
+<a name="551"><span class="lineNum">     551 </span>            : </a>
+<a name="552"><span class="lineNum">     552 </span><span class="lineNoCov">          0 :   if (r_min_coord) {</span></a>
+<a name="553"><span class="lineNum">     553 </span><span class="lineNoCov">          0 :     *r_min_coord = min_coord;</span></a>
+<a name="554"><span class="lineNum">     554 </span>            :   }</a>
+<a name="555"><span class="lineNum">     555 </span><span class="lineNoCov">          0 :   if (r_max_coord) {</span></a>
+<a name="556"><span class="lineNum">     556 </span><span class="lineNoCov">          0 :     *r_max_coord = max_coord;</span></a>
+<a name="557"><span class="lineNum">     557 </span>            :   }</a>
+<a name="558"><span class="lineNum">     558 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="559"><span class="lineNum">     559 </span>            : </a>
+<a name="560"><span class="lineNum">     560 </span><span class="lineNoCov">          0 : static float normalization_factor_get(Scene *scene, FCurve *fcu, short flag, float *r_offset)</span></a>
+<a name="561"><span class="lineNum">     561 </span>            : {</a>
+<a name="562"><span class="lineNum">     562 </span><span class="lineNoCov">          0 :   float factor = 1.0f, offset = 0.0f;</span></a>
+<a name="563"><span class="lineNum">     563 </span>            : </a>
+<a name="564"><span class="lineNum">     564 </span><span class="lineNoCov">          0 :   if (flag &amp; ANIM_UNITCONV_RESTORE) {</span></a>
+<a name="565"><span class="lineNum">     565 </span><span class="lineNoCov">          0 :     if (r_offset) {</span></a>
+<a name="566"><span class="lineNum">     566 </span><span class="lineNoCov">          0 :       *r_offset = fcu-&gt;prev_offset;</span></a>
+<a name="567"><span class="lineNum">     567 </span>            :     }</a>
+<a name="568"><span class="lineNum">     568 </span>            : </a>
+<a name="569"><span class="lineNum">     569 </span><span class="lineNoCov">          0 :     return 1.0f / fcu-&gt;prev_norm_factor;</span></a>
+<a name="570"><span class="lineNum">     570 </span>            :   }</a>
+<a name="571"><span class="lineNum">     571 </span>            : </a>
+<a name="572"><span class="lineNum">     572 </span><span class="lineNoCov">          0 :   if (flag &amp; ANIM_UNITCONV_NORMALIZE_FREEZE) {</span></a>
+<a name="573"><span class="lineNum">     573 </span><span class="lineNoCov">          0 :     if (r_offset) {</span></a>
+<a name="574"><span class="lineNum">     574 </span><span class="lineNoCov">          0 :       *r_offset = fcu-&gt;prev_offset;</span></a>
+<a name="575"><span class="lineNum">     575 </span>            :     }</a>
+<a name="576"><span class="lineNum">     576 </span><span class="lineNoCov">          0 :     if (fcu-&gt;prev_norm_factor == 0.0f) {</span></a>
+<a name="577"><span class="lineNum">     577 </span>            :       /* Happens when Auto Normalize was disabled before</a>
+<a name="578"><span class="lineNum">     578 </span>            :        * any curves were displayed.</a>
+<a name="579"><span class="lineNum">     579 </span>            :        */</a>
+<a name="580"><span class="lineNum">     580 </span><span class="lineNoCov">          0 :       return 1.0f;</span></a>
+<a name="581"><span class="lineNum">     581 </span>            :     }</a>
+<a name="582"><span class="lineNum">     582 </span><span class="lineNoCov">          0 :     return fcu-&gt;prev_norm_factor;</span></a>
+<a name="583"><span class="lineNum">     583 </span>            :   }</a>
+<a name="584"><span class="lineNum">     584 </span>            : </a>
+<a name="585"><span class="lineNum">     585 </span><span class="lineNoCov">          0 :   if (G.moving &amp; G_TRANSFORM_FCURVES) {</span></a>
+<a name="586"><span class="lineNum">     586 </span><span class="lineNoCov">          0 :     if (r_offset) {</span></a>
+<a name="587"><span class="lineNum">     587 </span><span class="lineNoCov">          0 :       *r_offset = fcu-&gt;prev_offset;</span></a>
+<a name="588"><span class="lineNum">     588 </span>            :     }</a>
+<a name="589"><span class="lineNum">     589 </span><span class="lineNoCov">          0 :     if (fcu-&gt;prev_norm_factor == 0.0f) {</span></a>
+<a name="590"><span class="lineNum">     590 </span>            :       /* Same as above. */</a>
+<a name="591"><span class="lineNum">     591 </span><span class="lineNoCov">          0 :       return 1.0f;</span></a>
+<a name="592"><span class="lineNum">     592 </span>            :     }</a>
+<a name="593"><span class="lineNum">     593 </span><span class="lineNoCov">          0 :     return fcu-&gt;prev_norm_factor;</span></a>
+<a name="594"><span class="lineNum">     594 </span>            :   }</a>
+<a name="595"><span class="lineNum">     595 </span>            : </a>
+<a name="596"><span class="lineNum">     596 </span><span class="lineNoCov">          0 :   fcu-&gt;prev_norm_factor = 1.0f;</span></a>
+<a name="597"><span class="lineNum">     597 </span>            : </a>
+<a name="598"><span class="lineNum">     598 </span><span class="lineNoCov">          0 :   float max_coord = -FLT_MAX;</span></a>
+<a name="599"><span class="lineNum">     599 </span><span class="lineNoCov">          0 :   float min_coord = FLT_MAX;</span></a>
+<a name="600"><span class="lineNum">     600 </span><span class="lineNoCov">          0 :   fcurve_scene_coord_range_get(scene, fcu, &amp;min_coord, &amp;max_coord);</span></a>
+<a name="601"><span class="lineNum">     601 </span>            : </a>
+<a name="602"><span class="lineNum">     602 </span>            :   /* We use an ULPS-based floating point comparison here, with the</a>
+<a name="603"><span class="lineNum">     603 </span>            :    * rationale that if there are too few possible values between</a>
+<a name="604"><span class="lineNum">     604 </span>            :    * `min_coord` and `max_coord`, then after display normalization it</a>
+<a name="605"><span class="lineNum">     605 </span>            :    * will certainly be a weird quantized experience for the user anyway. */</a>
+<a name="606"><span class="lineNum">     606 </span><span class="lineNoCov">          0 :   if (min_coord &lt; max_coord &amp;&amp; ulp_diff_ff(min_coord, max_coord) &gt; 256) {</span></a>
+<a name="607"><span class="lineNum">     607 </span>            :     /* Normalize. */</a>
+<a name="608"><span class="lineNum">     608 </span><span class="lineNoCov">          0 :     const float range = max_coord - min_coord;</span></a>
+<a name="609"><span class="lineNum">     609 </span><span class="lineNoCov">          0 :     factor = 2.0f / range;</span></a>
+<a name="610"><span class="lineNum">     610 </span><span class="lineNoCov">          0 :     offset = -min_coord - range / 2.0f;</span></a>
+<a name="611"><span class="lineNum">     611 </span>            :   }</a>
+<a name="612"><span class="lineNum">     612 </span>            :   else {</a>
+<a name="613"><span class="lineNum">     613 </span>            :     /* Skip normalization in 2 cases. Either the y difference of all keyframes is too small to</a>
+<a name="614"><span class="lineNum">     614 </span>            :      * normalize or there are no keys at all in the range. In the first case, the curve should be</a>
+<a name="615"><span class="lineNum">     615 </span>            :      * brought to the 0 line. In the second case we cannot do that since we have no information. */</a>
+<a name="616"><span class="lineNum">     616 </span><span class="lineNoCov">          0 :     factor = 1.0f;</span></a>
+<a name="617"><span class="lineNum">     617 </span><span class="lineNoCov">          0 :     if (min_coord == FLT_MAX) {</span></a>
+<a name="618"><span class="lineNum">     618 </span><span class="lineNoCov">          0 :       offset = 0.0f;</span></a>
+<a name="619"><span class="lineNum">     619 </span>            :     }</a>
+<a name="620"><span class="lineNum">     620 </span>            :     else {</a>
+<a name="621"><span class="lineNum">     621 </span><span class="lineNoCov">          0 :       offset = -min_coord;</span></a>
+<a name="622"><span class="lineNum">     622 </span>            :     }</a>
+<a name="623"><span class="lineNum">     623 </span>            :   }</a>
+<a name="624"><span class="lineNum">     624 </span>            : </a>
+<a name="625"><span class="lineNum">     625 </span><span class="lineNoCov">          0 :   BLI_assert(factor != 0.0f);</span></a>
+<a name="626"><span class="lineNum">     626 </span><span class="lineNoCov">          0 :   if (r_offset) {</span></a>
+<a name="627"><span class="lineNum">     627 </span><span class="lineNoCov">          0 :     *r_offset = offset;</span></a>
+<a name="628"><span class="lineNum">     628 </span>            :   }</a>
+<a name="629"><span class="lineNum">     629 </span>            : </a>
+<a name="630"><span class="lineNum">     630 </span><span class="lineNoCov">          0 :   fcu-&gt;prev_norm_factor = factor;</span></a>
+<a name="631"><span class="lineNum">     631 </span><span class="lineNoCov">          0 :   fcu-&gt;prev_offset = offset;</span></a>
+<a name="632"><span class="lineNum">     632 </span><span class="lineNoCov">          0 :   return factor;</span></a>
+<a name="633"><span class="lineNum">     633 </span>            : }</a>
+<a name="634"><span class="lineNum">     634 </span>            : </a>
+<a name="635"><span class="lineNum">     635 </span><span class="lineNoCov">          0 : float ANIM_unit_mapping_get_factor(Scene *scene, ID *id, FCurve *fcu, short flag, float *r_offset)</span></a>
+<a name="636"><span class="lineNum">     636 </span>            : {</a>
+<a name="637"><span class="lineNum">     637 </span><span class="lineNoCov">          0 :   if (flag &amp; ANIM_UNITCONV_NORMALIZE) {</span></a>
+<a name="638"><span class="lineNum">     638 </span><span class="lineNoCov">          0 :     return normalization_factor_get(scene, fcu, flag, r_offset);</span></a>
+<a name="639"><span class="lineNum">     639 </span>            :   }</a>
+<a name="640"><span class="lineNum">     640 </span>            : </a>
+<a name="641"><span class="lineNum">     641 </span><span class="lineNoCov">          0 :   if (r_offset) {</span></a>
+<a name="642"><span class="lineNum">     642 </span><span class="lineNoCov">          0 :     *r_offset = 0.0f;</span></a>
+<a name="643"><span class="lineNum">     643 </span>            :   }</a>
+<a name="644"><span class="lineNum">     644 </span>            : </a>
+<a name="645"><span class="lineNum">     645 </span>            :   /* TODO: change the pointer parameters to references, as this function should not be called</a>
+<a name="646"><span class="lineNum">     646 </span>            :    * without an animated ID or a scene (to get the preferred units). */</a>
+<a name="647"><span class="lineNum">     647 </span>            : </a>
+<a name="648"><span class="lineNum">     648 </span><span class="lineNoCov">          0 :   if (!id || !fcu || !scene) {</span></a>
+<a name="649"><span class="lineNum">     649 </span>            :     /* Not enough information to do the remapping, so just show the data as-is. */</a>
+<a name="650"><span class="lineNum">     650 </span><span class="lineNoCov">          0 :     return 1.0f;</span></a>
+<a name="651"><span class="lineNum">     651 </span>            :   }</a>
+<a name="652"><span class="lineNum">     652 </span>            : </a>
+<a name="653"><span class="lineNum">     653 </span><span class="lineNoCov">          0 :   const ParsedRNAPathRef rna_path = fcu-&gt;rna_path_parsed();</span></a>
+<a name="654"><span class="lineNum">     654 </span><span class="lineNoCov">          0 :   if (rna_path.is_empty()) {</span></a>
+<a name="655"><span class="lineNum">     655 </span><span class="lineNoCov">          0 :     return 1.0f;</span></a>
+<a name="656"><span class="lineNum">     656 </span>            :   }</a>
+<a name="657"><span class="lineNum">     657 </span>            : </a>
+<a name="658"><span class="lineNum">     658 </span><span class="lineNoCov">          0 :   PointerRNA ptr;</span></a>
+<a name="659"><span class="lineNum">     659 </span>            :   PropertyRNA *prop;</a>
+<a name="660"><span class="lineNum">     660 </span><span class="lineNoCov">          0 :   PointerRNA id_ptr = RNA_id_pointer_create(id);</span></a>
+<a name="661"><span class="lineNum">     661 </span><span class="lineNoCov">          0 :   if (!RNA_path_resolve_property(&amp;id_ptr, rna_path, &amp;ptr, &amp;prop)) {</span></a>
+<a name="662"><span class="lineNum">     662 </span>            :     /* Without resolving the property, its type &amp; subtype are unknown; remapping is impossible. */</a>
+<a name="663"><span class="lineNum">     663 </span><span class="lineNoCov">          0 :     return 1.0f;</span></a>
+<a name="664"><span class="lineNum">     664 </span>            :   }</a>
+<a name="665"><span class="lineNum">     665 </span>            : </a>
+<a name="666"><span class="lineNum">     666 </span><span class="lineNoCov">          0 :   const PropertyUnit prop_unit = PropertyUnit(RNA_SUBTYPE_UNIT(RNA_property_subtype(prop)));</span></a>
+<a name="667"><span class="lineNum">     667 </span>            : </a>
+<a name="668"><span class="lineNum">     668 </span><span class="lineNoCov">          0 :   switch (prop_unit) {</span></a>
+<a name="669"><span class="lineNum">     669 </span><span class="lineNoCov">          0 :     case PROP_UNIT_ROTATION:</span></a>
+<a name="670"><span class="lineNum">     670 </span><span class="lineNoCov">          0 :       if (scene-&gt;unit.system_rotation == USER_UNIT_ROT_RADIANS) {</span></a>
+<a name="671"><span class="lineNum">     671 </span><span class="lineNoCov">          0 :         return 1.0f;</span></a>
+<a name="672"><span class="lineNum">     672 </span>            :       }</a>
+<a name="673"><span class="lineNum">     673 </span>            : </a>
+<a name="674"><span class="lineNum">     674 </span><span class="lineNoCov">          0 :       if (flag &amp; ANIM_UNITCONV_RESTORE) {</span></a>
+<a name="675"><span class="lineNum">     675 </span><span class="lineNoCov">          0 :         return DEG2RADF(1.0f);</span></a>
+<a name="676"><span class="lineNum">     676 </span>            :       }</a>
+<a name="677"><span class="lineNum">     677 </span><span class="lineNoCov">          0 :       return RAD2DEGF(1.0f);</span></a>
+<a name="678"><span class="lineNum">     678 </span>            : </a>
+<a name="679"><span class="lineNum">     679 </span><span class="lineNoCov">          0 :     default:</span></a>
+<a name="680"><span class="lineNum">     680 </span>            :       /* TODO: other rotation types here as necessary */</a>
+<a name="681"><span class="lineNum">     681 </span><span class="lineNoCov">          0 :       break;</span></a>
+<a name="682"><span class="lineNum">     682 </span>            :   }</a>
+<a name="683"><span class="lineNum">     683 </span>            : </a>
+<a name="684"><span class="lineNum">     684 </span><span class="lineNoCov">          0 :   return 1.0f;</span></a>
+<a name="685"><span class="lineNum">     685 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="686"><span class="lineNum">     686 </span>            : </a>
+<a name="687"><span class="lineNum">     687 </span><span class="lineNoCov">          0 : static bool find_prev_next_keyframes(bContext *C, int *r_nextfra, int *r_prevfra)</span></a>
+<a name="688"><span class="lineNum">     688 </span>            : {</a>
+<a name="689"><span class="lineNum">     689 </span><span class="lineNoCov">          0 :   Scene *scene = CTX_data_scene(C);</span></a>
+<a name="690"><span class="lineNum">     690 </span><span class="lineNoCov">          0 :   Object *ob = CTX_data_active_object(C);</span></a>
+<a name="691"><span class="lineNum">     691 </span><span class="lineNoCov">          0 :   Mask *mask = CTX_data_edit_mask(C);</span></a>
+<a name="692"><span class="lineNum">     692 </span><span class="lineNoCov">          0 :   bDopeSheet ads = {nullptr};</span></a>
+<a name="693"><span class="lineNum">     693 </span><span class="lineNoCov">          0 :   AnimKeylist *keylist = ED_keylist_create();</span></a>
+<a name="694"><span class="lineNum">     694 </span>            :   const ActKeyColumn *aknext, *akprev;</a>
+<a name="695"><span class="lineNum">     695 </span>            :   float cfranext, cfraprev;</a>
+<a name="696"><span class="lineNum">     696 </span><span class="lineNoCov">          0 :   bool donenext = false, doneprev = false;</span></a>
+<a name="697"><span class="lineNum">     697 </span><span class="lineNoCov">          0 :   int nextcount = 0, prevcount = 0;</span></a>
+<a name="698"><span class="lineNum">     698 </span>            : </a>
+<a name="699"><span class="lineNum">     699 </span><span class="lineNoCov">          0 :   cfranext = cfraprev = float(scene-&gt;r.cfra);</span></a>
+<a name="700"><span class="lineNum">     700 </span>            : </a>
+<a name="701"><span class="lineNum">     701 </span>            :   /* Seed up dummy dope-sheet context with flags to perform necessary filtering. */</a>
+<a name="702"><span class="lineNum">     702 </span><span class="lineNoCov">          0 :   if ((scene-&gt;flag &amp; SCE_KEYS_NO_SELONLY) == 0) {</span></a>
+<a name="703"><span class="lineNum">     703 </span>            :     /* only selected channels are included */</a>
+<a name="704"><span class="lineNum">     704 </span><span class="lineNoCov">          0 :     ads.filterflag |= ADS_FILTER_ONLYSEL;</span></a>
+<a name="705"><span class="lineNum">     705 </span>            :   }</a>
+<a name="706"><span class="lineNum">     706 </span>            : </a>
+<a name="707"><span class="lineNum">     707 </span>            :   /* populate tree with keyframe nodes */</a>
+<a name="708"><span class="lineNum">     708 </span><span class="lineNoCov">          0 :   scene_to_keylist(&amp;ads, scene, keylist, 0, {-FLT_MAX, FLT_MAX});</span></a>
+<a name="709"><span class="lineNum">     709 </span><span class="lineNoCov">          0 :   gpencil_to_keylist(&amp;ads, scene-&gt;gpd, keylist, false);</span></a>
+<a name="710"><span class="lineNum">     710 </span>            : </a>
+<a name="711"><span class="lineNum">     711 </span><span class="lineNoCov">          0 :   if (ob) {</span></a>
+<a name="712"><span class="lineNum">     712 </span><span class="lineNoCov">          0 :     ob_to_keylist(&amp;ads, ob, keylist, 0, {-FLT_MAX, FLT_MAX});</span></a>
+<a name="713"><span class="lineNum">     713 </span><span class="lineNoCov">          0 :     gpencil_to_keylist(&amp;ads, id_cast&lt;bGPdata *&gt;(ob-&gt;data), keylist, false);</span></a>
+<a name="714"><span class="lineNum">     714 </span>            :   }</a>
+<a name="715"><span class="lineNum">     715 </span>            : </a>
+<a name="716"><span class="lineNum">     716 </span><span class="lineNoCov">          0 :   if (mask) {</span></a>
+<a name="717"><span class="lineNum">     717 </span><span class="lineNoCov">          0 :     MaskLayer *masklay = BKE_mask_layer_active(mask);</span></a>
+<a name="718"><span class="lineNum">     718 </span><span class="lineNoCov">          0 :     mask_to_keylist(&amp;ads, masklay, keylist);</span></a>
+<a name="719"><span class="lineNum">     719 </span>            :   }</a>
+<a name="720"><span class="lineNum">     720 </span><span class="lineNoCov">          0 :   ED_keylist_prepare_for_direct_access(keylist);</span></a>
+<a name="721"><span class="lineNum">     721 </span>            : </a>
+<a name="722"><span class="lineNum">     722 </span>            :   /* TODO(jbakker): Key-lists are ordered, no need to do any searching at all. */</a>
+<a name="723"><span class="lineNum">     723 </span>            :   /* find matching keyframe in the right direction */</a>
+<a name="724"><span class="lineNum">     724 </span>            :   do {</a>
+<a name="725"><span class="lineNum">     725 </span><span class="lineNoCov">          0 :     aknext = ED_keylist_find_next(keylist, cfranext);</span></a>
+<a name="726"><span class="lineNum">     726 </span>            : </a>
+<a name="727"><span class="lineNum">     727 </span><span class="lineNoCov">          0 :     if (aknext) {</span></a>
+<a name="728"><span class="lineNum">     728 </span><span class="lineNoCov">          0 :       if (scene-&gt;r.cfra == int(aknext-&gt;cfra)) {</span></a>
+<a name="729"><span class="lineNum">     729 </span>            :         /* make this the new starting point for the search and ignore */</a>
+<a name="730"><span class="lineNum">     730 </span><span class="lineNoCov">          0 :         cfranext = aknext-&gt;cfra;</span></a>
+<a name="731"><span class="lineNum">     731 </span>            :       }</a>
+<a name="732"><span class="lineNum">     732 </span>            :       else {</a>
+<a name="733"><span class="lineNum">     733 </span>            :         /* this changes the frame, so set the frame and we're done */</a>
+<a name="734"><span class="lineNum">     734 </span><span class="lineNoCov">          0 :         if (++nextcount == U.view_frame_keyframes) {</span></a>
+<a name="735"><span class="lineNum">     735 </span><span class="lineNoCov">          0 :           donenext = true;</span></a>
+<a name="736"><span class="lineNum">     736 </span>            :         }</a>
+<a name="737"><span class="lineNum">     737 </span>            :       }</a>
+<a name="738"><span class="lineNum">     738 </span><span class="lineNoCov">          0 :       cfranext = aknext-&gt;cfra;</span></a>
+<a name="739"><span class="lineNum">     739 </span>            :     }</a>
+<a name="740"><span class="lineNum">     740 </span><span class="lineNoCov">          0 :   } while ((aknext != nullptr) &amp;&amp; (donenext == false));</span></a>
+<a name="741"><span class="lineNum">     741 </span>            : </a>
+<a name="742"><span class="lineNum">     742 </span>            :   do {</a>
+<a name="743"><span class="lineNum">     743 </span><span class="lineNoCov">          0 :     akprev = ED_keylist_find_prev(keylist, cfraprev);</span></a>
+<a name="744"><span class="lineNum">     744 </span>            : </a>
+<a name="745"><span class="lineNum">     745 </span><span class="lineNoCov">          0 :     if (akprev) {</span></a>
+<a name="746"><span class="lineNum">     746 </span><span class="lineNoCov">          0 :       if (scene-&gt;r.cfra == int(akprev-&gt;cfra)) {</span></a>
+<a name="747"><span class="lineNum">     747 </span>            :         /* make this the new starting point for the search */</a>
+<a name="748"><span class="lineNum">     748 </span>            :       }</a>
+<a name="749"><span class="lineNum">     749 </span>            :       else {</a>
+<a name="750"><span class="lineNum">     750 </span>            :         /* this changes the frame, so set the frame and we're done */</a>
+<a name="751"><span class="lineNum">     751 </span><span class="lineNoCov">          0 :         if (++prevcount == U.view_frame_keyframes) {</span></a>
+<a name="752"><span class="lineNum">     752 </span><span class="lineNoCov">          0 :           doneprev = true;</span></a>
+<a name="753"><span class="lineNum">     753 </span>            :         }</a>
+<a name="754"><span class="lineNum">     754 </span>            :       }</a>
+<a name="755"><span class="lineNum">     755 </span><span class="lineNoCov">          0 :       cfraprev = akprev-&gt;cfra;</span></a>
+<a name="756"><span class="lineNum">     756 </span>            :     }</a>
+<a name="757"><span class="lineNum">     757 </span><span class="lineNoCov">          0 :   } while ((akprev != nullptr) &amp;&amp; (doneprev == false));</span></a>
+<a name="758"><span class="lineNum">     758 </span>            : </a>
+<a name="759"><span class="lineNum">     759 </span>            :   /* free temp stuff */</a>
+<a name="760"><span class="lineNum">     760 </span><span class="lineNoCov">          0 :   ED_keylist_free(keylist);</span></a>
+<a name="761"><span class="lineNum">     761 </span>            : </a>
+<a name="762"><span class="lineNum">     762 </span>            :   /* any success? */</a>
+<a name="763"><span class="lineNum">     763 </span><span class="lineNoCov">          0 :   if (doneprev || donenext) {</span></a>
+<a name="764"><span class="lineNum">     764 </span><span class="lineNoCov">          0 :     if (doneprev) {</span></a>
+<a name="765"><span class="lineNum">     765 </span><span class="lineNoCov">          0 :       *r_prevfra = cfraprev;</span></a>
+<a name="766"><span class="lineNum">     766 </span>            :     }</a>
+<a name="767"><span class="lineNum">     767 </span>            :     else {</a>
+<a name="768"><span class="lineNum">     768 </span><span class="lineNoCov">          0 :       *r_prevfra = scene-&gt;r.cfra - (cfranext - scene-&gt;r.cfra);</span></a>
+<a name="769"><span class="lineNum">     769 </span>            :     }</a>
+<a name="770"><span class="lineNum">     770 </span>            : </a>
+<a name="771"><span class="lineNum">     771 </span><span class="lineNoCov">          0 :     if (donenext) {</span></a>
+<a name="772"><span class="lineNum">     772 </span><span class="lineNoCov">          0 :       *r_nextfra = cfranext;</span></a>
+<a name="773"><span class="lineNum">     773 </span>            :     }</a>
+<a name="774"><span class="lineNum">     774 </span>            :     else {</a>
+<a name="775"><span class="lineNum">     775 </span><span class="lineNoCov">          0 :       *r_nextfra = scene-&gt;r.cfra + (scene-&gt;r.cfra - cfraprev);</span></a>
+<a name="776"><span class="lineNum">     776 </span>            :     }</a>
+<a name="777"><span class="lineNum">     777 </span>            : </a>
+<a name="778"><span class="lineNum">     778 </span><span class="lineNoCov">          0 :     return true;</span></a>
+<a name="779"><span class="lineNum">     779 </span>            :   }</a>
+<a name="780"><span class="lineNum">     780 </span>            : </a>
+<a name="781"><span class="lineNum">     781 </span><span class="lineNoCov">          0 :   return false;</span></a>
+<a name="782"><span class="lineNum">     782 </span>            : }</a>
+<a name="783"><span class="lineNum">     783 </span>            : </a>
+<a name="784"><span class="lineNum">     784 </span><span class="lineNoCov">          0 : void ANIM_center_frame(bContext *C, int smooth_viewtx)</span></a>
+<a name="785"><span class="lineNum">     785 </span>            : {</a>
+<a name="786"><span class="lineNum">     786 </span><span class="lineNoCov">          0 :   Scene *scene = bke::scene_or_sequencer_scene_from_context(*C);</span></a>
+<a name="787"><span class="lineNum">     787 </span><span class="lineNoCov">          0 :   if (!scene) {</span></a>
+<a name="788"><span class="lineNum">     788 </span><span class="lineNoCov">          0 :     return;</span></a>
+<a name="789"><span class="lineNum">     789 </span>            :   }</a>
+<a name="790"><span class="lineNum">     790 </span>            : </a>
+<a name="791"><span class="lineNum">     791 </span><span class="lineNoCov">          0 :   ARegion *region = CTX_wm_region(C);</span></a>
+<a name="792"><span class="lineNum">     792 </span><span class="lineNoCov">          0 :   float w = BLI_rctf_size_x(&amp;region-&gt;v2d.cur);</span></a>
+<a name="793"><span class="lineNum">     793 </span>            :   rctf newrct;</a>
+<a name="794"><span class="lineNum">     794 </span>            :   int nextfra, prevfra;</a>
+<a name="795"><span class="lineNum">     795 </span>            : </a>
+<a name="796"><span class="lineNum">     796 </span><span class="lineNoCov">          0 :   switch (U.view_frame_type) {</span></a>
+<a name="797"><span class="lineNum">     797 </span><span class="lineNoCov">          0 :     case ZOOM_FRAME_MODE_SECONDS: {</span></a>
+<a name="798"><span class="lineNum">     798 </span><span class="lineNoCov">          0 :       const float fps = scene-&gt;frames_per_second();</span></a>
+<a name="799"><span class="lineNum">     799 </span><span class="lineNoCov">          0 :       newrct.xmax = scene-&gt;r.cfra + U.view_frame_seconds * fps + 1;</span></a>
+<a name="800"><span class="lineNum">     800 </span><span class="lineNoCov">          0 :       newrct.xmin = scene-&gt;r.cfra - U.view_frame_seconds * fps - 1;</span></a>
+<a name="801"><span class="lineNum">     801 </span><span class="lineNoCov">          0 :       newrct.ymax = region-&gt;v2d.cur.ymax;</span></a>
+<a name="802"><span class="lineNum">     802 </span><span class="lineNoCov">          0 :       newrct.ymin = region-&gt;v2d.cur.ymin;</span></a>
+<a name="803"><span class="lineNum">     803 </span><span class="lineNoCov">          0 :       break;</span></a>
+<a name="804"><span class="lineNum">     804 </span>            :     }</a>
+<a name="805"><span class="lineNum">     805 </span>            : </a>
+<a name="806"><span class="lineNum">     806 </span>            :     /* hardest case of all, look for all keyframes around frame and display those */</a>
+<a name="807"><span class="lineNum">     807 </span><span class="lineNoCov">          0 :     case ZOOM_FRAME_MODE_KEYFRAMES:</span></a>
+<a name="808"><span class="lineNum">     808 </span><span class="lineNoCov">          0 :       if (find_prev_next_keyframes(C, &amp;nextfra, &amp;prevfra)) {</span></a>
+<a name="809"><span class="lineNum">     809 </span><span class="lineNoCov">          0 :         newrct.xmax = nextfra;</span></a>
+<a name="810"><span class="lineNum">     810 </span><span class="lineNoCov">          0 :         newrct.xmin = prevfra;</span></a>
+<a name="811"><span class="lineNum">     811 </span><span class="lineNoCov">          0 :         newrct.ymax = region-&gt;v2d.cur.ymax;</span></a>
+<a name="812"><span class="lineNum">     812 </span><span class="lineNoCov">          0 :         newrct.ymin = region-&gt;v2d.cur.ymin;</span></a>
+<a name="813"><span class="lineNum">     813 </span><span class="lineNoCov">          0 :         break;</span></a>
+<a name="814"><span class="lineNum">     814 </span>            :       }</a>
+<a name="815"><span class="lineNum">     815 </span>            :       /* else drop through, keep range instead */</a>
+<a name="816"><span class="lineNum">     816 </span>            :       ATTR_FALLTHROUGH;</a>
+<a name="817"><span class="lineNum">     817 </span>            : </a>
+<a name="818"><span class="lineNum">     818 </span>            :     case ZOOM_FRAME_MODE_KEEP_RANGE:</a>
+<a name="819"><span class="lineNum">     819 </span>            :     default:</a>
+<a name="820"><span class="lineNum">     820 </span><span class="lineNoCov">          0 :       newrct.xmax = scene-&gt;r.cfra + (w / 2);</span></a>
+<a name="821"><span class="lineNum">     821 </span><span class="lineNoCov">          0 :       newrct.xmin = scene-&gt;r.cfra - (w / 2);</span></a>
+<a name="822"><span class="lineNum">     822 </span><span class="lineNoCov">          0 :       newrct.ymax = region-&gt;v2d.cur.ymax;</span></a>
+<a name="823"><span class="lineNum">     823 </span><span class="lineNoCov">          0 :       newrct.ymin = region-&gt;v2d.cur.ymin;</span></a>
+<a name="824"><span class="lineNum">     824 </span><span class="lineNoCov">          0 :       break;</span></a>
+<a name="825"><span class="lineNum">     825 </span>            :   }</a>
+<a name="826"><span class="lineNum">     826 </span>            : </a>
+<a name="827"><span class="lineNum">     827 </span><span class="lineNoCov">          0 :   ui::view2d_smooth_view(C, region, &amp;newrct, smooth_viewtx);</span></a>
+<a name="828"><span class="lineNum">     828 </span>            : }</a>
+<a name="829"><span class="lineNum">     829 </span>            : /* *************************************************** */</a>
+<a name="830"><span class="lineNum">     830 </span>            : </a>
+<a name="831"><span class="lineNum">     831 </span><span class="lineNoCov">          0 : rctf ANIM_frame_range_view2d_add_xmargin(const View2D &amp;view_2d, const rctf view_rect)</span></a>
+<a name="832"><span class="lineNum">     832 </span>            : {</a>
+<a name="833"><span class="lineNum">     833 </span>            :   /* Keyframe diamonds seem to be drawn at 10 pixels wide, multiplied by the UI scale. */</a>
+<a name="834"><span class="lineNum">     834 </span><span class="lineNoCov">          0 :   const float keyframe_size = 10 * UI_SCALE_FAC;</span></a>
+<a name="835"><span class="lineNum">     835 </span><span class="lineNoCov">          0 :   const float margin_in_px = 4 * keyframe_size;</span></a>
+<a name="836"><span class="lineNum">     836 </span>            : </a>
+<a name="837"><span class="lineNum">     837 </span>            :   /* This cannot use view2d_scale_get_x(view_2d) because that would use the</a>
+<a name="838"><span class="lineNum">     838 </span>            :    * current scale of the view, and not the one we'd get once `view_rect` is</a>
+<a name="839"><span class="lineNum">     839 </span>            :    * applied. And this function should not assume that view_2d.cur == view_rect.</a>
+<a name="840"><span class="lineNum">     840 </span>            :    *</a>
+<a name="841"><span class="lineNum">     841 </span>            :    * As an added bonus, the division is inverted (compared to</a>
+<a name="842"><span class="lineNum">     842 </span>            :    * view2d_scale_get_x()) so that we can multiply with the result instead of</a>
+<a name="843"><span class="lineNum">     843 </span>            :    * doing yet another division. */</a>
+<a name="844"><span class="lineNum">     844 </span><span class="lineNoCov">          0 :   const float target_scale = BLI_rctf_size_x(&amp;view_rect) / BLI_rcti_size_x(&amp;view_2d.mask);</span></a>
+<a name="845"><span class="lineNum">     845 </span><span class="lineNoCov">          0 :   const float margin_in_frames = margin_in_px * target_scale;</span></a>
+<a name="846"><span class="lineNum">     846 </span>            : </a>
+<a name="847"><span class="lineNum">     847 </span>            :   /* Limit the margin to a maximum of 12.5% of the available size. This will</a>
+<a name="848"><span class="lineNum">     848 </span>            :    * make the margins smaller when the view gets smaller, but for large views</a>
+<a name="849"><span class="lineNum">     849 </span>            :    * still retain the fixed size calculated above */</a>
+<a name="850"><span class="lineNum">     850 </span><span class="lineNoCov">          0 :   const float margin_max = 0.125f * BLI_rctf_size_x(&amp;view_rect);</span></a>
+<a name="851"><span class="lineNum">     851 </span><span class="lineNoCov">          0 :   const float margin = std::min(margin_in_frames, margin_max);</span></a>
+<a name="852"><span class="lineNum">     852 </span>            : </a>
+<a name="853"><span class="lineNum">     853 </span><span class="lineNoCov">          0 :   rctf rect_with_margin = view_rect;</span></a>
+<a name="854"><span class="lineNum">     854 </span><span class="lineNoCov">          0 :   rect_with_margin.xmin -= margin;</span></a>
+<a name="855"><span class="lineNum">     855 </span><span class="lineNoCov">          0 :   rect_with_margin.xmax += margin;</span></a>
+<a name="856"><span class="lineNum">     856 </span>            : </a>
+<a name="857"><span class="lineNum">     857 </span><span class="lineNoCov">          0 :   return rect_with_margin;</span></a>
+<a name="858"><span class="lineNum">     858 </span>            : }</a>
+<a name="859"><span class="lineNum">     859 </span>            : </a>
+<a name="860"><span class="lineNum">     860 </span>            : }  // namespace blender</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
