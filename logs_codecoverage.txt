@@ -1,0 +1,2097 @@
+dev@pop-os:~/Blender_PA1483$ sudo apt update && sudo apt install -y git git-lfs subversion build-essential cmake ninja-build lcov xvfb
+[sudo] password for dev: 
+Hit:1 https://nvidia.github.io/libnvidia-container/stable/deb/amd64  InRelease
+Ign:2 http://dl.google.com/linux/chrome-remote-desktop/deb stable InRelease                                                                                                                        
+Get:3 http://dl.google.com/linux/chrome-remote-desktop/deb stable Release [944 B]                                                                                                                  
+Get:4 https://dl.google.com/linux/chrome/deb stable InRelease [2548 B]                                                                                                       
+Get:5 https://packages.microsoft.com/repos/code stable InRelease [3590 B]                                                  
+Get:6 http://dl.google.com/linux/chrome-remote-desktop/deb stable Release.gpg [833 B]                
+Hit:7 http://apt.pop-os.org/proprietary jammy InRelease                        
+Get:8 https://pkgs.tailscale.com/stable/ubuntu jammy InRelease
+Get:9 http://apt.pop-os.org/release jammy InRelease [18.0 kB]
+Get:10 https://dl.google.com/linux/chrome/deb stable/main amd64 Packages [1402 B]
+Get:11 https://packages.microsoft.com/repos/code stable/main amd64 Packages [30.2 kB]
+Hit:12 http://apt.pop-os.org/ubuntu jammy InRelease       
+Get:13 http://apt.pop-os.org/ubuntu jammy-security InRelease [129 kB]
+Get:14 http://dl.google.com/linux/chrome-remote-desktop/deb stable/main amd64 Packages [873 B]
+Get:15 http://apt.pop-os.org/ubuntu jammy-updates InRelease [128 kB]
+Get:16 https://pkgs.tailscale.com/stable/ubuntu jammy/main i386 Packages [16.1 kB]
+Get:17 http://apt.pop-os.org/ubuntu jammy-backports InRelease [127 kB]
+Get:18 https://pkgs.tailscale.com/stable/ubuntu jammy/main amd64 Packages [16.5 kB]
+Get:19 http://apt.pop-os.org/release jammy/main Sources [112 kB]
+Get:20 http://apt.pop-os.org/release jammy/main amd64 Packages [295 kB]
+Get:21 http://apt.pop-os.org/release jammy/main i386 Packages [127 kB]
+Get:22 http://apt.pop-os.org/release jammy/main amd64 DEP-11 Metadata [45.7 kB]
+Get:23 http://apt.pop-os.org/release jammy/main DEP-11 48x48 Icons [26.1 kB]
+Get:24 http://apt.pop-os.org/release jammy/main DEP-11 64x64 Icons [33.9 kB]
+Get:25 http://apt.pop-os.org/release jammy/main DEP-11 128x128 Icons [70.2 kB]
+Get:26 http://apt.pop-os.org/ubuntu jammy-security/universe Sources [312 kB]
+Get:27 http://apt.pop-os.org/ubuntu jammy-security/main Sources [356 kB]
+Get:28 http://apt.pop-os.org/ubuntu jammy-security/main i386 Packages [925 kB]
+Get:29 http://apt.pop-os.org/ubuntu jammy-security/main amd64 Packages [3633 kB]
+Get:30 http://apt.pop-os.org/ubuntu jammy-security/main Translation-en [508 kB]
+Get:31 http://apt.pop-os.org/ubuntu jammy-security/main amd64 DEP-11 Metadata [74.2 kB]
+Get:32 http://apt.pop-os.org/ubuntu jammy-security/universe amd64 Packages [1053 kB]
+Get:33 http://apt.pop-os.org/ubuntu jammy-security/universe i386 Packages [712 kB]
+Get:34 http://apt.pop-os.org/ubuntu jammy-security/universe Translation-en [237 kB]
+Get:35 http://apt.pop-os.org/ubuntu jammy-security/universe amd64 DEP-11 Metadata [127 kB]
+Get:36 http://apt.pop-os.org/ubuntu jammy-updates/universe Sources [471 kB]
+Get:37 http://apt.pop-os.org/ubuntu jammy-updates/multiverse Sources [42.3 kB]
+Get:38 http://apt.pop-os.org/ubuntu jammy-updates/restricted Sources [86.6 kB]
+Get:39 http://apt.pop-os.org/ubuntu jammy-updates/main Sources [591 kB]
+Get:40 http://apt.pop-os.org/ubuntu jammy-updates/main i386 Packages [1099 kB]
+Get:41 http://apt.pop-os.org/ubuntu jammy-updates/main amd64 Packages [3908 kB]
+Get:42 http://apt.pop-os.org/ubuntu jammy-updates/main Translation-en [576 kB]
+Get:43 http://apt.pop-os.org/ubuntu jammy-updates/main amd64 DEP-11 Metadata [117 kB]
+Get:44 http://apt.pop-os.org/ubuntu jammy-updates/restricted i386 Packages [55.9 kB]
+Get:45 http://apt.pop-os.org/ubuntu jammy-updates/restricted amd64 Packages [6740 kB]
+Get:46 http://apt.pop-os.org/ubuntu jammy-updates/restricted Translation-en [1294 kB]
+Get:47 http://apt.pop-os.org/ubuntu jammy-updates/universe i386 Packages [821 kB]
+Get:48 http://apt.pop-os.org/ubuntu jammy-updates/universe amd64 Packages [1286 kB]
+Get:49 http://apt.pop-os.org/ubuntu jammy-updates/universe Translation-en [325 kB]
+Get:50 http://apt.pop-os.org/ubuntu jammy-updates/universe amd64 DEP-11 Metadata [360 kB]
+Get:51 http://apt.pop-os.org/ubuntu jammy-updates/multiverse i386 Packages [15.7 kB]
+Get:52 http://apt.pop-os.org/ubuntu jammy-updates/multiverse amd64 Packages [86.1 kB]
+Get:53 http://apt.pop-os.org/ubuntu jammy-updates/multiverse Translation-en [16.6 kB]
+Get:54 http://apt.pop-os.org/ubuntu jammy-updates/multiverse amd64 DEP-11 Metadata [940 B]
+Get:55 http://apt.pop-os.org/ubuntu jammy-backports/main Sources [8828 B]
+Get:56 http://apt.pop-os.org/ubuntu jammy-backports/main amd64 DEP-11 Metadata [5740 B]
+Get:57 http://apt.pop-os.org/ubuntu jammy-backports/universe amd64 DEP-11 Metadata [12.3 kB]
+Fetched 27.0 MB in 6s (4788 kB/s)                                     
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+373 packages can be upgraded. Run 'apt list --upgradable' to see them.
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+build-essential is already the newest version (12.9ubuntu3).
+git is already the newest version (1:2.34.1-1ubuntu1.17).
+xvfb is already the newest version (2:21.1.4-2ubuntu1.7~22.04.16).
+xvfb set to manually installed.
+The following packages were automatically installed and are no longer required:
+  libfwupdplugin5 libgcab-1.0-0 libsmbios-c2 nvidia-firmware-580-580.82.07 nvidia-firmware-580-580.82.09
+Use 'sudo apt autoremove' to remove them.
+The following additional packages will be installed:
+  cmake-data dh-elpa-helper libapr1 libaprutil1 libcommon-sense-perl libgd-perl libjson-perl libjson-xs-perl libjsoncpp25 libperlio-gzip-perl librhash0 libserf-1-1 libsvn1 libtypes-serialiser-perl libutf8proc2
+Suggested packages:
+  cmake-doc cmake-format db5.3-util libapache2-mod-svn subversion-tools
+The following NEW packages will be installed:
+  cmake cmake-data dh-elpa-helper git-lfs lcov libapr1 libaprutil1 libcommon-sense-perl libgd-perl libjson-perl libjson-xs-perl libjsoncpp25 libperlio-gzip-perl librhash0 libserf-1-1 libsvn1 libtypes-serialiser-perl libutf8proc2 ninja-build subversion
+0 upgraded, 20 newly installed, 0 to remove and 373 not upgraded.
+Need to get 13.9 MB of archives.
+After this operation, 54.6 MB of additional disk space will be used.
+Get:1 http://apt.pop-os.org/ubuntu jammy/main amd64 libjsoncpp25 amd64 1.9.5-3 [80.0 kB]
+Get:2 http://apt.pop-os.org/ubuntu jammy/main amd64 librhash0 amd64 1.4.2-1ubuntu1 [125 kB]
+Get:3 http://apt.pop-os.org/ubuntu jammy/main amd64 dh-elpa-helper all 2.0.9ubuntu1 [7610 B]
+Get:4 http://apt.pop-os.org/ubuntu jammy-updates/main amd64 cmake-data all 3.22.1-1ubuntu1.22.04.2 [1913 kB]
+Get:5 http://apt.pop-os.org/ubuntu jammy-updates/main amd64 cmake amd64 3.22.1-1ubuntu1.22.04.2 [5010 kB]
+Get:6 http://apt.pop-os.org/ubuntu jammy-security/universe amd64 git-lfs amd64 3.0.2-1ubuntu0.3 [3544 kB]
+Get:7 http://apt.pop-os.org/ubuntu jammy/main amd64 libjson-perl all 4.04000-1 [81.8 kB]
+Get:8 http://apt.pop-os.org/ubuntu jammy/main amd64 libperlio-gzip-perl amd64 0.19-1build8 [14.9 kB]
+Get:9 http://apt.pop-os.org/ubuntu jammy/universe amd64 lcov all 1.15-1 [99.5 kB]
+Get:10 http://apt.pop-os.org/ubuntu jammy-security/main amd64 libapr1 amd64 1.7.0-8ubuntu0.22.04.2 [108 kB]
+Get:11 http://apt.pop-os.org/ubuntu jammy-security/main amd64 libaprutil1 amd64 1.6.1-5ubuntu4.22.04.3 [93.4 kB]
+Get:12 http://apt.pop-os.org/ubuntu jammy/main amd64 libcommon-sense-perl amd64 3.75-2build1 [21.1 kB]
+Get:13 http://apt.pop-os.org/ubuntu jammy/main amd64 libtypes-serialiser-perl all 1.01-1 [11.6 kB]
+Get:14 http://apt.pop-os.org/ubuntu jammy-security/main amd64 libjson-xs-perl amd64 4.040-0ubuntu0.22.04.1 [87.0 kB]
+Get:15 http://apt.pop-os.org/ubuntu jammy/universe amd64 libserf-1-1 amd64 1.3.9-10ubuntu2 [50.0 kB]
+Get:16 http://apt.pop-os.org/ubuntu jammy/universe amd64 libutf8proc2 amd64 2.7.0-3 [73.9 kB]
+Get:17 http://apt.pop-os.org/ubuntu jammy-security/universe amd64 libsvn1 amd64 1.14.1-3ubuntu0.22.04.1 [1387 kB]
+Get:18 http://apt.pop-os.org/release jammy/main amd64 ninja-build amd64 1.10.1-1pop1~1755790902~22.04~942aa8c [111 kB]
+Get:19 http://apt.pop-os.org/ubuntu jammy-security/universe amd64 subversion amd64 1.14.1-3ubuntu0.22.04.1 [960 kB]
+Get:20 http://apt.pop-os.org/ubuntu jammy-security/main amd64 libgd-perl amd64 2.76-2ubuntu0.1 [138 kB]
+Fetched 13.9 MB in 3s (4050 kB/s)     
+Selecting previously unselected package libjsoncpp25:amd64.
+(Reading database ... 295864 files and directories currently installed.)
+Preparing to unpack .../00-libjsoncpp25_1.9.5-3_amd64.deb ...
+Unpacking libjsoncpp25:amd64 (1.9.5-3) ...
+Selecting previously unselected package librhash0:amd64.
+Preparing to unpack .../01-librhash0_1.4.2-1ubuntu1_amd64.deb ...
+Unpacking librhash0:amd64 (1.4.2-1ubuntu1) ...
+Selecting previously unselected package dh-elpa-helper.
+Preparing to unpack .../02-dh-elpa-helper_2.0.9ubuntu1_all.deb ...
+Unpacking dh-elpa-helper (2.0.9ubuntu1) ...
+Selecting previously unselected package cmake-data.
+Preparing to unpack .../03-cmake-data_3.22.1-1ubuntu1.22.04.2_all.deb ...
+Unpacking cmake-data (3.22.1-1ubuntu1.22.04.2) ...
+Selecting previously unselected package cmake.
+Preparing to unpack .../04-cmake_3.22.1-1ubuntu1.22.04.2_amd64.deb ...
+Unpacking cmake (3.22.1-1ubuntu1.22.04.2) ...
+Selecting previously unselected package git-lfs.
+Preparing to unpack .../05-git-lfs_3.0.2-1ubuntu0.3_amd64.deb ...
+Unpacking git-lfs (3.0.2-1ubuntu0.3) ...
+Selecting previously unselected package libjson-perl.
+Preparing to unpack .../06-libjson-perl_4.04000-1_all.deb ...
+Unpacking libjson-perl (4.04000-1) ...
+Selecting previously unselected package libperlio-gzip-perl.
+Preparing to unpack .../07-libperlio-gzip-perl_0.19-1build8_amd64.deb ...
+Unpacking libperlio-gzip-perl (0.19-1build8) ...
+Selecting previously unselected package lcov.
+Preparing to unpack .../08-lcov_1.15-1_all.deb ...
+Unpacking lcov (1.15-1) ...
+Selecting previously unselected package libapr1:amd64.
+Preparing to unpack .../09-libapr1_1.7.0-8ubuntu0.22.04.2_amd64.deb ...
+Unpacking libapr1:amd64 (1.7.0-8ubuntu0.22.04.2) ...
+Selecting previously unselected package libaprutil1:amd64.
+Preparing to unpack .../10-libaprutil1_1.6.1-5ubuntu4.22.04.3_amd64.deb ...
+Unpacking libaprutil1:amd64 (1.6.1-5ubuntu4.22.04.3) ...
+Selecting previously unselected package libcommon-sense-perl:amd64.
+Preparing to unpack .../11-libcommon-sense-perl_3.75-2build1_amd64.deb ...
+Unpacking libcommon-sense-perl:amd64 (3.75-2build1) ...
+Selecting previously unselected package libtypes-serialiser-perl.
+Preparing to unpack .../12-libtypes-serialiser-perl_1.01-1_all.deb ...
+Unpacking libtypes-serialiser-perl (1.01-1) ...
+Selecting previously unselected package libjson-xs-perl.
+Preparing to unpack .../13-libjson-xs-perl_4.040-0ubuntu0.22.04.1_amd64.deb ...
+Unpacking libjson-xs-perl (4.040-0ubuntu0.22.04.1) ...
+Selecting previously unselected package libserf-1-1:amd64.
+Preparing to unpack .../14-libserf-1-1_1.3.9-10ubuntu2_amd64.deb ...
+Unpacking libserf-1-1:amd64 (1.3.9-10ubuntu2) ...
+Selecting previously unselected package libutf8proc2:amd64.
+Preparing to unpack .../15-libutf8proc2_2.7.0-3_amd64.deb ...
+Unpacking libutf8proc2:amd64 (2.7.0-3) ...
+Selecting previously unselected package libsvn1:amd64.
+Preparing to unpack .../16-libsvn1_1.14.1-3ubuntu0.22.04.1_amd64.deb ...
+Unpacking libsvn1:amd64 (1.14.1-3ubuntu0.22.04.1) ...
+Selecting previously unselected package ninja-build.
+Preparing to unpack .../17-ninja-build_1.10.1-1pop1~1755790902~22.04~942aa8c_amd64.deb ...
+Unpacking ninja-build (1.10.1-1pop1~1755790902~22.04~942aa8c) ...
+Selecting previously unselected package subversion.
+Preparing to unpack .../18-subversion_1.14.1-3ubuntu0.22.04.1_amd64.deb ...
+Unpacking subversion (1.14.1-3ubuntu0.22.04.1) ...
+Selecting previously unselected package libgd-perl.
+Preparing to unpack .../19-libgd-perl_2.76-2ubuntu0.1_amd64.deb ...
+Unpacking libgd-perl (2.76-2ubuntu0.1) ...
+Setting up libutf8proc2:amd64 (2.7.0-3) ...
+Setting up libapr1:amd64 (1.7.0-8ubuntu0.22.04.2) ...
+Setting up libcommon-sense-perl:amd64 (3.75-2build1) ...
+Setting up ninja-build (1.10.1-1pop1~1755790902~22.04~942aa8c) ...
+Setting up libgd-perl (2.76-2ubuntu0.1) ...
+Setting up dh-elpa-helper (2.0.9ubuntu1) ...
+Setting up libjsoncpp25:amd64 (1.9.5-3) ...
+Setting up libtypes-serialiser-perl (1.01-1) ...
+Setting up librhash0:amd64 (1.4.2-1ubuntu1) ...
+Setting up libjson-perl (4.04000-1) ...
+Setting up cmake-data (3.22.1-1ubuntu1.22.04.2) ...
+Setting up git-lfs (3.0.2-1ubuntu0.3) ...
+Setting up libperlio-gzip-perl (0.19-1build8) ...
+Setting up libaprutil1:amd64 (1.6.1-5ubuntu4.22.04.3) ...
+Setting up libjson-xs-perl (4.040-0ubuntu0.22.04.1) ...
+Setting up libserf-1-1:amd64 (1.3.9-10ubuntu2) ...
+Setting up lcov (1.15-1) ...
+Setting up cmake (3.22.1-1ubuntu1.22.04.2) ...
+Setting up libsvn1:amd64 (1.14.1-3ubuntu0.22.04.1) ...
+Setting up subversion (1.14.1-3ubuntu0.22.04.1) ...
+Processing triggers for libc-bin (2.35-0ubuntu3.13) ...
+Processing triggers for man-db (2.10.2-1) ...
+dev@pop-os:~/Blender_PA1483$ git clone https://projects.blender.org/blender/blender.git
+cd blender
+make update
+Cloning into 'blender'...
+remote: Enumerating objects: 2243396, done.
+remote: Counting objects: 100% (2243396/2243396), done.
+remote: Compressing objects: 100% (403401/403401), done.
+remote: Total 2243396 (delta 1927716), reused 2137288 (delta 1834797), pack-reused 0 (from 0)
+Receiving objects: 100% (2243396/2243396), 953.31 MiB | 20.82 MiB/s, done.
+Resolving deltas: 100% (1927716/1927716), done.
+Updating files: 100% (20711/20711), done.
+Filtering content: 100% (6930/6930), 846.10 MiB | 9.43 MiB/s, done.
+git lfs install --skip-repo
+Git LFS initialized.
+
+Updating Blender Git Repository
+===============================
+
+git pull --rebase
+Already up to date.
+
+Updating Blender Git LFS
+========================
+
+git lfs pull
+
+Configuring Precompiled Libraries
+=================================
+
+Detected platform     : linux
+Detected architecture : x64
+
+* Enabling precompiled libraries at lib/linux_x64
+
+Updating Libraries
+==================
+
+* Updating lib/linux_x64 ...
+GIT_LFS_SKIP_SMUDGE=1 git submodule update --init --progress lib/linux_x64
+Submodule 'lib/linux_x64' (https://projects.blender.org/blender/lib-linux_x64.git) registered for path 'lib/linux_x64'
+Cloning into '/home/dev/Blender_PA1483/blender/lib/linux_x64'...
+remote: Enumerating objects: 69396, done.        
+remote: Counting objects: 100% (9/9), done.        
+remote: Compressing objects: 100% (8/8), done.        
+remote: Total 69396 (delta 0), reused 0 (delta 0), pack-reused 69387 (from 1)        
+Receiving objects: 100% (69396/69396), 146.56 MiB | 20.89 MiB/s, done.
+Resolving deltas: 100% (31033/31033), done.
+Submodule path 'lib/linux_x64': checked out '2b5fbb917a1bf7537cb25456fcb9064302d7e168'
+git -C lib/linux_x64 lfs pull
+* Skipping lib/macos_arm6400% (708/708), 2.1 GB | 24 MB/s                                                                                                                                                                                                                                 
+* Skipping lib/windows_x64
+* Skipping lib/windows_arm64
+Setting pushURL to git@git.blender.org:blender/lib-linux_x64.git for lib/linux_x64
+dev@pop-os:~/Blender_PA1483/blender$ cd ~/Blender_PA1483/build_coverage
+
+cmake ../blender \
+    -GNinja \
+    -DCMAKE_C_COMPILER=gcc-14 \
+    -DCMAKE_CXX_COMPILER=g++-14 \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DCMAKE_C_FLAGS="--coverage" \
+    -DCMAKE_CXX_FLAGS="--coverage" \
+    -DCMAKE_EXE_LINKER_FLAGS="--coverage" \
+    -DCMAKE_SHARED_LINKER_FLAGS="--coverage" \
+    -DWITH_BUILDINFO=OFF \
+    -DWITH_CYCLES_CUDA_BINARIES=OFF \
+    -DWITH_TESTS=ON
+-- Found required Ceres dependency: absl version 20250814 in /home/dev/Blender_PA1483/blender/lib/linux_x64/abseil/lib/cmake/absl
+-- Found required Ceres dependency: Eigen version 5.0.1 in /home/dev/Blender_PA1483/blender/lib/linux_x64/eigen/share/eigen3/cmake
+-- Found Ceres version: 2.3.0 installed in: /home/dev/Blender_PA1483/blender/lib/linux_x64/ceres with components: [EigenSparse, SparseLinearAlgebraLibrary, SchurSpecializations]
+-- Could NOT find Jack (missing: JACK_LIBRARY JACK_INCLUDE_DIR) 
+-- JACK not found, disabling WITH_JACK
+-- Could NOT find Pulse (missing: LIBPULSE_LIBRARY LIBPULSE_INCLUDE_DIR) 
+-- PulseAudio not found, disabling WITH_PULSEAUDIO
+-- Checking for module 'libpipewire-0.3>=1.1.0'
+--   No package 'libpipewire-0.3' found
+-- PipeWire not found, disabling WITH_PIPEWIRE
+-- Checking for module 'dbus-1'
+--   No package 'dbus-1' found
+-- dbus-1 not found, disabling WITH_GHOST_DBUS
+-- Checking for module 'xkbcommon'
+--   Found xkbcommon, version 1.4.0
+-- The "mold" binary could not be found, using system linker.
+-- LLD linker isn't available, using the default system linker.
+-- Performing Test ATOMIC_OPS_WITH_LIBATOMIC
+-- Performing Test ATOMIC_OPS_WITH_LIBATOMIC - Success
+-- Using NINJA_POOL_JOBS:
+--   NINJA_MAX_NUM_PARALLEL_LINK_JOBS: max concurrent linking jobs (computed): 2
+--   NINJA_MAX_NUM_PARALLEL_COMPILE_HEAVY_JOBS: max concurrent heavy compile jobs (computed): 19
+--   NINJA_MAX_NUM_PARALLEL_COMPILE_JOBS: max concurrent regular compile jobs (computed): 20
+-- Performing Test C_WARN_ALL
+-- Performing Test C_WARN_ALL - Success
+-- Performing Test C_WARN_ERROR_IMPLICIT_FUNCTION_DECLARATION
+-- Performing Test C_WARN_ERROR_IMPLICIT_FUNCTION_DECLARATION - Success
+-- Performing Test C_WARN_STRICT_PROTOTYPES
+-- Performing Test C_WARN_STRICT_PROTOTYPES - Success
+-- Performing Test C_WARN_ERROR_RETURN_TYPE
+-- Performing Test C_WARN_ERROR_RETURN_TYPE - Success
+-- Performing Test C_WARN_ERROR_VLA
+-- Performing Test C_WARN_ERROR_VLA - Success
+-- Performing Test C_WARN_MISSING_PROTOTYPES
+-- Performing Test C_WARN_MISSING_PROTOTYPES - Success
+-- Performing Test C_WARN_NO_CHAR_SUBSCRIPTS
+-- Performing Test C_WARN_NO_CHAR_SUBSCRIPTS - Success
+-- Performing Test C_WARN_NO_UNKNOWN_PRAGMAS
+-- Performing Test C_WARN_NO_UNKNOWN_PRAGMAS - Success
+-- Performing Test C_WARN_POINTER_ARITH
+-- Performing Test C_WARN_POINTER_ARITH - Success
+-- Performing Test C_WARN_UNUSED_PARAMETER
+-- Performing Test C_WARN_UNUSED_PARAMETER - Success
+-- Performing Test C_WARN_WRITE_STRINGS
+-- Performing Test C_WARN_WRITE_STRINGS - Success
+-- Performing Test C_WARN_LOGICAL_OP
+-- Performing Test C_WARN_LOGICAL_OP - Success
+-- Performing Test C_WARN_UNDEF
+-- Performing Test C_WARN_UNDEF - Success
+-- Performing Test C_WARN_INIT_SELF
+-- Performing Test C_WARN_INIT_SELF - Success
+-- Performing Test C_WARN_MISSING_INCLUDE_DIRS
+-- Performing Test C_WARN_MISSING_INCLUDE_DIRS - Success
+-- Performing Test C_WARN_NO_DIV_BY_ZERO
+-- Performing Test C_WARN_NO_DIV_BY_ZERO - Success
+-- Performing Test C_WARN_TYPE_LIMITS
+-- Performing Test C_WARN_TYPE_LIMITS - Success
+-- Performing Test C_WARN_FORMAT_SIGN
+-- Performing Test C_WARN_FORMAT_SIGN - Success
+-- Performing Test C_WARN_RESTRICT
+-- Performing Test C_WARN_RESTRICT - Success
+-- Performing Test C_WARN_NO_STRINGOP_OVERREAD
+-- Performing Test C_WARN_NO_STRINGOP_OVERREAD - Success
+-- Performing Test C_WARN_NO_STRINGOP_OVERFLOW
+-- Performing Test C_WARN_NO_STRINGOP_OVERFLOW - Success
+-- Performing Test C_WARN_NO_NULL
+-- Performing Test C_WARN_NO_NULL - Success
+-- Performing Test C_WARN_ABSOLUTE_VALUE
+-- Performing Test C_WARN_ABSOLUTE_VALUE - Success
+-- Performing Test C_WARN_UNINITIALIZED
+-- Performing Test C_WARN_UNINITIALIZED - Success
+-- Performing Test C_WARN_REDUNDANT_DECLS
+-- Performing Test C_WARN_REDUNDANT_DECLS - Success
+-- Performing Test C_WARN_SHADOW
+-- Performing Test C_WARN_SHADOW - Success
+-- Performing Test C_WARN_IMPLICIT_FALLTHROUGH
+-- Performing Test C_WARN_IMPLICIT_FALLTHROUGH - Success
+-- Performing Test C_WARN_NO_ERROR_UNUSED_BUT_SET_VARIABLE
+-- Performing Test C_WARN_NO_ERROR_UNUSED_BUT_SET_VARIABLE - Success
+-- Performing Test CXX_WARN_UNINITIALIZED
+-- Performing Test CXX_WARN_UNINITIALIZED - Success
+-- Performing Test CXX_WARN_REDUNDANT_DECLS
+-- Performing Test CXX_WARN_REDUNDANT_DECLS - Success
+-- Performing Test CXX_WARN_ALL
+-- Performing Test CXX_WARN_ALL - Success
+-- Performing Test CXX_WARN_NO_INVALID_OFFSETOF
+-- Performing Test CXX_WARN_NO_INVALID_OFFSETOF - Success
+-- Performing Test CXX_WARN_NO_SIGN_COMPARE
+-- Performing Test CXX_WARN_NO_SIGN_COMPARE - Success
+-- Performing Test CXX_WARN_LOGICAL_OP
+-- Performing Test CXX_WARN_LOGICAL_OP - Success
+-- Performing Test CXX_WARN_INIT_SELF
+-- Performing Test CXX_WARN_INIT_SELF - Success
+-- Performing Test CXX_WARN_MISSING_INCLUDE_DIRS
+-- Performing Test CXX_WARN_MISSING_INCLUDE_DIRS - Success
+-- Performing Test CXX_WARN_NO_DIV_BY_ZERO
+-- Performing Test CXX_WARN_NO_DIV_BY_ZERO - Success
+-- Performing Test CXX_WARN_TYPE_LIMITS
+-- Performing Test CXX_WARN_TYPE_LIMITS - Success
+-- Performing Test CXX_WARN_ERROR_RETURN_TYPE
+-- Performing Test CXX_WARN_ERROR_RETURN_TYPE - Success
+-- Performing Test CXX_WARN_NO_CHAR_SUBSCRIPTS
+-- Performing Test CXX_WARN_NO_CHAR_SUBSCRIPTS - Success
+-- Performing Test CXX_WARN_NO_UNKNOWN_PRAGMAS
+-- Performing Test CXX_WARN_NO_UNKNOWN_PRAGMAS - Success
+-- Performing Test CXX_WARN_POINTER_ARITH
+-- Performing Test CXX_WARN_POINTER_ARITH - Success
+-- Performing Test CXX_WARN_UNUSED_PARAMETER
+-- Performing Test CXX_WARN_UNUSED_PARAMETER - Success
+-- Performing Test CXX_WARN_WRITE_STRINGS
+-- Performing Test CXX_WARN_WRITE_STRINGS - Success
+-- Performing Test CXX_WARN_UNDEF
+-- Performing Test CXX_WARN_UNDEF - Success
+-- Performing Test CXX_WARN_COMMA_SUBSCRIPT
+-- Performing Test CXX_WARN_COMMA_SUBSCRIPT - Success
+-- Performing Test CXX_WARN_FORMAT_SIGN
+-- Performing Test CXX_WARN_FORMAT_SIGN - Success
+-- Performing Test CXX_WARN_RESTRICT
+-- Performing Test CXX_WARN_RESTRICT - Success
+-- Performing Test CXX_WARN_NO_SUGGEST_OVERRIDE
+-- Performing Test CXX_WARN_NO_SUGGEST_OVERRIDE - Success
+-- Performing Test CXX_WARN_NO_STRINGOP_OVERREAD
+-- Performing Test CXX_WARN_NO_STRINGOP_OVERREAD - Success
+-- Performing Test CXX_WARN_NO_STRINGOP_OVERFLOW
+-- Performing Test CXX_WARN_NO_STRINGOP_OVERFLOW - Success
+-- Performing Test CXX_WARN_IMPLICIT_FALLTHROUGH
+-- Performing Test CXX_WARN_IMPLICIT_FALLTHROUGH - Success
+-- Performing Test CXX_WARN_MISSING_DECLARATIONS
+-- Performing Test CXX_WARN_MISSING_DECLARATIONS - Success
+-- Performing Test C_AND_CXX_WARN_NO_DEPRECATED_DECLARATIONS
+-- Performing Test C_AND_CXX_WARN_NO_DEPRECATED_DECLARATIONS - Success
+-- Performing Test C_AND_CXX_WARN_NO_UNUSED_PARAMETER
+-- Performing Test C_AND_CXX_WARN_NO_UNUSED_PARAMETER - Success
+-- Performing Test C_AND_CXX_WARN_NO_UNUSED_FUNCTION
+-- Performing Test C_AND_CXX_WARN_NO_UNUSED_FUNCTION - Success
+-- Performing Test C_AND_CXX_WARN_NO_TYPE_LIMITS
+-- Performing Test C_AND_CXX_WARN_NO_TYPE_LIMITS - Success
+-- Performing Test C_AND_CXX_WARN_NO_INT_IN_BOOL_CONTEXT
+-- Performing Test C_AND_CXX_WARN_NO_INT_IN_BOOL_CONTEXT - Success
+-- Performing Test C_AND_CXX_WARN_NO_FORMAT
+-- Performing Test C_AND_CXX_WARN_NO_FORMAT - Success
+-- Performing Test C_AND_CXX_WARN_NO_SWITCH
+-- Performing Test C_AND_CXX_WARN_NO_SWITCH - Success
+-- Performing Test C_AND_CXX_WARN_NO_UNUSED_VARIABLE
+-- Performing Test C_AND_CXX_WARN_NO_UNUSED_VARIABLE - Success
+-- Performing Test C_AND_CXX_WARN_NO_UNUSED_BUT_SET_VARIABLE
+-- Performing Test C_AND_CXX_WARN_NO_UNUSED_BUT_SET_VARIABLE - Success
+-- Performing Test C_AND_CXX_WARN_NO_UNINITIALIZED
+-- Performing Test C_AND_CXX_WARN_NO_UNINITIALIZED - Success
+-- Performing Test C_AND_CXX_WARN_NO_IMPLICIT_FALLTHROUGH
+-- Performing Test C_AND_CXX_WARN_NO_IMPLICIT_FALLTHROUGH - Success
+-- Performing Test CXX_WARN_NO_CLASS_MEMACCESS
+-- Performing Test CXX_WARN_NO_CLASS_MEMACCESS - Success
+-- Performing Test CXX_WARN_NO_COMMENT
+-- Performing Test CXX_WARN_NO_COMMENT - Success
+-- Performing Test CXX_WARN_NO_UNUSED_TYPEDEFS
+-- Performing Test CXX_WARN_NO_UNUSED_TYPEDEFS - Success
+-- Performing Test CXX_WARN_NO_REORDER
+-- Performing Test CXX_WARN_NO_REORDER - Success
+-- Performing Test C_AND_CXX_WARN_NO_ERROR_UNUSED_BUT_SET_VARIABLE
+-- Performing Test C_AND_CXX_WARN_NO_ERROR_UNUSED_BUT_SET_VARIABLE - Success
+-- numpy found at '/home/dev/Blender_PA1483/blender/lib/linux_x64/python/lib/python3.13/site-packages'
+-- numpy include files found at '/home/dev/Blender_PA1483/blender/lib/linux_x64/python/lib/python3.13/site-packages/numpy/_core/include'
+-- requests found at '/home/dev/Blender_PA1483/blender/lib/linux_x64/python/lib/python3.13/site-packages'
+-- zstandard found at '/home/dev/Blender_PA1483/blender/lib/linux_x64/python/lib/python3.13/site-packages'
+-- Performing Test C_MACRO_PREFIX_MAP
+-- Performing Test C_MACRO_PREFIX_MAP - Success
+-- Performing Test CXX_MACRO_PREFIX_MAP
+-- Performing Test CXX_MACRO_PREFIX_MAP - Success
+-- Looking for memfd_create
+-- Looking for memfd_create - found
+-- Found SYCL: /home/dev/Blender_PA1483/blender/lib/linux_x64/dpcpp/lib/libsycl.so (found version "9.0.0") 
+-- Found LevelZero: /home/dev/Blender_PA1483/blender/lib/linux_x64/level-zero/lib/libze_loader.so  
+-- Performing Test CXX_HAS_SSE42
+-- Performing Test CXX_HAS_SSE42 - Success
+-- Performing Test CXX_HAS_AVX2
+-- Performing Test CXX_HAS_AVX2 - Success
+-- Performing Test CXX_HAS_F16C
+-- Performing Test CXX_HAS_F16C - Success
+-- Could NOT find OptiX (missing: OPTIX_INCLUDE_DIR) (Required is at least version "8.0.0")
+-- OptiX not found, disabling WITH_CYCLES_DEVICE_OPTIX
+-- Performing Test _has_no_error_unused_macros
+-- Performing Test _has_no_error_unused_macros - Success
+-- Performing Test _has_cxxflag_float_conversion
+-- Performing Test _has_cxxflag_float_conversion - Success
+-- Performing Test _has_cxxflag_double_promotion
+-- Performing Test _has_cxxflag_double_promotion - Success
+-- Finding Python Module File: certifi/cacert.pem
+-- Found Git: /usr/bin/git (found version "2.34.1") 
+-- RPM Build Not Found (rpmbuild). RPM generation will not be available
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/dev/Blender_PA1483/build_coverage
+dev@pop-os:~/Blender_PA1483/build_coverage$ ninja
+[430/7985] Building CXX object intern/draco_bridge/CMakeFiles/bf_intern_draco_bridge.dir/intern/encoder.cpp.o
+/home/dev/Blender_PA1483/blender/intern/draco_bridge/intern/encoder.cpp:176:32: warning: no previous declaration for ‘draco::GeometryAttribute::Type getAttributeSemantics(char*)’ [-Wmissing-declarations]
+  176 | draco::GeometryAttribute::Type getAttributeSemantics(char *attribute)
+      |                                ^~~~~~~~~~~~~~~~~~~~~
+/home/dev/Blender_PA1483/blender/intern/draco_bridge/intern/encoder.cpp:194:17: warning: no previous declaration for ‘draco::DataType getDataType(size_t)’ [-Wmissing-declarations]
+  194 | draco::DataType getDataType(size_t componentType)
+      |                 ^~~~~~~~~~~
+[946/7985] Building CXX object source/blender/gpu/shader_tool/CMakeFiles/shader_tool.dir/bsl/type_checker.cc.o
+In file included from /usr/include/c++/14/string:51,
+                 from /usr/include/c++/14/bits/locale_classes.h:40,
+                 from /usr/include/c++/14/bits/ios_base.h:41,
+                 from /usr/include/c++/14/ios:44,
+                 from /usr/include/c++/14/ostream:40,
+                 from /usr/include/c++/14/iostream:41,
+                 from /home/dev/Blender_PA1483/blender/source/blender/gpu/shader_tool/lexit/lexit.hh:17,
+                 from /home/dev/Blender_PA1483/blender/source/blender/gpu/shader_tool/ast.hh:11,
+                 from /home/dev/Blender_PA1483/blender/source/blender/gpu/shader_tool/bsl/resource.hh:11,
+                 from /home/dev/Blender_PA1483/blender/source/blender/gpu/shader_tool/bsl/symbol_class.hh:11,
+                 from /home/dev/Blender_PA1483/blender/source/blender/gpu/shader_tool/bsl/type_checker.hh:11,
+                 from /home/dev/Blender_PA1483/blender/source/blender/gpu/shader_tool/bsl/type_checker.cc:9:
+In static member function ‘static constexpr _Up* std::__copy_move<_IsMove, true, std::random_access_iterator_tag>::__copy_m(_Tp*, _Tp*, _Up*) [with _Tp = const unsigned int; _Up = unsigned int; bool _IsMove = false]’,
+    inlined from ‘constexpr _OI std::__copy_move_a2(_II, _II, _OI) [with bool _IsMove = false; _II = const unsigned int*; _OI = unsigned int*]’ at /usr/include/c++/14/bits/stl_algobase.h:521:30,
+    inlined from ‘constexpr _OI std::__copy_move_a1(_II, _II, _OI) [with bool _IsMove = false; _II = const unsigned int*; _OI = unsigned int*]’ at /usr/include/c++/14/bits/stl_algobase.h:548:42,
+    inlined from ‘constexpr _OI std::__copy_move_a(_II, _II, _OI) [with bool _IsMove = false; _II = __gnu_cxx::__normal_iterator<const unsigned int*, vector<unsigned int> >; _OI = unsigned int*]’ at /usr/include/c++/14/bits/stl_algobase.h:555:31,
+    inlined from ‘constexpr _OI std::copy(_II, _II, _OI) [with _II = __gnu_cxx::__normal_iterator<const unsigned int*, vector<unsigned int> >; _OI = unsigned int*]’ at /usr/include/c++/14/bits/stl_algobase.h:651:7,
+    inlined from ‘static _ForwardIterator std::__uninitialized_copy<true>::__uninit_copy(_InputIterator, _InputIterator, _ForwardIterator) [with _InputIterator = __gnu_cxx::__normal_iterator<const unsigned int*, std::vector<unsigned int> >; _ForwardIterator = unsigned int*]’ at /usr/include/c++/14/bits/stl_uninitialized.h:147:27,
+    inlined from ‘_ForwardIterator std::uninitialized_copy(_InputIterator, _InputIterator, _ForwardIterator) [with _InputIterator = __gnu_cxx::__normal_iterator<const unsigned int*, vector<unsigned int> >; _ForwardIterator = unsigned int*]’ at /usr/include/c++/14/bits/stl_uninitialized.h:185:15,
+    inlined from ‘constexpr _ForwardIterator std::__uninitialized_copy_a(_InputIterator, _InputIterator, _ForwardIterator, allocator<_Tp>&) [with _InputIterator = __gnu_cxx::__normal_iterator<const unsigned int*, vector<unsigned int> >; _ForwardIterator = unsigned int*; _Tp = unsigned int]’ at /usr/include/c++/14/bits/stl_uninitialized.h:373:37,
+    inlined from ‘constexpr std::vector<_Tp, _Alloc>::vector(const std::vector<_Tp, _Alloc>&) [with _Tp = unsigned int; _Alloc = std::allocator<unsigned int>]’ at /usr/include/c++/14/bits/stl_vector.h:609:31,
+    inlined from ‘constexpr bsl::ConstexprValue::ConstexprValue(const bsl::ConstexprValue&)’ at /home/dev/Blender_PA1483/blender/source/blender/gpu/shader_tool/bsl/constexpr.hh:25:8,
+    inlined from ‘bsl::ExpressionResult bsl::ExpressionTypeParser::number_literal(const blender::gpu::shader::parser::ast::Node&)’ at /home/dev/Blender_PA1483/blender/source/blender/gpu/shader_tool/bsl/type_checker.cc:393:50:
+/usr/include/c++/14/bits/stl_algobase.h:452:30: warning: ‘void* __builtin_memcpy(void*, const void*, long unsigned int)’ forming offset 4 is out of the bounds [0, 4] [-Warray-bounds=]
+  452 |             __builtin_memmove(__result, __first, sizeof(_Tp) * _Num);
+      |             ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[6316/7985] Building CXX object source/blender/blenkernel/CMakeFiles/bf_blenkernel.dir/intern/grease_pencil_convert_legacy.cc.o
+/home/dev/Blender_PA1483/blender/source/blender/blenkernel/intern/grease_pencil_convert_legacy.cc: In member function ‘void blender::bke::greasepencil::convert::AnimDataConvertor::fcurves_convert_finalize()’:
+/home/dev/Blender_PA1483/blender/source/blender/blenkernel/intern/grease_pencil_convert_legacy.cc:571:54: warning: argument 1 null where non-null expected [-Wnonnull]
+  571 |         animrig::Action &action = animrig::action_add(
+      |                                   ~~~~~~~~~~~~~~~~~~~^
+  572 |             this->conversion_data.bmain,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~              
+  573 |             this->animdata_src->action ? this->animdata_src->action->id.name + 2 : nullptr);
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /home/dev/Blender_PA1483/blender/source/blender/blenlib/BLI_hash.hh:70,
+                 from /home/dev/Blender_PA1483/blender/source/blender/blenlib/BLI_map.hh:58,
+                 from /home/dev/Blender_PA1483/blender/source/blender/blenkernel/BKE_pose.hh:9,
+                 from /home/dev/Blender_PA1483/blender/source/blender/blenkernel/BKE_action.hh:15,
+                 from /home/dev/Blender_PA1483/blender/source/blender/blenkernel/intern/grease_pencil_convert_legacy.cc:13:
+/home/dev/Blender_PA1483/blender/source/blender/blenlib/BLI_string_ref.hh:512:11: note: in a call to function ‘constexpr blender::StringRefNull::StringRefNull(const char*)’ declared ‘nonnull’
+  512 | constexpr StringRefNull::StringRefNull(const char *str)
+      |           ^~~~~~~~~~~~~
+/home/dev/Blender_PA1483/blender/source/blender/blenkernel/intern/grease_pencil_convert_legacy.cc:589:54: warning: argument 1 null where non-null expected [-Wnonnull]
+  589 |         animrig::Action &tmpact = animrig::action_add(
+      |                                   ~~~~~~~~~~~~~~~~~~~^
+  590 |             this->conversion_data.bmain,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~              
+  591 |             this->animdata_src->tmpact ? this->animdata_src->tmpact->id.name + 2 : nullptr);
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/dev/Blender_PA1483/blender/source/blender/blenlib/BLI_string_ref.hh:512:11: note: in a call to function ‘constexpr blender::StringRefNull::StringRefNull(const char*)’ declared ‘nonnull’
+  512 | constexpr StringRefNull::StringRefNull(const char *str)
+      |           ^~~~~~~~~~~~~
+[7128/7985] Building CXX object source/blender/nodes/CMakeFiles/bf_nodes.dir/intern/volume_grid_function_eval.cc.o
+/home/dev/Blender_PA1483/blender/source/blender/nodes/intern/volume_grid_function_eval.cc: In function ‘bool blender::nodes::execute_multi_function_on_value_variant__volume_grid(const blender::fn::multi_function::MultiFunction&, blender::Span<blender::bke::SocketValueVariant*>, blender::Span<blender::bke::SocketValueVariant*>, std::string&)’:
+/home/dev/Blender_PA1483/blender/source/blender/nodes/intern/volume_grid_function_eval.cc:41:20: warning: possibly dangling reference to a temporary [-Wdangling-reference]
+   41 |     const CPPType &type = fn.param_type(i).data_type().single_type();
+      |                    ^~~~
+/home/dev/Blender_PA1483/blender/source/blender/nodes/intern/volume_grid_function_eval.cc:41:67: note: the temporary was destroyed at the end of the full expression ‘(&(& fn)->blender::fn::multi_function::MultiFunction::param_type(((int)i)).blender::fn::multi_function::ParamType::data_type())->blender::fn::multi_function::DataType::single_type()’
+   41 |     const CPPType &type = fn.param_type(i).data_type().single_type();
+      |                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+[7985/7985] Linking CXX executable bin/blender
+Run: "ninja install" to copy runtime files and scripts to: /home/dev/Blender_PA1483/build_coverage/bin/5.3
+
+dev@pop-os:~/Blender_PA1483/build_coverage$ xvfb-run -a ctest --output-on-failure
+Test project /home/dev/Blender_PA1483/build_coverage
+        Start   1: script_load_keymap
+  1/732 Test   #1: script_load_keymap .................................................   Passed    2.45 sec
+        Start   2: script_validate_keymap
+  2/732 Test   #2: script_validate_keymap .............................................   Passed    7.63 sec
+        Start   3: script_load_addons
+  3/732 Test   #3: script_load_addons .................................................   Passed    2.67 sec
+        Start   4: script_load_modules
+  4/732 Test   #4: script_load_modules ................................................   Passed    2.87 sec
+        Start   5: script_bundled_modules
+  5/732 Test   #5: script_bundled_modules .............................................   Passed    2.60 sec
+        Start   6: script_http_downloader
+  6/732 Test   #6: script_http_downloader .............................................   Passed    2.20 sec
+        Start   7: script_disk_file_hash_service_test
+  7/732 Test   #7: script_disk_file_hash_service_test .................................   Passed    1.91 sec
+        Start   8: script_blend_autoexec_cli
+  8/732 Test   #8: script_blend_autoexec_cli ..........................................   Passed   29.18 sec
+        Start   9: script_ocio_config
+  9/732 Test   #9: script_ocio_config .................................................   Passed    2.28 sec
+        Start  10: script_pyapi_bpy_app
+ 10/732 Test  #10: script_pyapi_bpy_app ...............................................   Passed    1.58 sec
+        Start  11: script_pyapi_bpy_app_tempdir
+ 11/732 Test  #11: script_pyapi_bpy_app_tempdir .......................................   Passed    1.66 sec
+        Start  12: script_pyapi_bpy_path
+ 12/732 Test  #12: script_pyapi_bpy_path ..............................................   Passed    1.63 sec
+        Start  13: script_pyapi_bpy_utils_units
+ 13/732 Test  #13: script_pyapi_bpy_utils_units .......................................   Passed    1.60 sec
+        Start  14: script_pyapi_mathutils
+ 14/732 Test  #14: script_pyapi_mathutils .............................................   Passed    1.67 sec
+        Start  15: script_pyapi_bpy_driver_secure_eval
+ 15/732 Test  #15: script_pyapi_bpy_driver_secure_eval ................................   Passed    1.64 sec
+        Start  16: script_pyapi_idprop
+ 16/732 Test  #16: script_pyapi_idprop ................................................   Passed    1.67 sec
+        Start  17: script_pyapi_idprop_datablock
+ 17/732 Test  #17: script_pyapi_idprop_datablock ......................................   Passed    4.42 sec
+        Start  18: script_pyapi_prop
+ 18/732 Test  #18: script_pyapi_prop ..................................................   Passed    1.64 sec
+        Start  19: script_pyapi_prop_array
+ 19/732 Test  #19: script_pyapi_prop_array ............................................   Passed    1.75 sec
+        Start  20: script_pyapi_text
+ 20/732 Test  #20: script_pyapi_text ..................................................   Passed    1.62 sec
+        Start  21: script_pyapi_bmesh
+ 21/732 Test  #21: script_pyapi_bmesh .................................................   Passed    1.74 sec
+        Start  22: imbuf_py_api
+ 22/732 Test  #22: imbuf_py_api .......................................................   Passed    1.88 sec
+        Start  23: operator_function_py_api
+ 23/732 Test  #23: operator_function_py_api ...........................................   Passed    1.62 sec
+        Start  24: operator_wrap_py_api
+ 24/732 Test  #24: operator_wrap_py_api ...............................................   Passed    1.63 sec
+        Start  25: script_pyapi_grease_pencil
+ 25/732 Test  #25: script_pyapi_grease_pencil .........................................   Passed    1.70 sec
+        Start  26: script_pyapi_annotations
+ 26/732 Test  #26: script_pyapi_annotations ...........................................   Passed    1.64 sec
+        Start  27: script_pyapi_blf_buffer
+ 27/732 Test  #27: script_pyapi_blf_buffer ............................................   Passed    2.57 sec
+        Start  28: script_pyapi_blf_vfont
+ 28/732 Test  #28: script_pyapi_blf_vfont .............................................   Passed   65.28 sec
+        Start  29: script_pyapi_doc_gen
+ 29/732 Test  #29: script_pyapi_doc_gen ...............................................   Passed   28.77 sec
+        Start  30: id_management
+ 30/732 Test  #30: id_management ......................................................   Passed    4.83 sec
+        Start  31: bl_rna_paths
+ 31/732 Test  #31: bl_rna_paths .......................................................   Passed    2.08 sec
+        Start  32: bl_rna_accessors
+ 32/732 Test  #32: bl_rna_accessors ...................................................   Passed    2.10 sec
+        Start  33: blendfile_io
+ 33/732 Test  #33: blendfile_io .......................................................   Passed    2.25 sec
+        Start  34: blendfile_autosave
+ 34/732 Test  #34: blendfile_autosave .................................................   Passed    2.39 sec
+        Start  35: blendfile_versioning_0_over_128
+ 35/732 Test  #35: blendfile_versioning_0_over_128 ....................................   Passed   17.38 sec
+        Start  36: blendfile_versioning_1_over_128
+ 36/732 Test  #36: blendfile_versioning_1_over_128 ....................................   Passed   16.34 sec
+        Start  37: blendfile_versioning_2_over_128
+ 37/732 Test  #37: blendfile_versioning_2_over_128 ....................................   Passed   16.50 sec
+        Start  38: blendfile_versioning_3_over_128
+ 38/732 Test  #38: blendfile_versioning_3_over_128 ....................................   Passed   16.42 sec
+        Start  39: blendfile_versioning_4_over_128
+ 39/732 Test  #39: blendfile_versioning_4_over_128 ....................................   Passed   15.30 sec
+        Start  40: blendfile_versioning_5_over_128
+ 40/732 Test  #40: blendfile_versioning_5_over_128 ....................................   Passed   14.21 sec
+        Start  41: blendfile_versioning_6_over_128
+ 41/732 Test  #41: blendfile_versioning_6_over_128 ....................................   Passed   15.43 sec
+        Start  42: blendfile_versioning_7_over_128
+ 42/732 Test  #42: blendfile_versioning_7_over_128 ....................................   Passed   15.23 sec
+        Start  43: blendfile_versioning_8_over_128
+ 43/732 Test  #43: blendfile_versioning_8_over_128 ....................................   Passed   14.72 sec
+        Start  44: blendfile_versioning_9_over_128
+ 44/732 Test  #44: blendfile_versioning_9_over_128 ....................................   Passed   15.81 sec
+        Start  45: blendfile_versioning_10_over_128
+ 45/732 Test  #45: blendfile_versioning_10_over_128 ...................................   Passed   15.27 sec
+        Start  46: blendfile_versioning_11_over_128
+ 46/732 Test  #46: blendfile_versioning_11_over_128 ...................................   Passed   15.98 sec
+        Start  47: blendfile_versioning_12_over_128
+ 47/732 Test  #47: blendfile_versioning_12_over_128 ...................................   Passed   16.00 sec
+        Start  48: blendfile_versioning_13_over_128
+ 48/732 Test  #48: blendfile_versioning_13_over_128 ...................................   Passed   15.56 sec
+        Start  49: blendfile_versioning_14_over_128
+ 49/732 Test  #49: blendfile_versioning_14_over_128 ...................................   Passed   15.21 sec
+        Start  50: blendfile_versioning_15_over_128
+ 50/732 Test  #50: blendfile_versioning_15_over_128 ...................................   Passed   16.23 sec
+        Start  51: blendfile_versioning_16_over_128
+ 51/732 Test  #51: blendfile_versioning_16_over_128 ...................................   Passed   16.32 sec
+        Start  52: blendfile_versioning_17_over_128
+ 52/732 Test  #52: blendfile_versioning_17_over_128 ...................................   Passed   16.43 sec
+        Start  53: blendfile_versioning_18_over_128
+ 53/732 Test  #53: blendfile_versioning_18_over_128 ...................................   Passed   14.53 sec
+        Start  54: blendfile_versioning_19_over_128
+ 54/732 Test  #54: blendfile_versioning_19_over_128 ...................................   Passed   14.60 sec
+        Start  55: blendfile_versioning_20_over_128
+ 55/732 Test  #55: blendfile_versioning_20_over_128 ...................................   Passed   15.60 sec
+        Start  56: blendfile_versioning_21_over_128
+ 56/732 Test  #56: blendfile_versioning_21_over_128 ...................................   Passed   16.79 sec
+        Start  57: blendfile_versioning_22_over_128
+ 57/732 Test  #57: blendfile_versioning_22_over_128 ...................................   Passed   15.80 sec
+        Start  58: blendfile_versioning_23_over_128
+ 58/732 Test  #58: blendfile_versioning_23_over_128 ...................................   Passed   15.50 sec
+        Start  59: blendfile_versioning_24_over_128
+ 59/732 Test  #59: blendfile_versioning_24_over_128 ...................................   Passed   15.48 sec
+        Start  60: blendfile_versioning_25_over_128
+ 60/732 Test  #60: blendfile_versioning_25_over_128 ...................................   Passed   23.66 sec
+        Start  61: blendfile_versioning_26_over_128
+ 61/732 Test  #61: blendfile_versioning_26_over_128 ...................................   Passed    9.24 sec
+        Start  62: blendfile_versioning_27_over_128
+ 62/732 Test  #62: blendfile_versioning_27_over_128 ...................................   Passed    5.18 sec
+        Start  63: blendfile_versioning_28_over_128
+ 63/732 Test  #63: blendfile_versioning_28_over_128 ...................................   Passed   15.12 sec
+        Start  64: blendfile_versioning_29_over_128
+ 64/732 Test  #64: blendfile_versioning_29_over_128 ...................................   Passed   15.88 sec
+        Start  65: blendfile_versioning_30_over_128
+ 65/732 Test  #65: blendfile_versioning_30_over_128 ...................................   Passed   18.55 sec
+        Start  66: blendfile_versioning_31_over_128
+ 66/732 Test  #66: blendfile_versioning_31_over_128 ...................................   Passed   21.45 sec
+        Start  67: blendfile_versioning_32_over_128
+ 67/732 Test  #67: blendfile_versioning_32_over_128 ...................................   Passed   17.48 sec
+        Start  68: blendfile_versioning_33_over_128
+ 68/732 Test  #68: blendfile_versioning_33_over_128 ...................................   Passed   17.02 sec
+        Start  69: blendfile_versioning_34_over_128
+ 69/732 Test  #69: blendfile_versioning_34_over_128 ...................................   Passed   18.98 sec
+        Start  70: blendfile_versioning_35_over_128
+ 70/732 Test  #70: blendfile_versioning_35_over_128 ...................................   Passed   23.11 sec
+        Start  71: blendfile_versioning_36_over_128
+ 71/732 Test  #71: blendfile_versioning_36_over_128 ...................................   Passed   18.29 sec
+        Start  72: blendfile_versioning_37_over_128
+ 72/732 Test  #72: blendfile_versioning_37_over_128 ...................................   Passed   24.21 sec
+        Start  73: blendfile_versioning_38_over_128
+ 73/732 Test  #73: blendfile_versioning_38_over_128 ...................................   Passed   18.81 sec
+        Start  74: blendfile_versioning_39_over_128
+ 74/732 Test  #74: blendfile_versioning_39_over_128 ...................................   Passed   21.45 sec
+        Start  75: blendfile_versioning_40_over_128
+ 75/732 Test  #75: blendfile_versioning_40_over_128 ...................................   Passed   15.96 sec
+        Start  76: blendfile_versioning_41_over_128
+ 76/732 Test  #76: blendfile_versioning_41_over_128 ...................................   Passed   18.19 sec
+        Start  77: blendfile_versioning_42_over_128
+ 77/732 Test  #77: blendfile_versioning_42_over_128 ...................................   Passed   17.19 sec
+        Start  78: blendfile_versioning_43_over_128
+ 78/732 Test  #78: blendfile_versioning_43_over_128 ...................................   Passed   17.00 sec
+        Start  79: blendfile_versioning_44_over_128
+ 79/732 Test  #79: blendfile_versioning_44_over_128 ...................................   Passed   15.78 sec
+        Start  80: blendfile_versioning_45_over_128
+ 80/732 Test  #80: blendfile_versioning_45_over_128 ...................................   Passed   15.66 sec
+        Start  81: blendfile_versioning_46_over_128
+ 81/732 Test  #81: blendfile_versioning_46_over_128 ...................................   Passed   16.61 sec
+        Start  82: blendfile_versioning_47_over_128
+ 82/732 Test  #82: blendfile_versioning_47_over_128 ...................................   Passed   17.18 sec
+        Start  83: blendfile_versioning_48_over_128
+ 83/732 Test  #83: blendfile_versioning_48_over_128 ...................................   Passed   16.64 sec
+        Start  84: blendfile_versioning_49_over_128
+ 84/732 Test  #84: blendfile_versioning_49_over_128 ...................................   Passed   17.48 sec
+        Start  85: blendfile_versioning_50_over_128
+ 85/732 Test  #85: blendfile_versioning_50_over_128 ...................................   Passed   19.39 sec
+        Start  86: blendfile_versioning_51_over_128
+ 86/732 Test  #86: blendfile_versioning_51_over_128 ...................................   Passed   20.23 sec
+        Start  87: blendfile_versioning_52_over_128
+ 87/732 Test  #87: blendfile_versioning_52_over_128 ...................................   Passed   38.06 sec
+        Start  88: blendfile_versioning_53_over_128
+ 88/732 Test  #88: blendfile_versioning_53_over_128 ...................................   Passed   32.35 sec
+        Start  89: blendfile_versioning_54_over_128
+ 89/732 Test  #89: blendfile_versioning_54_over_128 ...................................   Passed   16.14 sec
+        Start  90: blendfile_versioning_55_over_128
+ 90/732 Test  #90: blendfile_versioning_55_over_128 ...................................   Passed   17.31 sec
+        Start  91: blendfile_versioning_56_over_128
+ 91/732 Test  #91: blendfile_versioning_56_over_128 ...................................   Passed   34.44 sec
+        Start  92: blendfile_versioning_57_over_128
+ 92/732 Test  #92: blendfile_versioning_57_over_128 ...................................   Passed   75.41 sec
+        Start  93: blendfile_versioning_58_over_128
+ 93/732 Test  #93: blendfile_versioning_58_over_128 ...................................   Passed   26.08 sec
+        Start  94: blendfile_versioning_59_over_128
+ 94/732 Test  #94: blendfile_versioning_59_over_128 ...................................   Passed   27.70 sec
+        Start  95: blendfile_versioning_60_over_128
+ 95/732 Test  #95: blendfile_versioning_60_over_128 ...................................   Passed   16.97 sec
+        Start  96: blendfile_versioning_61_over_128
+ 96/732 Test  #96: blendfile_versioning_61_over_128 ...................................   Passed   15.39 sec
+        Start  97: blendfile_versioning_62_over_128
+ 97/732 Test  #97: blendfile_versioning_62_over_128 ...................................   Passed   15.47 sec
+        Start  98: blendfile_versioning_63_over_128
+ 98/732 Test  #98: blendfile_versioning_63_over_128 ...................................   Passed   15.68 sec
+        Start  99: blendfile_versioning_64_over_128
+ 99/732 Test  #99: blendfile_versioning_64_over_128 ...................................   Passed   15.31 sec
+        Start 100: blendfile_versioning_65_over_128
+100/732 Test #100: blendfile_versioning_65_over_128 ...................................   Passed   15.32 sec
+        Start 101: blendfile_versioning_66_over_128
+101/732 Test #101: blendfile_versioning_66_over_128 ...................................   Passed   16.43 sec
+        Start 102: blendfile_versioning_67_over_128
+102/732 Test #102: blendfile_versioning_67_over_128 ...................................   Passed   15.16 sec
+        Start 103: blendfile_versioning_68_over_128
+103/732 Test #103: blendfile_versioning_68_over_128 ...................................   Passed   15.28 sec
+        Start 104: blendfile_versioning_69_over_128
+104/732 Test #104: blendfile_versioning_69_over_128 ...................................   Passed   18.62 sec
+        Start 105: blendfile_versioning_70_over_128
+105/732 Test #105: blendfile_versioning_70_over_128 ...................................   Passed   27.60 sec
+        Start 106: blendfile_versioning_71_over_128
+106/732 Test #106: blendfile_versioning_71_over_128 ...................................   Passed   17.22 sec
+        Start 107: blendfile_versioning_72_over_128
+107/732 Test #107: blendfile_versioning_72_over_128 ...................................   Passed   14.74 sec
+        Start 108: blendfile_versioning_73_over_128
+108/732 Test #108: blendfile_versioning_73_over_128 ...................................   Passed   14.91 sec
+        Start 109: blendfile_versioning_74_over_128
+109/732 Test #109: blendfile_versioning_74_over_128 ...................................   Passed   14.76 sec
+        Start 110: blendfile_versioning_75_over_128
+110/732 Test #110: blendfile_versioning_75_over_128 ...................................   Passed   15.49 sec
+        Start 111: blendfile_versioning_76_over_128
+111/732 Test #111: blendfile_versioning_76_over_128 ...................................   Passed   14.74 sec
+        Start 112: blendfile_versioning_77_over_128
+112/732 Test #112: blendfile_versioning_77_over_128 ...................................   Passed   17.64 sec
+        Start 113: blendfile_versioning_78_over_128
+113/732 Test #113: blendfile_versioning_78_over_128 ...................................   Passed   24.15 sec
+        Start 114: blendfile_versioning_79_over_128
+114/732 Test #114: blendfile_versioning_79_over_128 ...................................   Passed   15.90 sec
+        Start 115: blendfile_versioning_80_over_128
+115/732 Test #115: blendfile_versioning_80_over_128 ...................................   Passed   17.47 sec
+        Start 116: blendfile_versioning_81_over_128
+116/732 Test #116: blendfile_versioning_81_over_128 ...................................   Passed   18.04 sec
+        Start 117: blendfile_versioning_82_over_128
+117/732 Test #117: blendfile_versioning_82_over_128 ...................................   Passed   15.19 sec
+        Start 118: blendfile_versioning_83_over_128
+118/732 Test #118: blendfile_versioning_83_over_128 ...................................   Passed   15.02 sec
+        Start 119: blendfile_versioning_84_over_128
+119/732 Test #119: blendfile_versioning_84_over_128 ...................................   Passed   15.77 sec
+        Start 120: blendfile_versioning_85_over_128
+120/732 Test #120: blendfile_versioning_85_over_128 ...................................   Passed   21.98 sec
+        Start 121: blendfile_versioning_86_over_128
+121/732 Test #121: blendfile_versioning_86_over_128 ...................................   Passed   16.78 sec
+        Start 122: blendfile_versioning_87_over_128
+122/732 Test #122: blendfile_versioning_87_over_128 ...................................   Passed   33.23 sec
+        Start 123: blendfile_versioning_88_over_128
+123/732 Test #123: blendfile_versioning_88_over_128 ...................................   Passed   15.16 sec
+        Start 124: blendfile_versioning_89_over_128
+124/732 Test #124: blendfile_versioning_89_over_128 ...................................   Passed   14.86 sec
+        Start 125: blendfile_versioning_90_over_128
+125/732 Test #125: blendfile_versioning_90_over_128 ...................................   Passed   14.84 sec
+        Start 126: blendfile_versioning_91_over_128
+126/732 Test #126: blendfile_versioning_91_over_128 ...................................   Passed   16.80 sec
+        Start 127: blendfile_versioning_92_over_128
+127/732 Test #127: blendfile_versioning_92_over_128 ...................................   Passed   14.77 sec
+        Start 128: blendfile_versioning_93_over_128
+128/732 Test #128: blendfile_versioning_93_over_128 ...................................   Passed   14.58 sec
+        Start 129: blendfile_versioning_94_over_128
+129/732 Test #129: blendfile_versioning_94_over_128 ...................................   Passed   18.24 sec
+        Start 130: blendfile_versioning_95_over_128
+130/732 Test #130: blendfile_versioning_95_over_128 ...................................   Passed   15.71 sec
+        Start 131: blendfile_versioning_96_over_128
+131/732 Test #131: blendfile_versioning_96_over_128 ...................................   Passed   20.55 sec
+        Start 132: blendfile_versioning_97_over_128
+132/732 Test #132: blendfile_versioning_97_over_128 ...................................   Passed   15.72 sec
+        Start 133: blendfile_versioning_98_over_128
+133/732 Test #133: blendfile_versioning_98_over_128 ...................................   Passed   14.79 sec
+        Start 134: blendfile_versioning_99_over_128
+134/732 Test #134: blendfile_versioning_99_over_128 ...................................   Passed   17.72 sec
+        Start 135: blendfile_versioning_100_over_128
+135/732 Test #135: blendfile_versioning_100_over_128 ..................................   Passed   19.02 sec
+        Start 136: blendfile_versioning_101_over_128
+136/732 Test #136: blendfile_versioning_101_over_128 ..................................   Passed   20.00 sec
+        Start 137: blendfile_versioning_102_over_128
+137/732 Test #137: blendfile_versioning_102_over_128 ..................................   Passed   16.41 sec
+        Start 138: blendfile_versioning_103_over_128
+138/732 Test #138: blendfile_versioning_103_over_128 ..................................   Passed   15.40 sec
+        Start 139: blendfile_versioning_104_over_128
+139/732 Test #139: blendfile_versioning_104_over_128 ..................................   Passed   19.52 sec
+        Start 140: blendfile_versioning_105_over_128
+140/732 Test #140: blendfile_versioning_105_over_128 ..................................   Passed   15.35 sec
+        Start 141: blendfile_versioning_106_over_128
+141/732 Test #141: blendfile_versioning_106_over_128 ..................................   Passed   18.17 sec
+        Start 142: blendfile_versioning_107_over_128
+142/732 Test #142: blendfile_versioning_107_over_128 ..................................   Passed   16.21 sec
+        Start 143: blendfile_versioning_108_over_128
+143/732 Test #143: blendfile_versioning_108_over_128 ..................................   Passed   15.96 sec
+        Start 144: blendfile_versioning_109_over_128
+144/732 Test #144: blendfile_versioning_109_over_128 ..................................   Passed   16.60 sec
+        Start 145: blendfile_versioning_110_over_128
+145/732 Test #145: blendfile_versioning_110_over_128 ..................................   Passed   15.57 sec
+        Start 146: blendfile_versioning_111_over_128
+146/732 Test #146: blendfile_versioning_111_over_128 ..................................   Passed   15.41 sec
+        Start 147: blendfile_versioning_112_over_128
+147/732 Test #147: blendfile_versioning_112_over_128 ..................................   Passed   18.48 sec
+        Start 148: blendfile_versioning_113_over_128
+148/732 Test #148: blendfile_versioning_113_over_128 ..................................   Passed   30.73 sec
+        Start 149: blendfile_versioning_114_over_128
+149/732 Test #149: blendfile_versioning_114_over_128 ..................................   Passed   26.93 sec
+        Start 150: blendfile_versioning_115_over_128
+150/732 Test #150: blendfile_versioning_115_over_128 ..................................   Passed   14.11 sec
+        Start 151: blendfile_versioning_116_over_128
+151/732 Test #151: blendfile_versioning_116_over_128 ..................................   Passed   13.94 sec
+        Start 152: blendfile_versioning_117_over_128
+152/732 Test #152: blendfile_versioning_117_over_128 ..................................   Passed   13.96 sec
+        Start 153: blendfile_versioning_118_over_128
+153/732 Test #153: blendfile_versioning_118_over_128 ..................................   Passed   13.57 sec
+        Start 154: blendfile_versioning_119_over_128
+154/732 Test #154: blendfile_versioning_119_over_128 ..................................   Passed   14.12 sec
+        Start 155: blendfile_versioning_120_over_128
+155/732 Test #155: blendfile_versioning_120_over_128 ..................................   Passed   14.08 sec
+        Start 156: blendfile_versioning_121_over_128
+156/732 Test #156: blendfile_versioning_121_over_128 ..................................   Passed   13.75 sec
+        Start 157: blendfile_versioning_122_over_128
+157/732 Test #157: blendfile_versioning_122_over_128 ..................................   Passed   13.42 sec
+        Start 158: blendfile_versioning_123_over_128
+158/732 Test #158: blendfile_versioning_123_over_128 ..................................   Passed   13.27 sec
+        Start 159: blendfile_versioning_124_over_128
+159/732 Test #159: blendfile_versioning_124_over_128 ..................................   Passed   14.26 sec
+        Start 160: blendfile_versioning_125_over_128
+160/732 Test #160: blendfile_versioning_125_over_128 ..................................   Passed   18.03 sec
+        Start 161: blendfile_versioning_126_over_128
+161/732 Test #161: blendfile_versioning_126_over_128 ..................................   Passed   23.02 sec
+        Start 162: blendfile_versioning_127_over_128
+162/732 Test #162: blendfile_versioning_127_over_128 ..................................   Passed   45.50 sec
+        Start 163: blendfile_liblink
+163/732 Test #163: blendfile_liblink ..................................................   Passed    6.30 sec
+        Start 164: blendfile_relationships
+164/732 Test #164: blendfile_relationships ............................................   Passed    3.66 sec
+        Start 165: blendfile_library_overrides
+165/732 Test #165: blendfile_library_overrides ........................................   Passed    5.02 sec
+        Start 166: blendfile_header
+166/732 Test #166: blendfile_header ...................................................   Passed    1.86 sec
+        Start 167: global_undo
+167/732 Test #167: global_undo ........................................................   Passed    2.34 sec
+        Start 168: bmesh_bevel
+168/732 Test #168: bmesh_bevel ........................................................   Passed    8.70 sec
+        Start 169: bmesh_boolean
+169/732 Test #169: bmesh_boolean ......................................................   Passed    1.99 sec
+        Start 170: bmesh_split_faces
+170/732 Test #170: bmesh_split_faces ..................................................   Passed    2.50 sec
+        Start 171: curve_to_mesh
+171/732 Test #171: curve_to_mesh ......................................................   Passed    3.68 sec
+        Start 172: curves_extrude
+172/732 Test #172: curves_extrude .....................................................   Passed    1.99 sec
+        Start 173: mesh_join
+173/732 Test #173: mesh_join ..........................................................   Passed    1.94 sec
+        Start 174: mesh_validate
+174/732 Test #174: mesh_validate ......................................................   Passed    1.88 sec
+        Start 175: object_edit
+175/732 Test #175: object_edit ........................................................   Passed    3.13 sec
+        Start 176: object_conversion
+176/732 Test #176: object_conversion ..................................................   Passed    2.78 sec
+        Start 177: object_api
+177/732 Test #177: object_api .........................................................   Passed    1.91 sec
+        Start 178: node_tools
+178/732 Test #178: node_tools .........................................................   Passed    2.27 sec
+        Start 179: geometry_attributes
+179/732 Test #179: geometry_attributes ................................................   Passed    1.79 sec
+        Start 180: geo_node_file_reporting
+180/732 Test #180: geo_node_file_reporting ............................................   Passed    1.87 sec
+        Start 181: object_modifier_array
+181/732 Test #181: object_modifier_array ..............................................   Passed    1.79 sec
+        Start 182: modifiers
+182/732 Test #182: modifiers ..........................................................   Passed   20.35 sec
+        Start 183: modifiers_multires
+183/732 Test #183: modifiers_multires .................................................   Passed    3.14 sec
+        Start 184: modifiers_armature
+184/732 Test #184: modifiers_armature .................................................   Passed    2.34 sec
+        Start 185: physics_cloth
+185/732 Test #185: physics_cloth ......................................................   Passed    2.62 sec
+        Start 186: physics_softbody
+186/732 Test #186: physics_softbody ...................................................   Passed   42.86 sec
+        Start 187: physics_dynamic_paint
+187/732 Test #187: physics_dynamic_paint ..............................................   Passed    4.49 sec
+        Start 188: physics_fluid_cache
+188/732 Test #188: physics_fluid_cache ................................................   Passed    3.19 sec
+        Start 189: deform_modifiers
+189/732 Test #189: deform_modifiers ...................................................   Passed    3.01 sec
+        Start 190: physics_ocean
+190/732 Test #190: physics_ocean ......................................................   Passed    2.04 sec
+        Start 191: physics_particle_system
+191/732 Test #191: physics_particle_system ............................................   Passed    1.91 sec
+        Start 192: physics_particle_legacy_texture_uv
+192/732 Test #192: physics_particle_legacy_texture_uv .................................   Passed    1.87 sec
+        Start 193: physics_particle_instance
+193/732 Test #193: physics_particle_instance ..........................................   Passed    1.74 sec
+        Start 194: constraints
+194/732 Test #194: constraints ........................................................   Passed    2.63 sec
+        Start 195: operators
+195/732 Test #195: operators ..........................................................   Passed   34.90 sec
+        Start 196: bl_animation_armature
+196/732 Test #196: bl_animation_armature ..............................................   Passed    2.05 sec
+        Start 197: bl_animation_bake
+197/732 Test #197: bl_animation_bake ..................................................   Passed    2.07 sec
+        Start 198: bl_animation_context_markers
+198/732 Test #198: bl_animation_context_markers .......................................   Passed    1.97 sec
+        Start 199: bl_animation_copy_paste
+199/732 Test #199: bl_animation_copy_paste ............................................   Passed    5.08 sec
+        Start 200: bl_animation_rename
+200/732 Test #200: bl_animation_rename ................................................   Passed    1.98 sec
+        Start 201: bl_animation_nla_strip
+201/732 Test #201: bl_animation_nla_strip .............................................   Passed    2.33 sec
+        Start 202: bl_animation_pose_slide
+202/732 Test #202: bl_animation_pose_slide ............................................   Passed    2.47 sec
+        Start 203: bl_animation_drivers
+203/732 Test #203: bl_animation_drivers ...............................................   Passed    2.74 sec
+        Start 204: bl_animation_shapekey
+204/732 Test #204: bl_animation_shapekey ..............................................   Passed    1.99 sec
+        Start 205: bl_animation_fcurves
+205/732 Test #205: bl_animation_fcurves ...............................................   Passed    4.18 sec
+        Start 206: bl_animation_action
+206/732 Test #206: bl_animation_action ................................................   Passed    3.32 sec
+        Start 207: bl_animation_convert
+207/732 Test #207: bl_animation_convert ...............................................   Passed    2.66 sec
+        Start 208: bl_animation_keyframing
+208/732 Test #208: bl_animation_keyframing ............................................   Passed    3.52 sec
+        Start 209: bl_animation_motion_path
+209/732 Test #209: bl_animation_motion_path ...........................................   Passed    2.46 sec
+        Start 210: bl_pose_assets
+210/732 Test #210: bl_pose_assets .....................................................   Passed    1.97 sec
+        Start 211: bl_rigging_symmetrize
+211/732 Test #211: bl_rigging_symmetrize ..............................................   Passed    2.52 sec
+        Start 212: vertex_group_painting
+212/732 Test #212: vertex_group_painting ..............................................   Passed    2.12 sec
+        Start 213: bl_brush
+213/732 Test #213: bl_brush ...........................................................   Passed    2.04 sec
+        Start 214: bl_node_structure_type_inference
+214/732 Test #214: bl_node_structure_type_inference ...................................   Passed    3.12 sec
+        Start 215: bl_node_socket_usage_inference
+215/732 Test #215: bl_node_socket_usage_inference .....................................   Passed    1.79 sec
+        Start 216: bl_node_group_compat
+216/732 Test #216: bl_node_group_compat ...............................................   Passed    2.18 sec
+        Start 217: bl_node_group_interface
+217/732 Test #217: bl_node_group_interface ............................................   Passed    3.07 sec
+        Start 218: bl_node_copy_operators
+218/732 Test #218: bl_node_copy_operators .............................................   Passed   29.40 sec
+        Start 219: bl_node_link_drag
+219/732 Test #219: bl_node_link_drag ..................................................   Passed  102.24 sec
+        Start 220: io_curve_svg_complex
+220/732 Test #220: io_curve_svg_complex ...............................................   Passed   16.58 sec
+        Start 221: io_curve_svg_path
+221/732 Test #221: io_curve_svg_path ..................................................   Passed    2.36 sec
+        Start 222: cycles_bake_cpu
+222/732 Test #222: cycles_bake_cpu ....................................................   Passed   50.18 sec
+        Start 223: cycles_bake_raytrace_cpu
+223/732 Test #223: cycles_bake_raytrace_cpu ...........................................   Passed    5.75 sec
+        Start 224: cycles_attributes_cpu
+224/732 Test #224: cycles_attributes_cpu ..............................................   Passed    3.69 sec
+        Start 225: cycles_bsdf_cpu
+225/732 Test #225: cycles_bsdf_cpu ....................................................   Passed   63.54 sec
+        Start 226: cycles_camera_cpu
+226/732 Test #226: cycles_camera_cpu ..................................................   Passed   15.63 sec
+        Start 227: cycles_colorspace_cpu
+227/732 Test #227: cycles_colorspace_cpu ..............................................   Passed    9.11 sec
+        Start 228: cycles_denoise_cpu
+228/732 Test #228: cycles_denoise_cpu .................................................   Passed  147.24 sec
+        Start 229: cycles_denoise_animation_cpu
+229/732 Test #229: cycles_denoise_animation_cpu .......................................   Passed    3.15 sec
+        Start 230: cycles_displacement_cpu
+230/732 Test #230: cycles_displacement_cpu ............................................   Passed   39.89 sec
+        Start 231: cycles_gsplat_cpu
+231/732 Test #231: cycles_gsplat_cpu ..................................................   Passed  209.68 sec
+        Start 232: cycles_hair_cpu
+232/732 Test #232: cycles_hair_cpu ....................................................   Passed   46.93 sec
+        Start 233: cycles_image_colorspace_cpu
+233/732 Test #233: cycles_image_colorspace_cpu ........................................   Passed   74.03 sec
+        Start 234: cycles_image_data_types_cpu
+234/732 Test #234: cycles_image_data_types_cpu ........................................   Passed    5.68 sec
+        Start 235: cycles_image_mapping_cpu
+235/732 Test #235: cycles_image_mapping_cpu ...........................................   Passed   27.51 sec
+        Start 236: cycles_image_mipmap_cpu
+236/732 Test #236: cycles_image_mipmap_cpu ............................................   Passed   81.23 sec
+        Start 237: cycles_image_texture_limit_cpu
+237/732 Test #237: cycles_image_texture_limit_cpu .....................................   Passed    9.10 sec
+        Start 238: cycles_instancing_cpu
+238/732 Test #238: cycles_instancing_cpu ..............................................   Passed   21.07 sec
+        Start 239: cycles_integrator_cpu
+239/732 Test #239: cycles_integrator_cpu ..............................................***Failed   28.81 sec
+[==========] Running 32 tests from 1 test case.
+[ RUN      ] ao_approximate
+[ RUN      ] clamp_both
+[ RUN      ] clamp_direct
+[ RUN      ] clamp_indirect
+[ RUN      ] complex_shadow_intersection
+[ RUN      ] light_path_diffuse_depth
+[ RUN      ] light_path_glossy_depth
+[ RUN      ] light_path_is_camera_ray
+[ RUN      ] light_path_is_diffuse_ray
+[ RUN      ] light_path_is_glossy_ray
+[ RUN      ] light_path_is_reflection_ray
+[ RUN      ] light_path_is_shadow_ray
+[ RUN      ] light_path_is_singular_ray
+[ RUN      ] light_path_is_transmission_ray
+[ RUN      ] light_path_is_volume_scatter_ray
+[ RUN      ] light_path_portal_depth
+[ RUN      ] light_path_ray_depth
+[ RUN      ] light_path_ray_length
+[ RUN      ] light_path_transmission_depth
+[ RUN      ] light_path_transparent_depth
+[ RUN      ] long_distance_precision
+[ RUN      ] ray_offset
+[ RUN      ] sample_subset
+[ RUN      ] shading_offset
+[ RUN      ] shadow_all_max_bounces
+[ RUN      ] transparent_shadow
+[ RUN      ] transparent_shadow_limit_0
+[ RUN      ] transparent_shadow_limit_1
+[ RUN      ] transparent_shadow_limit_1024
+[ RUN      ] transparent_shadow_limit_401
+[ RUN      ] transparent_spatial_splits
+[ RUN      ] underwater_caustics
+[       OK ] ao_approximate
+[       OK ] clamp_both
+[       OK ] clamp_direct
+[       OK ] clamp_indirect
+[       OK ] complex_shadow_intersection
+[       OK ] light_path_diffuse_depth
+[       OK ] light_path_glossy_depth
+[       OK ] light_path_is_camera_ray
+[       OK ] light_path_is_diffuse_ray
+[       OK ] light_path_is_glossy_ray
+[       OK ] light_path_is_reflection_ray
+[       OK ] light_path_is_shadow_ray
+[       OK ] light_path_is_singular_ray
+[       OK ] light_path_is_transmission_ray
+[       OK ] light_path_is_volume_scatter_ray
+[       OK ] light_path_portal_depth
+ Render result is different from reference image
+[ FAILED   ] light_path_ray_depth
+[       OK ] light_path_ray_length
+[       OK ] light_path_transmission_depth
+[       OK ] light_path_transparent_depth
+[       OK ] long_distance_precision
+[       OK ] ray_offset
+[       OK ] sample_subset
+[       OK ] shading_offset
+[       OK ] shadow_all_max_bounces
+[       OK ] transparent_shadow
+[       OK ] transparent_shadow_limit_0
+[       OK ] transparent_shadow_limit_1
+[       OK ] transparent_shadow_limit_1024
+[       OK ] transparent_shadow_limit_401
+[       OK ] transparent_spatial_splits
+[       OK ] underwater_caustics
+ 
+[==========] 32 tests from 1 test case ran. (28616 ms total)
+[ PASSED   ] 31 tests.
+[ FAILED   ] 1 tests, listed below:
+[ FAILED   ] light_path_ray_depth
+ Report saved to: file:///home/dev/Blender_PA1483/build_coverage/tests/cycles/cpu/report.html
+ Report saved to: file:///home/dev/Blender_PA1483/build_coverage/tests/cycles/cpu/compare.html
+
+        Start 240: cycles_light_cpu
+240/732 Test #240: cycles_light_cpu ...................................................   Passed  144.55 sec
+        Start 241: cycles_light_group_cpu
+241/732 Test #241: cycles_light_group_cpu .............................................   Passed    4.78 sec
+        Start 242: cycles_light_linking_cpu
+242/732 Test #242: cycles_light_linking_cpu ...........................................   Passed   32.41 sec
+        Start 243: cycles_lightprobe_cpu
+243/732 Test #243: cycles_lightprobe_cpu ..............................................   Passed    0.20 sec
+        Start 244: cycles_mesh_cpu
+244/732 Test #244: cycles_mesh_cpu ....................................................   Passed   44.30 sec
+        Start 245: cycles_motion_blur_cpu
+245/732 Test #245: cycles_motion_blur_cpu .............................................   Passed   46.07 sec
+        Start 246: cycles_node_inlining_cpu
+246/732 Test #246: cycles_node_inlining_cpu ...........................................   Passed    5.77 sec
+        Start 247: cycles_openvdb_cpu
+247/732 Test #247: cycles_openvdb_cpu .................................................   Passed  483.10 sec
+        Start 248: cycles_pointcloud_cpu
+248/732 Test #248: cycles_pointcloud_cpu ..............................................   Passed    9.55 sec
+        Start 249: cycles_principled_bsdf_cpu
+249/732 Test #249: cycles_principled_bsdf_cpu .........................................   Passed   82.61 sec
+        Start 250: cycles_raycast_cpu
+250/732 Test #250: cycles_raycast_cpu .................................................   Passed   10.14 sec
+        Start 251: cycles_render_layer_cpu
+251/732 Test #251: cycles_render_layer_cpu ............................................   Passed   60.32 sec
+        Start 252: cycles_reports_cpu
+252/732 Test #252: cycles_reports_cpu .................................................   Passed   57.93 sec
+        Start 253: cycles_shader_cpu
+253/732 Test #253: cycles_shader_cpu ..................................................   Passed  486.69 sec
+        Start 254: cycles_shadow_cpu
+254/732 Test #254: cycles_shadow_cpu ..................................................   Passed    2.99 sec
+        Start 255: cycles_shadow_catcher_cpu
+255/732 Test #255: cycles_shadow_catcher_cpu ..........................................   Passed   35.28 sec
+        Start 256: cycles_sss_cpu
+256/732 Test #256: cycles_sss_cpu .....................................................   Passed   40.33 sec
+        Start 257: cycles_texture_cpu
+257/732 Test #257: cycles_texture_cpu .................................................   Passed  240.56 sec
+        Start 258: cycles_transparency_cpu
+258/732 Test #258: cycles_transparency_cpu ............................................   Passed    5.32 sec
+        Start 259: cycles_volume_cpu
+259/732 Test #259: cycles_volume_cpu ..................................................   Passed  1486.47 sec
+        Start 260: cycles_osl_cpu
+260/732 Test #260: cycles_osl_cpu .....................................................   Passed   55.33 sec
+        Start 261: cycles_updates_cpu
+261/732 Test #261: cycles_updates_cpu .................................................   Passed    3.80 sec
+        Start 262: cycles_osl_compile_test
+262/732 Test #262: cycles_osl_compile_test ............................................   Passed    1.79 sec
+        Start 263: compositor_cpu_input
+263/732 Test #263: compositor_cpu_input ...............................................   Passed    4.97 sec
+        Start 264: compositor_cpu_output
+264/732 Test #264: compositor_cpu_output ..............................................   Passed    2.38 sec
+        Start 265: compositor_cpu_color
+265/732 Test #265: compositor_cpu_color ...............................................   Passed    9.96 sec
+        Start 266: compositor_cpu_filter
+266/732 Test #266: compositor_cpu_filter ..............................................   Passed   57.72 sec
+        Start 267: compositor_cpu_texture
+267/732 Test #267: compositor_cpu_texture .............................................   Passed    2.46 sec
+        Start 268: compositor_cpu_utilities
+268/732 Test #268: compositor_cpu_utilities ...........................................   Passed   11.97 sec
+        Start 269: compositor_cpu_vector
+269/732 Test #269: compositor_cpu_vector ..............................................   Passed    5.33 sec
+        Start 270: compositor_cpu_group
+270/732 Test #270: compositor_cpu_group ...............................................   Passed    4.20 sec
+        Start 271: compositor_cpu_pixel_nodes
+271/732 Test #271: compositor_cpu_pixel_nodes .........................................   Passed    3.40 sec
+        Start 272: compositor_cpu_multiple_node_setups
+272/732 Test #272: compositor_cpu_multiple_node_setups ................................   Passed  179.19 sec
+        Start 273: compositor_cpu_keying
+273/732 Test #273: compositor_cpu_keying ..............................................   Passed    4.76 sec
+        Start 274: compositor_cpu_mask
+274/732 Test #274: compositor_cpu_mask ................................................   Passed   12.06 sec
+        Start 275: compositor_cpu_tracking
+275/732 Test #275: compositor_cpu_tracking ............................................   Passed    3.47 sec
+        Start 276: compositor_cpu_transform
+276/732 Test #276: compositor_cpu_transform ...........................................   Passed   55.71 sec
+        Start 277: compositor_cpu_anisotropic_filtering
+277/732 Test #277: compositor_cpu_anisotropic_filtering ...............................   Passed   29.41 sec
+        Start 278: compositor_cpu_file_output
+278/732 Test #278: compositor_cpu_file_output .........................................   Passed    3.09 sec
+        Start 279: compositing_node_group
+279/732 Test #279: compositing_node_group .............................................   Passed    1.84 sec
+        Start 280: geo_node_attributes_attribute_clamp
+280/732 Test #280: geo_node_attributes_attribute_clamp ................................   Passed    1.82 sec
+        Start 281: geo_node_attributes_attribute_curve_map
+281/732 Test #281: geo_node_attributes_attribute_curve_map ............................   Passed    1.80 sec
+        Start 282: geo_node_attributes_attribute_map_range
+282/732 Test #282: geo_node_attributes_attribute_map_range ............................   Passed    1.84 sec
+        Start 283: geo_node_attributes_attribute_proximity
+283/732 Test #283: geo_node_attributes_attribute_proximity ............................   Passed    1.92 sec
+        Start 284: geo_node_attributes_attribute_statistics
+284/732 Test #284: geo_node_attributes_attribute_statistics ...........................   Passed    1.84 sec
+        Start 285: geo_node_attributes_bake_anonymous_attribute_reference
+285/732 Test #285: geo_node_attributes_bake_anonymous_attribute_reference .............   Passed    1.80 sec
+        Start 286: geo_node_attributes_blur_attribute
+286/732 Test #286: geo_node_attributes_blur_attribute .................................   Passed    1.88 sec
+        Start 287: geo_node_attributes_bundle_closure_anonymous_attribute_reference
+287/732 Test #287: geo_node_attributes_bundle_closure_anonymous_attribute_reference ...   Passed    1.80 sec
+        Start 288: geo_node_attributes_capture_attribute_selection
+288/732 Test #288: geo_node_attributes_capture_attribute_selection ....................   Passed    1.87 sec
+        Start 289: geo_node_attributes_modifier_write_to_position
+289/732 Test #289: geo_node_attributes_modifier_write_to_position .....................   Passed    1.88 sec
+        Start 290: geo_node_attributes_remove_named_attribute
+290/732 Test #290: geo_node_attributes_remove_named_attribute .........................   Passed    1.77 sec
+        Start 291: geo_node_attributes_rename_attribute
+291/732 Test #291: geo_node_attributes_rename_attribute ...............................   Passed    1.87 sec
+        Start 292: geo_node_attributes_single_value_with_selection
+292/732 Test #292: geo_node_attributes_single_value_with_selection ....................   Passed    1.85 sec
+        Start 293: geo_node_attributes_transfer_attribute
+293/732 Test #293: geo_node_attributes_transfer_attribute .............................   Passed    1.99 sec
+        Start 294: geo_node_attributes_write_to_vertex_group_simple
+294/732 Test #294: geo_node_attributes_write_to_vertex_group_simple ...................   Passed    1.83 sec
+        Start 295: geo_node_closure_bad_closure_signature
+295/732 Test #295: geo_node_closure_bad_closure_signature .............................   Passed    1.79 sec
+        Start 296: geo_node_closure_capture_anonymous_attribute
+296/732 Test #296: geo_node_closure_capture_anonymous_attribute .......................   Passed    1.88 sec
+        Start 297: geo_node_closure_capture_group_inputs_directly
+297/732 Test #297: geo_node_closure_capture_group_inputs_directly .....................   Passed    1.84 sec
+        Start 298: geo_node_closure_closure_capture_geometry
+298/732 Test #298: geo_node_closure_closure_capture_geometry ..........................   Passed    1.84 sec
+        Start 299: geo_node_closure_closure_to_list_anonymous_attributes
+299/732 Test #299: geo_node_closure_closure_to_list_anonymous_attributes ..............   Passed    1.93 sec
+        Start 300: geo_node_closure_field_pass_through
+300/732 Test #300: geo_node_closure_field_pass_through ................................   Passed    1.83 sec
+        Start 301: geo_node_closure_output_anonymous_attribute
+301/732 Test #301: geo_node_closure_output_anonymous_attribute ........................   Passed    1.87 sec
+        Start 302: geo_node_closure_pass_through
+302/732 Test #302: geo_node_closure_pass_through ......................................   Passed    1.85 sec
+        Start 303: geo_node_closure_passed_in_anonymous_attribute
+303/732 Test #303: geo_node_closure_passed_in_anonymous_attribute .....................   Passed    1.96 sec
+        Start 304: geo_node_closure_recursive_closure
+304/732 Test #304: geo_node_closure_recursive_closure .................................   Passed    1.89 sec
+        Start 305: geo_node_closure_simple_closure
+305/732 Test #305: geo_node_closure_simple_closure ....................................   Passed    1.81 sec
+        Start 306: geo_node_curve_primitives_bezier_segment
+306/732 Test #306: geo_node_curve_primitives_bezier_segment ...........................   Passed    1.84 sec
+        Start 307: geo_node_curve_primitives_curve_circle
+307/732 Test #307: geo_node_curve_primitives_curve_circle .............................   Passed    1.84 sec
+        Start 308: geo_node_curve_primitives_curve_line
+308/732 Test #308: geo_node_curve_primitives_curve_line ...............................   Passed    1.78 sec
+        Start 309: geo_node_curve_primitives_quadratic_bezier
+309/732 Test #309: geo_node_curve_primitives_quadratic_bezier .........................   Passed    1.79 sec
+        Start 310: geo_node_curve_primitives_quadrilateral
+310/732 Test #310: geo_node_curve_primitives_quadrilateral ............................   Passed    1.86 sec
+        Start 311: geo_node_curve_primitives_spiral
+311/732 Test #311: geo_node_curve_primitives_spiral ...................................   Passed    1.86 sec
+        Start 312: geo_node_curve_primitives_star
+312/732 Test #312: geo_node_curve_primitives_star .....................................   Passed    1.80 sec
+        Start 313: geo_node_curves_construct_curves
+313/732 Test #313: geo_node_curves_construct_curves ...................................   Passed    1.82 sec
+        Start 314: geo_node_curves_curly_curves
+314/732 Test #314: geo_node_curves_curly_curves .......................................   Passed    2.26 sec
+        Start 315: geo_node_curves_curve_length
+315/732 Test #315: geo_node_curves_curve_length .......................................   Passed    1.82 sec
+        Start 316: geo_node_curves_curve_resample
+316/732 Test #316: geo_node_curves_curve_resample .....................................   Passed    1.81 sec
+        Start 317: geo_node_curves_curve_subdivide
+317/732 Test #317: geo_node_curves_curve_subdivide ....................................   Passed    1.87 sec
+        Start 318: geo_node_curves_curve_to_mesh
+318/732 Test #318: geo_node_curves_curve_to_mesh ......................................   Passed    1.84 sec
+        Start 319: geo_node_curves_curve_to_mesh_miter
+319/732 Test #319: geo_node_curves_curve_to_mesh_miter ................................   Passed    1.89 sec
+        Start 320: geo_node_curves_curve_to_mesh_simple_caps
+320/732 Test #320: geo_node_curves_curve_to_mesh_simple_caps ..........................   Passed    1.84 sec
+        Start 321: geo_node_curves_curve_to_points
+321/732 Test #321: geo_node_curves_curve_to_points ....................................   Passed    1.92 sec
+        Start 322: geo_node_curves_curve_to_points_spiral
+322/732 Test #322: geo_node_curves_curve_to_points_spiral .............................   Passed    1.92 sec
+        Start 323: geo_node_curves_curve_topology
+323/732 Test #323: geo_node_curves_curve_topology .....................................   Passed    1.89 sec
+        Start 324: geo_node_curves_curve_trim
+324/732 Test #324: geo_node_curves_curve_trim .........................................   Passed    2.63 sec
+        Start 325: geo_node_curves_deform_curves_on_surface
+325/732 Test #325: geo_node_curves_deform_curves_on_surface ...........................   Passed    2.27 sec
+        Start 326: geo_node_curves_fake_extrude_and_weld
+326/732 Test #326: geo_node_curves_fake_extrude_and_weld ..............................   Passed    1.90 sec
+        Start 327: geo_node_curves_fill_non_cyclic
+327/732 Test #327: geo_node_curves_fill_non_cyclic ....................................   Passed    1.85 sec
+        Start 328: geo_node_curves_fillet_bezier_and_cyclic
+328/732 Test #328: geo_node_curves_fillet_bezier_and_cyclic ...........................   Passed    1.86 sec
+        Start 329: geo_node_curves_fillet_limit_radius
+329/732 Test #329: geo_node_curves_fillet_limit_radius ................................   Passed    1.84 sec
+        Start 330: geo_node_curves_fillet_three_point
+330/732 Test #330: geo_node_curves_fillet_three_point .................................   Passed    1.79 sec
+        Start 331: geo_node_curves_handle_type_selection
+331/732 Test #331: geo_node_curves_handle_type_selection ..............................   Passed    1.92 sec
+        Start 332: geo_node_curves_knot_structure
+332/732 Test #332: geo_node_curves_knot_structure .....................................   Passed    3.14 sec
+        Start 333: geo_node_curves_many_nurbs_curves
+333/732 Test #333: geo_node_curves_many_nurbs_curves ..................................   Passed    1.88 sec
+        Start 334: geo_node_curves_mesh_to_curve
+334/732 Test #334: geo_node_curves_mesh_to_curve ......................................   Passed    1.81 sec
+        Start 335: geo_node_curves_normals_free_normal_input
+335/732 Test #335: geo_node_curves_normals_free_normal_input ..........................   Passed    1.79 sec
+        Start 336: geo_node_curves_normals_free_nurbs
+336/732 Test #336: geo_node_curves_normals_free_nurbs .................................   Passed    1.87 sec
+        Start 337: geo_node_curves_nurbs_inputs
+337/732 Test #337: geo_node_curves_nurbs_inputs .......................................   Passed    1.82 sec
+        Start 338: geo_node_curves_nurbs_to_bezier
+338/732 Test #338: geo_node_curves_nurbs_to_bezier ....................................   Passed    1.84 sec
+        Start 339: geo_node_curves_primitive_arc
+339/732 Test #339: geo_node_curves_primitive_arc ......................................   Passed    1.90 sec
+        Start 340: geo_node_curves_primitive_circle
+340/732 Test #340: geo_node_curves_primitive_circle ...................................   Passed    1.85 sec
+        Start 341: geo_node_curves_primitive_quadrilateral
+341/732 Test #341: geo_node_curves_primitive_quadrilateral ............................   Passed    1.82 sec
+        Start 342: geo_node_curves_resolution_add
+342/732 Test #342: geo_node_curves_resolution_add .....................................   Passed    1.77 sec
+        Start 343: geo_node_curves_resolution_default
+343/732 Test #343: geo_node_curves_resolution_default .................................   Passed    1.77 sec
+        Start 344: geo_node_curves_reverse_bezier_curves
+344/732 Test #344: geo_node_curves_reverse_bezier_curves ..............................   Passed    1.89 sec
+        Start 345: geo_node_curves_sample_curves
+345/732 Test #345: geo_node_curves_sample_curves ......................................   Passed    2.00 sec
+        Start 346: geo_node_curves_set_curve_handles
+346/732 Test #346: geo_node_curves_set_curve_handles ..................................   Passed    1.83 sec
+        Start 347: geo_node_curves_set_handle_position_topology_change
+347/732 Test #347: geo_node_curves_set_handle_position_topology_change ................   Passed    1.83 sec
+        Start 348: geo_node_curves_set_handle_type
+348/732 Test #348: geo_node_curves_set_handle_type ....................................   Passed    1.97 sec
+        Start 349: geo_node_curves_spline_parameter
+349/732 Test #349: geo_node_curves_spline_parameter ...................................   Passed    1.95 sec
+        Start 350: geo_node_curves_string_to_curves_overflow
+350/732 Test #350: geo_node_curves_string_to_curves_overflow ..........................   Passed    2.12 sec
+        Start 351: geo_node_curves_string_to_curves_pivot_point
+351/732 Test #351: geo_node_curves_string_to_curves_pivot_point .......................   Passed    1.86 sec
+        Start 352: geo_node_curves_tangent_normal
+352/732 Test #352: geo_node_curves_tangent_normal .....................................   Passed    1.96 sec
+        Start 353: geo_node_curves_tangents_robust
+353/732 Test #353: geo_node_curves_tangents_robust ....................................   Passed    1.86 sec
+        Start 354: geo_node_curves_trim_single_point_last
+354/732 Test #354: geo_node_curves_trim_single_point_last .............................   Passed    1.83 sec
+        Start 355: geo_node_curves/interpolate_curves_group_mismatch
+355/732 Test #355: geo_node_curves/interpolate_curves_group_mismatch ..................   Passed    1.85 sec
+        Start 356: geo_node_curves/interpolate_curves_one_neighbor
+356/732 Test #356: geo_node_curves/interpolate_curves_one_neighbor ....................   Passed    1.88 sec
+        Start 357: geo_node_curves/interpolate_curves_same_root_position
+357/732 Test #357: geo_node_curves/interpolate_curves_same_root_position ..............   Passed    1.91 sec
+        Start 358: geo_node_curves/interpolate_curves_separate_groups
+358/732 Test #358: geo_node_curves/interpolate_curves_separate_groups .................   Passed    1.99 sec
+        Start 359: geo_node_curves/interpolate_curves_single_group_no_up
+359/732 Test #359: geo_node_curves/interpolate_curves_single_group_no_up ..............   Passed    1.93 sec
+        Start 360: geo_node_curves/interpolate_curves_single_group_with_surface
+360/732 Test #360: geo_node_curves/interpolate_curves_single_group_with_surface .......   Passed    2.47 sec
+        Start 361: geo_node_empty_object_empty_object_cube
+361/732 Test #361: geo_node_empty_object_empty_object_cube ............................   Passed    1.82 sec
+        Start 362: geo_node_essentials_array
+362/732 Test #362: geo_node_essentials_array ..........................................   Passed    2.43 sec
+        Start 363: geo_node_essentials_curve_to_tube_custom_caps
+363/732 Test #363: geo_node_essentials_curve_to_tube_custom_caps ......................   Passed    2.47 sec
+        Start 364: geo_node_essentials_scatter_on_surface
+364/732 Test #364: geo_node_essentials_scatter_on_surface .............................   Passed    2.40 sec
+        Start 365: geo_node_foreach_geometry_element_zone_attribute_processing
+365/732 Test #365: geo_node_foreach_geometry_element_zone_attribute_processing ........   Passed    1.84 sec
+        Start 366: geo_node_foreach_geometry_element_zone_attribute_propagation
+366/732 Test #366: geo_node_foreach_geometry_element_zone_attribute_propagation .......   Passed    1.85 sec
+        Start 367: geo_node_foreach_geometry_element_zone_element_geometries
+367/732 Test #367: geo_node_foreach_geometry_element_zone_element_geometries ..........   Passed    2.37 sec
+        Start 368: geo_node_foreach_geometry_element_zone_empty_zones
+368/732 Test #368: geo_node_foreach_geometry_element_zone_empty_zones .................   Passed    1.84 sec
+        Start 369: geo_node_foreach_geometry_element_zone_iteration_domains
+369/732 Test #369: geo_node_foreach_geometry_element_zone_iteration_domains ...........   Passed    1.94 sec
+        Start 370: geo_node_foreach_geometry_element_zone_mixed_outputs
+370/732 Test #370: geo_node_foreach_geometry_element_zone_mixed_outputs ...............   Passed    1.85 sec
+        Start 371: geo_node_foreach_geometry_element_zone_multiple_components
+371/732 Test #371: geo_node_foreach_geometry_element_zone_multiple_components .........   Passed    2.08 sec
+        Start 372: geo_node_foreach_geometry_element_zone_propagate_in_zone
+372/732 Test #372: geo_node_foreach_geometry_element_zone_propagate_in_zone ...........   Passed    1.90 sec
+        Start 373: geo_node_foreach_geometry_element_zone_selection
+373/732 Test #373: geo_node_foreach_geometry_element_zone_selection ...................   Passed    1.94 sec
+        Start 374: geo_node_foreach_geometry_element_zone_simple_plexus
+374/732 Test #374: geo_node_foreach_geometry_element_zone_simple_plexus ...............   Passed    2.23 sec
+        Start 375: geo_node_foreach_geometry_element_zone_stars
+375/732 Test #375: geo_node_foreach_geometry_element_zone_stars .......................   Passed    1.85 sec
+        Start 376: geo_node_geometry_array_rotation
+376/732 Test #376: geo_node_geometry_array_rotation ...................................   Passed    1.84 sec
+        Start 377: geo_node_geometry_bake_anonymous_attributes
+377/732 Test #377: geo_node_geometry_bake_anonymous_attributes ........................   Passed    1.86 sec
+        Start 378: geo_node_geometry_bake_load
+378/732 Test #378: geo_node_geometry_bake_load ........................................   Passed    1.81 sec
+        Start 379: geo_node_geometry_bounding_box_suzanne
+379/732 Test #379: geo_node_geometry_bounding_box_suzanne .............................   Passed    1.89 sec
+        Start 380: geo_node_geometry_convex_hull
+380/732 Test #380: geo_node_geometry_convex_hull ......................................   Passed    1.82 sec
+        Start 381: geo_node_geometry_convex_hull_other_geometry_types
+381/732 Test #381: geo_node_geometry_convex_hull_other_geometry_types .................   Passed    1.82 sec
+        Start 382: geo_node_geometry_delete_geometry
+382/732 Test #382: geo_node_geometry_delete_geometry ..................................   Passed    2.75 sec
+        Start 383: geo_node_geometry_delete_geometry_propogate_corner_attribute
+383/732 Test #383: geo_node_geometry_delete_geometry_propogate_corner_attribute .......   Passed    1.94 sec
+        Start 384: geo_node_geometry_domain_size
+384/732 Test #384: geo_node_geometry_domain_size ......................................   Passed    1.90 sec
+        Start 385: geo_node_geometry_duplicate_elements_curve_points
+385/732 Test #385: geo_node_geometry_duplicate_elements_curve_points ..................   Passed    1.85 sec
+        Start 386: geo_node_geometry_duplicate_elements_curve_splines
+386/732 Test #386: geo_node_geometry_duplicate_elements_curve_splines .................   Passed    3.17 sec
+        Start 387: geo_node_geometry_duplicate_elements_instances
+387/732 Test #387: geo_node_geometry_duplicate_elements_instances .....................   Passed    2.18 sec
+        Start 388: geo_node_geometry_duplicate_elements_mesh_edges
+388/732 Test #388: geo_node_geometry_duplicate_elements_mesh_edges ....................   Passed    1.80 sec
+        Start 389: geo_node_geometry_duplicate_elements_mesh_faces
+389/732 Test #389: geo_node_geometry_duplicate_elements_mesh_faces ....................   Passed    1.84 sec
+        Start 390: geo_node_geometry_duplicate_elements_mesh_points
+390/732 Test #390: geo_node_geometry_duplicate_elements_mesh_points ...................   Passed    1.80 sec
+        Start 391: geo_node_geometry_duplicate_elements_pointcloud_points
+391/732 Test #391: geo_node_geometry_duplicate_elements_pointcloud_points .............   Passed    1.95 sec
+        Start 392: geo_node_geometry_join_geometry_suzanne_cube
+392/732 Test #392: geo_node_geometry_join_geometry_suzanne_cube .......................   Passed    1.85 sec
+        Start 393: geo_node_geometry_merge_by_distance
+393/732 Test #393: geo_node_geometry_merge_by_distance ................................   Passed    1.95 sec
+        Start 394: geo_node_geometry_merge_by_distance_distribute_points
+394/732 Test #394: geo_node_geometry_merge_by_distance_distribute_points ..............   Passed    1.84 sec
+        Start 395: geo_node_geometry_merge_geometry
+395/732 Test #395: geo_node_geometry_merge_geometry ...................................   Passed    2.07 sec
+        Start 396: geo_node_geometry_merge_geometry_simple
+396/732 Test #396: geo_node_geometry_merge_geometry_simple ............................   Passed    1.89 sec
+        Start 397: geo_node_geometry_mesh_to_points_empty_selection
+397/732 Test #397: geo_node_geometry_mesh_to_points_empty_selection ...................   Passed    1.80 sec
+        Start 398: geo_node_geometry_principal_component_analysis
+398/732 Test #398: geo_node_geometry_principal_component_analysis .....................   Passed    2.22 sec
+        Start 399: geo_node_geometry_raycast
+399/732 Test #399: geo_node_geometry_raycast ..........................................***Failed    2.00 sec
+Switching to fully guarded memory allocator.
+Blender 5.3.0 Alpha
+00:00.603  blend            | Read blend: "/home/dev/Blender_PA1483/blender/tests/files/modeling/geometry_nodes/geometry/raycast.blend"
+
+START raycast test.
+GeometryNodes
+Attribute different: hit_normal
+  1: 0.0624795
+  2: 0.0759143
+FAILED raycast test with the following: 
+Results:
+Mesh Comparison : Some values of the point attributes are different
+Mesh Validation : Valid
+
+Traceback (most recent call last):
+  File "/home/dev/Blender_PA1483/blender/tests/python/geo_node_test.py", line 18, in <module>
+    raise Exception("Failed {}".format(geo_node_test.test_name))
+Exception: Failed raycast
+
+Error: script failed, file: '/home/dev/Blender_PA1483/blender/tests/python/geo_node_test.py', exiting.
+
+Blender quit
+
+        Start 400: geo_node_geometry_realize_instances_materials
+400/732 Test #400: geo_node_geometry_realize_instances_materials ......................   Passed    1.84 sec
+        Start 401: geo_node_geometry_realize_instances_two_curves
+401/732 Test #401: geo_node_geometry_realize_instances_two_curves .....................   Passed    1.82 sec
+        Start 402: geo_node_geometry_set_grid_transform
+402/732 Test #402: geo_node_geometry_set_grid_transform ...............................   Passed    3.70 sec
+        Start 403: geo_node_geometry_set_id
+403/732 Test #403: geo_node_geometry_set_id ...........................................   Passed    1.79 sec
+        Start 404: geo_node_geometry_set_materials
+404/732 Test #404: geo_node_geometry_set_materials ....................................   Passed    2.09 sec
+        Start 405: geo_node_geometry_sort_elements
+405/732 Test #405: geo_node_geometry_sort_elements ....................................   Passed    1.95 sec
+        Start 406: geo_node_geometry_split_geometry
+406/732 Test #406: geo_node_geometry_split_geometry ...................................   Passed    2.57 sec
+        Start 407: geo_node_grease_pencil_grease_pencil_curves_conversion
+407/732 Test #407: geo_node_grease_pencil_grease_pencil_curves_conversion .............   Passed    1.93 sec
+        Start 408: geo_node_grease_pencil_grease_pencil_inputs
+408/732 Test #408: geo_node_grease_pencil_grease_pencil_inputs ........................   Passed    2.15 sec
+        Start 409: geo_node_grease_pencil_grease_pencil_set_color
+409/732 Test #409: geo_node_grease_pencil_grease_pencil_set_color .....................   Passed    2.07 sec
+        Start 410: geo_node_grease_pencil_sample_index_grease_pencil
+410/732 Test #410: geo_node_grease_pencil_sample_index_grease_pencil ..................   Passed    1.90 sec
+        Start 411: geo_node_import_import_csv_dash_separated
+411/732 Test #411: geo_node_import_import_csv_dash_separated ..........................   Passed    1.84 sec
+        Start 412: geo_node_import_import_csv_int_and_float
+412/732 Test #412: geo_node_import_import_csv_int_and_float ...........................   Passed    1.79 sec
+        Start 413: geo_node_import_import_csv_random_floats
+413/732 Test #413: geo_node_import_import_csv_random_floats ...........................   Passed    1.91 sec
+        Start 414: geo_node_import_import_csv_simple
+414/732 Test #414: geo_node_import_import_csv_simple ..................................   Passed    1.85 sec
+        Start 415: geo_node_import_import_obj
+415/732 Test #415: geo_node_import_import_obj .........................................   Passed    1.81 sec
+        Start 416: geo_node_import_import_ply
+416/732 Test #416: geo_node_import_import_ply .........................................   Passed    1.81 sec
+        Start 417: geo_node_import_import_ply_gsplat
+417/732 Test #417: geo_node_import_import_ply_gsplat ..................................   Passed    1.78 sec
+        Start 418: geo_node_import_import_stl
+418/732 Test #418: geo_node_import_import_stl .........................................   Passed    1.83 sec
+        Start 419: geo_node_instance_instance_on_points
+419/732 Test #419: geo_node_instance_instance_on_points ...............................   Passed    1.92 sec
+        Start 420: geo_node_instance_instance_on_points_in_instances
+420/732 Test #420: geo_node_instance_instance_on_points_in_instances ..................   Passed    1.84 sec
+        Start 421: geo_node_instance_instance_to_points
+421/732 Test #421: geo_node_instance_instance_to_points ...............................   Passed    1.85 sec
+        Start 422: geo_node_instance_instance_transforms
+422/732 Test #422: geo_node_instance_instance_transforms ..............................   Passed    1.77 sec
+        Start 423: geo_node_instance_realize_instances_depth
+423/732 Test #423: geo_node_instance_realize_instances_depth ..........................   Passed    1.95 sec
+        Start 424: geo_node_instance_realize_instances_preserve_normals
+424/732 Test #424: geo_node_instance_realize_instances_preserve_normals ...............   Passed    1.83 sec
+        Start 425: geo_node_instance_realize_instances_selection
+425/732 Test #425: geo_node_instance_realize_instances_selection ......................   Passed    1.87 sec
+        Start 426: geo_node_instance_realize_instances_single
+426/732 Test #426: geo_node_instance_realize_instances_single .........................   Passed    1.89 sec
+        Start 427: geo_node_list_basic_eval
+427/732 Test #427: geo_node_list_basic_eval ...........................................   Passed    1.81 sec
+        Start 428: geo_node_list_closure_to_list
+428/732 Test #428: geo_node_list_closure_to_list ......................................   Passed    2.45 sec
+        Start 429: geo_node_list_combine_list
+429/732 Test #429: geo_node_list_combine_list .........................................   Passed    2.86 sec
+        Start 430: geo_node_list_filter
+430/732 Test #430: geo_node_list_filter ...............................................   Passed    1.86 sec
+        Start 431: geo_node_list_get_item_dynamic
+431/732 Test #431: geo_node_list_get_item_dynamic .....................................   Passed    1.78 sec
+        Start 432: geo_node_list_list_multi_function
+432/732 Test #432: geo_node_list_list_multi_function ..................................   Passed    1.78 sec
+        Start 433: geo_node_list_sort_reverse_list
+433/732 Test #433: geo_node_list_sort_reverse_list ....................................   Passed    1.84 sec
+        Start 434: geo_node_list_string_list
+434/732 Test #434: geo_node_list_string_list ..........................................   Passed    2.03 sec
+        Start 435: geo_node_list_to_single_value
+435/732 Test #435: geo_node_list_to_single_value ......................................   Passed    1.78 sec
+        Start 436: geo_node_repeat_zone_anonymous_attribute
+436/732 Test #436: geo_node_repeat_zone_anonymous_attribute ...........................   Passed    1.93 sec
+        Start 437: geo_node_repeat_zone_anonymous_attribute_border_link
+437/732 Test #437: geo_node_repeat_zone_anonymous_attribute_border_link ...............   Passed    1.88 sec
+        Start 438: geo_node_repeat_zone_anonymous_attribute_border_link_output
+438/732 Test #438: geo_node_repeat_zone_anonymous_attribute_border_link_output ........   Passed    1.91 sec
+        Start 439: geo_node_repeat_zone_anonymous_attribute_empty_repeat
+439/732 Test #439: geo_node_repeat_zone_anonymous_attribute_empty_repeat ..............   Passed    1.83 sec
+        Start 440: geo_node_repeat_zone_anonymous_attribute_inside_created
+440/732 Test #440: geo_node_repeat_zone_anonymous_attribute_inside_created ............   Passed    1.85 sec
+        Start 441: geo_node_repeat_zone_crash_T114442
+441/732 Test #441: geo_node_repeat_zone_crash_T114442 .................................   Passed    1.85 sec
+        Start 442: geo_node_repeat_zone_dangling_reroute_input
+442/732 Test #442: geo_node_repeat_zone_dangling_reroute_input ........................   Passed    1.85 sec
+        Start 443: geo_node_repeat_zone_fibonacci_sequence
+443/732 Test #443: geo_node_repeat_zone_fibonacci_sequence ............................   Passed    1.82 sec
+        Start 444: geo_node_mesh_primitives_cone
+444/732 Test #444: geo_node_mesh_primitives_cone ......................................   Passed    1.82 sec
+        Start 445: geo_node_mesh_primitives_cube
+445/732 Test #445: geo_node_mesh_primitives_cube ......................................   Passed    1.89 sec
+        Start 446: geo_node_mesh_primitives_cuboid
+446/732 Test #446: geo_node_mesh_primitives_cuboid ....................................   Passed    1.84 sec
+        Start 447: geo_node_mesh_primitives_cuboid_long_z
+447/732 Test #447: geo_node_mesh_primitives_cuboid_long_z .............................   Passed    1.89 sec
+        Start 448: geo_node_mesh_primitives_cuboid_plane
+448/732 Test #448: geo_node_mesh_primitives_cuboid_plane ..............................   Passed    1.84 sec
+        Start 449: geo_node_mesh_primitives_cylinder
+449/732 Test #449: geo_node_mesh_primitives_cylinder ..................................   Passed    1.85 sec
+        Start 450: geo_node_mesh_primitives_grid
+450/732 Test #450: geo_node_mesh_primitives_grid ......................................   Passed    1.85 sec
+        Start 451: geo_node_mesh_primitives_icosphere
+451/732 Test #451: geo_node_mesh_primitives_icosphere .................................   Passed    1.81 sec
+        Start 452: geo_node_mesh_primitives_mesh_circle_empty
+452/732 Test #452: geo_node_mesh_primitives_mesh_circle_empty .........................   Passed    1.80 sec
+        Start 453: geo_node_mesh_primitives_mesh_circle_fill
+453/732 Test #453: geo_node_mesh_primitives_mesh_circle_fill ..........................   Passed    1.91 sec
+        Start 454: geo_node_mesh_primitives_mesh_line
+454/732 Test #454: geo_node_mesh_primitives_mesh_line .................................   Passed    1.89 sec
+        Start 455: geo_node_mesh_primitives_uv_sphere
+455/732 Test #455: geo_node_mesh_primitives_uv_sphere .................................   Passed    1.88 sec
+        Start 456: geo_node_mesh_bone_info
+456/732 Test #456: geo_node_mesh_bone_info ............................................   Passed    1.99 sec
+        Start 457: geo_node_mesh_dual_mesh_2poly_verts
+457/732 Test #457: geo_node_mesh_dual_mesh_2poly_verts ................................   Passed    1.86 sec
+        Start 458: geo_node_mesh_dual_mesh_flipped_normals
+458/732 Test #458: geo_node_mesh_dual_mesh_flipped_normals ............................   Passed    1.77 sec
+        Start 459: geo_node_mesh_dual_mesh_non_manifold_edge
+459/732 Test #459: geo_node_mesh_dual_mesh_non_manifold_edge ..........................   Passed    1.81 sec
+        Start 460: geo_node_mesh_dual_mesh_non_manifold_vert
+460/732 Test #460: geo_node_mesh_dual_mesh_non_manifold_vert ..........................   Passed    1.84 sec
+        Start 461: geo_node_mesh_dual_mesh_propagate_attributes
+461/732 Test #461: geo_node_mesh_dual_mesh_propagate_attributes .......................   Passed    1.83 sec
+        Start 462: geo_node_mesh_dual_mesh_suzanne
+462/732 Test #462: geo_node_mesh_dual_mesh_suzanne ....................................   Passed    1.77 sec
+        Start 463: geo_node_mesh_edge_angle
+463/732 Test #463: geo_node_mesh_edge_angle ...........................................   Passed    1.88 sec
+        Start 464: geo_node_mesh_edge_angle_signed_big_face
+464/732 Test #464: geo_node_mesh_edge_angle_signed_big_face ...........................   Passed    1.80 sec
+        Start 465: geo_node_mesh_edge_neighbors
+465/732 Test #465: geo_node_mesh_edge_neighbors .......................................   Passed    1.87 sec
+        Start 466: geo_node_mesh_edge_split
+466/732 Test #466: geo_node_mesh_edge_split ...........................................   Passed    1.84 sec
+        Start 467: geo_node_mesh_edge_vertices
+467/732 Test #467: geo_node_mesh_edge_vertices ........................................   Passed    1.82 sec
+        Start 468: geo_node_mesh_face_area
+468/732 Test #468: geo_node_mesh_face_area ............................................   Passed    1.83 sec
+        Start 469: geo_node_mesh_face_group_boundaries
+469/732 Test #469: geo_node_mesh_face_group_boundaries ................................   Passed    1.94 sec
+        Start 470: geo_node_mesh_face_is_planar
+470/732 Test #470: geo_node_mesh_face_is_planar .......................................   Passed    1.83 sec
+        Start 471: geo_node_mesh_face_neighbors
+471/732 Test #471: geo_node_mesh_face_neighbors .......................................   Passed    1.86 sec
+        Start 472: geo_node_mesh_fill_curve_edges_deduplication
+472/732 Test #472: geo_node_mesh_fill_curve_edges_deduplication .......................   Passed    2.21 sec
+        Start 473: geo_node_mesh_flip_faces
+473/732 Test #473: geo_node_mesh_flip_faces ...........................................   Passed    1.81 sec
+        Start 474: geo_node_mesh_material_selection
+474/732 Test #474: geo_node_mesh_material_selection ...................................   Passed    2.35 sec
+        Start 475: geo_node_mesh_mesh_island_random_color
+475/732 Test #475: geo_node_mesh_mesh_island_random_color .............................   Passed    1.88 sec
+        Start 476: geo_node_mesh_mesh_topology
+476/732 Test #476: geo_node_mesh_mesh_topology ........................................   Passed    1.89 sec
+        Start 477: geo_node_mesh_offset_corner_in_face_invalid_inputs
+477/732 Test #477: geo_node_mesh_offset_corner_in_face_invalid_inputs .................   Passed    1.86 sec
+        Start 478: geo_node_mesh_sample_nearest_mesh
+478/732 Test #478: geo_node_mesh_sample_nearest_mesh ..................................   Passed    1.93 sec
+        Start 479: geo_node_mesh_sample_nearest_surface
+479/732 Test #479: geo_node_mesh_sample_nearest_surface ...............................   Passed    2.05 sec
+        Start 480: geo_node_mesh_sample_uv_surface
+480/732 Test #480: geo_node_mesh_sample_uv_surface ....................................   Passed    1.85 sec
+        Start 481: geo_node_mesh_set_position_normals_update
+481/732 Test #481: geo_node_mesh_set_position_normals_update ..........................   Passed    2.35 sec
+        Start 482: geo_node_mesh_shortest_path
+482/732 Test #482: geo_node_mesh_shortest_path ........................................   Passed    2.03 sec
+        Start 483: geo_node_mesh_store-vertex-group-armature
+483/732 Test #483: geo_node_mesh_store-vertex-group-armature ..........................   Passed    1.85 sec
+        Start 484: geo_node_mesh_triangulate
+484/732 Test #484: geo_node_mesh_triangulate ..........................................   Passed    1.83 sec
+        Start 485: geo_node_mesh_triangulate_deduplication
+485/732 Test #485: geo_node_mesh_triangulate_deduplication ............................   Passed    1.84 sec
+        Start 486: geo_node_mesh_uv_tangent
+486/732 Test #486: geo_node_mesh_uv_tangent ...........................................   Passed    4.08 sec
+        Start 487: geo_node_mesh_uv_unwrap
+487/732 Test #487: geo_node_mesh_uv_unwrap ............................................   Passed    5.84 sec
+        Start 488: geo_node_mesh_vertex_neighbors
+488/732 Test #488: geo_node_mesh_vertex_neighbors .....................................   Passed    1.79 sec
+        Start 489: geo_node_mesh/bevel_BentL_test
+489/732 Test #489: geo_node_mesh/bevel_BentL_test .....................................   Passed    1.85 sec
+        Start 490: geo_node_mesh/bevel_Bent_test
+490/732 Test #490: geo_node_mesh/bevel_Bent_test ......................................   Passed    1.78 sec
+        Start 491: geo_node_mesh/bevel_Bentlines_test_1
+491/732 Test #491: geo_node_mesh/bevel_Bentlines_test_1 ...............................   Passed    1.84 sec
+        Start 492: geo_node_mesh/bevel_Blocksteps_test_1
+492/732 Test #492: geo_node_mesh/bevel_Blocksteps_test_1 ..............................   Passed    1.84 sec
+        Start 493: geo_node_mesh/bevel_Blocksteps_test_2
+493/732 Test #493: geo_node_mesh/bevel_Blocksteps_test_2 ..............................   Passed    1.85 sec
+        Start 494: geo_node_mesh/bevel_Blocksteps_test_3
+494/732 Test #494: geo_node_mesh/bevel_Blocksteps_test_3 ..............................   Passed    1.87 sec
+        Start 495: geo_node_mesh/bevel_Blocksteps_test_7
+495/732 Test #495: geo_node_mesh/bevel_Blocksteps_test_7 ..............................   Passed    1.83 sec
+        Start 496: geo_node_mesh/bevel_Blocksteps_test_8
+496/732 Test #496: geo_node_mesh/bevel_Blocksteps_test_8 ..............................   Passed    1.82 sec
+        Start 497: geo_node_mesh/bevel_Bumptop
+497/732 Test #497: geo_node_mesh/bevel_Bumptop ........................................   Passed    1.88 sec
+        Start 498: geo_node_mesh/bevel_Cube_test_1
+498/732 Test #498: geo_node_mesh/bevel_Cube_test_1 ....................................   Passed    1.81 sec
+        Start 499: geo_node_mesh/bevel_Cube_test_10
+499/732 Test #499: geo_node_mesh/bevel_Cube_test_10 ...................................   Passed    1.84 sec
+        Start 500: geo_node_mesh/bevel_Cube_test_11
+500/732 Test #500: geo_node_mesh/bevel_Cube_test_11 ...................................   Passed    1.79 sec
+        Start 501: geo_node_mesh/bevel_Cube_test_12
+501/732 Test #501: geo_node_mesh/bevel_Cube_test_12 ...................................   Passed    1.93 sec
+        Start 502: geo_node_mesh/bevel_Cube_test_13
+502/732 Test #502: geo_node_mesh/bevel_Cube_test_13 ...................................   Passed    1.82 sec
+        Start 503: geo_node_mesh/bevel_Cube_test_14
+503/732 Test #503: geo_node_mesh/bevel_Cube_test_14 ...................................   Passed    1.89 sec
+        Start 504: geo_node_mesh/bevel_Cube_test_4
+504/732 Test #504: geo_node_mesh/bevel_Cube_test_4 ....................................   Passed    1.83 sec
+        Start 505: geo_node_mesh/bevel_Cube_test_5
+505/732 Test #505: geo_node_mesh/bevel_Cube_test_5 ....................................   Passed    1.85 sec
+        Start 506: geo_node_mesh/bevel_Cube_test_6
+506/732 Test #506: geo_node_mesh/bevel_Cube_test_6 ....................................   Passed    1.82 sec
+        Start 507: geo_node_mesh/bevel_Cube_test_7
+507/732 Test #507: geo_node_mesh/bevel_Cube_test_7 ....................................   Passed    1.88 sec
+        Start 508: geo_node_mesh/bevel_Cube_test_8
+508/732 Test #508: geo_node_mesh/bevel_Cube_test_8 ....................................   Passed    1.93 sec
+        Start 509: geo_node_mesh/bevel_Cube_test_9
+509/732 Test #509: geo_node_mesh/bevel_Cube_test_9 ....................................   Passed    1.80 sec
+        Start 510: geo_node_mesh/bevel_Flaretop_test_1
+510/732 Test #510: geo_node_mesh/bevel_Flaretop_test_1 ................................   Passed    1.90 sec
+        Start 511: geo_node_mesh/bevel_Flaretop_test_2
+511/732 Test #511: geo_node_mesh/bevel_Flaretop_test_2 ................................   Passed    1.87 sec
+        Start 512: geo_node_mesh/bevel_Multisegment_test_1
+512/732 Test #512: geo_node_mesh/bevel_Multisegment_test_1 ............................   Passed    1.79 sec
+        Start 513: geo_node_mesh/bevel_Pyramid4_test_1
+513/732 Test #513: geo_node_mesh/bevel_Pyramid4_test_1 ................................   Passed    1.82 sec
+        Start 514: geo_node_mesh/bevel_Pyramid4_test_2
+514/732 Test #514: geo_node_mesh/bevel_Pyramid4_test_2 ................................   Passed    1.80 sec
+        Start 515: geo_node_mesh/bevel_Pyramid4_test_3
+515/732 Test #515: geo_node_mesh/bevel_Pyramid4_test_3 ................................   Passed    1.92 sec
+        Start 516: geo_node_mesh/bevel_Pyramid4_test_4
+516/732 Test #516: geo_node_mesh/bevel_Pyramid4_test_4 ................................   Passed    1.78 sec
+        Start 517: geo_node_mesh/bevel_Pyramid4_test_5
+517/732 Test #517: geo_node_mesh/bevel_Pyramid4_test_5 ................................   Passed    1.90 sec
+        Start 518: geo_node_mesh/bevel_Pyramid4_test_6
+518/732 Test #518: geo_node_mesh/bevel_Pyramid4_test_6 ................................   Passed    1.83 sec
+        Start 519: geo_node_mesh/bevel_Pyramid4_test_7
+519/732 Test #519: geo_node_mesh/bevel_Pyramid4_test_7 ................................   Passed    1.83 sec
+        Start 520: geo_node_mesh/bevel_Pyramid4_test_8
+520/732 Test #520: geo_node_mesh/bevel_Pyramid4_test_8 ................................   Passed    1.87 sec
+        Start 521: geo_node_mesh/bevel_Pyramid4_test_9
+521/732 Test #521: geo_node_mesh/bevel_Pyramid4_test_9 ................................   Passed    1.81 sec
+        Start 522: geo_node_mesh/bevel_Pyramid6_test_1
+522/732 Test #522: geo_node_mesh/bevel_Pyramid6_test_1 ................................   Passed    1.83 sec
+        Start 523: geo_node_mesh/bevel_Pyramid6_test_2
+523/732 Test #523: geo_node_mesh/bevel_Pyramid6_test_2 ................................   Passed    1.80 sec
+        Start 524: geo_node_mesh/bevel_Pyramid6_test_3
+524/732 Test #524: geo_node_mesh/bevel_Pyramid6_test_3 ................................   Passed    1.81 sec
+        Start 525: geo_node_mesh/bevel_Saddle_test_1
+525/732 Test #525: geo_node_mesh/bevel_Saddle_test_1 ..................................   Passed    1.88 sec
+        Start 526: geo_node_mesh/bevel_Saddle_test_2
+526/732 Test #526: geo_node_mesh/bevel_Saddle_test_2 ..................................   Passed    1.82 sec
+        Start 527: geo_node_mesh/bevel_Sept_test_1
+527/732 Test #527: geo_node_mesh/bevel_Sept_test_1 ....................................   Passed    1.85 sec
+        Start 528: geo_node_mesh/bevel_Spike_test
+528/732 Test #528: geo_node_mesh/bevel_Spike_test .....................................   Passed    1.77 sec
+        Start 529: geo_node_mesh/bevel_Tray
+529/732 Test #529: geo_node_mesh/bevel_Tray ...........................................   Passed    1.78 sec
+        Start 530: geo_node_mesh/bevel_Window_test
+530/732 Test #530: geo_node_mesh/bevel_Window_test ....................................   Passed    1.83 sec
+        Start 531: geo_node_mesh/bevel_Wires_test_1
+531/732 Test #531: geo_node_mesh/bevel_Wires_test_1 ...................................   Passed    1.83 sec
+        Start 532: geo_node_mesh/bevel_Wires_test_2
+532/732 Test #532: geo_node_mesh/bevel_Wires_test_2 ...................................   Passed    1.84 sec
+        Start 533: geo_node_mesh/bevel_cube3_test_1
+533/732 Test #533: geo_node_mesh/bevel_cube3_test_1 ...................................   Passed    1.76 sec
+        Start 534: geo_node_mesh/bevel_cube3_test_2
+534/732 Test #534: geo_node_mesh/bevel_cube3_test_2 ...................................   Passed    1.81 sec
+        Start 535: geo_node_mesh/bevel_cube3_test_3
+535/732 Test #535: geo_node_mesh/bevel_cube3_test_3 ...................................   Passed    1.90 sec
+        Start 536: geo_node_mesh/bevel_cube3_test_4
+536/732 Test #536: geo_node_mesh/bevel_cube3_test_4 ...................................   Passed    1.81 sec
+        Start 537: geo_node_mesh/bevel_cube3_test_5
+537/732 Test #537: geo_node_mesh/bevel_cube3_test_5 ...................................   Passed    1.79 sec
+        Start 538: geo_node_mesh/bevel_cube3_test_6
+538/732 Test #538: geo_node_mesh/bevel_cube3_test_6 ...................................   Passed    1.83 sec
+        Start 539: geo_node_mesh/bevel_tri1gap_test_1
+539/732 Test #539: geo_node_mesh/bevel_tri1gap_test_1 .................................   Passed    1.84 sec
+        Start 540: geo_node_mesh/bevel_tri1gap_test_10
+540/732 Test #540: geo_node_mesh/bevel_tri1gap_test_10 ................................   Passed    1.80 sec
+        Start 541: geo_node_mesh/bevel_tri1gap_test_2
+541/732 Test #541: geo_node_mesh/bevel_tri1gap_test_2 .................................   Passed    1.79 sec
+        Start 542: geo_node_mesh/bevel_tri1gap_test_3
+542/732 Test #542: geo_node_mesh/bevel_tri1gap_test_3 .................................   Passed    1.87 sec
+        Start 543: geo_node_mesh/bevel_tri1gap_test_4
+543/732 Test #543: geo_node_mesh/bevel_tri1gap_test_4 .................................   Passed    1.80 sec
+        Start 544: geo_node_mesh/bevel_tri1gap_test_5
+544/732 Test #544: geo_node_mesh/bevel_tri1gap_test_5 .................................   Passed    1.89 sec
+        Start 545: geo_node_mesh/bevel_tri1gap_test_6
+545/732 Test #545: geo_node_mesh/bevel_tri1gap_test_6 .................................   Passed    1.80 sec
+        Start 546: geo_node_mesh/bevel_tri1gap_test_7
+546/732 Test #546: geo_node_mesh/bevel_tri1gap_test_7 .................................   Passed    1.84 sec
+        Start 547: geo_node_mesh/bevel_tri1gap_test_8
+547/732 Test #547: geo_node_mesh/bevel_tri1gap_test_8 .................................   Passed    1.82 sec
+        Start 548: geo_node_mesh/bevel_tri1gap_test_9
+548/732 Test #548: geo_node_mesh/bevel_tri1gap_test_9 .................................   Passed    1.79 sec
+        Start 549: geo_node_mesh/bevel_tri2gaps_test_1
+549/732 Test #549: geo_node_mesh/bevel_tri2gaps_test_1 ................................   Passed    1.83 sec
+        Start 550: geo_node_mesh/bevel_tri2gaps_test_2
+550/732 Test #550: geo_node_mesh/bevel_tri2gaps_test_2 ................................   Passed    1.89 sec
+        Start 551: geo_node_mesh/bevel_tri2gaps_test_3
+551/732 Test #551: geo_node_mesh/bevel_tri2gaps_test_3 ................................   Passed    1.82 sec
+        Start 552: geo_node_mesh/bevel_tri2gaps_test_4
+552/732 Test #552: geo_node_mesh/bevel_tri2gaps_test_4 ................................   Passed    1.79 sec
+        Start 553: geo_node_mesh/bevel_tri2gaps_test_5
+553/732 Test #553: geo_node_mesh/bevel_tri2gaps_test_5 ................................   Passed    1.78 sec
+        Start 554: geo_node_mesh/bevel_tri2gaps_test_6
+554/732 Test #554: geo_node_mesh/bevel_tri2gaps_test_6 ................................   Passed    1.85 sec
+        Start 555: geo_node_mesh/bevel_tri3gaps_test_1
+555/732 Test #555: geo_node_mesh/bevel_tri3gaps_test_1 ................................   Passed    1.82 sec
+        Start 556: geo_node_mesh/bevel_tri3gaps_test_2
+556/732 Test #556: geo_node_mesh/bevel_tri3gaps_test_2 ................................   Passed    1.82 sec
+        Start 557: geo_node_mesh/bevel_tri3gaps_test_3
+557/732 Test #557: geo_node_mesh/bevel_tri3gaps_test_3 ................................   Passed    1.82 sec
+        Start 558: geo_node_mesh/bevel_tri_test_1
+558/732 Test #558: geo_node_mesh/bevel_tri_test_1 .....................................   Passed    1.85 sec
+        Start 559: geo_node_mesh/bevel_tri_test_2
+559/732 Test #559: geo_node_mesh/bevel_tri_test_2 .....................................   Passed    1.82 sec
+        Start 560: geo_node_mesh/bevel_tri_test_3
+560/732 Test #560: geo_node_mesh/bevel_tri_test_3 .....................................   Passed    1.82 sec
+        Start 561: geo_node_mesh/bevel_tri_test_4
+561/732 Test #561: geo_node_mesh/bevel_tri_test_4 .....................................   Passed    1.82 sec
+        Start 562: geo_node_mesh/bevel_tri_test_5
+562/732 Test #562: geo_node_mesh/bevel_tri_test_5 .....................................   Passed    1.82 sec
+        Start 563: geo_node_mesh/bevel_tri_test_6
+563/732 Test #563: geo_node_mesh/bevel_tri_test_6 .....................................   Passed    1.87 sec
+        Start 564: geo_node_mesh/bevel_tri_test_7
+564/732 Test #564: geo_node_mesh/bevel_tri_test_7 .....................................   Passed    1.83 sec
+        Start 565: geo_node_mesh/bevel_tri_test_8
+565/732 Test #565: geo_node_mesh/bevel_tri_test_8 .....................................   Passed    1.84 sec
+        Start 566: geo_node_mesh/bevel_tri_test_9
+566/732 Test #566: geo_node_mesh/bevel_tri_test_9 .....................................   Passed    1.74 sec
+        Start 567: geo_node_mesh/extrude_complex_extrude_and_scale
+567/732 Test #567: geo_node_mesh/extrude_complex_extrude_and_scale ....................   Passed    1.78 sec
+        Start 568: geo_node_mesh/extrude_edge_corner_propagation
+568/732 Test #568: geo_node_mesh/extrude_edge_corner_propagation ......................   Passed    1.89 sec
+        Start 569: geo_node_mesh/extrude_edge_corner_selection_propagation
+569/732 Test #569: geo_node_mesh/extrude_edge_corner_selection_propagation ............   Passed    1.78 sec
+        Start 570: geo_node_mesh/extrude_edge_distribute_propagation
+570/732 Test #570: geo_node_mesh/extrude_edge_distribute_propagation ..................   Passed    1.99 sec
+        Start 571: geo_node_mesh/extrude_edge_edge_selection_propagation_1
+571/732 Test #571: geo_node_mesh/extrude_edge_edge_selection_propagation_1 ............   Passed    1.90 sec
+        Start 572: geo_node_mesh/extrude_edge_edge_selection_propagation_2
+572/732 Test #572: geo_node_mesh/extrude_edge_edge_selection_propagation_2 ............   Passed    1.89 sec
+        Start 573: geo_node_mesh/extrude_edge_face_orientation_1
+573/732 Test #573: geo_node_mesh/extrude_edge_face_orientation_1 ......................   Passed    1.84 sec
+        Start 574: geo_node_mesh/extrude_edge_face_propagation
+574/732 Test #574: geo_node_mesh/extrude_edge_face_propagation ........................   Passed    1.81 sec
+        Start 575: geo_node_mesh/extrude_edge_from_loose_edges_1
+575/732 Test #575: geo_node_mesh/extrude_edge_from_loose_edges_1 ......................   Passed    1.92 sec
+        Start 576: geo_node_mesh/extrude_edge_from_loose_edges_2
+576/732 Test #576: geo_node_mesh/extrude_edge_from_loose_edges_2 ......................   Passed    1.81 sec
+        Start 577: geo_node_mesh/extrude_face_extrude_and_scale
+577/732 Test #577: geo_node_mesh/extrude_face_extrude_and_scale .......................   Passed    1.92 sec
+        Start 578: geo_node_mesh/extrude_face_individual_selection_propagation_1
+578/732 Test #578: geo_node_mesh/extrude_face_individual_selection_propagation_1 ......   Passed    1.78 sec
+        Start 579: geo_node_mesh/extrude_face_individual_selection_propagation_2
+579/732 Test #579: geo_node_mesh/extrude_face_individual_selection_propagation_2 ......   Passed    1.86 sec
+        Start 580: geo_node_mesh/extrude_face_individual_selection_propagation_3
+580/732 Test #580: geo_node_mesh/extrude_face_individual_selection_propagation_3 ......   Passed    1.88 sec
+        Start 581: geo_node_mesh/extrude_face_not_even_set_material
+581/732 Test #581: geo_node_mesh/extrude_face_not_even_set_material ...................   Passed    1.85 sec
+        Start 582: geo_node_mesh/extrude_face_selection_propagation_1
+582/732 Test #582: geo_node_mesh/extrude_face_selection_propagation_1 .................   Passed    1.85 sec
+        Start 583: geo_node_mesh/extrude_face_selection_propagation_2
+583/732 Test #583: geo_node_mesh/extrude_face_selection_propagation_2 .................   Passed    1.80 sec
+        Start 584: geo_node_mesh/extrude_face_selection_propagation_3
+584/732 Test #584: geo_node_mesh/extrude_face_selection_propagation_3 .................   Passed    1.81 sec
+        Start 585: geo_node_mesh/extrude_faces_corner_interpolation
+585/732 Test #585: geo_node_mesh/extrude_faces_corner_interpolation ...................   Passed    1.84 sec
+        Start 586: geo_node_mesh/extrude_flip_faces
+586/732 Test #586: geo_node_mesh/extrude_flip_faces ...................................   Passed    1.87 sec
+        Start 587: geo_node_mesh/extrude_individual_shade_smooth_propagate
+587/732 Test #587: geo_node_mesh/extrude_individual_shade_smooth_propagate ............   Passed    1.83 sec
+        Start 588: geo_node_mesh/extrude_indivudual_corner_color_propagate
+588/732 Test #588: geo_node_mesh/extrude_indivudual_corner_color_propagate ............   Passed    1.82 sec
+        Start 589: geo_node_mesh/extrude_loose_edge_vert_extrude
+589/732 Test #589: geo_node_mesh/extrude_loose_edge_vert_extrude ......................   Passed    1.77 sec
+        Start 590: geo_node_mesh/extrude_plane_face_region
+590/732 Test #590: geo_node_mesh/extrude_plane_face_region ............................   Passed    1.73 sec
+        Start 591: geo_node_mesh/extrude_random_grid_and_distribute
+591/732 Test #591: geo_node_mesh/extrude_random_grid_and_distribute ...................   Passed    2.04 sec
+        Start 592: geo_node_mesh/extrude_region_edge_propagation
+592/732 Test #592: geo_node_mesh/extrude_region_edge_propagation ......................   Passed    1.83 sec
+        Start 593: geo_node_mesh/extrude_region_third_edge_type
+593/732 Test #593: geo_node_mesh/extrude_region_third_edge_type .......................   Passed    1.85 sec
+        Start 594: geo_node_mesh/extrude_simple_random_grid
+594/732 Test #594: geo_node_mesh/extrude_simple_random_grid ...........................   Passed    1.79 sec
+        Start 595: geo_node_mesh/extrude_sphere_set_material
+595/732 Test #595: geo_node_mesh/extrude_sphere_set_material ..........................   Passed    1.82 sec
+        Start 596: geo_node_mesh/extrude_vertex_extrude_and_propagate
+596/732 Test #596: geo_node_mesh/extrude_vertex_extrude_and_propagate .................   Passed    1.88 sec
+        Start 597: geo_node_mesh/split_edges_cube
+597/732 Test #597: geo_node_mesh/split_edges_cube .....................................   Passed    1.76 sec
+        Start 598: geo_node_mesh/split_edges_deduplication
+598/732 Test #598: geo_node_mesh/split_edges_deduplication ............................   Passed    1.79 sec
+        Start 599: geo_node_mesh/split_edges_edge_fan
+599/732 Test #599: geo_node_mesh/split_edges_edge_fan .................................   Passed    1.81 sec
+        Start 600: geo_node_mesh/split_edges_loose_edges
+600/732 Test #600: geo_node_mesh/split_edges_loose_edges ..............................   Passed    1.85 sec
+        Start 601: geo_node_mesh/split_edges_ngons
+601/732 Test #601: geo_node_mesh/split_edges_ngons ....................................   Passed    1.83 sec
+        Start 602: geo_node_mesh/split_edges_partial_selection
+602/732 Test #602: geo_node_mesh/split_edges_partial_selection ........................   Passed    2.15 sec
+        Start 603: geo_node_mesh/split_edges_triangles
+603/732 Test #603: geo_node_mesh/split_edges_triangles ................................   Passed    1.86 sec
+        Start 604: geo_node_mesh/split_edges_ugly_cube
+604/732 Test #604: geo_node_mesh/split_edges_ugly_cube ................................   Passed    2.12 sec
+        Start 605: geo_node_mesh/split_edges_vertex_groups
+605/732 Test #605: geo_node_mesh/split_edges_vertex_groups ............................   Passed    1.89 sec
+        Start 606: geo_node_mesh/triangulate_mixed
+606/732 Test #606: geo_node_mesh/triangulate_mixed ....................................   Passed    2.02 sec
+        Start 607: geo_node_mesh/triangulate_more_deduplication
+607/732 Test #607: geo_node_mesh/triangulate_more_deduplication .......................   Passed    1.80 sec
+        Start 608: geo_node_mesh/triangulate_ngons
+608/732 Test #608: geo_node_mesh/triangulate_ngons ....................................   Passed    1.88 sec
+        Start 609: geo_node_mesh/triangulate_quads_modes
+609/732 Test #609: geo_node_mesh/triangulate_quads_modes ..............................   Passed    3.20 sec
+        Start 610: geo_node_mesh/triangulate_quads_selection
+610/732 Test #610: geo_node_mesh/triangulate_quads_selection ..........................   Passed    2.08 sec
+        Start 611: geo_node_mesh/triangulate_triangle_deduplication
+611/732 Test #611: geo_node_mesh/triangulate_triangle_deduplication ...................   Passed    1.90 sec
+        Start 612: geo_node_points_distribute_points_poisson
+612/732 Test #612: geo_node_points_distribute_points_poisson ..........................   Passed    1.88 sec
+        Start 613: geo_node_points_point_distribute
+613/732 Test #613: geo_node_points_point_distribute ...................................   Passed    1.84 sec
+        Start 614: geo_node_points_point_instance
+614/732 Test #614: geo_node_points_point_instance .....................................   Passed    1.91 sec
+        Start 615: geo_node_points_points_to_curves
+615/732 Test #615: geo_node_points_points_to_curves ...................................   Passed    1.88 sec
+        Start 616: geo_node_simulation_anonymous_attribute_through_border
+616/732 Test #616: geo_node_simulation_anonymous_attribute_through_border .............   Passed    1.91 sec
+        Start 617: geo_node_simulation_cloth_dynamics
+617/732 Test #617: geo_node_simulation_cloth_dynamics .................................   Passed   15.46 sec
+        Start 618: geo_node_simulation_empty_pointcloud_realization
+618/732 Test #618: geo_node_simulation_empty_pointcloud_realization ...................   Passed    1.90 sec
+        Start 619: geo_node_simulation_hair_dynamics
+619/732 Test #619: geo_node_simulation_hair_dynamics ..................................   Passed   35.96 sec
+        Start 620: geo_node_simulation_index_of_nearest
+620/732 Test #620: geo_node_simulation_index_of_nearest ...............................   Passed    1.91 sec
+        Start 621: geo_node_simulation_rotating_cube
+621/732 Test #621: geo_node_simulation_rotating_cube ..................................   Passed    1.79 sec
+        Start 622: geo_node_simulation_simple_attribute
+622/732 Test #622: geo_node_simulation_simple_attribute ...............................   Passed    1.81 sec
+        Start 623: geo_node_simulation_simple_particles
+623/732 Test #623: geo_node_simulation_simple_particles ...............................   Passed    1.83 sec
+        Start 624: geo_node_simulation_two_simulations
+624/732 Test #624: geo_node_simulation_two_simulations ................................   Passed    1.87 sec
+        Start 625: geo_node_simulation_value_only
+625/732 Test #625: geo_node_simulation_value_only .....................................   Passed    1.79 sec
+        Start 626: geo_node_simulation_xpbd_tag_filter
+626/732 Test #626: geo_node_simulation_xpbd_tag_filter ................................   Passed    1.90 sec
+        Start 627: geo_node_texture_image_texture
+627/732 Test #627: geo_node_texture_image_texture .....................................   Passed    1.98 sec
+        Start 628: geo_node_texture_texture_gradient
+628/732 Test #628: geo_node_texture_texture_gradient ..................................   Passed    1.79 sec
+        Start 629: geo_node_texture_texture_gradient_diagonal
+629/732 Test #629: geo_node_texture_texture_gradient_diagonal .........................   Passed    1.75 sec
+        Start 630: geo_node_texture_texture_gradient_linear
+630/732 Test #630: geo_node_texture_texture_gradient_linear ...........................   Passed    1.85 sec
+        Start 631: geo_node_texture_texture_gradient_quadratic
+631/732 Test #631: geo_node_texture_texture_gradient_quadratic ........................   Passed    1.75 sec
+        Start 632: geo_node_utilities_accumulate_field_column_grid
+632/732 Test #632: geo_node_utilities_accumulate_field_column_grid ....................   Passed    1.83 sec
+        Start 633: geo_node_utilities_bundle_items
+633/732 Test #633: geo_node_utilities_bundle_items ....................................   Passed    1.83 sec
+        Start 634: geo_node_utilities_cluster_by_distance
+634/732 Test #634: geo_node_utilities_cluster_by_distance .............................   Passed    1.78 sec
+        Start 635: geo_node_utilities_cluster_by_distance_groups
+635/732 Test #635: geo_node_utilities_cluster_by_distance_groups ......................   Passed    1.85 sec
+        Start 636: geo_node_utilities_field_on_domain_demo
+636/732 Test #636: geo_node_utilities_field_on_domain_demo ............................   Passed    1.82 sec
+        Start 637: geo_node_utilities_find_in_string
+637/732 Test #637: geo_node_utilities_find_in_string ..................................   Passed    1.81 sec
+        Start 638: geo_node_utilities_format_string_unescaped_brace
+638/732 Test #638: geo_node_utilities_format_string_unescaped_brace ...................   Passed    1.86 sec
+        Start 639: geo_node_utilities_index_switch
+639/732 Test #639: geo_node_utilities_index_switch ....................................   Passed    1.84 sec
+        Start 640: geo_node_utilities_invalid_trees
+640/732 Test #640: geo_node_utilities_invalid_trees ...................................   Passed    1.82 sec
+        Start 641: geo_node_utilities_join_bundle
+641/732 Test #641: geo_node_utilities_join_bundle .....................................   Passed    2.01 sec
+        Start 642: geo_node_utilities_math_add
+642/732 Test #642: geo_node_utilities_math_add ........................................   Passed    1.82 sec
+        Start 643: geo_node_utilities_math_matrix_svd
+643/732 Test #643: geo_node_utilities_math_matrix_svd .................................   Passed    1.96 sec
+        Start 644: geo_node_utilities_menu_switch
+644/732 Test #644: geo_node_utilities_menu_switch .....................................   Passed    1.89 sec
+        Start 645: geo_node_utilities_menu_switch_no_unnecessary_evaluation
+645/732 Test #645: geo_node_utilities_menu_switch_no_unnecessary_evaluation ...........   Passed    1.80 sec
+        Start 646: geo_node_utilities_menu_switch_selection
+646/732 Test #646: geo_node_utilities_menu_switch_selection ...........................   Passed    1.80 sec
+        Start 647: geo_node_utilities_menu_switch_variations
+647/732 Test #647: geo_node_utilities_menu_switch_variations ..........................   Passed    1.83 sec
+        Start 648: geo_node_utilities_muted_groups_different_input_subtype
+648/732 Test #648: geo_node_utilities_muted_groups_different_input_subtype ............   Passed    1.77 sec
+        Start 649: geo_node_utilities_nan_value
+649/732 Test #649: geo_node_utilities_nan_value .......................................   Passed    1.80 sec
+        Start 650: geo_node_utilities_reverse_string
+650/732 Test #650: geo_node_utilities_reverse_string ..................................   Passed    1.84 sec
+        Start 651: geo_node_utilities_split_string
+651/732 Test #651: geo_node_utilities_split_string ....................................   Passed    1.78 sec
+        Start 652: geo_node_utilities_string_case
+652/732 Test #652: geo_node_utilities_string_case .....................................   Passed    1.78 sec
+        Start 653: geo_node_utilities_string_to_from_value
+653/732 Test #653: geo_node_utilities_string_to_from_value ............................   Passed    2.98 sec
+        Start 654: geo_node_utilities_string_to_value_invalid
+654/732 Test #654: geo_node_utilities_string_to_value_invalid .........................   Passed    1.79 sec
+        Start 655: geo_node_utilities_switch
+655/732 Test #655: geo_node_utilities_switch ..........................................   Passed    1.98 sec
+        Start 656: geo_node_utilities_trim_string
+656/732 Test #656: geo_node_utilities_trim_string .....................................   Passed    1.81 sec
+        Start 657: geo_node_utilities_wrong_tree_type
+657/732 Test #657: geo_node_utilities_wrong_tree_type .................................   Passed    1.78 sec
+        Start 658: geo_node_vector_combine_xyz
+658/732 Test #658: geo_node_vector_combine_xyz ........................................   Passed    1.80 sec
+        Start 659: geo_node_vector_get_vector_component
+659/732 Test #659: geo_node_vector_get_vector_component ...............................   Passed    1.84 sec
+        Start 660: geo_node_vector_radial_tiling
+660/732 Test #660: geo_node_vector_radial_tiling ......................................   Passed    2.54 sec
+        Start 661: geo_node_vector_vector_map_range
+661/732 Test #661: geo_node_vector_vector_map_range ...................................   Passed    3.15 sec
+        Start 662: geo_node_vector_vector_map_range_plane
+662/732 Test #662: geo_node_vector_vector_map_range_plane .............................   Passed    1.95 sec
+        Start 663: geo_node_sound_sample_sound_frequencies
+663/732 Test #663: geo_node_sound_sample_sound_frequencies ............................   Passed    1.90 sec
+        Start 664: geo_node_mesh/boolean_boolean_diff
+664/732 Test #664: geo_node_mesh/boolean_boolean_diff .................................   Passed    1.88 sec
+        Start 665: geo_node_mesh/boolean_boolean_intersect
+665/732 Test #665: geo_node_mesh/boolean_boolean_intersect ............................   Passed    1.96 sec
+        Start 666: geo_node_mesh/boolean_manifold_boolean_diff
+666/732 Test #666: geo_node_mesh/boolean_manifold_boolean_diff ........................   Passed    1.93 sec
+        Start 667: geo_node_volume_clip_grid
+667/732 Test #667: geo_node_volume_clip_grid ..........................................   Passed    2.66 sec
+        Start 668: geo_node_volume_cube_grid_topology
+668/732 Test #668: geo_node_volume_cube_grid_topology .................................   Passed    6.75 sec
+        Start 669: geo_node_volume_get_grid_names
+669/732 Test #669: geo_node_volume_get_grid_names .....................................   Passed    1.90 sec
+        Start 670: geo_node_volume_grid_advect
+670/732 Test #670: geo_node_volume_grid_advect ........................................   Passed    6.22 sec
+        Start 671: geo_node_volume_grid_deactivate_voxels
+671/732 Test #671: geo_node_volume_grid_deactivate_voxels .............................   Passed    2.03 sec
+        Start 672: geo_node_volume_grid_dilate
+672/732 Test #672: geo_node_volume_grid_dilate ........................................   Passed    7.79 sec
+        Start 673: geo_node_volume_grid_operators
+673/732 Test #673: geo_node_volume_grid_operators .....................................   Passed    4.64 sec
+        Start 674: geo_node_volume_grid_samplers
+674/732 Test #674: geo_node_volume_grid_samplers ......................................   Passed    6.22 sec
+        Start 675: geo_node_volume_grid_to_points
+675/732 Test #675: geo_node_volume_grid_to_points .....................................   Passed    7.82 sec
+        Start 676: geo_node_volume_grid_topology_boolean
+676/732 Test #676: geo_node_volume_grid_topology_boolean ..............................   Passed   12.35 sec
+        Start 677: geo_node_volume_mesh_to_volume
+677/732 Test #677: geo_node_volume_mesh_to_volume .....................................   Passed    3.51 sec
+        Start 678: geo_node_volume_poisson_solver
+678/732 Test #678: geo_node_volume_poisson_solver .....................................   Passed    4.66 sec
+        Start 679: geo_node_volume_rasterize_points
+679/732 Test #679: geo_node_volume_rasterize_points ...................................   Passed   44.94 sec
+        Start 680: geo_node_volume_sdf_grid_boolean
+680/732 Test #680: geo_node_volume_sdf_grid_boolean ...................................   Passed    6.67 sec
+        Start 681: geo_node_volume_sdf_grid_filtering
+681/732 Test #681: geo_node_volume_sdf_grid_filtering .................................   Passed    5.63 sec
+        Start 682: geo_node_volume_volume_to_mesh
+682/732 Test #682: geo_node_volume_volume_to_mesh .....................................   Passed    4.53 sec
+        Start 683: geo_node_mesh/subdivision_color_attribute
+683/732 Test #683: geo_node_mesh/subdivision_color_attribute ..........................   Passed    3.58 sec
+        Start 684: geo_node_mesh/subdivision_crease_duplicated
+684/732 Test #684: geo_node_mesh/subdivision_crease_duplicated ........................   Passed    1.81 sec
+        Start 685: geo_node_mesh/subdivision_custom_normals
+685/732 Test #685: geo_node_mesh/subdivision_custom_normals ...........................   Passed    1.98 sec
+        Start 686: geo_node_mesh/subdivision_loose_verts_edges
+686/732 Test #686: geo_node_mesh/subdivision_loose_verts_edges ........................   Passed    1.85 sec
+        Start 687: geo_node_mesh/subdivision_subdivide
+687/732 Test #687: geo_node_mesh/subdivision_subdivide ................................   Passed    2.54 sec
+        Start 688: geo_node_mesh/subdivision_subdivision_surface
+688/732 Test #688: geo_node_mesh/subdivision_subdivision_surface ......................   Passed    1.82 sec
+        Start 689: geo_node_mesh/subdivision_vertex_groups
+689/732 Test #689: geo_node_mesh/subdivision_vertex_groups ............................   Passed    2.48 sec
+        Start 690: io_alembic_export_tests
+690/732 Test #690: io_alembic_export_tests ............................................   Passed   46.76 sec
+        Start 691: script_alembic_io
+691/732 Test #691: script_alembic_io ..................................................   Passed    5.32 sec
+        Start 692: io_usd_export
+692/732 Test #692: io_usd_export ......................................................   Passed   95.95 sec
+        Start 693: io_usd_import
+693/732 Test #693: io_usd_import ......................................................   Passed   97.04 sec
+        Start 694: io_collections
+694/732 Test #694: io_collections .....................................................   Passed    2.22 sec
+        Start 695: io_fbx_import
+695/732 Test #695: io_fbx_import ......................................................   Passed    9.30 sec
+        Start 696: io_gltf_import
+696/732 Test #696: io_gltf_import .....................................................   Passed    2.93 sec
+        Start 697: io_gltf_roundtrip
+697/732 Test #697: io_gltf_roundtrip ..................................................   Passed  186.26 sec
+        Start 698: io_gltf_export
+698/732 Test #698: io_gltf_export .....................................................   Passed   12.94 sec
+        Start 699: io_obj_import
+699/732 Test #699: io_obj_import ......................................................   Passed    5.66 sec
+        Start 700: io_ply_import
+700/732 Test #700: io_ply_import ......................................................   Passed    3.21 sec
+        Start 701: io_stl_import
+701/732 Test #701: io_stl_import ......................................................   Passed    1.93 sec
+        Start 702: ffmpeg
+702/732 Test #702: ffmpeg .............................................................   Passed   13.78 sec
+        Start 703: imbuf_save
+703/732 Test #703: imbuf_save .........................................................   Passed   34.45 sec
+        Start 704: imbuf_load
+704/732 Test #704: imbuf_load .........................................................   Passed   35.75 sec
+        Start 705: sequencer_cpu_filter
+705/732 Test #705: sequencer_cpu_filter ...............................................   Passed    4.31 sec
+        Start 706: sequencer_cpu_transform
+706/732 Test #706: sequencer_cpu_transform ............................................   Passed    2.59 sec
+        Start 707: sequencer_cpu_blend_modes_byte
+707/732 Test #707: sequencer_cpu_blend_modes_byte .....................................   Passed    4.78 sec
+        Start 708: sequencer_cpu_blend_modes_float
+708/732 Test #708: sequencer_cpu_blend_modes_float ....................................   Passed    5.21 sec
+        Start 709: sequencer_cpu_colorspace
+709/732 Test #709: sequencer_cpu_colorspace ...........................................   Passed   13.59 sec
+        Start 710: sequencer_cpu_effects
+710/732 Test #710: sequencer_cpu_effects ..............................................   Passed   42.96 sec
+        Start 711: sequencer_cpu_ffmpeg
+711/732 Test #711: sequencer_cpu_ffmpeg ...............................................   Passed    7.19 sec
+        Start 712: sequencer_cpu_video_output
+712/732 Test #712: sequencer_cpu_video_output .........................................   Passed   97.10 sec
+        Start 713: sequencer_input_colorspace
+713/732 Test #713: sequencer_input_colorspace .........................................   Passed    2.19 sec
+        Start 714: sequencer_strip_naming
+714/732 Test #714: sequencer_strip_naming .............................................   Passed    1.84 sec
+        Start 715: sequencer_load_meta_stack
+715/732 Test #715: sequencer_load_meta_stack ..........................................   Passed    1.76 sec
+        Start 716: bl_voxel_remesh
+716/732 Test #716: bl_voxel_remesh ....................................................   Passed    2.32 sec
+        Start 717: bl_voxel_remesh_compare
+717/732 Test #717: bl_voxel_remesh_compare ............................................   Passed    2.21 sec
+        Start 718: bl_sculpt_mask
+718/732 Test #718: bl_sculpt_mask .....................................................   Passed   13.41 sec
+        Start 719: bl_sculpt_face_set
+719/732 Test #719: bl_sculpt_face_set .................................................   Passed    5.03 sec
+        Start 720: bl_multires
+720/732 Test #720: bl_multires ........................................................   Passed    2.76 sec
+        Start 721: bl_sculpt_mesh_filter
+721/732 Test #721: bl_sculpt_mesh_filter ..............................................   Passed   16.64 sec
+        Start 722: bl_sculpt_automasking
+722/732 Test #722: bl_sculpt_automasking ..............................................   Passed    2.34 sec
+        Start 723: bl_sculpt_brushes
+723/732 Test #723: bl_sculpt_brushes ..................................................   Passed  131.10 sec
+        Start 724: bl_vertex_paint_brushes
+724/732 Test #724: bl_vertex_paint_brushes ............................................   Passed   25.57 sec
+        Start 725: bl_weight_paint_brushes
+725/732 Test #725: bl_weight_paint_brushes ............................................   Passed   17.22 sec
+        Start 726: bl_texture_paint_brushes
+726/732 Test #726: bl_texture_paint_brushes ...........................................   Passed   39.77 sec
+        Start 727: bl_texture_paint_undo
+727/732 Test #727: bl_texture_paint_undo ..............................................   Passed    7.81 sec
+        Start 728: bl_grease_pencil_paint_tests
+728/732 Test #728: bl_grease_pencil_paint_tests .......................................   Passed    1.93 sec
+        Start 729: bl_sculpt_brush_curve_presets
+729/732 Test #729: bl_sculpt_brush_curve_presets ......................................   Passed    3.34 sec
+        Start 730: assets_remote_library_listing_asset_catalogs_test
+730/732 Test #730: assets_remote_library_listing_asset_catalogs_test ..................   Passed    1.75 sec
+        Start 731: assets_remote_library_listing_downloader_test
+731/732 Test #731: assets_remote_library_listing_downloader_test ......................   Passed    1.98 sec
+        Start 732: assets_remote_library_listing_generator_test
+732/732 Test #732: assets_remote_library_listing_generator_test .......................   Passed    2.13 sec
+
+99% tests passed, 2 tests failed out of 732
+
+Total Test time (real) = 9437.78 sec
+
+The following tests FAILED:
+	239 - cycles_integrator_cpu (Failed)
+	399 - geo_node_geometry_raycast (Failed)
+Errors while running CTest
+
+dev@pop-os:~/Blender_PA1483/build_coverage$ lcov --gcov-tool gcov-14 --capture --directory . --output-file coverage.info
+dev@pop-os:~/Blender_PA1483/build_coverage$ lcov --remove coverage.info '/usr/*' '*/tests/*' '*/extern/*' --output-file coverage_filtered.info
+dev@pop-os:~/Blender_PA1483/build_coverage$ genhtml coverage_filtered.info --output-directory coverage_html
+dev@pop-os:~/Blender_PA1483/build_coverage$ tar -czvf coverage_artifacts.tar.gz coverage_html/ coverage_filtered.info
