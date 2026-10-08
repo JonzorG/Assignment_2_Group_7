@@ -75,5 +75,5 @@ plt.suptitle("Blender GPU Benchmark: Render Time Distribution", fontsize=16, fon
 fig.text(0.5, 0.95, "Evaluating performance consistency across 25 independent runs for 32 vs 64 sample workloads", ha='center', fontsize=11, color='#555555')
 
 plt.tight_layout()
-plt.savefig("render_benchmark_split_no_scatters.png", dpi=300, bbox_inches="tight")
+plt.savefig("plt.png", dpi=300, bbox_inches="tight")
 plt.show()
