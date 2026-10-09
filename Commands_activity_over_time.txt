@@ -1,0 +1,2 @@
+echo "Year,Commits" > activity_over_time.csv
+git log --date=format:'%Y' --pretty=format:'%ad' | sort | uniq -c | awk '{print $2","$1}' >> activity_over_time.csv
